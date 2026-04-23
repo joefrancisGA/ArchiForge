@@ -36,7 +36,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
-    IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IUsageMeteringService usageMetering,
     IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock,
@@ -56,7 +55,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
         architectureRunIdempotencyRepository ?? throw new ArgumentNullException(nameof(architectureRunIdempotencyRepository));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
     private readonly IDistributedCreateRunIdempotencyLock _distributedCreateRunIdempotencyLock =
@@ -155,15 +153,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     $"Coordination failed: {detail}",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                request.RequestId,
-                $"Coordination failed: {detail}",
-                cancellationToken);
-
             throw new InvalidOperationException(
                 $"CreateRun failed: {detail}");
         }
@@ -212,15 +201,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     $"Persist failed: {ex.GetType().Name}",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                coordination.Run.RunId,
-                $"Persist failed: {ex.GetType().Name}",
-                cancellationToken);
-
             throw;
         }
 
@@ -240,42 +220,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 AuditEventTypes.Baseline.Architecture.RunCreated,
                 actor,
                 coordination.Run.RunId,
-                $"RequestId={request.RequestId}; Environment={request.Environment}",
+                $"RequestId={request.RequestId}; Environment={request.Environment}; SystemName={request.SystemName}",
                 cancellationToken);
-
-        ScopeContext auditScope = _scopeContextProvider.GetCurrentScope();
-        Guid? auditRunGuid = Guid.TryParse(coordination.Run.RunId, out Guid parsedRun) ? parsedRun : null;
-        string sanitizedRunIdForLabel = LogSanitizer.Sanitize(coordination.Run.RunId);
-
-        await DurableAuditLogRetry.TryLogAsync(
-            async ct =>
-            {
-                AuditEvent legacyCreated = new()
-                {
-                    EventType = AuditEventTypes.CoordinatorRunCreated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = auditScope.TenantId,
-                    WorkspaceId = auditScope.WorkspaceId,
-                    ProjectId = auditScope.ProjectId,
-                    RunId = auditRunGuid,
-                    DataJson = System.Text.Json.JsonSerializer.Serialize(
-                        new
-                        {
-                            requestId = request.RequestId,
-                            systemName = request.SystemName
-                        }),
-                };
-
-                await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                    _auditService,
-                    legacyCreated,
-                    AuditEventTypes.Run.Created,
-                    ct).ConfigureAwait(false);
-            },
-            _logger,
-            $"CoordinatorRunCreated:{sanitizedRunIdForLabel}",
-            cancellationToken);
 
         if (_logger.IsEnabled(LogLevel.Information))
 

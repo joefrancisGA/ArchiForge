@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
@@ -35,7 +33,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IEvidenceBuilder evidenceBuilder,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
-    IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
@@ -56,7 +53,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook =
         outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
@@ -86,15 +82,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     runId,
                     "Run not found.",
                     cancellationToken);
-
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                "Run not found.",
-                cancellationToken);
 
             throw;
         }
@@ -135,40 +122,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 runId,
                 null,
                 cancellationToken);
-
-        try
-        {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            Guid? runGuid = Guid.TryParse(runId, out Guid ridStart) ? ridStart : null;
-
-            AuditEvent legacyExecuteStarted = new()
-            {
-                EventType = AuditEventTypes.CoordinatorRunExecuteStarted,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = runGuid,
-                DataJson = JsonSerializer.Serialize(new { runId }),
-            };
-
-            await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                _auditService,
-                legacyExecuteStarted,
-                AuditEventTypes.Run.ExecuteStarted,
-                cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-
-                _logger.LogWarning(
-                    ex,
-                    "Durable audit for CoordinatorRunExecuteStarted failed for RunId={RunId}",
-                    LogSanitizer.Sanitize(runId));
-
-        }
 
         try
         {
@@ -229,40 +182,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     $"ResultCount={results.Count}",
                     cancellationToken);
 
-            try
-            {
-                ScopeContext scopeSucceeded = _scopeContextProvider.GetCurrentScope();
-                Guid? runGuidSucceeded = Guid.TryParse(runId, out Guid ridSucceeded) ? ridSucceeded : null;
-
-                AuditEvent legacyExecuteSucceeded = new()
-                {
-                    EventType = AuditEventTypes.CoordinatorRunExecuteSucceeded,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = scopeSucceeded.TenantId,
-                    WorkspaceId = scopeSucceeded.WorkspaceId,
-                    ProjectId = scopeSucceeded.ProjectId,
-                    RunId = runGuidSucceeded,
-                    DataJson = JsonSerializer.Serialize(new { runId, resultCount = results.Count }),
-                };
-
-                await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                    _auditService,
-                    legacyExecuteSucceeded,
-                    AuditEventTypes.Run.ExecuteSucceeded,
-                    cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                if (_logger.IsEnabled(LogLevel.Warning))
-
-                    _logger.LogWarning(
-                        ex,
-                        "Durable audit for CoordinatorRunExecuteSucceeded failed for RunId={RunId}",
-                        LogSanitizer.Sanitize(runId));
-
-            }
-
             if (_logger.IsEnabled(LogLevel.Information))
 
                 _logger.LogInformation(
@@ -295,15 +214,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     runId,
                     ex.GetType().Name,
                     cancellationToken);
-
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                ex.GetType().Name,
-                cancellationToken);
 
             throw;
         }

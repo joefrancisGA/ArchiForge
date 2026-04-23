@@ -1,9 +1,9 @@
-> **Scope:** Independent weighted quality assessment of ArchLucid as it stands in this repository on 2026-04-21. Weighted overall score: **68.60%**. Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md).
+> **Scope:** Independent weighted quality assessment of ArchLucid as it stands in this repository on 2026-04-21. Weighted overall score: **68.60% as originally scored on 2026-04-21**, **re-scored 2026-04-23 to 70.53%** after the owner deferred the *first named, public reference customer* milestone to V1.1 (see **§0.2** below). Companion Cursor prompts: [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md).
 
 > **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
-# ArchLucid Quality Assessment — 2026-04-21 — Weighted 68.60%
+# ArchLucid Quality Assessment — 2026-04-21 (re-scored 2026-04-23 → 70.53%)
 
 **Audience:** Product leadership, sponsoring exec, engineering leads, GTM owners.
 
@@ -19,14 +19,14 @@
 
 ## 0. Headline
 
-| Bucket | Weight share | Sub-total contribution | Effective bucket score |
-|--------|--------------|------------------------|------------------------|
-| **Commercial** | 40 / 102 | **2,633 / 4,000** | 65.83% |
-| **Enterprise** | 25 / 102 | **1,706 / 2,500** | 68.24% |
-| **Engineering** | 37 / 102 | **2,658 / 3,700** | 71.84% |
-| **Total** | 102 / 102 | **6,997 / 10,200** | **68.60%** |
+| Bucket | Weight share | Sub-total contribution (original 2026-04-21) | Effective bucket score (original) | Sub-total contribution (re-scored 2026-04-23) | Effective bucket score (re-scored) |
+|--------|--------------|----------------------------------------------|-----------------------------------|-----------------------------------------------|------------------------------------|
+| **Commercial** | 40 / 102 | **2,633 / 4,000** | 65.83% | **2,807 / 4,000** | **70.18%** |
+| **Enterprise** | 25 / 102 | **1,706 / 2,500** | 68.24% | **1,729 / 2,500** | **69.16%** |
+| **Engineering** | 37 / 102 | **2,658 / 3,700** | 71.84% | **2,658 / 3,700** | 71.84% (unchanged) |
+| **Total** | 102 / 102 | **6,997 / 10,200** | **68.60%** | **7,194 / 10,200** | **70.53%** |
 
-**Plain-English read.** Engineering is the strongest column and continues to outpace the other two. Enterprise/governance posture is solid for V1 but is held down by the same external-trust gaps that have dogged earlier scores (no published reference, no executed pen test, no PGP key). Commercial readiness is the dominant headwind: every named monetization rail is wired in code but **none is live in production today** — Marketplace listing not published, Stripe live keys not flipped, no `Published` reference customer row, no attested compliance certificate. The score moves materially the day any of those ship; they do not require additional engineering, only owner action plus a small amount of integration plumbing.
+**Plain-English read (re-scored 2026-04-23).** Engineering is the strongest column and continues to outpace the other two. Enterprise/governance posture is solid for V1 and now reads slightly stronger because the *first named, public reference customer* — a multi-quality external-trust gap that previously depressed five qualities at once — is **owner-deferred to V1.1** and no longer charged against V1 readiness (see §0.2 *Reference-customer-deferral re-score addendum* immediately below). The remaining external-trust gaps that genuinely belong to V1 are narrower: **no executed pen test summary, no PGP key**. Commercial readiness is still the largest headwind, but the live-V1 commercial gaps are now bounded to **Marketplace listing not published** and **Stripe live keys not flipped** — both owner-controlled events that do not require additional engineering. The score moves materially the day either of those ship.
 
 ---
 
@@ -54,6 +54,49 @@ This rewires three numeric items above. The other 27 quality scores stand.
 
 ---
 
+## 0.2 Reference-customer-deferral re-score addendum (added 2026-04-23)
+
+> **Owner deferral.** On 2026-04-23 the owner explicitly deferred the *first named, public reference customer* milestone — at least one row in [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md) at `Status: Published`, with a published case study and customer-permissioned logo on the marketing site — to **V1.1**. See [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b and [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Reference-customer publication scope)**.
+>
+> Per the assessment's own rule (§ "Items the owner has formally **deferred to V1.1 / V2** … are **excluded** from the readiness score — they are not held against ArchLucid here"), the qualities that were depressed by this missing milestone must be **re-scored on V1's real contract**, not on a V1.1 obligation.
+
+This rewires **five** numeric items in §1. The other 25 quality scores stand. The CI guard `scripts/ci/check_reference_customer_status.py` continues in `continue-on-error: true` warn-mode for the entire V1 window — that warn-mode is now correctly framed as the V1 contract, not a "should flip soon" signal.
+
+| §1 item | Original score (2026-04-21) | Re-scored (2026-04-23) | Delta × Weight = Numerator delta | Why the deferral changes the read |
+|---------|------------------------------|--------------------------|------------------------------------|-------------------------------------|
+| **§1.1 Marketability** (weight 8) | 62 / 100 | **75 / 100** | +13 × 8 = **+104** | The full V1 marketing kit is in-repo (sponsor brief, three-layer packaging, vertical briefs, screenshot gallery, trust center, public marketing routes, citation seam test) and is **honest about the absence of customer logos** — which now matches the V1.1 deferral, not a V1 deficit. The kit is V1-complete on its own terms. |
+| **§1.4 Proof-of-ROI Readiness** (weight 5) | 65 / 100 | **75 / 100** | +10 × 5 = **+50** | The V1 contract is **the model + the plumbing + the templates** — `PILOT_ROI_MODEL.md`, `ROI_MODEL.md`, `PilotRunDeltaComputer`, value-report DOCX renderer, evidence-pack template, soft-required `baselineReviewCycleHours` capture (Improvement 3), aggregate ROI bulletin **template** with min-N privacy guards. Customer-supplied baselines are a V1.1 emergent property; V1 ships the substrate. |
+| **§1.5 Differentiability** (weight 4) | 65 / 100 | **70 / 100** | +5 × 4 = **+20** | The V1 differentiation surface (`/why` page, `COMPETITIVE_LANDSCAPE.md`, dual-pipeline navigator, `/demo/preview`, `/demo/explain`, citation-protected comparison rows, downloadable side-by-side PDF in Improvement 5) does **not** require a public reference logo to function. The V1.1 reference customer adds external proof; the V1 differentiation surface stands on the artefacts the product produces. |
+| **§1.6 Trustworthiness** (weight 3) | 58 / 100 | **63 / 100** | +5 × 3 = **+15** | The "missing third-party signal" list shrinks from {SOC 2 attestation, executed pen test, named reference logo} to {executed pen test} for V1 — SOC 2 was already deferred to ~$1M ARR (item 6 resolution) and reference-logo is now V1.1. The remaining V1 trust gap is narrower and more focused; Improvement 6 covers it. |
+| **§1.16 Procurement Readiness** (weight 2) | 62 / 100 | **66 / 100** | +4 × 2 = **+8** | The V1 procurement pack is real (DPA, subprocessors, SLA summary, security.txt, CAIQ Lite, SIG Core, owner security assessment, pen test SoW, downloadable procurement-pack ZIP). The "no signed reference logos" bullet was the third of three; the other two (executed pen test, SOC 2) are already correctly scoped — pen test is a V1 obligation (Improvement 6), SOC 2 is owner-resolved to ~$1M ARR. |
+
+**Numerator change.** +104 + 50 + 20 + 15 + 8 = **+197 points** on the weighted numerator (out of 10,200).
+
+**New weighted total.** 6,997 + 197 = **7,194 / 10,200 = 70.53%**.
+
+**Bucket arithmetic.**
+
+- **Commercial** (weight 40): adds Marketability +104, ROI +50, Differentiability +20 = +174. New numerator 2,633 + 174 = **2,807 / 4,000 = 70.18%**.
+- **Enterprise** (weight 25): adds Trustworthiness +15, Procurement +8 = +23. New numerator 1,706 + 23 = **1,729 / 2,500 = 69.16%**.
+- **Engineering** (weight 37): unchanged. **2,658 / 3,700 = 71.84%**.
+- **Verify total:** 2,807 + 1,729 + 2,658 = 7,194 ✓
+
+**Knock-on edits in this same addendum.**
+
+- **§2.1 Top weaknesses** — the "No published reference customer" entry is **removed from the V1 weakness list** (it is a V1.1 commitment, not a V1 weakness); a previously runner-up entry promotes to maintain a list of 10. See updated §2.1.
+- **§2.2 Top monetization blockers** — same treatment: the reference-customer entry is removed from the **V1 monetization blocker list**; a runner-up promotes to maintain a list of 5. See updated §2.2.
+- **§2.5 Most Important Truth** — the "three owner-controlled events that move the score" is updated to **two** (Marketplace listing live; pen test executed and redacted summary published). The reference-customer event is moved to a separate V1.1 sentence.
+- **§3 Improvement 1** is converted to **DEFERRED — V1.1**. No Cursor prompt is generated for it (per the operating rule for DEFERRED items). A new **Improvement 9 — Quarterly board-pack PDF endpoint + monthly digest preset** is added so the actionable improvement count remains 8.
+
+**What does *not* change.**
+
+- The 25 quality scores not listed in the table above stand at their original values.
+- All Improvements 2–8 stay (their internal mechanics are unaffected by this deferral).
+- Engineering bucket and the Engineering scores all stand.
+- This addendum re-scores **only** the 2026-04-21 assessment; archived assessments under `docs/archive/quality/` are correct *for their dates* and are **not** retroactively re-scored.
+
+---
+
 ## 1. Quality scores — ordered by improvement impact
 
 > Throughout, "the repo" means the source tree at `c:\ArchiForge\ArchiForge` on 2026-04-21.
@@ -62,7 +105,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ---
 
-### 1.1 Marketability — Score **62 / 100** · Weight **8** · Impact **304**
+### 1.1 Marketability — Score **62 / 100** (re-scored 2026-04-23 → **75 / 100**) · Weight **8** · Impact **304** → **200**
+
+> **Re-score note (2026-04-23).** The original justification below stays accurate as a 2026-04-21 read of "the marketing site cannot yet quote a real logo or measured customer ROI delta." The owner has since deferred that obligation to **V1.1** (see §0.2). On V1's real contract — narrative kit + sponsor brief + three-layer packaging + vertical briefs + screenshot gallery + trust center + public marketing routes + citation-protected comparison rows + an honest non-claim of customer logos — Marketability scores **75 / 100**.
 
 **Justification.** The full kit of a sellable narrative is now in-repo: executive sponsor brief, three-layer product packaging (Core Pilot / Operate (analysis workloads) / Operate (governance and trust)), competitive landscape doc, vertical briefs for five industries, screenshot gallery, trust center, public marketing routes for `/why`, `/pricing`, `/signup`, `/demo/preview`, and `/welcome` (`archlucid-ui/src/app/(marketing)/`), and a citation seam test that fails if competitive comparison rows lose their proof footnote. What is **still missing** is **external proof on the page**: every row in [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md) is `Placeholder` or `Customer review`; **no row is `Published`**, so the merge-blocking CI guard is still in advisory mode and the −15% reference discount in `PRICING_PHILOSOPHY.md` § 5.4 is still notional. The marketing site cannot yet quote a real logo or measured customer ROI delta.
 
@@ -92,7 +137,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ---
 
-### 1.4 Proof-of-ROI Readiness — Score **65 / 100** · Weight **5** · Impact **175**
+### 1.4 Proof-of-ROI Readiness — Score **65 / 100** (re-scored 2026-04-23 → **75 / 100**) · Weight **5** · Impact **175** → **125**
+
+> **Re-score note (2026-04-23).** "Zero customer-supplied baselines populated" is correctly **a V1.1 emergent property**, not a V1 deficit, after the reference-customer deferral (§0.2). On V1's real contract — the model + the plumbing + the templates + the soft-required `baselineReviewCycleHours` capture (Improvement 3) — Proof-of-ROI Readiness scores **75 / 100**.
 
 **Justification.** The plumbing is here: [`PILOT_ROI_MODEL.md`](library/PILOT_ROI_MODEL.md) defines the six measurement axes; [`go-to-market/ROI_MODEL.md`](go-to-market/ROI_MODEL.md) carries the dollar baseline (~$294K savings for a 6-architect team) with three-year TCO sensitivity; the value-report DOCX renderer is shipped; `EVIDENCE_PACK.md` and `REFERENCE_EVIDENCE_PACK_TEMPLATE.md` give a single-page measured-delta format; `PilotRunDeltaComputer` (`ArchLucid.Application/Pilots/PilotRunDeltaComputer.cs`) computes per-run deltas the builders consume. The gap is empirical: **zero customer-supplied baselines** are populated; every quoted number is from the model.
 
@@ -102,7 +149,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ---
 
-### 1.5 Differentiability — Score **65 / 100** · Weight **4** · Impact **140**
+### 1.5 Differentiability — Score **65 / 100** (re-scored 2026-04-23 → **70 / 100**) · Weight **4** · Impact **140** → **120**
+
+> **Re-score note (2026-04-23).** The V1 differentiation surface (`/why` + `COMPETITIVE_LANDSCAPE.md` + dual-pipeline navigator + `/demo/preview` + `/demo/explain` + citation-protected comparison rows + Improvement 5's downloadable side-by-side PDF) does not require a public reference logo to function. Reference-customer-derived external proof is now a V1.1 commitment (§0.2). Differentiability re-scored to **70 / 100** on V1's real contract.
 
 **Justification.** [`COMPETITIVE_LANDSCAPE.md`](go-to-market/COMPETITIVE_LANDSCAPE.md) makes a defensible claim: ArchLucid is the only candidate that combines AI agent orchestration with enterprise governance, auditability, and provenance for **design-time** architecture. The repo backs the claim: decision traces, golden manifests, replay, comparison drift, dual-pipeline navigator, an anonymous `/demo/preview` cached commit page (ADR 0027), `/demo/explain` provenance + citations route, and a public `/why` marketing page (`archlucid-ui/src/app/(marketing)/why/page.tsx`) with a citation-protected comparison table. What is **still missing** is an external-facing **side-by-side artifact pack** that a buyer can read in two minutes — "this is the package ArchLucid hands an architecture review board; here is what LeanIX or Ardoq would have handed them for the same input."
 
@@ -112,7 +161,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ---
 
-### 1.6 Trustworthiness — Score **58 / 100** · Weight **3** · Impact **126**
+### 1.6 Trustworthiness — Score **58 / 100** (re-scored 2026-04-23 → **63 / 100**) · Weight **3** · Impact **126** → **111**
+
+> **Re-score note (2026-04-23).** The "missing third-party signal" list shrinks from {SOC 2 attestation, executed pen test, named reference logo} to {executed pen test} for V1 — SOC 2 was already deferred to ~$1M ARR (item 6) and named reference logo is now V1.1 (§0.2). The V1 trust gap is narrower and Improvement 6 is the focused fix. Trustworthiness re-scored to **63 / 100**.
 
 **Justification.** The repo is honest: SOC 2 deferred (interim self-assessment + roadmap), owner-led security self-assessment (`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`), pen test SoW awarded but not yet executed, no published redacted summary, no PGP key on `security@archlucid.dev` (only `security.txt` exists at `archlucid-ui/public/.well-known/security.txt`). Procurement-grade documents (CAIQ Lite, SIG Core, DPA template, subprocessors list) are pre-filled. Engineering-side trust signals are strong: RLS with `SESSION_CONTEXT`, append-only `dbo.AuditEvents`, fail-closed API key default, ZAP + Schemathesis + CodeQL in CI, prompt redaction. The remaining gap is the **independent third-party signal** — a SOC 2 attestation, an executed pen test, and at least one named reference logo.
 
@@ -200,7 +251,9 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ---
 
-### 1.16 Procurement Readiness — Score **62 / 100** · Weight **2** · Impact **76**
+### 1.16 Procurement Readiness — Score **62 / 100** (re-scored 2026-04-23 → **66 / 100**) · Weight **2** · Impact **76** → **68**
+
+> **Re-score note (2026-04-23).** "No signed reference logos" was the third of three procurement-pack gaps (the other two: executed pen test summary, SOC 2 attestation). Pen test stays a V1 obligation (Improvement 6); SOC 2 is owner-resolved to ~$1M ARR; reference logos are now V1.1 (§0.2). On V1's real contract, the procurement pack is materially complete. Re-scored to **66 / 100**.
 
 **Justification.** DPA, subprocessors, SLA summary, security.txt, CAIQ Lite, SIG Core, OWNER security assessment draft, pen test SoW awarded — all present. Trust Center page exists. **No signed reference logos**, **no executed pen test summary**, **no SOC 2 attestation** to attach to a procurement packet.
 
@@ -340,24 +393,37 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ### 2.1 Top 10 most important weaknesses (ranked by impact × weight)
 
-1. **No published reference customer.** Every row in `reference-customers/README.md` is `Placeholder` or `Customer review`; the −15% reference discount remains notional.
-2. **Trial signup funnel not live in production.** Page exists, endpoint exists, Stripe TEST not yet wired through the staging hostname end-to-end.
-3. **No third-party pen test summary published.** SoW awarded; redacted-summary skeleton waits on assessor delivery.
-4. **No PGP key for `security@archlucid.dev`.** Trust Center references PGP; key file (`archlucid-ui/public/.well-known/pgp-key.txt`) is missing.
-5. **Marketplace listing not live.** Wiring is complete; publication is owner-only.
-6. **Golden cohort SHAs are placeholders** — nightly workflow asserts contract only, not actual manifest drift. Real signal is one approved baseline-lock run away.
-7. **Coordinator strangler not finished.** ADR 0021 Phase 3 deferred per ADR 0022 exit gates; dual interface families remain a teaching tax on every new engineer.
-8. **No board-pack PDF / monthly executive digest preset.** Weekly digest exists; quarterly board-grade roll-up does not.
-9. **Stale `IMPROVEMENTS_COMPLETE.md` at repo root.** References a non-existent `ArchLucid.DecisionEngine` project — small but visible inconsistency.
-10. **No Microsoft Teams connector.** Highest-traffic Microsoft surface ArchLucid does not yet land in.
+> **Re-ranked 2026-04-23.** The previously #1 weakness ("No published reference customer") was **deferred to V1.1** by the owner on 2026-04-23 (see §0.2) and is no longer charged against V1 readiness. The list below is the **V1-only** weakness ranking. The Microsoft Teams connector previously listed at #10 has also shipped in V1 (six production triggers, Logic Apps fan-out — see [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)) and is removed. Two runner-up entries promote to maintain a list of 10.
+
+1. **Trial signup funnel not live in production.** Page exists, endpoint exists, Stripe TEST not yet wired through the staging hostname end-to-end.
+2. **No third-party pen test summary published.** SoW awarded; redacted-summary skeleton waits on assessor delivery.
+3. **No PGP key for `security@archlucid.dev`.** Trust Center references PGP; key file (`archlucid-ui/public/.well-known/pgp-key.txt`) is missing.
+4. **Marketplace listing not live.** Wiring is complete; publication is owner-only.
+5. **Golden cohort SHAs are placeholders** — nightly workflow asserts contract only, not actual manifest drift. Real signal is one approved baseline-lock run away.
+6. **Coordinator strangler not finished.** ADR 0021 Phase 3 deferred per ADR 0022 exit gates; dual interface families remain a teaching tax on every new engineer.
+7. **No board-pack PDF / monthly executive digest preset.** Weekly digest exists; quarterly board-grade roll-up does not. (Now addressed by **Improvement 9** in §3, added 2026-04-23.)
+8. **Stale `IMPROVEMENTS_COMPLETE.md` at repo root.** References a non-existent `ArchLucid.DecisionEngine` project — small but visible inconsistency.
+9. **No regression CI for strangler progress.** Coordinator interface family count can silently grow back without a guard. *(Promoted from previous engineering-risks list.)*
+10. **No traceability bundle endpoint.** `GET /v1/runs/{runId}/traceability-bundle` (audit + decision trace + manifest + comparison delta in one ZIP) not yet wired — useful for both forensics and customer audit hand-off. *(Promoted from §1.17 recommendation.)*
+
+**Removed 2026-04-23 (now V1.1 commitments or V1-shipped, not V1 weaknesses):**
+
+- ~~No published reference customer~~ — deferred to V1.1 (§0.2); CI guard correctly stays in warn-mode for V1.
+- ~~No Microsoft Teams connector~~ — shipped in V1 (six production triggers, Logic Apps Standard fan-out).
 
 ### 2.2 Top 5 monetization blockers
 
-1. **No `Published` reference customer row** — pricing discount stack stays at −50% notional; no logo on the deck.
-2. **Marketplace listing not published** — buyers on MACC contracts cannot transact; the assistant cannot resolve this (Partner Center seller verification is owner-only).
-3. **Stripe live keys not flipped** — self-serve payment loop stops at Stripe TEST mode in staging.
-4. **No SOC 2 attestation or executed pen test** — every regulated buyer requires at least one of these to start procurement.
-5. **No public price page transition from "displayed" to "transactable"** — `/pricing` shows numbers but the buyer cannot click through to a live checkout that mints a tenant.
+> **Re-ranked 2026-04-23.** The previously #1 blocker ("No `Published` reference customer row") was **deferred to V1.1** by the owner on 2026-04-23 (§0.2) and is no longer charged against V1 monetization. The list below is the **V1-only** blocker ranking. One runner-up promotes to maintain a list of 5.
+
+1. **Marketplace listing not published** — buyers on MACC contracts cannot transact; the assistant cannot resolve this (Partner Center seller verification is owner-only).
+2. **Stripe live keys not flipped** — self-serve payment loop stops at Stripe TEST mode in staging.
+3. **No SOC 2 attestation or executed pen test** — every regulated buyer requires at least one of these to start procurement. (SOC 2 is owner-resolved to the ~$1M ARR band per item 6; pen test is the V1 obligation.)
+4. **No public price page transition from "displayed" to "transactable"** — `/pricing` shows numbers but the buyer cannot click through to a live checkout that mints a tenant.
+5. **No quarterly board-pack PDF for sponsor-driven expansion conversations** — weekly digest exists, but the artefact a sponsor takes into a budget review does not. *(Promoted; now addressed by Improvement 9 in §3.)*
+
+**Removed 2026-04-23 (now a V1.1 commitment, not a V1 monetization blocker):**
+
+- ~~No `Published` reference customer row~~ — deferred to V1.1 (§0.2); the `−15%` reference discount stays notional for V1 by design and re-rate is a V1.1 candidate.
 
 ### 2.3 Top 5 enterprise adoption blockers
 
@@ -377,7 +443,11 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ### 2.5 Most Important Truth
 
-**ArchLucid has built almost every piece of evidence a buyer needs to commit, but it has not yet collected the three external signals that turn evidence into permission to commit.** The product, the trust posture, the engineering quality, and the documentation are all materially ahead of where the commercial proof, the third-party assurance, and the Microsoft-ecosystem coverage are. Three owner-controlled events — **(1)** the first paying tenant approves a published case study, **(2)** the awarded pen test executes and a redacted summary publishes, **(3)** the Marketplace listing goes live — would each independently move the weighted score by **5–8 points**. None of them require additional engineering. They require the owner's calendar, signature, or single payment authorization. **The score is no longer rate-limited by what we build; it is rate-limited by what we publish, attest, and transact.**
+> **Updated 2026-04-23 after the reference-customer deferral (§0.2).** The original 2026-04-21 truth named **three** owner-controlled events; one of them (the published reference customer) was explicitly deferred to V1.1 and is no longer a V1 readiness lever. Updated truth below.
+
+**ArchLucid has built almost every piece of evidence a V1 buyer needs to commit, but two external signals remain unpublished and continue to rate-limit the V1 score.** The product, the trust posture, the engineering quality, and the documentation are all materially ahead of where the live-V1 third-party assurance and the live-V1 transactability rails are. Two owner-controlled events — **(1)** the awarded pen test executes and a redacted summary publishes (item 20 / Improvement 6), **(2)** the Marketplace listing goes live and Stripe live keys flip (items 8 / 9 / 22 / Improvement 4) — would each independently move the weighted V1 score by **5–8 points**. Neither requires additional engineering. They require the owner's calendar, signature, or single payment authorization. **The V1 score is no longer rate-limited by what we build; it is rate-limited by what we publish, attest, and transact.**
+
+**Separately, on the V1.1 horizon:** the first named, public reference customer (deferred 2026-04-23) becomes the headline V1.1 milestone — it triggers the `−15%` reference-discount re-rate in `PRICING_PHILOSOPHY.md` § 5.3, flips the reference-customer CI guard from warn-mode to merge-blocking, and is the gate the aggregate ROI bulletin (item 27) waits on. That is **a V1.1 conversation**, not a V1 readiness conversation, and §0.2's re-score reflects that boundary.
 
 ---
 
@@ -387,15 +457,22 @@ The eight biggest improvement-impact items are listed in priority order. Each on
 
 ---
 
-### Improvement 1 — Graduate the first reference customer (PLG row) — partial; owner-only for `Published`
+### Improvement 1 — DEFERRED — V1.1 — Graduate the first reference customer (PLG row)
 
-**Quality moved.** Marketability (+10–12), Decision Velocity (+5), Procurement Readiness (+5).
+> **Status (Resolved 2026-04-23).** **Deferred to V1.1** by owner decision — see [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b and [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Reference-customer publication scope)**. **No Cursor prompt is generated for this item** (per the operating rule for DEFERRED improvements). The qualities this improvement would have moved are no longer charged against V1 readiness — they have been re-scored upward in §0.2 to reflect V1's real contract. The actionable improvement count is preserved at 8 by the addition of **Improvement 9** below.
 
-**What I can do today.** Build the publication-runbook scaffolding so that the day a real customer approves copy is a small mechanical change: enrich `TRIAL_FIRST_REFERENCE_CASE_STUDY.md` with a `<<...>>` placeholder audit (every value the CSE must substitute on the day of close); commit a sample evidence-pack scaffold tied to the demo seed (clearly marked `demo tenant — replace before publishing`); add a `CHANGELOG` entry recording a state-transition convention; verify `scripts/ci/check_reference_customer_status.py` passes locally and that `.github/workflows/ci.yml` will auto-flip merge-blocking the moment any row is `Published`.
+**Why no Cursor prompt now.**
 
-**What is owner-only.** Filling `<<CUSTOMER_NAME>>` with a real value; setting `Status: Published`; granting copy approval; signing the discount re-rate trigger from `PRICING_PHILOSOPHY.md` § 5.3.
+- The owner has named V1.1 as the release window for this milestone — there is no V1 work remaining for the assistant to do.
+- The CI guard `scripts/ci/check_reference_customer_status.py` correctly stays in `continue-on-error: true` warn-mode for the entire V1 window. **Do not flip it merge-blocking before V1.1.**
+- The publication-runbook scaffolding (placeholder audit, evidence-pack scaffold, state-transition CHANGELOG convention) was already in place from the prior cycle; no further V1 hardening is required.
 
-**Pending question.** Item 19 in `PENDING_QUESTIONS.md` — *who graduates the first row?*
+**What needs the owner — *at V1.1 planning time*, not now.**
+
+- Naming the customer (item 19 ownership is already resolved to "Owner solo" — that resolution stands).
+- Setting `Status: Published` on the chosen row.
+- Granting copy approval and signing the discount re-rate trigger from `PRICING_PHILOSOPHY.md` § 5.3.
+- Pinning a calendar date inside the V1.1 window (currently unpinned).
 
 ---
 
@@ -481,6 +558,30 @@ The eight biggest improvement-impact items are listed in priority order. Each on
 
 ---
 
+### Improvement 9 — Quarterly board-pack PDF endpoint + monthly digest preset (added 2026-04-23 to replace deferred Improvement 1)
+
+> **Why this improvement was added.** Improvement 1 (graduate the first reference customer) was deferred to V1.1 on 2026-04-23 (§0.2), removing one slot from the eight-actionable-improvement list. Improvement 9 fills that slot with a **fully actionable** item that does **not** depend on owner-only events: it stitches existing exec-digest + value-report machinery into the single deliverable a sponsor takes into a quarterly budget review. Sourced from §1.10's standing recommendation.
+
+**Quality moved.** Executive Value Visibility (+8), Stickiness (+3), Marketability (+2).
+
+**What I can do today.**
+
+- Add a new endpoint `POST /v1/pilots/board-pack.pdf?quarter=Q3-2026` that produces a single PDF binding (a) the four most recent weekly exec-digest snapshots within the quarter, (b) the value-report DOCX rendering for the highest-impact committed manifest in the quarter (rendered to PDF in the same flow), (c) the per-tenant ROI delta panel (`PilotRunDeltaComputer` output) summarised across the quarter, and (d) a one-page sponsor cover narrative driven by `EXECUTIVE_SPONSOR_BRIEF.md` placeholders. Gate behind `ExecuteAuthority` — same authority floor as the existing exec-digest unsubscribe surface.
+- Add a corresponding CLI command `archlucid board-pack --tenant <id> --quarter Q3-2026 --out board-pack-Q3-2026.pdf` so support can produce the artefact out-of-UI.
+- Add a **monthly digest preset** option to `ExecDigestComposer` (`Cadence: Weekly | Monthly`, persisted on `dbo.TenantExecDigestPreferences`); migration **104**; respect the same IANA-tz preference; default stays `Weekly` for existing rows.
+- Add Vitest coverage for a `BoardPackTrigger` UI affordance on `/runs` (visible to ExecuteAuthority); do not promote it to a primary nav slot — it lives next to the existing exec-digest preference link in `/settings/exec-digest`.
+- Document under a new `docs/library/BOARD_PACK.md` plus a one-line pointer in `EXECUTIVE_SPONSOR_BRIEF.md` and `OPERATOR_ATLAS.md`.
+- Add Schemathesis contract coverage for the new endpoint.
+
+**What is owner-only.**
+
+- Final approval on the cover-page brand voice (the placeholder narrative ships as `<<sponsor cover narrative — owner approval before external use>>`).
+- Decision on whether the monthly preset is opt-in or opt-out by default for new tenants (assistant ships **opt-in** as the safe default).
+
+**Pending question.** New item below in §4.
+
+---
+
 ## 4. Pending owner-only questions for later (additive)
 
 The companion file [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) is the canonical list. This assessment **adds** the following items so that when you next ask "what is still open?", the answer is complete:
@@ -491,8 +592,10 @@ The companion file [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) is the canonic
 - **32.** Preferred Teams connector trigger set in Improvement 7 — exactly the three events listed (`run.committed`, `governance.approval.requested`, `alert.raised`) or also `compliance.drift.escalated` and `seat.reservation.released`?
 - **33.** Golden-cohort baseline-lock approval (Improvement 8) — do you want me to commit baseline SHAs from a single approved simulator run today, or wait for a product reviewer to approve the cohort scenario list before locking?
 - **34.** Ownership of removing the stale `IMPROVEMENTS_COMPLETE.md` at repo root (§1.23) — the file references a non-existent `ArchLucid.DecisionEngine` project; safe to delete, but the file's history may still be useful for someone. Confirm I can delete (vs move to `docs/archive/`).
+- **35.** *(Added 2026-04-23 with Improvement 9.)* **Board-pack PDF cover-page narrative** — should the assistant draft the placeholder narrative from `EXECUTIVE_SPONSOR_BRIEF.md` boilerplate (subject to your approval before any external use), or wait for a marketing-supplied template? Current default: assistant drafts a placeholder marked `<<sponsor cover narrative — owner approval before external use>>`.
+- **36.** *(Added 2026-04-23 with Improvement 9.)* **Monthly exec-digest cadence default** — should new tenants default to **opt-in** monthly cadence (assistant's safe default — no surprise emails) or **opt-out** (every new tenant gets monthly automatically)?
 
-When you ask later "what pending questions do you have?" the answer is **items 29–34 from this assessment plus items 17–28 from the previous assessment that are still unresolved in `PENDING_QUESTIONS.md`**.
+When you ask later "what pending questions do you have?" the answer is **items 29–36 from this assessment plus items 17–28 from the previous assessment that are still unresolved in `PENDING_QUESTIONS.md`**. **Item 19** (first PLG row owner) is **closed** as of 2026-04-23 because the underlying milestone is now V1.1 and the ownership question was already resolved to "Owner solo" — see **Resolved 2026-04-23 (Reference-customer publication scope)** in `PENDING_QUESTIONS.md`.
 
 ---
 

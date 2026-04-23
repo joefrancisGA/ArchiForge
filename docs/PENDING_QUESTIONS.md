@@ -63,7 +63,7 @@ These decisions came out of a structured owner Q&A session driven by the latest 
 
 | Pending-questions item | Decision | Affects |
 |------------------------|----------|---------|
-| **19 — first PLG row owner** | **Owner solo.** Owner watches the trial-to-paid event, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`. | Item 19 closed. |
+| **19 — first PLG row owner** | **Owner solo.** Owner watches the trial-to-paid event, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`. | Item 19 closed for ownership. **Update 2026-04-23:** the entire publication milestone is now release-window-pinned to **V1.1** — see *Resolved 2026-04-23 (Reference-customer publication scope)* below. The owner is still the executor, but V1 GA no longer waits on this milestone. |
 
 ### Pen-test publication (item 20)
 
@@ -393,6 +393,23 @@ Owner decisions (2026-04-23, second pass — same day as the Jira-scope resoluti
 - These are **release-window** promises, not dates. Pinning calendar dates requires a follow-up owner entry recorded here.
 - **Microsoft Teams stays shipped in V1**; this decision does not retract or downgrade Teams.
 - A new chat-ops or ITSM surface **must not** be added to the corresponding `V1_DEFERRED.md` table without its own owner decision recorded in this file.
+
+---
+
+## Resolved 2026-04-23 (Reference-customer publication scope)
+
+Owner decision (2026-04-23, third pass — same day as the Jira and ServiceNow + Slack scope resolutions above): the **first named, public reference customer** milestone — at least one row in [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md) at `Status: Published`, with a published case study and customer-permissioned logo on the marketing site — is **explicitly out of scope for V1, in scope for V1.1**. V1 GA does **not** wait on this milestone, and V1 quality assessments **must not** charge points against the qualities most affected by its absence (Marketability, Proof-of-ROI Readiness, Differentiability, Trustworthiness, Procurement Readiness). The CI guard [`scripts/ci/check_reference_customer_status.py`](../scripts/ci/check_reference_customer_status.py) **stays in `continue-on-error: true` warn-mode** for the entire V1 window — flipping it to merge-blocking is a V1.1 task. The `−15%` reference discount in [`PRICING_PHILOSOPHY.md` § 5.3](go-to-market/PRICING_PHILOSOPHY.md) remains **notional** for V1; re-rate becomes a candidate at V1.1.
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **Reference-customer publication — release window** | **Out of V1; in scope for V1.1.** Minimum V1.1 commitment is one row at `Status: Published` with a customer-approved case study and a customer-permissioned logo. The owner (per the existing item 19 resolution) remains the executor; this decision changes only **when** that work is required, not **who** does it. Calendar date for V1.1 is **not** pinned. | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6b (new "Commercial — V1.1 candidates" section); [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) item 19 row updated to point at this resolution; [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) § 0.2 *Reference-customer-deferral re-score addendum* (weighted total moves from **68.60% → 70.53%** because Marketability, Proof-of-ROI Readiness, Differentiability, Trustworthiness, and Procurement Readiness are no longer charged for this V1.1 milestone); [`docs/CHANGELOG.md`](CHANGELOG.md) 2026-04-23 entry. **Item 27 dependency unchanged:** the aggregate ROI bulletin still waits on the first `Published` row, and that bulletin therefore implicitly slips to the V1.1 window unless a separate owner decision detaches it. |
+
+**Rules:**
+
+- The CI guard's V1 contract is **warn-mode** — do not flip it merge-blocking before V1.1 land.
+- Future quality assessments (after this date) **must not** treat the reference-customer absence as a V1 deficit. Pre-2026-04-23 assessments are correct *for their date*; this decision retroactively re-scores the open 68.60 assessment via its §0.2 addendum, but does not invalidate archived assessments under `docs/archive/quality/`.
+- This decision does **not** retract or downgrade the executed pen test summary publication, the Marketplace listing, the Stripe live keys flip, or any other commercial/security milestone — those remain **live V1 obligations** unless their own owner decision defers them.
+- A new commercial milestone **must not** be added to `V1_DEFERRED.md` § 6b without its own owner decision recorded here.
 
 ---
 

@@ -86,6 +86,11 @@ public sealed class CoordinatorAuditDurableTests
 
         Mock<IAuditService> auditService = new();
 
+        IBaselineMutationAuditService baselineAudit = new BaselineMutationAuditService(
+            NullLogger<BaselineMutationAuditService>.Instance,
+            auditService.Object,
+            scopeProvider.Object);
+
         ArchitectureRunCreateOrchestrator sut = new(
             coordinator.Object,
             Mock.Of<IArchitectureRequestRepository>(),
@@ -95,8 +100,7 @@ public sealed class CoordinatorAuditDurableTests
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IArchitectureRunIdempotencyRepository>(),
             actor.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
-            auditService.Object,
+            baselineAudit,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new NoOpDistributedCreateRunIdempotencyLock(),
@@ -216,6 +220,11 @@ public sealed class CoordinatorAuditDurableTests
 
         Mock<IAuditService> auditService = new();
 
+        IBaselineMutationAuditService baselineAudit = new BaselineMutationAuditService(
+            NullLogger<BaselineMutationAuditService>.Instance,
+            auditService.Object,
+            scopeProvider);
+
         ArchitectureRunExecuteOrchestrator sut = new(
             runRepo,
             scopeProvider,
@@ -228,8 +237,7 @@ public sealed class CoordinatorAuditDurableTests
             Mock.Of<IAgentEvidencePackageRepository>(),
             evidenceBuilder.Object,
             actor.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
-            auditService.Object,
+            baselineAudit,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
@@ -389,6 +397,11 @@ public sealed class CoordinatorAuditDurableTests
 
         Mock<IAuditService> auditService = new();
 
+        IBaselineMutationAuditService baselineAudit = new BaselineMutationAuditService(
+            NullLogger<BaselineMutationAuditService>.Instance,
+            auditService.Object,
+            scopeProvider);
+
         ArchitectureRunCommitOrchestrator sut = new(
             runRepo,
             scopeProvider,
@@ -403,7 +416,7 @@ public sealed class CoordinatorAuditDurableTests
             Mock.Of<ICoordinatorGoldenManifestRepository>(),
             Mock.Of<ICoordinatorDecisionTraceRepository>(),
             actor.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
+            baselineAudit,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IPreCommitGovernanceGate>(),
             Options.Create(new PreCommitGovernanceGateOptions()),
@@ -475,6 +488,11 @@ public sealed class CoordinatorAuditDurableTests
             .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Simulated audit failure"));
 
+        IBaselineMutationAuditService baselineAudit = new BaselineMutationAuditService(
+            NullLogger<BaselineMutationAuditService>.Instance,
+            auditService.Object,
+            scopeProvider.Object);
+
         ArchitectureRunCreateOrchestrator sut = new(
             coordinator.Object,
             Mock.Of<IArchitectureRequestRepository>(),
@@ -484,8 +502,7 @@ public sealed class CoordinatorAuditDurableTests
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IArchitectureRunIdempotencyRepository>(),
             actor.Object,
-            Mock.Of<IBaselineMutationAuditService>(),
-            auditService.Object,
+            baselineAudit,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new NoOpDistributedCreateRunIdempotencyLock(),

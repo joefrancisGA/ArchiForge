@@ -1,17 +1,22 @@
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Common;
 
 /// <inheritdoc cref="IBaselineMutationAuditService"/>
-public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditService> logger)
+public sealed class BaselineMutationAuditService(
+    ILogger<BaselineMutationAuditService> logger,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider)
     : IBaselineMutationAuditService
 {
     private const int MaxDetailsLength = 500;
 
     /// <inheritdoc />
-    public Task RecordAsync(
+    public async Task RecordAsync(
         string eventType,
         string actor,
         string entityId,
@@ -34,8 +39,56 @@ public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditSe
                 LogSanitizer.Sanitize(safeDetails)); // codeql[cs/log-forging]: string placeholders sanitized via LogSanitizer; details length-capped in TruncateDetails.
         }
 
-        return Task.CompletedTask;
+        if (!IsArchitectureBaselineMutationEvent(eventType))
+            return;
+
+        if (auditService is null || scopeContextProvider is null)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    "Baseline durable echo skipped for {EventType}: IAuditService or IScopeContextProvider is null.",
+                    LogSanitizer.Sanitize(eventType));
+            }
+
+            return;
+        }
+
+        try
+        {
+            await BaselineMutationAuditArchitectureDurableWriter.TryWriteArchitectureDurableEchoAsync(
+                eventType,
+                actor,
+                entityId,
+                safeDetails,
+                auditService,
+                scopeContextProvider,
+                logger,
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    ex,
+                    "Baseline durable echo failed for {EventType} EntityId={EntityId}",
+                    LogSanitizer.Sanitize(eventType),
+                    LogSanitizer.Sanitize(entityId));
+            }
+        }
     }
+
+    private static bool IsArchitectureBaselineMutationEvent(string eventType) =>
+        string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunFailed, StringComparison.Ordinal)
+        || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunCreated, StringComparison.Ordinal)
+        || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunStarted, StringComparison.Ordinal)
+        || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, StringComparison.Ordinal)
+        || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunCompleted, StringComparison.Ordinal);
 
     private static string TruncateDetails(string? details)
     {

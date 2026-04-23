@@ -11,58 +11,111 @@
 
 **DEFERRED markers.** A prompt is marked `[DEFERRED]` in the heading when the assistant cannot complete **at least part** of it without owner input that has not yet been received. None of the eight below are fully `DEFERRED` — every prompt has substantive work the assistant can land today.
 
+> **Update 2026-04-23.** **Prompt 1** ("Reference customer publication scaffolding (PLG row)") was **removed** because the underlying improvement was deferred to V1.1 by owner decision (see [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §0.2). Its slot is now filled by **Prompt 1 (replacement) — Quarterly board-pack PDF endpoint + monthly digest preset**, sourced from §1.10's standing recommendation. The other seven prompts (2 through 8) are unchanged. The actionable count remains 8.
+
 > **SaaS audience guard (read before running any prompt below).** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform.** They only ever interact with the public website (`archlucid.com`), the in-product operator UI (after sign-in), and the Azure portal for their own subscription identity / billing. When any prompt below produces customer-facing copy (signup flow, marketing routes, pricing, trust center, sponsor brief, value report, reference case study, evidence pack, ROI bulletin, board pack, operator UI text), it **must not** assume the customer runs Docker, opens a terminal, runs `archlucid try`, or applies Terraform. Tooling like `apply-saas.ps1`, `archlucid try`, `dev up`, `docker compose`, the `.devcontainer/`, and `INSTALL_ORDER.md` is **internal ArchLucid contributor / operator** tooling — fine to reference in **engineer-facing** docs, never on a buyer surface. If a prompt seems to require a customer-side install step, **stop and ask the user** rather than inventing one. See `docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` §0.1 for the full SaaS-framing addendum.
 
 ---
 
-## Prompt 1 — Reference customer publication scaffolding (PLG row)
+## Prompt 1 (replacement, added 2026-04-23) — Quarterly board-pack PDF endpoint + monthly exec-digest cadence
 
-**Owner gate.** Filling `<<CUSTOMER_NAME>>` and setting `Status: Published` are owner-only.
+**Why this replaced the original Prompt 1.** The original Prompt 1 (Reference customer publication scaffolding) was deferred to V1.1 on 2026-04-23. This replacement delivers the same single-slot exec-visibility leverage without depending on owner-only events. Sources: assessment §1.10 standing recommendation; assessment §3 Improvement 9.
+
+**Owner gate.** Cover-page brand voice and whether the new monthly cadence is opt-in or opt-out by default for new tenants are owner-only — the prompt ships safe defaults (`<<sponsor cover narrative — owner approval before external use>>` placeholder; **opt-in** monthly cadence).
 
 ```
-Goal: harden the publication runbook so the day a real PLG customer
-approves copy is a small mechanical change, not a doc-and-pricing
-scramble. Do NOT invent a customer name or flip Published.
+Goal: stitch the existing exec-digest, value-report, and
+PilotRunDeltaComputer machinery into ONE PDF a sponsor can take
+into a quarterly budget review. Add a parallel monthly cadence
+preset for the existing exec-digest. Do NOT invent customer names,
+do NOT publish anything externally, and do NOT change the default
+Weekly cadence for existing tenants.
 
 Read first:
-- docs/go-to-market/reference-customers/README.md
-- docs/go-to-market/reference-customers/TRIAL_FIRST_REFERENCE_CASE_STUDY.md
-- docs/go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md
-- docs/go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_TEMPLATE.md
-- docs/go-to-market/PRICING_PHILOSOPHY.md  (sections 5.1, 5.3, 5.4)
-- scripts/ci/check_reference_customer_status.py
-- .github/workflows/ci.yml  (auto-flip block for the reference-customer guard)
+- docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md  (sections 1.10 and 3 Improvement 9)
+- docs/EXECUTIVE_SPONSOR_BRIEF.md  (placeholder source for cover narrative)
+- docs/library/PILOT_ROI_MODEL.md
+- docs/go-to-market/ROI_MODEL.md
+- ArchLucid.Application/Notifications/ExecDigestComposer.cs
+- ArchLucid.Application/Notifications/ExecDigestWeeklyHostedService.cs
+- ArchLucid.Application/Pilots/PilotRunDeltaComputer.cs
+- ArchLucid.Persistence/Migrations/103_TenantExecDigestPreferences.sql  (look at the schema, then build migration 104 alongside it)
+- ArchLucid.Api/Controllers/PilotsController.cs  (host the new POST endpoint here, alongside the existing first-value-report endpoint)
+- archlucid-ui/src/app/(operator)/settings/exec-digest/page.tsx
+- docs/library/AUDIT_COVERAGE_MATRIX.md  (add the new audit constant if state-changing)
+- docs/library/OPERATOR_ATLAS.md  (add the new endpoint to the atlas)
 
 Do this:
-1. Audit every <<...>> placeholder in TRIAL_FIRST_REFERENCE_CASE_STUDY.md.
-   Produce a single table at the top of the file titled
-   "Owner substitution checklist — fill before customer review" listing
-   each placeholder, what real value is needed, and which interview /
-   contract / metric source it comes from. Do NOT invent values.
-2. Build a one-page evidence-pack scaffold using
-   REFERENCE_EVIDENCE_PACK_TEMPLATE.md tied to a real pilot-run-deltas.json
-   sample committed by the existing demo-seed tenant. Mark every value
-   with the literal text "demo tenant — replace before publishing".
-3. Add CHANGELOG entry recording the row state-transition convention
-   (Drafting -> Customer review is in-band assistant work; Customer
-   review -> Published is owner-only). Use the existing 2026-04-21
-   CHANGELOG style.
-4. Verify scripts/ci/check_reference_customer_status.py still passes
-   locally (no rows currently Published, advisory mode). Confirm the
-   .github/workflows/ci.yml auto-flip block becomes merge-blocking
-   the moment any row reaches Published with no further file edits.
-5. Append a new pending-question item to docs/PENDING_QUESTIONS.md
-   asking "who graduates the first PLG row from Customer review to
-   Published?" if it isn't already there (item 19 covers this).
+1. Add SQL migration 104 alongside 103 with:
+     ALTER TABLE dbo.TenantExecDigestPreferences
+       ADD CadenceCode NVARCHAR(16) NOT NULL CONSTRAINT DF_TenantExecDigestPreferences_CadenceCode DEFAULT N'Weekly';
+   plus the matching Rollback/R104_*.sql script. Do NOT change any
+   existing rows' CadenceCode at migration time (default constraint
+   covers new inserts; existing rows stay implicitly 'Weekly' via the
+   default backfill — verify in a unit test).
+2. Extend ExecDigestComposer to honour CadenceCode in {Weekly, Monthly}.
+   Idempotency key for monthly: 'exec-digest:{tenantId}:{iso-year}-{iso-month}'.
+   Add a second hosted service ExecDigestMonthlyHostedService that
+   wakes once per day at 06:05 UTC and emits for tenants whose
+   tenant-local date is the 1st of the month. Reuse the existing
+   IANA-tz preference resolution helper.
+3. Add a new endpoint:
+     POST /v1/pilots/board-pack.pdf?quarter=Q3-2026
+   gated [Authorize(Policy = "ExecuteAuthority")]. Body produces a
+   single PDF binding (a) the four most recent weekly exec-digest
+   snapshots within the quarter, (b) the highest-impact committed
+   manifest's value-report rendered to PDF, (c) the per-tenant
+   PilotRunDeltaComputer summary across the quarter, (d) a one-page
+   sponsor cover narrative driven by EXECUTIVE_SPONSOR_BRIEF.md
+   placeholders. Cover narrative ships as the literal text:
+     "<<sponsor cover narrative — owner approval before external use>>"
+   Do NOT invent customer-shareable cover prose.
+4. Add CLI command: `archlucid board-pack --tenant <id> --quarter Q3-2026 --out board-pack-Q3-2026.pdf`
+   that calls the new endpoint with an API key and writes the PDF to disk.
+5. Add a "Generate board pack" button to /settings/exec-digest that
+   opens a quarter-picker modal, calls the endpoint, and downloads
+   the result. Do NOT promote board-pack to a primary nav slot.
+6. Add a new audit constant AuditEventTypes.BoardPackGenerated (if
+   adding state-changing audit) plus the AUDIT_COVERAGE_MATRIX row;
+   bump the audit-core-const-count snapshot accordingly.
+7. Tests:
+   - Application unit tests for ExecDigestComposer monthly cadence and
+     CadenceCode resolution.
+   - Application unit tests for the board-pack composer (synthetic
+     committed manifest + delta + cover placeholder).
+   - Api integration test (Suite=Core, GreenfieldSqlApiFactory) calling
+     POST /v1/pilots/board-pack.pdf and asserting (a) ExecuteAuthority
+     gate, (b) PDF MIME type, (c) cover placeholder string is present
+     in the PDF text layer.
+   - Vitest spec for the /settings/exec-digest button that mocks the
+     endpoint and asserts the download trigger.
+   - Schemathesis contract test for the new endpoint.
+8. Docs:
+   - New docs/library/BOARD_PACK.md (audience: operators with ExecuteAuthority).
+   - One-line pointer in EXECUTIVE_SPONSOR_BRIEF.md and
+     OPERATOR_ATLAS.md.
+   - New CHANGELOG entry under 2026-04-23 with the standard format.
+   - Update docs/library/V1_RELEASE_CHECKLIST.md with a single new row
+     for the board-pack endpoint smoke.
+9. Append two new pending-question items to docs/PENDING_QUESTIONS.md:
+   - "Board-pack PDF cover narrative — owner-drafted vs marketing-supplied?"
+   - "Monthly exec-digest default for new tenants — opt-in or opt-out?"
 
 Stop and ask the user before:
-- Filling any <<CUSTOMER_NAME>> with a real value
-- Setting Status: Published
-- Triggering the discount re-rate review per PRICING_PHILOSOPHY § 5.3
+- Replacing the cover narrative placeholder with any non-placeholder copy.
+- Changing the default CadenceCode for NEW tenants from 'Weekly' to 'Monthly'
+  (assistant ships opt-in monthly = stays 'Weekly' by default).
+- Sending the board-pack to any external email address (out of scope for
+  this prompt — the endpoint produces the PDF and returns it; delivery
+  is a separate workflow).
 
-Exit criteria: PR opens with the substitution checklist populated,
-the evidence-pack scaffold present, a CHANGELOG entry, and CI green.
-No row is Published.
+Exit criteria: PR opens with migration 104 + rollback, monthly hosted
+service wired and unit-tested, POST /v1/pilots/board-pack.pdf returning
+a valid PDF behind ExecuteAuthority, CLI command working in dev,
+operator-UI button visible only to ExecuteAuthority and downloading
+the PDF on click, all tests green, new audit constant if appropriate,
+docs landed including CHANGELOG entry. Default cadence for new tenants
+stays 'Weekly'. Cover narrative is the literal placeholder string.
 ```
 
 ---

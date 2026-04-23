@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Tests.Audit;
 /// </summary>
 /// <remarks>
 /// This pins the dual-write contract documented in
-/// <c>docs/AUDIT_COVERAGE_MATRIX.md</c> § "Known gaps". A new baseline-only call
+/// <c>docs/library/AUDIT_COVERAGE_MATRIX.md</c> § "Known gaps". A new baseline-only call
 /// site without a sibling durable call must either add the durable pair or be
 /// explicitly listed here so the next reviewer sees the exception.
 /// </remarks>
@@ -27,7 +27,11 @@ public sealed class BaselineMutationAuditDualWritePairingTests
     /// </summary>
     private static readonly HashSet<string> AllowedBaselineOnlyFiles = new(StringComparer.OrdinalIgnoreCase)
     {
-        // No exceptions today (verified 2026-04-22).
+        // Architecture coordinator durable rows are emitted from BaselineMutationAuditService when these
+        // orchestrators call RecordAsync (see BaselineMutationAuditArchitectureDurableWriter); sibling LogAsync
+        // in-file is intentionally absent to avoid duplicate dbo.AuditEvents rows.
+        "ArchitectureRunCreateOrchestrator.cs",
+        "ArchitectureRunExecuteOrchestrator.cs",
     };
 
     [Fact]
@@ -47,7 +51,7 @@ public sealed class BaselineMutationAuditDualWritePairingTests
             .ToList();
 
         violations.Should().BeEmpty(
-            "every baseline-mutation audit call must dual-write to durable audit (see docs/AUDIT_COVERAGE_MATRIX.md). "
+            "every baseline-mutation audit call must dual-write to durable audit (see docs/library/AUDIT_COVERAGE_MATRIX.md). "
             + "Add a sibling auditService.LogAsync / DurableAuditLogRetry / CoordinatorRunFailedDurableAudit call, "
             + "or add the file to AllowedBaselineOnlyFiles with a CHANGELOG entry. Violators: "
             + string.Join(", ", violations));

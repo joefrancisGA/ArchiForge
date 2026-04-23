@@ -95,6 +95,23 @@ These items are **explicitly promoted to V1.1** rather than left as open-ended "
 
 ---
 
+## 6b. Commercial — V1.1 candidates (Resolved 2026-04-23)
+
+These commercial milestones are **explicitly release-window-pinned to V1.1** so V1 readiness is no longer measured against them. They were previously open obligations that quality assessments were treating as live V1 gaps; the 2026-04-23 owner decision in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Reference-customer publication scope)** moves them into a named release window so external messaging — and internal scoring — stops reading them as V1 deficits.
+
+| Commercial milestone | V1 posture | V1.1 commitment |
+|----------------------|------------|------------------|
+| **First named, public reference customer** — at least one row in [`docs/go-to-market/reference-customers/README.md`](../go-to-market/reference-customers/README.md) at `Status: Published`, with a published case study, customer-permissioned logo on the marketing site, and (where the customer agrees) measured ROI delta. Triggers re-rate of the **−15% reference discount** in [`PRICING_PHILOSOPHY.md` § 5.3](../go-to-market/PRICING_PHILOSOPHY.md). | **Out of V1.** No public reference customer is required for V1 GA. The reference-customer table stays alive (rows in `Placeholder` / `Customer review`) and the CI guard [`scripts/ci/check_reference_customer_status.py`](../../scripts/ci/check_reference_customer_status.py) **stays in `continue-on-error: true` warn-mode** for the entire V1 window — it does **not** flip to merge-blocking by V1 GA. V1 quality assessments **do not** charge points against Marketability, Proof-of-ROI Readiness, Differentiability, Trustworthiness, or Procurement Readiness for the absence of a `Published` row. | **In scope for V1.1.** The minimum V1.1 commitment is: at least **one** row at `Status: Published` with a customer-approved case study and a customer-permissioned logo. The `−15%` reference discount becomes a candidate for re-rate at V1.1 per `PRICING_PHILOSOPHY.md` § 5.3. Calendar date is **not** pinned by this decision; pinning a date requires a follow-up owner entry. |
+
+**Rules:**
+
+- The CI guard's behaviour does **not** change in V1 — staying in warn-mode is the V1 contract. Flipping it to merge-blocking is a V1.1 task, not a V1 hardening task.
+- Quality assessments produced **before** this decision (e.g. [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](../QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) before its 2026-04-23 re-score addendum) charged points against V1 for this gap. Future assessments **must not** — see that file's §0.2 *Reference-customer-deferral re-score addendum* for the score adjustments applied on 2026-04-23.
+- This decision does **not** retract or downgrade any other commercial milestone — Marketplace listing live, Stripe live keys flipped, executed pen test summary publication, etc. all stay as live V1 obligations unless a separate owner decision defers them.
+- A new commercial milestone **must not** be added to this table without its own owner decision recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |

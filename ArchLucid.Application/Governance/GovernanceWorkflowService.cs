@@ -99,7 +99,7 @@ public sealed class GovernanceWorkflowService(
             ;
 
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid submittedRunGuid) ? submittedRunGuid : null;
-        await auditService.LogAsync(
+        await LogGovernanceDurableWithRetryAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.GovernanceApprovalSubmitted,
@@ -115,6 +115,7 @@ public sealed class GovernanceWorkflowService(
                     },
                     AuditJsonSerializationOptions.Instance),
             },
+            $"GovernanceApprovalSubmitted:{LogSanitizer.Sanitize(request.ApprovalRequestId)}",
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -198,7 +199,7 @@ public sealed class GovernanceWorkflowService(
             ;
 
         Guid? approvedRunId = Guid.TryParse(request.RunId, out Guid approvedRunGuid) ? approvedRunGuid : null;
-        await auditService.LogAsync(
+        await LogGovernanceDurableWithRetryAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.GovernanceApprovalApproved,
@@ -213,6 +214,7 @@ public sealed class GovernanceWorkflowService(
                     },
                     AuditJsonSerializationOptions.Instance),
             },
+            $"GovernanceApprovalApproved:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -293,7 +295,7 @@ public sealed class GovernanceWorkflowService(
             ;
 
         Guid? rejectedRunId = Guid.TryParse(request.RunId, out Guid rejectedRunGuid) ? rejectedRunGuid : null;
-        await auditService.LogAsync(
+        await LogGovernanceDurableWithRetryAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.GovernanceApprovalRejected,
@@ -308,6 +310,7 @@ public sealed class GovernanceWorkflowService(
                     },
                     AuditJsonSerializationOptions.Instance),
             },
+            $"GovernanceApprovalRejected:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -424,7 +427,7 @@ public sealed class GovernanceWorkflowService(
             ;
 
         Guid? promotedRunId = Guid.TryParse(record.RunId, out Guid promotedRunGuid) ? promotedRunGuid : null;
-        await auditService.LogAsync(
+        await LogGovernanceDurableWithRetryAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.GovernanceManifestPromoted,
@@ -441,6 +444,7 @@ public sealed class GovernanceWorkflowService(
                     },
                     AuditJsonSerializationOptions.Instance),
             },
+            $"GovernanceManifestPromoted:{LogSanitizer.Sanitize(record.PromotionRecordId)}",
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -540,7 +544,7 @@ public sealed class GovernanceWorkflowService(
             ;
 
         Guid? activationRunId = Guid.TryParse(activation.RunId, out Guid activationRunGuid) ? activationRunGuid : null;
-        await auditService.LogAsync(
+        await LogGovernanceDurableWithRetryAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.GovernanceEnvironmentActivated,
@@ -556,6 +560,7 @@ public sealed class GovernanceWorkflowService(
                     },
                     AuditJsonSerializationOptions.Instance),
             },
+            $"GovernanceEnvironmentActivated:{LogSanitizer.Sanitize(activation.ActivationId)}",
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -592,7 +597,7 @@ public sealed class GovernanceWorkflowService(
             return;
 
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
-        await auditService.LogAsync(
+        await LogGovernanceDurableWithRetryAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.GovernanceSelfApprovalBlocked,
@@ -606,9 +611,25 @@ public sealed class GovernanceWorkflowService(
                     },
                     AuditJsonSerializationOptions.Instance),
             },
+            $"GovernanceSelfApprovalBlocked:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
 
         throw new GovernanceSelfApprovalException(approvalRequestId, reviewedBy);
+    }
+
+    /// <summary>
+    /// Governance durable rows use bounded retries; failures are logged only so workflow state is not blocked by audit I/O.
+    /// </summary>
+    private async Task LogGovernanceDurableWithRetryAsync(
+        AuditEvent auditEvent,
+        string operationLabel,
+        CancellationToken cancellationToken)
+    {
+        await DurableAuditLogRetry.TryLogAsync(
+            ct => auditService.LogAsync(auditEvent, ct),
+            logger,
+            operationLabel,
+            cancellationToken);
     }
 
     private Task TryPublishGovernanceApprovalSubmittedAsync(

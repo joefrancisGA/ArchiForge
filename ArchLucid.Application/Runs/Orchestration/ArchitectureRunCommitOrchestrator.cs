@@ -117,15 +117,6 @@ public sealed class ArchitectureRunCommitOrchestrator(
                         "Run not found.",
                         cancellationToken);
 
-                await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                    _auditService,
-                    _scopeContextProvider,
-                    _logger,
-                    actor,
-                    runId,
-                    "Run not found.",
-                    cancellationToken);
-
                 throw;
             }
             catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
@@ -249,15 +240,6 @@ public sealed class ArchitectureRunCommitOrchestrator(
                     $"Commit blocked: {ex.Message}",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                $"Commit blocked: {ex.Message}",
-                cancellationToken);
-
             throw;
         }
 
@@ -314,15 +296,6 @@ public sealed class ArchitectureRunCommitOrchestrator(
                     ex.GetType().Name,
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                ex.GetType().Name,
-                cancellationToken);
-
             throw;
         }
 
@@ -352,15 +325,6 @@ public sealed class ArchitectureRunCommitOrchestrator(
                     $"Persist failed: {ex.GetType().Name}",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                $"Persist failed: {ex.GetType().Name}",
-                cancellationToken);
-
             throw;
         }
 
@@ -369,47 +333,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 AuditEventTypes.Baseline.Architecture.RunCompleted,
                 actor,
                 runId,
-                $"ManifestVersion={merge.Manifest.Metadata.ManifestVersion}; WarningCount={merge.Warnings.Count}",
+                $"ManifestVersion={merge.Manifest.Metadata.ManifestVersion}; SystemName={merge.Manifest.SystemName}; WarningCount={merge.Warnings.Count}",
                 cancellationToken);
 
         ScopeContext commitScope = _scopeContextProvider.GetCurrentScope();
-        Guid? commitRunGuid = Guid.TryParse(runId, out Guid ridCommit) ? ridCommit : null;
-
-        try
-        {
-            AuditEvent legacyCommitCompleted = new()
-            {
-                EventType = AuditEventTypes.CoordinatorRunCommitCompleted,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = commitScope.TenantId,
-                WorkspaceId = commitScope.WorkspaceId,
-                ProjectId = commitScope.ProjectId,
-                RunId = commitRunGuid,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    runId,
-                    manifestVersion = merge.Manifest.Metadata.ManifestVersion,
-                    systemName = merge.Manifest.SystemName,
-                }),
-            };
-
-            await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                _auditService,
-                legacyCommitCompleted,
-                AuditEventTypes.Run.CommitCompleted,
-                cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-
-                _logger.LogWarning(
-                    ex,
-                    "Durable audit for CoordinatorRunCommitCompleted failed for RunId={RunId}",
-                    LogSanitizer.Sanitize(runId));
-
-        }
 
         DateTimeOffset committedUtc = DateTimeOffset.UtcNow;
 
@@ -528,15 +455,6 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 runId,
                 $"Merge failed: {detail}",
                 cancellationToken);
-
-        await CoordinatorRunFailedDurableAudit.TryLogAsync(
-            _auditService,
-            _scopeContextProvider,
-            _logger,
-            actor,
-            runId,
-            $"Merge failed: {detail}",
-            cancellationToken);
 
         throw new InvalidOperationException(
             $"CommitRun failed: {detail}");

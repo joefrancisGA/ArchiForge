@@ -142,15 +142,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                         "Run not found.",
                         cancellationToken);
 
-                await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                    _auditService,
-                    _scopeContextProvider,
-                    _logger,
-                    actor,
-                    runId,
-                    "Run not found.",
-                    cancellationToken);
-
                 throw;
             }
             catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
@@ -279,15 +270,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     $"Commit blocked: {ex.Message}",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                $"Commit blocked: {ex.Message}",
-                cancellationToken);
-
             throw;
         }
 
@@ -349,15 +331,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     ex.GetType().Name,
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                ex.GetType().Name,
-                cancellationToken);
-
             throw;
         }
 
@@ -383,15 +356,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     $"Persist failed: {ex.GetType().Name}",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                $"Persist failed: {ex.GetType().Name}",
-                cancellationToken);
-
             throw;
         }
 
@@ -400,47 +364,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 AuditEventTypes.Baseline.Architecture.RunCompleted,
                 actor,
                 runId,
-                $"ManifestVersion={contract.Metadata.ManifestVersion}; Authority=true; WarningCount={persisted.Warnings.Count}",
+                $"ManifestVersion={contract.Metadata.ManifestVersion}; SystemName={contract.SystemName}; WarningCount={persisted.Warnings.Count}; CommitPath=authority",
                 cancellationToken);
 
         ScopeContext commitScope = _scopeContextProvider.GetCurrentScope();
-        Guid? commitRunGuid = Guid.TryParse(runId, out Guid ridCommit) ? ridCommit : null;
-
-        try
-        {
-            AuditEvent legacyCommitCompleted = new()
-            {
-                EventType = AuditEventTypes.CoordinatorRunCommitCompleted,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = commitScope.TenantId,
-                WorkspaceId = commitScope.WorkspaceId,
-                ProjectId = commitScope.ProjectId,
-                RunId = commitRunGuid,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        runId,
-                        manifestVersion = contract.Metadata.ManifestVersion,
-                        systemName = contract.SystemName,
-                        commitPath = "authority"
-                    })
-            };
-
-            await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                _auditService,
-                legacyCommitCompleted,
-                AuditEventTypes.Run.CommitCompleted,
-                cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(
-                    ex,
-                    "Durable audit for authority Run.CommitCompleted failed for RunId={RunId}",
-                    LogSanitizer.Sanitize(runId));
-        }
 
         DateTimeOffset committedUtc = DateTimeOffset.UtcNow;
         await _trialFunnelCommitHook.OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken);
