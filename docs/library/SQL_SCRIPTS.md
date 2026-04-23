@@ -71,7 +71,7 @@ Read the file top-down; major comment banners include:
 
 1. **`/* ---- Core ---- */`** — `ArchitectureRequests` (requests are still keyed here; run header is **`dbo.Runs`**).
 2. **`/* ---- Agents ---- */`** — `AgentTasks`, `AgentResults`, FK batches.
-3. **`/* ---- Manifest / evidence ---- */`** — `GoldenManifestVersions`, `EvidenceBundles`, `DecisionTraces`, `AgentEvidencePackages`, `AgentExecutionTraces`.
+3. **`/* ---- Manifest / evidence ---- */`** — `EvidenceBundles`, `DecisionTraces`, `AgentEvidencePackages`, `AgentExecutionTraces`. (**`dbo.GoldenManifestVersions`** was removed in ADR 0030 PR A4 / migration `111_DropGoldenManifestVersions_Legacy.sql`; coordinator-shaped manifests persist under **`dbo.GoldenManifests`** on the Authority path.)
 4. **`/* ---- RunExportRecords ---- */`** — Export records linked by string `RunId` (correlates with **`dbo.Runs.RunId`** as **N** hex).
 5. **`/* ---- ComparisonRecords ---- */`** — Comparisons, replay payloads, label/tags, FKs.
 6. **`/* ---- Decision Engine v2 ---- */`** — `DecisionNodes`, `AgentEvaluations`.
@@ -82,7 +82,7 @@ Read the file top-down; major comment banners include:
 | Layer | `RunId` shape | Notes |
 |-------|----------------|------|
 | **`dbo.Runs.RunId`** | `UNIQUEIDENTIFIER` | Authority header; lifecycle strings may appear on **`LegacyRunStatus`**. |
-| Coordinator tables (`AgentTasks`, `GoldenManifestVersions`, …) | `NVARCHAR(64)` | Logical correlation key — same value as **`dbo.Runs.RunId`** formatted **`N`** (no dashes). **No FK** to a second run table after **047**/**049**. |
+| Coordinator tables (`AgentTasks`, …) | `NVARCHAR(64)` | Logical correlation key — same value as **`dbo.Runs.RunId`** formatted **`N`** (no dashes). **No FK** to a second run table after **047**/**049**. (**`GoldenManifestVersions`** retired — see migration **111**.) |
 
 ### 3.6 Indexes
 

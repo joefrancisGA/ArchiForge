@@ -1,113 +1,49 @@
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
 
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Persistence.Data.Infrastructure;
-
-using Dapper;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Dapper-backed persistence for <see cref="GoldenManifest"/> versions, serialising manifest state as JSON.
+/// Dapper-backed coordinator manifest port — <b>retired for SQL</b> after ADR 0030 PR A4 (migration 111 drops
+/// <c>dbo.GoldenManifestVersions</c>). <see cref="CreateAsync"/> throws; <see cref="GetByVersionAsync"/> returns
+/// <see langword="null"/>. Use <see cref="InMemoryCoordinatorGoldenManifestRepository"/> for in-memory coordinator flows.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+[ExcludeFromCodeCoverage(Justification = "SQL coordinator manifest store removed; throws on write path.")]
 public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFactory) : ICoordinatorGoldenManifestRepository
 {
-    public async Task CreateAsync(
+    private readonly IDbConnectionFactory _connectionFactory =
+        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+
+    /// <inheritdoc />
+    public Task CreateAsync(
         GoldenManifest manifest,
         CancellationToken cancellationToken = default,
-        IDbConnection? connection = null,
-        IDbTransaction? transaction = null)
+        System.Data.IDbConnection? connection = null,
+        System.Data.IDbTransaction? transaction = null)
     {
-        ArgumentNullException.ThrowIfNull(manifest);
+        if (manifest is null)
+            throw new ArgumentNullException(nameof(manifest));
 
-        const string sql = """
-            INSERT INTO GoldenManifestVersions
-            (
-                ManifestVersion,
-                RunId,
-                SystemName,
-                ManifestJson,
-                ParentManifestVersion,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @ManifestVersion,
-                @RunId,
-                @SystemName,
-                @ManifestJson,
-                @ParentManifestVersion,
-                @CreatedUtc
-            );
-            """;
+        _ = _connectionFactory;
+        _ = connection;
+        _ = transaction;
 
-        string json = JsonSerializer.Serialize(manifest, ContractJson.Default);
-
-        (IDbConnection conn, bool ownsConnection) =
-            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
-
-        try
-        {
-            await conn.ExecuteAsync(new CommandDefinition(
-                sql,
-                new
-                {
-                    manifest.Metadata.ManifestVersion,
-                    manifest.RunId,
-                    manifest.SystemName,
-                    ManifestJson = json,
-                    manifest.Metadata.ParentManifestVersion,
-                    manifest.Metadata.CreatedUtc
-                },
-                transaction: transaction,
-                cancellationToken: cancellationToken));
-        }
-        finally
-        {
-            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
-        }
+        throw new InvalidOperationException(
+            "Legacy dbo.GoldenManifestVersions was removed (ADR 0030 PR A4, migration 111). " +
+            "The coordinator SQL manifest row store is retired; use the Authority commit path (Coordinator:LegacyRunCommitPath=false) " +
+            "and dbo.GoldenManifests. For in-memory coordinator semantics use InMemoryCoordinatorGoldenManifestRepository.");
     }
 
-    public async Task<GoldenManifest?> GetByVersionAsync(string manifestVersion, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public Task<GoldenManifest?> GetByVersionAsync(string manifestVersion, CancellationToken cancellationToken = default)
     {
-        const string sql = """
-            SELECT ManifestJson
-            FROM GoldenManifestVersions
-            WHERE ManifestVersion = @ManifestVersion;
-            """;
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+            throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        _ = _connectionFactory;
 
-        string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
-            sql,
-            new
-            {
-                ManifestVersion = manifestVersion
-            },
-            cancellationToken: cancellationToken));
-
-        if (json is null)
-            return null;
-
-        GoldenManifest? manifest;
-        try
-        {
-            manifest = JsonSerializer.Deserialize<GoldenManifest>(json, ContractJson.Default);
-        }
-        catch (JsonException ex)
-        {
-            throw new InvalidOperationException(
-                $"Manifest JSON for version '{manifestVersion}' could not be deserialized. " +
-                "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
-        }
-
-        return manifest
-            ?? throw new InvalidOperationException(
-                $"Manifest JSON for version '{manifestVersion}' deserialized to null. " +
-                "The stored JSON may be empty or corrupt.");
+        return Task.FromResult<GoldenManifest?>(null);
     }
 }

@@ -290,8 +290,9 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 evaluations,
                 cancellationToken);
 
-            // ManifestVersion is the PK on GoldenManifestVersions (global, not per-run). A literal "v1" collides
-            // when multiple runs commit in the same database (e.g. integration tests sharing one factory).
+            // ManifestVersion must remain globally unique for coordinator-shaped manifests (historically keyed in
+            // dbo.GoldenManifestVersions, removed ADR 0030 PR A4). A literal "v1" collides when multiple runs commit
+            // in the same database (e.g. integration tests sharing one factory).
             string manifestVersion = BuildManifestVersionForCommit(run, runId);
 
             merge = _decisionEngine.MergeResults(

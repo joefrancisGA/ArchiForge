@@ -36,7 +36,6 @@ public sealed class ReplayRunService(
     IRunRepository authorityRunRepository,
     IScopeContextProvider scopeContextProvider,
     IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
-    ICoordinatorGoldenManifestRepository manifestRepository,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
@@ -213,7 +212,6 @@ public sealed class ReplayRunService(
                     uow.Connection,
                     uow.Transaction);
 
-                await manifestRepository.CreateAsync(manifest, cancellationToken, uow.Connection, uow.Transaction);
                 await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken, uow.Connection, uow.Transaction);
             }
             else
@@ -230,7 +228,6 @@ public sealed class ReplayRunService(
                     connection: null,
                     transaction: null);
 
-                await manifestRepository.CreateAsync(manifest, cancellationToken);
                 await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
             }
 

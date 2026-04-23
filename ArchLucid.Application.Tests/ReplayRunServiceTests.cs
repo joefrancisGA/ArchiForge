@@ -91,7 +91,6 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
 
@@ -103,7 +102,6 @@ public sealed class ReplayRunServiceTests
             authorityRuns.Object,
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
@@ -213,7 +211,6 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
         ReplayRunService sut = new(
@@ -224,7 +221,6 @@ public sealed class ReplayRunServiceTests
             authorityRuns.Object,
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
@@ -389,9 +385,7 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
-        manifestRepo.Setup(x => x.CreateAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        Mock<IAuthorityCommittedManifestChainWriter> chainWriter = CreateAuthorityChainWriterMock();
 
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         traceRepo.Setup(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()))
@@ -404,8 +398,7 @@ public sealed class ReplayRunServiceTests
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
-            CreateAuthorityChainWriterMock().Object,
-            manifestRepo.Object,
+            chainWriter.Object,
             traceRepo.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
@@ -418,7 +411,19 @@ public sealed class ReplayRunServiceTests
 
         output.Manifest.Should().NotBeNull();
         output.Manifest!.Metadata.ManifestVersion.Should().Be("v-override");
-        manifestRepo.Verify(x => x.CreateAsync(It.Is<GoldenManifest>(m => m.Metadata.ManifestVersion == "v-override"), It.IsAny<CancellationToken>()), Times.Once);
+        chainWriter.Verify(
+            x => x.PersistCommittedChainAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.Is<GoldenManifest>(m => m.Metadata.ManifestVersion == "v-override"),
+                It.IsAny<AuthorityChainKeying>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()),
+            Times.Once);
         traceRepo.Verify(
             x => x.CreateManyAsync(It.Is<IEnumerable<DecisionTrace>>(t => t.Count() == 1), It.IsAny<CancellationToken>()),
             Times.Once);

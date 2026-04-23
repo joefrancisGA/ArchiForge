@@ -99,31 +99,7 @@ END
 GO
 
 /* ---- Manifest / evidence ---- */
-
-IF OBJECT_ID(N'dbo.GoldenManifestVersions', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.GoldenManifestVersions
-    (
-        ManifestVersion        NVARCHAR(50)  NOT NULL PRIMARY KEY,
-        RunId                  NVARCHAR(64)  NOT NULL,
-        SystemName             NVARCHAR(200) NOT NULL,
-        ManifestJson           NVARCHAR(MAX) NOT NULL,
-        ParentManifestVersion  NVARCHAR(50)  NULL,
-        CreatedUtc             DATETIME2     NOT NULL,
-        CONSTRAINT FK_GoldenManifestVersions_Parent FOREIGN KEY (ParentManifestVersion)
-            REFERENCES dbo.GoldenManifestVersions (ManifestVersion),
-        INDEX IX_GoldenManifestVersions_RunId NONCLUSTERED (RunId)
-    );
-END
-GO
-
-IF OBJECT_ID(N'dbo.GoldenManifestVersions', N'U') IS NOT NULL
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifestVersions_Parent')
-        ALTER TABLE dbo.GoldenManifestVersions ADD CONSTRAINT FK_GoldenManifestVersions_Parent
-            FOREIGN KEY (ParentManifestVersion) REFERENCES dbo.GoldenManifestVersions (ManifestVersion);
-END
-GO
+/* dbo.GoldenManifestVersions removed — ADR 0030 PR A4 (migration 111). Coordinator-shaped manifests persist via dbo.GoldenManifests. */
 
 IF OBJECT_ID(N'dbo.EvidenceBundles', N'U') IS NULL
 BEGIN

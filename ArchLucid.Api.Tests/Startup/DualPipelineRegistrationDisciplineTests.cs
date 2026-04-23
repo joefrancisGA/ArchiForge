@@ -153,7 +153,7 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
     /// <see cref="DataIGoldenManifestRepository"/> on a constructor parameter, field, or property are:
     /// <list type="bullet">
     ///   <item><description>The unified read façade (<c>UnifiedGoldenManifestReader</c>) — the single allowed read consumer.</description></item>
-    ///   <item><description>The three documented write-path orchestrators that ADR 0021 §Phase 3 will retire when the write-side façade lands. These are explicitly allow-listed by full type name so a code reviewer must update this test (and ADR 0021) before introducing a fourth.</description></item>
+    ///   <item><description>The documented legacy write-path orchestrator (<c>ArchitectureRunCommitOrchestrator</c>) that ADR 0021 §Phase 3 will retire when the write-side façade lands. Allow-listed by full type name so a code reviewer must update this test (and ADR 0021) before introducing another consumer.</description></item>
     ///   <item><description>The interface itself, its concrete implementations, and the DI extension methods that wire them — all of which live in <c>ArchLucid.Persistence</c> or <c>ArchLucid.Host.Composition</c> and are exempted by namespace.</description></item>
     /// </list>
     /// Anything else is a regression — a new internal manifest reader has slipped past the unified
@@ -171,10 +171,8 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
         [
             // The single permitted read consumer — the whole point of Phase 1.
             "ArchLucid.Persistence.Reads.UnifiedGoldenManifestReader",
-            // Write-path orchestrators retained until ADR 0021 Phase 3 retirement of the interface.
+            // Write-path orchestrator retained until ADR 0021 Phase 3 retirement of the interface.
             "ArchLucid.Application.Runs.Orchestration.ArchitectureRunCommitOrchestrator",
-            "ArchLucid.Application.ReplayRunService",
-            "ArchLucid.Application.Bootstrap.DemoSeedService",
         ];
 
         // Namespaces that are part of the persistence / DI layer the interface lives in. The interface
@@ -211,7 +209,7 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
         }
 
         violations.Should().BeEmpty(
-            because: "ADR 0021 Phase 1 retirement gate — only the unified reader (and the three documented write-path orchestrators retained for Phase 3) may type-reference ICoordinatorGoldenManifestRepository; new readers must use IUnifiedGoldenManifestReader.");
+            because: "ADR 0021 Phase 1 retirement gate — only the unified reader (and the legacy ArchitectureRunCommitOrchestrator write path retained for Phase 3) may type-reference ICoordinatorGoldenManifestRepository; new readers must use IUnifiedGoldenManifestReader.");
     }
 
     /// <summary>

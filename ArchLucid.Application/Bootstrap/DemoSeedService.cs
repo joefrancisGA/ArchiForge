@@ -25,7 +25,8 @@ namespace ArchLucid.Application.Bootstrap;
 /// <remarks>
 /// Persists via <c>ArchLucid.Persistence</c> repositories. **Authority:** each demo run is inserted into <c>dbo.Runs</c> via
 /// <see cref="IRunRepository.SaveAsync"/> (project slug <c>Contoso Retail Platform</c>, matching system-name-as-project-id from
-/// coordinator ingestion mapping). Coordinator NVARCHAR <c>RunId</c> columns reference the same run id string (no-dash GUID).
+/// coordinator ingestion mapping). Committed manifest bodies are written through <see cref="IAuthorityCommittedManifestChainWriter"/>
+/// (ADR 0030); the legacy <c>dbo.GoldenManifestVersions</c> dual-write was removed with migration **111**. Coordinator NVARCHAR <c>RunId</c> columns reference the same run id string (no-dash GUID).
 /// The export row is optional metadata for export history — not required for consulting DOCX replay. See <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>
 public sealed class DemoSeedService(
@@ -34,7 +35,6 @@ public sealed class DemoSeedService(
     IScopeContextProvider scopeContextProvider,
     IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
-    ICoordinatorGoldenManifestRepository manifestRepository,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
     IOptionsMonitor<DemoOptions> demoOptions,
@@ -225,8 +225,6 @@ public sealed class DemoSeedService(
             source: "demo-seed",
             richSeed,
             cancellationToken);
-
-        await manifestRepository.CreateAsync(manifest, cancellationToken);
 
         DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload
         {

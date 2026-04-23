@@ -9,7 +9,7 @@ namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
 /// ADR 0021 Phase 1 guard: internal Application-layer types must not take a direct coordinator manifest repository
-/// dependency except on the documented write-path allow-list (commit, replay seed, demo seed).
+/// dependency except on the documented legacy write-path allow-list (<c>ArchitectureRunCommitOrchestrator</c> only).
 /// </summary>
 [Trait("Suite", "Architecture")]
 public sealed class DualPipelineInternalReadPathTests
@@ -17,8 +17,6 @@ public sealed class DualPipelineInternalReadPathTests
     private static readonly HashSet<string> CoordinatorManifestCtorAllowList =
     [
         "ArchLucid.Application.Runs.Orchestration.ArchitectureRunCommitOrchestrator",
-        "ArchLucid.Application.ReplayRunService",
-        "ArchLucid.Application.Bootstrap.DemoSeedService",
     ];
 
     [Fact]

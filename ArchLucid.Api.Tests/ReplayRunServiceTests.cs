@@ -72,7 +72,6 @@ public sealed class ReplayRunServiceTests
     private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
     private readonly Mock<IAgentExecutorResolver> _executorResolver = new();
     private readonly Mock<IDecisionEngineService> _decisionEngine = new();
-    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepository = new();
     private readonly Mock<ICoordinatorDecisionTraceRepository> _decisionTraceRepository = new();
     private readonly ReplayRunService _sut;
 
@@ -97,7 +96,6 @@ public sealed class ReplayRunServiceTests
             _authorityRunRepository.Object,
             _scopeContextProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            _manifestRepository.Object,
             _decisionTraceRepository.Object,
             _evidenceRepository.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
