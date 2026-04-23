@@ -78,7 +78,7 @@ curl -sS -X DELETE "https://<api-host>/v1/integrations/teams/connections" \
 
 ## Operator UI
 
-**Path:** `/integrations/teams` (Enterprise Controls — extended tier). Writes use the same **`useEnterpriseMutationCapability()`** floor as other Enterprise surfaces.
+**Path:** `/integrations/teams` (Operate (governance and trust) — extended tier). Writes use the same **`useEnterpriseMutationCapability()`** floor as other Enterprise surfaces.
 
 ## Screenshot stub
 

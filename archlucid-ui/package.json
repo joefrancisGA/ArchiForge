@@ -13,6 +13,7 @@
     "test:run": "vitest run",
     "test:axe-components": "vitest run src/accessibility",
     "test:e2e": "playwright test -c playwright.mock.config.ts",
+    "e2e:mock": "playwright test -c playwright.mock.config.ts",
     "test:e2e:live": "playwright test",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json"
   },

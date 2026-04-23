@@ -6,6 +6,8 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Application.Authority;
+using ArchLucid.Application.Common;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
@@ -40,6 +42,8 @@ public sealed class DemoSeedService(
     IGovernancePromotionRecordRepository promotionRepository,
     IGovernanceEnvironmentActivationRepository activationRepository,
     IRunExportRecordRepository runExportRecordRepository,
+    IAuditService auditService,
+    IActorContext actorContext,
     ILogger<DemoSeedService> logger) : IDemoSeedService
 {
     private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
@@ -48,6 +52,10 @@ public sealed class DemoSeedService(
 
     private readonly IOptionsMonitor<DemoOptions> _demoOptions =
         demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
+
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private static readonly DateTime DemoUtc = new(2025, 3, 1, 12, 0, 0, DateTimeKind.Utc);
 
@@ -205,6 +213,18 @@ public sealed class DemoSeedService(
                 cancellationToken,
                 connection: null,
                 transaction: null);
+
+        await AuthorityCommittedChainDurableAudit.TryLogAsync(
+            _auditService,
+            scopeContextProvider,
+            _actorContext,
+            logger,
+            authorityRunId,
+            "Contoso Retail Platform",
+            authorityChain,
+            source: "demo-seed",
+            richSeed,
+            cancellationToken);
 
         await manifestRepository.CreateAsync(manifest, cancellationToken);
 

@@ -12,14 +12,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
   <p
     class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
   >
-    ArchLucid is an AI Architecture Intelligence platform: specialized agents analyze architecture requests, produce explainable findings, and feed governance workflows with a durable audit trail — grounded in what ships today in V1. This page compares us to common EAM incumbents using the same sourcing rules as
-     
-    <span
-      class="whitespace-nowrap"
-    >
-      docs/go-to-market/COMPETITIVE_LANDSCAPE.md
-    </span>
-    .
+    ArchLucid is an AI Architecture Intelligence platform: specialized agents analyze architecture requests, produce explainable findings, and feed governance workflows with a durable audit trail — grounded in what ships today in V1. The table below lists **five capability claims**; each row cites either a path in this repository, a public HTTPS source, or an explicit first-party baseline disclaimer — the same strings ship in the downloadable proof-pack PDF (CI keeps the page and PDF builder in sync).
   </p>
   <section
     class="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
@@ -36,7 +29,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       <code>
         /demo/preview
       </code>
-       (manifest excerpt, explanation, citations, timeline) plus a sourced incumbent scaffold. Requires demo mode on the API host (otherwise the link returns 404 by design).
+       (manifest excerpt, explanation, citations, timeline) plus the **benchmarked differentiation** table (identical rows to the inline table below). Requires demo mode on the API host (otherwise the link returns 404 by design).
     </p>
     <p
       class="mt-3"
@@ -100,25 +93,23 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
       id="why-compare-heading"
     >
-      ArchLucid vs. EAM incumbents (summary)
+      Benchmarked differentiation (five claims)
     </h2>
     <p
       class="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400"
     >
-      Competitor columns paraphrase the matrix in 
-      docs/go-to-market/COMPETITIVE_LANDSCAPE.md §2.1
-      . The ArchLucid column cites repository evidence only — no roadmap claims.
+      Competitor baselines use neutral category labels and hour ranges where we do not yet have a third-party study — those cells carry the explicit first-party disclaimer in the citation column. ArchLucid evidence points only at artifacts in this repository or public routes; there are no roadmap-only claims in this table.
     </p>
     <div
       class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
     >
       <table
-        class="w-full min-w-[640px] border-collapse text-left text-sm"
+        class="w-full min-w-[960px] border-collapse text-left text-sm"
       >
         <caption
           class="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
         >
-          Capability comparison — LeanIX, Ardoq, MEGA HOPEX vs. ArchLucid (V1)
+          Five capability claims — claim, evidence, baseline, citation, narrative (same row order as the PDF pack)
         </caption>
         <thead>
           <tr
@@ -128,31 +119,31 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
               scope="col"
             >
-              Dimension
+              Claim
             </th>
             <th
               class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
               scope="col"
             >
-              LeanIX (SAP)
+              ArchLucid evidence
             </th>
             <th
               class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
               scope="col"
             >
-              Ardoq
+              Competitor baseline
             </th>
             <th
               class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
               scope="col"
             >
-              MEGA HOPEX
+              Citation
             </th>
             <th
               class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
               scope="col"
             >
-              ArchLucid (V1)
+              Narrative (≤4 sentences)
             </th>
           </tr>
         </thead>
@@ -161,868 +152,182 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
           >
             <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              class="max-w-[220px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-              AI capability
+              ArchLucid records **typed audit events** in SQL for mutating API work and returns **scope-filtered** listings over \`GET /v1/audit\` and \`GET /v1/audit/search\`, so reviewers can anchor evidence to the same tenant/workspace/project slice the operator UI uses.
             </th>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Basic: AI-assisted survey analysis, application rationalization suggestions
+              \`ArchLucid.Api/Controllers/Admin/AuditController.cs\` · \`ArchLucid.Persistence.Audit\` · \`docs/library/AUDIT_COVERAGE_MATRIX.md\` · \`ArchLucid.Core/Audit/AuditEventTypes.cs\`
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Basic: change impact simulation
+              Incumbent diagram-and-doc stacks typically scatter decisions across wikis, tickets, and decks; **reconstructing one architecture review cycle** for a single initiative often costs **2–6 skilled hours** of manual assembly (**first-party assertion (no external citation yet)**).
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[200px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Minimal: rule-based analysis
+              <span
+                class="text-neutral-700 dark:text-neutral-300"
+              >
+                first-party assertion (no external citation yet)
+              </span>
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+              class="max-w-[320px] px-3 py-3 align-top text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
             >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Multi-agent pipeline (Topology, Cost, Compliance, Critic) with explainable findings; simulator mode for CI.
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Multi-agent AI pipeline); docs/V1_SCOPE.md §2 Core Pilot
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/demo/explain · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
+              The audit controller is rate-limited and \`ReadAuthority\`-gated like other list surfaces, but the payload is **append-only rows** keyed to scope, not a free-form page history. The matrix doc lists the **78** event constants so procurement can map controls to rows. Together they mean "prove what happened on this run" is a **query**, not an archaeology sprint. Export and CSV tiers remain documented separately from this read surface.
             </td>
           </tr>
           <tr
             class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
           >
             <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              class="max-w-[220px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-              Governance depth
+              ArchLucid enforces **tenant isolation at SQL Server** using \`SESSION_CONTEXT\`-driven row-level security policies wired through the persistence layer, not only application-layer filters.
             </th>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Moderate: lifecycle management, technology risk, survey workflows
+              \`docs/security/MULTI_TENANT_RLS.md\` · \`ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs\` · SQL migrations under \`ArchLucid.Persistence\` (RLS objects)
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Moderate: change scenarios, impact analysis
+              Multi-tenant products that rely on **per-customer schemas** or ad-hoc database splits often add **8–20 DBA/engineering hours** per new tenant for provisioning, migration, and backup policy (**first-party assertion (no external citation yet)**).
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[200px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Strong: TOGAF / ArchiMate workflow, compliance matrices
+              <a
+                class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+                href="https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17
+              </a>
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+              class="max-w-[320px] px-3 py-3 align-top text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
             >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Approval workflows, promotions, pre-commit governance gate, segregation of duties, policy packs (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Governance workflow); docs/V1_SCOPE.md §2 Enterprise Controls
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/policy-packs/effective-content · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
+              RLS is boring on purpose: the session context is set on connections so even an honest mistake in a repository query still cannot cross tenants. The integration tests lock the ArchLucid scope keys the API relies on. The security doc explains what is deployed versus what remains historical naming. That combination is what lets hosted SaaS teams sleep during a noisy neighbor incident.
             </td>
           </tr>
           <tr
             class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
           >
             <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              class="max-w-[220px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-              Audit trail
+              Operators can enable **\`ArchLucid:Governance:PreCommitGateEnabled\`** so **golden manifest commits** consult governance findings and policy assignments **before** the commit succeeds, returning a structured problem response when blocked.
             </th>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Basic: change history on entities
+              \`docs/library/PRE_COMMIT_GOVERNANCE_GATE.md\` · \`ArchLucid.Application/Governance/PreCommitGovernanceGate.cs\` · \`ArchLucid.Application.Tests/ArchitectureRunCommitPipelineIntegrationTests.cs\` (gate exercised)
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Basic: change log
+              Teams that depend on **post-merge pull-request review only** discover policy violations **after** the manifest is already treated as canonical — rework lands in **ITSM-only tools** as incident debt (**first-party assertion (no external citation yet)**).
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[200px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              Moderate: workflow audit
+              <a
+                class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+                href="https://csrc.nist.gov/projects/ssdf"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://csrc.nist.gov/projects/ssdf
+              </a>
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+              class="max-w-[320px] px-3 py-3 align-top text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
             >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Typed audit event catalog, append-only SQL audit trail, searchable export (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Durable audit); docs/AUDIT_COVERAGE_MATRIX.md
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/alerts · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
+              The gate is opt-in because some pilots need speed first; when flipped on, the commit path calls the same governance evaluation code paths the docs describe. Integration tests prove the blocked branch emits durable audit semantics. That is a different class of safety than a comment thread checkbox.
             </td>
           </tr>
           <tr
             class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
           >
             <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              class="max-w-[220px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-              Explainability
+              CI **locks golden-cohort expected manifest fingerprints** via \`GoldenCohortBaselineConstants\` and \`scripts/ci/assert_golden_cohort_baseline_locked.py\`, and the **golden-cohort nightly workflow** exercises the cohort on a schedule separate from product unit tests.
             </th>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              None (recommendations are opaque)
+              \`ArchLucid.Application/GoldenCohort/GoldenCohortBaselineConstants.cs\` · \`scripts/ci/assert_golden_cohort_baseline_locked.py\` · \`.github/workflows/golden-cohort-nightly.yml\` · \`tests/golden-cohort/cohort.json\`
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              None
+              Manual **prompt regression review** for each model or policy change — often **half a day per release** of unstructured diff reading — is the usual substitute when no locked cohort exists (**first-party assertion (no external citation yet)**).
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[200px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              None
+              <a
+                class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+                href="https://github.com/joefrancisGA/ArchLucid/blob/main/.github/workflows/golden-cohort-nightly.yml"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                https://github.com/joefrancisGA/ArchLucid/blob/main/.github/workflows/golden-cohort-nightly.yml
+              </a>
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+              class="max-w-[320px] px-3 py-3 align-top text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
             >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Structured ExplainabilityTrace per finding; aggregate run explanation and citations (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Explainability trace); docs/V1_SCOPE.md
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/explain/runs/{runId}/aggregate · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
+              The placeholder SHA constant exists so CI can fail loudly until an owner-approved baseline lock run replaces zeros with real fingerprints. The assert script is the merge-blocking guardrail; the nightly workflow is where longer cohort work runs. Together they document **deterministic drift detection** instead of vibes-based "the model feels fine."
             </td>
           </tr>
           <tr
             class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
           >
             <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              class="max-w-[220px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-              Deployment
+              After commit, **\`IFindingEvidenceChainService\`** reconstructs explainability links for findings, and **\`GET /v1/authority/runs/{runId}/provenance\`** returns a **decision provenance graph** tying manifest, graph snapshot, findings snapshot, authority trace, and artifacts when the authority pipeline is complete.
             </th>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              SaaS-only
+              \`ArchLucid.Application/Explanation/IFindingEvidenceChainService.cs\` · \`ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs\` (provenance action) · \`docs/library/KNOWLEDGE_GRAPH.md\`
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              SaaS-only
+              Static architecture decision logs **without traversable evidence linkage** force readers to **manually open** ten attachments per finding (**first-party assertion (no external citation yet)**).
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[200px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
             >
-              SaaS or on-prem
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
+              <a
+                class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+                href="https://en.wikipedia.org/wiki/Data_provenance"
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                Azure-native vendor-operated SaaS reference stack; containerized local evaluation (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/adr/0020-azure-primary-platform-permanent.md; docs/V1_SCOPE.md §2.4 Deployability
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/version · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Architecture outputs
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Inventory-centric modeling and surveys
+                https://en.wikipedia.org/wiki/Data_provenance
+              </a>
             </td>
             <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+              class="max-w-[320px] px-3 py-3 align-top text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
             >
-              Graph and scenario visualization
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              ArchiMate / compliance matrices
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Versioned golden manifest, replay/compare/drift, exports (Markdown/DOCX/ZIP) from committed runs (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Comparison and drift; Export and reporting); docs/V1_SCOPE.md
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/artifacts/manifests/{manifestId}/bundle · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Multi-cloud posture (inventory vs. run-scoped review)
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Cloud-agnostic (inventory, not design)
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Cloud-agnostic (inventory)
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Cloud-agnostic
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Most ALM catalogs stay inventory-wide; ArchLucid scopes review to a committed run with manifest, findings, and exports tied to that run id (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §2.1 (Multi-cloud row); docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/architecture/run/{runId} · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Integration breadth (connectors vs. contract-first API)
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Extensive: 50+ connectors, REST API, Jira, ServiceNow, CMDB
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Moderate: REST API, Jira, ServiceNow
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Moderate: ArchiMate exchange, REST API
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Most ALM suites emphasize connector catalogs; ArchLucid publishes OpenAPI v1 plus generated .NET client for CI and procurement automation (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §2.1 (Integration breadth row); docs/go-to-market/INTEGRATION_CATALOG.md §1
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /openapi/v1.json · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Decision-grade two-run explanation
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Exports and surveys; manual reconciliation between baselines
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Scenario views; not a persisted golden-manifest compare API
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Workflow-centric reports; not the same shape as replayable manifest diff
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Most ALM tools cannot return a single GET with stakeholder narrative plus structured compare payload across two committed runs; ArchLucid exposes it under /v1/explain (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Comparison and drift); docs/EXPLANATION_SCHEMA.md
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/explain/compare/explain · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Proof-of-ROI JSON aligned to sponsor narrative
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Dashboards vary; seldom a run-scoped time-to-commit JSON contract
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Custom analytics; not standardized for pilots
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Project metrics; not the same sponsor-facing delta shape
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Most ALM tools do not ship a dedicated pilot JSON for time-to-commit, findings buckets, and audit counts on a single run id; ArchLucid does via /v1/pilots (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/API_CONTRACTS.md §Pilots; docs/go-to-market/PILOT_ROI_MODEL.md
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/pilots/runs/{runId}/pilot-run-deltas · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Sponsor PDF parity with Markdown body
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Print-to-PDF from views; not guaranteed single-source with narrative
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Export decks; manual assembly for sponsors
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Report packs; heavy formatting workflow
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Most ALM exports diverge from chat narrative; ArchLucid posts the same first-value Markdown through a PDF projection endpoint for email-ready sharing (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/API_CONTRACTS.md §Pilots; docs/EXECUTIVE_SPONSOR_BRIEF.md §1
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  POST /v1/pilots/runs/{runId}/first-value-report.pdf · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Anonymous commit-shaped demo preview
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Guided tours; gated trials
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Read-only sandboxes per vendor policy
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Training datasets; not anonymous architecture commits
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Most ALM demos require tenant setup; ArchLucid serves a cached anonymous demo preview JSON plus marketing \`/demo/preview\` for procurement walkthroughs (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/DEMO_PREVIEW.md; docs/adr/0027-demo-preview-cached-anonymous-commit-page.md
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/demo/preview · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Operator why-archlucid telemetry snapshot
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Partner slides; not a live API bundle for evaluators
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Analyst PDFs; static counters
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Workshop materials; manual assembly
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Most ALM vendors do not publish a read-only snapshot endpoint backing an in-product proof page; ArchLucid exposes counters + demo run pointers for /why-archlucid (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/API_CONTRACTS.md §Pilots; docs/operator-shell.md
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/pilots/why-archlucid-snapshot · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
-            </td>
-          </tr>
-          <tr
-            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
-          >
-            <th
-              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
-              scope="row"
-            >
-              Teams notification wiring (tenant-scoped)
-            </th>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              ITSM/email bridges; Teams via generic integration patterns
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Webhook recipes; operator-managed
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
-            >
-              Notification workflows inside suite
-            </td>
-            <td
-              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
-            >
-              <p
-                class="m-0 leading-relaxed"
-              >
-                Most ALM catalogs omit a first-party Teams incoming-webhook registration API per tenant; ArchLucid documents and ships \`/v1/integrations/teams/connections\` (V1).
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Proof: 
-                </span>
-                <cite
-                  class="not-italic"
-                >
-                  docs/go-to-market/INTEGRATION_CATALOG.md §1; docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md
-                </cite>
-              </p>
-              <p
-                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
-              >
-                <span
-                  class="font-medium text-neutral-600 dark:text-neutral-400"
-                >
-                  Evidence: 
-                </span>
-                <span
-                  class="not-italic"
-                >
-                  GET /v1/integrations/teams/connections · /marketing/why/evidence-callout.svg
-                </span>
-              </p>
+              The provenance endpoint deliberately returns **422** until the golden manifest, graph snapshot, findings snapshot, and trace exist — that honesty avoids marketing a graph that is not there. The evidence-chain service is what feeds richer explanations and pilot deltas when data is present. The knowledge-graph doc is the operator-facing map of how to read the UI graph modes.
             </td>
           </tr>
         </tbody>

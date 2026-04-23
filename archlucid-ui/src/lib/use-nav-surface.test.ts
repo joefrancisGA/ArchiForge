@@ -8,8 +8,7 @@
  *
  * @see `use-nav-surface.ts` — the composed surface returned to callers.
  * @see `nav-shell-visibility.ts`, `enterprise-mutation-capability.ts`,
- *   `layer-guidance.ts`, `EnterpriseControlsContextHints.tsx` for the four
- *   underlying surfaces this hook composes.
+ *   `layer-guidance.ts`, `OperateCapabilityHints.tsx` for the underlying modules this hook composes.
  */
 import { describe, expect, it } from "vitest";
 
@@ -27,7 +26,6 @@ import {
   governanceResolutionRankOperatorLine,
   governanceResolutionRankReaderLine,
   layerHeaderEnterpriseOperatorRankLine,
-  layerHeaderEnterpriseReaderRankLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
 import { LAYER_PAGE_GUIDANCE, type LayerGuidancePageKey } from "@/lib/layer-guidance";
@@ -36,7 +34,7 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { composeNavSurface } from "@/lib/use-nav-surface";
 
-describe("composeNavSurface — equivalence with the four underlying surfaces", () => {
+describe("composeNavSurface — equivalence with underlying Visibility + Capability surfaces", () => {
   const allRanks: ReadonlyArray<number> = [
     0, // unauthenticated / pre-`/me` conservative rank
     AUTHORITY_RANK.ReadAuthority,
@@ -90,7 +88,7 @@ describe("composeNavSurface — equivalence with the four underlying surfaces", 
     }
   });
 
-  it("returns the same rank cue strings the four EnterpriseControlsContextHints helpers would render at Read rank", () => {
+  it("returns the same rank cue strings OperateCapabilityHints helpers would render at Read rank", () => {
     const composed = composeNavSurface(
       "governance-workflow",
       AUTHORITY_RANK.ReadAuthority,
@@ -108,7 +106,7 @@ describe("composeNavSurface — equivalence with the four underlying surfaces", 
     expect(composed.contextHints.governanceDashboardReaderAction).toBe(governanceDashboardReaderActionLine);
   });
 
-  it("returns the same rank cue strings the four EnterpriseControlsContextHints helpers would render at Execute rank", () => {
+  it("returns the same rank cue strings OperateCapabilityHints helpers would render at Execute rank", () => {
     const composed = composeNavSurface(
       "governance-workflow",
       AUTHORITY_RANK.ExecuteAuthority,
@@ -126,7 +124,7 @@ describe("composeNavSurface — equivalence with the four underlying surfaces", 
     expect(composed.contextHints.governanceDashboardReaderAction).toBeNull();
   });
 
-  it("emits the LayerHeader Enterprise rank cue only on Enterprise Controls pages with an enterpriseFootnote", () => {
+  it("emits the LayerHeader Execute+ rank cue only on Operate governance pages when caller rank is Execute+", () => {
     const enterpriseRouteKey: LayerGuidancePageKey = "governance-workflow";
     const advancedRouteKey: LayerGuidancePageKey = "compare";
 
@@ -152,9 +150,7 @@ describe("composeNavSurface — equivalence with the four underlying surfaces", 
       true,
     );
 
-    expect(enterpriseAtReader.contextHints.layerHeaderEnterpriseRankCue).toBe(
-      layerHeaderEnterpriseReaderRankLine,
-    );
+    expect(enterpriseAtReader.contextHints.layerHeaderEnterpriseRankCue).toBeNull();
     expect(enterpriseAtExecute.contextHints.layerHeaderEnterpriseRankCue).toBe(
       layerHeaderEnterpriseOperatorRankLine,
     );

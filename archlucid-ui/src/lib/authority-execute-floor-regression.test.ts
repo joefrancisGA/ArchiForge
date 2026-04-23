@@ -48,7 +48,7 @@ describe("authority Execute floor regression", () => {
    * (tier-agnostic). Catches accidental `requiredAuthority` edits that hide Read-tier inbox surfaces from Readers.
    */
   it("keeps Enterprise Controls nav link count non-decreasing Read → Execute → Admin under authority filter alone", () => {
-    const enterprise = NAV_GROUPS.find((g) => g.id === "alerts-governance");
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
 
@@ -62,7 +62,7 @@ describe("authority Execute floor regression", () => {
 
   /** Doc-seam guard: workflow stays Execute-gated in config so Reader nav does not advertise it (`nav-config` header). */
   it("hides governance workflow href from Reader-filtered Enterprise links while inbox remains", () => {
-    const enterprise = NAV_GROUPS.find((g) => g.id === "alerts-governance");
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
 

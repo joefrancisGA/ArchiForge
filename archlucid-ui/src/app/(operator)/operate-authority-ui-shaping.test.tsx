@@ -1,12 +1,13 @@
 /**
- * Page-level regression: **`useEnterpriseMutationCapability()`** must actually gate Enterprise write affordances.
- * Lib-level parity lives in **`authority-seam-regression.test.ts`** / **`current-principal.test.ts`**; this file catches
- * inverted `disabled` props, dropped hooks, or pages that stop calling the hook while nav still filters by rank.
+ * Page-level regression: **`useEnterpriseMutationCapability()`** (deprecated; prefer **`useOperateCapability()`**) must
+ * actually gate Operate write affordances. Lib-level parity lives in **`authority-seam-regression.test.ts`** /
+ * **`current-principal.test.ts`**; this file catches inverted `disabled` props, dropped hooks, or pages that stop calling
+ * the hook while nav still filters by rank.
  *
  * Governance workflow: submit card uses the same hook for read-only fields (`readOnly` / disabled selects) — asserted
  * via DOM attributes, not tooltip copy strings.
  *
- * Governance resolution: **`Change related controls`** reader supplement is driven only by **`useEnterpriseMutationCapability`**
+ * Governance resolution: **`Change related controls`** reader supplement is driven only by the mutation capability hook
  * (GET **Refresh** stays enabled); rank cues on the same page use **`useNavCallerAuthorityRank`** in production — here the
  * mocked hook isolates the write-boundary copy from **`GovernanceResolutionRankCue`**.
  */
@@ -19,16 +20,29 @@ vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
   useEnterpriseMutationCapability: (): boolean => mutateCapability.current,
 }));
 
+vi.mock("@/components/OperatorNavAuthorityProvider", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/components/OperatorNavAuthorityProvider")>();
+  const { AUTHORITY_RANK } = await import("@/lib/nav-authority");
+
+  return {
+    ...mod,
+    useNavCallerAuthorityRank: (): number =>
+      mutateCapability.current ? AUTHORITY_RANK.ExecuteAuthority : AUTHORITY_RANK.ReadAuthority,
+  };
+});
+
 // Pages that have migrated to `useNavSurface()` (Prompt 7 / `use-nav-surface.ts`)
 // resolve `mutationCapability` through the composed hook. Mock it here so the
 // same `mutateCapability.current` ref still drives every page in this suite.
 vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/use-nav-surface")>();
+  const { AUTHORITY_RANK } = await import("@/lib/nav-authority");
 
   return {
     ...mod,
     useNavSurface: (routeKey: import("@/lib/layer-guidance").LayerGuidancePageKey) => {
-      const real = mod.composeNavSurface(routeKey, 0, false, false, true);
+      const callerRank = mutateCapability.current ? AUTHORITY_RANK.ExecuteAuthority : AUTHORITY_RANK.ReadAuthority;
+      const real = mod.composeNavSurface(routeKey, callerRank, false, false, true);
 
       return { ...real, mutationCapability: mutateCapability.current };
     },
@@ -91,6 +105,7 @@ import {
   alertSimulationCurrentBehaviorHeadingReader,
   alertTuningCurrentTuningHeadingReader,
   alertsInboxRefreshButtonTitleReader,
+  alertsInboxRankReaderLine,
   alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
   governanceResolutionEffectivePolicyHeadingReader,
@@ -232,10 +247,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
   });
 
   /**
-   * Rank cue is the second `role="note"` strip (LayerHeader is always first). If mutation capability flips true but the
-   * cue is not removed, Reader cognitive load regresses; if false without cue, write boundary copy disappears.
+   * **Visibility** vs **Capability:** the Execute+ rank line on **`LayerHeader`** only renders when mutation is on;
+   * **`AlertsInboxRankCue`** renders at read tier so the inbox keeps a single `role="note"` write-boundary strip.
    */
-  it("Alerts inbox: shows LayerHeader plus inbox rank cue notes when mutation capability is false", async () => {
+  it("Alerts inbox: shows inbox rank cue note when mutation capability is false", async () => {
     mutateCapability.current = false;
     render(<AlertsPage />);
 
@@ -243,10 +258,11 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(screen.getByRole("button", { name: /Acknowledge/ })).toBeInTheDocument();
     });
 
-    expect(screen.getAllByRole("note")).toHaveLength(2);
+    expect(screen.getByText(alertsInboxRankReaderLine)).toBeInTheDocument();
+    expect(screen.queryByTestId("layer-header-operate-execute-rank-cue")).toBeNull();
   });
 
-  it("Alerts inbox: omits inbox rank cue note when mutation capability is true (LayerHeader note only)", async () => {
+  it("Alerts inbox: shows LayerHeader Execute rank cue when mutation capability is true (inbox cue omitted)", async () => {
     mutateCapability.current = true;
     render(<AlertsPage />);
 
@@ -254,7 +270,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(screen.getByRole("button", { name: /^Acknowledge$/ })).toBeInTheDocument();
     });
 
-    expect(screen.getAllByRole("note")).toHaveLength(1);
+    expect(screen.getByTestId("layer-header-operate-execute-rank-cue")).toBeInTheDocument();
+    expect(screen.queryByText(alertsInboxRankReaderLine)).toBeNull();
   });
 
   it("Digest subscriptions: Create subscription stays disabled when mutation capability is false", async () => {

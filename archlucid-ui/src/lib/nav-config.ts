@@ -41,7 +41,7 @@ export type NavLinkItem = {
   tier: NavTier;
   /**
    * Minimum API policy tier this destination assumes (see `ArchLucidPolicies` on the server).
-   * **Core Pilot essentials** omit this (broad default path). **Advanced** and **Enterprise** links in `NAV_GROUPS` set it — see the module **Authority** section.
+   * **Pilot essentials** omit this (broad default path). **Operate** nav links in `NAV_GROUPS` set it — see the module **Authority** section.
    * Enforced after **`tier`** in **`nav-shell-visibility.ts`** (`filterNavLinksForOperatorShell`).
    */
   requiredAuthority?: RequiredAuthority;
@@ -73,60 +73,58 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  * **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is **authoritative** (`401`/`403`); nav omission or soft-disabled
  * controls never imply a safe POST or deep link.
  *
- * **Four shaping surfaces (this file owns #1 metadata only):** (1) **Shell link inclusion** — `tier` + `requiredAuthority`
- * here + composition in **`nav-shell-visibility.ts`**; (2) **mutation soft-enable** — **`useEnterpriseMutationCapability()`**
- * (not declared in this file); (3) **`LayerHeader`** strip — **`layer-guidance.ts`**; (4) **inline rank hints** —
- * **`EnterpriseControlsContextHints`**. Do not merge (1) with (2)–(4). Enumeration: **docs/PRODUCT_PACKAGING.md** §3
- * *Four UI shaping surfaces*.
+ * **Two shaping surfaces (this file owns Visibility metadata only):** (1) **Visibility** — `tier` + `requiredAuthority`
+ * here + **`nav-shell-visibility.ts`** + **`useNavSurface().layerGuidance`** / **`LayerHeader`**; (2) **Capability** —
+ * **`useOperateCapability()`** + **`OperateCapabilityHints`** (Execute+ floor). Enumeration: **docs/PRODUCT_PACKAGING.md** §3.
  *
- * Nav groups map to product packaging layers (see docs/PRODUCT_PACKAGING.md):
- *   runs-review    → Core Pilot        (request · run · commit · review)
- *   qa-advisory    → Advanced Analysis (compare, replay, graph, provenance, advisory)
- *   alerts-governance → Enterprise Controls (governance, audit, policy, compliance)
+ * Nav groups map to buyer layers (see docs/PRODUCT_PACKAGING.md):
+ *   pilot              → Pilot    (request · run · commit · review)
+ *   operate-analysis   → Operate  (analysis slice — compare, replay, graph, Q&A, advisory, …)
+ *   operate-governance → Operate  (governance slice — policy, audit, alerts, trust — Execute+ for writes where noted)
  *
  * **Drift guard:** When adding or moving a route, follow the **ordered checklist** in **docs/PRODUCT_PACKAGING.md** §3
- *   *Contributor drift guard* (API policy → this file → `layer-guidance` / `LayerHeader` → Enterprise mutation hook →
+ *   *Contributor drift guard* (API policy → this file → `layer-guidance` / `LayerHeader` → **`useOperateCapability`** →
  *   packaging doc). Verify **C#** `[Authorize(Policy = …)]` still matches each link’s **`requiredAuthority`** string.
  *   **Cross-module Vitest:** `authority-seam-regression.test.ts` — e.g. **`/governance`** must stay **`ExecuteAuthority`**
- *   so Reader-ranked callers do not see it under Enterprise nav (deep-link still hits API policy); every **`ExecuteAuthority`**
- *   row under **`qa-advisory`** and **`alerts-governance`** stays absent from Read-tier filtered nav; Core Pilot essential
+ *   so Reader-ranked callers do not see it under Operate nav (deep-link still hits API policy); every **`ExecuteAuthority`**
+ *   row under **`operate-analysis`** and **`operate-governance`** stays absent from Read-tier filtered nav; Pilot essential
  *   hrefs stay visible for Reader with default tier toggles; **caller rank `0`** stays stricter than Read for **`ReadAuthority`** links;
  *   **`/alerts`** stays **`essential`** tier; filtered link order and **`listNavGroupsVisibleInOperatorShell`** group order stay aligned with this file;
- *   Enterprise href sets grow **monotonically** Read→Execute→Admin under **`filterNavLinksByAuthority`** alone; default Reader shell keeps **Advanced** to **`/ask`** only (tier before authority); **`/governance`** appears only when **extended and advanced** are on for **Execute** rank (**`filterNavLinksForOperatorShell`**). **`OperatorNavAuthorityProvider.test.tsx`** —
+ *   Operate governance href sets grow **monotonically** Read→Execute→Admin under **`filterNavLinksByAuthority`** alone; default Reader shell keeps **Operate analysis** to **`/ask`** only (tier before authority); **`/governance`** appears only when **extended and advanced** are on for **Execute** rank (**`filterNavLinksForOperatorShell`**). **`OperatorNavAuthorityProvider.test.tsx`** —
  *   **`useNavCallerAuthorityRank`** stays Read during JWT **`/me`** refetch so stale Execute rank does not flash in nav or hooks.
- *   **`EnterpriseControlsContextHints.authority.test.tsx`** — rank-gated Enterprise sidebar/page cues share the same
- *   **`ExecuteAuthority`** numeric floor as mutation hooks (governance resolution, audit log, **Alerts inbox**, **governance
+ *   **`OperateCapabilityHints.authority.test.tsx`** — rank-gated Operate sidebar/page cues share the same
+ *   **`ExecuteAuthority`** numeric floor as **`useOperateCapability`** (governance resolution, audit log, **Alerts inbox**, **governance
  *   dashboard** reader cue, alert tooling). **`authority-execute-floor-regression.test.ts`** — same **boolean** for a synthetic
  *   **`ExecuteAuthority`** row vs **`enterpriseMutationCapabilityFromRank`**; **`authority-shaped-ui-regression.test.ts`** —
  *   every catalog **`ExecuteAuthority`** link hidden at Read / visible at Execute (new rows cannot drift untested).
- *   **`alerts-governance`** monotonicity Reader→Admin.
- *   **`nav-shell-visibility.test.ts`** also locks **Core Pilot** extended **Execute**
+ *   **`operate-governance`** monotonicity Reader→Admin.
+ *   **`nav-shell-visibility.test.ts`** also locks **Pilot** extended **Execute**
  *   links (e.g. **`/replay`**) behind **Show more** — tier before rank. **`current-principal.test.ts`** locks **`maxAuthority`**
  *   vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
- *   **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Core Pilot** essentials omit **`requiredAuthority`**;
- *   **Advanced/Enterprise** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
- *   **`authority-shaped-layout-regression.test.tsx`** — Enterprise **inspect-first** DOM when mutation hook is false (parallel to tier→authority story; still **UI only**).
+ *   **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Pilot** essentials omit **`requiredAuthority`**;
+ *   **Operate** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
+ *   **`authority-shaped-layout-regression.test.tsx`** — **inspect-first** DOM when mutation hook is false (parallel to tier→authority story; still **UI only**).
  *
- * **`layer-guidance.ts` / `LayerHeader`:** Enterprise route families use **`LAYER_PAGE_GUIDANCE`** rows with **`enterpriseFootnote`**
- * (see **`authority-seam-regression.test.ts`** — Enterprise vs Advanced footnote contract). That strip is **cognitive packaging only**;
+ * **`layer-guidance.ts` / `LayerHeader`:** **Operate · governance** route families use **`LAYER_PAGE_GUIDANCE`** rows with **`enterpriseFootnote`**
+ * (see **`authority-seam-regression.test.ts`** — Operate analysis vs governance footnote contract). That strip is **cognitive packaging only**;
  * it does not replace **`requiredAuthority`** here or **`[Authorize]`** on the API.
  *
- * **`requiredAuthority` vs Enterprise POSTs:** this field shapes **nav / palette visibility** after tier filtering only
- * (higher **caller rank** does **not** bypass **`tier`** — e.g. Enterprise **extended** hrefs stay hidden until “Show more”;
- * **`nav-shell-visibility.test.ts`**). In-page **POST / toggle** soft-enable on Enterprise-heavy routes uses
- * **`useEnterpriseMutationCapability()`** — same **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`**
+ * **`requiredAuthority` vs Operate POSTs:** this field shapes **nav / palette visibility** after tier filtering only
+ * (higher **caller rank** does **not** bypass **`tier`** — e.g. Operate **extended** hrefs stay hidden until “Show more”;
+ * **`nav-shell-visibility.test.ts`**). In-page **POST / toggle** soft-enable on Operate-heavy routes uses
+ * **`useOperateCapability()`** (or deprecated **`useEnterpriseMutationCapability()`**) — same **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`**
  * links here; keep both aligned with C# policies. **Audit CSV export** is a documented exception: gated on **`/me`** roles (**Auditor** or **Admin**) on the audit page, not this nav field alone.
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *
- * - **Omit** on Core Pilot *essentials* (home, onboarding, new run, runs) so Reader-signed-in pilots keep the default path.
- * - **Core Pilot · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`,
+ * - **Omit** on Pilot *essentials* (home, onboarding, new run, runs) so Reader-signed-in pilots keep the default path.
+ * - **Pilot · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`,
  *   `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`**
  *   (`AuthorityReplayController`).
- * - **Advanced Analysis:** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the
+ * - **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the
  *   API primary workflow is Execute-class (planning, evolution candidates, advisory **schedules**, digest **subscriptions** → **`ExecuteAuthority`**).
- *   Link `title` strings use **“Label — short description”** for tooltips (same convention as Enterprise).
- * - **Enterprise Controls:** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers
+ *   Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
+ * - **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers
  *   are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
  *   Do not use **`AdminAuthority`** on nav entries: Admin-only actions (e.g. policy pack create) are enforced on POST;
  *   the UI page is still reachable at Read for list/effective views.
@@ -137,19 +135,19 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  * `requiredAuthority` drives **shell visibility** after **`nav-shell-visibility`** tier filtering — not whether HTTP writes
  * succeed. Keep policy **names** aligned
  * with C# when moving routes. **Vitest:** `nav-config.structure.test.ts` (graph invariants); **`authority-execute-floor-regression.test.ts`**
- * (Execute-class nav row vs mutation capability; Enterprise **`alerts-governance`** Reader vs Execute href sets); **`src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`**
- * (representative Enterprise pages: **`useEnterpriseMutationCapability`** → **`disabled`** on primary actions).
+ * (Execute-class nav row vs mutation capability; Operate **`operate-governance`** Reader vs Execute href sets); **`src/app/(operator)/operate-authority-ui-shaping.test.tsx`**
+ * (representative Operate pages: **`useOperateCapability`** → **`disabled`** on primary actions).
  *
- * Omitting `requiredAuthority` is used only for **Core Pilot essentials** (default path for any authenticated rank).
- * Every **Enterprise Controls** link in this file sets `requiredAuthority`. Composed with tiers in `@/lib/nav-shell-visibility`.
+ * Omitting `requiredAuthority` is used only for **Pilot essentials** (default path for any authenticated rank).
+ * Every **Operate** nav link in this file sets `requiredAuthority`. Composed with tiers in `@/lib/nav-shell-visibility`.
  *
  * Group IDs are intentionally stable (used as localStorage keys); only labels are user-visible.
  */
 export const NAV_GROUPS: NavGroupConfig[] = [
   {
-    id: "runs-review",
-    // Product layer: Core Pilot
-    label: "Core Pilot",
+    id: "pilot",
+    // Buyer layer: Pilot
+    label: "Pilot",
     caption: "Default path — request through commit and artifact review.",
     links: [
       {
@@ -170,7 +168,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/onboard",
         label: "First session",
-        title: "Core Pilot four-step wizard (request → seed → commit → hand-off)",
+        title: "Pilot four-step wizard (request → seed → commit → hand-off)",
         icon: ClipboardList,
         tier: "essential",
         requiredAuthority: "ExecuteAuthority",
@@ -236,10 +234,10 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     ],
   },
   {
-    id: "qa-advisory",
-    // Product layer: Advanced Analysis
-    label: "Advanced Analysis",
-    caption: "When Core Pilot cannot answer your question (diff, replay, graph, Q&A).",
+    id: "operate-analysis",
+    // Buyer layer: Operate (analysis slice) — label disambiguates the duplicate **Operate** buyer name from governance.
+    label: "Operate · analysis",
+    caption: "Analysis, search, planning, advisory, and cost — deeper questions after Pilot proof.",
     links: [
       {
         href: "/ask",
@@ -341,11 +339,11 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     ],
   },
   {
-    id: "alerts-governance",
-    // Product layer: Enterprise Controls
-    label: "Enterprise Controls",
+    id: "operate-governance",
+    // Buyer layer: Operate (governance slice) — label disambiguates the duplicate **Operate** buyer name from analysis.
+    label: "Operate · governance",
     caption:
-      "Operator/admin layer—governance, audit, policy packs, and alert tooling. Typically governance or platform operators; not required for Core Pilot.",
+      "Governance, audit, policy packs, alerts, and trust. Operator-heavy; Execute+ for writes where the API requires it — not required for first Pilot proof.",
     links: [
       {
         href: "/alerts",
@@ -441,7 +439,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         requiredAuthority: "ReadAuthority",
       },
       {
-        href: "/security-trust",
+        href: "/workspace/security-trust",
         label: "Security & trust",
         title: "Security & trust — published assessments, CAIQ/SIG, trust-center links",
         icon: ShieldCheck,

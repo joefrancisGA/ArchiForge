@@ -371,6 +371,14 @@ Owner answers gathered in-session on 2026-04-23 after items 36 and 37 were surfa
 
 ---
 
+## Resolved 2026-04-23 (Jira connector scope)
+
+| Pending-questions item | Decision | Affects |
+|------------------------|----------|---------|
+| **Jira ITSM connector — release window** | **Out of scope for V1; in scope for V1.1.** Owner-affirmed split between V1 contract and V1.1 commitment. The minimum-viable V1.1 surface is one-way (finding → Jira issue with correlation back-link); two-way status sync is part of the same V1.1 release window but may ship as a fast-follow inside it. Calendar date is **not** pinned by this decision; pinning a date requires a follow-up owner entry. | [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) § 3 (added explicit "Jira connectors" out-of-scope row pointing at V1.1); [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6 (new "ITSM connectors — V1.1 candidates" section); [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md) § 2 (Jira row promoted from `[Planned]` to **`[V1.1 — planned]`**); [`docs/CHANGELOG.md`](CHANGELOG.md) 2026-04-23 entry. **Open free-text question 11 above ("Workflow-integration sequencing")** continues to defer **Confluence** and **ServiceNow**; this decision applies **only** to Jira. **Azure DevOps Work Items** stays at `[Planned]` (not promoted to V1.1 by this decision). |
+
+---
+
 ## Surfaced by 2026-04-23 SaaS-framing reconciliation
 
 These came out of the 2026-04-23 owner clarification — *"the user will never have to install Docker or SQL because this is a SaaS product"* — applied against the latest assessment ([`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §0.1) and the canonical entry doc ([`START_HERE.md`](START_HERE.md) "Audience split").

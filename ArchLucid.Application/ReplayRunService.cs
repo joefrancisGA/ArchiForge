@@ -1,6 +1,7 @@
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -8,12 +9,15 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application;
 
@@ -35,12 +39,21 @@ public sealed class ReplayRunService(
     ICoordinatorGoldenManifestRepository manifestRepository,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
-    IArchLucidUnitOfWorkFactory unitOfWorkFactory)
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IAuditService auditService,
+    IActorContext actorContext,
+    ILogger<ReplayRunService> logger)
     : IReplayRunService
 {
     private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
         authorityCommittedManifestChainWriter
         ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
+
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly ILogger<ReplayRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>
     /// Creates a new run record seeded from <paramref name="originalRunId"/>, re-executes agents,
@@ -184,9 +197,11 @@ public sealed class ReplayRunService(
 
         try
         {
+            AuthorityManifestPersistResult chainPersisted;
+
             if (uow.SupportsExternalTransaction)
             {
-                await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
+                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
                     scope,
                     replayGuid,
                     request.SystemName,
@@ -203,7 +218,7 @@ public sealed class ReplayRunService(
             }
             else
             {
-                await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
+                chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
                     scope,
                     replayGuid,
                     request.SystemName,
@@ -220,6 +235,18 @@ public sealed class ReplayRunService(
             }
 
             await uow.CommitAsync(cancellationToken);
+
+            await AuthorityCommittedChainDurableAudit.TryLogAsync(
+                _auditService,
+                scopeContextProvider,
+                _actorContext,
+                _logger,
+                replayGuid,
+                request.SystemName,
+                chainPersisted,
+                source: "replay-commit",
+                richFindingsAndGraph: true,
+                cancellationToken);
         }
         catch
         {

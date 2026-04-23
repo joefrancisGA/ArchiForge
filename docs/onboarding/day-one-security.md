@@ -7,7 +7,7 @@
 
 **Goal:** Map **trust boundaries**, **identity**, and **data-plane exposure** for **ArchLucid** in **your** Azure landing zone. **Not** a full pen test or every ADR.
 
-**Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) — where Enterprise Controls routes live vs Core Pilot defaults.
+**Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) — where Operate (governance and trust) routes live vs Core Pilot defaults.
 
 > **Install order moved.** See [INSTALL_ORDER.md](../INSTALL_ORDER.md). This page now only covers Security / GRC week-one tasks **after** install.
 

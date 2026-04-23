@@ -36,12 +36,11 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   });
 
   it(
-    "shows only Core Pilot essential links by default — Graph, Compare, and Replay require Show more links",
+    "shows only Pilot essential links by default — Graph, Compare, and Replay require Show more links",
     () => {
       render(<ShellNav />);
 
-      // nav group is now labelled with the product layer name "Core Pilot"
-      const nav = screen.getByRole("navigation", { name: "Core Pilot" });
+      const nav = screen.getByRole("navigation", { name: "Pilot" });
       expect(nav).toBeInTheDocument();
 
       const homeLink = screen.getByRole("link", { name: "Home" });
@@ -87,11 +86,10 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     15_000,
   );
 
-  it("exposes Advanced Analysis and Enterprise Controls group navigations when sections are expanded", () => {
+  it("exposes Operate · analysis and Operate · governance group navigations when sections are expanded", () => {
     render(<ShellNav />);
 
-    // "Q&A & advisory" is now labelled "Advanced Analysis" (product layer name)
-    expect(screen.getByRole("navigation", { name: "Advanced Analysis" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Operate · analysis" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
 
     const showMore = screen.queryByRole("button", { name: "Show more links" });
@@ -99,17 +97,15 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       fireEvent.click(showMore);
     }
 
-    // "Alerts & governance" is now labelled "Enterprise Controls" — expand the group so the link is in the a11y tree.
-    fireEvent.click(screen.getByRole("button", { name: "Enterprise Controls" }));
+    fireEvent.click(screen.getByRole("button", { name: "Operate · governance" }));
 
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");
 
-    // Enterprise Controls group: ensure <nav> is present now that the section is open.
-    expect(screen.getByRole("navigation", { name: "Enterprise Controls" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Operate · governance" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
     expect(
       screen.getByText(
-        /Operator\/admin layer—governance, audit, policy packs, and alert tooling\. Typically governance or platform operators; not required for Core Pilot\./i,
+        "Governance, audit, policy packs, alerts, and trust. Operator-heavy; Execute+ for writes where the API requires it — not required for first Pilot proof.",
       ),
     ).toBeInTheDocument();
     expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();

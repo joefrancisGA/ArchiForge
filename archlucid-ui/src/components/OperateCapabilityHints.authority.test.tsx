@@ -1,6 +1,6 @@
 /**
- * Rank-gated Enterprise **context hints** (same `AUTHORITY_RANK.ExecuteAuthority` threshold as nav filtering and
- * `useEnterpriseMutationCapability`). Asserts presence/absence and canonical copy imports — not arbitrary UI strings.
+ * Rank-gated **Capability** surface hints (same `AUTHORITY_RANK.ExecuteAuthority` threshold as nav filtering and
+ * `useOperateCapability` / deprecated `useEnterpriseMutationCapability`). Asserts presence/absence and canonical copy imports.
  */
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -33,63 +33,63 @@ import {
   AlertsInboxRankCue,
   AlertOperatorToolingRankCue,
   AuditLogRankCue,
-  EnterpriseControlsExecutePageHint,
-  EnterpriseControlsNavGroupHint,
-  EnterpriseExecutePlusPageCue,
   GovernanceDashboardReaderActionCue,
   GovernanceResolutionRankCue,
-} from "./EnterpriseControlsContextHints";
+  OperateCapabilityNavGroupHint,
+  OperateExecutePageHint,
+  OperateExecutePlusPageCue,
+} from "./OperateCapabilityHints";
 
-describe("EnterpriseControlsContextHints authority shaping", () => {
+describe("OperateCapabilityHints authority shaping", () => {
   afterEach(() => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
   });
 
-  describe("EnterpriseControlsExecutePageHint", () => {
+  describe("OperateExecutePageHint", () => {
     it("shows reader execute warning below Execute rank", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
-      render(<EnterpriseControlsExecutePageHint />);
+      render(<OperateExecutePageHint />);
 
       expect(screen.getByRole("note")).toHaveTextContent(enterpriseExecutePageHintReaderRank);
     });
 
     it("renders nothing at Execute+ to avoid stacking with operator-plus cues", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
-      const { container } = render(<EnterpriseControlsExecutePageHint />);
+      const { container } = render(<OperateExecutePageHint />);
 
       expect(container.firstChild).toBeNull();
     });
   });
 
-  describe("EnterpriseExecutePlusPageCue", () => {
+  describe("OperateExecutePlusPageCue", () => {
     const operatorPlusMessage = "Operator-plus cue fixture";
 
     it("is hidden below Execute", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
-      const { container } = render(<EnterpriseExecutePlusPageCue message={operatorPlusMessage} />);
+      const { container } = render(<OperateExecutePlusPageCue message={operatorPlusMessage} />);
 
       expect(container.firstChild).toBeNull();
     });
 
     it("shows the message at Execute+", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
-      render(<EnterpriseExecutePlusPageCue message={operatorPlusMessage} />);
+      render(<OperateExecutePlusPageCue message={operatorPlusMessage} />);
 
       expect(screen.getByRole("note")).toHaveTextContent(operatorPlusMessage);
     });
   });
 
-  describe("EnterpriseControlsNavGroupHint", () => {
+  describe("OperateCapabilityNavGroupHint", () => {
     it("uses reader nav copy below Execute", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
-      render(<EnterpriseControlsNavGroupHint />);
+      render(<OperateCapabilityNavGroupHint />);
 
       expect(screen.getByText(enterpriseNavHintReaderRank)).toBeInTheDocument();
     });
 
     it("uses operator nav copy at Execute+", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
-      render(<EnterpriseControlsNavGroupHint />);
+      render(<OperateCapabilityNavGroupHint />);
 
       expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
     });

@@ -18,8 +18,8 @@ describe("nav-config structure", () => {
     expect(flattenNavLinks().length).toBe(fromGroups);
   });
 
-  it("sets requiredAuthority on every Enterprise Controls link (Core Pilot essentials may omit)", () => {
-    const enterprise = NAV_GROUPS.find((group) => group.id === "alerts-governance");
+  it("sets requiredAuthority on every Operate · governance link (Pilot essentials may omit)", () => {
+    const enterprise = NAV_GROUPS.find((group) => group.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
 
@@ -28,8 +28,8 @@ describe("nav-config structure", () => {
     }
   });
 
-  it("sets requiredAuthority on every Advanced Analysis nav link", () => {
-    const advanced = NAV_GROUPS.find((group) => group.id === "qa-advisory");
+  it("sets requiredAuthority on every Operate · analysis nav link", () => {
+    const advanced = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
     expect(advanced).toBeDefined();
 
@@ -42,8 +42,8 @@ describe("nav-config structure", () => {
    * Tier runs before authority in the shell: Execute-class destinations must not sit on **essential** tier or they
    * could appear for first-pilot defaults before “Show more” regardless of rank story (see `nav-shell-visibility.test.ts`).
    */
-  it("keeps ExecuteAuthority Enterprise links off essential tier", () => {
-    const enterprise = NAV_GROUPS.find((group) => group.id === "alerts-governance");
+  it("keeps ExecuteAuthority Operate · governance links off essential tier", () => {
+    const enterprise = NAV_GROUPS.find((group) => group.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
 
@@ -57,11 +57,11 @@ describe("nav-config structure", () => {
   });
 
   /**
-   * Core Pilot essentials intentionally omit `requiredAuthority` so bootstrap / conservative ranks still see the
+   * Pilot essentials intentionally omit `requiredAuthority` so bootstrap / conservative ranks still see the
    * default path (`nav-config` Authority block). A stray Read/Execute label on Home or Runs would regress first pilots.
    */
-  it("keeps requiredAuthority unset on Core Pilot essential-tier links", () => {
-    const core = NAV_GROUPS.find((group) => group.id === "runs-review");
+  it("keeps requiredAuthority unset on Pilot essential-tier links", () => {
+    const core = NAV_GROUPS.find((group) => group.id === "pilot");
 
     expect(core).toBeDefined();
 
@@ -80,11 +80,12 @@ describe("nav-config structure", () => {
   });
 
   /**
-   * Same structural rule as Enterprise: Execute-class Advanced links must not sit on `essential`, or they could
-   * appear before progressive disclosure even when rank allows Execute (`nav-shell-visibility` tier order).
+   * Same structural rule as **Operate · governance**: Execute-class **Operate · analysis** links must not sit on
+   * `essential`, or they could appear before progressive disclosure even when rank allows Execute (`nav-shell-visibility`
+   * tier order).
    */
-  it("keeps ExecuteAuthority Advanced Analysis links off essential tier", () => {
-    const advanced = NAV_GROUPS.find((group) => group.id === "qa-advisory");
+  it("keeps ExecuteAuthority Operate · analysis links off essential tier", () => {
+    const advanced = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
     expect(advanced).toBeDefined();
 

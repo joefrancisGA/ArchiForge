@@ -4,8 +4,10 @@ import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProv
 import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
 
 /**
- * Whether the resolved shell principal should see **enabled** Execute-tier mutation affordances on **Enterprise Controls**
- * (and related) routes. Uses the same rank source as nav filtering (`useNavCallerAuthorityRank`) so **sidebar omission**
+ * @deprecated Prefer {@link useOperateCapability} from `@/hooks/use-operate-capability`. Removed after next minor release.
+ *
+ * Whether the resolved shell principal should see **enabled** Execute-tier mutation affordances on **Operate**
+ * (governance / alert tooling) routes. Uses the same rank source as nav filtering (`useNavCallerAuthorityRank`) so **sidebar omission**
  * and **button disabled** state stay aligned with **docs/PRODUCT_PACKAGING.md**. **UI shaping only** — API `[Authorize]`
  * returns 401/403.
  *

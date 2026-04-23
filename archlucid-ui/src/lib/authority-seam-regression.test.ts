@@ -25,9 +25,9 @@ import {
 import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("authority seam regression", () => {
-  const enterpriseLinks = NAV_GROUPS.find((g) => g.id === "alerts-governance")?.links;
+  const enterpriseLinks = NAV_GROUPS.find((g) => g.id === "operate-governance")?.links;
 
-  it("defines Enterprise Controls links so Reader authority filter still exposes inbox but drops Execute-only workflow", () => {
+  it("defines Operate governance links so Reader authority filter still exposes inbox but drops Execute-only workflow", () => {
     expect(enterpriseLinks).toBeDefined();
 
     const readerVisible = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ReadAuthority);
@@ -46,8 +46,8 @@ describe("authority seam regression", () => {
    * Drift guard: every `ExecuteAuthority` row in `nav-config` must stay invisible to Read callers and visible at Execute+.
    * Uses hrefs from config (not copy) so new links inherit the same contract automatically.
    */
-  it("hides every ExecuteAuthority-marked Advanced Analysis and Enterprise nav link from Read callers", () => {
-    const groupIds = ["qa-advisory", "alerts-governance"] as const;
+  it("hides every ExecuteAuthority-marked Operate nav link from Read callers", () => {
+    const groupIds = ["operate-analysis", "operate-governance"] as const;
 
     for (const groupId of groupIds) {
       const links = NAV_GROUPS.find((g) => g.id === groupId)?.links;
@@ -114,7 +114,7 @@ describe("authority seam regression", () => {
    * for Reader-tier pilots (see `nav-config` Authority block).
    */
   it("keeps Core Pilot essential destinations visible for Reader with default tier toggles (extended off)", () => {
-    const core = NAV_GROUPS.find((g) => g.id === "runs-review");
+    const core = NAV_GROUPS.find((g) => g.id === "pilot");
 
     expect(core).toBeDefined();
 
@@ -150,7 +150,7 @@ describe("authority seam regression", () => {
    * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` must still emit Enterprise Controls
    * with only the inbox (not an empty group after tier + authority).
    */
-  it("Reader default shell lists Core Pilot and Enterprise Controls with only the Alerts inbox href", () => {
+  it("Reader default shell lists Pilot and Operate governance with only the Alerts inbox href", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       false,
@@ -160,10 +160,10 @@ describe("authority seam regression", () => {
 
     const ids = rows.map((r) => r.group.id);
 
-    expect(ids).toContain("runs-review");
-    expect(ids).toContain("alerts-governance");
+    expect(ids).toContain("pilot");
+    expect(ids).toContain("operate-governance");
 
-    const enterprise = rows.find((r) => r.group.id === "alerts-governance");
+    const enterprise = rows.find((r) => r.group.id === "operate-governance");
 
     expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual(["/alerts"]);
   });
@@ -191,7 +191,7 @@ describe("authority seam regression", () => {
    * `filterNavLinksByAuthority` is monotonic in caller rank: higher rank never loses hrefs that a lower rank already saw.
    * Catches an accidental `>` vs `>=` flip on `requiredAuthorityRank` that would shrink the operator strip at Admin.
    */
-  it("expands Enterprise Controls href set monotonically from Read through Execute to Admin (authority filter only)", () => {
+  it("expands Operate governance href set monotonically from Read through Execute to Admin (authority filter only)", () => {
     expect(enterpriseLinks).toBeDefined();
 
     const hrefsRead = new Set(
@@ -217,23 +217,23 @@ describe("authority seam regression", () => {
    * Advanced Analysis keeps **Ask** on `essential` tier (`nav-tier.ts`) so the group is never empty, while deeper links
    * stay behind extended/advanced. Regression: moving Ask off essential or mis-tiering would change first-pilot noise.
    */
-  it("keeps Advanced Analysis to Ask-only in the default Reader shell (tier gates before authority)", () => {
+  it("keeps Operate analysis to Ask-only in the default Reader shell (tier gates before authority)", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       false,
       false,
       AUTHORITY_RANK.ReadAuthority,
     );
-    const qa = rows.find((r) => r.group.id === "qa-advisory");
+    const qa = rows.find((r) => r.group.id === "operate-analysis");
 
-    expect(qa, "Advanced Analysis group should remain visible via essential Ask").toBeDefined();
+    expect(qa, "Operate analysis group should remain visible via essential Ask").toBeDefined();
     expect(qa!.visibleLinks.map((l) => l.href)).toEqual(["/ask"]);
   });
 
   /**
    * Operator path: Execute rank alone is not enough without progressive disclosure — `/governance` is extended + Execute.
    */
-  it("surfaces governance workflow in Enterprise strip only when extended and advanced are on for Execute rank", () => {
+  it("surfaces governance workflow in Operate governance strip only when extended and advanced are on for Execute rank", () => {
     expect(enterpriseLinks).toBeDefined();
 
     const gatedOff = filterNavLinksForOperatorShell(
@@ -276,7 +276,7 @@ describe("authority seam regression", () => {
    * Default first-pilot Enterprise strip is inbox-only because **`/alerts`** stays **`essential`** tier — tier runs before
    * authority in **`nav-shell-visibility.ts`** (see **`nav-shell-visibility.test.ts`**).
    */
-  it("keeps Enterprise Alerts inbox on essential tier in nav-config", () => {
+  it("keeps Operate governance Alerts inbox on essential tier in nav-config", () => {
     const alerts = enterpriseLinks?.find((l) => l.href === "/alerts");
 
     expect(alerts?.tier).toBe("essential");
@@ -286,7 +286,7 @@ describe("authority seam regression", () => {
    * Sidebar / palette iterate filtered links in **`nav-config`** order; a `.sort()` or Set iteration in the filter would
    * churn UX and complicate deep-link expectations.
    */
-  it("preserves nav-config link order when filtering Enterprise Controls by authority", () => {
+  it("preserves nav-config link order when filtering Operate governance by authority", () => {
     expect(enterpriseLinks).toBeDefined();
 
     const filtered = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.AdminAuthority);
@@ -324,9 +324,9 @@ describe("authority seam regression", () => {
    * `LayerHeader` treats `enterpriseFootnote` as the Enterprise Controls signal (rank cue + footnote typography).
    * Missing copy would regress buyer-facing packaging without a type error.
    */
-  it("requires non-empty useWhen, firstPilotNote, and enterpriseFootnote on every Enterprise Controls guidance block", () => {
+  it("requires non-empty useWhen, firstPilotNote, and enterpriseFootnote on every Operate governance guidance block", () => {
     const enterpriseBlocks = (Object.values(LAYER_PAGE_GUIDANCE) as LayerGuidanceBlock[]).filter(
-      (b) => b.layerBadge === "Enterprise Controls",
+      (b) => b.layerBadge === "Operate" && b.enterpriseFootnote != null,
     );
 
     expect(enterpriseBlocks.length).toBeGreaterThan(0);
@@ -342,9 +342,9 @@ describe("authority seam regression", () => {
    * Advanced pages must not set `enterpriseFootnote`: `LayerHeader` uses its presence to style `useWhen` and only
    * renders the Enterprise rank cue when the badge is Enterprise Controls — not a string match on headlines.
    */
-  it("keeps enterpriseFootnote unset on Advanced Analysis guidance blocks", () => {
+  it("keeps enterpriseFootnote unset on Operate analysis guidance blocks", () => {
     const advancedBlocks = (Object.values(LAYER_PAGE_GUIDANCE) as LayerGuidanceBlock[]).filter(
-      (b) => b.layerBadge === "Advanced Analysis",
+      (b) => b.layerBadge === "Operate" && b.enterpriseFootnote == null,
     );
 
     expect(advancedBlocks.length).toBeGreaterThan(0);

@@ -45,14 +45,14 @@ Suggested skeleton (delete before publishing):
 
 ## Solution
 
-`<<SOLUTION_NARRATIVE>>` — Frame ArchLucid as **provisioned**, not installed. The default operator path is **Core Pilot** (request → seed → commit → manifest review); only mention Advanced Analysis or Enterprise Controls if the customer actually used them.
+`<<SOLUTION_NARRATIVE>>` — Frame ArchLucid as **provisioned**, not installed. The default operator path is **Core Pilot** (request → seed → commit → manifest review); only mention Operate (analysis workloads) or Operate (governance and trust) if the customer actually used them.
 
 Concrete details to include:
 
 - Which **layer** they started on (Core Pilot in V1; expanding into Advanced/Enterprise should be called out as a *follow-on* phase, not Day-1).
 - Which **finding engines** ran on their first three commits (use the names from `docs/PRODUCT_PACKAGING.md`).
 - Which **integrations** they wired up (Microsoft Entra ID SSO, Azure DevOps PR gate, etc.). Use canonical product names — see [`docs/CONCEPTS.md`](../../CONCEPTS.md) § 1.
-- How **governance approvals** changed (if Enterprise Controls were used). Skip if not applicable.
+- How **governance approvals** changed (if Operate (governance and trust) were used). Skip if not applicable.
 
 ---
 
@@ -88,7 +88,7 @@ Anchor every "After" number against the [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_
 `<<NEXT_NARRATIVE>>` — Two to four bullets. Examples:
 
 - Expansion to `<<ADDITIONAL_TEAM_OR_BU>>` (`<<ADDITIONAL_SEAT_COUNT>>` more architects).
-- Adoption of `<<NEXT_LAYER>>` (Advanced Analysis or Enterprise Controls) for `<<NEXT_LAYER_DRIVER>>`.
+- Adoption of `<<NEXT_LAYER>>` (Operate (analysis workloads) or Operate (governance and trust)) for `<<NEXT_LAYER_DRIVER>>`.
 - Custom finding engines or policy packs for `<<CUSTOM_NEED>>` — link to a Professional-services SOW if one exists.
 - Integration with `<<NEXT_INTEGRATION>>` (e.g., GitHub Actions PR gate per [`docs/integrations/CICD_INTEGRATION.md`](../../integrations/CICD_INTEGRATION.md)).
 

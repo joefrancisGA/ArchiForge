@@ -45,6 +45,10 @@ public static class AuditEventTypes
     public const string ManifestGenerated = "ManifestGenerated";
     public const string ArtifactsGenerated = "ArtifactsGenerated";
     public const string ReplayExecuted = "ReplayExecuted";
+
+    /// <summary>Demo seed or replay commit persisted the authority SQL FK chain (context / graph / findings / decision trace + golden manifest) outside the main pipeline executor.</summary>
+    public const string AuthorityCommittedChainPersisted = "AuthorityCommittedChainPersisted";
+
     public const string ArtifactDownloaded = "ArtifactDownloaded";
     public const string BundleDownloaded = "BundleDownloaded";
     public const string RunExported = "RunExported";

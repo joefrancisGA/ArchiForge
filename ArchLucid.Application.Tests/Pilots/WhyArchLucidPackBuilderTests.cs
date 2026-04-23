@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class WhyArchLucidPackBuilderTests
 {
     [Fact]
-    public void BuildMarkdown_includes_competitive_landscape_anchor_and_demo_banner()
+    public void BuildMarkdown_includes_benchmarked_differentiation_table_and_demo_banner()
     {
         WhyArchLucidPackSourceDto source = new(
             RunId: "run",
@@ -23,8 +23,9 @@ public sealed class WhyArchLucidPackBuilderTests
 
         string md = WhyArchLucidPackBuilder.BuildMarkdown(source);
 
-        md.Should().Contain("docs/go-to-market/COMPETITIVE_LANDSCAPE.md");
-        md.Should().Contain("§2.1");
+        md.Should().Contain("Five capability claims, every claim cited to a file in this repository or to an external public source.");
+        md.Should().Contain("| Claim | ArchLucid evidence | Competitor baseline | Citation | Narrative (≤4 sentences) |");
+        md.Should().Contain("GET /v1/authority/runs/{runId}/provenance");
         md.Should().Contain("demo tenant — replace before publishing");
         md.Should().Contain("`run`");
     }

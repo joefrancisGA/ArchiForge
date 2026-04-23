@@ -5,7 +5,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("filterNavLinksForOperatorShell", () => {
-  const enterprise = NAV_GROUPS.find((g) => g.id === "alerts-governance");
+  const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
   it("keeps Alerts at essential tier and omits extended Enterprise links when extended disclosure is off", () => {
     expect(enterprise).toBeDefined();
@@ -119,7 +119,7 @@ describe("filterNavLinksForOperatorShell", () => {
    * not surface it until **Show more links** (`nav-tier` before `nav-authority`).
    */
   it("hides Core Pilot extended Execute link (/replay) until showExtended even for Admin rank", () => {
-    const core = NAV_GROUPS.find((g) => g.id === "runs-review");
+    const core = NAV_GROUPS.find((g) => g.id === "pilot");
 
     expect(core).toBeDefined();
 
@@ -228,7 +228,7 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
   });
 
   it("matches filterNavLinksForOperatorShell for the Enterprise group when extended is on", () => {
-    const enterprise = NAV_GROUPS.find((g) => g.id === "alerts-governance");
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
 
@@ -237,7 +237,7 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
       true,
       false,
       AUTHORITY_RANK.ReadAuthority,
-    ).find((r) => r.group.id === "alerts-governance");
+    ).find((r) => r.group.id === "operate-governance");
 
     expect(fromList).toBeDefined();
 

@@ -7,9 +7,11 @@ const DOCS_REPO_BASE =
   "https://github.com/joefrancisGA/ArchLucid/blob/main";
 
 /**
- * Trust and security home: procurement-oriented strip plus NDA-gated pen-test posture (no public summary badge).
+ * Operator trust and security home (signed-in shell). Procurement-oriented strip plus NDA-gated pen-test posture.
+ * Public engagement table lives at <c>/security-trust</c> (marketing) — this route is <c>/workspace/security-trust</c> so
+ * App Router does not collide with the parallel marketing page.
  */
-export default function SecurityTrustPage() {
+export default function OperatorSecurityTrustPage() {
   return (
     <div className="space-y-6">
       <LayerHeader pageKey="security-trust" />
@@ -67,7 +69,7 @@ export default function SecurityTrustPage() {
                 <td className="border-b border-neutral-100 px-3 py-2 font-medium dark:border-neutral-800/80">
                   NDA-gated security assessment
                 </td>
-                <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:border-neutral-300 dark:border-neutral-800/80">
+                <td className="border-b border-neutral-100 px-3 py-2 text-neutral-700 dark:text-neutral-300 dark:border-neutral-800/80">
                   Redacted third-party assessment material is shared under NDA; the marketing site and this page do not
                   host the redacted report body.
                 </td>

@@ -18,8 +18,8 @@ A read-focused **operator shell** for the three ArchLucid product layers:
 | Layer | What you do here |
 |-------|-----------------|
 | **Core Pilot** | Create runs, track execution, commit manifests, review and download artifacts |
-| **Advanced Analysis** | Compare runs, replay authority chains, explore provenance graphs, run Q&A and advisory scans |
-| **Enterprise Controls** | Governance approvals, policy packs, audit log, alerts, compliance drift |
+| **Operate (analysis workloads)** | Compare runs, replay authority chains, explore provenance graphs, run Q&A and advisory scans |
+| **Operate (governance and trust)** | Governance approvals, policy packs, audit log, alerts, compliance drift |
 
 It is not a replacement for Swagger or the CLI. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full capability inventory.
 
@@ -29,18 +29,18 @@ The shell surfaces the three-layer model without duplicating [OPERATOR_DECISION_
 
 - **Sidebar** — each nav group shows a one-line caption under the layer name (what that group is for).
 - **LayerHeader** — Compare, Replay, Graph, Governance dashboard, Alerts, and Audit pages open with a short “what question this answers” strip and a first-pilot reminder where relevant.
-- **Home** — after every Core Pilot checklist box is checked, a compact strip suggests Advanced Analysis next steps (still optional).
+- **Home** — after every Core Pilot checklist box is checked, a compact strip suggests Operate (analysis workloads) next steps (still optional).
 - **Run detail** — after a golden manifest exists, an optional strip links Compare / Replay / Graph for this run.
 
 Long-form “when to expand” tables remain in **OPERATOR_DECISION_GUIDE.md**; the UI carries only minimal affordances.
 
 ### Navigation authority hints (structural)
 
-The sidebar, mobile drawer, and **Ctrl+K** command palette can hide individual destinations when the signed-in principal is unlikely to satisfy the API for that workflow. Link metadata lives on **`NavLinkItem.requiredAuthority`** in `archlucid-ui/src/lib/nav-config.ts` and mirrors ASP.NET policy names **`ReadAuthority`**, **`ExecuteAuthority`**, and **`AdminAuthority`** (see repo root **`README.md`**, API authentication section). **`NAV_GROUPS[].id`** is the stable seam to **product packaging**: `runs-review` = Core Pilot, `qa-advisory` = Advanced Analysis, `alerts-governance` = Enterprise Controls (see **PRODUCT_PACKAGING.md** §3 *Code seams*).
+The sidebar, mobile drawer, and **Ctrl+K** command palette can hide individual destinations when the signed-in principal is unlikely to satisfy the API for that workflow. Link metadata lives on **`NavLinkItem.requiredAuthority`** in `archlucid-ui/src/lib/nav-config.ts` and mirrors ASP.NET policy names **`ReadAuthority`**, **`ExecuteAuthority`**, and **`AdminAuthority`** (see repo root **`README.md`**, API authentication section). **`NAV_GROUPS[].id`** is the stable seam to **product packaging**: `runs-review` = Core Pilot, `qa-advisory` = Operate (analysis workloads), `alerts-governance` = Operate (governance and trust) (see **PRODUCT_PACKAGING.md** §3 *Code seams*).
 
 The shell resolves a monotonic caller rank from **`GET /api/auth/me`** (same-origin **`/api/proxy/api/auth/me`**, role claims) via **`archlucid-ui/src/lib/current-principal.ts`** (`loadCurrentPrincipal`); `OperatorNavAuthorityProvider` consumes the same helper. Sidebar, mobile drawer, and command palette compose **tier + authority** in **`archlucid-ui/src/lib/nav-shell-visibility.ts`** and **omit whole nav groups** when every link in that group is filtered out (no empty headings). **This is not authorization:** routes still enforce policies server-side. Omitted `requiredAuthority` keeps a link visible for every resolved rank (used for **Home**, **Onboarding**, and other Core Pilot essentials so the default path stays open).
 
-Short **Enterprise Controls** context lines (nav subtitle + `LayerHeader` footnotes + execute-page hints) live in **`archlucid-ui/src/lib/enterprise-controls-context-copy.ts`** and **`EnterpriseControlsContextHints.tsx`** so omission does not feel arbitrary for readers (see **OPERATOR_DECISION_GUIDE.md** §2).
+Short **Operate (governance and trust)** context lines (nav subtitle + `LayerHeader` footnotes + execute-page hints) live in **`archlucid-ui/src/lib/enterprise-controls-context-copy.ts`** and **`EnterpriseControlsContextHints.tsx`** so omission does not feel arbitrary for readers (see **OPERATOR_DECISION_GUIDE.md** §2).
 
 **Contributors:** treat **`archlucid-ui/README.md`** (*Role-aware shaping*) as the canonical pointer list. Do not add ad-hoc `/me` fetches or duplicate policy logic in the browser; extend **`nav-config.ts`** + **`nav-shell-visibility.ts`** when adding routes so sidebar, mobile drawer, and palette stay consistent.
 
@@ -57,9 +57,9 @@ These four steps cover the complete first-pilot journey. They map directly to th
 3. **Run detail** — **Pipeline timeline** lists run-scoped audit events (oldest first) from **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. After commit, you see manifest summary, **Artifacts** (table with **Review** / **Download**).
 4. **Manifest / artifact** — From the golden manifest link or **Review**, you land on manifest-scoped or artifact review pages: metadata, in-shell preview (when available), raw disclosure, sibling artifact list.
 
-### Advanced Analysis (available once you have a committed run)
+### Operate (analysis workloads) (available once you have a committed run)
 
-Enable these by clicking **Show more links** in the sidebar footer. These are **Advanced Analysis** layer features.
+Enable these by clicking **Show more links** in the sidebar footer. These are **Operate (analysis workloads)** layer features.
 
 5. **Compare / replay** — **Compare runs**: enter base (left) and target (right) run IDs; structured manifest deltas first, then legacy flat diff; optional AI explanation. **Replay run**: pick mode and read validation flags/notes.
 6. **Graph** — Enter a **run ID** (from Runs or run detail), choose a view (full provenance, decision subgraph, neighborhood, architecture), **Load graph**. Use this when you need a **visual** graph, not the tabular compare flow.
@@ -67,9 +67,9 @@ Enable these by clicking **Show more links** in the sidebar footer. These are **
 
 Breadcrumb links on key pages tie **Home · Runs · Compare · Graph** together.
 
-### Enterprise Controls (require extended or advanced links)
+### Operate (governance and trust) (require extended or advanced links)
 
-These are **Enterprise Controls** layer features. Most require an operator or admin role and may require explicit configuration per environment (see `docs/PRE_COMMIT_GOVERNANCE_GATE.md`, `docs/ALERTS.md`).
+These are **Operate (governance and trust)** layer features. Most require an operator or admin role and may require explicit configuration per environment (see `docs/PRE_COMMIT_GOVERNANCE_GATE.md`, `docs/ALERTS.md`).
 
 - **Governance dashboard** — cross-run pending approvals and policy changes. Enable **Show more links**.
 - **Policy packs / Governance resolution** — versioned rule sets and effective policy view. Enable **Show more links**.

@@ -62,7 +62,7 @@ This narrative answers: *"Has anyone paid without a bespoke pilot?"* Keep claims
 
 ## Solution
 
-`<<SOLUTION_NARRATIVE>>` — Core Pilot path only unless they actually used Advanced Analysis or Enterprise Controls (call those out as follow-on, not Day-1).
+`<<SOLUTION_NARRATIVE>>` — Core Pilot path only unless they actually used Operate (analysis workloads) or Operate (governance and trust) (call those out as follow-on, not Day-1).
 
 Concrete details:
 

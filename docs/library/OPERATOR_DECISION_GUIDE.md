@@ -7,7 +7,7 @@
 
 **Audience:** pilot operators, architecture reviewers, governance operators, and customer teams who need to know which ArchLucid layer to use next without relying on founder-level interpretation.
 
-**Status:** Practical V1 usage guidance. This document explains **when to stay on the Core Pilot path, when to expand into Advanced Analysis, and when Enterprise Controls are worth using**.
+**Status:** Practical V1 usage guidance. This document explains **when to stay on the Core Pilot path, when to expand into Operate (analysis workloads), and when Operate (governance and trust) are worth using**.
 
 **Canonical buyer narrative:** [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md). **Measurement companion:** [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md). This document is usage guidance, not a second buyer narrative and not a second ROI brief.
 
@@ -21,7 +21,7 @@
 
 Start with **Core Pilot**.
 
-Do **not** move into Advanced Analysis or Enterprise Controls just because those features exist. Move only when a real question appears that the Core Pilot path does not answer well enough.
+Do **not** move into Operate (analysis workloads) or Operate (governance and trust) just because those features exist. Move only when a real question appears that the Core Pilot path does not answer well enough.
 
 That keeps the product easier to operate, keeps the first-value story clearer, and makes pilot value easier to judge.
 
@@ -29,7 +29,7 @@ That keeps the product easier to operate, keeps the first-value story clearer, a
 
 ## 2. Which layer should I use?
 
-| Situation | Stay in Core Pilot | Move to Advanced Analysis | Move to Enterprise Controls |
+| Situation | Stay in Core Pilot | Move to Operate (analysis workloads) | Move to Operate (governance and trust) |
 |---|---|---|---|
 | You need a reviewable architecture package from a request | Yes | No | No |
 | You need to compare two architecture outputs | No | Yes | No |
@@ -72,17 +72,17 @@ Use **Core Pilot** when the question is:
 
 If you are still trying to prove the first pilot, staying in Core Pilot is usually the right choice.
 
-The **Home** checklist, **onboarding** entry text, and **sidebar defaults** are biased the same way: Advanced Analysis and Enterprise Controls appear for discovery but are labeled **not first-pilot requirements** so time-to-value does not drift.
+The **Home** checklist, **onboarding** entry text, and **sidebar defaults** are biased the same way: Operate (analysis workloads) and Operate (governance and trust) appear for discovery but are labeled **not first-pilot requirements** so time-to-value does not drift.
 
 ---
 
-## 4. Advanced Analysis — use this when the next question is analytical
+## 4. Operate (analysis workloads) — use this when the next question is analytical
 
-Use **Advanced Analysis** when the question is:
+Use **Operate (analysis workloads)** when the question is:
 
 > What changed, why did it change, or what does the architecture/provenance picture look like in more detail?
 
-### Move to Advanced Analysis when you need to:
+### Move to Operate (analysis workloads) when you need to:
 
 - compare two runs,
 - replay a run or comparison,
@@ -92,19 +92,19 @@ Use **Advanced Analysis** when the question is:
 
 ### Do not move here just because it looks interesting
 
-Advanced Analysis is useful when there is a real review, debugging, or architecture-learning question.
+Operate (analysis workloads) is useful when there is a real review, debugging, or architecture-learning question.
 
 If your real goal is still simply to prove that ArchLucid speeds up architecture packaging and review, you can usually ignore this layer for the first pass.
 
 ---
 
-## 5. Enterprise Controls — use this when the next question is governance or trust
+## 5. Operate (governance and trust) — use this when the next question is governance or trust
 
-Use **Enterprise Controls** when the question is:
+Use **Operate (governance and trust)** when the question is:
 
 > How do we govern, audit, approve, monitor, and operationalize architecture decisions at scale?
 
-### Move to Enterprise Controls when you need to:
+### Move to Operate (governance and trust) when you need to:
 
 - require approvals,
 - enforce policy packs,
@@ -116,7 +116,7 @@ Use **Enterprise Controls** when the question is:
 
 ### Do not move here too early
 
-Enterprise Controls are valuable, but they are not required to prove the first Core Pilot result.
+Operate (governance and trust) are valuable, but they are not required to prove the first Core Pilot result.
 
 If you have not yet shown that ArchLucid improves speed, packaging effort, or evidence quality, start there first.
 
@@ -129,8 +129,8 @@ The operator shell adds **short in-product lines** on Enterprise entry points (n
 Use this order unless you have a strong reason to change it:
 
 1. **Core Pilot** — prove the product can produce a reviewable package and save effort.
-2. **Advanced Analysis** — answer change, replay, or graph questions if they become relevant.
-3. **Enterprise Controls** — add governance, audit, and compliance features when the organization is ready to operationalize the workflow.
+2. **Operate (analysis workloads)** — answer change, replay, or graph questions if they become relevant.
+3. **Operate (governance and trust)** — add governance, audit, and compliance features when the organization is ready to operationalize the workflow.
 
 This is the safest path for most pilots.
 
@@ -146,13 +146,13 @@ Do not treat this as a feature-tour sequence. Stay in **Core Pilot** until a rea
 - the team mainly needs a reviewable output,
 - the sponsor mainly cares about speed, evidence, and reduced manual effort.
 
-### Use Advanced Analysis if:
+### Use Operate (analysis workloads) if:
 
 - reviewers are asking what changed,
 - architecture teams need replay or graph visibility,
 - you are comparing alternatives or tracking evolution.
 
-### Use Enterprise Controls if:
+### Use Operate (governance and trust) if:
 
 - governance teams are now involved,
 - audit evidence matters,

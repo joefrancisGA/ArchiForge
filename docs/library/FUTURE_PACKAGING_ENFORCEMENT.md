@@ -18,8 +18,8 @@
 ArchLucid already has a clear three-layer model:
 
 - **Core Pilot**
-- **Advanced Analysis**
-- **Enterprise Controls**
+- **Operate (analysis workloads)**
+- **Operate (governance and trust)**
 
 That model is useful today for buyer clarity, operator guidance, and progressive disclosure.
 
@@ -38,8 +38,8 @@ Today, the layer model works in four ways:
 The layers explain the product clearly:
 
 - **Core Pilot** = first useful architecture result
-- **Advanced Analysis** = deeper comparison and investigation
-- **Enterprise Controls** = governance, auditability, compliance, and trust operations
+- **Operate (analysis workloads)** = deeper comparison and investigation
+- **Operate (governance and trust)** = governance, auditability, compliance, and trust operations
 
 ### 2.2 UI visibility shaping
 
@@ -47,7 +47,7 @@ The operator shell uses progressive disclosure so users do not see the entire pr
 
 ### 2.3 Role-shaped usage
 
-Some surfaces are naturally better suited to operators or admins, especially inside Enterprise Controls.
+Some surfaces are naturally better suited to operators or admins, especially inside Operate (governance and trust).
 
 ### 2.4 Commercial foundation
 

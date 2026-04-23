@@ -1,51 +1,47 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  WHY_ARCHLUCID_COMPARISON_ROWS,
-  WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-} from "./why-archlucid-comparison";
+import { WHY_ARCHLUCID_COMPARISON_ROWS } from "./why-archlucid-comparison";
 
-/** Every ArchLucid proof line must point at a docs/ or adr/ path so claims stay traceable to the repo. */
-const CITATION_EVIDENCE = /docs\/|docs\\|adr\/|adr\\/i;
+const FIRST_PARTY_CITATION = "first-party assertion (no external citation yet)";
 
-const EVIDENCE_API = /GET \/v1\/|POST \/v1\/|GET \/openapi\//i;
-
-const EVIDENCE_MARKETING = /\/marketing\/why\//i;
+const HTTPS = /^https:\/\//i;
 
 describe("WHY_ARCHLUCID_COMPARISON_ROWS", () => {
-  it("has at least twelve anchored rows", () => {
-    expect(WHY_ARCHLUCID_COMPARISON_ROWS.length).toBeGreaterThanOrEqual(12);
+  it("has exactly five differentiation rows (PDF + page + CI sync)", () => {
+    expect(WHY_ARCHLUCID_COMPARISON_ROWS).toHaveLength(5);
   });
 
-  it("requires a docs/ or adr/ citation on every ArchLucid cell", () => {
-    for (const row of WHY_ARCHLUCID_COMPARISON_ROWS) {
-      expect(row.archlucidCitation.trim().length, `dimension=${row.dimension}`).toBeGreaterThan(10);
-      expect(row.archlucidCitation, `dimension=${row.dimension}`).toMatch(CITATION_EVIDENCE);
+  it("requires non-empty claim, evidence, baseline, citation, and narrative on every row", () => {
+    for (const [index, row] of WHY_ARCHLUCID_COMPARISON_ROWS.entries()) {
+      expect(row.claim.trim(), `row=${index}`).not.toHaveLength(0);
+      expect(row.archlucidEvidence.trim(), `row=${index}`).not.toHaveLength(0);
+      expect(row.competitorBaseline.trim(), `row=${index}`).not.toHaveLength(0);
+      expect(row.citation.trim(), `row=${index}`).not.toHaveLength(0);
+      expect(row.narrativeParagraph.trim(), `row=${index}`).not.toHaveLength(0);
     }
   });
 
-  it("requires an evidence anchor with API path and marketing asset on every row", () => {
-    for (const row of WHY_ARCHLUCID_COMPARISON_ROWS) {
-      expect(row.evidenceAnchor.trim().length, `dimension=${row.dimension}`).toBeGreaterThan(8);
-      expect(row.evidenceAnchor, `dimension=${row.dimension}`).toMatch(EVIDENCE_API);
-      expect(row.evidenceAnchor, `dimension=${row.dimension}`).toMatch(EVIDENCE_MARKETING);
+  it("requires citation to be HTTPS or the explicit first-party disclaimer phrase", () => {
+    for (const [index, row] of WHY_ARCHLUCID_COMPARISON_ROWS.entries()) {
+      const ok = HTTPS.test(row.citation) || row.citation === FIRST_PARTY_CITATION;
+      expect(ok, `row=${index} citation=${row.citation}`).toBe(true);
     }
   });
 
-  it("requires the competitive-landscape §2.1 footnote on every row (incumbent + PDF alignment)", () => {
-    for (const row of WHY_ARCHLUCID_COMPARISON_ROWS) {
-      expect(row.competitorLandscapeCitation, `dimension=${row.dimension}`).toBe(WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION);
-      expect(row.competitorLandscapeCitation, `dimension=${row.dimension}`).toMatch(/COMPETITIVE_LANDSCAPE\.md/i);
-      expect(row.competitorLandscapeCitation, `dimension=${row.dimension}`).toContain("§2.1");
+  it("keeps evidence anchored to repo paths, routes, tests, workflows, or docs", () => {
+    const evidencePattern =
+      /(`[^`]+`)|(\bGET \/v1\/|\bPOST \/v1\/)|(\.(cs|md|json|yml|py)\b)|(\btests\/|\bscripts\/|\.github\/workflows\/)/i;
+
+    for (const [index, row] of WHY_ARCHLUCID_COMPARISON_ROWS.entries()) {
+      expect(row.archlucidEvidence, `row=${index}`).toMatch(evidencePattern);
     }
   });
 
-  it("keeps competitor columns non-empty", () => {
-    for (const row of WHY_ARCHLUCID_COMPARISON_ROWS) {
-      expect(row.leanix.trim(), `dimension=${row.dimension}`).not.toHaveLength(0);
-      expect(row.ardoq.trim(), `dimension=${row.dimension}`).not.toHaveLength(0);
-      expect(row.megaHopex.trim(), `dimension=${row.dimension}`).not.toHaveLength(0);
-      expect(row.archlucid.trim(), `dimension=${row.dimension}`).not.toHaveLength(0);
+  it("limits narrative to four sentences (buyer-facing PDF constraint)", () => {
+    for (const [index, row] of WHY_ARCHLUCID_COMPARISON_ROWS.entries()) {
+      const sentenceEnds = row.narrativeParagraph.match(/[.!?](?:\s|$)/g);
+      const count = sentenceEnds?.length ?? 0;
+      expect(count, `row=${index} narrative=${row.narrativeParagraph}`).toBeLessThanOrEqual(4);
     }
   });
 });

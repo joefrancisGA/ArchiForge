@@ -10,39 +10,24 @@ export type LayerHeaderProps = {
 };
 
 /**
- * Compact route-level reminder of which **product packaging layer** the page belongs to and when to use it.
- * Copy lives in **`layer-guidance.ts`** (`LayerGuidancePageKey` per route family); keep keys in sync when adding pages.
- * **`LayerGuidancePageKey`** is the UI counterpart to **docs/PRODUCT_PACKAGING.md** §3 *Code seams* (**`NAV_GROUPS[].id`**
- * → Core / Advanced / Enterprise); a new Enterprise route should add a key here and wire **`pageKey`** on the page.
- * **Contributor step:** **docs/PRODUCT_PACKAGING.md** §3 *Contributor drift guard* — **Guidance strip** (pair with **`nav-config`** / API policy when the route’s packaging story changes).
+ * Compact route-level reminder of which **buyer layer** the page belongs to (**Pilot** vs **Operate**) and when to use it.
+ * Copy lives in **`layer-guidance.ts`** (`LayerGuidancePageKey` per route family). **`useNavSurface()`** composes **Visibility**
+ * (this strip + nav tier rules) separately from **Capability** (`useOperateCapability` on each route).
  *
- * **Doc map:** buyer layers — **docs/PRODUCT_PACKAGING.md** §1–2; operator “when to use” — **docs/OPERATOR_DECISION_GUIDE.md**;
- * contributor seam table — **docs/PRODUCT_PACKAGING.md** §3 *Code seams*; change checklist — §3 *Contributor drift guard*
- * (align **`nav-config.ts`** `requiredAuthority` with C# **`ArchLucidPolicies`**).
+ * **Operate · governance** rows (non-null **`enterpriseFootnote`**): typography matches the governance slice; an **Execute+**
+ * rank cue line is composed only when **`callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority`** (**UI only** — API **`[Authorize]`** wins).
+ * **Operate · analysis** rows omit the footnote and do not show the Execute cue strip here.
  *
- * **Enterprise Controls** (`layerBadge === "Enterprise Controls"`): rank-aware line under **`enterpriseFootnote`**
- * (`callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority` ⇒ reader line, else operator line). **Cognitive / UI shaping
- * only** — same **Execute** numeric floor as **`useEnterpriseMutationCapability()`** for this cue line only; this component
- * **does not call** **`useEnterpriseMutationCapability()`** (mutation gating stays on each route). **`[Authorize(Policy = …)]`**
- * on **ArchLucid.Api** is still authoritative (**401/403**). **Does not implement** sidebar **tier** or **nav** inclusion
- * (**`nav-shell-visibility.ts`**); pair **`LayerHeader`** with correct **`nav-config.ts`** / route policies when adding pages.
- * **Other read vs write UX** (e.g. audit **CSV** by **`/me`** Auditor/Admin, not Execute rank) stays on the route with
- * **`currentPrincipal`** — **`LayerHeader`** only reflects rank for Enterprise rank cue + packaging copy.
- * Not entitlements or billing — **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
- *
- * @see **docs/PRODUCT_PACKAGING.md** §3 (*Contributor drift guard* — *Guidance strip* step) when adding Enterprise keys.
- * @see `LayerHeader.test.tsx` — Enterprise footnotes + rank cue (incl. conservative caller rank **0**); **`aside`** **`aria-label`** (badge + headline).
- * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`** contract (packaging ↔ this component).
- * @see `authority-execute-floor-regression.test.ts` — **`AUTHORITY_RANK.ExecuteAuthority`** used the same way for **nav** and **mutation** booleans; this component’s rank cue shares that numeric line (**UI only**).
- * @see `authority-shaped-ui-regression.test.ts` — **`nav-config`** catalog **`ExecuteAuthority`** rows vs rank (packaging metadata ↔ this strip’s **Execute** floor).
- * @see `enterprise-authority-ui-shaping.test.tsx` — mutation hook → Enterprise **`disabled`** / governance submit **`readOnly`** (same story as rank cue; API still **`[Authorize]`**).
- * @see `authority-shaped-layout-regression.test.tsx` — read-tier **page** column order / hierarchy (this strip does not control layout).
+ * @see `LayerHeader.test.tsx`
+ * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Operate slice contract.
+ * @see `operate-authority-ui-shaping.test.tsx` — mutation hook → **`disabled`** / **`readOnly`** on representative pages.
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const surface = useNavSurface(pageKey);
   const block = surface.layerGuidance;
-  const enterpriseRankCue = surface.contextHints.layerHeaderEnterpriseRankCue;
-  const isEnterpriseControls = block.enterpriseFootnote !== null && block.enterpriseFootnote !== undefined;
+  const operateExecuteRankCue = surface.contextHints.layerHeaderEnterpriseRankCue;
+  const usesOperateGovernanceFootnote =
+    block.enterpriseFootnote !== null && block.enterpriseFootnote !== undefined;
 
   return (
     <aside
@@ -59,7 +44,7 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
       <p
         className={cn(
           "m-0 mt-1 leading-snug",
-          isEnterpriseControls
+          usesOperateGovernanceFootnote
             ? "text-xs text-neutral-500 dark:text-neutral-400"
             : "text-sm text-neutral-600 dark:text-neutral-400",
         )}
@@ -74,13 +59,13 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
           {block.enterpriseFootnote}
         </p>
       ) : null}
-      {enterpriseRankCue ? (
+      {operateExecuteRankCue ? (
         <p
           className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400"
-          data-testid="layer-header-enterprise-rank-cue"
+          data-testid="layer-header-operate-execute-rank-cue"
           role="note"
         >
-          {enterpriseRankCue}
+          {operateExecuteRankCue}
         </p>
       ) : null}
     </aside>

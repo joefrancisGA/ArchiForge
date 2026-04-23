@@ -43,7 +43,7 @@
 | **Architecture import** | Structurizr DSL | Import architecture models from Structurizr workspace files | [Planned] |
 | **Architecture import** | ArchiMate XML | Import from TOGAF / ArchiMate modeling tools | [Planned] |
 | **Architecture import** | Terraform state | Parse `terraform show -json` output into ArchLucid context | [Planned] |
-| **ITSM** | Jira | Create Jira issues from findings; sync status back | [Planned] |
+| **ITSM** | Jira | Create Jira issues from findings; sync status back | **[V1.1 — planned]** — explicitly **out of scope for V1**, **in scope for V1.1** (Resolved 2026-04-23). See [`../library/V1_SCOPE.md` §3](../library/V1_SCOPE.md) and [`../library/V1_DEFERRED.md` §6](../library/V1_DEFERRED.md). For V1, integrate via **CloudEvents webhooks** or **REST API**. |
 | **ITSM** | Azure DevOps Work Items | Create work items from findings; sync status back | [Planned] |
 | **Observability** | SIEM export (CEF/syslog) | Native audit log export in SIEM-friendly formats | [Planned] — see [SIEM_EXPORT.md](SIEM_EXPORT.md) for current methods |
 | **CI/CD** | GitHub Actions | Architecture review as a PR check | [Example available] — see [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) |

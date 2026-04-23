@@ -166,7 +166,7 @@ docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-s
 | Typed findings with evidence | Step 9 |
 | Operator UI (Core Pilot layer) | Steps 5 → 9 |
 
-This is the **Core Pilot** path. **Advanced Analysis** (compare runs, replay, graph) and **Enterprise Controls** (governance approvals, policy packs, alerts) are progressive disclosures from the same UI — see **[docs/OPERATOR_DECISION_GUIDE.md](../library/OPERATOR_DECISION_GUIDE.md)** for when to reach for them.
+This is the **Core Pilot** path. **Operate (analysis workloads)** (compare runs, replay, graph) and **Operate (governance and trust)** (governance approvals, policy packs, alerts) are progressive disclosures from the same UI — see **[docs/OPERATOR_DECISION_GUIDE.md](../library/OPERATOR_DECISION_GUIDE.md)** for when to reach for them.
 
 ---
 

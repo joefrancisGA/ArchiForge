@@ -14,7 +14,7 @@ ArchLucid ships **two** complementary surfaces:
 | **`/onboarding`** and **`/onboarding/start`** | General **first-run orientation** and trial-aligned flows (sample run links, education steps). |
 | **`/onboard`** | **Core Pilot — first session** linear wizard: create architecture run → optional fake-result seed (non-Production) → commit golden manifest → hand-off link. Requires **`ExecuteAuthority`**. |
 
-The **`/onboard`** path exists so pilot teams can complete a **first manifest commit** without navigating Advanced Analysis or Enterprise Controls. It calls the same authenticated API helpers as the main shell (`createArchitectureRun`, `seedFakeArchitectureRunResults`, `commitArchitectureRun`).
+The **`/onboard`** path exists so pilot teams can complete a **first manifest commit** without navigating Operate (analysis workloads) or Operate (governance and trust). It calls the same authenticated API helpers as the main shell (`createArchitectureRun`, `seedFakeArchitectureRunResults`, `commitArchitectureRun`).
 
 **Product metric:** the first successful manifest commit per tenant can increment **`archlucid_first_session_completed_total`** when SQL persistence and **`TenantOnboardingState`** are enabled (see [`docs/OBSERVABILITY.md`](OBSERVABILITY.md)).
 

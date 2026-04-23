@@ -23,7 +23,7 @@ Help enterprise architecture and platform leaders **hire ArchLucid** to turn mes
 
 ## Architecture overview (buyer mental model)
 
-ArchLucid is an **AI-assisted architecture workflow** with three product layers: **Core Pilot** (request → run → commit → manifest & artifacts), **Advanced Analysis** (compare, replay, provenance), **Enterprise Controls** (governance, policy, alerts). See [../PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md).
+ArchLucid is an **AI-assisted architecture workflow** with three product layers: **Core Pilot** (request → run → commit → manifest & artifacts), **Operate (analysis workloads)** (compare, replay, provenance), **Operate (governance and trust)** (governance, policy, alerts). See [../PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md).
 
 ## Component breakdown (what the buyer touches)
 

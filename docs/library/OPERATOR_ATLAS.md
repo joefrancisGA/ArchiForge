@@ -42,7 +42,7 @@
 
 ---
 
-## Advanced Analysis
+## Operate (analysis workloads)
 
 | Action | CLI | Primary API | Operator UI | Authority | Runbook / doc |
 |--------|-----|-------------|-------------|-----------|---------------|
@@ -59,7 +59,7 @@
 
 ---
 
-## Enterprise Controls
+## Operate (governance and trust)
 
 | Action | CLI | Primary API | Operator UI | Authority | Runbook / doc |
 |--------|-----|-------------|-------------|-----------|---------------|
@@ -73,7 +73,7 @@
 | Governance dashboard | — | dashboard aggregates | `/governance/dashboard` | Read | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
 | Governance workflow (mutations) | — | workflow POSTs | `/governance` | Execute | [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) |
 | Audit log | — | `/v1/audit…` | `/audit` | Read (+ Auditor role for CSV where documented) | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md) |
-| Security & trust center | — | static + trust payloads | `/security-trust` | Read | [SECURITY.md](../../SECURITY.md) |
+| Security & trust center | — | static + trust payloads | `/workspace/security-trust` (public table: `/security-trust`) | Read | [SECURITY.md](../../SECURITY.md) |
 | Value report DOCX | — | value report generation | `/value-report` | Execute | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) |
 
 ---

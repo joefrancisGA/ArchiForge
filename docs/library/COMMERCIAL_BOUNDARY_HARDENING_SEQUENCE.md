@@ -18,8 +18,8 @@
 ArchLucid now has a strong three-layer model:
 
 - **Core Pilot**
-- **Advanced Analysis**
-- **Enterprise Controls**
+- **Operate (analysis workloads)**
+- **Operate (governance and trust)**
 
 The next commercialization problem is not whether the model exists. The problem is **how to harden the right boundaries in the right order**.
 
@@ -69,7 +69,7 @@ Reduce ambiguity and dependency on documentation alone.
 - shape advanced surfaces more explicitly by context,
 - clarify where operator/admin responsibility changes the expected experience.
 
-**Shipped in `archlucid-ui` (first wave, not commercial gating):** tier + `requiredAuthority` nav shaping (`nav-config.ts`, `nav-authority.ts`, `nav-shell-visibility.ts`, `OperatorNavAuthorityProvider.tsx`, `current-principal.ts`), plus short Enterprise context copy (`enterprise-controls-context-copy.ts`, `EnterpriseControlsContextHints.tsx`, `layer-guidance.ts` `enterpriseFootnote`) and route-level **`LayerHeader.tsx`** (keys in `layer-guidance.ts`). **Execute-tier** in-page write affordances use `enterprise-mutation-capability.ts` / `useEnterpriseMutationCapability` so **button enablement** tracks the **same numeric rank** as **nav link visibility** (both derive from `/me` claims; API responses remain authoritative). **Core Pilot** remains the default path; **Enterprise Controls** are the primary place for stricter shaping. This does **not** implement billing, entitlements, or plan-based feature flags—see **Stage 2** for stronger role-enforced boundaries as a separate step.
+**Shipped in `archlucid-ui` (first wave, not commercial gating):** tier + `requiredAuthority` nav shaping (`nav-config.ts`, `nav-authority.ts`, `nav-shell-visibility.ts`, `OperatorNavAuthorityProvider.tsx`, `current-principal.ts`), plus short Enterprise context copy (`enterprise-controls-context-copy.ts`, `EnterpriseControlsContextHints.tsx`, `layer-guidance.ts` `enterpriseFootnote`) and route-level **`LayerHeader.tsx`** (keys in `layer-guidance.ts`). **Execute-tier** in-page write affordances use `enterprise-mutation-capability.ts` / `useEnterpriseMutationCapability` so **button enablement** tracks the **same numeric rank** as **nav link visibility** (both derive from `/me` claims; API responses remain authoritative). **Core Pilot** remains the default path; **Operate (governance and trust)** are the primary place for stricter shaping. This does **not** implement billing, entitlements, or plan-based feature flags—see **Stage 2** for stronger role-enforced boundaries as a separate step.
 
 **Read vs Execute (same threshold, two surfaces):** **`navLinkVisibleForCallerRank`** only controls **whether a link appears** after tier filtering. **`useEnterpriseMutationCapability()`** uses **`rank >= AUTHORITY_RANK.ExecuteAuthority`** for **soft-disabled controls** on mutation-heavy pages — not a second policy matrix; keep both aligned with **C#** `[Authorize(Policy = …)]` when routes move.
 
@@ -87,8 +87,8 @@ This improves adoption and clarity without risking the Core Pilot wedge.
 
 ### Good Stage 1 candidates
 
-- Advanced Analysis surfaces
-- Governance dashboards and related Enterprise Controls entry points
+- Operate (analysis workloads) surfaces
+- Governance dashboards and related Operate (governance and trust) entry points
 - advanced alert and audit surfaces
 - post-Core-Pilot expansion guidance
 
@@ -104,7 +104,7 @@ Make responsibility-based boundaries more real where operational accountability 
 
 - strengthen operator/admin restrictions for governance and audit features,
 - make policy, audit, and alert-management capabilities more explicitly role-bound,
-- reduce ambiguity about who should use which Enterprise Controls surfaces.
+- reduce ambiguity about who should use which Operate (governance and trust) surfaces.
 
 ### Why this comes second
 

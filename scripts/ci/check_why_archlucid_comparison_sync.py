@@ -1,6 +1,6 @@
 """CI guard: keep the ``/why`` inline comparison rows and the PDF builder rows in sync.
 
-The competitive-comparison rows on the public ``/why`` marketing page are rendered from
+The differentiation rows on the public ``/why`` marketing page are rendered from
 ``archlucid-ui/src/marketing/why-archlucid-comparison.ts`` (TypeScript), and the same rows
 are emitted into the side-by-side PDF pack by
 ``ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs`` (C#). The two source files are
@@ -10,8 +10,8 @@ Decision: **PENDING_QUESTIONS.md item 31**, resolved 2026-04-21 (ship both PDF a
 section, with a CI sync check).
 
 The check is intentionally a **content** comparison, not a tokenized AST diff. It extracts
-seven fields per row from each file (``dimension``, ``leanix``, ``ardoq``, ``megaHopex``,
-``archlucid``, ``archlucidCitation``, ``evidenceAnchor``) and asserts equality after light normalization
+five fields per row from each file (``claim``, ``archlucidEvidence``, ``competitorBaseline``,
+``citation``, ``narrativeParagraph``) and asserts equality after light normalization
 (collapse whitespace, decode common JSON / C-string escapes).
 
 Usage:
@@ -37,13 +37,11 @@ TS_RELATIVE: str = "archlucid-ui/src/marketing/why-archlucid-comparison.ts"
 CS_RELATIVE: str = "ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs"
 
 ROW_FIELDS: Tuple[str, ...] = (
-    "dimension",
-    "leanix",
-    "ardoq",
-    "megaHopex",
-    "archlucid",
-    "archlucidCitation",
-    "evidenceAnchor",
+    "claim",
+    "archlucidEvidence",
+    "competitorBaseline",
+    "citation",
+    "narrativeParagraph",
 )
 
 
@@ -85,7 +83,7 @@ def _extract_ts_rows(ts_text: str) -> List[Tuple[str, ...]]:
     The TS file declares::
 
         export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchlucidComparisonRow[] = [
-            { dimension: "...", leanix: "...", ardoq: "...", ... },
+            { claim: "...", archlucidEvidence: "...", ... },
             ...
         ];
 
@@ -134,20 +132,20 @@ def _extract_ts_rows(ts_text: str) -> List[Tuple[str, ...]]:
 
 
 def _extract_cs_rows(cs_text: str) -> List[Tuple[str, ...]]:
-    """Pull the tuple-array literal inside ``BuildIncumbentMarkdownTable`` and parse each row.
+    """Pull the tuple-array literal inside ``BuildDifferentiationMarkdownTable`` and parse each row.
 
-    Each tuple is seven C# string literals in the order
-    ``(Dimension, Leanix, Ardoq, Mega, Archlucid, ArchCitation, EvidenceAnchor)``.
+    Each tuple is five C# string literals in the order
+    ``(Claim, ArchlucidEvidence, CompetitorBaseline, Citation, Narrative)``.
     """
     method_match = re.search(
-        r"BuildIncumbentMarkdownTable\s*\(\)\s*\{(?P<body>.*?)return\s+t\.ToString",
+        r"BuildDifferentiationMarkdownTable\s*\(\)\s*\{(?P<body>.*?)return\s+t\.ToString",
         cs_text,
         re.DOTALL,
     )
 
     if method_match is None:
         raise ValueError(
-            f"Could not locate BuildIncumbentMarkdownTable in {CS_RELATIVE}."
+            f"Could not locate BuildDifferentiationMarkdownTable in {CS_RELATIVE}."
         )
 
     body = method_match.group("body")
@@ -156,7 +154,7 @@ def _extract_cs_rows(cs_text: str) -> List[Tuple[str, ...]]:
 
     if array_match is None:
         raise ValueError(
-            f"Could not locate the tuple-array literal in {CS_RELATIVE} BuildIncumbentMarkdownTable body."
+            f"Could not locate the tuple-array literal in {CS_RELATIVE} BuildDifferentiationMarkdownTable body."
         )
 
     rows_text = array_match.group("rows")
@@ -294,7 +292,7 @@ def main() -> int:
         f"  TS source: {TS_RELATIVE}\n"
         f"  C# source: {CS_RELATIVE}\n"
         "  Decision: PENDING_QUESTIONS.md item 31 (resolved 2026-04-21) requires both surfaces to render the\n"
-        "  same dimensions and the same ArchLucid citations. Update both files in the same commit.",
+        "  same five differentiation rows. Update both files in the same commit.",
         file=sys.stderr,
     )
 

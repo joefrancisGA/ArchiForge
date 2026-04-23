@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
-import { EnterpriseControlsNavGroupHint } from "@/components/EnterpriseControlsContextHints";
+import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -28,7 +28,7 @@ const STORAGE_PREFIX = "archlucid_sidebar_group_";
 
 /** Alerts & governance is collapsed by default until the user explicitly opens it (localStorage "1"). */
 function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean {
-  if (groupId === "alerts-governance") {
+  if (groupId === "operate-governance") {
     return raw === "1";
   }
 
@@ -56,10 +56,10 @@ export function SidebarNav() {
           const raw = window.localStorage.getItem(STORAGE_PREFIX + group.id);
           next[group.id] = readGroupOpenFromStorage(group.id, raw);
         } else {
-          next[group.id] = group.id !== "alerts-governance";
+          next[group.id] = group.id !== "operate-governance";
         }
       } catch {
-        next[group.id] = group.id !== "alerts-governance";
+        next[group.id] = group.id !== "operate-governance";
       }
     }
 
@@ -107,7 +107,7 @@ export function SidebarNav() {
                     {group.caption}
                   </span>
                 ) : null}
-                {group.id === "alerts-governance" ? <EnterpriseControlsNavGroupHint /> : null}
+                {group.id === "operate-governance" ? <OperateCapabilityNavGroupHint /> : null}
               </span>
               <ChevronDown
                 className={cn("mt-0.5 h-4 w-4 shrink-0 transition-transform", isOpen ? "rotate-0" : "-rotate-90")}

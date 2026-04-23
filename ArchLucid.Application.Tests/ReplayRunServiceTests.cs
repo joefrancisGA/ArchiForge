@@ -3,6 +3,7 @@ using System.Data;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -11,6 +12,7 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
@@ -19,6 +21,8 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -31,6 +35,14 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class ReplayRunServiceTests
 {
+    private static IActorContext UnitTestActor()
+    {
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("unit-test");
+
+        return actor.Object;
+    }
+
     private static Mock<IAuthorityCommittedManifestChainWriter> CreateAuthorityChainWriterMock()
     {
         Mock<IAuthorityCommittedManifestChainWriter> mock = new();
@@ -94,7 +106,10 @@ public sealed class ReplayRunServiceTests
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            Mock.Of<IAuditService>(),
+            UnitTestActor(),
+            NullLogger<ReplayRunService>.Instance);
 
         Func<Task> act = async () => await sut.ReplayAsync("missing", ExecutionModes.Current, false, null, CancellationToken.None);
 
@@ -212,7 +227,10 @@ public sealed class ReplayRunServiceTests
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            Mock.Of<IAuditService>(),
+            UnitTestActor(),
+            NullLogger<ReplayRunService>.Instance);
 
         ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);
 
@@ -390,7 +408,10 @@ public sealed class ReplayRunServiceTests
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            Mock.Of<IAuditService>(),
+            UnitTestActor(),
+            NullLogger<ReplayRunService>.Instance);
 
         ReplayRunResult output =
             await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: true, manifestVersionOverride: "v-override", CancellationToken.None);

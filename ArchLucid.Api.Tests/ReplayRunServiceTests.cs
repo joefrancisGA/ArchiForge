@@ -3,10 +3,12 @@ using System.Data;
 using ArchLucid.Application;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Interfaces;
@@ -14,6 +16,8 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -26,6 +30,14 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ReplayRunServiceTests
 {
+    private static IActorContext UnitTestActor()
+    {
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("unit-test");
+
+        return actor.Object;
+    }
+
     private static Mock<IAuthorityCommittedManifestChainWriter> CreateAuthorityChainWriterMock()
     {
         Mock<IAuthorityCommittedManifestChainWriter> mock = new();
@@ -88,7 +100,10 @@ public sealed class ReplayRunServiceTests
             _manifestRepository.Object,
             _decisionTraceRepository.Object,
             _evidenceRepository.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            Mock.Of<IAuditService>(),
+            UnitTestActor(),
+            NullLogger<ReplayRunService>.Instance);
     }
 
     [Fact]

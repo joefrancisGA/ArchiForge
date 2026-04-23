@@ -1,189 +1,85 @@
 /**
- * Head-to-head rows for the public /why page. Competitor cells summarize
- * docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a72.1. ArchLucid cells summarize
- * docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a73 with repo-path citations only.
- * Every row includes a procurement `evidenceAnchor`: a live `GET/POST /v1/...` path
- * plus a static asset under `public/marketing/why/` (replace SVG with screenshots when ready).
+ * Five benchmarked differentiation rows for the public `/why` page and the
+ * `GET /v1/marketing/why-archlucid-pack.pdf` Markdown table. **Keep in lockstep**
+ * with `ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs` (`BuildDifferentiationMarkdownTable`)
+ * — CI enforces byte-for-row equality via `scripts/ci/check_why_archlucid_comparison_sync.py`.
+ *
+ * Each row is grounded in a capability that exists in this repository today; `citation` is either a
+ * public HTTPS URL or the explicit phrase `first-party assertion (no external citation yet)` where we
+ * state category baselines without a third-party study.
  */
-/** Single anchor for every LeanIX / Ardoq / MEGA HOPEX cell (PDF + page + tests stay aligned). */
-export const WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION =
-  "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a72.1";
-
 export type WhyArchLucidComparisonRow = {
-  dimension: string;
-  leanix: string;
-  ardoq: string;
-  megaHopex: string;
-  archlucid: string;
-  /** Footnote for incumbent columns ? must equal `WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION` (Vitest-enforced). */
-  competitorLandscapeCitation: string;
-  /** Must reference a repository evidence path (see why-archlucid-comparison.test.ts). */
-  archlucidCitation: string;
-  /**
-   * Procurement anchor: HTTP surface customers can exercise in evaluation **plus** a marketing asset path
-   * (`/marketing/...` maps to `archlucid-ui/public/marketing/...`).
-   */
-  evidenceAnchor: string;
+  /** One-sentence ArchLucid-only capability (buyer-safe, no pejorative vendor names). */
+  claim: string;
+  /** Repo path, HTTP route, test class, or runbook anchor a reviewer can open. */
+  archlucidEvidence: string;
+  /** Neutral category + concrete cost or pattern (hours or “post-hoc only”, etc.). */
+  competitorBaseline: string;
+  /** External URL **or** the exact first-party disclaimer phrase (see module header). */
+  citation: string;
+  /** Short narrative (≤4 sentences) rendered under the table row in the PDF pack. */
+  narrativeParagraph: string;
 };
 
+/**
+ * Exactly five rows — marketing page, PDF Markdown, and Vitest all depend on this count.
+ */
 export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[] = [
   {
-    dimension: "AI capability",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Basic: AI-assisted survey analysis, application rationalization suggestions",
-    ardoq: "Basic: change impact simulation",
-    megaHopex: "Minimal: rule-based analysis",
-    archlucid:
-      "Multi-agent pipeline (Topology, Cost, Compliance, Critic) with explainable findings; simulator mode for CI.",
-    archlucidCitation:
-      "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a73 (Multi-agent AI pipeline); docs/V1_SCOPE.md \u00a72 Core Pilot",
-    evidenceAnchor: "GET /v1/demo/explain \u00b7 /marketing/why/evidence-callout.svg",
+    claim:
+      "ArchLucid records **typed audit events** in SQL for mutating API work and returns **scope-filtered** listings over `GET /v1/audit` and `GET /v1/audit/search`, so reviewers can anchor evidence to the same tenant/workspace/project slice the operator UI uses.",
+    archlucidEvidence:
+      "`ArchLucid.Api/Controllers/Admin/AuditController.cs` · `ArchLucid.Persistence.Audit` · `docs/library/AUDIT_COVERAGE_MATRIX.md` · `ArchLucid.Core/Audit/AuditEventTypes.cs`",
+    competitorBaseline:
+      "Incumbent diagram-and-doc stacks typically scatter decisions across wikis, tickets, and decks; **reconstructing one architecture review cycle** for a single initiative often costs **2–6 skilled hours** of manual assembly (**first-party assertion (no external citation yet)**).",
+    citation: "first-party assertion (no external citation yet)",
+    narrativeParagraph:
+      "The audit controller is rate-limited and `ReadAuthority`-gated like other list surfaces, but the payload is **append-only rows** keyed to scope, not a free-form page history. The matrix doc lists the **78** event constants so procurement can map controls to rows. Together they mean \"prove what happened on this run\" is a **query**, not an archaeology sprint. Export and CSV tiers remain documented separately from this read surface.",
   },
   {
-    dimension: "Governance depth",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Moderate: lifecycle management, technology risk, survey workflows",
-    ardoq: "Moderate: change scenarios, impact analysis",
-    megaHopex: "Strong: TOGAF / ArchiMate workflow, compliance matrices",
-    archlucid:
-      "Approval workflows, promotions, pre-commit governance gate, segregation of duties, policy packs (V1).",
-    archlucidCitation:
-      "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a73 (Governance workflow); docs/V1_SCOPE.md \u00a72 Enterprise Controls",
-    evidenceAnchor: "GET /v1/policy-packs/effective-content \u00b7 /marketing/why/evidence-callout.svg",
+    claim:
+      "ArchLucid enforces **tenant isolation at SQL Server** using `SESSION_CONTEXT`-driven row-level security policies wired through the persistence layer, not only application-layer filters.",
+    archlucidEvidence:
+      "`docs/security/MULTI_TENANT_RLS.md` · `ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs` · SQL migrations under `ArchLucid.Persistence` (RLS objects)",
+    competitorBaseline:
+      "Multi-tenant products that rely on **per-customer schemas** or ad-hoc database splits often add **8–20 DBA/engineering hours** per new tenant for provisioning, migration, and backup policy (**first-party assertion (no external citation yet)**).",
+    citation:
+      "https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17",
+    narrativeParagraph:
+      "RLS is boring on purpose: the session context is set on connections so even an honest mistake in a repository query still cannot cross tenants. The integration tests lock the ArchLucid scope keys the API relies on. The security doc explains what is deployed versus what remains historical naming. That combination is what lets hosted SaaS teams sleep during a noisy neighbor incident.",
   },
   {
-    dimension: "Audit trail",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Basic: change history on entities",
-    ardoq: "Basic: change log",
-    megaHopex: "Moderate: workflow audit",
-    archlucid: "Typed audit event catalog, append-only SQL audit trail, searchable export (V1).",
-    archlucidCitation:
-      "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a73 (Durable audit); docs/AUDIT_COVERAGE_MATRIX.md",
-    evidenceAnchor: "GET /v1/alerts \u00b7 /marketing/why/evidence-callout.svg",
+    claim:
+      "Operators can enable **`ArchLucid:Governance:PreCommitGateEnabled`** so **golden manifest commits** consult governance findings and policy assignments **before** the commit succeeds, returning a structured problem response when blocked.",
+    archlucidEvidence:
+      "`docs/library/PRE_COMMIT_GOVERNANCE_GATE.md` · `ArchLucid.Application/Governance/PreCommitGovernanceGate.cs` · `ArchLucid.Application.Tests/ArchitectureRunCommitPipelineIntegrationTests.cs` (gate exercised)",
+    competitorBaseline:
+      "Teams that depend on **post-merge pull-request review only** discover policy violations **after** the manifest is already treated as canonical — rework lands in **ITSM-only tools** as incident debt (**first-party assertion (no external citation yet)**).",
+    citation: "https://csrc.nist.gov/projects/ssdf",
+    narrativeParagraph:
+      "The gate is opt-in because some pilots need speed first; when flipped on, the commit path calls the same governance evaluation code paths the docs describe. Integration tests prove the blocked branch emits durable audit semantics. That is a different class of safety than a comment thread checkbox.",
   },
   {
-    dimension: "Explainability",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "None (recommendations are opaque)",
-    ardoq: "None",
-    megaHopex: "None",
-    archlucid: "Structured ExplainabilityTrace per finding; aggregate run explanation and citations (V1).",
-    archlucidCitation:
-      "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a73 (Explainability trace); docs/V1_SCOPE.md",
-    evidenceAnchor: "GET /v1/explain/runs/{runId}/aggregate \u00b7 /marketing/why/evidence-callout.svg",
+    claim:
+      "CI **locks golden-cohort expected manifest fingerprints** via `GoldenCohortBaselineConstants` and `scripts/ci/assert_golden_cohort_baseline_locked.py`, and the **golden-cohort nightly workflow** exercises the cohort on a schedule separate from product unit tests.",
+    archlucidEvidence:
+      "`ArchLucid.Application/GoldenCohort/GoldenCohortBaselineConstants.cs` · `scripts/ci/assert_golden_cohort_baseline_locked.py` · `.github/workflows/golden-cohort-nightly.yml` · `tests/golden-cohort/cohort.json`",
+    competitorBaseline:
+      "Manual **prompt regression review** for each model or policy change — often **half a day per release** of unstructured diff reading — is the usual substitute when no locked cohort exists (**first-party assertion (no external citation yet)**).",
+    citation:
+      "https://github.com/joefrancisGA/ArchLucid/blob/main/.github/workflows/golden-cohort-nightly.yml",
+    narrativeParagraph:
+      "The placeholder SHA constant exists so CI can fail loudly until an owner-approved baseline lock run replaces zeros with real fingerprints. The assert script is the merge-blocking guardrail; the nightly workflow is where longer cohort work runs. Together they document **deterministic drift detection** instead of vibes-based \"the model feels fine.\"",
   },
   {
-    dimension: "Deployment",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "SaaS-only",
-    ardoq: "SaaS-only",
-    megaHopex: "SaaS or on-prem",
-    archlucid: "Azure-native vendor-operated SaaS reference stack; containerized local evaluation (V1).",
-    archlucidCitation: "docs/adr/0020-azure-primary-platform-permanent.md; docs/V1_SCOPE.md \u00a72.4 Deployability",
-    evidenceAnchor: "GET /v1/version \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Architecture outputs",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Inventory-centric modeling and surveys",
-    ardoq: "Graph and scenario visualization",
-    megaHopex: "ArchiMate / compliance matrices",
-    archlucid:
-      "Versioned golden manifest, replay/compare/drift, exports (Markdown/DOCX/ZIP) from committed runs (V1).",
-    archlucidCitation:
-      "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a73 (Comparison and drift; Export and reporting); docs/V1_SCOPE.md",
-    evidenceAnchor: "GET /v1/artifacts/manifests/{manifestId}/bundle \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Multi-cloud posture (inventory vs. run-scoped review)",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Cloud-agnostic (inventory, not design)",
-    ardoq: "Cloud-agnostic (inventory)",
-    megaHopex: "Cloud-agnostic",
-    archlucid:
-      "Most ALM catalogs stay inventory-wide; ArchLucid scopes review to a committed run with manifest, findings, and exports tied to that run id (V1).",
-    archlucidCitation:
-      "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a72.1 (Multi-cloud row); docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a73",
-    evidenceAnchor: "GET /v1/architecture/run/{runId} \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Integration breadth (connectors vs. contract-first API)",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Extensive: 50+ connectors, REST API, Jira, ServiceNow, CMDB",
-    ardoq: "Moderate: REST API, Jira, ServiceNow",
-    megaHopex: "Moderate: ArchiMate exchange, REST API",
-    archlucid:
-      "Most ALM suites emphasize connector catalogs; ArchLucid publishes OpenAPI v1 plus generated .NET client for CI and procurement automation (V1).",
-    archlucidCitation:
-      "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a72.1 (Integration breadth row); docs/go-to-market/INTEGRATION_CATALOG.md \u00a71",
-    evidenceAnchor: "GET /openapi/v1.json \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Decision-grade two-run explanation",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Exports and surveys; manual reconciliation between baselines",
-    ardoq: "Scenario views; not a persisted golden-manifest compare API",
-    megaHopex: "Workflow-centric reports; not the same shape as replayable manifest diff",
-    archlucid:
-      "Most ALM tools cannot return a single GET with stakeholder narrative plus structured compare payload across two committed runs; ArchLucid exposes it under /v1/explain (V1).",
-    archlucidCitation: "docs/go-to-market/COMPETITIVE_LANDSCAPE.md \u00a73 (Comparison and drift); docs/EXPLANATION_SCHEMA.md",
-    evidenceAnchor: "GET /v1/explain/compare/explain \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Proof-of-ROI JSON aligned to sponsor narrative",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Dashboards vary; seldom a run-scoped time-to-commit JSON contract",
-    ardoq: "Custom analytics; not standardized for pilots",
-    megaHopex: "Project metrics; not the same sponsor-facing delta shape",
-    archlucid:
-      "Most ALM tools do not ship a dedicated pilot JSON for time-to-commit, findings buckets, and audit counts on a single run id; ArchLucid does via /v1/pilots (V1).",
-    archlucidCitation: "docs/API_CONTRACTS.md \u00a7Pilots; docs/go-to-market/PILOT_ROI_MODEL.md",
-    evidenceAnchor: "GET /v1/pilots/runs/{runId}/pilot-run-deltas \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Sponsor PDF parity with Markdown body",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Print-to-PDF from views; not guaranteed single-source with narrative",
-    ardoq: "Export decks; manual assembly for sponsors",
-    megaHopex: "Report packs; heavy formatting workflow",
-    archlucid:
-      "Most ALM exports diverge from chat narrative; ArchLucid posts the same first-value Markdown through a PDF projection endpoint for email-ready sharing (V1).",
-    archlucidCitation: "docs/API_CONTRACTS.md \u00a7Pilots; docs/EXECUTIVE_SPONSOR_BRIEF.md \u00a71",
-    evidenceAnchor: "POST /v1/pilots/runs/{runId}/first-value-report.pdf \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Anonymous commit-shaped demo preview",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Guided tours; gated trials",
-    ardoq: "Read-only sandboxes per vendor policy",
-    megaHopex: "Training datasets; not anonymous architecture commits",
-    archlucid:
-      "Most ALM demos require tenant setup; ArchLucid serves a cached anonymous demo preview JSON plus marketing `/demo/preview` for procurement walkthroughs (V1).",
-    archlucidCitation: "docs/DEMO_PREVIEW.md; docs/adr/0027-demo-preview-cached-anonymous-commit-page.md",
-    evidenceAnchor: "GET /v1/demo/preview \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Operator why-archlucid telemetry snapshot",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "Partner slides; not a live API bundle for evaluators",
-    ardoq: "Analyst PDFs; static counters",
-    megaHopex: "Workshop materials; manual assembly",
-    archlucid:
-      "Most ALM vendors do not publish a read-only snapshot endpoint backing an in-product proof page; ArchLucid exposes counters + demo run pointers for /why-archlucid (V1).",
-    archlucidCitation: "docs/API_CONTRACTS.md \u00a7Pilots; docs/operator-shell.md",
-    evidenceAnchor: "GET /v1/pilots/why-archlucid-snapshot \u00b7 /marketing/why/evidence-callout.svg",
-  },
-  {
-    dimension: "Teams notification wiring (tenant-scoped)",
-    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
-    leanix: "ITSM/email bridges; Teams via generic integration patterns",
-    ardoq: "Webhook recipes; operator-managed",
-    megaHopex: "Notification workflows inside suite",
-    archlucid:
-      "Most ALM catalogs omit a first-party Teams incoming-webhook registration API per tenant; ArchLucid documents and ships `/v1/integrations/teams/connections` (V1).",
-    archlucidCitation:
-      "docs/go-to-market/INTEGRATION_CATALOG.md \u00a71; docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md",
-    evidenceAnchor: "GET /v1/integrations/teams/connections \u00b7 /marketing/why/evidence-callout.svg",
+    claim:
+      "After commit, **`IFindingEvidenceChainService`** reconstructs explainability links for findings, and **`GET /v1/authority/runs/{runId}/provenance`** returns a **decision provenance graph** tying manifest, graph snapshot, findings snapshot, authority trace, and artifacts when the authority pipeline is complete.",
+    archlucidEvidence:
+      "`ArchLucid.Application/Explanation/IFindingEvidenceChainService.cs` · `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs` (provenance action) · `docs/library/KNOWLEDGE_GRAPH.md`",
+    competitorBaseline:
+      "Static architecture decision logs **without traversable evidence linkage** force readers to **manually open** ten attachments per finding (**first-party assertion (no external citation yet)**).",
+    citation: "https://en.wikipedia.org/wiki/Data_provenance",
+    narrativeParagraph:
+      "The provenance endpoint deliberately returns **422** until the golden manifest, graph snapshot, findings snapshot, and trace exist — that honesty avoids marketing a graph that is not there. The evidence-chain service is what feeds richer explanations and pilot deltas when data is present. The knowledge-graph doc is the operator-facing map of how to read the UI graph modes.",
   },
 ];

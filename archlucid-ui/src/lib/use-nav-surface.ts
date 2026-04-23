@@ -31,17 +31,15 @@ import {
 } from "@/lib/nav-shell-visibility";
 
 /**
- * Selected, rank-aware text snippets that the four `EnterpriseControlsContextHints`
- * helpers and `LayerHeader` would render today. `null` means "this hint is intentionally
- * hidden at this rank for this route" (matches the existing components' early-`return null`
- * paths so callers can substitute the composed value 1:1).
+ * Selected, rank-aware text snippets that **`OperateCapabilityHints`** and **`LayerHeader`**
+ * would render today. `null` means "this hint is intentionally hidden at this rank for this route".
  */
 export type NavSurfaceContextHints = {
-  /** Sidebar / mobile drawer second line under the Enterprise Controls group caption. */
+  /** Sidebar / mobile drawer second line under the **Operate · governance** nav group caption. */
   readonly enterpriseNavGroupHint: string;
   /** Page cue on Execute-floor mutation pages — only rendered when caller is below Execute. */
   readonly enterpriseExecutePageHint: string | null;
-  /** `LayerHeader`'s rank-aware footnote; null on non-Enterprise pages. */
+  /** `LayerHeader`'s Execute+ rank cue; null outside **Operate · governance** guidance or below Execute rank. */
   readonly layerHeaderEnterpriseRankCue: string | null;
   /** Governance-resolution second line. */
   readonly governanceResolutionRank: string;
@@ -58,8 +56,8 @@ export type NavSurfaceContextHints = {
 /**
  * Composed, route-scoped UI shaping surface returned by {@link useNavSurface}. Each
  * field is sourced from the existing single-purpose surface module so the four
- * underlying surfaces (`nav-shell-visibility`, `enterprise-mutation-capability`,
- * `layer-guidance`, `EnterpriseControlsContextHints`) remain the implementation
+ * underlying surfaces (`nav-shell-visibility`, `operate-capability` /
+ * `enterprise-mutation-capability`, `layer-guidance`, `OperateCapabilityHints`) remain the implementation
  * detail and the only place the rank/tier rules live.
  */
 export type NavSurface = {
@@ -76,7 +74,7 @@ export type NavSurface = {
 /**
  * Single composed surface hook for any operator route that today calls
  * `nav-shell-visibility` + `useEnterpriseMutationCapability` + `LayerHeader` +
- * `EnterpriseControlsContextHints` separately. Callers pass the
+ * `OperateCapabilityHints` separately. Callers pass the
  * {@link LayerGuidancePageKey} that matches the route family (the same key the
  * page already passes to `<LayerHeader pageKey=… />`).
  *
@@ -88,9 +86,9 @@ export type NavSurface = {
  * @see `nav-shell-visibility.ts` for tier → authority → empty-group composition.
  * @see `enterprise-mutation-capability.ts` for the Execute+ mutation floor.
  * @see `layer-guidance.ts` for `LAYER_PAGE_GUIDANCE` packaging copy.
- * @see `EnterpriseControlsContextHints.tsx` for the rendered rank cue components.
- * @see `use-nav-surface.test.ts` — equivalence vs the four surfaces individually.
- * @see docs/PRODUCT_PACKAGING.md §3 *Four UI shaping surfaces* — *Composed surface (preferred)*.
+ * @see `OperateCapabilityHints.tsx` for the rendered rank cue components.
+ * @see `use-nav-surface.test.ts` — equivalence vs the underlying modules individually.
+ * @see docs/PRODUCT_PACKAGING.md §3 *Two UI shaping surfaces* — *Composed surface (preferred)*.
  */
 export function useNavSurface(routeKey: LayerGuidancePageKey): NavSurface {
   const callerAuthorityRank = useNavCallerAuthorityRank();
@@ -139,20 +137,14 @@ function composeContextHints(
   callerAuthorityRank: number,
   mutationCapability: boolean,
 ): NavSurfaceContextHints {
-  // `isReader` mirrors what `EnterpriseControlsContextHints` checks today —
-  // anything below Execute is a "reader" for the purposes of the rank cues. We
-  // derive it from `mutationCapability` (which itself reads
-  // `enterpriseMutationCapabilityFromRank`) so the floor stays in exactly one
-  // place across the four shaping surfaces.
+  // `isReader` mirrors what `OperateCapabilityHints` checks today — anything below Execute is a "reader"
+  // for the purposes of the rank cues. We derive it from `mutationCapability` so the floor stays in one place.
   const isReader = !mutationCapability;
-  const isEnterpriseControls =
-    layerGuidance.layerBadge === "Enterprise Controls" && layerGuidance.enterpriseFootnote != null;
+  const isOperateGovernanceGuidance =
+    layerGuidance.layerBadge === "Operate" && layerGuidance.enterpriseFootnote != null;
 
-  const layerHeaderEnterpriseRankCue = isEnterpriseControls
-    ? isReader
-      ? layerHeaderEnterpriseReaderRankLine
-      : layerHeaderEnterpriseOperatorRankLine
-    : null;
+  const layerHeaderEnterpriseRankCue =
+    isOperateGovernanceGuidance && mutationCapability ? layerHeaderEnterpriseOperatorRankLine : null;
 
   const enterpriseExecutePageHint = isReader ? enterpriseExecutePageHintReaderRank : null;
   const governanceDashboardReaderAction = isReader ? governanceDashboardReaderActionLine : null;

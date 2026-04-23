@@ -1,6 +1,8 @@
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /**
+ * @deprecated Prefer {@link operateCapabilityFromRank} from `@/lib/operate-capability`. Removed after next minor release.
+ *
  * Whether the caller’s numeric rank should **soft-enable** Execute-class POST/toggle controls on Enterprise-heavy
  * operator pages (governance workflow, policy lifecycle, alert tooling writes, inbox triage, etc.).
  *

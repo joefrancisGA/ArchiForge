@@ -431,7 +431,7 @@ Do this:
    webhook URL via Key Vault references (not raw URLs in SQL).
    Encryption posture: same as existing webhook delivery secrets.
 3. Add operator UI shaping: the integrations/teams page is in
-   Enterprise Controls tier; gate behind ExecuteAuthority for write,
+   Operate (governance and trust) tier; gate behind ExecuteAuthority for write,
    ReadAuthority for view. Add to nav-config.ts and the cross-module
    Vitest seam tests (authority-seam-regression.test.ts,
    authority-execute-floor-regression.test.ts).

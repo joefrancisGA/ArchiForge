@@ -146,7 +146,7 @@ For V1, success usually looks like this:
 ### 5.3 Exceptional success bar
 
 - The pilot created visible sponsor confidence.
-- The team wants to expand into Advanced Analysis or Enterprise Controls.
+- The team wants to expand into Operate (analysis workloads) or Operate (governance and trust).
 - Governance, audit, or architecture review stakeholders actively prefer the ArchLucid flow.
 
 ---
@@ -206,7 +206,7 @@ For the cleanest ROI story:
 - Use **one clear architecture use case**.
 - Stay on the **Core Pilot** path first.
 - Measure speed, packaging effort, and evidence quality.
-- Only then expand into **Advanced Analysis** or **Enterprise Controls**.
+- Only then expand into **Operate (analysis workloads)** or **Operate (governance and trust)**.
 
 This keeps the pilot honest and makes sponsor judgment easier.
 

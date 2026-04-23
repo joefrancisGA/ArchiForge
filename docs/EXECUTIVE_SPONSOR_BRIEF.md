@@ -54,9 +54,9 @@ ArchLucid is designed to reduce those problems.
 
 ---
 
-## 3. What the Core Pilot proves
+## 3. What Pilot proves
 
-A successful Core Pilot should prove that a team can:
+A successful Pilot should prove that a team can:
 
 - move from a structured request to a committed manifest faster,
 - produce reviewable architecture artifacts with less manual assembly,
@@ -86,46 +86,30 @@ For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](library/PILOT_
 
 ---
 
-## 5. What Advanced Analysis adds
+## 5. What Operate adds
 
-After the Core Pilot is proven, **Advanced Analysis** helps teams answer deeper questions such as:
+After **Pilot** is proven, **Operate** is the second buyer-facing layer. It combines everything that helps teams go deeper after the first committed manifest:
 
-- what changed between two runs,
-- why the change matters,
-- how to replay and inspect architecture decisions,
-- and how to view provenance or architecture graph representations.
+**Analysis and investigation** — answer questions such as what changed between two runs, why the change matters, how to replay and inspect architecture decisions, and how to view provenance or architecture graph representations.
 
-This layer is useful when the organization moves from first-value proof into deeper design understanding.
+**Governance and trust** — when the organization is ready to operationalize architecture decision workflows more broadly: governance approvals, policy packs, auditability, compliance drift visibility, alerts, and operational control surfaces. That half of Operate is where ArchLucid becomes more directly relevant to governance, audit, security, and compliance stakeholders.
 
----
-
-## 6. What Enterprise Controls adds
-
-When the organization is ready to operationalize architecture decision workflows more broadly, **Enterprise Controls** adds:
-
-- governance approvals,
-- policy packs,
-- auditability,
-- compliance drift visibility,
-- alerts and operational control surfaces.
-
-This is where ArchLucid becomes more directly relevant to governance, audit, security, and compliance stakeholders.
+Progressive disclosure still applies: deeper governance and write-oriented operator affordances remain aligned with **Execute** rank and tier rules in the shell (see [PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)); the API remains authoritative for **401/403**.
 
 ---
 
-## 7. What expansion would look like
+## 6. What expansion would look like
 
 A practical adoption path is:
 
-1. **Core Pilot** — prove speed, artifact readiness, and evidence quality.
-2. **Advanced Analysis** — improve change understanding, replay, and design investigation.
-3. **Enterprise Controls** — support governance, auditability, policy enforcement, and scaled operational trust.
+1. **Pilot** — prove speed, artifact readiness, and evidence quality on the default path.
+2. **Operate** — add deeper analysis, replay, and graph investigation when real questions require them; add governance, audit, alerts, and policy when the organization is ready to operationalize those workflows.
 
 That sequence keeps adoption disciplined and makes value easier to defend internally.
 
 ---
 
-## 8. What not to over-claim yet
+## 7. What not to over-claim yet
 
 ArchLucid should not be sold as a magic answer to every architecture or governance problem.
 
@@ -143,7 +127,7 @@ The strongest V1 claim is simpler:
 
 ---
 
-## 9. What success should allow a sponsor to say
+## 8. What success should allow a sponsor to say
 
 After a strong pilot, a sponsor should be able to say:
 
@@ -153,6 +137,6 @@ That is a credible sponsor-level outcome.
 
 ---
 
-## 10. Limits of AI explanations (citations vs. proof)
+## 9. Limits of AI explanations (citations vs. proof)
 
 Explanations in ArchLucid combine **LLM-generated narrative** with **persisted artifacts** (manifests, findings, decision traces, optional bundles). The UI surfaces **citation links** to those artifacts so reviewers know **where the system grounded** an answer. That improves transparency; it does **not** turn an LLM paragraph into a **legal attestation** or a **formal verification**. The sponsor-safe stance: treat AI text as **decision support**; treat manifests, findings, traces, and governance records as **reviewable evidence** for human sign-off.
