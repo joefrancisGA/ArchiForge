@@ -14,8 +14,8 @@ from pathlib import Path
 
 
 SPINE_FILES: tuple[str, ...] = (
-    "docs/INSTALL_ORDER.md",
-    "docs/FIRST_30_MINUTES.md",
+    "docs/engineering/INSTALL_ORDER.md",
+    "docs/engineering/FIRST_30_MINUTES.md",
     "docs/CORE_PILOT.md",
     "docs/ARCHITECTURE_ON_ONE_PAGE.md",
     "docs/PENDING_QUESTIONS.md",

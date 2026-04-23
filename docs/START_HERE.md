@@ -15,7 +15,7 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 | **Buyer / evaluator / sponsor / customer** | The public site (`archlucid.com`), the in-product **operator UI** after sign-in, and the **Azure portal** only for your own tenant identity / billing artefacts. | **[`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)** → **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** → cloud trial signup at `archlucid.com/signup`. | **No Docker. No SQL. No .NET / Node SDKs. No Terraform. No CLI.** If any doc tells you to install one of those, you are reading a **contributor** doc by mistake. |
 | **ArchLucid contributor / engineer / internal operator** | The repo, your local toolchain (Docker / SQL container / .NET / Node), the GitHub workflows, and (operator only) the production Azure subscription via OIDC. | The **five-document contributor spine** below. | None — this column is the one with the toolchain. |
 
-> **What about the buyer's first 30 minutes inside the product?** Today the cloud trial funnel (`archlucid.com/signup → /demo/preview → first sample run`) is wired in code but **not yet live in production** — see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §1.2 / §3 and [`runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md). The buyer-facing equivalent of `FIRST_30_MINUTES.md` is therefore a **planned doc, not an existing one**; drafting the copy is owner-controlled (brand voice).
+> **What about the buyer's first 30 minutes inside the product?** Today the cloud trial funnel (`archlucid.com/signup → /demo/preview → first sample run`) is wired in code but **not yet live in production** — see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §1.2 / §3 and [`runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md). The buyer-facing equivalent of [`engineering/FIRST_30_MINUTES.md`](engineering/FIRST_30_MINUTES.md) is therefore a **planned doc, not an existing one**; drafting the copy is owner-controlled (brand voice).
 
 ## Assumptions
 
@@ -63,8 +63,8 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 
 | # | Document | Role | Time |
 |---|----------|------|------|
-| 1 | **[`INSTALL_ORDER.md`](INSTALL_ORDER.md)** | Contributor toolchain + install order (Docker, .NET, Node) | ~10 min |
-| 2 | **[`FIRST_30_MINUTES.md`](FIRST_30_MINUTES.md)** | First committed manifest + finding on a contributor laptop (Docker) | ~30 min |
+| 1 | **[`engineering/INSTALL_ORDER.md`](engineering/INSTALL_ORDER.md)** | Contributor toolchain + install order (Docker, .NET, Node) | ~10 min |
+| 2 | **[`engineering/FIRST_30_MINUTES.md`](engineering/FIRST_30_MINUTES.md)** | First committed manifest + finding on a contributor laptop (Docker) | ~30 min |
 | 3 | **[`CORE_PILOT.md`](CORE_PILOT.md)** | First pilot / operator motion (read for context; safe for buyers too) | ~20 min |
 | 4 | **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** | Poster + ownership (safe for buyers too) | ~15 min |
 | 5 | **[`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)** | Owner decisions + gates | ~10 min |

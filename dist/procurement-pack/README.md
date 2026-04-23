@@ -6,11 +6,11 @@
 
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package and helps teams produce committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
 
-**Try it:** run **`dotnet run --project ArchLucid.Cli -- try`** from the repo root when you have the .NET 10 SDK and Docker, or run **`.\scripts\demo-start.ps1`** on Windows for the Docker-only demo stack.
+**Try it (buyer / sponsor / evaluator path):** sign up at **`archlucid.com`** — no install, no Docker, no SQL, no .NET. The trial funnel sits you in the in-product operator UI in front of a sample architecture run.
 
-**Walkthrough** (includes screenshot placeholders): [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)
+**Sponsor / buyer narrative:** [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)
 
-- **Sponsor / buyer narrative:** [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)
+> **Have an engineer reviewing this pack?** The contributor / internal-engineer first-run walkthrough (Docker; for people who want to look at the code) is at [docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md). It is **not** required to evaluate ArchLucid — the trial funnel above is.
 
 <details>
 <summary><strong>Deeper docs</strong> — full README (install, personas, layers, API, CLI, tests, architecture)</summary>
@@ -25,17 +25,22 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 ## Getting started
 
-**Canonical install order (any role):** **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** — what to install, in what order, for local dev vs Azure pilot.
+> **Audience.** ArchLucid is a **SaaS** product. **Buyers / evaluators / sponsors / customers never install Docker, SQL, .NET, Node, or Terraform** — they sign up at **`archlucid.com`** and use the in-product operator UI. The links in the table below labelled *"contributor / internal operator"* are for engineers on **your** side who want to look at the code; they are **not** required for procurement evaluation.
 
-**Pick your persona (single front door per role).** If you have never run ArchLucid on this machine, **Docker-only evaluation:** **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** needs nothing but Docker.
+**Buyer / sponsor / evaluator entry point:** **`archlucid.com`** (in-product trial — no install).
 
-| You are a... | Start here (five-document spine) |
+**Canonical install order (contributor / internal operator only):** **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** — what to install, in what order, for local dev vs Azure pilot.
+
+**Pick your persona.**
+
+| You are a... | Start here |
 |---|---|
-| **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop (pilot up → seed → sample run → committed manifest → first-value Markdown report → operator UI opens). Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/CLI_USAGE.md#archlucid-try)). |
-| **Evaluator — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)) |
-| **Operator running a real pilot** (curl, CLI, release smoke) | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** |
-| **Developer** about to commit code | **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** |
-| **SRE / Platform** owner | **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** |
+| **Buyer / sponsor / evaluator / customer** | **`archlucid.com`** (sign up; no install) — narrative: [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md); architecture poster: [docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md) |
+| **Contributor / internal operator** (Docker only, no .NET / Node / cloud keys) | **[docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop. Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/CLI_USAGE.md#archlucid-try)). |
+| **Contributor — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)) |
+| **Internal operator running a real pilot** (curl, CLI, release smoke) | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** |
+| **Developer** about to commit code | **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** |
+| **SRE / Platform** owner | **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** |
 | **Security / GRC** reviewer | **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)** |
 | **Executive sponsor / buyer** | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** — canonical outward narrative remains **`docs/EXECUTIVE_SPONSOR_BRIEF.md`** (open in repo; not a spine table link). |
 
@@ -86,7 +91,7 @@ lifecycle hooks (run completion, governance, alerts, advisory scans).
 
 ## Prerequisites
 
-See **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** for the pinned toolchain (.NET SDK from [`global.json`](global.json), Docker, Node **22** per CI, SQL) and verification commands.
+See **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** for the pinned toolchain (.NET SDK from [`global.json`](global.json), Docker, Node **22** per CI, SQL) and verification commands. *(Contributor / internal-operator only; customers never install these tools.)*
 
 ## Operator UI (`archlucid-ui`)
 

@@ -173,7 +173,7 @@ internal static class DoctorCommand
         Console.WriteLine("--- SaaS profile hints (operator checklist) ---");
         Console.WriteLine(
             "These rows are **not** fetched from the API host process; they inspect local environment variables " +
-            "the SaaS profile expects. See `ArchLucid.Api/appsettings.SaaS.json` and `docs/FIRST_30_MINUTES.md`.");
+            "the SaaS profile expects. See `ArchLucid.Api/appsettings.SaaS.json` and `docs/engineering/FIRST_30_MINUTES.md`.");
 
         static string Cell(string value)
         {
@@ -192,7 +192,7 @@ internal static class DoctorCommand
         Console.WriteLine(
             $"| `ARCHLUCID_API_KEY` for `/health` aggregate | {Cell(apiKey)} | Export a read-capable API key (see `docs/runbooks/API_KEY_ROTATION.md`). |");
         Console.WriteLine(
-            $"| SQL connection string | {Cell(sql)} | Set `ConnectionStrings__ArchLucid` or `ARCHLUCID__ConnectionStrings__ArchLucid` (see `docs/FIRST_30_MINUTES.md`). |");
+            $"| SQL connection string | {Cell(sql)} | Set `ConnectionStrings__ArchLucid` or `ARCHLUCID__ConnectionStrings__ArchLucid` (see `docs/engineering/FIRST_30_MINUTES.md`). |");
         Console.WriteLine(
             "| `Authentication:ApiKey:DevelopmentBypassAll` | MANUAL | Must be **false** in SaaS; see `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`. |");
         Console.WriteLine(

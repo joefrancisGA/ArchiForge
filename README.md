@@ -35,21 +35,23 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 ## Getting started
 
-**Canonical install order (any role):** **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** — what to install, in what order, for local dev vs Azure pilot.
+> **Audience.** This README and the documents linked from it are for **ArchLucid contributors and internal operators** building, testing, or operating ArchLucid itself. **Buyers / evaluators / sponsors / customers** never run Docker, SQL, .NET, Node, or any local CLI — they sign up at **`archlucid.com`** and use the in-product operator UI. See **[docs/START_HERE.md](docs/START_HERE.md)** "Audience split" for the customer entry path and **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)** for the canonical outward narrative.
 
-**Pick your persona (single front door per role).** If you have never run ArchLucid on this machine, **Docker-only evaluation:** **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** needs nothing but Docker.
+**Canonical install order (contributor / internal operator):** **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** — what to install, in what order, for local dev vs Azure pilot.
 
-| You are a... | Start here (five-document spine) |
+**Pick your contributor persona.** If you have never run ArchLucid on this machine, **Docker-only first-run:** **[docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)** needs nothing but Docker.
+
+| You are a... | Start here (contributor / internal-operator path) |
 |---|---|
-| **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop (pilot up → seed → sample run → committed manifest → first-value Markdown report → operator UI opens). Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/library/CLI_USAGE.md#archlucid-try)). |
-| **Evaluator — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)) |
-| **Operator running a real pilot** (curl, CLI, release smoke) | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** |
-| **Developer** about to commit code | **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** |
-| **SRE / Platform** owner | **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** |
+| **First-time contributor / internal operator** (Docker only, no .NET / Node / cloud keys) | **[docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop (pilot up → seed → sample run → committed manifest → first-value Markdown report → operator UI opens). Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/library/CLI_USAGE.md#archlucid-try)). |
+| **Contributor — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)) |
+| **Internal operator running a real pilot** (curl, CLI, release smoke) | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** |
+| **Developer** about to commit code | **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** |
+| **SRE / Platform** owner | **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** |
 | **Security / GRC** reviewer | **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)** |
 | **Executive sponsor / buyer** | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** — canonical outward narrative remains **`docs/EXECUTIVE_SPONSOR_BRIEF.md`** (open in repo; not a spine table link). |
 
-A short redirect hub remains at **[docs/START_HERE.md](docs/START_HERE.md)** for legacy bookmarks. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](docs/library/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/library/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/library/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/library/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/library/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
+**Customer entry point (no install):** **[docs/START_HERE.md](docs/START_HERE.md)** "Audience split" — explicit buyer / sponsor / evaluator path that never asks them to install Docker, SQL, .NET, Node, or Terraform. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](docs/library/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/library/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/library/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/library/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/library/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
 
 ## Product layers
 
@@ -79,7 +81,7 @@ Full capability inventory: **[docs/PRODUCT_PACKAGING.md](docs/library/PRODUCT_PA
 
 ## Operator quick start
 
-- **Health:** `GET /health/live` (liveness), `GET /health/ready` (readiness: DB when using Sql storage, schema files, compliance rule pack, temp dir), `GET /health` (all checks). See [docs/BUILD.md](docs/library/BUILD.md) for startup vs migration failure behavior.
+- **Health:** `GET /health/live` (liveness), `GET /health/ready` (readiness: DB when using Sql storage, schema files, compliance rule pack, temp dir), `GET /health` (all checks). See [docs/engineering/BUILD.md](docs/engineering/BUILD.md) for startup vs migration failure behavior.
 - **Versioned API:** Routes are under `/v1/...`. Send optional **`X-Correlation-ID`** on requests for support correlation (see [docs/API_CONTRACTS.md](docs/library/API_CONTRACTS.md)).
 - **Auth:** Configure **`ArchLucidAuth`**: shipped **`appsettings.json`** defaults to **`ApiKey`** mode with API keys **disabled** (fail closed) until you enable keys; **`appsettings.Development.json`** switches to **`DevelopmentBypass`** when `ASPNETCORE_ENVIRONMENT=Development`. Production samples use **`JwtBearer`**. Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
 - **SMB / storage:** Do not expose file shares (SMB, port 445) on the public internet; use private endpoints and controlled boundaries for any Azure storage or hybrid file access.
@@ -96,7 +98,7 @@ lifecycle hooks (run completion, governance, alerts, advisory scans).
 
 ## Prerequisites
 
-See **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** for the pinned toolchain (.NET SDK from [`global.json`](global.json), Docker, Node **22** per CI, SQL) and verification commands.
+See **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** for the pinned toolchain (.NET SDK from [`global.json`](global.json), Docker, Node **22** per CI, SQL) and verification commands.
 
 ## Operator UI (`archlucid-ui`)
 
@@ -126,7 +128,7 @@ From the ArchLucid repo directory (or any directory containing `docker-compose.y
 dotnet run --project ArchLucid.Cli -- dev up
 ```
 
-This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. For the **Docker-only evaluator path** with Contoso demo seed and simulator agents, use `.\scripts\demo-start.ps1` or see [docs/go-to-market/DEMO_QUICKSTART.md](docs/go-to-market/DEMO_QUICKSTART.md). See [docs/CONTAINERIZATION.md](docs/library/CONTAINERIZATION.md).
+This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. For the **internal-operator Docker-only demo** with Contoso demo seed and simulator agents (used by sales for seller-led demos; **not** the customer first-run path), use `.\scripts\demo-start.ps1` or see [docs/go-to-market/DEMO_QUICKSTART.md](docs/go-to-market/DEMO_QUICKSTART.md). See [docs/engineering/CONTAINERIZATION.md](docs/engineering/CONTAINERIZATION.md).
 
 Use this connection string with the API:
 
@@ -212,7 +214,7 @@ dotnet test ArchLucid.sln
 cd archlucid-ui && npm ci && npm test
 ```
 
-**ArchLucid.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchLucidApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/library/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
+**ArchLucid.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchLucidApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/engineering/BUILD.md](docs/engineering/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
 
 **Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/library/API_CONTRACTS.md).
 
