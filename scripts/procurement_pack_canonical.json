@@ -2,7 +2,7 @@
   "canonical_entries": [
     {
       "pack_path": "SECURITY.md",
-      "source_repo_path": "docs/SECURITY.md",
+      "source_repo_path": "docs/library/SECURITY.md",
       "description": "Security policy and operational commitments"
     },
     {
@@ -32,7 +32,7 @@
     },
     {
       "pack_path": "AUDIT_COVERAGE_MATRIX.md",
-      "source_repo_path": "docs/AUDIT_COVERAGE_MATRIX.md",
+      "source_repo_path": "docs/library/AUDIT_COVERAGE_MATRIX.md",
       "description": "Audit event coverage"
     },
     {
@@ -42,7 +42,7 @@
     },
     {
       "pack_path": "ACCESSIBILITY.md",
-      "source_repo_path": "docs/ACCESSIBILITY.md",
+      "source_repo_path": "docs/library/ACCESSIBILITY.md",
       "description": "Accessibility posture / WCAG alignment"
     },
     {
@@ -67,22 +67,22 @@
     },
     {
       "pack_path": "API_CONTRACTS.md",
-      "source_repo_path": "docs/API_CONTRACTS.md",
+      "source_repo_path": "docs/library/API_CONTRACTS.md",
       "description": "API contract surface"
     },
     {
       "pack_path": "INTEGRATION_EVENTS_AND_WEBHOOKS.md",
-      "source_repo_path": "docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md",
+      "source_repo_path": "docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md",
       "description": "Integration events and webhooks"
     },
     {
       "pack_path": "CUSTOMER_TRUST_AND_ACCESS.md",
-      "source_repo_path": "docs/CUSTOMER_TRUST_AND_ACCESS.md",
+      "source_repo_path": "docs/library/CUSTOMER_TRUST_AND_ACCESS.md",
       "description": "Customer trust and access model"
     },
     {
       "pack_path": "V1_SCOPE.md",
-      "source_repo_path": "docs/V1_SCOPE.md",
+      "source_repo_path": "docs/library/V1_SCOPE.md",
       "description": "V1 product scope"
     },
     {
