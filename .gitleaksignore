@@ -2,3 +2,6 @@
 # docs/AUDIT_RETENTION_POLICY.md; content removed from later commits. See gitleaks rule curl-auth-header.
 a538addceb7d7e059e336d3a03df1b149d433ade:docs/AUDIT_RETENTION_POLICY.md:curl-auth-header:69
 a538addceb7d7e059e336d3a03df1b149d433ade:docs/AUDIT_RETENTION_POLICY.md:curl-auth-header:80
+
+# PGP recipe doc: generic-api-key false positive on instructional prose (Key ID / fingerprint wording); not a credential.
+67a9eac2baafb4f35ded134c1ceec4d864de80e3:docs/security/PGP_KEY_GENERATION_RECIPE.md:generic-api-key:144

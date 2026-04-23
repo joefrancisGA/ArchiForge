@@ -142,7 +142,7 @@ You must see **`-----BEGIN PGP PUBLIC KEY BLOCK-----`** at the top and **`-----E
 
 3. **After merge**, confirm the marketing host serves **`/.well-known/pgp-key.txt`** over **HTTPS** (same path as source).
 
-4. **Fingerprint (short form) for humans:** take the **last 16 hex digits** of the fingerprint (sometimes called **64-bit key id**). Append to [SECURITY.md](../../SECURITY.md) under the PGP section and to [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) Contact bullets using a short line such as **Key ID** followed by those sixteen digits from `gpg --fingerprint` (do not paste sample key material into git; use only your real values after generation).
+4. **Short fingerprint for humans:** copy only the **last sixteen hexadecimal characters** of the primary fingerprint (OpenPGP refers to this as the **64‑bit key identifier**). Add that substring to [SECURITY.md](../../SECURITY.md) under the PGP section and to [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) Contact bullets with whatever label your house style uses for the short form (run `gpg --fingerprint` locally and transcribe **only** digits from your real key—never commit invented or sample fingerprint material to this repository).
 
 5. Update the **custodian record** table at the bottom of **this** file with the full fingerprint.
 
