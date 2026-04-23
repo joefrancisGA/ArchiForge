@@ -13,7 +13,7 @@
 
 | Theme | Response (summary) | Evidence in repo |
 |-------|----------------------|------------------|
-| Security policies maintained | Yes — engineering [`SECURITY.md`](../SECURITY.md); incident comms [`../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md`](../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md) | Links |
+| Security policies maintained | Yes — engineering [`SECURITY.md`](../library/SECURITY.md); incident comms [`../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md`](../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md) | Links |
 | Risk assessments | Partial — STRIDE [`SYSTEM_THREAT_MODEL.md`](SYSTEM_THREAT_MODEL.md); external pen test SoW [`pen-test-summaries/2026-Q2-SOW.md`](pen-test-summaries/2026-Q2-SOW.md) | Links |
 | Management oversight | Partial — SOC2 roadmap [`../go-to-market/SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md) | Link |
 
@@ -28,14 +28,14 @@
 | Theme | Response | Evidence |
 |-------|----------|----------|
 | Data classification | Partial — tenant isolation doc [`../go-to-market/TENANT_ISOLATION.md`](../go-to-market/TENANT_ISOLATION.md) | Link |
-| Encryption in transit | Yes — TLS to API; private endpoints optional [`../CUSTOMER_TRUST_AND_ACCESS.md`](../CUSTOMER_TRUST_AND_ACCESS.md) | Link |
+| Encryption in transit | Yes — TLS to API; private endpoints optional [`../CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Link |
 | Encryption at rest | Yes — Azure SQL / storage platform defaults (see Terraform modules under `infra/`) | IaC |
 
 ## Operations (OPS)
 
 | Theme | Response | Evidence |
 |-------|----------|----------|
-| Logging / monitoring | Yes — audit matrix [`../AUDIT_COVERAGE_MATRIX.md`](../AUDIT_COVERAGE_MATRIX.md); SLOs [`../API_SLOS.md`](../API_SLOS.md) | Links |
+| Logging / monitoring | Yes — audit matrix [`../AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md); SLOs [`../API_SLOS.md`](../library/API_SLOS.md) | Links |
 | Vulnerability management | Partial — Dependabot / `dotnet list package --vulnerable` in CI; ZAP + Schemathesis scheduled | CI workflows |
 
 ## Application security (APP)

@@ -7,7 +7,7 @@
 
 **Goal:** Ship a small, safe change or run the **ArchLucid** stack locally with confidence. **Not** full domain mastery. (Repo and projects: `ArchLucid.*`.)
 
-**Canonical operator action map:** [OPERATOR_ATLAS.md](../OPERATOR_ATLAS.md) (UI route × API × CLI × authority — use this instead of memorizing scattered onboarding-only lists).
+**Canonical operator action map:** [OPERATOR_ATLAS.md](../library/OPERATOR_ATLAS.md) (UI route × API × CLI × authority — use this instead of memorizing scattered onboarding-only lists).
 
 > **Install order moved.** See [INSTALL_ORDER.md](../INSTALL_ORDER.md). This page now only covers Developer week-one tasks **after** install.
 
@@ -19,8 +19,8 @@
 
 - [ ] **1. Toolchain done** — You finished the **Local dev** column in the canonical one-pager (see [../START_HERE.md](../START_HERE.md) first table row) — SDK, Docker/`dev up`, connection string, API **`/health/ready`**, optional UI `npm ci`.
 - [ ] **2. Fast tests** — Run the Core corset (matches CI fast job):  
-  `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"` ([TEST_EXECUTION_MODEL.md](../TEST_EXECUTION_MODEL.md)).
-- [ ] **3. One contract** — Skim [API_CONTRACTS.md](../API_CONTRACTS.md) (versioning `/v1`, correlation ID, one status code you will handle).
+  `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"` ([TEST_EXECUTION_MODEL.md](../library/TEST_EXECUTION_MODEL.md)).
+- [ ] **3. One contract** — Skim [API_CONTRACTS.md](../library/API_CONTRACTS.md) (versioning `/v1`, correlation ID, one status code you will handle).
 - [ ] **4. Small change** — Open a PR with a **tiny** change (doc typo, test name, log message) so you practice the full loop (build + Core tests + green CI).
 
 ---
@@ -29,9 +29,9 @@
 
 | Blocker | Where |
 |---------|--------|
-| Build / packages | [BUILD.md](../BUILD.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) |
-| SQL / migrations | [SQL_SCRIPTS.md](../SQL_SCRIPTS.md) |
-| Auth locally | [API_CONTRACTS.md](../API_CONTRACTS.md#security-schemes-swashbuckle) |
+| Build / packages | [BUILD.md](../library/BUILD.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) |
+| SQL / migrations | [SQL_SCRIPTS.md](../library/SQL_SCRIPTS.md) |
+| Auth locally | [API_CONTRACTS.md](../library/API_CONTRACTS.md#security-schemes-swashbuckle) |
 
 **Last reviewed:** 2026-04-17
 

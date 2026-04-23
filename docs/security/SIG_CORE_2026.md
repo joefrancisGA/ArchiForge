@@ -30,7 +30,7 @@
 
 | Control intent | Status | Evidence |
 |----------------|--------|----------|
-| Access control | Strong (engineering) | [`../SECURITY.md`](../SECURITY.md), [`../CUSTOMER_TRUST_AND_ACCESS.md`](../CUSTOMER_TRUST_AND_ACCESS.md) |
+| Access control | Strong (engineering) | [`../SECURITY.md`](../library/SECURITY.md), [`../CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
 | Data protection | Strong (engineering) | [`MULTI_TENANT_RLS.md`](MULTI_TENANT_RLS.md) |
 
 ## Control family E — Asset management
@@ -49,7 +49,7 @@
 
 | Control intent | Status | Evidence |
 |----------------|--------|----------|
-| Logging & monitoring | Partial | [`../AUDIT_COVERAGE_MATRIX.md`](../AUDIT_COVERAGE_MATRIX.md) |
+| Logging & monitoring | Partial | [`../AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) |
 | Incident response | Partial | [`../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md`](../go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md) |
 
 ## Control family H — Communications / operations

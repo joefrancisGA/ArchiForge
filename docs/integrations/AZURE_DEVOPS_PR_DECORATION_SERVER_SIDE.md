@@ -51,6 +51,6 @@ Section **`AzureDevOps`** in `appsettings.json` (see defaults in repo). Set:
 
 ## Related
 
-- [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../INTEGRATION_EVENTS_AND_WEBHOOKS.md)
-- [REFERENCE_SAAS_STACK_ORDER.md](../REFERENCE_SAAS_STACK_ORDER.md)
+- [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)
+- [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md)
 - [ADR 0024 — Azure DevOps pipeline task parity](../adr/0024-azure-devops-pipeline-task-parity-with-github-action.md)

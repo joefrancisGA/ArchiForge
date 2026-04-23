@@ -24,7 +24,7 @@ Prove **self-serve trial in production shape**: anonymous `POST /v1/register`, S
 | **ArchLucid.Api** | Sql storage, `ArchLucidAuth:Mode=DevelopmentBypass`, `AgentExecution:Mode=Simulator`, `Billing:Provider=Noop` (typical local `appsettings.Development.json`). |
 | **Prometheus scrape** | `Observability:Prometheus:Enabled=true` and `RequireScrapeAuthentication=false` for unattended `/metrics` reads (CI sets this). |
 | **Harness secret** | `ArchLucid:E2eHarness:SharedSecret` (≥ 16 chars) on the API **and** `LIVE_E2E_HARNESS_SECRET` in the Playwright environment. In **Production**, harness routes are not supported (`E2eHarnessRules` + controller returns **404** when disabled). |
-| **RLS break-glass (Sql + demo seed)** | When `SqlServer:RowLevelSecurity:ApplySessionContext` is **true**, startup demo seed calls `SqlRowLevelSecurityBypassAmbient.Enter()` and requires **`ARCHLUCID_ALLOW_RLS_BYPASS=true`** and **`ArchLucid:Persistence:AllowRlsBypass=true`** (see [SECURITY.md](../SECURITY.md)). CI **`ui-e2e-live`** jobs set both; without them the API exits before binding **5128**, so health checks (`curl`) fail until timeout. |
+| **RLS break-glass (Sql + demo seed)** | When `SqlServer:RowLevelSecurity:ApplySessionContext` is **true**, startup demo seed calls `SqlRowLevelSecurityBypassAmbient.Enter()` and requires **`ARCHLUCID_ALLOW_RLS_BYPASS=true`** and **`ArchLucid:Persistence:AllowRlsBypass=true`** (see [SECURITY.md](../library/SECURITY.md)). CI **`ui-e2e-live`** jobs set both; without them the API exits before binding **5128**, so health checks (`curl`) fail until timeout. |
 | **Rate limits** | Anonymous registration uses the `registration` policy; raise `RateLimiting:Registration:PermitLimit` for multi-spec CI on one IP if needed. |
 
 ---
@@ -82,5 +82,5 @@ Webhook **idempotency keys** for real Stripe live in `dbo.BillingWebhookEvents`;
 ## Related docs
 
 - [TRIAL_FUNNEL.md](TRIAL_FUNNEL.md) — metrics and audit matrix.
-- [V1_RELEASE_CHECKLIST.md](../V1_RELEASE_CHECKLIST.md) — release gate checklist.
+- [V1_RELEASE_CHECKLIST.md](../library/V1_RELEASE_CHECKLIST.md) — release gate checklist.
 - [PRICING_PHILOSOPHY.md](../go-to-market/PRICING_PHILOSOPHY.md) — re-rate gate #3 (planning conversation only).

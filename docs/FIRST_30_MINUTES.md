@@ -13,11 +13,11 @@ You will:
 
 If you get stuck, jump to the **[Troubleshooting](#troubleshooting)** section at the end.
 
-> **Skip ahead with one command (.NET 10 SDK required):** if you have the .NET 10 SDK installed locally — or you opened the repo in the bundled **`.devcontainer/`** — run **`dotnet run --project ArchLucid.Cli -- try`** from the repo root. It does **steps 2 → 8 below** in a single command (Docker stack up, demo seed, sample architecture request, poll until commit, save the sponsor first-value Markdown, print the operator-UI run URL). Use **`--no-open`** when running headless (e.g., in the devcontainer). See [`docs/CLI_USAGE.md#archlucid-try`](CLI_USAGE.md#archlucid-try). Manual walkthrough below stays the source of truth — useful when something fails partway through.
+> **Skip ahead with one command (.NET 10 SDK required):** if you have the .NET 10 SDK installed locally — or you opened the repo in the bundled **`.devcontainer/`** — run **`dotnet run --project ArchLucid.Cli -- try`** from the repo root. It does **steps 2 → 8 below** in a single command (Docker stack up, demo seed, sample architecture request, poll until commit, save the sponsor first-value Markdown, print the operator-UI run URL). Use **`--no-open`** when running headless (e.g., in the devcontainer). See [`docs/CLI_USAGE.md#archlucid-try`](library/CLI_USAGE.md#archlucid-try). Manual walkthrough below stays the source of truth — useful when something fails partway through.
 
-> **Validating the public trial funnel against staging?** Use **`dotnet run --project ArchLucid.Cli -- trial smoke --org "Smoke-$(date +%s)" --email trial-smoke@example.invalid --baseline-hours 16`** (PowerShell: replace `$(date +%s)` with `(Get-Date -UFormat %s)`). It is a pure-HTTP loop — no Docker, no SQL on your laptop — that calls **`POST /v1/register` → `GET /v1/tenant/trial-status` → `GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. See [`docs/CLI_USAGE.md#archlucid-trial-smoke`](CLI_USAGE.md#archlucid-trial-smoke) and [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md).
+> **Validating the public trial funnel against staging?** Use **`dotnet run --project ArchLucid.Cli -- trial smoke --org "Smoke-$(date +%s)" --email trial-smoke@example.invalid --baseline-hours 16`** (PowerShell: replace `$(date +%s)` with `(Get-Date -UFormat %s)`). It is a pure-HTTP loop — no Docker, no SQL on your laptop — that calls **`POST /v1/register` → `GET /v1/tenant/trial-status` → `GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. See [`docs/CLI_USAGE.md#archlucid-trial-smoke`](library/CLI_USAGE.md#archlucid-trial-smoke) and [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md).
 
-> **Operator funnel metrics (optional):** after you are signed into the operator shell, the home page shows **process-lifetime** counts from **`GET /v1/diagnostics/operator-task-success-rates`** (see [`docs/OBSERVABILITY.md`](OBSERVABILITY.md) for `archlucid_operator_task_success_total`). These reset when the API host restarts — useful for demos, not a substitute for long-window analytics.
+> **Operator funnel metrics (optional):** after you are signed into the operator shell, the home page shows **process-lifetime** counts from **`GET /v1/diagnostics/operator-task-success-rates`** (see [`docs/OBSERVABILITY.md`](library/OBSERVABILITY.md) for `archlucid_operator_task_success_total`). These reset when the API host restarts — useful for demos, not a substitute for long-window analytics.
 
 ---
 
@@ -33,7 +33,7 @@ If that prints engine info (no error), you are ready. If not, start Docker Deskt
 
 > **Ports used:** `1433` (SQL), `3000` (UI), `5000` (API), `6379` (Redis), `10000-10002` (Azurite). If any of those are already bound on your machine, stop the conflicting process before continuing.
 
-**Hosted SaaS operators:** after you move past Docker-only evaluation, set `ASPNETCORE_ENVIRONMENT=SaaS` (or include the file explicitly) so `ArchLucid.Api/appsettings.SaaS.json` layers on top of the base JSON — opinionated defaults for **RLS fail-closed**, **prompt redaction**, and **no development auth bypass**. API keys stay **disabled** in the committed JSON until you set `Authentication:ApiKey:Enabled=true` **and** supply `AdminKey` / `ReadOnlyKey` via Key Vault or environment (startup validation rejects enabled keys without secrets). Terraform order: `infra/apply-saas.ps1` (plan by default) aligns with [`REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md).
+**Hosted SaaS operators:** after you move past Docker-only evaluation, set `ASPNETCORE_ENVIRONMENT=SaaS` (or include the file explicitly) so `ArchLucid.Api/appsettings.SaaS.json` layers on top of the base JSON — opinionated defaults for **RLS fail-closed**, **prompt redaction**, and **no development auth bypass**. API keys stay **disabled** in the committed JSON until you set `Authentication:ApiKey:Enabled=true` **and** supply `AdminKey` / `ReadOnlyKey` via Key Vault or environment (startup validation rejects enabled keys without secrets). Terraform order: `infra/apply-saas.ps1` (plan by default) aligns with [`REFERENCE_SAAS_STACK_ORDER.md`](library/REFERENCE_SAAS_STACK_ORDER.md).
 
 ---
 
@@ -162,7 +162,7 @@ docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-s
 | Typed findings with evidence | Step 9 |
 | Operator UI (Core Pilot layer) | Steps 5 → 9 |
 
-This is the **Core Pilot** path. **Advanced Analysis** (compare runs, replay, graph) and **Enterprise Controls** (governance approvals, policy packs, alerts) are progressive disclosures from the same UI — see **[docs/OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md)** for when to reach for them.
+This is the **Core Pilot** path. **Advanced Analysis** (compare runs, replay, graph) and **Enterprise Controls** (governance approvals, policy packs, alerts) are progressive disclosures from the same UI — see **[docs/OPERATOR_DECISION_GUIDE.md](library/OPERATOR_DECISION_GUIDE.md)** for when to reach for them.
 
 ---
 
@@ -170,7 +170,7 @@ This is the **Core Pilot** path. **Advanced Analysis** (compare runs, replay, gr
 
 | You are a... | Read next |
 |---|---|
-| **Operator** running a real pilot | [docs/OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) (commands), [docs/CORE_PILOT.md](CORE_PILOT.md) (walkthrough), [docs/PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure success) |
+| **Operator** running a real pilot | [docs/OPERATOR_QUICKSTART.md](library/OPERATOR_QUICKSTART.md) (commands), [docs/CORE_PILOT.md](CORE_PILOT.md) (walkthrough), [docs/PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md) (how to measure success) |
 | **Developer** about to commit code | [docs/onboarding/day-one-developer.md](onboarding/day-one-developer.md) |
 | **SRE / platform** owner | [docs/onboarding/day-one-sre.md](onboarding/day-one-sre.md) |
 | **Security / GRC** reviewer | [docs/onboarding/day-one-security.md](onboarding/day-one-security.md) |
@@ -189,7 +189,7 @@ This is the **Core Pilot** path. **Advanced Analysis** (compare runs, replay, gr
 | `commit` returns 422 | The run does not yet have one result per required agent. Wait for the simulator agents to finish (look at the run's **Tasks** tab) and retry. |
 | You want to start over | Run the **Step 10** teardown command, then re-run **Step 2**. |
 
-Deeper guides: **[docs/TROUBLESHOOTING.md](TROUBLESHOOTING.md)** and **[docs/CONTAINERIZATION.md](CONTAINERIZATION.md)**.
+Deeper guides: **[docs/TROUBLESHOOTING.md](TROUBLESHOOTING.md)** and **[docs/CONTAINERIZATION.md](library/CONTAINERIZATION.md)**.
 
 ---
 
@@ -197,4 +197,4 @@ Deeper guides: **[docs/TROUBLESHOOTING.md](TROUBLESHOOTING.md)** and **[docs/CON
 
 A first-time operator should not have to choose between four onboarding paths and three commands before they have a working stack. **This document is the single front door.** Every other onboarding doc is intentionally **persona-specific** (developer / SRE / security / sponsor) — they assume you have already completed this 30-minute path and want to go deeper for your role.
 
-Screenshot placeholders (`placeholder-*.png`) are intentional — they will be replaced by the next release-smoke run; tracking is in [`docs/PRODUCT_LEARNING.md`](PRODUCT_LEARNING.md). Do not block on them; the commands themselves are authoritative.
+Screenshot placeholders (`placeholder-*.png`) are intentional — they will be replaced by the next release-smoke run; tracking is in [`docs/PRODUCT_LEARNING.md`](library/PRODUCT_LEARNING.md). Do not block on them; the commands themselves are authoritative.

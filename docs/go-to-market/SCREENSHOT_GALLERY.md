@@ -192,5 +192,5 @@ This document is a **capture brief**: it describes exactly what to show on scree
 | [PRODUCT_DATASHEET.md](PRODUCT_DATASHEET.md) | Product datasheet that will embed these screenshots |
 | [POSITIONING.md](POSITIONING.md) | Value pillars and proof points for caption language |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which screenshots matter most to which persona |
-| [../operator-shell.md](../operator-shell.md) | Operator UI workflow documentation |
+| [../operator-shell.md](../library/operator-shell.md) | Operator UI workflow documentation |
 | [../FIRST_RUN_WIZARD.md](../FIRST_RUN_WIZARD.md) | Wizard steps and field mappings |

@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-15
 
-ArchLucid uses the following **subprocessors** to deliver the hosted service. The list is derived from the **Azure-first** architecture described in [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md), and repository `infra/` modules.
+ArchLucid uses the following **subprocessors** to deliver the hosted service. The list is derived from the **Azure-first** architecture described in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md), [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md), and repository `infra/` modules.
 
 We will notify customers **at least 30 days** before engaging a **new** subprocessor that processes customer content or personal data, unless a shorter period is required by law or the change is immaterial (e.g., rename of an existing Microsoft service).
 
@@ -29,7 +29,7 @@ We will notify customers **at least 30 days** before engaging a **new** subproce
 
 ## Data residency
 
-Production deployments are **Azure-region scoped**; the **primary region** is selected when infrastructure is provisioned (see `infra/` Terraform variables and [../terraform-azure-variables.md](../terraform-azure-variables.md)).
+Production deployments are **Azure-region scoped**; the **primary region** is selected when infrastructure is provisioned (see `infra/` Terraform variables and [../terraform-azure-variables.md](../library/terraform-azure-variables.md)).
 
 Until a single public **primary production region** is published for the ArchLucid SaaS offering, treat the region as **“per deployment / subscription — confirm in order form or security pack.”**
 

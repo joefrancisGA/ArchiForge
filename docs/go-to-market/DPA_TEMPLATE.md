@@ -53,7 +53,7 @@ Including where such data appears in user-provided architecture descriptions, As
 - **Professional content:** technical descriptions, system names, URLs, pasted logs or documents that may identify individuals or systems.
 - **Usage and audit:** operational events recorded in the durable audit log (see product documentation), correlation identifiers, timestamps.
 
-See also [../security/PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) and [../SECURITY.md](../SECURITY.md) (PII and conversation retention).
+See also [../security/PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) and [../SECURITY.md](../library/SECURITY.md) (PII and conversation retention).
 
 ---
 
@@ -67,7 +67,7 @@ Processing continues for the **subscription term** and until deletion or return 
 
 6.1 **Confidentiality:** Personnel authorized to process Personal Data are bound by confidentiality obligations.
 
-6.2 **Security:** Processor implements appropriate technical and organizational measures, including those described in [TRUST_CENTER.md](TRUST_CENTER.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md), and [../SECURITY.md](../SECURITY.md).
+6.2 **Security:** Processor implements appropriate technical and organizational measures, including those described in [TRUST_CENTER.md](TRUST_CENTER.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md), and [../SECURITY.md](../library/SECURITY.md).
 
 6.3 **Sub-processors:** Processor may engage Sub-processors listed in [SUBPROCESSORS.md](SUBPROCESSORS.md). Processor will impose data protection terms on Sub-processors. Controller may object to a **new** Sub-processor in accordance with the notification commitment in [SUBPROCESSORS.md](SUBPROCESSORS.md).
 
@@ -95,7 +95,7 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 ## 9. Termination and data return
 
-9.1 **Export:** Controller may export data using product features (e.g., DOCX/ZIP exports, audit CSV) subject to RBAC; see [../SECURITY.md](../SECURITY.md) (exports may contain sensitive content).
+9.1 **Export:** Controller may export data using product features (e.g., DOCX/ZIP exports, audit CSV) subject to RBAC; see [../SECURITY.md](../library/SECURITY.md) (exports may contain sensitive content).
 
 9.2 **Deletion:** After termination, Processor deletes Customer Data within **[e.g., 90]** days except where retention is required by law or documented backup cycles; backups roll off per Processor’s retention schedule.
 

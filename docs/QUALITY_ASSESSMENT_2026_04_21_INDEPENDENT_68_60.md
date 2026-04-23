@@ -7,7 +7,7 @@
 
 **Audience:** Product leadership, sponsoring exec, engineering leads, GTM owners.
 
-**Method.** Each quality is scored 1–100 from a fresh inspection of the repository (source projects, Terraform stacks, docs, CI gates, runbooks, ADRs, templates, GTM material) on 2026-04-21. Weights come from the request. Items the owner has formally **deferred to V1.1 / V2** (per [`V1_DEFERRED.md`](V1_DEFERRED.md), [`V1_SCOPE.md`](V1_SCOPE.md) §3, and the **Resolved** table in [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)) are **excluded** from the readiness score — they are not held against ArchLucid here.
+**Method.** Each quality is scored 1–100 from a fresh inspection of the repository (source projects, Terraform stacks, docs, CI gates, runbooks, ADRs, templates, GTM material) on 2026-04-21. Weights come from the request. Items the owner has formally **deferred to V1.1 / V2** (per [`V1_DEFERRED.md`](library/V1_DEFERRED.md), [`V1_SCOPE.md`](library/V1_SCOPE.md) §3, and the **Resolved** table in [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)) are **excluded** from the readiness score — they are not held against ArchLucid here.
 
 **Independence.** This file does **not** consult earlier `QUALITY_ASSESSMENT_*` outputs. Where my judgement happens to align with a previous one, that is convergent evidence, not citation.
 
@@ -70,7 +70,7 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 ### 1.4 Proof-of-ROI Readiness — Score **65 / 100** · Weight **5** · Impact **175**
 
-**Justification.** The plumbing is here: [`PILOT_ROI_MODEL.md`](PILOT_ROI_MODEL.md) defines the six measurement axes; [`go-to-market/ROI_MODEL.md`](go-to-market/ROI_MODEL.md) carries the dollar baseline (~$294K savings for a 6-architect team) with three-year TCO sensitivity; the value-report DOCX renderer is shipped; `EVIDENCE_PACK.md` and `REFERENCE_EVIDENCE_PACK_TEMPLATE.md` give a single-page measured-delta format; `PilotRunDeltaComputer` (`ArchLucid.Application/Pilots/PilotRunDeltaComputer.cs`) computes per-run deltas the builders consume. The gap is empirical: **zero customer-supplied baselines** are populated; every quoted number is from the model.
+**Justification.** The plumbing is here: [`PILOT_ROI_MODEL.md`](library/PILOT_ROI_MODEL.md) defines the six measurement axes; [`go-to-market/ROI_MODEL.md`](go-to-market/ROI_MODEL.md) carries the dollar baseline (~$294K savings for a 6-architect team) with three-year TCO sensitivity; the value-report DOCX renderer is shipped; `EVIDENCE_PACK.md` and `REFERENCE_EVIDENCE_PACK_TEMPLATE.md` give a single-page measured-delta format; `PilotRunDeltaComputer` (`ArchLucid.Application/Pilots/PilotRunDeltaComputer.cs`) computes per-run deltas the builders consume. The gap is empirical: **zero customer-supplied baselines** are populated; every quoted number is from the model.
 
 **Trade-off.** Conservative model defaults avoid over-claim but make every buyer's headline number look identical.
 
@@ -489,11 +489,11 @@ These are the same gaps the previous assessment flagged — they remain because 
 |-----|-----|
 | [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md) | Eight paste-ready Cursor prompts for the improvements above |
 | [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) | Owner-only decisions and open items (canonical list) |
-| [`V1_SCOPE.md`](V1_SCOPE.md) | What is in / out of V1 — the assessment respects this scope |
-| [`V1_DEFERRED.md`](V1_DEFERRED.md) | Doc-sourced V1.1+ candidates (not held against the score) |
-| [`V1_READINESS_SUMMARY.md`](V1_READINESS_SUMMARY.md) | One-paragraph honest snapshot of where the repo stands |
+| [`V1_SCOPE.md`](library/V1_SCOPE.md) | What is in / out of V1 — the assessment respects this scope |
+| [`V1_DEFERRED.md`](library/V1_DEFERRED.md) | Doc-sourced V1.1+ candidates (not held against the score) |
+| [`V1_READINESS_SUMMARY.md`](library/V1_READINESS_SUMMARY.md) | One-paragraph honest snapshot of where the repo stands |
 | [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) | Pricing source of truth; § 5.3/5.4 trigger gates |
-| [`AUDIT_COVERAGE_MATRIX.md`](AUDIT_COVERAGE_MATRIX.md) | 101 typed audit events; known gaps tracking |
-| [`ARCHITECTURE_COMPONENTS.md`](ARCHITECTURE_COMPONENTS.md) | Bounded context map for the assessment's architectural-integrity score |
+| [`AUDIT_COVERAGE_MATRIX.md`](library/AUDIT_COVERAGE_MATRIX.md) | 101 typed audit events; known gaps tracking |
+| [`ARCHITECTURE_COMPONENTS.md`](library/ARCHITECTURE_COMPONENTS.md) | Bounded context map for the assessment's architectural-integrity score |
 
 **Change control.** When the next assessment lands, link it from `PENDING_QUESTIONS.md` § Related so the chain is navigable.

@@ -23,15 +23,15 @@ Help enterprise architecture and platform leaders **hire ArchLucid** to turn mes
 
 ## Architecture overview (buyer mental model)
 
-ArchLucid is an **AI-assisted architecture workflow** with three product layers: **Core Pilot** (request → run → commit → manifest & artifacts), **Advanced Analysis** (compare, replay, provenance), **Enterprise Controls** (governance, policy, alerts). See [../PRODUCT_PACKAGING.md](../PRODUCT_PACKAGING.md).
+ArchLucid is an **AI-assisted architecture workflow** with three product layers: **Core Pilot** (request → run → commit → manifest & artifacts), **Advanced Analysis** (compare, replay, provenance), **Enterprise Controls** (governance, policy, alerts). See [../PRODUCT_PACKAGING.md](../library/PRODUCT_PACKAGING.md).
 
 ## Component breakdown (what the buyer touches)
 
 | Stage | Buyer touchpoints | Proof artifacts |
 |-------|-------------------|-----------------|
-| **Discovery** | Executive sponsor brief, pilot ROI companion, demo script | [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md), [PILOT_ROI_MODEL.md](../PILOT_ROI_MODEL.md) |
+| **Discovery** | Executive sponsor brief, pilot ROI companion, demo script | [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md), [PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md) |
 | **Pilot (30/60/90)** | Operator UI + CLI, API keys or Entra JWT, SQL / Container Apps deploy | Golden manifests, `Runs.OtelTraceId`, export records, audit events |
-| **Expand** | Governance approvals, integration events, Service Bus consumers | `GovernanceApprovalRequests`, AsyncAPI catalog, [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
+| **Expand** | Governance approvals, integration events, Service Bus consumers | `GovernanceApprovalRequests`, AsyncAPI catalog, [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
 
 ## Data flow
 
@@ -43,11 +43,11 @@ ArchLucid is an **AI-assisted architecture workflow** with three product layers:
 
 ## Security model
 
-Fail-closed API auth (`ArchLucidAuth`), **scope policies** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`), SQL **RLS session context** for tenant-scoped reads, **no SMB** on the public internet (private endpoints for Azure Storage). See [../SECURITY.md](../SECURITY.md) and [../onboarding/day-one-security.md](../onboarding/day-one-security.md).
+Fail-closed API auth (`ArchLucidAuth`), **scope policies** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`), SQL **RLS session context** for tenant-scoped reads, **no SMB** on the public internet (private endpoints for Azure Storage). See [../SECURITY.md](../library/SECURITY.md) and [../onboarding/day-one-security.md](../onboarding/day-one-security.md).
 
 ## Operational considerations
 
-- **Platform:** Terraform apply order in [../REFERENCE_SAAS_STACK_ORDER.md](../REFERENCE_SAAS_STACK_ORDER.md); health gates `/health/live`, `/health/ready`.
+- **Platform:** Terraform apply order in [../REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md); health gates `/health/live`, `/health/ready`.
 - **Support:** `archlucid doctor`, `archlucid support-bundle --zip` (review before sharing); correlate with `X-Correlation-ID` and persisted trace id on runs.
 
 ## Three pilot success metrics (measurable)
@@ -55,7 +55,7 @@ Fail-closed API auth (`ArchLucidAuth`), **scope policies** (`ReadAuthority` / `E
 | Metric | What “good” looks like | Proof in the system |
 |--------|------------------------|---------------------|
 | **Time-to-first committed manifest** | Median **&lt; X days** for pilot team (set X in charter) | `dbo.Runs` + `dbo.GoldenManifestVersions` / manifest commit timestamps vs `ArchitectureRequests.CreatedUtc` |
-| **Traceable review package** | **100%** of pilot runs have **Otel + manifest + findings** for sponsor demo | `Runs.OtelTraceId`, `GoldenManifests`, `FindingsSnapshots` ([../DATA_MODEL.md](../DATA_MODEL.md)) |
+| **Traceable review package** | **100%** of pilot runs have **Otel + manifest + findings** for sponsor demo | `Runs.OtelTraceId`, `GoldenManifests`, `FindingsSnapshots` ([../DATA_MODEL.md](../library/DATA_MODEL.md)) |
 | **Governance-ready evidence (if Enterprise layer)** | At least **one** approval or policy outcome **exportable** for audit | `GovernanceApprovalRequests`, `AuditEvents` / operator audit UI |
 
 Canonical **buyer pitch** remains in [../EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) — this document aligns **field motion** to **persisted artifacts**, not a second narrative.

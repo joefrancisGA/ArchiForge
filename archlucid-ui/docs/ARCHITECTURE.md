@@ -138,7 +138,7 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 | **Core Pilot** | Keep default links broadly visible; avoid sprinkling `requiredAuthority` on first-pilot essentials without an explicit product decision. |
 | **Enterprise Controls** | Primary target for `requiredAuthority`, nav omission, and short context lines. |
 
-**Source files:** `src/lib/nav-config.ts`, `src/lib/nav-authority.ts`, `src/lib/current-principal.ts`, `src/lib/nav-shell-visibility.ts`, `src/components/OperatorNavAuthorityProvider.tsx`, `src/lib/enterprise-controls-context-copy.ts`, `src/components/EnterpriseControlsContextHints.tsx`, `src/lib/layer-guidance.ts`. **Product doc:** [../../docs/PRODUCT_PACKAGING.md](../../docs/PRODUCT_PACKAGING.md).
+**Source files:** `src/lib/nav-config.ts`, `src/lib/nav-authority.ts`, `src/lib/current-principal.ts`, `src/lib/nav-shell-visibility.ts`, `src/components/OperatorNavAuthorityProvider.tsx`, `src/lib/enterprise-controls-context-copy.ts`, `src/components/EnterpriseControlsContextHints.tsx`, `src/lib/layer-guidance.ts`. **Product doc:** [../../docs/PRODUCT_PACKAGING.md](../../docs/library/PRODUCT_PACKAGING.md).
 
 ---
 

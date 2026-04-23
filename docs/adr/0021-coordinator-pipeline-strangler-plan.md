@@ -27,7 +27,7 @@
 > now carry the standards-track deprecation triplet on every response — `Deprecation: true` (RFC 9745), `Sunset: Fri, 15 May 2026 00:00:00 GMT`
 > (RFC 8594; **accelerated 2026-04-21** from the originally published `Mon, 20 Jul 2026 00:00:00 GMT` per **[ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md)** — ArchLucid is pre-release, so the 90-day customer-migration buffer collapsed; ADR 0029 Supersedes the earlier Draft [ADR 0028 — completion scaffold](0028-coordinator-strangler-completion.md)), and a `Link` header pointing back at this ADR (RFC 8288). The route-scoped signal is
 > emitted by `CoordinatorPipelineDeprecationFilter` mounted via `[CoordinatorPipelineDeprecated]` so non-coordinator routes
-> (`RunQueryController`, `ManifestsController`) stay clean. This satisfies the published [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) deprecation policy
+> (`RunQueryController`, `ManifestsController`) stay clean. This satisfies the published [`docs/API_CONTRACTS.md`](../library/API_CONTRACTS.md) deprecation policy
 > and starts the Phase 3 sunset clock.
 
 ## Context
@@ -54,7 +54,7 @@ This ADR does **not** retire ADR 0010 on acceptance. ADR 0010 stays `Accepted` u
 
 1. This ADR (0021) is `Accepted`.
 2. Phase 1 below has shipped and run for **30 days** at full traffic on every environment.
-3. Phase 2 below has shipped behind a deprecation header announced in the [`API_CONTRACTS.md`](../API_CONTRACTS.md) deprecation policy.
+3. Phase 2 below has shipped behind a deprecation header announced in the [`API_CONTRACTS.md`](../library/API_CONTRACTS.md) deprecation policy.
 
 When (1)–(3) are met, the team can author ADR 00xx ("Coordinator interface family retired — supersedes ADR 0010 and ADR 0021") and only then delete the Coordinator interface family. The interim deferral is deliberate.
 
@@ -123,7 +123,7 @@ The two regression tests below ship with this ADR's Phase 0 and pin the boundary
 - **Positive — Architectural integrity (weight 7).** Eliminates a long-standing "two ways to do the same thing" finding in external architecture reviews after Phase 3. Single audit catalog after Phase 2 simplifies operator runbooks and customer-visible audit search.
 - **Positive — Cognitive load (weight 4).** Day-1 contributors stop having to learn both interface families. The decision tree at the top of `docs/archive/dual-pipeline-navigator-superseded.md` becomes obsolete after Phase 3 (we can collapse the navigator to a single-pipeline page).
 - **Positive — Testability (weight 3).** A single golden-manifest read path is easier to mock and easier to property-test.
-- **Negative — Risk surface during transition.** The dual-write of audit events in Phase 2 doubles the audit row volume for the deprecation window. Plan for ~2× `dbo.AuditEvents` ingest rate; update the Grafana ingest-rate panels and the [`OBSERVABILITY.md`](../OBSERVABILITY.md) ingest-budget table accordingly.
+- **Negative — Risk surface during transition.** The dual-write of audit events in Phase 2 doubles the audit row volume for the deprecation window. Plan for ~2× `dbo.AuditEvents` ingest rate; update the Grafana ingest-rate panels and the [`OBSERVABILITY.md`](../library/OBSERVABILITY.md) ingest-budget table accordingly.
 - **Negative — Customer-visible behaviour change in Phase 2.** Customers with audit-search automations keyed on `CoordinatorRun*` constants must update; the `Sunset` header gives them one full quarter under the existing deprecation policy.
 - **Operational — Backout plan.** Phase 1 is purely additive — back out by deleting `IUnifiedGoldenManifestReader`. Phase 2 is reversible until the Sunset deadline — back out by removing the new constants and the dual-write. Phase 3 is **not** reversible without restoring the deleted code from git history; require an explicit "no-rollback" sign-off on the Phase 3 PR.
 
@@ -132,8 +132,8 @@ The two regression tests below ship with this ADR's Phase 0 and pin the boundary
 - [ADR 0010 — Dual manifest and decision-trace repository contracts](0010-dual-manifest-trace-repository-contracts.md) (the boundary this ADR plans to retire).
 - [ADR 0012 — Runs / authority convergence write-freeze](0012-runs-authority-convergence-write-freeze.md) (the partial unification this ADR builds on).
 - [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) (decision tree + "Why we have not collapsed these" pointing back here).
-- [`docs/AUDIT_COVERAGE_MATRIX.md`](../AUDIT_COVERAGE_MATRIX.md) (audit-event catalog the regression tests assert against).
-- [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) (deprecation policy used by Phase 2's `Sunset` header).
+- [`docs/AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md) (audit-event catalog the regression tests assert against).
+- [`docs/API_CONTRACTS.md`](../library/API_CONTRACTS.md) (deprecation policy used by Phase 2's `Sunset` header).
 - [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md) (parity report — latency, audit volume, replay parity per cadence).
 - [`docs/CHANGELOG.md`](../CHANGELOG.md) 2026-04-20 entry (records Phase 0 shipment); 2026-04-21 entry (records Phase 1 retirement gate + Phase 2 deprecation signal).
-- [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md`](../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md) (rationale for the phased approach this ADR formalizes).
+- [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md`](../archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md) (rationale for the phased approach this ADR formalizes).

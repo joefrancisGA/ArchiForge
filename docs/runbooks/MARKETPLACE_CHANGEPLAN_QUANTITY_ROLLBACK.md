@@ -9,7 +9,7 @@
 
 **When to use:** A `ChangePlan` or `ChangeQuantity` webhook from Azure Marketplace has misbehaved (mis-mapped tier, wrong seat count, unexpected mutation), and you need to **stop further mutations** while you investigate. The system was migrated to **`Billing:AzureMarketplace:GaEnabled=true`** as the shipped default on **2026-04-20** (Quality Assessment Improvement 4 Marketplace flip — see [`docs/CHANGELOG.md`](../CHANGELOG.md)). The `false` branch is **deliberately preserved** as the supported rollback path and is not dead code.
 
-**Related:** [`docs/BILLING.md`](../BILLING.md) (operational considerations table), [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md) (webhook actions table), [`docs/adr/0016-billing-provider-abstraction.md`](../adr/0016-billing-provider-abstraction.md), migration **086** (`086_Billing_MarketplaceChangePlanQuantity.sql`).
+**Related:** [`docs/BILLING.md`](../library/BILLING.md) (operational considerations table), [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](../AZURE_MARKETPLACE_SAAS_OFFER.md) (webhook actions table), [`docs/adr/0016-billing-provider-abstraction.md`](../adr/0016-billing-provider-abstraction.md), migration **086** (`086_Billing_MarketplaceChangePlanQuantity.sql`).
 
 ---
 

@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-15
 
-**Grounding rule:** Capabilities and limitations referenced here reflect the V1 codebase per [V1_SCOPE.md](../V1_SCOPE.md) and [CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md).
+**Grounding rule:** Capabilities and limitations referenced here reflect the V1 codebase per [V1_SCOPE.md](../library/V1_SCOPE.md) and [CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md).
 
 ---
 
@@ -262,6 +262,6 @@ flowchart TD
 |-----|-----|
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor-by-competitor analysis |
 | [POSITIONING.md](POSITIONING.md) | Positioning statement and elevator pitches |
-| [../PILOT_GUIDE.md](../PILOT_GUIDE.md) | Technical pilot onboarding |
-| [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) | Security posture for enterprise buyers |
-| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |
+| [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) | Technical pilot onboarding |
+| [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Security posture for enterprise buyers |
+| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../library/MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |

@@ -13,9 +13,9 @@
 
 1. **Source of truth** remains the assessor’s full report (not committed here).
 2. **Redaction:** follow the checklist in the template’s preamble; scrub internal URLs, personal emails, and repro steps that expose live tenant ids.
-3. **Cadence:** publish within **10 business days** of customer approval (align with [`SECURITY.md`](../../SECURITY.md) acknowledgment SLA where applicable).
+3. **Cadence:** publish within **10 business days** of customer approval (align with [`SECURITY.md`](../../library/SECURITY.md) acknowledgment SLA where applicable).
 4. **Naming:** `YYYY-Qn-<customer-slug>-REDACTED.md` for published files; `YYYY-Qn-DRAFT.md` for placeholders awaiting vendor assignment.
-5. **PGP:** when [`SECURITY.md`](../../SECURITY.md) publishes a disclosure encryption key, link it from the published summary header.
+5. **PGP:** when [`SECURITY.md`](../../library/SECURITY.md) publishes a disclosure encryption key, link it from the published summary header.
 
 ## Files
 
@@ -32,4 +32,4 @@
 - [`../PEN_TEST_SOW_TEMPLATE.md`](../PEN_TEST_SOW_TEMPLATE.md)
 - [`../PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md`](../PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
 - [`../../go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md) — public **Recent assurance activity** table records engagement metadata (vendor, scope, completion date) without exposing redacted findings; this folder remains the in-repo working surface.
-- [`../../SECURITY.md`](../../SECURITY.md)
+- [`../../SECURITY.md`](../../library/SECURITY.md)

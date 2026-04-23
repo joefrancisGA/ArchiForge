@@ -106,4 +106,4 @@ flowchart TB
 ## See also
 
 - [OPERATOR_SHELL_TUTORIAL.md](./OPERATOR_SHELL_TUTORIAL.md) — Next.js / shell orientation.
-- Repo onboarding: [ONBOARDING_HAPPY_PATH.md](../../docs/ONBOARDING_HAPPY_PATH.md) — getting oriented in the wider codebase.
+- Repo onboarding: [ONBOARDING_HAPPY_PATH.md](../../docs/library/ONBOARDING_HAPPY_PATH.md) — getting oriented in the wider codebase.

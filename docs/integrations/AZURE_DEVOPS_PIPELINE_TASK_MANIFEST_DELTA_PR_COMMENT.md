@@ -70,4 +70,4 @@ The **Worker** optional handler ([`AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md`](A
 ## Related
 
 - [ADR 0024 — Azure DevOps pipeline task parity](../adr/0024-azure-devops-pipeline-task-parity-with-github-action.md)
-- [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md)
+- [`docs/API_CONTRACTS.md`](../library/API_CONTRACTS.md)

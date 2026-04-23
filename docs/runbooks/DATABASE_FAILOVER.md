@@ -76,7 +76,7 @@ Store connection strings in **Key Vault** (or managed identity–backed settings
 
 - [MIGRATION_ROLLBACK.md](./MIGRATION_ROLLBACK.md) — schema change rollback posture (distinct from HA failover).
 - [SECRET_AND_CERT_ROTATION.md](./SECRET_AND_CERT_ROTATION.md) — credential updates.
-- [../DEPLOYMENT.md](../DEPLOYMENT.md) — umbrella deploy/rollback.
+- [../DEPLOYMENT.md](../library/DEPLOYMENT.md) — umbrella deploy/rollback.
 
 ## Cost and scalability
 

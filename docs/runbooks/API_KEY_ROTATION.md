@@ -75,4 +75,4 @@ flowchart LR
 ## 9. References
 
 - General secret rotation: [SECRET_AND_CERT_ROTATION.md](SECRET_AND_CERT_ROTATION.md)
-- Security index: [SECURITY.md](../SECURITY.md)
+- Security index: [SECURITY.md](../library/SECURITY.md)

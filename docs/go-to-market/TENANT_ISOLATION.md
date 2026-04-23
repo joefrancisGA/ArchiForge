@@ -38,7 +38,7 @@ flowchart TB
   C --> Q
 ```
 
-- **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([../SECURITY.md](../SECURITY.md)).
+- **Layer 1 — Identity:** Prefer **Entra-issued JWTs** with **app roles**; API keys are server-side secrets mapped to **limited** roles ([../SECURITY.md](../library/SECURITY.md)).
 - **Layer 2 — Application:** Controllers enforce **policies**; orchestration sets **tenant / workspace / project** scope before data access ([../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) §5).
 - **Layer 3 — Database:** **RLS** policies filter rows using **`SESSION_CONTEXT`**; missing context yields **no rows** when policies are ON (deny-by-default for scoped data). Covered tables and enablement are documented in [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
 
@@ -49,20 +49,20 @@ flowchart TB
 ## 2. Encryption
 
 - **In transit:** TLS to the API; TLS to Azure services per Microsoft’s stack.
-- **At rest:** Azure SQL (TDE) and blob encryption are standard Azure controls; see [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md).
-- **Secrets:** Prefer **Key Vault** references in hosted configs ([../CONFIGURATION_KEY_VAULT.md](../CONFIGURATION_KEY_VAULT.md)).
+- **At rest:** Azure SQL (TDE) and blob encryption are standard Azure controls; see [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md).
+- **Secrets:** Prefer **Key Vault** references in hosted configs ([../CONFIGURATION_KEY_VAULT.md](../library/CONFIGURATION_KEY_VAULT.md)).
 
 ---
 
 ## 3. Network
 
-Optional **Front Door + WAF**, optional **APIM**, and **private endpoints** for SQL and blob reduce exposure ([../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md)). **SMB (445)** is not used for tenant data at the API boundary (workspace security rule).
+Optional **Front Door + WAF**, optional **APIM**, and **private endpoints** for SQL and blob reduce exposure ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)). **SMB (445)** is not used for tenant data at the API boundary (workspace security rule).
 
 ---
 
 ## 4. Audit and accountability
 
-Durable **append-only** audit events and correlation IDs support forensic review ([../AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md), [../SECURITY.md](../SECURITY.md)).
+Durable **append-only** audit events and correlation IDs support forensic review ([../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md), [../SECURITY.md](../library/SECURITY.md)).
 
 ---
 
@@ -84,8 +84,8 @@ Be explicit in sales and security packs to avoid over-claiming.
 |-----|---------|
 | [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) | RLS design, `SESSION_CONTEXT`, covered tables |
 | [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) | STRIDE, trust boundaries |
-| [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) | Edge, identity, private connectivity |
-| [../SECURITY.md](../SECURITY.md) | RBAC, rate limiting, CI security tests, PII |
+| [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Edge, identity, private connectivity |
+| [../SECURITY.md](../library/SECURITY.md) | RBAC, rate limiting, CI security tests, PII |
 
 ---
 

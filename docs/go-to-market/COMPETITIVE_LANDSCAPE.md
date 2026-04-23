@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-15
 
-**Grounding rule:** Every capability claimed for ArchLucid in this document is based on what the repository actually ships today per [V1_SCOPE.md](../V1_SCOPE.md), [ARCHITECTURE_CONTEXT.md](../ARCHITECTURE_CONTEXT.md), and [QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](../QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md). Claims are not aspirational.
+**Grounding rule:** Every capability claimed for ArchLucid in this document is based on what the repository actually ships today per [V1_SCOPE.md](../library/V1_SCOPE.md), [ARCHITECTURE_CONTEXT.md](../library/ARCHITECTURE_CONTEXT.md), and [QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](../archive/quality/2026-04-23-doc-depth-reorg/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md). Claims are not aspirational.
 
 ---
 
@@ -169,6 +169,6 @@ No current competitor delivers all three. Incumbents have governance but no AI. 
 |-----|-----|
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Detailed buyer persona definitions |
 | [POSITIONING.md](POSITIONING.md) | Positioning statement and elevator pitches |
-| [../V1_SCOPE.md](../V1_SCOPE.md) | What V1 actually ships |
-| [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) | Security and access architecture for enterprise buyers |
-| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |
+| [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships |
+| [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Security and access architecture for enterprise buyers |
+| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../library/MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |

@@ -13,8 +13,8 @@ using JetBrains.Annotations;
 namespace ArchLucid.Application.Evolution;
 
 /// <summary>
-/// Deterministic scoring over architecture analysis reports: reuses <see cref="IManifestDiffService"/> and optional
-/// <see cref="IDeterminismCheckService"/> (live path documented; may create replay run rows).
+///     Deterministic scoring over architecture analysis reports: reuses <see cref="IManifestDiffService" /> and optional
+///     <see cref="IDeterminismCheckService" /> (live path documented; may create replay run rows).
 /// </summary>
 public sealed class SimulationEvaluationService(
     IManifestDiffService manifestDiffService,
@@ -27,7 +27,7 @@ public sealed class SimulationEvaluationService(
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false,
+        WriteIndented = false
     };
 
     /// <inheritdoc />
@@ -47,7 +47,6 @@ public sealed class SimulationEvaluationService(
 
                 throw new InvalidOperationException(
                     "InvokeLiveDeterminismCheck requires BaselineArchitectureRunIdForDeterminism or BaselineArchitectureRunId.");
-
 
 
         ArchitectureAnalysisReport baseline = request.BaselineReport;
@@ -85,17 +84,17 @@ public sealed class SimulationEvaluationService(
             RegressionRiskScore = regressionRisk,
             ImprovementDelta = improvementDelta,
             RegressionSignals = regressionSignals,
-            ConfidenceScore = confidenceScore,
+            ConfidenceScore = confidenceScore
         };
 
         EvaluationExplanationDto detail = new(
-            RuleVersion: RuleVersion,
-            BaselineWarningCount: baseline.Warnings.Count,
-            SimulatedWarningCount: simulated?.Warnings.Count,
-            UsedPrecomputedManifestDiff: usedPrecomputedManifestDiff,
-            UsedComputedManifestDiff: usedComputedManifestDiff,
-            DeterminismSource: determinismResolution.Source,
-            RegressionSignalCount: regressionSignals.Count);
+            RuleVersion,
+            baseline.Warnings.Count,
+            simulated?.Warnings.Count,
+            usedPrecomputedManifestDiff,
+            usedComputedManifestDiff,
+            determinismResolution.Source,
+            regressionSignals.Count);
 
         string detailJson = JsonSerializer.Serialize(detail, JsonOptions);
 
@@ -118,13 +117,15 @@ public sealed class SimulationEvaluationService(
         {
             Score = score,
             ExplanationSummary = summary,
-            ExplanationDetailJson = detailJson,
+            ExplanationDetailJson = detailJson
         };
     }
 
     private static string FormatDeterminism(double? determinismScore)
     {
-        return determinismScore is null ? "n/a" : string.Format(CultureInfo.InvariantCulture, "{0:F3}", determinismScore.Value);
+        return determinismScore is null
+            ? "n/a"
+            : string.Format(CultureInfo.InvariantCulture, "{0:F3}", determinismScore.Value);
     }
 
     private (ManifestDiffResult? Diff, bool UsedPrecomputed, bool UsedComputed) ResolveManifestDiff(
@@ -174,16 +175,10 @@ public sealed class SimulationEvaluationService(
         int iterations = Math.Max(2, options.DeterminismIterations);
 
         DeterminismCheckResult live = await determinismCheckService.RunAsync(
-            new DeterminismCheckRequest
-            {
-                RunId = runId,
-                Iterations = iterations,
-                CommitReplays = false,
-            },
+            new DeterminismCheckRequest { RunId = runId, Iterations = iterations, CommitReplays = false },
             cancellationToken);
 
         return new DeterminismResolution(live, "Live");
-
     }
 
     private static double? ComputeRegressionRiskScore(ManifestDiffResult? diff)
@@ -232,7 +227,6 @@ public sealed class SimulationEvaluationService(
         if (count > 0)
 
             signals.Add(string.Format(CultureInfo.InvariantCulture, "{0}:{1}", prefix, count));
-
     }
 
     private static double ComputeImprovementDelta(

@@ -67,7 +67,7 @@ flowchart LR
   S7 -. polls run summary .-> ART
 ```
 
-Deep dives: **[ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)** (run lifecycle narrative), **[CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md)** (operator pipeline overview).
+Deep dives: **[ARCHITECTURE_FLOWS.md](library/ARCHITECTURE_FLOWS.md)** (run lifecycle narrative), **[CANONICAL_PIPELINE.md](library/CANONICAL_PIPELINE.md)** (operator pipeline overview).
 
 ---
 
@@ -160,12 +160,12 @@ The **progress bar** is a simple **count of ready stages / 4**, not a time estim
 ## After the wizard
 
 1. **Open run detail** — `/runs/{runId}`: manifest summary, artifacts, authority context (when committed and indexed per environment).
-2. **Commit if required** — Until commit, some views stay empty; follow **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)** for API/CLI commit expectations and `409` handling.
+2. **Commit if required** — Until commit, some views stay empty; follow **[OPERATOR_QUICKSTART.md](library/OPERATOR_QUICKSTART.md)** for API/CLI commit expectations and `409` handling.
 3. **Export** — From run detail (with manifest): bundle / export ZIP links when your deployment exposes them.
 4. **Compare** — `/compare?leftRunId={runId}` (wizard success panel links this for you).
 5. **Provenance** — `/runs/{runId}/provenance` for graph/trace orientation.
 
-Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**.
+Primary operator reference: **[OPERATOR_QUICKSTART.md](library/OPERATOR_QUICKSTART.md)**.
 
 ---
 
@@ -185,8 +185,8 @@ Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**
 
 | Doc | Use it for |
 |-----|------------|
-| [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md) | Single HTTP journey spine (auth → request → authority → commit). |
-| [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Day-1 commands, commit, manifests, exports. |
-| [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) | Flow A run lifecycle + authority span names. |
-| [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) | Request → stages → commit → artifacts (operator map). |
-| [API_CONTRACTS.md](API_CONTRACTS.md) | `ArchitectureRequest`, idempotency, error shapes. |
+| [ONBOARDING_HAPPY_PATH.md](library/ONBOARDING_HAPPY_PATH.md) | Single HTTP journey spine (auth → request → authority → commit). |
+| [OPERATOR_QUICKSTART.md](library/OPERATOR_QUICKSTART.md) | Day-1 commands, commit, manifests, exports. |
+| [ARCHITECTURE_FLOWS.md](library/ARCHITECTURE_FLOWS.md) | Flow A run lifecycle + authority span names. |
+| [CANONICAL_PIPELINE.md](library/CANONICAL_PIPELINE.md) | Request → stages → commit → artifacts (operator map). |
+| [API_CONTRACTS.md](library/API_CONTRACTS.md) | `ArchitectureRequest`, idempotency, error shapes. |

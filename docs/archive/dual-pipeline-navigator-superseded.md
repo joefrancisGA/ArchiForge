@@ -1,4 +1,4 @@
-> **Archived (2026-04-22):** Superseded for operator-facing narrative by [`docs/CANONICAL_PIPELINE.md`](../CANONICAL_PIPELINE.md). Retained for engineering ADR cross-links and historical context.
+> **Archived (2026-04-22):** Superseded for operator-facing narrative by [`docs/CANONICAL_PIPELINE.md`](../library/CANONICAL_PIPELINE.md). Retained for engineering ADR cross-links and historical context.
 
 > **Scope:** Dual pipeline navigator (Coordinator vs Authority) - full detail, tables, and links in the sections below.
 

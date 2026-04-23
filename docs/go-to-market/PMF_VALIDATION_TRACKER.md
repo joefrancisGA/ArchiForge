@@ -100,5 +100,5 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Measurement framework |
 | [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) | ICP scoring for pilot selection |
 | [ROI_MODEL.md](ROI_MODEL.md) | Value hypotheses grounding |
-| [../PRODUCT_LEARNING.md](../PRODUCT_LEARNING.md) | Learning signals |
+| [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | Learning signals |
 | [REFERENCE_NARRATIVE_TEMPLATE.md](REFERENCE_NARRATIVE_TEMPLATE.md) | Case study templates for validated hypotheses |

@@ -40,6 +40,6 @@ On **Windows PowerShell**, quote the package name so `@` is not treated as splat
 ## Related narrative docs
 
 - [day-one-sre.md](../../onboarding/day-one-sre.md) — platform / environment path.
-- [ARCHITECTURE_CONTEXT.md](../../ARCHITECTURE_CONTEXT.md), [ARCHITECTURE_CONTAINERS.md](../../ARCHITECTURE_CONTAINERS.md) — prose + Mermaid in markdown.
+- [ARCHITECTURE_CONTEXT.md](../../library/ARCHITECTURE_CONTEXT.md), [ARCHITECTURE_CONTAINERS.md](../../library/ARCHITECTURE_CONTAINERS.md) — prose + Mermaid in markdown.
 
 **Last reviewed:** 2026-04-04

@@ -105,4 +105,4 @@ WHERE TenantId = @TenantId
 | [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Onboarding phases and signals |
 | [RENEWAL_EXPANSION_PLAYBOOK.md](RENEWAL_EXPANSION_PLAYBOOK.md) | Renewal and expansion process |
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Pilot measurement (feeds initial health data) |
-| [../PRODUCT_LEARNING.md](../PRODUCT_LEARNING.md) | Product learning signals |
+| [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | Product learning signals |

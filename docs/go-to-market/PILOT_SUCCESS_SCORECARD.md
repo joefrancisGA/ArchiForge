@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-15
 
-**Grounding rule:** Metrics reference shipped V1 capabilities per [V1_SCOPE.md](../V1_SCOPE.md) and existing data collection per [PRODUCT_LEARNING.md](../PRODUCT_LEARNING.md).
+**Grounding rule:** Metrics reference shipped V1 capabilities per [V1_SCOPE.md](../library/V1_SCOPE.md) and existing data collection per [PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md).
 
 ---
 
@@ -211,7 +211,7 @@ Use this structure when presenting pilot results to leadership for a purchase de
 | [ROI_MODEL.md](ROI_MODEL.md) | Fill in with actual pilot numbers to calculate ROI |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Which persona presents the report (Section 6) and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars to reference in the executive summary |
-| [../PILOT_GUIDE.md](../PILOT_GUIDE.md) | Technical setup for the pilot environment |
-| [../PRODUCT_LEARNING.md](../PRODUCT_LEARNING.md) | How pilot feedback signals are captured and analyzed |
-| [../OBSERVABILITY.md](../OBSERVABILITY.md) | OTel metric names referenced in this scorecard |
-| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability assessment |
+| [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) | Technical setup for the pilot environment |
+| [../PRODUCT_LEARNING.md](../library/PRODUCT_LEARNING.md) | How pilot feedback signals are captured and analyzed |
+| [../OBSERVABILITY.md](../library/OBSERVABILITY.md) | OTel metric names referenced in this scorecard |
+| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../library/MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability assessment |

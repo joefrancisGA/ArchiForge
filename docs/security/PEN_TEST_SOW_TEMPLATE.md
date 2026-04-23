@@ -34,6 +34,6 @@ Authorize a **time-boxed** technical assessment of ArchLucid’s exposed attack 
 ## 5. Artifacts for assessor
 
 - Staging **base URL**, non-production **Entra** app registration, **test tenant** id.
-- Redacted architecture diagram link: [`docs/CUSTOMER_TRUST_AND_ACCESS.md`](../CUSTOMER_TRUST_AND_ACCESS.md).
+- Redacted architecture diagram link: [`docs/CUSTOMER_TRUST_AND_ACCESS.md`](../library/CUSTOMER_TRUST_AND_ACCESS.md).
 
 Use [`PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md`](PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md) when publishing a **customer-shareable** excerpt.

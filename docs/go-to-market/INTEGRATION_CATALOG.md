@@ -17,9 +17,9 @@
 
 | Integration | Type | Description |
 |-------------|------|-------------|
-| **REST API** | Outbound / Inbound | OpenAPI 3.0 contract (`/openapi/v1.json`). Full CRUD for runs, manifests, findings, governance, audit, comparisons, alerts. See [../API_CONTRACTS.md](../API_CONTRACTS.md). |
+| **REST API** | Outbound / Inbound | OpenAPI 3.0 contract (`/openapi/v1.json`). Full CRUD for runs, manifests, findings, governance, audit, comparisons, alerts. See [../API_CONTRACTS.md](../library/API_CONTRACTS.md). |
 | **.NET API client** | Client SDK | Generated NuGet package (`ArchLucid.Api.Client`) from NSwag / OpenAPI spec. |
-| **CLI** | Command-line | `archlucid` CLI for scripting, support bundles, and automation. See [../CLI_USAGE.md](../CLI_USAGE.md). |
+| **CLI** | Command-line | `archlucid` CLI for scripting, support bundles, and automation. See [../CLI_USAGE.md](../library/CLI_USAGE.md). |
 | **Webhook / CloudEvents** | Outbound | Configurable HTTP callbacks on run lifecycle, governance, and alert events. CloudEvents envelope format. |
 | **Service Bus** | Outbound | Optional Azure Service Bus integration events for async processing and downstream systems. |
 | **Microsoft Teams** | Outbound | Teams **Incoming Webhook** via Logic Apps Standard fan-out; operators register a **Key Vault secret name** per tenant (`GET/POST/DELETE /v1/integrations/teams/connections`). See [../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md](../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md). |
@@ -30,8 +30,8 @@
 
 | Method | Use case | Reference |
 |--------|----------|-----------|
-| **Entra ID (JWT)** | Production integrations, CI/CD pipelines with service principals | [../SECURITY.md](../SECURITY.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
-| **API keys** | Automation, scripts, lightweight integrations | [../SECURITY.md](../SECURITY.md) (RBAC, key rotation) |
+| **Entra ID (JWT)** | Production integrations, CI/CD pipelines with service principals | [../SECURITY.md](../library/SECURITY.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
+| **API keys** | Automation, scripts, lightweight integrations | [../SECURITY.md](../library/SECURITY.md) (RBAC, key rotation) |
 
 ---
 
@@ -75,6 +75,6 @@ Contact **integrations@archlucid.dev** (placeholder) with your use case. Integra
 |-----|-----|
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
 | [POSITIONING.md](POSITIONING.md) | Product positioning |
-| [../API_CONTRACTS.md](../API_CONTRACTS.md) | API surface detail |
+| [../API_CONTRACTS.md](../library/API_CONTRACTS.md) | API surface detail |
 | [SIEM_EXPORT.md](SIEM_EXPORT.md) | Audit export for SIEM |
 | [../integrations/CICD_INTEGRATION.md](../integrations/CICD_INTEGRATION.md) | CI/CD pipeline examples |

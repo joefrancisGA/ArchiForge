@@ -11,7 +11,7 @@
 
 **Note:** The three narratives below are **fictional but realistic**, grounded in ICP criteria ([IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md)) and buyer personas ([BUYER_PERSONAS.md](BUYER_PERSONAS.md)). Replace with real customer data as pilots complete.
 
-**Alignment:** Outcomes and quotes should stay plausible against **[EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md)** and **[PILOT_ROI_MODEL.md](../PILOT_ROI_MODEL.md)**—especially §8 of the brief (what not to over-claim in V1).
+**Alignment:** Outcomes and quotes should stay plausible against **[EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md)** and **[PILOT_ROI_MODEL.md](../library/PILOT_ROI_MODEL.md)**—especially §8 of the brief (what not to over-claim in V1).
 
 ---
 

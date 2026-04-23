@@ -21,7 +21,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 **Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)**. The rest of this repository should stay aligned with that summary rather than competing with it.
 
-**Repository layout:** Source lives under **`ArchLucid.*`** projects, **`archlucid-ui/`**, and **`docs/`**. Local packaging writes to **`artifacts/`** (gitignored). See **[docs/REPO_HYGIENE.md](docs/REPO_HYGIENE.md)** for what to commit vs regenerate. User-visible changes are tracked in **[docs/CHANGELOG.md](docs/CHANGELOG.md)**; the breaking-only narrative continues to live in **[BREAKING_CHANGES.md](BREAKING_CHANGES.md)**.
+**Repository layout:** Source lives under **`ArchLucid.*`** projects, **`archlucid-ui/`**, and **`docs/`**. Local packaging writes to **`artifacts/`** (gitignored). See **[docs/REPO_HYGIENE.md](docs/library/REPO_HYGIENE.md)** for what to commit vs regenerate. User-visible changes are tracked in **[docs/CHANGELOG.md](docs/CHANGELOG.md)**; the breaking-only narrative continues to live in **[BREAKING_CHANGES.md](BREAKING_CHANGES.md)**.
 
 ## Getting started
 
@@ -31,7 +31,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 | You are a... | Start here (five-document spine) |
 |---|---|
-| **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop (pilot up → seed → sample run → committed manifest → first-value Markdown report → operator UI opens). Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/CLI_USAGE.md#archlucid-try)). |
+| **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop (pilot up → seed → sample run → committed manifest → first-value Markdown report → operator UI opens). Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/library/CLI_USAGE.md#archlucid-try)). |
 | **Evaluator — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)) |
 | **Operator running a real pilot** (curl, CLI, release smoke) | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** |
 | **Developer** about to commit code | **[docs/INSTALL_ORDER.md](docs/INSTALL_ORDER.md)** |
@@ -39,7 +39,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 | **Security / GRC** reviewer | **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)** |
 | **Executive sponsor / buyer** | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** — canonical outward narrative remains **`docs/EXECUTIVE_SPONSOR_BRIEF.md`** (open in repo; not a spine table link). |
 
-A short redirect hub remains at **[docs/START_HERE.md](docs/START_HERE.md)** for legacy bookmarks. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](docs/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
+A short redirect hub remains at **[docs/START_HERE.md](docs/START_HERE.md)** for legacy bookmarks. **Architecture poster:** **[docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md)**. **Operator atlas:** **[docs/OPERATOR_ATLAS.md](docs/library/OPERATOR_ATLAS.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**, **[docs/V1_SCOPE.md](docs/library/V1_SCOPE.md)**, **[docs/PILOT_ROI_MODEL.md](docs/library/PILOT_ROI_MODEL.md)** (measurement), **[docs/OPERATOR_DECISION_GUIDE.md](docs/library/OPERATOR_DECISION_GUIDE.md)** (when to leave Core Pilot), **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/library/FUTURE_PACKAGING_ENFORCEMENT.md)** (layer-model evolution), **[docs/go-to-market/reference-customers/README.md](docs/go-to-market/reference-customers/README.md)** (drives the `−15%` reference-discount re-rate gate via `scripts/ci/check_reference_customer_status.py`), **[docs/PENDING_QUESTIONS.md](docs/PENDING_QUESTIONS.md)** (owner decisions and open items), **[docs/archive/README.md](docs/archive/README.md)** (historical write-ups).
 
 ## Product layers
 
@@ -53,24 +53,24 @@ ArchLucid ships as three distinct capability layers.
 |-------|---------------|----------------|-----------------|
 | **Core Pilot** | Create run → execute → commit → review manifest and artifacts | Proves fast path from request to reviewable output with less manual packaging effort | Default sidebar and home page |
 | **Advanced Analysis** | Compare runs, replay authority chains, explore provenance graphs, Ask Q&A, advisory scans, pilot feedback | Helps architects and reviewers understand what changed, why it changed, and what needs attention | **Show more links** in the sidebar |
-| **Enterprise Controls** | Governance approvals, policy packs, audit log, compliance drift, alerts and rules | Helps governance, audit, and security stakeholders trust and operationalize architecture decisions | Extended and advanced sidebar links; role-aware **UI shaping** (not entitlements) — see [docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4 and [archlucid-ui/README.md](archlucid-ui/README.md#seam-maintenance-anti-drift) |
+| **Enterprise Controls** | Governance approvals, policy packs, audit log, compliance drift, alerts and rules | Helps governance, audit, and security stakeholders trust and operationalize architecture decisions | Extended and advanced sidebar links; role-aware **UI shaping** (not entitlements) — see [docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](docs/library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4 and [archlucid-ui/README.md](archlucid-ui/README.md#seam-maintenance-anti-drift) |
 
-Full capability inventory: **[docs/PRODUCT_PACKAGING.md](docs/PRODUCT_PACKAGING.md)** (§3 *Four UI shaping surfaces* — shell vs mutation hook vs **`LayerHeader`** vs inline cues; *Contributor drift guard* + *Cross-surface lock* — keep **`nav-config.ts`**, **`nav-shell-visibility.ts`** (**tier → authority**), **`current-principal.ts`** (`/me` read-model), **`layer-guidance.ts` / `LayerHeader`** (**`LAYER_PAGE_GUIDANCE`** Enterprise **`enterpriseFootnote`** vs Advanced; Enterprise strip **`aria-label`**), **`enterprise-mutation-capability.ts`** / **`useEnterpriseMutationCapability()`** (Execute+ soft-disable), **Vitest** seam tests including **`authority-seam-regression.test.ts`**, **`authority-execute-floor-regression.test.ts`**, and **`authority-shaped-ui-regression.test.ts`** (catalog **`ExecuteAuthority`** rows + mutation floor invariants), and **API** policies aligned). First-pilot walkthrough: **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)**. **Measurement companion:** **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)**. **Usage guidance:** **[docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md)**. **Canonical buyer narrative:** **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)**. Future packaging map: **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)**. **Operator UI shaping only:** [archlucid-ui/README.md](archlucid-ui/README.md#seam-maintenance-anti-drift) — nav and soft-disable follow **`/me`**; **ArchLucid.Api** still returns **401/403**. **Page-level mutation + layout seams:** Vitest **`archlucid-ui/src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`** (hook → **`disabled`** / **`readOnly`**), **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** (inspect-first layout when mutation is off).
+Full capability inventory: **[docs/PRODUCT_PACKAGING.md](docs/library/PRODUCT_PACKAGING.md)** (§3 *Four UI shaping surfaces* — shell vs mutation hook vs **`LayerHeader`** vs inline cues; *Contributor drift guard* + *Cross-surface lock* — keep **`nav-config.ts`**, **`nav-shell-visibility.ts`** (**tier → authority**), **`current-principal.ts`** (`/me` read-model), **`layer-guidance.ts` / `LayerHeader`** (**`LAYER_PAGE_GUIDANCE`** Enterprise **`enterpriseFootnote`** vs Advanced; Enterprise strip **`aria-label`**), **`enterprise-mutation-capability.ts`** / **`useEnterpriseMutationCapability()`** (Execute+ soft-disable), **Vitest** seam tests including **`authority-seam-regression.test.ts`**, **`authority-execute-floor-regression.test.ts`**, and **`authority-shaped-ui-regression.test.ts`** (catalog **`ExecuteAuthority`** rows + mutation floor invariants), and **API** policies aligned). First-pilot walkthrough: **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)**. **Measurement companion:** **[docs/PILOT_ROI_MODEL.md](docs/library/PILOT_ROI_MODEL.md)**. **Usage guidance:** **[docs/OPERATOR_DECISION_GUIDE.md](docs/library/OPERATOR_DECISION_GUIDE.md)**. **Canonical buyer narrative:** **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)**. Future packaging map: **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/library/FUTURE_PACKAGING_ENFORCEMENT.md)**. **Operator UI shaping only:** [archlucid-ui/README.md](archlucid-ui/README.md#seam-maintenance-anti-drift) — nav and soft-disable follow **`/me`**; **ArchLucid.Api** still returns **401/403**. **Page-level mutation + layout seams:** Vitest **`archlucid-ui/src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`** (hook → **`disabled`** / **`readOnly`**), **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** (inspect-first layout when mutation is off).
 
 ## Pilot onboarding (56R)
 
-**Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md). **Commands:** [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md). **Measurement companion and success criteria:** [docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md). **Layer decision guidance:** [docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md). **Canonical buyer narrative:** [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md). **Narrative (archived):** [docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
+**Product boundary (V1):** [docs/V1_SCOPE.md](docs/library/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/library/V1_RELEASE_CHECKLIST.md). **Commands:** [docs/OPERATOR_QUICKSTART.md](docs/library/OPERATOR_QUICKSTART.md). **Measurement companion and success criteria:** [docs/PILOT_ROI_MODEL.md](docs/library/PILOT_ROI_MODEL.md). **Layer decision guidance:** [docs/OPERATOR_DECISION_GUIDE.md](docs/library/OPERATOR_DECISION_GUIDE.md). **Canonical buyer narrative:** [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md). **Narrative (archived):** [docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/library/RELEASE_LOCAL.md).
 
-**Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHLUCID_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
+**Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHLUCID_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/library/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
 
-**Hosted SaaS URLs:** staging funnel `https://staging.archlucid.com`; production `https://archlucid.com` when Front Door hostnames are wired (see [docs/REFERENCE_SAAS_STACK_ORDER.md](docs/REFERENCE_SAAS_STACK_ORDER.md), `infra/apply-saas.ps1`). **Public liveness (hosted):** `Invoke-RestMethod https://staging.archlucid.com/health/live` (or `/health/ready`). **`release-smoke.ps1`** still starts a **local** API for the E2E block; use **`-ApiBaseUrl`** / **`-BaseUrl`** only when that process is not on the default `http://localhost:5128` ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)).
+**Hosted SaaS URLs:** staging funnel `https://staging.archlucid.com`; production `https://archlucid.com` when Front Door hostnames are wired (see [docs/REFERENCE_SAAS_STACK_ORDER.md](docs/library/REFERENCE_SAAS_STACK_ORDER.md), `infra/apply-saas.ps1`). **Public liveness (hosted):** `Invoke-RestMethod https://staging.archlucid.com/health/live` (or `/health/ready`). **`release-smoke.ps1`** still starts a **local** API for the E2E block; use **`-ApiBaseUrl`** / **`-BaseUrl`** only when that process is not on the default `http://localhost:5128` ([docs/RELEASE_SMOKE.md](docs/library/RELEASE_SMOKE.md)).
 
-**Build / version:** **`GET /version`** on the API, or **`dotnet run --project ArchLucid.Cli -- doctor`**. **Diagnostics:** **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (review before sharing). **Reporting issues:** [docs/PILOT_GUIDE.md#when-you-report-an-issue](docs/PILOT_GUIDE.md#when-you-report-an-issue) (version, correlation ID, logs, bundle).
+**Build / version:** **`GET /version`** on the API, or **`dotnet run --project ArchLucid.Cli -- doctor`**. **Diagnostics:** **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (review before sharing). **Reporting issues:** [docs/PILOT_GUIDE.md#when-you-report-an-issue](docs/library/PILOT_GUIDE.md#when-you-report-an-issue) (version, correlation ID, logs, bundle).
 
 ## Operator quick start
 
-- **Health:** `GET /health/live` (liveness), `GET /health/ready` (readiness: DB when using Sql storage, schema files, compliance rule pack, temp dir), `GET /health` (all checks). See [docs/BUILD.md](docs/BUILD.md) for startup vs migration failure behavior.
-- **Versioned API:** Routes are under `/v1/...`. Send optional **`X-Correlation-ID`** on requests for support correlation (see [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md)).
+- **Health:** `GET /health/live` (liveness), `GET /health/ready` (readiness: DB when using Sql storage, schema files, compliance rule pack, temp dir), `GET /health` (all checks). See [docs/BUILD.md](docs/library/BUILD.md) for startup vs migration failure behavior.
+- **Versioned API:** Routes are under `/v1/...`. Send optional **`X-Correlation-ID`** on requests for support correlation (see [docs/API_CONTRACTS.md](docs/library/API_CONTRACTS.md)).
 - **Auth:** Configure **`ArchLucidAuth`**: shipped **`appsettings.json`** defaults to **`ApiKey`** mode with API keys **disabled** (fail closed) until you enable keys; **`appsettings.Development.json`** switches to **`DevelopmentBypass`** when `ASPNETCORE_ENVIRONMENT=Development`. Production samples use **`JwtBearer`**. Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
 - **SMB / storage:** Do not expose file shares (SMB, port 445) on the public internet; use private endpoints and controlled boundaries for any Azure storage or hybrid file access.
 - **Cost-aware pilot / unit economics:** [docs/deployment/PILOT_PROFILE.md](docs/deployment/PILOT_PROFILE.md), [docs/deployment/PER_TENANT_COST_MODEL.md](docs/deployment/PER_TENANT_COST_MODEL.md).
@@ -82,7 +82,7 @@ lifecycle hooks (run completion, governance, alerts, advisory scans).
 - **Event catalog:** [`schemas/integration-events/catalog.json`](schemas/integration-events/catalog.json)
 - **Payload schemas:** [`schemas/integration-events/*.v1.schema.json`](schemas/integration-events/)
 - **AsyncAPI spec:** [`docs/contracts/archlucid-asyncapi-2.6.yaml`](docs/contracts/archlucid-asyncapi-2.6.yaml)
-- **Full reference:** [`docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md)
+- **Full reference:** [`docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)
 
 ## Prerequisites
 
@@ -94,7 +94,7 @@ A thin Next.js shell organized around the three product layers: **Core Pilot** (
 
 **Keep the default mental model narrow:** Core Pilot is the default path. Advanced Analysis and Enterprise Controls are follow-on layers for specific analytical or governance questions, not required for first-pilot success.
 
-**Role-aware shaping (first wave, implemented):** the UI composes **disclosure tier first**, then optional per-link **`requiredAuthority`** (same names as API policies: `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`) using **`GET /api/auth/me`** via the proxy (`archlucid-ui/src/lib/current-principal.ts` + **`OperatorNavAuthorityProvider`** for a single in-shell read-model and rank; composition in **`nav-shell-visibility.ts`**). That is **operational accountability** (who should see operator/admin surfaces)—**not** pricing, billing, or entitlements. **The API still returns 401/403**; the shell must not be treated as authorization. **Contributor maintenance map** (which TS modules map to which packaging layer): [docs/PRODUCT_PACKAGING.md](docs/PRODUCT_PACKAGING.md) §3 — *Code seams (operator UI — maintenance map)* and *Contributor drift guard*. **Cross-module Vitest:** [`archlucid-ui/src/lib/authority-seam-regression.test.ts`](archlucid-ui/src/lib/authority-seam-regression.test.ts) (tier ∩ rank, Enterprise monotonicity, progressive disclosure); [`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`](archlucid-ui/src/lib/authority-execute-floor-regression.test.ts) (Execute nav row vs mutation boolean). Do not bypass or duplicate this stack ad hoc; see [archlucid-ui/README.md](archlucid-ui/README.md#seam-maintenance-anti-drift), [docs/operator-shell.md](docs/operator-shell.md), and [docs/PRODUCT_PACKAGING.md](docs/PRODUCT_PACKAGING.md#what-the-layer-model-means-today) (role-based restriction vs future entitlement). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
+**Role-aware shaping (first wave, implemented):** the UI composes **disclosure tier first**, then optional per-link **`requiredAuthority`** (same names as API policies: `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`) using **`GET /api/auth/me`** via the proxy (`archlucid-ui/src/lib/current-principal.ts` + **`OperatorNavAuthorityProvider`** for a single in-shell read-model and rank; composition in **`nav-shell-visibility.ts`**). That is **operational accountability** (who should see operator/admin surfaces)—**not** pricing, billing, or entitlements. **The API still returns 401/403**; the shell must not be treated as authorization. **Contributor maintenance map** (which TS modules map to which packaging layer): [docs/PRODUCT_PACKAGING.md](docs/library/PRODUCT_PACKAGING.md) §3 — *Code seams (operator UI — maintenance map)* and *Contributor drift guard*. **Cross-module Vitest:** [`archlucid-ui/src/lib/authority-seam-regression.test.ts`](archlucid-ui/src/lib/authority-seam-regression.test.ts) (tier ∩ rank, Enterprise monotonicity, progressive disclosure); [`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`](archlucid-ui/src/lib/authority-execute-floor-regression.test.ts) (Execute nav row vs mutation boolean). Do not bypass or duplicate this stack ad hoc; see [archlucid-ui/README.md](archlucid-ui/README.md#seam-maintenance-anti-drift), [docs/operator-shell.md](docs/library/operator-shell.md), and [docs/PRODUCT_PACKAGING.md](docs/library/PRODUCT_PACKAGING.md#what-the-layer-model-means-today) (role-based restriction vs future entitlement). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
 
 ## API authentication (`ArchLucidAuth`)
 
@@ -116,7 +116,7 @@ From the ArchLucid repo directory (or any directory containing `docker-compose.y
 dotnet run --project ArchLucid.Cli -- dev up
 ```
 
-This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. For the **Docker-only evaluator path** with Contoso demo seed and simulator agents, use `.\scripts\demo-start.ps1` or see [docs/go-to-market/DEMO_QUICKSTART.md](docs/go-to-market/DEMO_QUICKSTART.md). See [docs/CONTAINERIZATION.md](docs/CONTAINERIZATION.md).
+This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. For the **Docker-only evaluator path** with Contoso demo seed and simulator agents, use `.\scripts\demo-start.ps1` or see [docs/go-to-market/DEMO_QUICKSTART.md](docs/go-to-market/DEMO_QUICKSTART.md). See [docs/CONTAINERIZATION.md](docs/library/CONTAINERIZATION.md).
 
 Use this connection string with the API:
 
@@ -127,11 +127,11 @@ Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass1
 ## Database Setup
 
 1. Create a database (for example `ArchLucid`, or a pilot-specific name), or use `archlucid dev up` to run SQL Server in Docker.
-2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchLucid.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. **Greenfield** empty catalogs replay **`001`–`050`** once (then stamp `SchemaVersions` so DbUp continues at **`051`**); see **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** §4.0. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchLucid.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchLucid.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. **Greenfield** empty catalogs replay **`001`–`050`** once (then stamp `SchemaVersions` so DbUp continues at **`051`**); see **[docs/SQL_SCRIPTS.md](docs/library/SQL_SCRIPTS.md)** §4.0. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/library/SQL_SCRIPTS.md)** (consolidated `ArchLucid.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
 
 ### Optional: Contoso trusted-baseline demo (Corrected 50R)
 
-For a deterministic **baseline vs hardened** story (runs, manifests, governance approvals, environment activations; export history row optional), see **[docs/demo-quickstart.md](docs/demo-quickstart.md)** and the honesty boundary in **[docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md)**. Summary: set `ArchLucid:StorageProvider` to `Sql`, configure `Demo:Enabled` / `Demo:SeedOnStartup` (Development only for automatic startup seed), or call **`POST /v1.0/demo/seed`** when `Demo:Enabled` is true. Startup logs label schema bootstrap, DbUp, and demo seed in order.
+For a deterministic **baseline vs hardened** story (runs, manifests, governance approvals, environment activations; export history row optional), see **[docs/demo-quickstart.md](docs/library/demo-quickstart.md)** and the honesty boundary in **[docs/TRUSTED_BASELINE.md](docs/library/TRUSTED_BASELINE.md)**. Summary: set `ArchLucid:StorageProvider` to `Sql`, configure `Demo:Enabled` / `Demo:SeedOnStartup` (Development only for automatic startup seed), or call **`POST /v1.0/demo/seed`** when `Demo:Enabled` is true. Startup logs label schema bootstrap, DbUp, and demo seed in order.
 
 ## Secrets (development)
 
@@ -186,7 +186,7 @@ Override in `appsettings.json` or via environment variables.
 
 ## Running Tests
 
-Full **54R** tier list, copy-paste commands, SQL variables, and **`archlucid-ui`** Vitest/Playwright: **[docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md)**. CI job mapping: **[docs/TEST_EXECUTION_MODEL.md](docs/TEST_EXECUTION_MODEL.md)**.
+Full **54R** tier list, copy-paste commands, SQL variables, and **`archlucid-ui`** Vitest/Playwright: **[docs/TEST_STRUCTURE.md](docs/library/TEST_STRUCTURE.md)**. CI job mapping: **[docs/TEST_EXECUTION_MODEL.md](docs/library/TEST_EXECUTION_MODEL.md)**.
 
 **Common entry points (repo root):**
 
@@ -202,9 +202,9 @@ dotnet test ArchLucid.sln
 cd archlucid-ui && npm ci && npm test
 ```
 
-**ArchLucid.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchLucidApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
+**ArchLucid.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchLucidApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/library/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
 
-**Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md).
+**Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/library/API_CONTRACTS.md).
 
 ## API Flow
 
@@ -244,7 +244,7 @@ The DOCX export produces a stakeholder-grade Word report: run metadata, evidence
 
 ## CLI (ArchLucid.Cli)
 
-The ArchLucid CLI is wired to the ArchLucid API over HTTP: all of `run`, `status`, `commit`, `seed`, and `artifacts` call the API. It lets you create projects, run architecture requests, and inspect results. For a full command and config reference, see [docs/CLI_USAGE.md](docs/CLI_USAGE.md). Run commands with:
+The ArchLucid CLI is wired to the ArchLucid API over HTTP: all of `run`, `status`, `commit`, `seed`, and `artifacts` call the API. It lets you create projects, run architecture requests, and inspect results. For a full command and config reference, see [docs/CLI_USAGE.md](docs/library/CLI_USAGE.md). Run commands with:
 
 ```bash
 dotnet run --project ArchLucid.Cli -- <command> [options]
@@ -254,13 +254,13 @@ dotnet run --project ArchLucid.Cli -- <command> [options]
 
 ArchLucid can persist comparison records (end-to-end run comparisons and export-record diffs) and later **replay** them to regenerate summaries or export artifacts (Markdown, HTML, DOCX, PDF). Replays can also be run in **verify** mode to detect drift between stored and regenerated comparisons, and can optionally be **persisted as new comparison records** for a full audit trail.
 
-For details, including replay modes, supported formats, headers, and example curl commands, see [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md).
+For details, including replay modes, supported formats, headers, and example curl commands, see [docs/COMPARISON_REPLAY.md](docs/library/COMPARISON_REPLAY.md).
 
 ## Decisioning: typed findings
 
 The decisioning layer uses a **Finding envelope** plus **strongly typed payloads per category**, and the decision engine extracts those typed payloads when building manifest decisions and warnings.
 
-See [docs/DECISIONING_TYPED_FINDINGS.md](docs/DECISIONING_TYPED_FINDINGS.md).
+See [docs/DECISIONING_TYPED_FINDINGS.md](docs/library/DECISIONING_TYPED_FINDINGS.md).
 
 ### Prerequisites
 
@@ -347,7 +347,7 @@ To update: `dotnet tool update -g ArchLucid.Cli --add-source ./nupkg`
 
 ## Architecture docs (internal)
 
-**Canonical poster (start here):** [`docs/ARCHITECTURE_ON_ONE_PAGE.md`](docs/ARCHITECTURE_ON_ONE_PAGE.md) — C4 system context + containers, ownership table, happy-path trace. **Operator action map:** [`docs/OPERATOR_ATLAS.md`](docs/OPERATOR_ATLAS.md) — every major UI route with API + CLI + authority hints.
+**Canonical poster (start here):** [`docs/ARCHITECTURE_ON_ONE_PAGE.md`](docs/ARCHITECTURE_ON_ONE_PAGE.md) — C4 system context + containers, ownership table, happy-path trace. **Operator action map:** [`docs/OPERATOR_ATLAS.md`](docs/library/OPERATOR_ATLAS.md) — every major UI route with API + CLI + authority hints.
 
 For deeper dives after the poster:
 

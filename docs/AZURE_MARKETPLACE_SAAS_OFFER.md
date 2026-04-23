@@ -53,6 +53,6 @@ Expect **HTTP 200** under the new default (`GaEnabled=true`) when the subscripti
 
 ## Related
 
-- [`docs/BILLING.md`](BILLING.md)
+- [`docs/BILLING.md`](library/BILLING.md)
 - [`docs/adr/0016-billing-provider-abstraction.md`](adr/0016-billing-provider-abstraction.md)
 - [`docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md) — rollback procedure for the `GaEnabled=true` default.

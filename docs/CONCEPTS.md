@@ -7,7 +7,7 @@
 
 **Last reviewed:** 2026-04-20
 
-This file is the canonical "**should I write X or Y?**" reference for ArchLucid documentation, code comments, runbooks, and operator-facing copy. It is **distinct from [`GLOSSARY.md`](GLOSSARY.md)**:
+This file is the canonical "**should I write X or Y?**" reference for ArchLucid documentation, code comments, runbooks, and operator-facing copy. It is **distinct from [`GLOSSARY.md`](library/GLOSSARY.md)**:
 
 - `GLOSSARY.md` answers **"what does X mean?"** — short definitions for domain terms.
 - `CONCEPTS.md` (this file) answers **"if X and Y are both possible, which one is canonical and why?"** — adjudication between competing terms. New ambiguities should land here as a row first; only then propagate to `GLOSSARY.md` for definition.
@@ -70,8 +70,8 @@ When two phrasings show up in PR review more than twice in a quarter, add a row 
 
 ## 4 Related
 
-- [`GLOSSARY.md`](GLOSSARY.md) — definitions of canonical terms.
-- [`CANONICAL_PIPELINE.md`](CANONICAL_PIPELINE.md) — operator pipeline overview.
+- [`GLOSSARY.md`](library/GLOSSARY.md) — definitions of canonical terms.
+- [`CANONICAL_PIPELINE.md`](library/CANONICAL_PIPELINE.md) — operator pipeline overview.
 - [`archive/dual-pipeline-navigator-superseded.md`](archive/dual-pipeline-navigator-superseded.md) — archived contributor decision tree (engineering).
 - [`docs/adr/README.md`](adr/README.md) — ADR index (ADR titles set the canonical naming for cross-cutting concerns).
 - [`.cursor/rules/ArchLucid-Rename.mdc`](../.cursor/rules/ArchLucid-Rename.mdc) — separate, narrower enforcement of the ArchiForge → ArchLucid rename.

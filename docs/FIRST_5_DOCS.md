@@ -16,8 +16,8 @@ Contributor and operator cognitive load is intentionally capped: **five** checke
 
 **Historical “first five” reading list (superseded 2026-04-22):** [archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md](archive/FIRST_FIVE_DOCS_SUPERSEDED_2026_04_22.md) — old developer-centric table (SYSTEM_MAP, API_CONTRACTS, etc.).
 
-**Depth after the spine:** [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md) · [CODE_MAP.md](CODE_MAP.md) · [PROJECT_MAP.md](PROJECT_MAP.md) · [SYSTEM_MAP.md](SYSTEM_MAP.md) · [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) · [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) — use only when your task requires them.
+**Depth after the spine:** [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md) · [CODE_MAP.md](library/CODE_MAP.md) · [PROJECT_MAP.md](library/PROJECT_MAP.md) · [SYSTEM_MAP.md](library/SYSTEM_MAP.md) · [OPERATOR_ATLAS.md](library/OPERATOR_ATLAS.md) · [OPERATOR_QUICKSTART.md](library/OPERATOR_QUICKSTART.md) — use only when your task requires them.
 
-**Cursor prompt packs:** [CURSOR_PROMPTS_CANONICAL.md](CURSOR_PROMPTS_CANONICAL.md).
+**Cursor prompt packs:** [CURSOR_PROMPTS_CANONICAL.md](archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_CANONICAL.md).
 
 **Filename alias:** [FIRST_FIVE_DOCS.md](FIRST_FIVE_DOCS.md) — thin redirect; do not edit for spine content.

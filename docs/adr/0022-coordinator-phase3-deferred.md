@@ -24,7 +24,7 @@ Record **why** [ADR 0021 Phase 3](0021-coordinator-pipeline-strangler-plan.md) *
 
 - **Non-reversible Phase 3** deletions require ADR 0021 § Phase 3 exit gates **(ii)** and **(iii)** to be green — gates **(i)** and **(iv)** are **waived for the pre-release window** per [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (rationale: no published clients to protect with a 30-day soak; no customer traffic to measure with the parity probe). The Sunset header date (`2026-05-15`) is the **latest-by** deadline, not a wait-for-evidence one. (The earlier Draft [ADR 0028 — completion scaffold](0028-coordinator-strangler-completion.md) is now Superseded by 0029.)
 - **No** edits to historical SQL migrations **001–028**; behaviour changes continue via new migrations + `ArchLucid.Persistence/Scripts/ArchLucid.sql` when schema work resumes.
-- **Integration event** documentation still names coordinator-prefixed audit semantics in at least one row — silent removal would violate [`docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../INTEGRATION_EVENTS_AND_WEBHOOKS.md) consumer expectations without a deprecation cycle.
+- **Integration event** documentation still names coordinator-prefixed audit semantics in at least one row — silent removal would violate [`docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) consumer expectations without a deprecation cycle.
 
 ## Architecture overview
 

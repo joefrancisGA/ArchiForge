@@ -7,7 +7,7 @@
 
 **Audience:** Evaluators and champions who want to see the product in minutes without installing the .NET SDK, SQL Server, or Node.js locally.
 
-**Grounding:** Same demo data as [demo-quickstart.md](../demo-quickstart.md) (Contoso Retail) and [V1_SCOPE.md](../V1_SCOPE.md). The Docker path uses **Development** environment, **simulator** agent mode (no Azure OpenAI charges), and **startup demo seed** after DbUp.
+**Grounding:** Same demo data as [demo-quickstart.md](../library/demo-quickstart.md) (Contoso Retail) and [V1_SCOPE.md](../library/V1_SCOPE.md). The Docker path uses **Development** environment, **simulator** agent mode (no Azure OpenAI charges), and **startup demo seed** after DbUp.
 
 ---
 
@@ -37,9 +37,9 @@ The script waits up to **120 seconds** for `http://localhost:5000/health/ready`,
 ## Your first five minutes
 
 1. **Wizard** — Browser should open to `/runs/new`. Pick **Greenfield web app** (or another preset) and walk the seven steps; submit a new run if you want live pipeline tracking, or explore existing data from the seeded demo.
-2. **Runs** — Open **Runs** and select a run to see status, findings, and manifest linkage. The seed creates baseline and hardened Contoso runs when startup seed completes ([demo-quickstart.md](../demo-quickstart.md) §3).
+2. **Runs** — Open **Runs** and select a run to see status, findings, and manifest linkage. The seed creates baseline and hardened Contoso runs when startup seed completes ([demo-quickstart.md](../library/demo-quickstart.md) §3).
 3. **Explainability** — Open a finding and review the structured explainability trace (what was examined, rules, decisions).
-4. **Compare** — Use **Compare runs** with two runs (seeded IDs are documented in [demo-quickstart.md](../demo-quickstart.md)) to see structured deltas.
+4. **Compare** — Use **Compare runs** with two runs (seeded IDs are documented in [demo-quickstart.md](../library/demo-quickstart.md)) to see structured deltas.
 5. **Graph** — Open the **Graph** view for a run to see provenance-style exploration.
 6. **Export** — From a run or export flow, generate Markdown/DOCX/ZIP as exposed in your build (consulting templates may require optional configuration).
 
@@ -53,7 +53,7 @@ Adjust the path if you prefer to start from the home dashboard at `http://localh
 - **Governance and audit** — Policy packs, optional pre-commit gates, and durable audit patterns match [POSITIONING.md](POSITIONING.md) and [PRODUCT_DATASHEET.md](PRODUCT_DATASHEET.md).
 - **Explainability** — Findings carry traces suitable for review and audit narratives.
 
-For full capability claims, use [V1_SCOPE.md](../V1_SCOPE.md) and the [Product datasheet](PRODUCT_DATASHEET.md).
+For full capability claims, use [V1_SCOPE.md](../library/V1_SCOPE.md) and the [Product datasheet](PRODUCT_DATASHEET.md).
 
 ---
 
@@ -77,9 +77,9 @@ This runs `docker compose ... down -v` and removes named volumes (including Azur
 
 ## Next steps
 
-- **Production-style pilot:** [Pilot Guide](../PILOT_GUIDE.md)
+- **Production-style pilot:** [Pilot Guide](../library/PILOT_GUIDE.md)
 - **Business case:** [ROI_MODEL.md](ROI_MODEL.md) and [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)
-- **Developer / detailed demo seed:** [demo-quickstart.md](../demo-quickstart.md)
+- **Developer / detailed demo seed:** [demo-quickstart.md](../library/demo-quickstart.md)
 
 ---
 
@@ -87,5 +87,5 @@ This runs `docker compose ... down -v` and removes named volumes (including Azur
 
 | Doc | Use |
 |-----|-----|
-| [CONTAINERIZATION.md](../CONTAINERIZATION.md) | All Docker workflows including demo overlay |
-| [demo-quickstart.md](../demo-quickstart.md) | Technical demo seed and HTTP verification |
+| [CONTAINERIZATION.md](../library/CONTAINERIZATION.md) | All Docker workflows including demo overlay |
+| [demo-quickstart.md](../library/demo-quickstart.md) | Technical demo seed and HTTP verification |

@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-15
 
-This policy describes how ArchLucid classifies service and security incidents and **communicates** with customers in a **SaaS** context. It aligns with correlation and support practices in [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) and service objectives in [../API_SLOS.md](../API_SLOS.md).
+This policy describes how ArchLucid classifies service and security incidents and **communicates** with customers in a **SaaS** context. It aligns with correlation and support practices in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) and service objectives in [../API_SLOS.md](../library/API_SLOS.md).
 
 ---
 
@@ -59,7 +59,7 @@ Internal technical response may reference **[../runbooks/](../runbooks/)**; thos
 
 ## 5. Customer responsibilities
 
-- Include **`X-Correlation-ID`** on API requests when reporting issues so support can align logs across edge, API, and audit ([../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) §8).
+- Include **`X-Correlation-ID`** on API requests when reporting issues so support can align logs across edge, API, and audit ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) §8).
 - Provide a **security contact** on file for DPA and incident notices.
 
 ---
@@ -84,5 +84,5 @@ Blameless review covers: **timeline**, **customer impact**, **root cause**, **re
 | Doc | Use |
 |-----|-----|
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
-| [../API_SLOS.md](../API_SLOS.md) | HTTP SLOs (e.g. **99.5%** availability target) |
+| [../API_SLOS.md](../library/API_SLOS.md) | HTTP SLOs (e.g. **99.5%** availability target) |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Breach notification clause |

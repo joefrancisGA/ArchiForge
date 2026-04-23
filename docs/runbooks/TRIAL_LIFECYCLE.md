@@ -19,8 +19,8 @@ Describe automated **self-service trial** lifecycle transitions after `TrialExpi
 
 ## Constraints
 
-- **RLS:** scheduler paths use `SqlRowLevelSecurityBypassAmbient` + `sp_set_session_context` (`af_rls_bypass=1`) only where break-glass policy allows (see [SECURITY.md](../SECURITY.md)).
-- **Audit:** `dbo.AuditEvents` is **not** deleted by `SqlTenantHardPurgeService` (retention per [AUDIT_RETENTION_POLICY.md](../AUDIT_RETENTION_POLICY.md)).
+- **RLS:** scheduler paths use `SqlRowLevelSecurityBypassAmbient` + `sp_set_session_context` (`af_rls_bypass=1`) only where break-glass policy allows (see [SECURITY.md](../library/SECURITY.md)).
+- **Audit:** `dbo.AuditEvents` is **not** deleted by `SqlTenantHardPurgeService` (retention per [AUDIT_RETENTION_POLICY.md](../library/AUDIT_RETENTION_POLICY.md)).
 - **Idempotency:** `TryRecordTrialLifecycleTransitionAsync` updates `dbo.Tenants` only when `TrialStatus` matches the expected prior value; transitions append to `dbo.TenantLifecycleTransitions`.
 
 ## Architecture overview

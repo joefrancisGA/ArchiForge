@@ -13,12 +13,12 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 ## Related
 
 - **[README.md](../README.md)** — repo entry and deeper operator material
-- **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** — pilot measurement companion
-- **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** — capability layers and UI seams
+- **[PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)** — pilot measurement companion
+- **[PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
 - **[CORE_PILOT.md](CORE_PILOT.md)** — operator first-pilot motion
 - **[go-to-market/POSITIONING.md](go-to-market/POSITIONING.md)** — positioning aligned to this brief
 
-**One-shot sponsor PDF:** the operator-shell run-detail page (`/runs/[runId]`) shows a non-modal **"Email this run to your sponsor"** banner after a successful commit. The banner downloads a PDF projection of the canonical first-value-report for that run via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known, the banner can show a small **“Day N since first commit”** badge (UTC day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](API_CONTRACTS.md#pilots-v1pilots).
+**One-shot sponsor PDF:** the operator-shell run-detail page (`/runs/[runId]`) shows a non-modal **"Email this run to your sponsor"** banner after a successful commit. The banner downloads a PDF projection of the canonical first-value-report for that run via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known, the banner can show a small **“Day N since first commit”** badge (UTC day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](library/API_CONTRACTS.md#pilots-v1pilots).
 
 ---
 
@@ -35,7 +35,7 @@ It helps teams produce:
 
 At a practical level, ArchLucid is an AI-assisted architecture workflow system that coordinates topology, cost, and compliance analysis into outputs that architects, reviewers, and governance stakeholders can use.
 
-**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](adr/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.com` (staging) and `https://archlucid.com` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](REFERENCE_SAAS_STACK_ORDER.md).
+**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](adr/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.com` (staging) and `https://archlucid.com` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](library/REFERENCE_SAAS_STACK_ORDER.md).
 
 ---
 
@@ -65,7 +65,7 @@ A successful Core Pilot should prove that a team can:
 
 That is the main V1 buying motion.
 
-**Procurement-facing proof surfaces (light pointer):** the public marketing comparison table lives at **`/why`**; the operator telemetry proof page is **`/why-archlucid`**; the sourced incumbent-aligned PDF bundle is **`GET /v1/marketing/why-archlucid-pack.pdf`** (see [API_CONTRACTS.md](API_CONTRACTS.md)). The sponsor narrative in this brief remains canonical.
+**Procurement-facing proof surfaces (light pointer):** the public marketing comparison table lives at **`/why`**; the operator telemetry proof page is **`/why-archlucid`**; the sourced incumbent-aligned PDF bundle is **`GET /v1/marketing/why-archlucid-pack.pdf`** (see [API_CONTRACTS.md](library/API_CONTRACTS.md)). The sponsor narrative in this brief remains canonical.
 
 ---
 
@@ -80,7 +80,7 @@ A credible pilot should show improvement in a few concrete areas:
 - **change visibility between runs,**
 - **governance evidence readiness.**
 
-For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md).
+For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md).
 
 **Automated sponsor package:** operators on a Standard-tier tenant can generate a **per-tenant value report DOCX** from the operator UI (`/value-report` or “Generate sponsor report” on run detail after commit). The document summarizes committed manifests, governance and drift audit activity, ROI_MODEL-aligned hour and LLM estimates, and annualized ROI vs the model baseline — see [go-to-market/ROI_MODEL.md](go-to-market/ROI_MODEL.md).
 

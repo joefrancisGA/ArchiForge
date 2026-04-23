@@ -13,7 +13,7 @@
 
 ## 1. What is exported
 
-ArchLucid maintains a **durable, append-only audit trail** in SQL (`dbo.AuditEvents`) with a typed event catalog. The catalog currently contains **81 event types** (CI-tracked; see [../AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md)).
+ArchLucid maintains a **durable, append-only audit trail** in SQL (`dbo.AuditEvents`) with a typed event catalog. The catalog currently contains **81 event types** (CI-tracked; see [../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md)).
 
 Each audit event includes:
 
@@ -64,7 +64,7 @@ Each audit event includes:
 
 ## 4. Retention
 
-- **In ArchLucid:** Audit events are retained until archived or deleted by operator workflows. Default posture is **keep indefinitely** — see [../SECURITY.md](../SECURITY.md) (PII and retention).
+- **In ArchLucid:** Audit events are retained until archived or deleted by operator workflows. Default posture is **keep indefinitely** — see [../SECURITY.md](../library/SECURITY.md) (PII and retention).
 - **In your SIEM:** Apply your organization's log retention policy. ArchLucid events may contain tenant-scoped operational data; see [DPA_TEMPLATE.md](DPA_TEMPLATE.md) for data handling terms.
 
 ---
@@ -86,5 +86,5 @@ Each audit event includes:
 |-----|-----|
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Full integration catalog |
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
-| [../AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md) | 81 typed events, coverage detail |
-| [../SECURITY.md](../SECURITY.md) | Audit, PII, retention |
+| [../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) | 81 typed events, coverage detail |
+| [../SECURITY.md](../library/SECURITY.md) | Audit, PII, retention |

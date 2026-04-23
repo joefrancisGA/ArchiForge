@@ -2,7 +2,7 @@
 
 **Objective:** Give operators a **single default Terraform footprint** under `infra/terraform-pilot`: opinionated **cost / sampling** variables and **machine-readable nested stack order** for Azure. This root intentionally creates **no Azure resources** — it is the profile and sequencing contract.
 
-**Multi-root path (opt-in):** Applying each `infra/terraform-*` directory with **its own remote state** remains supported for teams that want separate state files and blast-radius isolation. That workflow is **advanced** — see `nested_infrastructure_roots` in `outputs.tf` / `terraform output`, and [docs/REFERENCE_SAAS_STACK_ORDER.md](../../docs/REFERENCE_SAAS_STACK_ORDER.md).
+**Multi-root path (opt-in):** Applying each `infra/terraform-*` directory with **its own remote state** remains supported for teams that want separate state files and blast-radius isolation. That workflow is **advanced** — see `nested_infrastructure_roots` in `outputs.tf` / `terraform output`, and [docs/REFERENCE_SAAS_STACK_ORDER.md](../../docs/library/REFERENCE_SAAS_STACK_ORDER.md).
 
 ## Default workflow
 
@@ -20,10 +20,10 @@
 
 ## Guardrails
 
-- **Never** commit secrets; use Key Vault references per [docs/CONFIGURATION_KEY_VAULT.md](../../docs/CONFIGURATION_KEY_VAULT.md).
+- **Never** commit secrets; use Key Vault references per [docs/CONFIGURATION_KEY_VAULT.md](../../docs/library/CONFIGURATION_KEY_VAULT.md).
 - **CI** rejects `archiforge` in any `infra/**/*.tf` — keep **ArchLucid** / `archlucid` naming.
 
 ## Related
 
 - [docs/deployment/PILOT_PROFILE.md](../../docs/deployment/PILOT_PROFILE.md) — pilot vs production posture.
-- [docs/REFERENCE_SAAS_STACK_ORDER.md](../../docs/REFERENCE_SAAS_STACK_ORDER.md) — full narrative and advanced table.
+- [docs/REFERENCE_SAAS_STACK_ORDER.md](../../docs/library/REFERENCE_SAAS_STACK_ORDER.md) — full narrative and advanced table.

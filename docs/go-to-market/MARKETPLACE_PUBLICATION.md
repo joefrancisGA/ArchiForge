@@ -7,7 +7,7 @@
 
 ## Objective
 
-Track **Partner Center** and repository steps so a transactable SaaS offer can go live without ad-hoc gaps. Technical webhook behavior is documented in [AZURE_MARKETPLACE_SAAS_OFFER.md](../AZURE_MARKETPLACE_SAAS_OFFER.md) and [BILLING.md](../BILLING.md).
+Track **Partner Center** and repository steps so a transactable SaaS offer can go live without ad-hoc gaps. Technical webhook behavior is documented in [AZURE_MARKETPLACE_SAAS_OFFER.md](../AZURE_MARKETPLACE_SAAS_OFFER.md) and [BILLING.md](../library/BILLING.md).
 
 ## Preconditions (owner)
 
@@ -26,7 +26,7 @@ Track **Partner Center** and repository steps so a transactable SaaS offer can g
 
 ## Default Azure region
 
-Production primary region is **Central US** for new Terraform stacks unless compliance requires otherwise — see [REFERENCE_SAAS_STACK_ORDER.md](../REFERENCE_SAAS_STACK_ORDER.md).
+Production primary region is **Central US** for new Terraform stacks unless compliance requires otherwise — see [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md).
 
 ## Blockers requiring human owner
 

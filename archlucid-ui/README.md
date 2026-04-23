@@ -2,7 +2,7 @@
 
 Thin Next.js App Router UI for the ArchLucid operator experience. The default job of the UI is to help a team move from an architecture request to a reviewable, defensible output quickly through the **Core Pilot** path, then expand into **Advanced Analysis** or **Enterprise Controls** only when needed.
 
-**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/EXECUTIVE_SPONSOR_BRIEF.md](../docs/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains operator flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/PILOT_ROI_MODEL.md).
+**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/EXECUTIVE_SPONSOR_BRIEF.md](../docs/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains operator flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/library/PILOT_ROI_MODEL.md).
 
 **Core Pilot first-value rule:** for most first pilots, stay on the **Core Pilot** path until request → commit → artifact review is working cleanly. Treat Advanced Analysis and Enterprise Controls as follow-on maturity paths, not co-equal Day-1 proof.
 
@@ -10,11 +10,11 @@ Thin Next.js App Router UI for the ArchLucid operator experience. The default jo
 
 ## Role-aware shaping (first wave)
 
-The shell **already** shapes nav and light copy by **principal + policy tier names** aligned with the C# API (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`). This is **[COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md)** Stage 1–style **clarity**, not licensing: **Core Pilot** stays broadly accessible; **Enterprise Controls** are the first hardening target for `requiredAuthority` and omission hints.
+The shell **already** shapes nav and light copy by **principal + policy tier names** aligned with the C# API (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`). This is **[COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../docs/library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md)** Stage 1–style **clarity**, not licensing: **Core Pilot** stays broadly accessible; **Enterprise Controls** are the first hardening target for `requiredAuthority` and omission hints.
 
 **Seam contract (one sentence):** **`ArchLucid.Api`** **`[Authorize(Policy = …)]`** decides success; **`nav-config.ts`** + **`nav-shell-visibility.ts`** decide **sidebar/palette** inclusion after **tier then authority** filters (higher rank does not skip progressive disclosure); **`useEnterpriseMutationCapability()`** decides **Enterprise POST/toggle** soft-enable — all three use the **same policy names** and the **same `AUTHORITY_RANK.ExecuteAuthority` floor** for “Execute-class” work.
 
-**Four surfaces (do not merge in refactors):** see **[../docs/PRODUCT_PACKAGING.md](../docs/PRODUCT_PACKAGING.md)** §3 *Four UI shaping surfaces* — shell composition vs mutation hook vs **`LayerHeader`** vs **`EnterpriseControlsContextHints`** (one route can use more than one).
+**Four surfaces (do not merge in refactors):** see **[../docs/PRODUCT_PACKAGING.md](../docs/library/PRODUCT_PACKAGING.md)** §3 *Four UI shaping surfaces* — shell composition vs mutation hook vs **`LayerHeader`** vs **`EnterpriseControlsContextHints`** (one route can use more than one).
 
 **UI shaping only:** visible links, **`LayerHeader`** copy, and soft-disabled buttons **do not** prove a write will succeed — **401/403** from the API is expected when the token lacks policy (deep links stay reachable).
 
@@ -31,7 +31,7 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 
 ### Seam maintenance (anti-drift)
 
-**Canonical packaging:** [../docs/PRODUCT_PACKAGING.md](../docs/PRODUCT_PACKAGING.md) §3 (*Code seams* + *Contributor drift guard*). **Stage 1 commercial framing (not entitlements):** [../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
+**Canonical packaging:** [../docs/PRODUCT_PACKAGING.md](../docs/library/PRODUCT_PACKAGING.md) §3 (*Code seams* + *Contributor drift guard*). **Stage 1 commercial framing (not entitlements):** [../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../docs/library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
 
 When you change who can use a route or which product layer it belongs to, update artifacts in **dependency order** (same pipeline as **docs/PRODUCT_PACKAGING.md** §3 *Code seams*: **API** → **nav metadata** → **shell composition** → **page guidance / mutation affordances** → **docs**):
 
@@ -41,7 +41,7 @@ When you change who can use a route or which product layer it belongs to, update
 4. **Enterprise mutations** — keep `useEnterpriseMutationCapability()` in sync with Execute+ server write policies; extend **`enterprise-authority-ui-shaping.test.tsx`** when you add POST/toggle-heavy Enterprise pages that should soft-disable for read-tier callers. Pair rank cues where it helps: **`AuditLogRankCue`** on **`/audit`**, **`EnterpriseControlsExecutePageHint`** on **`/policy-packs`**, reader-ranked lifecycle labels alongside **`disabled`**. **audit CSV export** uses **`/me` roles** (Auditor/Admin) to match **`RequireAuditor`**, not that hook.
 5. **Docs** — `PRODUCT_PACKAGING.md` capability / nav rows if the change is buyer-visible.
 
-Vitest regression anchors: `nav-authority.test.ts` (Execute visibility floor), `nav-shell-visibility.test.ts` (incl. **Core Pilot `/replay`** tier-before-rank), `current-principal.test.ts` (**`maxAuthority`** / **`hasEnterpriseOperatorSurfaces`** vs rank helpers), `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx` (rank cue + footnotes + **Enterprise** `aside` **`aria-label`**), **`authority-shaped-ui-regression.test.ts`** (every catalog **`ExecuteAuthority`** link vs Read/Execute rank; mutation floor monotonicity; empty-claims rank; shell bootstrap principals vs mutation flag), **`authority-shaped-layout-regression.test.tsx`** (inspect-first **`flex-col-reverse`**, alerts triage deemphasis, alert-routing inspect-before-toggle), **`authority-seam-regression.test.ts`** (cross-module seam + **ReadAuthority** at rank **0**, **`/alerts`** essential tier, stable nav ordering after filters; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`** contract; **Enterprise** href monotonicity Read→Execute→Admin; **Advanced** default shell **Ask-only**; **`/governance`** gated behind extended+advanced at Execute rank), **`authority-execute-floor-regression.test.ts`** (synthetic **`ExecuteAuthority`** nav row **≡** mutation boolean per rank; **`alerts-governance`** monotonicity; Reader **`/governance`** omission), **`OperatorNavAuthorityProvider.test.tsx`** (JWT `/me` in-flight rank), **`EnterpriseControlsReadRankHints.test.tsx`**, **`EnterpriseControlsContextHints.authority.test.tsx`** (Enterprise context hints vs `ExecuteAuthority` threshold, incl. governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader cue), **`enterprise-authority-ui-shaping.test.tsx`** (mocked **`useEnterpriseMutationCapability`** → Policy packs **Create**, **Alert rules** **Create rule**, Alerts triage **Confirm**, **Governance** submit **`#gov-submit-run`** / **`#gov-submit-version`** **`readOnly`** + **Submit** **`disabled`** wiring; **Governance resolution** **Change related controls** reader supplement + **Refresh** not gated by mutation), **`nav-config.structure.test.ts`** (duplicate hrefs, **Core Pilot essentials** omit `requiredAuthority`, Execute-tier Advanced + Enterprise links not on **essential** tier). Canonical index: [../docs/PRODUCT_PACKAGING.md](../docs/PRODUCT_PACKAGING.md) §3 *Contributor drift guard*.
+Vitest regression anchors: `nav-authority.test.ts` (Execute visibility floor), `nav-shell-visibility.test.ts` (incl. **Core Pilot `/replay`** tier-before-rank), `current-principal.test.ts` (**`maxAuthority`** / **`hasEnterpriseOperatorSurfaces`** vs rank helpers), `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx` (rank cue + footnotes + **Enterprise** `aside` **`aria-label`**), **`authority-shaped-ui-regression.test.ts`** (every catalog **`ExecuteAuthority`** link vs Read/Execute rank; mutation floor monotonicity; empty-claims rank; shell bootstrap principals vs mutation flag), **`authority-shaped-layout-regression.test.tsx`** (inspect-first **`flex-col-reverse`**, alerts triage deemphasis, alert-routing inspect-before-toggle), **`authority-seam-regression.test.ts`** (cross-module seam + **ReadAuthority** at rank **0**, **`/alerts`** essential tier, stable nav ordering after filters; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`** contract; **Enterprise** href monotonicity Read→Execute→Admin; **Advanced** default shell **Ask-only**; **`/governance`** gated behind extended+advanced at Execute rank), **`authority-execute-floor-regression.test.ts`** (synthetic **`ExecuteAuthority`** nav row **≡** mutation boolean per rank; **`alerts-governance`** monotonicity; Reader **`/governance`** omission), **`OperatorNavAuthorityProvider.test.tsx`** (JWT `/me` in-flight rank), **`EnterpriseControlsReadRankHints.test.tsx`**, **`EnterpriseControlsContextHints.authority.test.tsx`** (Enterprise context hints vs `ExecuteAuthority` threshold, incl. governance resolution, audit log, **Alerts inbox**, **governance dashboard** reader cue), **`enterprise-authority-ui-shaping.test.tsx`** (mocked **`useEnterpriseMutationCapability`** → Policy packs **Create**, **Alert rules** **Create rule**, Alerts triage **Confirm**, **Governance** submit **`#gov-submit-run`** / **`#gov-submit-version`** **`readOnly`** + **Submit** **`disabled`** wiring; **Governance resolution** **Change related controls** reader supplement + **Refresh** not gated by mutation), **`nav-config.structure.test.ts`** (duplicate hrefs, **Core Pilot essentials** omit `requiredAuthority`, Execute-tier Advanced + Enterprise links not on **essential** tier). Canonical index: [../docs/PRODUCT_PACKAGING.md](../docs/library/PRODUCT_PACKAGING.md) §3 *Contributor drift guard*.
 
 **Read tier vs Execute+ (one threshold):** numeric **`AUTHORITY_RANK.ExecuteAuthority`** is the floor for **`useEnterpriseMutationCapability()`** and for operator-oriented **Enterprise** rank cues. **`requiredAuthority`** on each **`NavLinkItem`** controls **nav visibility** after tier filters — same policy names as **`ArchLucidPolicies`** on the API. **`LayerHeader`** and page intros are **cognitive** packaging only.
 
@@ -77,7 +77,7 @@ New run (wizard) → pipeline runs → Commit → Artifacts
 
 - **Artifact review:** List (`[]` when empty), descriptor metadata, in-shell preview with raw disclosure, stable table order (name, then id — aligned with API).
 - **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
-- **Compare / replay:** Two-run diff vs single-run authority replay — see [docs/operator-shell.md](../docs/operator-shell.md) in the repo root.
+- **Compare / replay:** Two-run diff vs single-run authority replay — see [docs/operator-shell.md](../docs/library/operator-shell.md) in the repo root.
 
 ## Advanced Analysis (available once you have a committed run)
 
@@ -135,20 +135,20 @@ This is a boundary-hardening step for clarity and operational accountability. It
 
 ## Pilot feedback (58R)
 
-**Nav:** **Pilot feedback** (not **Learning**, which is recommendation learning). Scoped dashboard, improvement opportunities, triage queue, Markdown/JSON export. Workflow: [docs/PRODUCT_LEARNING.md](../docs/PRODUCT_LEARNING.md).
+**Nav:** **Pilot feedback** (not **Learning**, which is recommendation learning). Scoped dashboard, improvement opportunities, triage queue, Markdown/JSON export. Workflow: [docs/PRODUCT_LEARNING.md](../docs/library/PRODUCT_LEARNING.md).
 
 ## Documentation
 
 | Document | What it covers |
 |----------|---------------|
 | [Executive sponsor brief](../docs/EXECUTIVE_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
-| [Pilot ROI model](../docs/PILOT_ROI_MODEL.md) | **Measurement companion:** how to judge pilot success using scorecards and practical V1 measures without turning the ROI model into a second buyer story. |
-| [Operator decision guide](../docs/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
-| [Commercial boundary hardening sequence](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) | **What should harden first:** UI shaping → role-native boundaries → selective future commercialization. |
-| [Operator quickstart](../docs/OPERATOR_QUICKSTART.md) | **Pilots / operators:** commands, health, first run. |
-| [Product learning (58R)](../docs/PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export. |
+| [Pilot ROI model](../docs/library/PILOT_ROI_MODEL.md) | **Measurement companion:** how to judge pilot success using scorecards and practical V1 measures without turning the ROI model into a second buyer story. |
+| [Operator decision guide](../docs/library/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
+| [Commercial boundary hardening sequence](../docs/library/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) | **What should harden first:** UI shaping → role-native boundaries → selective future commercialization. |
+| [Operator quickstart](../docs/library/OPERATOR_QUICKSTART.md) | **Pilots / operators:** commands, health, first run. |
+| [Product learning (58R)](../docs/library/PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export. |
 | [Troubleshooting (56R)](../docs/TROUBLESHOOTING.md) | Common failures (health, auth, SQL, proxy). |
-| [Operator shell guide (55R)](../docs/operator-shell.md) | **Start here for operators.** Workflow, artifacts, graph vs compare/replay, UI test commands, API expectations. |
+| [Operator shell guide (55R)](../docs/library/operator-shell.md) | **Start here for operators.** Workflow, artifacts, graph vs compare/replay, UI test commands, API expectations. |
 | [Architecture](docs/ARCHITECTURE.md) | System context, components, data flow, security, operations. |
 | [Operator Shell Tutorial](docs/OPERATOR_SHELL_TUTORIAL.md) | React/Next.js tutorial for back-end developers. |
 | [C# to React Rosetta Stone](docs/CSHARP_TO_REACT_ROSETTA.md) | Side-by-side patterns. |
@@ -206,8 +206,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - **All unit/component tests:** `npm test` (or `npm run test:watch`). Pattern: `src/**/*.test.{ts,tsx}`.
 - **55R / review workflow smoke:** see commands in [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#3-55r--review-workflow-smoke-tests-change-set-55r).
 - **Vitest axe (components):** **`npm run test:axe-components`** — **`src/accessibility/**`** + **jest-axe** (CI job **`ui-axe-components`**).
-- **57R / operator-journey E2E (Playwright, mock):** six specs in **`e2e/`** (non-`live-api-*`) — home smoke, run→manifest→back, compare flows, etc. (**`playwright.mock.config.ts`** via **`npm run test:e2e`**). **Live** API + SQL: default **`playwright.config.ts`** / **`npx playwright test`** — see [docs/LIVE_E2E_HAPPY_PATH.md](../docs/LIVE_E2E_HAPPY_PATH.md). Run mock: `npx playwright install --with-deps chromium` then **`npm run test:e2e`**. Full contract: [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
-- **Repo root:** `test-ui-unit.cmd` / `test-ui-smoke.cmd` (or `.ps1` for Playwright + `npm ci`). Optional after full product smoke: **`.\release-smoke.ps1 -RunPlaywright`** (see repo [docs/RELEASE_SMOKE.md](../docs/RELEASE_SMOKE.md)).
+- **57R / operator-journey E2E (Playwright, mock):** six specs in **`e2e/`** (non-`live-api-*`) — home smoke, run→manifest→back, compare flows, etc. (**`playwright.mock.config.ts`** via **`npm run test:e2e`**). **Live** API + SQL: default **`playwright.config.ts`** / **`npx playwright test`** — see [docs/LIVE_E2E_HAPPY_PATH.md](../docs/library/LIVE_E2E_HAPPY_PATH.md). Run mock: `npx playwright install --with-deps chromium` then **`npm run test:e2e`**. Full contract: [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
+- **Repo root:** `test-ui-unit.cmd` / `test-ui-smoke.cmd` (or `.ps1` for Playwright + `npm ci`). Optional after full product smoke: **`.\release-smoke.ps1 -RunPlaywright`** (see repo [docs/RELEASE_SMOKE.md](../docs/library/RELEASE_SMOKE.md)).
 
 ## Routes
 

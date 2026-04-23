@@ -21,7 +21,7 @@ Resolve or **triage** common ArchLucid issues without data mutation, using only 
 
 ## Architecture overview
 
-**Client** → **ArchLucid.Api** → **SQL** / **blob** / **optional Service Bus** — see [../ARCHITECTURE_CONTAINERS.md](../ARCHITECTURE_CONTAINERS.md).
+**Client** → **ArchLucid.Api** → **SQL** / **blob** / **optional Service Bus** — see [../ARCHITECTURE_CONTAINERS.md](../library/ARCHITECTURE_CONTAINERS.md).
 
 ## Component breakdown — ordered checks
 
@@ -36,7 +36,7 @@ Resolve or **triage** common ArchLucid issues without data mutation, using only 
 | 7 | `archlucid support-bundle --zip` | Zip created | See CLI stderr; review zip locally |
 | 8 | Grafana — import [GRAFANA_DASHBOARD_TIER_1.json](GRAFANA_DASHBOARD_TIER_1.json) | Panels populate | Prometheus scrape / MSI |
 | 9 | Compare `X-Correlation-ID` to API logs | Match | Lost correlation middleware |
-|10 | Open **SQL** `Runs.OtelTraceId` for run | Matches distributed trace | Sampling gap — see [../OBSERVABILITY.md](../OBSERVABILITY.md) |
+|10 | Open **SQL** `Runs.OtelTraceId` for run | Matches distributed trace | Sampling gap — see [../OBSERVABILITY.md](../library/OBSERVABILITY.md) |
 
 ## Data flow (failing run)
 
@@ -54,4 +54,4 @@ Read-only tier-1 uses **ReadAuthority** endpoints where applicable; **`support-b
 ## Related
 
 - [../TROUBLESHOOTING.md](../TROUBLESHOOTING.md)
-- [../PILOT_GUIDE.md](../PILOT_GUIDE.md) (what to attach when reporting issues)
+- [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) (what to attach when reporting issues)

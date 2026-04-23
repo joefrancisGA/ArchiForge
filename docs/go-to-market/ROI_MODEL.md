@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-17
 
-**Grounding rule:** Value claims are mapped to shipped V1 capabilities per [V1_SCOPE.md](../V1_SCOPE.md). Estimates are conservative. Adjust all numbers to your organization's actuals.
+**Grounding rule:** Value claims are mapped to shipped V1 capabilities per [V1_SCOPE.md](../library/V1_SCOPE.md). Estimates are conservative. Adjust all numbers to your organization's actuals.
 
 **Pricing:** Current list prices (seat, platform fee, run overage, pilot) are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — the single source of truth. The value model in this document is the input that justifies those prices; the prices themselves live only in that file.
 
@@ -336,5 +336,5 @@ ArchLucid pays for itself in under 4 months even in the conservative scenario.
 | [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Measurement framework for the pilot that validates this ROI model |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who presents this model and to whom |
 | [POSITIONING.md](POSITIONING.md) | Value pillars that map to the levers above |
-| [../V1_SCOPE.md](../V1_SCOPE.md) | What V1 actually ships (grounding for capability claims) |
-| [../PILOT_GUIDE.md](../PILOT_GUIDE.md) | Technical pilot onboarding |
+| [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships (grounding for capability claims) |
+| [../PILOT_GUIDE.md](../library/PILOT_GUIDE.md) | Technical pilot onboarding |

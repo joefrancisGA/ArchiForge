@@ -29,7 +29,7 @@ Defaults ship **`Enabled=true`** in [`ArchLucid.Api/appsettings.json`](../../Arc
 | **`archlucid_llm_prompt_redactions_total`** | Counter with label **`category`** (`email`, `ssn`, `credit_card`, `jwt`, `api_key`, …) — increments by match count on the **accounting client** path (avoids double-counting with trace-only redaction). |
 | **`archlucid_llm_prompt_redaction_skipped_total`** | Completions observed while redaction is **disabled**. |
 
-See [`docs/OBSERVABILITY.md`](../OBSERVABILITY.md) and [`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`](../../ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs).
+See [`docs/OBSERVABILITY.md`](../library/OBSERVABILITY.md) and [`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`](../../ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs).
 
 ## Security notes
 
@@ -38,5 +38,5 @@ See [`docs/OBSERVABILITY.md`](../OBSERVABILITY.md) and [`ArchLucid.Core/Diagnost
 
 ## Related
 
-- [`docs/AGENT_TRACE_FORENSICS.md`](../AGENT_TRACE_FORENSICS.md) — where full prompts land in blob/SQL.
+- [`docs/AGENT_TRACE_FORENSICS.md`](../library/AGENT_TRACE_FORENSICS.md) — where full prompts land in blob/SQL.
 - [`docs/security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md) — API → LLM boundary.

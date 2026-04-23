@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-15
 
-**Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
+**Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../library/V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
 **Relationship to the sponsor brief:** [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) is the **dominant outward-facing buyer narrative**. This page supports **short explanations and proof-backed pillars** for conversations and datasheets; it must **not contradict** the brief. If wording here drifts broader than the brief, **tighten here** or promote a deliberate product change into the brief first, then realign.
 
@@ -203,9 +203,9 @@ This category sits between traditional **Enterprise Architecture Management** (w
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor-by-competitor analysis and differentiation |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who buys, why, and how to demo to them |
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | **Locked list prices (2026)**, pilot pricing, re-rate gates, and sensitivity playbook — single source of truth for all price numbers |
-| [../V1_SCOPE.md](../V1_SCOPE.md) | What V1 actually ships (grounding for all claims) |
-| [../GLOSSARY.md](../GLOSSARY.md) | Domain terminology for consistent messaging |
-| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |
+| [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 actually ships (grounding for all claims) |
+| [../GLOSSARY.md](../library/GLOSSARY.md) | Domain terminology for consistent messaging |
+| [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../library/MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust center — security overview, DPA template, subprocessors, incident comms, SOC 2 roadmap |
 | [IDEAL_CUSTOMER_PROFILE.md](IDEAL_CUSTOMER_PROFILE.md) | ICP definition, scoring matrix, disqualifiers |
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Available and planned integrations |

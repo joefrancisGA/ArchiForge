@@ -21,12 +21,12 @@ The following are **observable** in the codebase and documentation (non-exhausti
 
 | Area | Evidence (examples) |
 |------|---------------------|
-| **Access control** | JWT / Entra roles, API keys, policy-based authorization; [../SECURITY.md](../SECURITY.md) |
-| **Network & edge** | Front Door / WAF, optional APIM, private endpoints; [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) |
+| **Access control** | JWT / Entra roles, API keys, policy-based authorization; [../SECURITY.md](../library/SECURITY.md) |
+| **Network & edge** | Front Door / WAF, optional APIM, private endpoints; [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) |
 | **Data protection** | SQL RLS with `SESSION_CONTEXT`, parameterized data access; [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md), [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
-| **Logging & audit** | Append-only `dbo.AuditEvents`, typed event catalog (CI-tracked count in [../AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md)); correlation IDs |
-| **Reliability measurement** | HTTP SLOs (e.g. **99.5%** / 30 days), Prometheus rules, synthetic probes; [../API_SLOS.md](../API_SLOS.md) |
-| **Secure SDLC** | OWASP ZAP + Schemathesis in CI; [../SECURITY.md](../SECURITY.md) |
+| **Logging & audit** | Append-only `dbo.AuditEvents`, typed event catalog (CI-tracked count in [../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md)); correlation IDs |
+| **Reliability measurement** | HTTP SLOs (e.g. **99.5%** / 30 days), Prometheus rules, synthetic probes; [../API_SLOS.md](../library/API_SLOS.md) |
+| **Secure SDLC** | OWASP ZAP + Schemathesis in CI; [../SECURITY.md](../library/SECURITY.md) |
 | **Threat modeling** | STRIDE summary; [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) |
 | **Operational drills** | Geo-failover drill runbook; [../runbooks/GEO_FAILOVER_DRILL.md](../runbooks/GEO_FAILOVER_DRILL.md) |
 
@@ -69,7 +69,7 @@ Dates are **placeholders** until leadership and an auditor confirm.
 - **Subprocessors:** [SUBPROCESSORS.md](SUBPROCESSORS.md)
 - **DPA:** [DPA_TEMPLATE.md](DPA_TEMPLATE.md) (legal review required)
 - **Incident process:** [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md)
-- **SLOs:** [../API_SLOS.md](../API_SLOS.md)
+- **SLOs:** [../API_SLOS.md](../library/API_SLOS.md)
 
 **SOC 2 report:** Not available until Phase 4; roadmap above applies.
 

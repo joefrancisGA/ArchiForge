@@ -225,6 +225,6 @@ cd archlucid-ui && npx playwright test -c playwright.mock.config.ts trial-funnel
 ## 10. Related
 
 - [`TRIAL_AND_SIGNUP.md`](../go-to-market/TRIAL_AND_SIGNUP.md), [`TRIAL_END_TO_END.md`](TRIAL_END_TO_END.md), [`TRIAL_FUNNEL.md`](TRIAL_FUNNEL.md), [`TRIAL_LIFECYCLE.md`](TRIAL_LIFECYCLE.md)
-- [`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](../SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)
-- [`PILOT_ROI_MODEL.md`](../PILOT_ROI_MODEL.md) § 3.1 — provenance of the baseline review-cycle hours when the form was skipped
+- [`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`](../library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md)
+- [`PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) § 3.1 — provenance of the baseline review-cycle hours when the form was skipped
 - [`adr/0021-coordinator-pipeline-strangler-plan.md`](../adr/0021-coordinator-pipeline-strangler-plan.md) — `Run.CommitCompleted` dual-write window

@@ -39,7 +39,7 @@
 
 ## Why PLG reference matters
 
-This narrative answers: *"Has anyone paid without a bespoke pilot?"* Keep claims bounded to [`docs/V1_SCOPE.md`](../../V1_SCOPE.md) and the sponsor guardrails in [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](../../EXECUTIVE_SPONSOR_BRIEF.md) § 8 (do not over-claim transformation or headcount reduction).
+This narrative answers: *"Has anyone paid without a bespoke pilot?"* Keep claims bounded to [`docs/V1_SCOPE.md`](../../library/V1_SCOPE.md) and the sponsor guardrails in [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](../../EXECUTIVE_SPONSOR_BRIEF.md) § 8 (do not over-claim transformation or headcount reduction).
 
 ---
 

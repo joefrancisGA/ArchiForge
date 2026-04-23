@@ -17,7 +17,7 @@
 
 ## Prerequisites
 
-- Both runs must exist in the **same tenant scope** as the API key and must already have **golden manifests** (committed). Otherwise `GET /v1/compare` returns **404** — see [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md).
+- Both runs must exist in the **same tenant scope** as the API key and must already have **golden manifests** (committed). Otherwise `GET /v1/compare` returns **404** — see [`docs/API_CONTRACTS.md`](../library/API_CONTRACTS.md).
 - API key must satisfy **ReadAuthority** (`X-Api-Key`), same as GitHub automation.
 - **Node.js 22** on the agent (declared via `NodeTool@0` in `task.yml`).
 

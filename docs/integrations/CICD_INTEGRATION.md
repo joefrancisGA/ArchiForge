@@ -100,5 +100,5 @@ flowchart LR
 | Doc | Use |
 |-----|-----|
 | [../go-to-market/INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md) | Full integration catalog |
-| [../API_CONTRACTS.md](../API_CONTRACTS.md) | API endpoints |
-| [../SECURITY.md](../SECURITY.md) | Auth modes and RBAC |
+| [../API_CONTRACTS.md](../library/API_CONTRACTS.md) | API endpoints |
+| [../SECURITY.md](../library/SECURITY.md) | Auth modes and RBAC |

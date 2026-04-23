@@ -36,7 +36,7 @@
 | Top finding id / severity | `<<id>>` / `<<severity>>` | `topFindingId`, `topFindingSeverity` |
 | Demo flag | `<<Yes/No>>` | `isDemoTenant` — **must be No** for external publication |
 
-**Review-cycle hours saved** (if captured at signup): derive per [`PILOT_ROI_MODEL.md`](../../PILOT_ROI_MODEL.md) § 3.1 using tenant baseline fields — not duplicated in `pilot-run-deltas.json`; cite `GET /v1/tenant/trial-status` internally.
+**Review-cycle hours saved** (if captured at signup): derive per [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) § 3.1 using tenant baseline fields — not duplicated in `pilot-run-deltas.json`; cite `GET /v1/tenant/trial-status` internally.
 
 ---
 

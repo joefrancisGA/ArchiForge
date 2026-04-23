@@ -96,7 +96,7 @@ Artifacts:
 
 - [ ] **Quote accuracy** — every quote matches an email or signed doc; attach redacted source link internally.
 - [ ] **Screenshots** — no third-party logos or unreleased product UI without permission; blur tenant-specific hostnames if required.
-- [ ] **Numbers** — every numeric claim maps to `pilot-run-deltas.json` or [`PILOT_ROI_MODEL.md`](../../PILOT_ROI_MODEL.md) formula inputs the customer approved.
+- [ ] **Numbers** — every numeric claim maps to `pilot-run-deltas.json` or [`PILOT_ROI_MODEL.md`](../../library/PILOT_ROI_MODEL.md) formula inputs the customer approved.
 - [ ] **Demo banner** — if any screenshot accidentally includes demo data, ensure the “demo tenant — replace before publishing” banner is visible or delete the screenshot.
 
 ### Step 5 — README row + CI flip

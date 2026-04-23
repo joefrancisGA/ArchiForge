@@ -12,7 +12,7 @@ When you choose **“I will enter our median review-cycle hours”** on the self
 - **BaselineReviewCycleHours** — a positive decimal you supply (median wall-clock hours for an architecture review cycle *before* ArchLucid).
 - **BaselineReviewCycleSource** (optional) — a short free-text note you supply (for example “team estimate” or “last five reviews”).
 
-When you stay on **“Use model default (modeled estimate)”**, we **do not** store tenant-specific hours at signup; the product uses the conservative default described in [`docs/PILOT_ROI_MODEL.md`](../PILOT_ROI_MODEL.md) for “before” comparisons until you commit runs.
+When you stay on **“Use model default (modeled estimate)”**, we **do not** store tenant-specific hours at signup; the product uses the conservative default described in [`docs/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) for “before” comparisons until you commit runs.
 
 ## How we use it
 

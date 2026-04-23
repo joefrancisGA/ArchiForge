@@ -19,7 +19,7 @@ Provide a **low-friction conversion path** from self-serve trial to paid Team ti
 
 `BillingStripeWebhookController` receives Stripe events — configure the **public HTTPS** endpoint and signing secret per environment.
 
-- **Route:** `POST /v1/billing/webhooks/stripe` on the API host (see [`BILLING.md`](../BILLING.md)).
+- **Route:** `POST /v1/billing/webhooks/stripe` on the API host (see [`BILLING.md`](../library/BILLING.md)).
 - **Verification:** `Stripe-Signature` header + `Billing:Stripe:WebhookSigningSecret` (`whsec_…` from the Dashboard).
 
 ## Staging end-to-end — Stripe **TEST** mode (`staging.archlucid.com/signup`)
@@ -48,7 +48,7 @@ Production safety rules intentionally **do not** treat `sk_test_` like `sk_live_
 
 1. Open `https://staging.archlucid.com/signup` (or the current staging marketing hostname).
 2. Complete trial signup; trigger **Team** conversion using the Stripe **test** checkout / payment link surfaced from `pricing.json` or `POST /v1/tenant/billing/checkout`.
-3. Confirm in SQL (`dbo.BillingWebhookEvents`, `dbo.BillingSubscriptions`) and tenant trial-conversion audits per [`BILLING.md`](../BILLING.md).
+3. Confirm in SQL (`dbo.BillingWebhookEvents`, `dbo.BillingSubscriptions`) and tenant trial-conversion audits per [`BILLING.md`](../library/BILLING.md).
 
 ### 4. curl — synthetic **test** webhook (signature **will not** verify)
 
@@ -95,4 +95,4 @@ If webhooks only flip entitlement bits asynchronously, document the **manual run
 
 - [`PRICING_PHILOSOPHY.md`](PRICING_PHILOSOPHY.md)
 - [`TRIAL_AND_SIGNUP.md`](TRIAL_AND_SIGNUP.md)
-- [`BILLING.md`](../BILLING.md)
+- [`BILLING.md`](../library/BILLING.md)

@@ -3,7 +3,7 @@
 > **Audience:** Back-end developers who know C# / SQL / HTTP APIs but are new to React and Next.js.
 > Read this start-to-finish the first time; use the table of contents as a reference later.
 
-**Operators and design partners:** For a short **workflow-first** guide (55R), artifact review, graph vs compare/replay, and API expectations — see **[docs/operator-shell.md](../../docs/operator-shell.md)** (repo root).
+**Operators and design partners:** For a short **workflow-first** guide (55R), artifact review, graph vs compare/replay, and API expectations — see **[docs/operator-shell.md](../../docs/library/operator-shell.md)** (repo root).
 
 ---
 

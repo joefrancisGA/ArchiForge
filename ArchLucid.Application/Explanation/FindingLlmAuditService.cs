@@ -16,17 +16,17 @@ public sealed class FindingLlmAuditService(
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IPromptRedactor promptRedactor) : IFindingLlmAuditService
 {
-    private readonly IAuthorityQueryService _authorityQuery =
-        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
+    private readonly IAuthorityQueryService _authorityQuery =
+        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
+
     private readonly IPromptRedactor _promptRedactor =
         promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc />
     public async Task<FindingLlmAuditResult?> BuildAsync(
@@ -70,7 +70,7 @@ public sealed class FindingLlmAuditService(
             RawResponseRedacted = raw.Text,
             ModelDeploymentName = trace.ModelDeploymentName,
             ModelVersion = trace.ModelVersion,
-            RedactionCountsByCategory = merged,
+            RedactionCountsByCategory = merged
         };
     }
 
@@ -96,21 +96,27 @@ public sealed class FindingLlmAuditService(
         if (traces.Count == 0)
             return null;
 
-        if (!Enum.TryParse(finding.EngineType, ignoreCase: true, out AgentType engineAgent))
+        if (!Enum.TryParse(finding.EngineType, true, out AgentType engineAgent))
             return traces[0];
         AgentExecutionTrace? typed = traces.FirstOrDefault(t => t.AgentType == engineAgent);
 
         return typed ?? traces[0];
     }
 
-    private static string ResolveSystemPrompt(AgentExecutionTrace trace) =>
-        string.IsNullOrEmpty(trace.FullSystemPromptInline) ? trace.SystemPrompt : trace.FullSystemPromptInline;
+    private static string ResolveSystemPrompt(AgentExecutionTrace trace)
+    {
+        return string.IsNullOrEmpty(trace.FullSystemPromptInline) ? trace.SystemPrompt : trace.FullSystemPromptInline;
+    }
 
-    private static string ResolveUserPrompt(AgentExecutionTrace trace) =>
-        string.IsNullOrEmpty(trace.FullUserPromptInline) ? trace.UserPrompt : trace.FullUserPromptInline;
+    private static string ResolveUserPrompt(AgentExecutionTrace trace)
+    {
+        return string.IsNullOrEmpty(trace.FullUserPromptInline) ? trace.UserPrompt : trace.FullUserPromptInline;
+    }
 
-    private static string ResolveRawResponse(AgentExecutionTrace trace) =>
-        string.IsNullOrEmpty(trace.FullResponseInline) ? trace.RawResponse : trace.FullResponseInline;
+    private static string ResolveRawResponse(AgentExecutionTrace trace)
+    {
+        return string.IsNullOrEmpty(trace.FullResponseInline) ? trace.RawResponse : trace.FullResponseInline;
+    }
 
     private static Dictionary<string, int> MergeCounts(
         IReadOnlyDictionary<string, int> a,

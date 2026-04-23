@@ -2,7 +2,7 @@
 
 This folder contains **historical implementation records** and superseded notes. Files here are **not maintained** for accuracy against the current codebase (class names, tables, and flows may be outdated). They are kept for archaeological reference.
 
-**Current documentation** starts at the **canonical Day-1 docs** — **[`../onboarding/day-one-developer.md`](../onboarding/day-one-developer.md)** (developer), **[`../onboarding/day-one-sre.md`](../onboarding/day-one-sre.md)** (SRE), **[`../onboarding/day-one-security.md`](../onboarding/day-one-security.md)** (security), **[`../OPERATOR_QUICKSTART.md`](../OPERATOR_QUICKSTART.md)** (operator commands) — plus a short hub at **[`../START_HERE.md`](../START_HERE.md)**.
+**Current documentation** starts at the **canonical Day-1 docs** — **[`../onboarding/day-one-developer.md`](../onboarding/day-one-developer.md)** (developer), **[`../onboarding/day-one-sre.md`](../onboarding/day-one-sre.md)** (SRE), **[`../onboarding/day-one-security.md`](../onboarding/day-one-security.md)** (security), **[`../OPERATOR_QUICKSTART.md`](../library/OPERATOR_QUICKSTART.md)** (operator commands) — plus a short hub at **[`../START_HERE.md`](../START_HERE.md)**.
 
 These change-set files are **immutable historical records** where noted. They capture incremental prompt logs, deferred-backlog decisions, and exact delivery scope for each change set as it was produced.
 

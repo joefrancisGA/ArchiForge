@@ -28,7 +28,7 @@ The hook reads `oldrev newrev refname` lines from stdin (standard Git `pre-recei
 
 ## Client-side complement
 
-Developers should also run `gitleaks detect --no-git -v` locally before pushing (see [../SECURITY.md](../SECURITY.md)). CI continues to run secret scanning on pull requests.
+Developers should also run `gitleaks detect --no-git -v` locally before pushing (see [../SECURITY.md](../library/SECURITY.md)). CI continues to run secret scanning on pull requests.
 
 ## Historical Stripe-shaped fixture
 

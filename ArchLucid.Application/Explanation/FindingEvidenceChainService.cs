@@ -13,14 +13,14 @@ public sealed class FindingEvidenceChainService(
     IScopeContextProvider scopeContextProvider,
     IAgentExecutionTraceRepository agentExecutionTraceRepository) : IFindingEvidenceChainService
 {
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
+        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
+
     private readonly IAuthorityQueryService _authorityQuery =
         authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
-        agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
     /// <inheritdoc />
     public async Task<FindingEvidenceChainResponse?> BuildAsync(
@@ -73,7 +73,7 @@ public sealed class FindingEvidenceChainService(
             DecisionTraceId = detail.Run.DecisionTraceId,
             GoldenManifestId = detail.Run.GoldenManifestId,
             RelatedGraphNodeIds = match.RelatedNodeIds.ToList(),
-            AgentExecutionTraceIds = traceIds,
+            AgentExecutionTraceIds = traceIds
         };
     }
 

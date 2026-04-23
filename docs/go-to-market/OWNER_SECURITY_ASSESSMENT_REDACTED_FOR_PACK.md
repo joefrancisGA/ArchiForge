@@ -13,7 +13,7 @@ This document is the **buyer-shareable excerpt** for procurement bundles. It sum
 
 ## Method (summary)
 
-1. **Automated CI gates** — SAST, dependency and container scanning, contract testing, secret scanning, and documented API abuse paths (see [`../SECURITY.md`](../SECURITY.md) and [`../AUDIT_COVERAGE_MATRIX.md`](../AUDIT_COVERAGE_MATRIX.md)).
+1. **Automated CI gates** — SAST, dependency and container scanning, contract testing, secret scanning, and documented API abuse paths (see [`../SECURITY.md`](../library/SECURITY.md) and [`../AUDIT_COVERAGE_MATRIX.md`](../library/AUDIT_COVERAGE_MATRIX.md)).
 2. **Manual checklist** — ASVS-oriented review of authentication, authorization, tenant isolation (RLS + JWT), rate limits, and LLM prompt / trace handling (see [`../security/SYSTEM_THREAT_MODEL.md`](../security/SYSTEM_THREAT_MODEL.md)).
 3. **Findings register** — tracked internally with severity, owner, and remediation dates (tables in the full draft use placeholders until the assessment window completes).
 

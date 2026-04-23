@@ -53,7 +53,7 @@ The sticky behaviour is identity-by-marker: a hidden HTML comment line.
 
 ## 3. Prerequisites
 
-- Both runs must exist in the **same tenant scope** as the API key and must already have **golden manifests** (committed). Otherwise the API returns **404** — see [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) and [`docs/COMPARISON_REPLAY.md`](../COMPARISON_REPLAY.md).
+- Both runs must exist in the **same tenant scope** as the API key and must already have **golden manifests** (committed). Otherwise the API returns **404** — see [`docs/API_CONTRACTS.md`](../library/API_CONTRACTS.md) and [`docs/COMPARISON_REPLAY.md`](../library/COMPARISON_REPLAY.md).
 - API key must satisfy **ReadAuthority** (header: `X-Api-Key`). Reuse the `ARCHLUCID_READONLY_API_KEY` secret.
 - The job must declare **`permissions: pull-requests: write`** so the default `secrets.GITHUB_TOKEN` can create / patch comments. Use a PAT with `repo` scope when the workflow runs from a fork (the default token is read-only on PRs from forks).
 - Respect **rate limiting** on `/v1/*` (`429` with backoff). The script performs a **single** GET per run; `pull_request: synchronize` will refire on every PR push, which is the design — that's what makes the sticky comment "live".
@@ -113,6 +113,6 @@ The test mocks `listIssueComments`, `createIssueComment`, and `updateIssueCommen
 
 - [`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA.md`](GITHUB_ACTION_MANIFEST_DELTA.md) — sibling action that writes to the **Actions job summary** instead of a PR comment.
 - [`docs/integrations/CICD_INTEGRATION.md`](CICD_INTEGRATION.md) — broader PR-review integration patterns.
-- [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) — versioning and correlation.
-- [`docs/COMPARISON_REPLAY.md`](../COMPARISON_REPLAY.md) — `/v1/compare` semantics.
-- [`docs/operator-shell.md`](../operator-shell.md) — operator compare workflow.
+- [`docs/API_CONTRACTS.md`](../library/API_CONTRACTS.md) — versioning and correlation.
+- [`docs/COMPARISON_REPLAY.md`](../library/COMPARISON_REPLAY.md) — `/v1/compare` semantics.
+- [`docs/operator-shell.md`](../library/operator-shell.md) — operator compare workflow.

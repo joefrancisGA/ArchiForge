@@ -15,12 +15,12 @@ ArchLucid is built so that **security, privacy, and operational transparency** a
 
 ## Security overview at a glance
 
-- **Identity:** Microsoft **Entra ID** (OIDC / JWT) with **app roles** (**Admin**, **Operator**, **Reader**, **Auditor**) and optional **API keys** for automation; see [../SECURITY.md](../SECURITY.md) and [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md).
-- **Network:** Optional **Azure Front Door + WAF**, optional **API Management**, **TLS** to the API, and **private endpoints** for **Azure SQL** and **Blob** when the private stack is enabled; **no public SMB (port 445)** for tenant data paths (see [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md)).
+- **Identity:** Microsoft **Entra ID** (OIDC / JWT) with **app roles** (**Admin**, **Operator**, **Reader**, **Auditor**) and optional **API keys** for automation; see [../SECURITY.md](../library/SECURITY.md) and [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md).
+- **Network:** Optional **Azure Front Door + WAF**, optional **API Management**, **TLS** to the API, and **private endpoints** for **Azure SQL** and **Blob** when the private stack is enabled; **no public SMB (port 445)** for tenant data paths (see [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md)).
 - **Data isolation:** **Row-level security** in SQL with per-request **`SESSION_CONTEXT`** scope (tenant / workspace / project) on covered tables — defense-in-depth alongside application authorization; see [TENANT_ISOLATION.md](TENANT_ISOLATION.md) and [../security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md).
-- **Secrets:** **Azure Key Vault** references for application configuration in hosted deployments (see [../CONFIGURATION_KEY_VAULT.md](../CONFIGURATION_KEY_VAULT.md)).
-- **Auditability:** Durable **append-only** audit trail in SQL (`dbo.AuditEvents`) with a **typed event catalog** and correlation identifiers; see [../AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md) and [../SECURITY.md](../SECURITY.md) (PII / exports).
-- **Testing in CI:** **OWASP ZAP** baseline on the API image, **Schemathesis** contract checks, and documented rate limiting / RBAC — see [../SECURITY.md](../SECURITY.md).
+- **Secrets:** **Azure Key Vault** references for application configuration in hosted deployments (see [../CONFIGURATION_KEY_VAULT.md](../library/CONFIGURATION_KEY_VAULT.md)).
+- **Auditability:** Durable **append-only** audit trail in SQL (`dbo.AuditEvents`) with a **typed event catalog** and correlation identifiers; see [../AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) and [../SECURITY.md](../library/SECURITY.md) (PII / exports).
+- **Testing in CI:** **OWASP ZAP** baseline on the API image, **Schemathesis** contract checks, and documented rate limiting / RBAC — see [../SECURITY.md](../library/SECURITY.md).
 - **SOC 2 self-assessment:** The in-repo [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) is maintained under **internal CISO ownership** (interim posture until a CPA attestation is funded — see compliance table below).
 - **LLM outbound hygiene:** Optional deny-list **prompt redaction** before Azure OpenAI and aligned redaction for trace persistence (`LlmPromptRedaction`); see [../runbooks/LLM_PROMPT_REDACTION.md](../runbooks/LLM_PROMPT_REDACTION.md).
 
@@ -94,9 +94,9 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | [../security/CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md) | CAIQ Lite–style pre-fill (align to CSA CAIQ v4 download). |
 | [../security/SIG_CORE_2026.md](../security/SIG_CORE_2026.md) | SIG Core–style pre-fill (align to Shared Assessments workbook). |
 | [../security/COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md) | Maps control themes to repository evidence paths. |
-| [../SECURITY.md](../SECURITY.md) | Engineering security overview (ZAP, Schemathesis, RBAC, rate limits, PII). |
-| [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) | Architecture: edge, identity, private connectivity, correlation IDs. |
-| [../API_SLOS.md](../API_SLOS.md) | Customer-visible HTTP SLOs (e.g. availability **99.5%** / 30 days) and measurement. |
+| [../SECURITY.md](../library/SECURITY.md) | Engineering security overview (ZAP, Schemathesis, RBAC, rate limits, PII). |
+| [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) | Architecture: edge, identity, private connectivity, correlation IDs. |
+| [../API_SLOS.md](../library/API_SLOS.md) | Customer-visible HTTP SLOs (e.g. availability **99.5%** / 30 days) and measurement. |
 | [../security/PII_RETENTION_CONVERSATIONS.md](../security/PII_RETENTION_CONVERSATIONS.md) | PII framing and retention considerations for conversation / Ask data. |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Buyer-facing SLO targets (availability 99.5%, latency, maintenance). |
 | [BACKUP_AND_DR.md](BACKUP_AND_DR.md) | Backup schedule, disaster recovery, data lifecycle, RTO/RPO estimates. |
@@ -136,9 +136,9 @@ Full text: [ORDER_FORM_TEMPLATE.md § 9](ORDER_FORM_TEMPLATE.md).
 
 - **Security inquiries:** `security@archlucid.com` (canonical mailbox — confirmed 2026-04-21; aligns `SECURITY.md`, this Trust Center, and the eventual PGP UID).
 - **Accessibility barriers (non-security):** `accessibility@archlucid.com` — same operational custodian as `security@archlucid.com` (decision 2026-04-22); see [../security/ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) and the public marketing route **`/accessibility`**.
-- **Coordinated disclosure key:** generation procedure: [../security/PGP_KEY_GENERATION_RECIPE.md](../security/PGP_KEY_GENERATION_RECIPE.md) (key publication pending). When published, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../SECURITY.md) PGP). Until that file exists, use plain email.
+- **Coordinated disclosure key:** generation procedure: [../security/PGP_KEY_GENERATION_RECIPE.md](../security/PGP_KEY_GENERATION_RECIPE.md) (key publication pending). When published, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../library/SECURITY.md) PGP). Until that file exists, use plain email.
 
-For support alignment during incidents, clients should include **`X-Correlation-ID`** on API requests where possible ([../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) §8).
+For support alignment during incidents, clients should include **`X-Correlation-ID`** on API requests where possible ([../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) §8).
 
 ---
 
@@ -147,5 +147,5 @@ For support alignment during incidents, clients should include **`X-Correlation-
 | Doc | Use |
 |-----|-----|
 | [POSITIONING.md](POSITIONING.md) | Product positioning and messaging |
-| [../MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md](../MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md) | SaaS-only marketability assessment |
-| [../V1_SCOPE.md](../V1_SCOPE.md) | What V1 ships (grounding for claims) |
+| [../MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md](../library/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md) | SaaS-only marketability assessment |
+| [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 ships (grounding for claims) |

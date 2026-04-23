@@ -17,7 +17,7 @@
 
 ## Prerequisites
 
-- Both runs must exist in the **same tenant scope** as the API key and must already have **golden manifests** (committed). Otherwise the API returns **404** — see [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) and [`docs/COMPARISON_REPLAY.md`](../COMPARISON_REPLAY.md).
+- Both runs must exist in the **same tenant scope** as the API key and must already have **golden manifests** (committed). Otherwise the API returns **404** — see [`docs/API_CONTRACTS.md`](../library/API_CONTRACTS.md) and [`docs/COMPARISON_REPLAY.md`](../library/COMPARISON_REPLAY.md).
 - API key must satisfy **ReadAuthority** (same header as other automation): **`X-Api-Key`**.
 - Respect **rate limiting** on `/v1/*` (`429` with backoff). The script performs a **single** GET; heavy matrices should use a dedicated workflow, not per-commit fan-out.
 
@@ -44,5 +44,5 @@ If your hosted operator UI supports a compare route, pass **`operator-compare-ur
 ## Related
 
 - [`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md`](GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md) — sibling action that posts the same Markdown delta as a **sticky pull-request comment** instead of a job-summary entry.
-- [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) — versioning and correlation.
-- [`docs/operator-shell.md`](../operator-shell.md) — operator compare workflow.
+- [`docs/API_CONTRACTS.md`](../library/API_CONTRACTS.md) — versioning and correlation.
+- [`docs/operator-shell.md`](../library/operator-shell.md) — operator compare workflow.

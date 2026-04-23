@@ -5,10 +5,16 @@ using ArchLucid.Application.Value;
 
 namespace ArchLucid.Application.ExecDigest;
 
-/// <summary>Markdown projection of <see cref="ExecDigestComposition"/> for board-pack PDF reuse (same fields as weekly email model).</summary>
+/// <summary>
+///     Markdown projection of <see cref="ExecDigestComposition" /> for board-pack PDF reuse (same fields as weekly
+///     email model).
+/// </summary>
 public static class ExecDigestCompositionMarkdownFormatter
 {
-    /// <summary>Formats digest highlights without duplicating ROI math (value section comes from <see cref="ValueReportBuilder"/>).</summary>
+    /// <summary>
+    ///     Formats digest highlights without duplicating ROI math (value section comes from
+    ///     <see cref="ValueReportBuilder" />).
+    /// </summary>
     public static string Format(ExecDigestComposition composition)
     {
         if (composition is null)

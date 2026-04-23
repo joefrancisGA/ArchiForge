@@ -32,5 +32,5 @@ Portability at the **application** layer (containers, standard protocols) remain
 
 ## Related
 
-- [REFERENCE_SAAS_STACK_ORDER.md](../REFERENCE_SAAS_STACK_ORDER.md)
+- [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md)
 - [ADR 0016](0016-billing-provider-abstraction.md) (billing channels include Marketplace; still Azure-centric operations)

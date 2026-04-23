@@ -20,8 +20,8 @@ Given a **run id** (no-dash hex or standard GUID string accepted by the API), re
 
 ## 3. Constraints
 
-- **Head-based sampling** may drop exported traces; **`traceparent`** / **`X-Trace-Id`** on the **current** HTTP response still reflect the active `Activity` even when the trace is not stored — a copied id may show “not found” in the backend ([OBSERVABILITY.md](../OBSERVABILITY.md) §Sampling).
-- **Background jobs** use **synthetic** `correlation.id` values (e.g. `run:{RunId}`, `integration-outbox:{id}`) per [BACKGROUND_JOB_CORRELATION.md](../BACKGROUND_JOB_CORRELATION.md); they will **not** match the browser’s `X-Correlation-ID` from run creation unless the same id was propagated into the worker span.
+- **Head-based sampling** may drop exported traces; **`traceparent`** / **`X-Trace-Id`** on the **current** HTTP response still reflect the active `Activity` even when the trace is not stored — a copied id may show “not found” in the backend ([OBSERVABILITY.md](../library/OBSERVABILITY.md) §Sampling).
+- **Background jobs** use **synthetic** `correlation.id` values (e.g. `run:{RunId}`, `integration-outbox:{id}`) per [BACKGROUND_JOB_CORRELATION.md](../library/BACKGROUND_JOB_CORRELATION.md); they will **not** match the browser’s `X-Correlation-ID` from run creation unless the same id was propagated into the worker span.
 - **Baseline mutation logs** (`IBaselineMutationAuditService`) are **not** rows in `dbo.AuditEvents`; use log search for those strings.
 
 ## 4. Architecture overview
@@ -62,7 +62,7 @@ flowchart LR
 
 ### Prerequisites
 
-- Set **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** (UI) and/or **`ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`** (CLI) with a `{traceId}` placeholder ([CLI_USAGE.md](../CLI_USAGE.md)).
+- Set **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** (UI) and/or **`ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`** (CLI) with a `{traceId}` placeholder ([CLI_USAGE.md](../library/CLI_USAGE.md)).
 - Know your **Prometheus/Grafana** datasource if using [dashboard-archlucid-run-lifecycle.json](../../infra/grafana/dashboard-archlucid-run-lifecycle.json).
 
 ### Step 1 — Resolve the run’s creation trace id
@@ -73,7 +73,7 @@ flowchart LR
 ### Step 2 — Audit timeline by run
 
 - `GET /v1/audit/search?runId={runIdGuid}&take=500` (scope is tenant/workspace/project from auth).
-- Sort mentally by **`occurredUtc`**; expect types such as **`RunStarted`**, **`ManifestGenerated`**, **`ArtifactsGenerated`**, **`RunCompleted`**, governance and export events per [AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md).
+- Sort mentally by **`occurredUtc`**; expect types such as **`RunStarted`**, **`ManifestGenerated`**, **`ArtifactsGenerated`**, **`RunCompleted`**, governance and export events per [AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md).
 - Note **`correlationId`** on rows tied to HTTP-synchronous work.
 
 ### Step 3 — Audit by correlation id
@@ -84,7 +84,7 @@ flowchart LR
 ### Step 4 — Open the distributed trace
 
 - Paste **`otelTraceId`** into your trace UI (Jaeger: trace page; Tempo: explore; App Insights: transaction search / `operation_Id`).
-- Under the authority run, look for child spans / stage tags documented in [BACKGROUND_JOB_CORRELATION.md](../BACKGROUND_JOB_CORRELATION.md) §10.
+- Under the authority run, look for child spans / stage tags documented in [BACKGROUND_JOB_CORRELATION.md](../library/BACKGROUND_JOB_CORRELATION.md) §10.
 
 ### Step 5 — Query logs by CorrelationId
 
@@ -94,7 +94,7 @@ flowchart LR
 
 ### Step 6 — Background correlation
 
-- If the run completed via **outbox / async** paths, find spans whose tag **`correlation.id`** matches **`run:{runIdNoDashes}`** or **`integration-outbox:{...}`** per [BACKGROUND_JOB_CORRELATION.md](../BACKGROUND_JOB_CORRELATION.md).
+- If the run completed via **outbox / async** paths, find spans whose tag **`correlation.id`** matches **`run:{runIdNoDashes}`** or **`integration-outbox:{...}`** per [BACKGROUND_JOB_CORRELATION.md](../library/BACKGROUND_JOB_CORRELATION.md).
 
 ## 7. Security model
 
@@ -107,15 +107,15 @@ flowchart LR
 
 | Symptom | Likely cause | Mitigation |
 |---------|--------------|------------|
-| Trace **not found** in backend | Sampling dropped export | Use **`X-Trace-Id`** from the failing response; widen sampling in dev; use tail sampling in collector ([OBSERVABILITY.md](../OBSERVABILITY.md)). |
+| Trace **not found** in backend | Sampling dropped export | Use **`X-Trace-Id`** from the failing response; widen sampling in dev; use tail sampling in collector ([OBSERVABILITY.md](../library/OBSERVABILITY.md)). |
 | **`correlationId` null** on audit row | Written outside normal middleware / activity chain, or very old code path | Check **`Activity.Current`** and `AuditService` enrichment; see unit tests **`AuditServiceCorrelationEnrichmentTests`**. |
 | **`otelTraceId` null** on run | Run created before migration **052** or non-authority path | Use audit + logs only. |
-| Slow **`audit/search`** | Missing indexes | Ensure migration **`055_AuditEvents_CorrelationId_RunId_Indexes.sql`** applied ([AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md) §Indexes). |
+| Slow **`audit/search`** | Missing indexes | Ensure migration **`055_AuditEvents_CorrelationId_RunId_Indexes.sql`** applied ([AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) §Indexes). |
 
 ### Related documents
 
-- [OBSERVABILITY.md](../OBSERVABILITY.md) — meters, trace tags, sampling, response headers.
-- [BACKGROUND_JOB_CORRELATION.md](../BACKGROUND_JOB_CORRELATION.md) — synthetic correlation ids for workers.
-- [AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md) — event types and SQL indexes.
-- [CLI_USAGE.md](../CLI_USAGE.md) — `archlucid trace`.
+- [OBSERVABILITY.md](../library/OBSERVABILITY.md) — meters, trace tags, sampling, response headers.
+- [BACKGROUND_JOB_CORRELATION.md](../library/BACKGROUND_JOB_CORRELATION.md) — synthetic correlation ids for workers.
+- [AUDIT_COVERAGE_MATRIX.md](../library/AUDIT_COVERAGE_MATRIX.md) — event types and SQL indexes.
+- [CLI_USAGE.md](../library/CLI_USAGE.md) — `archlucid trace`.
 - [SLO_PROMETHEUS_GRAFANA.md](./SLO_PROMETHEUS_GRAFANA.md) — dashboard import.

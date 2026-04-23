@@ -12,7 +12,7 @@ Give sponsors a **defensible order-of-magnitude** for monthly Azure + LLM spend 
 ## Assumptions
 
 - **Azure list** public pricing (enterprise discounts apply separately).
-- **LLM** is **metered** via `archlucid_llm_prompt_tokens_total` / `archlucid_llm_completion_tokens_total` and optional **`archlucid_llm_cost_usd_total`** when `AgentExecution:LlmCostEstimation:Enabled` is **true** ([../CAPACITY_AND_COST_PLAYBOOK.md](../CAPACITY_AND_COST_PLAYBOOK.md)).
+- **LLM** is **metered** via `archlucid_llm_prompt_tokens_total` / `archlucid_llm_completion_tokens_total` and optional **`archlucid_llm_cost_usd_total`** when `AgentExecution:LlmCostEstimation:Enabled` is **true** ([../CAPACITY_AND_COST_PLAYBOOK.md](../library/CAPACITY_AND_COST_PLAYBOOK.md)).
 
 ## Constraints
 
@@ -46,7 +46,7 @@ Give sponsors a **defensible order-of-magnitude** for monthly Azure + LLM spend 
 ## Operational considerations
 
 - **Throttle** LLM with quotas (`OPERATIONS_LLM_QUOTA.md` patterns) before **scaling SQL** for pilot noise.
-- **Monthly review:** follow [../CAPACITY_AND_COST_PLAYBOOK.md](../CAPACITY_AND_COST_PLAYBOOK.md) cadence.
+- **Monthly review:** follow [../CAPACITY_AND_COST_PLAYBOOK.md](../library/CAPACITY_AND_COST_PLAYBOOK.md) cadence.
 
 ## Worked example (illustrative only)
 

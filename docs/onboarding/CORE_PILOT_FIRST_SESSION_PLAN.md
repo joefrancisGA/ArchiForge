@@ -23,7 +23,7 @@
 
 - Landing on **Run detail** requires **navigating Runs → selecting a run** (or deep link). First-time users must understand **pipeline completeness** (authority timeline, progress tracker) before the **manifest** and **explanation** sections unlock full value.
 - **Explanation** is **collapsed by default** (`defaultOpen={false}` on the collapsible) — one extra click to see aggregate narrative and **citations** (after this change set).
-- **Core vs Advanced** disclosure is intentional; users who expand Advanced/Enterprise early may feel **cognitive load** before Core Pilot success — align with [../OPERATOR_DECISION_GUIDE.md](../OPERATOR_DECISION_GUIDE.md).
+- **Core vs Advanced** disclosure is intentional; users who expand Advanced/Enterprise early may feel **cognitive load** before Core Pilot success — align with [../OPERATOR_DECISION_GUIDE.md](../library/OPERATOR_DECISION_GUIDE.md).
 
 ## Five concrete improvements (file-level)
 

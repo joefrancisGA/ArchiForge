@@ -77,4 +77,4 @@ Official reference text in generated baselines:
 ## Related docs
 
 - [infra/zap/README.md](../../infra/zap/README.md) — tiers, mounts, `RUNNER_TEMP` permissions.
-- [docs/SECURITY.md](../SECURITY.md) — high-level pointer to ZAP as a blocking gate.
+- [docs/SECURITY.md](../library/SECURITY.md) — high-level pointer to ZAP as a blocking gate.

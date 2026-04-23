@@ -7,7 +7,7 @@
 
 ## Owner-approval gate (mandatory)
 
-**No version of this bulletin may be published externally** (web, email to prospects, press, or partner decks) without **explicit owner sign-off** recorded per [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **27**. Engineering may generate **drafts** from production using `archlucid roi-bulletin` (see [`docs/CLI_USAGE.md`](../CLI_USAGE.md)); publication remains **owner-only**.
+**No version of this bulletin may be published externally** (web, email to prospects, press, or partner decks) without **explicit owner sign-off** recorded per [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **27**. Engineering may generate **drafts** from production using `archlucid roi-bulletin` (see [`docs/CLI_USAGE.md`](../library/CLI_USAGE.md)); publication remains **owner-only**.
 
 **Resolved 2026-04-21 (item 27):**
 
@@ -99,4 +99,4 @@ rg -n '^## \d{4}-\d{2}-\d{2} — ROI bulletin signed: Q[1-4]-\d{4}$' docs/CHANGE
 ## Related
 
 - [`TRIAL_BASELINE_PRIVACY_NOTE.md`](TRIAL_BASELINE_PRIVACY_NOTE.md) — how the per-tenant baseline field is used and *not* used.
-- [`docs/PILOT_ROI_MODEL.md`](../PILOT_ROI_MODEL.md) — modeled default when prospects skip custom hours.
+- [`docs/PILOT_ROI_MODEL.md`](../library/PILOT_ROI_MODEL.md) — modeled default when prospects skip custom hours.

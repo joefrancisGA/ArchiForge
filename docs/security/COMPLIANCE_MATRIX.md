@@ -9,7 +9,7 @@ This table links **control themes** from [`SOC2_SELF_ASSESSMENT_2026.md`](SOC2_S
 
 | Theme | Evidence path | Notes |
 |-------|----------------|-------|
-| Authentication / authorization | [`ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`](../../ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs), `ArchLucid.Api/Program.cs`, [`SECURITY.md`](../SECURITY.md) | Fail-closed defaults |
+| Authentication / authorization | [`ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`](../../ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs), `ArchLucid.Api/Program.cs`, [`SECURITY.md`](../library/SECURITY.md) | Fail-closed defaults |
 | Tenant isolation | `docs/security/MULTI_TENANT_RLS.md`, SQL migrations under `ArchLucid.Persistence/Migrations/` | Historical RLS object names may still include `Archiforge*` per rename policy |
 | API contract hardening | `.github/workflows/ci.yml` (`api-schemathesis-light`), `.github/workflows/schemathesis-scheduled.yml` | PR vs scheduled coverage |
 | Audit trail | `docs/AUDIT_COVERAGE_MATRIX.md`, `ArchLucid.Api/Controllers/Admin/AuditController.cs` | Append-only events |

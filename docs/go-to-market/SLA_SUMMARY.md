@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-15
 
-ArchLucid targets **high availability and low latency** for the production API. This document translates internal engineering objectives into buyer-readable commitments. For engineering depth (Prometheus rules, OTel metrics, burn-rate math), see [../API_SLOS.md](../API_SLOS.md).
+ArchLucid targets **high availability and low latency** for the production API. This document translates internal engineering objectives into buyer-readable commitments. For engineering depth (Prometheus rules, OTel metrics, burn-rate math), see [../API_SLOS.md](../library/API_SLOS.md).
 
 **Important:** These are **service level objectives** (targets), not contractual guarantees. Contractual SLA terms, including service credits, will be defined in the commercial agreement. See [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) for contract framing.
 
@@ -66,7 +66,7 @@ The availability target does **not** apply to:
 
 - **Internal monitoring:** Continuous server-side metrics collected via OpenTelemetry, aggregated into availability ratios and latency percentiles. Burn-rate alerts detect budget consumption before it becomes visible to customers.
 - **External probes:** Periodic synthetic checks from outside the cluster verify reachability and basic response correctness of health and version endpoints.
-- **Engineering detail:** [../API_SLOS.md](../API_SLOS.md).
+- **Engineering detail:** [../API_SLOS.md](../library/API_SLOS.md).
 
 ---
 
@@ -93,6 +93,6 @@ See [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) for the status pa
 | Doc | Use |
 |-----|-----|
 | [TRUST_CENTER.md](TRUST_CENTER.md) | Trust index |
-| [../API_SLOS.md](../API_SLOS.md) | Engineering SLO detail |
+| [../API_SLOS.md](../library/API_SLOS.md) | Engineering SLO detail |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | Incident classification and comms |
 | [BACKUP_AND_DR.md](BACKUP_AND_DR.md) | Backup, DR, and data lifecycle |

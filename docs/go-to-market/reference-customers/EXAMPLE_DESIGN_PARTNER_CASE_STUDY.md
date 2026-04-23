@@ -33,7 +33,7 @@
 
 ## Challenge
 
-`<<CHALLENGE_NARRATIVE>>` — Two to three paragraphs, written in the customer's own voice where possible. Map every claim to a buyer pain point in [`BUYER_PERSONAS.md`](../BUYER_PERSONAS.md). Avoid implying capabilities ArchLucid does not have today (see [`docs/V1_SCOPE.md`](../../V1_SCOPE.md) for the V1 boundary and [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](../../EXECUTIVE_SPONSOR_BRIEF.md) § 8 for what we explicitly do **not** over-claim).
+`<<CHALLENGE_NARRATIVE>>` — Two to three paragraphs, written in the customer's own voice where possible. Map every claim to a buyer pain point in [`BUYER_PERSONAS.md`](../BUYER_PERSONAS.md). Avoid implying capabilities ArchLucid does not have today (see [`docs/V1_SCOPE.md`](../../library/V1_SCOPE.md) for the V1 boundary and [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](../../EXECUTIVE_SPONSOR_BRIEF.md) § 8 for what we explicitly do **not** over-claim).
 
 Suggested skeleton (delete before publishing):
 

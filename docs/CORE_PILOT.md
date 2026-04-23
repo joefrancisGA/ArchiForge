@@ -14,14 +14,14 @@ This document is the operator-facing first-pilot path. The sponsor-facing narrat
 
 - **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)** — sponsor story of record
 - **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** — C4 + ownership
-- **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** — route × API × CLI
-- **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** §3 — operator nav, `LayerHeader`, API policies, Vitest seam index (`authority-seam-regression.test.ts`, `authority-execute-floor-regression.test.ts`, `authority-shaped-ui-regression.test.ts`, `authority-shaped-layout-regression.test.tsx`)
-- **[V1_SCOPE.md](V1_SCOPE.md)** §4 — V1 boundary
-- **[operator-shell.md](operator-shell.md)** — operator UI workflow and API contracts
-- **[PILOT_GUIDE.md](PILOT_GUIDE.md)** — full pilot onboarding narrative
-- **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)** — copy-paste CLI and API commands
-- **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** — measurement companion
-- **[SECOND_RUN.md](SECOND_RUN.md)** — your own data after the demo (`archlucid second-run`)
+- **[OPERATOR_ATLAS.md](library/OPERATOR_ATLAS.md)** — route × API × CLI
+- **[PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)** §3 — operator nav, `LayerHeader`, API policies, Vitest seam index (`authority-seam-regression.test.ts`, `authority-execute-floor-regression.test.ts`, `authority-shaped-ui-regression.test.ts`, `authority-shaped-layout-regression.test.tsx`)
+- **[V1_SCOPE.md](library/V1_SCOPE.md)** §4 — V1 boundary
+- **[operator-shell.md](library/operator-shell.md)** — operator UI workflow and API contracts
+- **[PILOT_GUIDE.md](library/PILOT_GUIDE.md)** — full pilot onboarding narrative
+- **[OPERATOR_QUICKSTART.md](library/OPERATOR_QUICKSTART.md)** — copy-paste CLI and API commands
+- **[PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)** — measurement companion
+- **[SECOND_RUN.md](library/SECOND_RUN.md)** — your own data after the demo (`archlucid second-run`)
 
 ---
 
@@ -68,7 +68,7 @@ The Core Pilot boundary lets a pilot:
 
 **CLI:** `archlucid run` (reads `archlucid.json` + `inputs/brief.md`). Quick dev path: `archlucid run --quick` seeds fake results and commits in one step.
 
-**API:** `POST /v1/architecture/request` — see [docs/API_CONTRACTS.md](API_CONTRACTS.md) for the request body shape.
+**API:** `POST /v1/architecture/request` — see [docs/API_CONTRACTS.md](library/API_CONTRACTS.md) for the request body shape.
 
 ### Step 2 — Execute the run
 
@@ -88,7 +88,7 @@ Commit produces the **golden manifest** and synthesizes **artifacts**. Nothing i
 
 **API:** `POST /v1/architecture/run/{runId}/commit`.
 
-> **Pre-commit governance gate (optional):** If `ArchLucid:Governance:PreCommitGateEnabled` is true, a gate checks findings before allowing commit. For a first pilot, leave this off unless you specifically want to evaluate governance behavior. See [docs/PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md).
+> **Pre-commit governance gate (optional):** If `ArchLucid:Governance:PreCommitGateEnabled` is true, a gate checks findings before allowing commit. For a first pilot, leave this off unless you specifically want to evaluate governance behavior. See [docs/PRE_COMMIT_GOVERNANCE_GATE.md](library/PRE_COMMIT_GOVERNANCE_GATE.md).
 
 ### Step 4 — Review manifest and artifacts
 
@@ -107,7 +107,7 @@ At this point, the Core Pilot deliverable is complete.
 
 After `archlucid try` (or the operator wizard demo), the lowest-friction “real” second run is a **one-page** `SECOND_RUN.toml` / `.json` file plus a single CLI command — no need to read OPERATOR_QUICKSTART, PILOT_GUIDE, or CONTEXT_INGESTION for the happy path.
 
-**CLI:** `archlucid second-run SECOND_RUN.toml` — see **[docs/SECOND_RUN.md](SECOND_RUN.md)** for the 60-second template, limits, and failure hints (correlation id + audit event names for log grep).
+**CLI:** `archlucid second-run SECOND_RUN.toml` — see **[docs/SECOND_RUN.md](library/SECOND_RUN.md)** for the 60-second template, limits, and failure hints (correlation id + audit event names for log grep).
 
 **Operator UI:** On **New run → Starting point**, use **Paste SECOND_RUN.toml** (or JSON) to pre-fill the wizard from the same schema, then continue through identity and constraints as usual.
 
@@ -174,7 +174,7 @@ Optional for dev/testing only:
 
 ## 7. Configuration for a first pilot
 
-Minimum required configuration (see [docs/PILOT_GUIDE.md](PILOT_GUIDE.md) for full setup):
+Minimum required configuration (see [docs/PILOT_GUIDE.md](library/PILOT_GUIDE.md) for full setup):
 
 ```jsonc
 // appsettings.json (or env vars / user secrets)
@@ -215,12 +215,12 @@ Once the Core Pilot is validated, the following areas are available for deeper e
 
 | Area | Where to start |
 |------|---------------|
-| Governance workflows (approval chains, SLA tracking) | [docs/PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md) |
-| Two-run comparison and drift detection | `/compare` + [docs/COMPARISON_REPLAY.md](COMPARISON_REPLAY.md) |
+| Governance workflows (approval chains, SLA tracking) | [docs/PRE_COMMIT_GOVERNANCE_GATE.md](library/PRE_COMMIT_GOVERNANCE_GATE.md) |
+| Two-run comparison and drift detection | `/compare` + [docs/COMPARISON_REPLAY.md](library/COMPARISON_REPLAY.md) |
 | Knowledge and provenance graph | `/graph` |
 | Advisory scans and digest subscriptions | `/advisory`, `/digests` |
 | Alert rules and routing | `/alerts`, `/alert-rules` |
-| Integration events (Azure Service Bus) | [docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
+| Integration events (Azure Service Bus) | [docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md](library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
 | DOCX and PDF export for stakeholders | Run detail → Artifacts → DOCX export |
 | Multi-tenant isolation and OIDC auth | [docs/security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md) |
 

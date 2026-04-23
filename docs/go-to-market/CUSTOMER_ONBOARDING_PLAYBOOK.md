@@ -9,7 +9,7 @@
 
 **Last reviewed:** 2026-04-17
 
-This playbook aligns with the 6-week pilot timeline in [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) and the technical quickstart in [../OPERATOR_QUICKSTART.md](../OPERATOR_QUICKSTART.md).
+This playbook aligns with the 6-week pilot timeline in [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) and the technical quickstart in [../OPERATOR_QUICKSTART.md](../library/OPERATOR_QUICKSTART.md).
 
 **Pricing:** Current tier pricing, pilot fee, and design-partner terms are in [PRICING_PHILOSOPHY.md §4–§5](PRICING_PHILOSOPHY.md). Do not restate prices in this playbook.
 
