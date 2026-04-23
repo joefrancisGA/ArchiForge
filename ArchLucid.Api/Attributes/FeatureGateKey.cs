@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Attributes;
 public enum FeatureGateKey
 {
     /// <summary>
-    ///     The route requires <c>Demo:Enabled=true</c> (<see cref="ArchLucid.Host.Core.Configuration.DemoOptions" />).
+    ///     The route requires <c>Demo:Enabled=true</c> (<see cref="ArchLucid.Core.Configuration.DemoOptions" />).
     ///     Returns <c>404 Not Found</c> on production-like deployments so the demo surface cannot be hit accidentally.
     /// </summary>
     DemoEnabled = 1

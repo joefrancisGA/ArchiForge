@@ -1,6 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Filters;
-using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 

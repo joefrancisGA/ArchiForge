@@ -1,5 +1,8 @@
+using System.Data;
+
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Authority;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -28,6 +31,33 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class ReplayRunServiceTests
 {
+    private static Mock<IAuthorityCommittedManifestChainWriter> CreateAuthorityChainWriterMock()
+    {
+        Mock<IAuthorityCommittedManifestChainWriter> mock = new();
+        mock.Setup(
+                x => x.PersistCommittedChainAsync(
+                    It.IsAny<ScopeContext>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<string>(),
+                    It.IsAny<GoldenManifest>(),
+                    It.IsAny<AuthorityChainKeying>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<IDbConnection?>(),
+                    It.IsAny<IDbTransaction?>()))
+            .ReturnsAsync(
+                (ScopeContext _, Guid _, string _, GoldenManifest _, AuthorityChainKeying k, DateTime _, bool _, CancellationToken _, IDbConnection? _, IDbTransaction? _) =>
+                    new AuthorityManifestPersistResult(
+                        k.ContextSnapshotId,
+                        k.GraphSnapshotId,
+                        k.FindingsSnapshotId,
+                        k.DecisionTraceId,
+                        k.ManifestId));
+
+        return mock;
+    }
+
     private static ScopeContext TestScope() => new()
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -60,6 +90,7 @@ public sealed class ReplayRunServiceTests
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
+            CreateAuthorityChainWriterMock().Object,
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
@@ -177,6 +208,7 @@ public sealed class ReplayRunServiceTests
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
+            CreateAuthorityChainWriterMock().Object,
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
@@ -354,6 +386,7 @@ public sealed class ReplayRunServiceTests
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
+            CreateAuthorityChainWriterMock().Object,
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,

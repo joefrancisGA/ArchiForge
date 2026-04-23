@@ -1,6 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Core.Configuration;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

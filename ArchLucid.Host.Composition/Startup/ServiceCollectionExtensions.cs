@@ -1,4 +1,5 @@
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
@@ -22,6 +23,8 @@ public static partial class ServiceCollectionExtensions
     {
         services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
+        services.AddScoped<ArchLucid.Application.Authority.IAuthorityCommittedManifestChainWriter,
+            ArchLucid.Application.Authority.AuthorityCommittedManifestChainWriter>();
         RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
         services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));

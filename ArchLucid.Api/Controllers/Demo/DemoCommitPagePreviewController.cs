@@ -5,7 +5,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Serialization;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Caching;
 

@@ -1,6 +1,4 @@
-using ArchLucid.Application.Bootstrap;
-
-namespace ArchLucid.Host.Core.Configuration;
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>Feature flags for deterministic Contoso trusted-baseline seeding (49R pass 2 / Corrected 50R). Never enable in production-like environments.</summary>
 public sealed class DemoOptions
@@ -13,7 +11,7 @@ public sealed class DemoOptions
         get; set;
     }
 
-    /// <summary>When <c>true</c> and the host is Development, runs <see cref="IDemoSeedService"/> once after DbUp.</summary>
+    /// <summary>When <c>true</c> and the host is Development, runs demo seed once after DbUp.</summary>
     public bool SeedOnStartup
     {
         get; set;
@@ -24,4 +22,9 @@ public sealed class DemoOptions
     /// Clamped to 30–3600 when applied by the controller (invalid/zero falls back to 300).
     /// </summary>
     public int PreviewCacheSeconds { get; set; } = 300;
+
+    /// <summary>
+    /// Authority demo seed density: <c>skeleton</c> (one finding, empty graph) vs <c>vertical</c> (multiple findings + graph nodes/edges).
+    /// </summary>
+    public string SeedDepth { get; set; } = "vertical";
 }

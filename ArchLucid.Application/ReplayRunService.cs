@@ -1,5 +1,6 @@
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Authority;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -30,12 +31,17 @@ public sealed class ReplayRunService(
     IRunDetailQueryService runDetailQueryService,
     IRunRepository authorityRunRepository,
     IScopeContextProvider scopeContextProvider,
+    IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
     ICoordinatorGoldenManifestRepository manifestRepository,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory)
     : IReplayRunService
 {
+    private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
+        authorityCommittedManifestChainWriter
+        ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
+
     /// <summary>
     /// Creates a new run record seeded from <paramref name="originalRunId"/>, re-executes agents,
     /// and (when <paramref name="commitReplay"/> is <c>true</c>) commits a new manifest.
@@ -162,17 +168,53 @@ public sealed class ReplayRunService(
         decisionTraces = merge.DecisionTraces;
         warnings = merge.Warnings;
 
+        Guid manifestId = Guid.NewGuid();
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        Guid findingsSnapshotId = Guid.NewGuid();
+        Guid authorityDecisionTraceId = Guid.NewGuid();
+        AuthorityChainKeying chainKeying = new(
+            ManifestId: manifestId,
+            ContextSnapshotId: contextSnapshotId,
+            GraphSnapshotId: graphSnapshotId,
+            FindingsSnapshotId: findingsSnapshotId,
+            DecisionTraceId: authorityDecisionTraceId);
+
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
         try
         {
             if (uow.SupportsExternalTransaction)
             {
+                await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
+                    scope,
+                    replayGuid,
+                    request.SystemName,
+                    manifest!,
+                    chainKeying,
+                    DateTime.UtcNow,
+                    richFindingsAndGraph: true,
+                    cancellationToken,
+                    uow.Connection,
+                    uow.Transaction);
+
                 await manifestRepository.CreateAsync(manifest, cancellationToken, uow.Connection, uow.Transaction);
                 await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken, uow.Connection, uow.Transaction);
             }
             else
             {
+                await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
+                    scope,
+                    replayGuid,
+                    request.SystemName,
+                    manifest!,
+                    chainKeying,
+                    DateTime.UtcNow,
+                    richFindingsAndGraph: true,
+                    cancellationToken,
+                    connection: null,
+                    transaction: null);
+
                 await manifestRepository.CreateAsync(manifest, cancellationToken);
                 await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
             }

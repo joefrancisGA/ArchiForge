@@ -1,6 +1,6 @@
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Application.Bootstrap;
-using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 

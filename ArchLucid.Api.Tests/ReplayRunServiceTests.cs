@@ -1,7 +1,11 @@
+using System.Data;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Authority;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
@@ -22,6 +26,33 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ReplayRunServiceTests
 {
+    private static Mock<IAuthorityCommittedManifestChainWriter> CreateAuthorityChainWriterMock()
+    {
+        Mock<IAuthorityCommittedManifestChainWriter> mock = new();
+        mock.Setup(
+                x => x.PersistCommittedChainAsync(
+                    It.IsAny<ScopeContext>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<string>(),
+                    It.IsAny<GoldenManifest>(),
+                    It.IsAny<AuthorityChainKeying>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<bool>(),
+                    It.IsAny<CancellationToken>(),
+                    It.IsAny<IDbConnection?>(),
+                    It.IsAny<IDbTransaction?>()))
+            .ReturnsAsync(
+                (ScopeContext _, Guid _, string _, GoldenManifest _, AuthorityChainKeying k, DateTime _, bool _, CancellationToken _, IDbConnection? _, IDbTransaction? _) =>
+                    new AuthorityManifestPersistResult(
+                        k.ContextSnapshotId,
+                        k.GraphSnapshotId,
+                        k.FindingsSnapshotId,
+                        k.DecisionTraceId,
+                        k.ManifestId));
+
+        return mock;
+    }
+
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
     private readonly Mock<IRunRepository> _authorityRunRepository = new();
     private readonly Mock<IScopeContextProvider> _scopeContextProvider = new();
@@ -53,6 +84,7 @@ public sealed class ReplayRunServiceTests
             _runDetailQueryService.Object,
             _authorityRunRepository.Object,
             _scopeContextProvider.Object,
+            CreateAuthorityChainWriterMock().Object,
             _manifestRepository.Object,
             _decisionTraceRepository.Object,
             _evidenceRepository.Object,

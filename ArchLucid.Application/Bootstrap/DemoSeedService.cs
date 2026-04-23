@@ -5,12 +5,15 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Application.Authority;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Bootstrap;
 
@@ -31,12 +34,21 @@ public sealed class DemoSeedService(
     IAgentResultRepository resultRepository,
     ICoordinatorGoldenManifestRepository manifestRepository,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
+    IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
+    IOptionsMonitor<DemoOptions> demoOptions,
     IGovernanceApprovalRequestRepository approvalRepository,
     IGovernancePromotionRecordRepository promotionRepository,
     IGovernanceEnvironmentActivationRepository activationRepository,
     IRunExportRecordRepository runExportRecordRepository,
     ILogger<DemoSeedService> logger) : IDemoSeedService
 {
+    private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
+        authorityCommittedManifestChainWriter
+        ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
+
+    private readonly IOptionsMonitor<DemoOptions> _demoOptions =
+        demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
+
     private static readonly DateTime DemoUtc = new(2025, 3, 1, 12, 0, 0, DateTimeKind.Utc);
 
     /// <inheritdoc />
@@ -172,6 +184,28 @@ public sealed class DemoSeedService(
         await resultRepository.CreateAsync(result, cancellationToken);
 
         GoldenManifest manifest = BuildManifest(legacyRunId, manifestVersion, isHardened);
+
+        bool richSeed = IsVerticalDemoSeedDepth(_demoOptions.CurrentValue.SeedDepth);
+        AuthorityChainKeying chainKeying = new(
+            ManifestId: AuthorityDemoChainIds.Manifest(authorityRunId),
+            ContextSnapshotId: AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
+            GraphSnapshotId: AuthorityDemoChainIds.GraphSnapshot(authorityRunId),
+            FindingsSnapshotId: AuthorityDemoChainIds.FindingsSnapshot(authorityRunId),
+            DecisionTraceId: AuthorityDemoChainIds.DecisionTrace(authorityRunId));
+
+        AuthorityManifestPersistResult authorityChain = await _authorityCommittedManifestChainWriter
+            .PersistCommittedChainAsync(
+                scope,
+                authorityRunId,
+                "Contoso Retail Platform",
+                manifest,
+                chainKeying,
+                DemoUtc,
+                richSeed,
+                cancellationToken,
+                connection: null,
+                transaction: null);
+
         await manifestRepository.CreateAsync(manifest, cancellationToken);
 
         DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload
@@ -195,8 +229,23 @@ public sealed class DemoSeedService(
             authorityCommitted.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
             authorityCommitted.CurrentManifestVersion = manifestVersion;
             authorityCommitted.CompletedUtc = DemoUtc;
+            authorityCommitted.ContextSnapshotId = authorityChain.ContextSnapshotId;
+            authorityCommitted.GraphSnapshotId = authorityChain.GraphSnapshotId;
+            authorityCommitted.FindingsSnapshotId = authorityChain.FindingsSnapshotId;
+            authorityCommitted.GoldenManifestId = authorityChain.GoldenManifestId;
+            authorityCommitted.DecisionTraceId = authorityChain.DecisionTraceId;
             await runRepository.UpdateAsync(authorityCommitted, cancellationToken);
         }
+    }
+
+    private static bool IsVerticalDemoSeedDepth(string? seedDepth)
+    {
+        if (string.IsNullOrWhiteSpace(seedDepth))
+            return false;
+
+        return string.Equals(seedDepth.Trim(), "vertical", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(seedDepth.Trim(), "full", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(seedDepth.Trim(), "production-realistic", StringComparison.OrdinalIgnoreCase);
     }
 
     private static GoldenManifest BuildManifest(string runId, string manifestVersion, bool isHardened)
