@@ -130,6 +130,12 @@ jobs:
       - name: Contributor one-page line budget unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_contributor_on_one_page_size.py"
 
+      - name: Audit coverage matrix vs AuditEventTypes (names + count marker)
+        run: python scripts/ci/assert_audit_const_count.py
+
+      - name: Audit matrix guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_audit_const_count.py"
+
       - name: Integration recipe CloudEvent types vs catalog
         run: python scripts/ci/check_integration_recipes_link_alignment.py
 
@@ -472,20 +478,8 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Guard — audit matrix Core constant count
-        run: |
-          set -e
-          CONST_COUNT=$(grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs)
-          MARKER=$(grep -oP 'audit-core-const-count:\K[0-9]+' docs/library/AUDIT_COVERAGE_MATRIX.md | head -1)
-          if [ -z "$MARKER" ]; then
-            echo "::error::docs/library/AUDIT_COVERAGE_MATRIX.md missing audit-core-const-count marker"
-            exit 1
-          fi
-          if [ "$CONST_COUNT" != "$MARKER" ]; then
-            echo "::error::AuditEventTypes const count ($CONST_COUNT) != matrix marker ($MARKER). Update docs/library/AUDIT_COVERAGE_MATRIX.md."
-            exit 1
-          fi
-          echo "Audit Core constants: $CONST_COUNT (matrix marker OK)."
+      - name: Guard — audit coverage matrix vs AuditEventTypes (names + marker)
+        run: python scripts/ci/assert_audit_const_count.py
 
       - name: coordinator parity probe (Python unit tests)
         run: python3 scripts/ci/test_coordinator_parity_probe.py

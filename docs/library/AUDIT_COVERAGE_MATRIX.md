@@ -14,7 +14,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 <!-- audit-core-const-count:118 -->
 
-The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs` to the number in this comment. Update the comment whenever Core constants change, and extend the appendix table below.
+The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
 ---
 
@@ -25,7 +25,7 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 | **Circuit breaker → audit is fire-and-forget** | `CircuitBreakerGate` sits on the hot path; awaiting SQL or disk I/O would add tail latency and failure modes. The bridge schedules `LogAsync` on the thread pool and swallows exceptions so telemetry and breaker semantics stay reliable. |
 | **Callback on `CircuitBreakerGate` instead of `IAuditService` in Core** | `ArchLucid.Core` must not reference persistence or host services. An optional `Action<CircuitBreakerAuditEntry>?` keeps tier boundaries; composition roots wire `CircuitBreakerAuditBridge.CreateCallback()`. |
 | **`GetFilteredAsync` instead of overloading `GetByScopeAsync`** | Eight or more call sites and test doubles already depend on the original signature. A new method adds filtering without breaking consumers. |
-| **Static matrix + CI count guard** | Cheaper than runtime introspection of all call sites. The matrix can drift; the CI guard at least forces developers to revisit this file when `AuditEventTypes` grows. |
+| **Static matrix + CI guard** | Cheaper than runtime introspection of all call sites. The matrix can drift; `assert_audit_const_count.py` fails merge with a per-name diff when rows or the count marker disagree with `AuditEventTypes.cs`. |
 | **Single Core catalog for baseline + durable** | Application references `ArchLucid.Core.Audit.AuditEventTypes.Baseline` so operators and developers have one file for all event-type strings; nested `Baseline` preserves namespaced baseline values without colliding with authority `RunStarted` / `RunCompleted`. |
 | **Coordinator orchestration dual-write** | The three coordinator orchestrators (`Create`, `Execute`, `Commit`) call `IBaselineMutationAuditService.RecordAsync` for baseline `Architecture.*` events; `BaselineMutationAuditService` echoes durable `CoordinatorRun*` + `AuditEventTypes.Run.*` via `BaselineMutationAuditArchitectureDurableWriter` (same payloads as the former in-orchestrator dual-write). Pre-commit governance warnings/blocks on commit still call `IAuditService.LogAsync` directly from `ArchitectureRunCommitOrchestrator`. Failures on the durable echo path are swallowed — audit must not break orchestration. |
 | **Critical-path durable audit retry** | `CoordinatorRunCreated`, `CoordinatorRunExecuteStarted`, `CoordinatorRunExecuteSucceeded`, and `CoordinatorRunCommitCompleted` echoes use `ArchLucid.Core.Audit.DurableAuditLogRetry` (short exponential backoff, default 3 attempts). `CoordinatorRunFailed` uses `CoordinatorRunFailedDurableAudit` (single attempt with inner `try/catch`). After exhaustion, failures are logged only — orchestration still completes. |
@@ -183,6 +183,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `AuthorityCommittedChainPersisted` | `AuthorityCommittedChainPersisted` | `DemoSeedService`, `ReplayRunService` |
 | `ArtifactDownloaded` | `ArtifactDownloaded` | `ArtifactExportController` |
 | `BundleDownloaded` | `BundleDownloaded` | `ArtifactExportController` |
+| `SupportBundleDownloaded` | `SupportBundleDownloaded` | `SupportBundleController` (`POST /v1/admin/support-bundle`) |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
 | `ArchitectureAnalysisReportGenerated` | `ArchitectureAnalysisReportGenerated` | `AnalysisReportsController` |
 | `ArchitectureDocxExportGenerated` | `ArchitectureDocxExportGenerated` | `DocxExportController` |
@@ -197,11 +198,6 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `CoordinatorRunExecuteSucceeded` | `CoordinatorRunExecuteSucceeded` | `BaselineMutationAuditService` / writer (execute orchestrator baseline) |
 | `CoordinatorRunCommitCompleted` | `CoordinatorRunCommitCompleted` | `BaselineMutationAuditService` / writer (commit orchestrators baseline) |
 | `CoordinatorRunFailed` | `CoordinatorRunFailed` | `BaselineMutationAuditService` / writer → `CoordinatorRunFailedDurableAudit` (orchestrator baseline `RunFailed`) |
-| `Run.Created` | `Run.Created` | `BaselineMutationAuditArchitectureDurableWriter` (after `CoordinatorRunCreated`) |
-| `Run.ExecuteStarted` | `Run.ExecuteStarted` | `BaselineMutationAuditArchitectureDurableWriter` (after `CoordinatorRunExecuteStarted`) |
-| `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `BaselineMutationAuditArchitectureDurableWriter` (after `CoordinatorRunExecuteSucceeded`) |
-| `Run.CommitCompleted` | `Run.CommitCompleted` | `BaselineMutationAuditArchitectureDurableWriter` (after `CoordinatorRunCommitCompleted`) |
-| `Run.Failed` | `Run.Failed` | `CoordinatorRunFailedDurableAudit` (canonical row after `CoordinatorRunFailed`) |
 | `RecommendationGenerated` | `RecommendationGenerated` | `AdvisoryController` |
 | `RecommendationAccepted` | `RecommendationAccepted` | `AdvisoryController` |
 | `RecommendationRejected` | `RecommendationRejected` | `AdvisoryController` |

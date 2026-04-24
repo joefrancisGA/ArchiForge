@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-24 — Audit matrix vs `AuditEventTypes` reconciliation + CI guard
+
+**Outcome.** **`docs/library/AUDIT_COVERAGE_MATRIX.md`** appendix is reconciled with **`ArchLucid.Core/Audit/AuditEventTypes.cs`**: the Core registry no longer duplicates the five **`Run.*`** rows (they stay only under the **`AuditEventTypes.Run`** appendix), **`SupportBundleDownloaded`** now has a Core appendix row aligned with **`SupportBundleController`**, and **`<!-- audit-core-const-count:118 -->`** matches the true **`public const string`** count (**103** top-level + **5** `Run.*` + **10** `Baseline.*`). **CI:** the **`dotnet-fast-core`** bash `grep` guard is replaced by **`scripts/ci/assert_audit_const_count.py`**, which parses the marker, counts and classifies every const, cross-checks appendix first-column names, and prints **`MISSING_IN_MATRIX` / `EXTRA_IN_MATRIX` / `MARKER_MISMATCH` / `ROW_COUNT_MISMATCH`** diffs (including **`::error`** lines for GitHub Actions). **`doc-markdown-links`** runs the same script plus **`scripts/ci/tests/test_assert_audit_const_count.py`**.
+
+---
+
 ## 2026-04-24 — Contributor one-pager + CI line budget
 
 **Outcome.** New **[`docs/CONTRIBUTOR_ON_ONE_PAGE.md`](CONTRIBUTOR_ON_ONE_PAGE.md)** (≤80 lines, scope-first) covers install order, a **60-second** `archlucid try` check, an **I want to…** pointer table, and **if broken** (`TROUBLESHOOTING.md`, support-bundle, doctor). **README** persona rows prepend that file as the **first** link without dropping existing targets. **`docs/READ_THIS_FIRST.md`** adds a time-pressed callout. **CI:** `scripts/ci/assert_contributor_on_one_page_size.py` + unit test under **`doc-markdown-links`**. **`assert_docs_root_size`** default **max** raised **30 → 31** for the extra root markdown file.
