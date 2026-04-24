@@ -6,21 +6,20 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IPolicyPackAssignmentRepository"/>.
+///     Shared contract assertions for <see cref="IPolicyPackAssignmentRepository" />.
 /// </summary>
 public abstract class PolicyPackAssignmentRepositoryContractTests
 {
+    private static readonly Guid TenantA = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
+    private static readonly Guid WorkspaceW = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
+    private static readonly Guid WorkspaceOther = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
+    private static readonly Guid ProjectP = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
     protected abstract IPolicyPackAssignmentRepository CreateRepository();
 
     /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
     protected virtual void SkipIfSqlServerUnavailable()
     {
     }
-
-    private static readonly Guid TenantA = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
-    private static readonly Guid WorkspaceW = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
-    private static readonly Guid WorkspaceOther = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
-    private static readonly Guid ProjectP = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
 
     private static PolicyPackAssignment CreateAssignment(
         Guid tenantId,

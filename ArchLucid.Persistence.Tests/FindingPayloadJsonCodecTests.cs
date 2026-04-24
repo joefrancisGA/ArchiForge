@@ -9,9 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Tests for Finding Payload Json Codec.
+///     Tests for Finding Payload Json Codec.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class FindingPayloadJsonCodecTests
 {
@@ -20,9 +19,7 @@ public sealed class FindingPayloadJsonCodecTests
     {
         RequirementFindingPayload original = new()
         {
-            RequirementText = "Must use TLS 1.2+",
-            RequirementName = "TLS",
-            IsMandatory = true,
+            RequirementText = "Must use TLS 1.2+", RequirementName = "TLS", IsMandatory = true
         };
 
         string? json = FindingPayloadJsonCodec.SerializePayload(original);
@@ -55,11 +52,7 @@ public sealed class FindingPayloadJsonCodecTests
         using JsonDocument doc = JsonDocument.Parse(
             """{"RequirementText":"Must","RequirementName":"R1","IsMandatory":true}""");
 
-        Finding finding = new()
-        {
-            Payload = doc.RootElement.Clone(),
-            PayloadType = nameof(RequirementFindingPayload),
-        };
+        Finding finding = new() { Payload = doc.RootElement.Clone(), PayloadType = nameof(RequirementFindingPayload) };
 
         FindingPayloadJsonCodec.HydrateJsonElementPayloads([finding]);
 
@@ -73,15 +66,8 @@ public sealed class FindingPayloadJsonCodecTests
     [Fact]
     public void HydrateJsonElementPayloads_leaves_non_JsonElement_unchanged()
     {
-        RequirementFindingPayload original = new()
-        {
-            RequirementName = "n"
-        };
-        Finding finding = new()
-        {
-            Payload = original,
-            PayloadType = nameof(RequirementFindingPayload)
-        };
+        RequirementFindingPayload original = new() { RequirementName = "n" };
+        Finding finding = new() { Payload = original, PayloadType = nameof(RequirementFindingPayload) };
 
         FindingPayloadJsonCodec.HydrateJsonElementPayloads([finding]);
 

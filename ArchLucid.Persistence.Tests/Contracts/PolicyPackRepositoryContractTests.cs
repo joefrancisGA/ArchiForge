@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IPolicyPackRepository"/>.
+///     Shared contract assertions for <see cref="IPolicyPackRepository" />.
 /// </summary>
 public abstract class PolicyPackRepositoryContractTests
 {
@@ -28,7 +28,7 @@ public abstract class PolicyPackRepositoryContractTests
             PackType = PolicyPackType.BuiltIn,
             Status = PolicyPackStatus.Draft,
             CreatedUtc = DateTime.UtcNow,
-            CurrentVersion = "1.0.0",
+            CurrentVersion = "1.0.0"
         };
     }
 

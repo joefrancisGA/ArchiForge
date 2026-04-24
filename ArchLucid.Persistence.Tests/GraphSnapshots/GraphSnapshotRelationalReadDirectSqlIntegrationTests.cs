@@ -14,8 +14,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 
 /// <summary>
-/// Direct coverage for <see cref="GraphSnapshotRelationalRead.HydrateAsync"/> when edge metadata is fully relational
-/// (<c>dbo.GraphSnapshotEdgeProperties</c> populated, no JSON merge path).
+///     Direct coverage for <see cref="GraphSnapshotRelationalRead.HydrateAsync" /> when edge metadata is fully relational
+///     (<c>dbo.GraphSnapshotEdgeProperties</c> populated, no JSON merge path).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -51,17 +51,17 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
         string emptyListEdges = JsonEntitySerializer.Serialize(new List<GraphEdge>());
 
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -74,22 +74,22 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     CreatedUtc = createdUtc,
                     NodesJson = JsonEntitySerializer.Serialize(new List<GraphNode>()),
                     EdgesJson = emptyListEdges,
-                    WarningsJson = JsonEntitySerializer.Serialize(new List<string>()),
+                    WarningsJson = JsonEntitySerializer.Serialize(new List<string>())
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertNode = """
-            INSERT INTO dbo.GraphSnapshotNodes
-            (
-                GraphNodeRowId, GraphSnapshotId, SortOrder,
-                NodeId, NodeType, Label, Category, SourceType, SourceId
-            )
-            VALUES
-            (
-                @GraphNodeRowId, @GraphSnapshotId, @SortOrder,
-                @NodeId, @NodeType, @Label, @Category, @SourceType, @SourceId
-            );
-            """;
+                                  INSERT INTO dbo.GraphSnapshotNodes
+                                  (
+                                      GraphNodeRowId, GraphSnapshotId, SortOrder,
+                                      NodeId, NodeType, Label, Category, SourceType, SourceId
+                                  )
+                                  VALUES
+                                  (
+                                      @GraphNodeRowId, @GraphSnapshotId, @SortOrder,
+                                      @NodeId, @NodeType, @Label, @Category, @SourceType, @SourceId
+                                  );
+                                  """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -104,31 +104,25 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     Label = "NodeLabel",
                     Category = "cat",
                     SourceType = "src",
-                    SourceId = "id1",
+                    SourceId = "id1"
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertNodeProp = """
-            INSERT INTO dbo.GraphSnapshotNodeProperties (GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue)
-            VALUES (@GraphNodeRowId, @PropertySortOrder, @PropertyKey, @PropertyValue);
-            """;
+                                      INSERT INTO dbo.GraphSnapshotNodeProperties (GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue)
+                                      VALUES (@GraphNodeRowId, @PropertySortOrder, @PropertyKey, @PropertyValue);
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertNodeProp,
-                new
-                {
-                    GraphNodeRowId = nodeRowId,
-                    PropertySortOrder = 0,
-                    PropertyKey = "nk",
-                    PropertyValue = "nv",
-                },
+                new { GraphNodeRowId = nodeRowId, PropertySortOrder = 0, PropertyKey = "nk", PropertyValue = "nv" },
                 cancellationToken: CancellationToken.None));
 
         const string insertEdge = """
-            INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-            VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-            """;
+                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
+                                  """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -140,15 +134,15 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     FromNodeId = "n-rel",
                     ToNodeId = "n-other",
                     EdgeType = "USES",
-                    Weight = 1.5d,
+                    Weight = 1.5d
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertEdgeProp = """
-            INSERT INTO dbo.GraphSnapshotEdgeProperties
-            (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
-            VALUES (@GraphSnapshotId, @EdgeId, @PropertySortOrder, @PropertyKey, @PropertyValue);
-            """;
+                                      INSERT INTO dbo.GraphSnapshotEdgeProperties
+                                      (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
+                                      VALUES (@GraphSnapshotId, @EdgeId, @PropertySortOrder, @PropertyKey, @PropertyValue);
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -159,7 +153,7 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     EdgeId = "e-rel",
                     PropertySortOrder = 0,
                     PropertyKey = GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey,
-                    PropertyValue = "edge-label-relational",
+                    PropertyValue = "edge-label-relational"
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -172,23 +166,21 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     EdgeId = "e-rel",
                     PropertySortOrder = 1,
                     PropertyKey = "epk",
-                    PropertyValue = "epv",
+                    PropertyValue = "epv"
                 },
                 cancellationToken: CancellationToken.None));
 
         const string selectRow = """
-            SELECT
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            FROM dbo.GraphSnapshots
-            WHERE GraphSnapshotId = @GraphSnapshotId;
-            """;
+                                 SELECT
+                                     GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                     NodesJson, EdgesJson, WarningsJson
+                                 FROM dbo.GraphSnapshots
+                                 WHERE GraphSnapshotId = @GraphSnapshotId;
+                                 """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new
-            {
-                GraphSnapshotId = graphId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId },
+                cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
@@ -237,17 +229,17 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
         string emptyEdges = JsonEntitySerializer.Serialize(new List<GraphEdge>());
 
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -260,39 +252,32 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     CreatedUtc = createdUtc,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
-                    WarningsJson = JsonEntitySerializer.Serialize(jsonWarnings),
+                    WarningsJson = JsonEntitySerializer.Serialize(jsonWarnings)
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertWarning = """
-            INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
-            VALUES (@GraphSnapshotId, @SortOrder, @WarningText);
-            """;
+                                     INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
+                                     VALUES (@GraphSnapshotId, @SortOrder, @WarningText);
+                                     """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertWarning,
-                new
-                {
-                    GraphSnapshotId = graphId,
-                    SortOrder = 0,
-                    WarningText = "relational-graph-warning",
-                },
+                new { GraphSnapshotId = graphId, SortOrder = 0, WarningText = "relational-graph-warning" },
                 cancellationToken: CancellationToken.None));
 
         const string selectRow = """
-            SELECT
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            FROM dbo.GraphSnapshots
-            WHERE GraphSnapshotId = @GraphSnapshotId;
-            """;
+                                 SELECT
+                                     GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                     NodesJson, EdgesJson, WarningsJson
+                                 FROM dbo.GraphSnapshots
+                                 WHERE GraphSnapshotId = @GraphSnapshotId;
+                                 """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new
-            {
-                GraphSnapshotId = graphId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId },
+                cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
@@ -337,8 +322,8 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                 EdgeType = "REL",
                 Weight = 2d,
                 Label = "label-from-json",
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["jk"] = "jv" },
-            },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["jk"] = "jv" }
+            }
         ];
 
         string edgesJson = JsonEntitySerializer.Serialize(jsonEdges);
@@ -346,17 +331,17 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
         string emptyWarnings = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -369,14 +354,14 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     CreatedUtc = createdUtc,
                     NodesJson = emptyNodes,
                     EdgesJson = edgesJson,
-                    WarningsJson = emptyWarnings,
+                    WarningsJson = emptyWarnings
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertEdge = """
-            INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-            VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-            """;
+                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
+                                  """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -388,23 +373,21 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
                     FromNodeId = "a",
                     ToNodeId = "b",
                     EdgeType = "REL",
-                    Weight = 2d,
+                    Weight = 2d
                 },
                 cancellationToken: CancellationToken.None));
 
         const string selectRow = """
-            SELECT
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            FROM dbo.GraphSnapshots
-            WHERE GraphSnapshotId = @GraphSnapshotId;
-            """;
+                                 SELECT
+                                     GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                     NodesJson, EdgesJson, WarningsJson
+                                 FROM dbo.GraphSnapshots
+                                 WHERE GraphSnapshotId = @GraphSnapshotId;
+                                 """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new
-            {
-                GraphSnapshotId = graphId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId },
+                cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 

@@ -14,8 +14,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Findings;
 
 /// <summary>
-/// Direct coverage for <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync"/> (legacy JSON path
-/// when <c>dbo.FindingRecords</c> is empty).
+///     Direct coverage for <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync" /> (legacy JSON path
+///     when <c>dbo.FindingRecords</c> is empty).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -53,17 +53,17 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
         string emptyGraphWarnings = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertGraph = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                   INSERT INTO dbo.GraphSnapshots
+                                   (
+                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                       NodesJson, EdgesJson, WarningsJson
+                                   )
+                                   VALUES
+                                   (
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                       @NodesJson, @EdgesJson, @WarningsJson
+                                   );
+                                   """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -76,7 +76,7 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                     CreatedUtc = DateTime.UtcNow,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
-                    WarningsJson = emptyGraphWarnings,
+                    WarningsJson = emptyGraphWarnings
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -98,27 +98,27 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                     EngineType = "DirectRead",
                     Severity = FindingSeverity.Info,
                     Title = "from-json",
-                    Rationale = "r",
-                },
-            ],
+                    Rationale = "r"
+                }
+            ]
         };
 
         string findingsJson = JsonEntitySerializer.Serialize(legacyBlob);
 
         const string insertFindings = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
-                TenantId, WorkspaceId, ProjectId,
-                CreatedUtc, SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
-                @TenantId, @WorkspaceId, @ProjectId,
-                @CreatedUtc, @SchemaVersion, @FindingsJson
-            );
-            """;
+                                      INSERT INTO dbo.FindingsSnapshots
+                                      (
+                                          FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
+                                          TenantId, WorkspaceId, ProjectId,
+                                          CreatedUtc, SchemaVersion, FindingsJson
+                                      )
+                                      VALUES
+                                      (
+                                          @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @CreatedUtc, @SchemaVersion, @FindingsJson
+                                      );
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -134,7 +134,7 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                     ProjectId = scopeProjectId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = 1,
-                    FindingsJson = findingsJson,
+                    FindingsJson = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -146,7 +146,7 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
             GraphSnapshotId = graphId,
             CreatedUtc = createdUtc,
             SchemaVersion = 1,
-            FindingsJson = findingsJson,
+            FindingsJson = findingsJson
         };
 
         FindingsSnapshot loaded =
@@ -189,33 +189,31 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
             CancellationToken.None);
 
         const string selectHeader = """
-            SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
-            FROM dbo.FindingsSnapshots
-            WHERE FindingsSnapshotId = @FindingsSnapshotId;
-            """;
+                                    SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
+                                    FROM dbo.FindingsSnapshots
+                                    WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                                    """;
 
         FindingsSnapshotStorageRow? headerRow = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(selectHeader, new
-            {
-                FindingsSnapshotId = findingsId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectHeader, new { FindingsSnapshotId = findingsId },
+                cancellationToken: CancellationToken.None));
 
         headerRow.Should().NotBeNull();
 
         const string insertRecord = """
-            INSERT INTO dbo.FindingRecords
-            (
-                FindingRecordId, FindingsSnapshotId, SortOrder,
-                FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                Severity, Title, Rationale, PayloadType, PayloadJson
-            )
-            VALUES
-            (
-                @FindingRecordId, @FindingsSnapshotId, @SortOrder,
-                @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
-                @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingRecords
+                                    (
+                                        FindingRecordId, FindingsSnapshotId, SortOrder,
+                                        FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
+                                        Severity, Title, Rationale, PayloadType, PayloadJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingRecordId, @FindingsSnapshotId, @SortOrder,
+                                        @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
+                                        @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -234,57 +232,42 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                     Title = "Rel title",
                     Rationale = "Rel rationale",
                     PayloadType = (string?)null,
-                    PayloadJson = (string?)null,
+                    PayloadJson = (string?)null
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertRelated = """
-            INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
-            VALUES (@FindingRecordId, @SortOrder, @NodeId);
-            """;
+                                     INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
+                                     VALUES (@FindingRecordId, @SortOrder, @NodeId);
+                                     """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertRelated,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 1,
-                    NodeId = "n-first",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 1, NodeId = "n-first" },
                 cancellationToken: CancellationToken.None));
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertRelated,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 0,
-                    NodeId = "n-second",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 0, NodeId = "n-second" },
                 cancellationToken: CancellationToken.None));
 
         const string insertAction = """
-            INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
-            VALUES (@FindingRecordId, @SortOrder, @ActionText);
-            """;
+                                    INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
+                                    VALUES (@FindingRecordId, @SortOrder, @ActionText);
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertAction,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 0,
-                    ActionText = "Do A",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 0, ActionText = "Do A" },
                 cancellationToken: CancellationToken.None));
 
         const string insertProp = """
-            INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
-            VALUES (@FindingRecordId, @PropertySortOrder, @PropertyKey, @PropertyValue);
-            """;
+                                  INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
+                                  VALUES (@FindingRecordId, @PropertySortOrder, @PropertyKey, @PropertyValue);
+                                  """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -294,92 +277,68 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                     FindingRecordId = findingRecordId,
                     PropertySortOrder = 0,
                     PropertyKey = "pk1",
-                    PropertyValue = "pv1",
+                    PropertyValue = "pv1"
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertTraceNode = """
-            INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId)
-            VALUES (@FindingRecordId, @SortOrder, @NodeId);
-            """;
+                                       INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId)
+                                       VALUES (@FindingRecordId, @SortOrder, @NodeId);
+                                       """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertTraceNode,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 0,
-                    NodeId = "trace-node",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 0, NodeId = "trace-node" },
                 cancellationToken: CancellationToken.None));
 
         const string insertTraceRule = """
-            INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText)
-            VALUES (@FindingRecordId, @SortOrder, @RuleText);
-            """;
+                                       INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText)
+                                       VALUES (@FindingRecordId, @SortOrder, @RuleText);
+                                       """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertTraceRule,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 0,
-                    RuleText = "rule-a",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 0, RuleText = "rule-a" },
                 cancellationToken: CancellationToken.None));
 
         const string insertTraceDecision = """
-            INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText)
-            VALUES (@FindingRecordId, @SortOrder, @DecisionText);
-            """;
+                                           INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText)
+                                           VALUES (@FindingRecordId, @SortOrder, @DecisionText);
+                                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertTraceDecision,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 0,
-                    DecisionText = "dec-a",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 0, DecisionText = "dec-a" },
                 cancellationToken: CancellationToken.None));
 
         const string insertTracePath = """
-            INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
-            VALUES (@FindingRecordId, @SortOrder, @PathText);
-            """;
+                                       INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
+                                       VALUES (@FindingRecordId, @SortOrder, @PathText);
+                                       """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertTracePath,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 0,
-                    PathText = "path-a",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 0, PathText = "path-a" },
                 cancellationToken: CancellationToken.None));
 
         const string insertTraceNote = """
-            INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText)
-            VALUES (@FindingRecordId, @SortOrder, @NoteText);
-            """;
+                                       INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText)
+                                       VALUES (@FindingRecordId, @SortOrder, @NoteText);
+                                       """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertTraceNote,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 0,
-                    NoteText = "note-a",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 0, NoteText = "note-a" },
                 cancellationToken: CancellationToken.None));
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow, CancellationToken.None);
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow,
+                CancellationToken.None);
 
         loaded.Findings.Should().ContainSingle();
         Finding f = loaded.Findings[0];

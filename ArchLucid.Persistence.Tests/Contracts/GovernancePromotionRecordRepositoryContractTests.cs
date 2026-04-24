@@ -6,8 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IGovernancePromotionRecordRepository"/>.
-/// Ordering matches Dapper: <c>ORDER BY PromotedUtc DESC</c> (newest first).
+///     Shared contract assertions for <see cref="IGovernancePromotionRecordRepository" />.
+///     Ordering matches Dapper: <c>ORDER BY PromotedUtc DESC</c> (newest first).
 /// </summary>
 public abstract class GovernancePromotionRecordRepositoryContractTests
 {
@@ -25,7 +25,8 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
         string runId = Guid.NewGuid().ToString("N");
         string promotionId = "prm-" + Guid.NewGuid().ToString("N");
 
-        GovernancePromotionRecord item = NewPromotion(promotionId, runId, new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc));
+        GovernancePromotionRecord item = NewPromotion(promotionId, runId,
+            new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc));
 
         await repo.CreateAsync(item, CancellationToken.None);
 
@@ -64,7 +65,7 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
             SourceEnvironment = GovernanceEnvironment.Dev,
             TargetEnvironment = GovernanceEnvironment.Test,
             PromotedBy = "bob",
-            PromotedUtc = promotedUtc,
+            PromotedUtc = promotedUtc
         };
     }
 }

@@ -14,8 +14,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Findings;
 
 /// <summary>
-/// Legacy <c>FindingsJson</c> path on <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync"/> when
-/// <c>dbo.FindingRecords</c> is empty: malformed JSON (swallowed) vs. valid snapshot with an empty <c>Findings</c> list.
+///     Legacy <c>FindingsJson</c> path on <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync" /> when
+///     <c>dbo.FindingRecords</c> is empty: malformed JSON (swallowed) vs. valid snapshot with an empty <c>Findings</c>
+///     list.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -56,17 +57,17 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
         string emptyGraphWarnings = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertGraph = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                   INSERT INTO dbo.GraphSnapshots
+                                   (
+                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                       NodesJson, EdgesJson, WarningsJson
+                                   )
+                                   VALUES
+                                   (
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                       @NodesJson, @EdgesJson, @WarningsJson
+                                   );
+                                   """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -79,7 +80,7 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
                     CreatedUtc = DateTime.UtcNow,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
-                    WarningsJson = emptyGraphWarnings,
+                    WarningsJson = emptyGraphWarnings
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -95,24 +96,24 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = 1,
-                    Findings = [],
-                }),
+                    Findings = []
+                })
         };
 
         const string insertFindings = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
-                TenantId, WorkspaceId, ProjectId,
-                CreatedUtc, SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
-                @TenantId, @WorkspaceId, @ProjectId,
-                @CreatedUtc, @SchemaVersion, @FindingsJson
-            );
-            """;
+                                      INSERT INTO dbo.FindingsSnapshots
+                                      (
+                                          FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
+                                          TenantId, WorkspaceId, ProjectId,
+                                          CreatedUtc, SchemaVersion, FindingsJson
+                                      )
+                                      VALUES
+                                      (
+                                          @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @CreatedUtc, @SchemaVersion, @FindingsJson
+                                      );
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -128,7 +129,7 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
                     ProjectId = scopeProjectId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = 1,
-                    FindingsJson = findingsJson,
+                    FindingsJson = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -140,7 +141,7 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
             GraphSnapshotId = graphId,
             CreatedUtc = createdUtc,
             SchemaVersion = 1,
-            FindingsJson = findingsJson,
+            FindingsJson = findingsJson
         };
 
         FindingsSnapshot loaded =

@@ -21,7 +21,7 @@ public sealed class LocalFileArtifactBlobStoreTests
             {
                 TenantId = ScopeIds.DefaultTenant,
                 WorkspaceId = ScopeIds.DefaultWorkspace,
-                ProjectId = ScopeIds.DefaultProject,
+                ProjectId = ScopeIds.DefaultProject
             });
         LocalFileArtifactBlobStore store = new(root, scope.Object);
 
@@ -35,7 +35,7 @@ public sealed class LocalFileArtifactBlobStoreTests
         {
             try
             {
-                Directory.Delete(root, recursive: true);
+                Directory.Delete(root, true);
             }
             catch (IOException)
             {
@@ -46,7 +46,8 @@ public sealed class LocalFileArtifactBlobStoreTests
     [Fact]
     public async Task ReadAsync_when_scope_tenant_mismatch_throws()
     {
-        string root = Path.Combine(Path.GetTempPath(), "archlucid-blob-tenant-mismatch-" + Guid.NewGuid().ToString("N"));
+        string root = Path.Combine(Path.GetTempPath(),
+            "archlucid-blob-tenant-mismatch-" + Guid.NewGuid().ToString("N"));
         Guid writerTenant = Guid.Parse("10101010-1010-1010-1010-101010101010");
         Mock<IScopeContextProvider> scope = new();
         scope.SetupSequence(static m => m.GetCurrentScope())
@@ -55,14 +56,14 @@ public sealed class LocalFileArtifactBlobStoreTests
                 {
                     TenantId = writerTenant,
                     WorkspaceId = ScopeIds.DefaultWorkspace,
-                    ProjectId = ScopeIds.DefaultProject,
+                    ProjectId = ScopeIds.DefaultProject
                 })
             .Returns(
                 new ScopeContext
                 {
                     TenantId = Guid.Parse("20202020-2020-2020-2020-202020202020"),
                     WorkspaceId = ScopeIds.DefaultWorkspace,
-                    ProjectId = ScopeIds.DefaultProject,
+                    ProjectId = ScopeIds.DefaultProject
                 });
         LocalFileArtifactBlobStore store = new(root, scope.Object);
 
@@ -76,7 +77,7 @@ public sealed class LocalFileArtifactBlobStoreTests
         {
             try
             {
-                Directory.Delete(root, recursive: true);
+                Directory.Delete(root, true);
             }
             catch (IOException)
             {

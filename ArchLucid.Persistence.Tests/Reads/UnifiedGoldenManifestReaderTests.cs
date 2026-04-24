@@ -16,9 +16,9 @@ using Dm = ArchLucid.Decisioning.Models;
 namespace ArchLucid.Persistence.Tests.Reads;
 
 /// <summary>
-/// ADR 0030 PR A3 (2026-04-24): rewritten as authority-only after the legacy
-/// <c>ICoordinatorGoldenManifestRepository</c> read path was removed (the SQL table
-/// <c>dbo.GoldenManifestVersions</c> had already been dropped in PR A4 / migration 111).
+///     ADR 0030 PR A3 (2026-04-24): rewritten as authority-only after the legacy
+///     <c>ICoordinatorGoldenManifestRepository</c> read path was removed (the SQL table
+///     <c>dbo.GoldenManifestVersions</c> had already been dropped in PR A4 / migration 111).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class UnifiedGoldenManifestReaderTests
@@ -47,7 +47,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         {
             TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
         };
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ambientScope);
 
@@ -65,9 +65,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Mock<IRunRepository> runs = new();
@@ -94,9 +92,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         RunRecord run = new()
@@ -107,7 +103,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             RunId = runId,
             ProjectId = "default",
             CreatedUtc = DateTime.UtcNow,
-            CurrentManifestVersion = null,
+            CurrentManifestVersion = null
         };
 
         Mock<IRunRepository> runs = new();
@@ -129,16 +125,15 @@ public sealed class UnifiedGoldenManifestReaderTests
             RunId = runId.ToString("D"),
             SystemName = "default",
             Metadata = new Cm.ManifestMetadata { ManifestVersion = expectedVersion },
-            Governance = new Cm.ManifestGovernance(),
+            Governance = new Cm.ManifestGovernance()
         };
 
         Mock<IAuthorityCommitProjectionBuilder> projection = new();
         projection
-            .Setup(
-                p => p.BuildAsync(
-                    It.IsAny<Dm.GoldenManifest>(),
-                    It.IsAny<AuthorityCommitProjectionInput>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(p => p.BuildAsync(
+                It.IsAny<Dm.GoldenManifest>(),
+                It.IsAny<AuthorityCommitProjectionInput>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(projected);
 
         UnifiedGoldenManifestReader sut = CreateSut(runs, authority, projection);
@@ -155,9 +150,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         RunRecord run = new()
@@ -168,7 +161,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             RunId = runId,
             ProjectId = "default",
             CreatedUtc = DateTime.UtcNow,
-            CurrentManifestVersion = "v2",
+            CurrentManifestVersion = "v2"
         };
 
         Mock<IRunRepository> runs = new();
@@ -196,9 +189,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         Guid manifestId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         RunRecord run = new()
@@ -211,7 +202,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             CreatedUtc = DateTime.UtcNow,
             CurrentManifestVersion = null,
             GoldenManifestId = manifestId,
-            ArchitectureRequestId = "req-z",
+            ArchitectureRequestId = "req-z"
         };
 
         Mock<IRunRepository> runs = new();
@@ -226,7 +217,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             Datastores = [],
             Relationships = [],
             Governance = new Cm.ManifestGovernance(),
-            Metadata = new Cm.ManifestMetadata { ManifestVersion = "v1" },
+            Metadata = new Cm.ManifestMetadata { ManifestVersion = "v1" }
         };
 
         Dm.GoldenManifest authorityRow = NewAuthorityRow(scope, runId, manifestId);
@@ -237,11 +228,10 @@ public sealed class UnifiedGoldenManifestReaderTests
 
         Mock<IAuthorityCommitProjectionBuilder> projection = new();
         projection
-            .Setup(
-                p => p.BuildAsync(
-                    It.IsAny<Dm.GoldenManifest>(),
-                    It.Is<AuthorityCommitProjectionInput>(i => i.SystemName == "SysZ"),
-                    It.IsAny<CancellationToken>()))
+            .Setup(p => p.BuildAsync(
+                It.IsAny<Dm.GoldenManifest>(),
+                It.Is<AuthorityCommitProjectionInput>(i => i.SystemName == "SysZ"),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(projected);
 
         Mock<IArchitectureRequestRepository> requests = new();
@@ -249,9 +239,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             .ReturnsAsync(
                 new ArchitectureRequest
                 {
-                    RequestId = "req-z",
-                    SystemName = "SysZ",
-                    Description = "1234567890 description here",
+                    RequestId = "req-z", SystemName = "SysZ", Description = "1234567890 description here"
                 });
 
         UnifiedGoldenManifestReader sut = CreateSut(runs, authority, projection, requests);
@@ -262,21 +250,24 @@ public sealed class UnifiedGoldenManifestReaderTests
         manifest!.SystemName.Should().Be("FromAuthority");
     }
 
-    private static Dm.GoldenManifest NewAuthorityRow(ScopeContext scope, Guid runId, Guid? manifestId = null) => new()
+    private static Dm.GoldenManifest NewAuthorityRow(ScopeContext scope, Guid runId, Guid? manifestId = null)
     {
-        ManifestId = manifestId ?? Guid.NewGuid(),
-        RunId = runId,
-        TenantId = scope.TenantId,
-        WorkspaceId = scope.WorkspaceId,
-        ProjectId = scope.ProjectId,
-        ContextSnapshotId = Guid.NewGuid(),
-        GraphSnapshotId = Guid.NewGuid(),
-        FindingsSnapshotId = Guid.NewGuid(),
-        DecisionTraceId = Guid.NewGuid(),
-        CreatedUtc = DateTime.UtcNow,
-        ManifestHash = "h",
-        RuleSetId = "r",
-        RuleSetVersion = "1",
-        RuleSetHash = "rh",
-    };
+        return new Dm.GoldenManifest
+        {
+            ManifestId = manifestId ?? Guid.NewGuid(),
+            RunId = runId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "h",
+            RuleSetId = "r",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh"
+        };
+    }
 }

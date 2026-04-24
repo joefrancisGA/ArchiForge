@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IAdvisoryScanScheduleRepository"/>.
+///     Shared contract assertions for <see cref="IAdvisoryScanScheduleRepository" />.
 /// </summary>
 public abstract class AdvisoryScanScheduleRepositoryContractTests
 {
@@ -136,7 +136,7 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
             CronExpression = "0 7 * * *",
             IsEnabled = true,
             NextRunUtc = DateTime.UtcNow.AddDays(1),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
     }
 }

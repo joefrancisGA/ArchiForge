@@ -7,6 +7,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -19,7 +20,6 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Controllers.Authority;
@@ -49,13 +49,9 @@ public sealed partial class RunsController(
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
-    IConfiguration configuration,
     ILogger<RunsController> logger)
     : ControllerBase
 {
-    /// <summary>When <c>1</c>, <c>archlucid try --real</c> is attributing telemetry/audit to this execute call.</summary>
-    internal const string PilotTryRealModeHeaderName = "X-ArchLucid-Pilot-Try-Real-Mode";
-
     // Required by LoggerMessage source generator (SYSLIB1019): concrete ILogger field named _logger.
 
     /// <summary>
@@ -405,6 +401,47 @@ public sealed partial class RunsController(
         LogFakeResultsSeeded(runId, result.ResultCount, user, correlationId);
 
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
+    }
+
+    private bool IsPilotTryRealModeRequest()
+    {
+        if (!Request.Headers.TryGetValue(PilotTryRealModeHeaders.PilotTryRealMode, out StringValues raw))
+            return false;
+
+
+        return string.Equals(raw.ToString().Trim(), "1", StringComparison.Ordinal);
+    }
+
+    private async Task LogPilotTryRealModeAuditAsync(
+        string eventType,
+        string runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Guid? runGuid = TryParseRunGuidForAudit(runId);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = eventType,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid
+            },
+            cancellationToken);
+    }
+
+    private static Guid? TryParseRunGuidForAudit(string runId)
+    {
+        if (Guid.TryParseExact(runId, "N", out Guid g))
+            return g;
+
+
+        return Guid.TryParse(runId, out g) ? g : null;
     }
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind,

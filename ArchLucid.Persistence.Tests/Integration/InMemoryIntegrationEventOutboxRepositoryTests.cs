@@ -24,8 +24,8 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             Guid.NewGuid(),
-            connection: null!,
-            transaction: tx.Object,
+            null!,
+            tx.Object,
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("connection");
@@ -46,7 +46,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             cx.Object,
-            transaction: null!,
+            null!,
             CancellationToken.None);
 
         await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("transaction");
@@ -92,9 +92,9 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
 
         await sut.RecordPublishFailureAsync(
             idA,
-            newRetryCount: 1,
-            nextRetryUtc: DateTime.UtcNow.AddHours(1),
-            deadLetteredUtc: null,
+            1,
+            DateTime.UtcNow.AddHours(1),
+            null,
             "err",
             CancellationToken.None);
 
@@ -121,9 +121,9 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
 
         await sut.RecordPublishFailureAsync(
             id,
-            newRetryCount: 3,
-            nextRetryUtc: null,
-            deadLetteredUtc: DateTime.UtcNow,
+            3,
+            null,
+            DateTime.UtcNow,
             "boom",
             CancellationToken.None);
 

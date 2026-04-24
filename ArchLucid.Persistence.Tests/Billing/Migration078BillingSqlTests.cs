@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Billing;
@@ -10,7 +12,7 @@ public sealed class Migration078BillingSqlTests
     [Fact]
     public void Embedded_078_migration_contains_rls_procs_and_app_deny()
     {
-        Assembly asm = typeof(ArchLucid.Persistence.Data.Infrastructure.DatabaseMigrator).Assembly;
+        Assembly asm = typeof(DatabaseMigrator).Assembly;
 
         string? resourceName = asm.GetManifestResourceNames()
             .SingleOrDefault(static n => n.EndsWith("078_BillingSubscriptions.sql", StringComparison.Ordinal));

@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for authority <see cref="IDecisionTraceRepository"/>.
+///     Shared contract assertions for authority <see cref="IDecisionTraceRepository" />.
 /// </summary>
 public abstract class DecisionTraceRepositoryContractTests
 {
@@ -33,7 +33,7 @@ public abstract class DecisionTraceRepositoryContractTests
             AppliedRuleIds = ["r1"],
             AcceptedFindingIds = [],
             RejectedFindingIds = [],
-            Notes = ["n1"],
+            Notes = ["n1"]
         });
     }
 
@@ -46,7 +46,7 @@ public abstract class DecisionTraceRepositoryContractTests
         {
             TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1"),
             WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2"),
-            ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3"),
+            ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3")
         };
 
         Guid runId = Guid.NewGuid();
@@ -74,7 +74,7 @@ public abstract class DecisionTraceRepositoryContractTests
         {
             TenantId = Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1"),
             WorkspaceId = Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2"),
-            ProjectId = Guid.Parse("e3e3e3e3-e3e3-e3e3-e3e3-e3e3e3e3e3e3"),
+            ProjectId = Guid.Parse("e3e3e3e3-e3e3-e3e3-e3e3-e3e3e3e3e3e3")
         };
 
         Guid runId = Guid.NewGuid();
@@ -87,9 +87,7 @@ public abstract class DecisionTraceRepositoryContractTests
 
         ScopeContext other = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
+            TenantId = Guid.NewGuid(), WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId
         };
 
         DecisionTrace? loaded = await repo.GetByIdAsync(other, traceId, CancellationToken.None);

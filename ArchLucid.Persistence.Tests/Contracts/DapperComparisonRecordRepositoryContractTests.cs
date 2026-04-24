@@ -3,7 +3,7 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="ComparisonRecordRepositoryContractTests"/> against <see cref="ComparisonRecordRepository"/>.
+///     Runs <see cref="ComparisonRecordRepositoryContractTests" /> against <see cref="ComparisonRecordRepository" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

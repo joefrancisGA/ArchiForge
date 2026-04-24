@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IAgentEvidencePackageRepository"/>.
+///     Shared contract assertions for <see cref="IAgentEvidencePackageRepository" />.
 /// </summary>
 public abstract class AgentEvidencePackageRepositoryContractTests
 {
@@ -43,7 +43,7 @@ public abstract class AgentEvidencePackageRepositoryContractTests
             SystemName = "Sys",
             Environment = "prod",
             CloudProvider = "Azure",
-            Request = new RequestEvidence { Description = "d" },
+            Request = new RequestEvidence { Description = "d" }
         };
 
         await repo.CreateAsync(package, CancellationToken.None);

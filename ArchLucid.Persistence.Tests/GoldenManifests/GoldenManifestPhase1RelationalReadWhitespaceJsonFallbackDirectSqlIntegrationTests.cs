@@ -14,13 +14,14 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GoldenManifests;
 
 /// <summary>
-/// Branch coverage for <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync"/> fallbacks when slice JSON
-/// columns are null-equivalent (<see cref="string.IsNullOrWhiteSpace"/>) and no relational slice rows exist.
+///     Branch coverage for <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync" /> fallbacks when slice JSON
+///     columns are null-equivalent (<see cref="string.IsNullOrWhiteSpace" />) and no relational slice rows exist.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "Core")]
-public sealed class GoldenManifestPhase1RelationalReadWhitespaceJsonFallbackDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class GoldenManifestPhase1RelationalReadWhitespaceJsonFallbackDirectSqlIntegrationTests(
+    SqlServerPersistenceFixture fixture)
 {
     private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -62,25 +63,25 @@ public sealed class GoldenManifestPhase1RelationalReadWhitespaceJsonFallbackDire
         UnresolvedIssuesSection unresolved = new();
 
         const string insertManifest = """
-            INSERT INTO dbo.GoldenManifests
-            (
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
-                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson
-            );
-            """;
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                                          @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                                          @WarningsJson, @ProvenanceJson
+                                      );
+                                      """;
 
         DateTime createdUtc = new(2026, 4, 15, 16, 0, 0, DateTimeKind.Utc);
 
@@ -114,27 +115,25 @@ public sealed class GoldenManifestPhase1RelationalReadWhitespaceJsonFallbackDire
                     DecisionsJson = "",
                     AssumptionsJson = "   ",
                     WarningsJson = "\t",
-                    ProvenanceJson = "  ",
+                    ProvenanceJson = "  "
                 },
                 cancellationToken: CancellationToken.None));
 
         const string selectRow = """
-            SELECT
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
-            FROM dbo.GoldenManifests
-            WHERE ManifestId = @ManifestId;
-            """;
+                                 SELECT
+                                     TenantId, WorkspaceId, ProjectId,
+                                     ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                     CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                     MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                     ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                     WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                                 FROM dbo.GoldenManifests
+                                 WHERE ManifestId = @ManifestId;
+                                 """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new
-            {
-                ManifestId = manifestId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new { ManifestId = manifestId },
+                cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 

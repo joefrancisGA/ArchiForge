@@ -148,6 +148,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();
         services.AddSingleton<ISupportBundleAssembler, SupportBundleAssembler>();
         services.AddScoped<IReferenceEvidenceAdminExportService, ReferenceEvidenceAdminExportService>();
+        services.AddSingleton<ArchLucid.Application.Pilots.IExecutionProvenanceFooterRenderer,
+            ArchLucid.Application.Pilots.ExecutionProvenanceFooterRenderer>();
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();

@@ -44,23 +44,22 @@ public sealed class ContextSnapshotLegacyJsonReaderTests
                 Name = "Legacy",
                 SourceType = "S",
                 SourceId = "sid",
-                Properties = [],
-            },
+                Properties = []
+            }
         ];
 
         List<string> warnings = ["jw"];
 
-        Dictionary<string, string> hashes = new(StringComparer.Ordinal)
-        {
-            ["a.cs"] = "h1"
-        };
+        Dictionary<string, string> hashes = new(StringComparer.Ordinal) { ["a.cs"] = "h1" };
 
         List<CanonicalObject> c2 = ContextSnapshotLegacyJsonReader.DeserializeCanonicalObjects(
             JsonEntitySerializer.Serialize(canonical));
 
-        List<string> w2 = ContextSnapshotLegacyJsonReader.DeserializeStringList(JsonEntitySerializer.Serialize(warnings));
+        List<string> w2 =
+            ContextSnapshotLegacyJsonReader.DeserializeStringList(JsonEntitySerializer.Serialize(warnings));
 
-        Dictionary<string, string> h2 = ContextSnapshotLegacyJsonReader.DeserializeSourceHashes(JsonEntitySerializer.Serialize(hashes));
+        Dictionary<string, string> h2 =
+            ContextSnapshotLegacyJsonReader.DeserializeSourceHashes(JsonEntitySerializer.Serialize(hashes));
 
         c2.Should().ContainSingle(o => o.ObjectId == "legacy-obj");
         w2.Should().Equal("jw");

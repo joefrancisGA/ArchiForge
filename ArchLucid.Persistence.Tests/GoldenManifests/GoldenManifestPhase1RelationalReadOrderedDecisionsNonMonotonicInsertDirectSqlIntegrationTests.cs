@@ -14,8 +14,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GoldenManifests;
 
 /// <summary>
-/// Relational <c>ORDER BY SortOrder</c> for <see cref="GoldenManifestPhase1RelationalRead.LoadDecisionsRelationalAsync"/> when
-/// rows are inserted with non-monotonic <c>SortOrder</c> (database ordering must win).
+///     Relational <c>ORDER BY SortOrder</c> for
+///     <see cref="GoldenManifestPhase1RelationalRead.LoadDecisionsRelationalAsync" /> when
+///     rows are inserted with non-monotonic <c>SortOrder</c> (database ordering must win).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -64,25 +65,25 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedDecisionsNonMonoton
         UnresolvedIssuesSection unresolved = new();
 
         const string insertManifest = """
-            INSERT INTO dbo.GoldenManifests
-            (
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
-                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson
-            );
-            """;
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                                          @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                                          @WarningsJson, @ProvenanceJson
+                                      );
+                                      """;
 
         DateTime createdUtc = new(2026, 4, 23, 14, 0, 0, DateTimeKind.Utc);
         string noiseDecisionsJson =
@@ -94,8 +95,8 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedDecisionsNonMonoton
                     Category = "c",
                     Title = "t",
                     SelectedOption = "o",
-                    Rationale = "r",
-                },
+                    Rationale = "r"
+                }
             });
 
         await connection.ExecuteAsync(
@@ -128,7 +129,7 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedDecisionsNonMonoton
                     DecisionsJson = noiseDecisionsJson,
                     AssumptionsJson = JsonEntitySerializer.Serialize(new List<string>()),
                     WarningsJson = JsonEntitySerializer.Serialize(new List<string>()),
-                    ProvenanceJson = JsonEntitySerializer.Serialize(new ManifestProvenance()),
+                    ProvenanceJson = JsonEntitySerializer.Serialize(new ManifestProvenance())
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -146,10 +147,7 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedDecisionsNonMonoton
                 INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
                 VALUES (@M, N'd-first', 0, N'n-first');
                 """,
-                new
-                {
-                    M = manifestId
-                },
+                new { M = manifestId },
                 cancellationToken: CancellationToken.None));
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
@@ -164,15 +162,13 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedDecisionsNonMonoton
                     WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
                 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;
                 """,
-                new
-                {
-                    ManifestId = manifestId
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated = await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
+        GoldenManifest hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Decisions.Should().HaveCount(2);
         hydrated.Decisions[0].DecisionId.Should().Be("d-first");

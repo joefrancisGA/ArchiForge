@@ -9,7 +9,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="GoldenManifestRepositoryContractTests"/> against <see cref="SqlGoldenManifestRepository"/>.
+///     Runs <see cref="GoldenManifestRepositoryContractTests" /> against <see cref="SqlGoldenManifestRepository" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

@@ -9,19 +9,27 @@ namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 [Trait("ChangeSet", "59R")]
 public sealed class ImprovementThemeExtractionServiceTests
 {
-    private static ProductLearningScope Scope() =>
-        new()
+    /// <summary>
+    ///     Pilot signals matching the "small" rollup <see cref="FeedbackAggregate.TotalSignalCount" /> in theme-ranking
+    ///     tests.
+    /// </summary>
+    private const int SmallAggregatePilotSignalCount = 2;
+
+    /// <summary>
+    ///     Pilot signals matching the "big" rollup <see cref="FeedbackAggregate.TotalSignalCount" /> in theme-ranking
+    ///     tests.
+    /// </summary>
+    private const int BigAggregatePilotSignalCount = 8;
+
+    private static ProductLearningScope Scope()
+    {
+        return new ProductLearningScope
         {
             TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
         };
-
-    /// <summary>Pilot signals matching the "small" rollup <see cref="FeedbackAggregate.TotalSignalCount"/> in theme-ranking tests.</summary>
-    private const int SmallAggregatePilotSignalCount = 2;
-
-    /// <summary>Pilot signals matching the "big" rollup <see cref="FeedbackAggregate.TotalSignalCount"/> in theme-ranking tests.</summary>
-    private const int BigAggregatePilotSignalCount = 8;
+    }
 
     private static ProductLearningPilotSignalRecord Signal(
         Guid signalId,
@@ -48,7 +56,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             CommentShort = comment,
             DetailJson = detailJson,
             ArchitectureRunId = "run-a",
-            RecordedUtc = utc,
+            RecordedUtc = utc
         };
     }
 
@@ -60,10 +68,7 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope,
-            FeedbackRollups = [],
-            ArtifactTrends = [],
-            RepeatedCommentThemes = [],
+            Scope = scope, FeedbackRollups = [], ArtifactTrends = [], RepeatedCommentThemes = []
         };
 
         IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
@@ -97,15 +102,12 @@ public sealed class ImprovementThemeExtractionServiceTests
             RevisedCount = 0,
             NeedsFollowUpCount = 1,
             FirstSignalRecordedUtc = utc,
-            LastSignalRecordedUtc = utc.AddHours(1),
+            LastSignalRecordedUtc = utc.AddHours(1)
         };
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope,
-            FeedbackRollups = [aggregate],
-            ArtifactTrends = [],
-            RepeatedCommentThemes = [],
+            Scope = scope, FeedbackRollups = [aggregate], ArtifactTrends = [], RepeatedCommentThemes = []
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -136,7 +138,7 @@ public sealed class ImprovementThemeExtractionServiceTests
                 null,
                 null,
                 null,
-                utc.AddMinutes(2)),
+                utc.AddMinutes(2))
         ];
 
         IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
@@ -165,10 +167,7 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope,
-            FeedbackRollups = [],
-            ArtifactTrends = [],
-            RepeatedCommentThemes = [],
+            Scope = scope, FeedbackRollups = [], ArtifactTrends = [], RepeatedCommentThemes = []
         };
 
         string detail = """{"tags":["alpha"]}""";
@@ -192,7 +191,7 @@ public sealed class ImprovementThemeExtractionServiceTests
                 "diagram",
                 null,
                 detail,
-                utc.AddMinutes(1)),
+                utc.AddMinutes(1))
         ];
 
         IReadOnlyList<ImprovementThemeWithEvidence> below = await svc.ExtractThemesAsync(
@@ -215,7 +214,6 @@ public sealed class ImprovementThemeExtractionServiceTests
                 null,
                 detail,
                 utc.AddMinutes(2))
-
         ];
 
         IReadOnlyList<ImprovementThemeWithEvidence> ok = await svc.ExtractThemesAsync(
@@ -239,10 +237,7 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope,
-            FeedbackRollups = [],
-            ArtifactTrends = [],
-            RepeatedCommentThemes = [],
+            Scope = scope, FeedbackRollups = [], ArtifactTrends = [], RepeatedCommentThemes = []
         };
 
         ProductLearningPilotSignalRecord badScope = new()
@@ -253,7 +248,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             ProjectId = scope.ProjectId,
             SubjectType = ProductLearningSubjectTypeValues.RunOutput,
             Disposition = ProductLearningDispositionValues.Trusted,
-            RecordedUtc = DateTime.UtcNow,
+            RecordedUtc = DateTime.UtcNow
         };
 
         await Assert.ThrowsAsync<ArgumentException>(() => svc.ExtractThemesAsync(
@@ -283,15 +278,12 @@ public sealed class ImprovementThemeExtractionServiceTests
             RevisedCount = 0,
             NeedsFollowUpCount = 0,
             FirstSignalRecordedUtc = utc,
-            LastSignalRecordedUtc = utc,
+            LastSignalRecordedUtc = utc
         };
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope,
-            FeedbackRollups = [aggregate],
-            ArtifactTrends = [],
-            RepeatedCommentThemes = [],
+            Scope = scope, FeedbackRollups = [aggregate], ArtifactTrends = [], RepeatedCommentThemes = []
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -313,13 +305,10 @@ public sealed class ImprovementThemeExtractionServiceTests
                 null,
                 null,
                 null,
-                utc),
+                utc)
         ];
 
-        ImprovementThemeExtractionOptions options = new()
-        {
-            MinSignalsPerAggregateTheme = 2
-        };
+        ImprovementThemeExtractionOptions options = new() { MinSignalsPerAggregateTheme = 2 };
 
         IReadOnlyList<ImprovementThemeWithEvidence> a = await svc.ExtractThemesAsync(
             snapshot,
@@ -359,15 +348,12 @@ public sealed class ImprovementThemeExtractionServiceTests
             NeedsFollowUpCount = 1,
             DistinctRunCount = 2,
             FirstSeenUtc = utc,
-            LastSeenUtc = utc.AddHours(2),
+            LastSeenUtc = utc.AddHours(2)
         };
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope,
-            FeedbackRollups = [],
-            ArtifactTrends = [trend],
-            RepeatedCommentThemes = [],
+            Scope = scope, FeedbackRollups = [], ArtifactTrends = [trend], RepeatedCommentThemes = []
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -398,7 +384,7 @@ public sealed class ImprovementThemeExtractionServiceTests
                 "export.pdf",
                 null,
                 null,
-                utc.AddMinutes(2)),
+                utc.AddMinutes(2))
         ];
 
         IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
@@ -407,8 +393,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             null,
             new ImprovementThemeExtractionOptions
             {
-                MinSignalsPerArtifactTrend = 3,
-                MinNegativeOutcomesOnArtifactTrend = 2,
+                MinSignalsPerArtifactTrend = 3, MinNegativeOutcomesOnArtifactTrend = 2
             },
             CancellationToken.None);
 
@@ -436,15 +421,12 @@ public sealed class ImprovementThemeExtractionServiceTests
             OccurrenceCount = 3,
             FirstSeenUtc = utc,
             LastSeenUtc = utc.AddHours(1),
-            SampleCommentShort = commentText,
+            SampleCommentShort = commentText
         };
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope,
-            FeedbackRollups = [],
-            ArtifactTrends = [],
-            RepeatedCommentThemes = [repeated],
+            Scope = scope, FeedbackRollups = [], ArtifactTrends = [], RepeatedCommentThemes = [repeated]
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -475,7 +457,7 @@ public sealed class ImprovementThemeExtractionServiceTests
                 null,
                 commentText,
                 null,
-                utc.AddMinutes(2)),
+                utc.AddMinutes(2))
         ];
 
         IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
@@ -513,7 +495,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             RevisedCount = 0,
             NeedsFollowUpCount = 0,
             FirstSignalRecordedUtc = utc,
-            LastSignalRecordedUtc = utc,
+            LastSignalRecordedUtc = utc
         };
 
         FeedbackAggregate bigRollup = new()
@@ -528,7 +510,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             RevisedCount = 0,
             NeedsFollowUpCount = 3,
             FirstSignalRecordedUtc = utc,
-            LastSignalRecordedUtc = utc,
+            LastSignalRecordedUtc = utc
         };
 
         ProductLearningAggregationSnapshot snapshot = new()
@@ -536,7 +518,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             Scope = scope,
             FeedbackRollups = [smallRollup, bigRollup],
             ArtifactTrends = [],
-            RepeatedCommentThemes = [],
+            RepeatedCommentThemes = []
         };
 
         List<ProductLearningPilotSignalRecord> signals = [];
@@ -575,8 +557,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             null,
             new ImprovementThemeExtractionOptions
             {
-                MinSignalsPerAggregateTheme = SmallAggregatePilotSignalCount,
-                MaxThemes = 1,
+                MinSignalsPerAggregateTheme = SmallAggregatePilotSignalCount, MaxThemes = 1
             },
             CancellationToken.None);
 

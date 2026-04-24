@@ -15,10 +15,7 @@ public sealed class MemoryHotPathReadCacheTests
     public async Task GetOrCreateAsync_second_call_does_not_invoke_factory()
     {
         int calls = 0;
-        HotPathCacheOptions options = new()
-        {
-            AbsoluteExpirationSeconds = 60
-        };
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 60 };
         IOptionsMonitor<HotPathCacheOptions> monitor = new FixedOptionsMonitor<HotPathCacheOptions>(options);
         MemoryHotPathReadCache cache = new(new MemoryCache(new MemoryCacheOptions()), monitor);
 
@@ -41,10 +38,7 @@ public sealed class MemoryHotPathReadCacheTests
     public async Task GetOrCreateAsync_does_not_cache_null()
     {
         int calls = 0;
-        HotPathCacheOptions options = new()
-        {
-            AbsoluteExpirationSeconds = 60
-        };
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 60 };
         IOptionsMonitor<HotPathCacheOptions> monitor = new FixedOptionsMonitor<HotPathCacheOptions>(options);
         MemoryHotPathReadCache cache = new(new MemoryCache(new MemoryCacheOptions()), monitor);
 
@@ -66,10 +60,7 @@ public sealed class MemoryHotPathReadCacheTests
     [Fact]
     public async Task RemoveAsync_drops_entry()
     {
-        HotPathCacheOptions options = new()
-        {
-            AbsoluteExpirationSeconds = 60
-        };
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 60 };
         IOptionsMonitor<HotPathCacheOptions> monitor = new FixedOptionsMonitor<HotPathCacheOptions>(options);
         MemoryHotPathReadCache cache = new(new MemoryCache(new MemoryCacheOptions()), monitor);
 
@@ -92,10 +83,7 @@ public sealed class MemoryHotPathReadCacheTests
     [Fact]
     public async Task GetOrCreateAsync_promotes_legacy_key_to_primary()
     {
-        HotPathCacheOptions options = new()
-        {
-            AbsoluteExpirationSeconds = 60
-        };
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 60 };
         IOptionsMonitor<HotPathCacheOptions> monitor = new FixedOptionsMonitor<HotPathCacheOptions>(options);
         MemoryCache backing = new(new MemoryCacheOptions());
 

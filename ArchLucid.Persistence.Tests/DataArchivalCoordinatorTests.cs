@@ -32,9 +32,7 @@ public sealed class DataArchivalCoordinatorTests
         DateTime old = DateTime.UtcNow.AddDays(-400);
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         await runs.SaveAsync(
@@ -51,9 +49,7 @@ public sealed class DataArchivalCoordinatorTests
 
         DataArchivalOptions options = new()
         {
-            RunsRetentionDays = 0,
-            DigestsRetentionDays = 0,
-            ConversationsRetentionDays = 0
+            RunsRetentionDays = 0, DigestsRetentionDays = 0, ConversationsRetentionDays = 0
         };
 
         await coordinator.RunOnceAsync(options, CancellationToken.None);
@@ -79,9 +75,7 @@ public sealed class DataArchivalCoordinatorTests
         DateTime old = DateTime.UtcNow.AddDays(-400);
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         await runs.SaveAsync(
@@ -123,9 +117,7 @@ public sealed class DataArchivalCoordinatorTests
 
         DataArchivalOptions options = new()
         {
-            RunsRetentionDays = 30,
-            DigestsRetentionDays = 30,
-            ConversationsRetentionDays = 30
+            RunsRetentionDays = 30, DigestsRetentionDays = 30, ConversationsRetentionDays = 30
         };
 
         await coordinator.RunOnceAsync(options, CancellationToken.None);
@@ -135,11 +127,13 @@ public sealed class DataArchivalCoordinatorTests
         listed.Should().BeEmpty();
 
         IReadOnlyList<ArchitectureDigest> digestList =
-            await digests.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, 10, CancellationToken.None);
+            await digests.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, 10,
+                CancellationToken.None);
         digestList.Should().BeEmpty();
 
         IReadOnlyList<ConversationThread> threadList =
-            await threads.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, 10, CancellationToken.None);
+            await threads.ListByScopeAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, 10,
+                CancellationToken.None);
         threadList.Should().BeEmpty();
     }
 }

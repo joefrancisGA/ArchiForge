@@ -1,10 +1,8 @@
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
-
-using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
 
 using Dapper;
 
@@ -13,17 +11,25 @@ using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging.Abstractions;
 
+using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
+
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// 53R-5 SQL integration tests for <see cref="SqlCutoverReadinessService"/>:
-/// verify that the readiness report correctly distinguishes between headers
-/// that have relational children and those still relying on JSON fallback.
+///     53R-5 SQL integration tests for <see cref="SqlCutoverReadinessService" />:
+///     verify that the readiness report correctly distinguishes between headers
+///     that have relational children and those still relying on JSON fallback.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
+    // ── Seed helpers ───────────────────────────────────────────────
+
+    private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    private static readonly Guid ScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
     [SkippableFact]
     public async Task AssessAsync_MixedState_ReportsCorrectCounts()
     {
@@ -108,12 +114,6 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
         report.SlicesNotReady.Should().HaveCount(notReadyCount);
     }
 
-    // ── Seed helpers ───────────────────────────────────────────────
-
-    private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-    private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-    private static readonly Guid ScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-
     private static async Task SeedJsonOnlyContextSnapshotAsync(SqlConnectionFactory factory)
     {
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
@@ -132,7 +132,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
                 CreatedUtc = DateTime.UtcNow,
                 TenantId,
                 WorkspaceId,
-                ScopeProjectId,
+                ScopeProjectId
             },
             cancellationToken: CancellationToken.None));
 
@@ -156,12 +156,12 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
                         Name = "N",
                         SourceType = "S",
                         SourceId = "sid",
-                        Properties = [],
-                    },
+                        Properties = []
+                    }
                 }),
                 WarningsJson = JsonEntitySerializer.Serialize(new List<string>()),
                 ErrorsJson = JsonEntitySerializer.Serialize(new List<string>()),
-                SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+                SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>())
             },
             cancellationToken: CancellationToken.None));
     }
@@ -185,12 +185,12 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
                     Name = "Svc",
                     SourceType = "R",
                     SourceId = "s",
-                    Properties = [],
-                },
+                    Properties = []
+                }
             ],
             Warnings = ["w"],
             Errors = [],
-            SourceHashes = new Dictionary<string, string>(StringComparer.Ordinal),
+            SourceHashes = new Dictionary<string, string>(StringComparer.Ordinal)
         };
 
         await repository.SaveAsync(snapshot, CancellationToken.None);

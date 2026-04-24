@@ -20,12 +20,12 @@ public sealed class InMemoryTenantRepositoryTrialFirstManifestCommittedTests
             tenantId,
             DateTimeOffset.Parse("2026-04-01T00:00:00+00:00"),
             DateTimeOffset.Parse("2026-05-01T00:00:00+00:00"),
-            runsLimit: 10,
-            seatsLimit: 5,
-            sampleRunId: Guid.NewGuid(),
-            baselineReviewCycleHours: null,
-            baselineReviewCycleSource: null,
-            baselineReviewCycleCapturedUtc: null,
+            10,
+            5,
+            Guid.NewGuid(),
+            null,
+            null,
+            null,
             CancellationToken.None);
 
         DateTimeOffset committed = DateTimeOffset.Parse("2026-04-10T15:30:00+00:00");

@@ -33,12 +33,7 @@ public sealed class ProductLearningDashboardServiceTests
             Signal(ProductLearningDispositionValues.Trusted, "ok-pattern", "run-3"),
             CancellationToken.None);
 
-        ProductLearningScope scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ProductLearningScope scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
         ProductLearningTriageOptions options = new()
         {
@@ -47,7 +42,7 @@ public sealed class ProductLearningDashboardServiceTests
             MinNegativeOutcomesOnArtifactTrend = 99,
             MaxImprovementOpportunities = 10,
             MaxTriageQueueItems = 10,
-            MinCommentOccurrencesForTriageQueue = 99,
+            MinCommentOccurrencesForTriageQueue = 99
         };
 
         ProductLearningFeedbackAggregationService aggregation = new(repo);
@@ -74,7 +69,7 @@ public sealed class ProductLearningDashboardServiceTests
             Signal(ProductLearningDispositionValues.Trusted, "x", "r1"),
             CancellationToken.None);
 
-        int n = await repo.CountSignalsInScopeAsync(TenantId, WorkspaceId, ProjectId, sinceUtc: null, CancellationToken.None);
+        int n = await repo.CountSignalsInScopeAsync(TenantId, WorkspaceId, ProjectId, null, CancellationToken.None);
 
         n.Should().Be(1);
     }
@@ -90,7 +85,7 @@ public sealed class ProductLearningDashboardServiceTests
             Disposition = disposition,
             PatternKey = patternKey,
             ArchitectureRunId = runId,
-            RecordedUtc = new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc),
+            RecordedUtc = new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc)
         };
     }
 }

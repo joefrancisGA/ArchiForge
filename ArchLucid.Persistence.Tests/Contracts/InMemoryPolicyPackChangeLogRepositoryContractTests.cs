@@ -4,7 +4,8 @@ using ArchLucid.Persistence.Governance;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="PolicyPackChangeLogRepositoryContractTests"/> against <see cref="InMemoryPolicyPackChangeLogRepository"/>.
+///     Runs <see cref="PolicyPackChangeLogRepositoryContractTests" /> against
+///     <see cref="InMemoryPolicyPackChangeLogRepository" />.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class InMemoryPolicyPackChangeLogRepositoryContractTests : PolicyPackChangeLogRepositoryContractTests

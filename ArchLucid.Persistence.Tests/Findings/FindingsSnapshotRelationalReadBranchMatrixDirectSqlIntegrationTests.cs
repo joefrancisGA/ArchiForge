@@ -14,23 +14,29 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Findings;
 
 /// <summary>
-/// Branch matrix for <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync"/> (severities, payload
-/// codec paths, single-child-table slices, legacy empty vs populated).
+///     Branch matrix for <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync" /> (severities, payload
+///     codec paths, single-child-table slices, legacy empty vs populated).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "Core")]
-public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrationTests(
+    SqlServerPersistenceFixture fixture)
 {
     private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    private static string EmptyList<T>() => JsonEntitySerializer.Serialize(new List<T>());
+    private static string EmptyList<T>()
+    {
+        return JsonEntitySerializer.Serialize(new List<T>());
+    }
 
-    private static async Task<(SqlConnection Connection, Guid RunId, Guid ContextId, Guid GraphId, Guid FindingsId, DateTime CreatedUtc)> SeedFindingsHeaderAsync(
-        SqlServerPersistenceFixture fx,
-        string slug)
+    private static async
+        Task<(SqlConnection Connection, Guid RunId, Guid ContextId, Guid GraphId, Guid FindingsId, DateTime CreatedUtc)>
+        SeedFindingsHeaderAsync(
+            SqlServerPersistenceFixture fx,
+            string slug)
     {
         SqlConnectionFactory factory = new(fx.ConnectionString);
         SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
@@ -64,7 +70,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     R = runId,
                     Nj = EmptyList<GraphNode>(),
                     Ej = EmptyList<GraphEdge>(),
-                    Wj = EmptyList<string>(),
+                    Wj = EmptyList<string>()
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -98,7 +104,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     W = WorkspaceId,
                     P = ScopeProjectId,
                     Created = createdUtc,
-                    Fj = findingsJson,
+                    Fj = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
     }
@@ -137,13 +143,30 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = 1,
-                    Findings = branch == 0 ? [] : [new Finding { FindingId = "x", FindingType = "t", Category = "c", EngineType = "e", Severity = FindingSeverity.Info, Title = "t", Rationale = "r" }],
+                    Findings = branch == 0
+                        ? []
+                        :
+                        [
+                            new Finding
+                            {
+                                FindingId = "x",
+                                FindingType = "t",
+                                Category = "c",
+                                EngineType = "e",
+                                Severity = FindingSeverity.Info,
+                                Title = "t",
+                                Rationale = "r"
+                            }
+                        ]
                 };
 
-                await InsertFindingsHeaderAsync(connection, findingsId, runId, contextId, graphId, createdUtc, JsonEntitySerializer.Serialize(legacy));
+                await InsertFindingsHeaderAsync(connection, findingsId, runId, contextId, graphId, createdUtc,
+                    JsonEntitySerializer.Serialize(legacy));
 
                 FindingsSnapshotStorageRow row = await RowAsync(connection, findingsId);
-                FindingsSnapshot snap = await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, CancellationToken.None);
+                FindingsSnapshot snap =
+                    await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row,
+                        CancellationToken.None);
 
                 if (branch == 0)
                 {
@@ -169,7 +192,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     ContextSnapshotId = contextId,
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
-                    Findings = [],
+                    Findings = []
                 }));
 
             string severity = branch switch
@@ -179,7 +202,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                 4 => "error",
                 5 => "critical",
                 6 => "INFO",
-                _ => "info",
+                _ => "info"
             };
 
             Guid recordId = Guid.NewGuid();
@@ -192,12 +215,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                      Category, EngineType, Severity, Title, Rationale, PayloadType, PayloadJson)
                     VALUES (@Id, @Fs, 0, N'fid', 1, N't', N'c', N'e', @Sev, N'title', N'rat', NULL, NULL);
                     """,
-                    new
-                    {
-                        Id = recordId,
-                        Fs = findingsId,
-                        Sev = severity,
-                    },
+                    new { Id = recordId, Fs = findingsId, Sev = severity },
                     cancellationToken: CancellationToken.None));
 
             if (branch == 7)
@@ -208,10 +226,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
                         VALUES (@Id, 0, N'n1');
                         """,
-                        new
-                        {
-                            Id = recordId
-                        },
+                        new { Id = recordId },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -223,10 +238,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
                         VALUES (@Id, 0, N'act');
                         """,
-                        new
-                        {
-                            Id = recordId
-                        },
+                        new { Id = recordId },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -238,10 +250,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
                         VALUES (@Id, 0, N'k', N'v');
                         """,
-                        new
-                        {
-                            Id = recordId
-                        },
+                        new { Id = recordId },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -253,10 +262,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceGraphNodesExamined (FindingRecordId, SortOrder, NodeId)
                         VALUES (@Id, 0, N'tn');
                         """,
-                        new
-                        {
-                            Id = recordId
-                        },
+                        new { Id = recordId },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -268,10 +274,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceRulesApplied (FindingRecordId, SortOrder, RuleText)
                         VALUES (@Id, 0, N'rule');
                         """,
-                        new
-                        {
-                            Id = recordId
-                        },
+                        new { Id = recordId },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -283,10 +286,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceDecisionsTaken (FindingRecordId, SortOrder, DecisionText)
                         VALUES (@Id, 0, N'dec');
                         """,
-                        new
-                        {
-                            Id = recordId
-                        },
+                        new { Id = recordId },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -298,10 +298,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
                         VALUES (@Id, 0, N'path');
                         """,
-                        new
-                        {
-                            Id = recordId
-                        },
+                        new { Id = recordId },
                         cancellationToken: CancellationToken.None));
             }
 
@@ -313,15 +310,14 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                         INSERT INTO dbo.FindingTraceNotes (FindingRecordId, SortOrder, NoteText)
                         VALUES (@Id, 0, N'note');
                         """,
-                        new
-                        {
-                            Id = recordId
-                        },
+                        new { Id = recordId },
                         cancellationToken: CancellationToken.None));
             }
 
             FindingsSnapshotStorageRow row2 = await RowAsync(connection, findingsId);
-            FindingsSnapshot snap2 = await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row2, CancellationToken.None);
+            FindingsSnapshot snap2 =
+                await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row2,
+                    CancellationToken.None);
             Finding f = snap2.Findings.Should().ContainSingle().Subject;
 
             if (branch >= 2 && branch <= 6)
@@ -333,7 +329,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
                     4 => FindingSeverity.Error,
                     5 => FindingSeverity.Critical,
                     6 => FindingSeverity.Info,
-                    _ => FindingSeverity.Info,
+                    _ => FindingSeverity.Info
                 };
 
                 f.Severity.Should().Be(expected);
@@ -389,16 +385,15 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
         }
     }
 
-    private static async Task<FindingsSnapshotStorageRow> RowAsync(SqlConnection connection, Guid findingsId) =>
-        await connection.QuerySingleAsync<FindingsSnapshotStorageRow>(
+    private static async Task<FindingsSnapshotStorageRow> RowAsync(SqlConnection connection, Guid findingsId)
+    {
+        return await connection.QuerySingleAsync<FindingsSnapshotStorageRow>(
             new CommandDefinition(
                 """
                 SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
                 FROM dbo.FindingsSnapshots WHERE FindingsSnapshotId = @Id;
                 """,
-                new
-                {
-                    Id = findingsId
-                },
+                new { Id = findingsId },
                 cancellationToken: CancellationToken.None));
+    }
 }

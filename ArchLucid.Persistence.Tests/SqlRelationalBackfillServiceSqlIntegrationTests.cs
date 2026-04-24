@@ -1,10 +1,8 @@
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
-
-using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
 
 using Dapper;
 
@@ -13,10 +11,12 @@ using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging.Abstractions;
 
+using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
+
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="SqlRelationalBackfillService"/> against SQL Server + DbUp.
+///     <see cref="SqlRelationalBackfillService" /> against SQL Server + DbUp.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -49,7 +49,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                     CreatedUtc = DateTime.UtcNow,
                     TenantId,
                     WorkspaceId,
-                    ScopeProjectId = ProjectId,
+                    ScopeProjectId = ProjectId
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -62,8 +62,8 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 Name = "api",
                 SourceType = "repo",
                 SourceId = "src",
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["k"] = "v" },
-            },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["k"] = "v" }
+            }
         ];
 
         string canonicalJson = JsonEntitySerializer.Serialize(objects);
@@ -94,17 +94,14 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,
                     ErrorsJson = emptyList,
-                    SourceHashesJson = emptyDict,
+                    SourceHashesJson = emptyDict
                 },
                 cancellationToken: CancellationToken.None));
 
         int before = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 "SELECT COUNT(1) FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId;",
-                new
-                {
-                    SnapshotId = snapshotId,
-                },
+                new { SnapshotId = snapshotId },
                 cancellationToken: CancellationToken.None));
 
         before.Should().Be(0);
@@ -118,7 +115,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 GraphSnapshots = false,
                 FindingsSnapshots = false,
                 GoldenManifestsPhase1 = false,
-                ArtifactBundles = false,
+                ArtifactBundles = false
             },
             CancellationToken.None);
 
@@ -127,10 +124,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
         int afterFirst = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 "SELECT COUNT(1) FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId;",
-                new
-                {
-                    SnapshotId = snapshotId,
-                },
+                new { SnapshotId = snapshotId },
                 cancellationToken: CancellationToken.None));
 
         afterFirst.Should().BeGreaterThan(0);
@@ -142,7 +136,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
                 GraphSnapshots = false,
                 FindingsSnapshots = false,
                 GoldenManifestsPhase1 = false,
-                ArtifactBundles = false,
+                ArtifactBundles = false
             },
             CancellationToken.None);
 
@@ -151,10 +145,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
         int afterSecond = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 "SELECT COUNT(1) FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId;",
-                new
-                {
-                    SnapshotId = snapshotId,
-                },
+                new { SnapshotId = snapshotId },
                 cancellationToken: CancellationToken.None));
 
         afterSecond.Should().Be(afterFirst);

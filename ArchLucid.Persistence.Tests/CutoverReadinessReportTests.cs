@@ -5,8 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="CutoverReadinessReport"/> and <see cref="CutoverSliceReadiness"/>
-/// model logic (computed properties, aggregations, edge cases).
+///     Unit tests for <see cref="CutoverReadinessReport" /> and <see cref="CutoverSliceReadiness" />
+///     model logic (computed properties, aggregations, edge cases).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class CutoverReadinessReportTests
@@ -18,9 +18,7 @@ public sealed class CutoverReadinessReportTests
     {
         CutoverSliceReadiness slice = new()
         {
-            SliceName = "ContextSnapshot.CanonicalObjects",
-            TotalHeaderRows = 100,
-            HeadersWithRelationalRows = 100,
+            SliceName = "ContextSnapshot.CanonicalObjects", TotalHeaderRows = 100, HeadersWithRelationalRows = 100
         };
 
         slice.IsReady.Should().BeTrue();
@@ -32,9 +30,7 @@ public sealed class CutoverReadinessReportTests
     {
         CutoverSliceReadiness slice = new()
         {
-            SliceName = "GoldenManifest.Assumptions",
-            TotalHeaderRows = 50,
-            HeadersWithRelationalRows = 42,
+            SliceName = "GoldenManifest.Assumptions", TotalHeaderRows = 50, HeadersWithRelationalRows = 42
         };
 
         slice.IsReady.Should().BeFalse();
@@ -46,9 +42,7 @@ public sealed class CutoverReadinessReportTests
     {
         CutoverSliceReadiness slice = new()
         {
-            SliceName = "FindingsSnapshot.Findings",
-            TotalHeaderRows = 0,
-            HeadersWithRelationalRows = 0,
+            SliceName = "FindingsSnapshot.Findings", TotalHeaderRows = 0, HeadersWithRelationalRows = 0
         };
 
         slice.IsReady.Should().BeTrue();
@@ -60,9 +54,7 @@ public sealed class CutoverReadinessReportTests
     {
         CutoverSliceReadiness slice = new()
         {
-            SliceName = "ArtifactBundle.Artifacts",
-            TotalHeaderRows = 25,
-            HeadersWithRelationalRows = 0,
+            SliceName = "ArtifactBundle.Artifacts", TotalHeaderRows = 25, HeadersWithRelationalRows = 0
         };
 
         slice.IsReady.Should().BeFalse();
@@ -80,8 +72,8 @@ public sealed class CutoverReadinessReportTests
             [
                 CreateSlice("ContextSnapshot.CanonicalObjects", 10, 10),
                 CreateSlice("ContextSnapshot.Warnings", 10, 10),
-                CreateSlice("GraphSnapshot.Nodes", 5, 5),
-            ],
+                CreateSlice("GraphSnapshot.Nodes", 5, 5)
+            ]
         };
 
         report.IsFullyReady.Should().BeTrue();
@@ -97,8 +89,8 @@ public sealed class CutoverReadinessReportTests
             [
                 CreateSlice("ContextSnapshot.CanonicalObjects", 10, 10),
                 CreateSlice("ContextSnapshot.Warnings", 10, 7),
-                CreateSlice("GraphSnapshot.Nodes", 5, 5),
-            ],
+                CreateSlice("GraphSnapshot.Nodes", 5, 5)
+            ]
         };
 
         report.IsFullyReady.Should().BeFalse();
@@ -109,10 +101,7 @@ public sealed class CutoverReadinessReportTests
     [Fact]
     public void Report_EmptySlices_IsFullyReady()
     {
-        CutoverReadinessReport report = new()
-        {
-            Slices = []
-        };
+        CutoverReadinessReport report = new() { Slices = [] };
 
         report.IsFullyReady.Should().BeTrue();
         report.SlicesNotReady.Should().BeEmpty();
@@ -131,8 +120,8 @@ public sealed class CutoverReadinessReportTests
                 CreateSlice("ContextSnapshot.Errors", 10, 10),
                 CreateSlice("ContextSnapshot.SourceHashes", 10, 10),
                 CreateSlice("GraphSnapshot.Nodes", 5, 5),
-                CreateSlice("GraphSnapshot.Edges", 5, 5),
-            ],
+                CreateSlice("GraphSnapshot.Edges", 5, 5)
+            ]
         };
 
         // 10 (ContextSnapshot, deduplicated) + 5 (GraphSnapshot, deduplicated) = 15
@@ -149,8 +138,8 @@ public sealed class CutoverReadinessReportTests
                 CreateSlice("ContextSnapshot.CanonicalObjects", 10, 10),
                 CreateSlice("GraphSnapshot.Nodes", 5, 3),
                 CreateSlice("FindingsSnapshot.Findings", 20, 18),
-                CreateSlice("ArtifactBundle.Artifacts", 8, 8),
-            ],
+                CreateSlice("ArtifactBundle.Artifacts", 8, 8)
+            ]
         };
 
         report.IsFullyReady.Should().BeFalse();
@@ -172,8 +161,8 @@ public sealed class CutoverReadinessReportTests
                 CreateSlice("GraphSnapshot.Nodes", 0, 0),
                 CreateSlice("FindingsSnapshot.Findings", 0, 0),
                 CreateSlice("GoldenManifest.Assumptions", 0, 0),
-                CreateSlice("ArtifactBundle.Artifacts", 0, 0),
-            ],
+                CreateSlice("ArtifactBundle.Artifacts", 0, 0)
+            ]
         };
 
         report.IsFullyReady.Should().BeTrue();
@@ -202,34 +191,37 @@ public sealed class CutoverReadinessReportTests
                 CreateSlice("GoldenManifest.Warnings", 150, 150),
                 CreateSlice("GoldenManifest.Decisions", 150, 150),
                 CreateSlice("GoldenManifest.Provenance", 150, 148),
-                CreateSlice("ArtifactBundle.Artifacts", 100, 100),
-            ],
+                CreateSlice("ArtifactBundle.Artifacts", 100, 100)
+            ]
         };
 
         report.IsFullyReady.Should().BeFalse();
         report.SlicesNotReady.Should().HaveCount(3);
 
         // ContextSnapshot.SourceHashes: 5 missing
-        CutoverSliceReadiness hashSlice = report.SlicesNotReady.First(static s => s.SliceName == "ContextSnapshot.SourceHashes");
+        CutoverSliceReadiness hashSlice =
+            report.SlicesNotReady.First(static s => s.SliceName == "ContextSnapshot.SourceHashes");
         hashSlice.HeadersMissingRelationalRows.Should().Be(5);
 
         // GraphSnapshot.EdgeProperties: 20 missing
-        CutoverSliceReadiness edgeSlice = report.SlicesNotReady.First(static s => s.SliceName == "GraphSnapshot.EdgeProperties");
+        CutoverSliceReadiness edgeSlice =
+            report.SlicesNotReady.First(static s => s.SliceName == "GraphSnapshot.EdgeProperties");
         edgeSlice.HeadersMissingRelationalRows.Should().Be(20);
 
         // GoldenManifest.Provenance: 2 missing
-        CutoverSliceReadiness provSlice = report.SlicesNotReady.First(static s => s.SliceName == "GoldenManifest.Provenance");
+        CutoverSliceReadiness provSlice =
+            report.SlicesNotReady.First(static s => s.SliceName == "GoldenManifest.Provenance");
         provSlice.HeadersMissingRelationalRows.Should().Be(2);
 
         // Total headers deduplicated: 200 (Context) + 200 (Graph) + 200 (Findings) + 150 (Golden) + 100 (Artifact)
         report.TotalHeaderRows.Should().Be(850);
     }
 
-    private static CutoverSliceReadiness CreateSlice(string name, int total, int withRelational) =>
-        new()
+    private static CutoverSliceReadiness CreateSlice(string name, int total, int withRelational)
+    {
+        return new CutoverSliceReadiness
         {
-            SliceName = name,
-            TotalHeaderRows = total,
-            HeadersWithRelationalRows = withRelational,
+            SliceName = name, TotalHeaderRows = total, HeadersWithRelationalRows = withRelational
         };
+    }
 }

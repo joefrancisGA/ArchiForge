@@ -7,36 +7,33 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IRunRepository"/>.
+///     Shared contract assertions for <see cref="IRunRepository" />.
 /// </summary>
 public abstract class RunRepositoryContractTests
 {
+    /// <summary>
+    ///     <see cref="IRunRepository.ArchiveRunsCreatedBeforeAsync" /> updates all matching rows in SQL; the shared container
+    ///     fixture is not isolated per test, so only the in-memory implementation runs this case.
+    /// </summary>
+    protected virtual bool IncludeArchiveRunsCreatedBeforeContractTest => true;
+
+    /// <summary>
+    ///     <see cref="IRunRepository.ArchiveRunsByIdsAsync" /> touches global <c>dbo.Runs</c> in SQL; only the in-memory
+    ///     implementation runs this case against the shared container.
+    /// </summary>
+    protected virtual bool IncludeArchiveRunsByIdsContractTest => true;
+
     /// <summary>No-op for in-memory; Dapper + SQL subclasses skip when SQL is unavailable.</summary>
     protected virtual void SkipIfSqlServerUnavailable()
     {
     }
 
-    /// <summary>
-    /// <see cref="IRunRepository.ArchiveRunsCreatedBeforeAsync"/> updates all matching rows in SQL; the shared container
-    /// fixture is not isolated per test, so only the in-memory implementation runs this case.
-    /// </summary>
-    protected virtual bool IncludeArchiveRunsCreatedBeforeContractTest => true;
-
-    /// <summary>
-    /// <see cref="IRunRepository.ArchiveRunsByIdsAsync"/> touches global <c>dbo.Runs</c> in SQL; only the in-memory
-    /// implementation runs this case against the shared container.
-    /// </summary>
-    protected virtual bool IncludeArchiveRunsByIdsContractTest => true;
-
     protected abstract IRunRepository CreateRepository();
 
-    private static ScopeContext NewScope() =>
-        new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+    private static ScopeContext NewScope()
+    {
+        return new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+    }
 
     private static RunRecord NewRun(ScopeContext scope, string projectSlug, DateTime createdUtc)
     {
@@ -82,9 +79,7 @@ public abstract class RunRepositoryContractTests
 
         ScopeContext otherTenant = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId
+            TenantId = Guid.NewGuid(), WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId
         };
 
         RunRecord? loaded = await repo.GetByIdAsync(otherTenant, run.RunId, CancellationToken.None);
@@ -108,7 +103,7 @@ public abstract class RunRepositoryContractTests
         await repo.SaveAsync(first, CancellationToken.None);
         await repo.SaveAsync(second, CancellationToken.None);
 
-        IReadOnlyList<RunRecord> list = await repo.ListByProjectAsync(scope, slug, take: 1, CancellationToken.None);
+        IReadOnlyList<RunRecord> list = await repo.ListByProjectAsync(scope, slug, 1, CancellationToken.None);
 
         list.Should().HaveCount(1);
         list[0].RunId.Should().Be(second.RunId);
@@ -134,7 +129,7 @@ public abstract class RunRepositoryContractTests
         await repo.SaveAsync(c, CancellationToken.None);
 
         (IReadOnlyList<RunRecord> page1, int total1) =
-            await repo.ListByProjectPagedAsync(scope, slug, skip: 0, take: 2, CancellationToken.None);
+            await repo.ListByProjectPagedAsync(scope, slug, 0, 2, CancellationToken.None);
 
         total1.Should().Be(3);
         page1.Should().HaveCount(2);
@@ -142,7 +137,7 @@ public abstract class RunRepositoryContractTests
         page1[1].RunId.Should().Be(b.RunId);
 
         (IReadOnlyList<RunRecord> page2, int total2) =
-            await repo.ListByProjectPagedAsync(scope, slug, skip: 2, take: 2, CancellationToken.None);
+            await repo.ListByProjectPagedAsync(scope, slug, 2, 2, CancellationToken.None);
 
         total2.Should().Be(3);
         page2.Should().HaveCount(1);
@@ -164,7 +159,7 @@ public abstract class RunRepositoryContractTests
         await repo.SaveAsync(first, CancellationToken.None);
         await repo.SaveAsync(second, CancellationToken.None);
 
-        IReadOnlyList<RunRecord> list = await repo.ListRecentInScopeAsync(scope, take: 10, CancellationToken.None);
+        IReadOnlyList<RunRecord> list = await repo.ListRecentInScopeAsync(scope, 10, CancellationToken.None);
 
         list.Should().HaveCount(2);
         list[0].RunId.Should().Be(second.RunId);
@@ -232,7 +227,8 @@ public abstract class RunRepositoryContractTests
         await repo.SaveAsync(a, CancellationToken.None);
         await repo.SaveAsync(b, CancellationToken.None);
 
-        RunArchiveByIdsResult first = await repo.ArchiveRunsByIdsAsync([a.RunId, missing, a.RunId], CancellationToken.None);
+        RunArchiveByIdsResult first =
+            await repo.ArchiveRunsByIdsAsync([a.RunId, missing, a.RunId], CancellationToken.None);
 
         first.SucceededRunIds.Should().ContainSingle().Which.Should().Be(a.RunId);
         first.Failed.Should().HaveCount(1);

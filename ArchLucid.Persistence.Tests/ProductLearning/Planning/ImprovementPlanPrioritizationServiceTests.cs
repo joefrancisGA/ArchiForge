@@ -5,8 +5,9 @@ namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
 public sealed class ImprovementPlanPrioritizationServiceTests
 {
-    private static ImprovementPlan Plan(Guid planId, int seedPriority) =>
-        new()
+    private static ImprovementPlan Plan(Guid planId, int seedPriority)
+    {
+        return new ImprovementPlan
         {
             PlanId = planId,
             ThemeId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -17,8 +18,9 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             FrequencyScore = 1,
             SeverityScore = 2,
             TrustImpactScore = 0,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
+    }
 
     [Fact]
     public async Task Higher_frequency_and_severity_ranks_first_with_default_weights()
@@ -33,7 +35,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             RevisedCount = 0,
             NeedsFollowUpCount = 0,
             AverageTrustScore = 0.9,
-            AffectedArtifactTypeCount = 1,
+            AffectedArtifactTypeCount = 1
         };
 
         ImprovementPlanScoreInput high = new()
@@ -44,7 +46,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             RevisedCount = 2,
             NeedsFollowUpCount = 1,
             AverageTrustScore = 0.2,
-            AffectedArtifactTypeCount = 4,
+            AffectedArtifactTypeCount = 4
         };
 
         IReadOnlyList<ImprovementPlan> ranked = await svc.RankPlansAsync(
@@ -65,18 +67,11 @@ public sealed class ImprovementPlanPrioritizationServiceTests
 
         await Assert.ThrowsAsync<ArgumentException>(() => svc.RankPlansAsync(
             [
-                new ImprovementPlanScoreInput
-                {
-                    Plan = Plan(Guid.NewGuid(), 0),
-                    EvidenceSignalCount = 1,
-                }
+                new ImprovementPlanScoreInput { Plan = Plan(Guid.NewGuid(), 0), EvidenceSignalCount = 1 }
             ],
             new ImprovementPlanPrioritizationWeights
             {
-                Frequency = 0.5,
-                Severity = 0.5,
-                TrustImpact = 0.5,
-                Breadth = 0.5,
+                Frequency = 0.5, Severity = 0.5, TrustImpact = 0.5, Breadth = 0.5
             },
             CancellationToken.None));
     }
@@ -94,7 +89,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             RevisedCount = 0,
             NeedsFollowUpCount = 0,
             AverageTrustScore = null,
-            AffectedArtifactTypeCount = 1,
+            AffectedArtifactTypeCount = 1
         };
 
         ImprovementPlanScoreInput b = new()
@@ -105,7 +100,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             RevisedCount = 0,
             NeedsFollowUpCount = 0,
             AverageTrustScore = null,
-            AffectedArtifactTypeCount = 1,
+            AffectedArtifactTypeCount = 1
         };
 
         IReadOnlyList<ImprovementPlan> ranked = await svc.RankPlansAsync(

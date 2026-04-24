@@ -10,6 +10,7 @@ using ArchLucid.Persistence.Value;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -123,7 +124,19 @@ public sealed class FirstValueReportPdfBuilderTests
                 ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             });
 
-        return new FirstValueReportBuilder(query, deltas, valueReport, scope.Object, NullLogger<FirstValueReportBuilder>.Instance);
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator", ["AzureOpenAI:DeploymentName"] = "gpt-test" })
+            .Build();
+
+        return new FirstValueReportBuilder(
+            query,
+            deltas,
+            valueReport,
+            scope.Object,
+            new ExecutionProvenanceFooterRenderer(),
+            configuration,
+            NullLogger<FirstValueReportBuilder>.Instance);
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail()

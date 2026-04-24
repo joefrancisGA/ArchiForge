@@ -6,10 +6,13 @@ namespace ArchLucid.Cli.Commands;
 /// </summary>
 internal sealed class TryCommandOptions
 {
+    public const string ArchLucidRealAoaiEnv = "ARCHLUCID_REAL_AOAI";
+
     public const string DefaultApiBaseUrl = "http://localhost:5000";
     public const string DefaultUiBaseUrl = "http://localhost:3000";
     public static readonly TimeSpan DefaultReadinessDeadline = TimeSpan.FromSeconds(120);
     public static readonly TimeSpan DefaultCommitDeadline = TimeSpan.FromSeconds(180);
+    public static readonly TimeSpan RealModeDefaultCommitDeadline = TimeSpan.FromSeconds(600);
 
     public string ApiBaseUrl
     {
@@ -51,6 +54,27 @@ internal sealed class TryCommandOptions
         init;
     } = TimeSpan.FromSeconds(2);
 
+    /// <summary>When <see langword="true" />, user requested the real Azure OpenAI pilot path (still requires <see cref="ArchLucidRealAoaiEnv" />).</summary>
+    public bool RealMode
+    {
+        get;
+        init;
+    }
+
+    /// <summary>When <see langword="true" />, AOAI failures surface as errors instead of simulator fallback.</summary>
+    public bool StrictReal
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     Real compose overlay + CLI preflight are active (<c>--real</c> and <c>ARCHLUCID_REAL_AOAI=1</c>).
+    /// </summary>
+    public bool IsPilotRealAzureOpenAiAttempt =>
+        RealMode &&
+        string.Equals(Environment.GetEnvironmentVariable(ArchLucidRealAoaiEnv)?.Trim(), "1", StringComparison.Ordinal);
+
     /// <summary>
     ///     Parses CLI arguments after the leading <c>try</c> token. Returns null and sets <paramref name="error" />
     ///     when an argument is malformed (caller maps that to <see cref="CliExitCode.UsageError" />).
@@ -63,7 +87,9 @@ internal sealed class TryCommandOptions
         string uiBaseUrl = DefaultUiBaseUrl;
         bool openArtifacts = true;
         TimeSpan readinessDeadline = DefaultReadinessDeadline;
-        TimeSpan commitDeadline = DefaultCommitDeadline;
+        TimeSpan? commitDeadlineSeconds = null;
+        bool realMode = false;
+        bool strictReal = false;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -73,6 +99,14 @@ internal sealed class TryCommandOptions
             {
                 case "--no-open":
                     openArtifacts = false;
+                    break;
+
+                case "--real":
+                    realMode = true;
+                    break;
+
+                case "--strict-real":
+                    strictReal = true;
                     break;
 
                 case "--api-base-url":
@@ -92,17 +126,19 @@ internal sealed class TryCommandOptions
 
                 case "--commit-deadline":
                     if (!TryReadSeconds(args, ref i, current, out TimeSpan commitSpan, out error)) return null;
-                    commitDeadline = commitSpan;
+                    commitDeadlineSeconds = commitSpan;
                     break;
 
                 default:
                     error =
-                        $"Unknown argument for 'try': {current}. Usage: archlucid try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <seconds>] [--commit-deadline <seconds>]";
+                        $"Unknown argument for 'try': {current}. Usage: archlucid try [--real] [--strict-real] [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <seconds>] [--commit-deadline <seconds>]";
                     return null;
             }
         }
 
         error = null;
+
+        TimeSpan commitDeadline = commitDeadlineSeconds ?? (realMode ? RealModeDefaultCommitDeadline : DefaultCommitDeadline);
 
         return new TryCommandOptions
         {
@@ -110,7 +146,9 @@ internal sealed class TryCommandOptions
             UiBaseUrl = uiBaseUrl,
             OpenArtifacts = openArtifacts,
             ReadinessDeadline = readinessDeadline,
-            CommitDeadline = commitDeadline
+            CommitDeadline = commitDeadline,
+            RealMode = realMode,
+            StrictReal = strictReal
         };
     }
 

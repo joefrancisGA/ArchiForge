@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IAgentExecutionTraceRepository"/>.
+///     Shared contract assertions for <see cref="IAgentExecutionTraceRepository" />.
 /// </summary>
 public abstract class AgentExecutionTraceRepositoryContractTests
 {
@@ -62,14 +62,17 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p0", DateTime.UtcNow.AddMinutes(-3)), CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p1", DateTime.UtcNow.AddMinutes(-2)), CancellationToken.None);
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p2", DateTime.UtcNow.AddMinutes(-1)), CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p0", DateTime.UtcNow.AddMinutes(-3)),
+            CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p1", DateTime.UtcNow.AddMinutes(-2)),
+            CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "p2", DateTime.UtcNow.AddMinutes(-1)),
+            CancellationToken.None);
 
         (IReadOnlyList<AgentExecutionTrace> page, int total) = await repo.GetPagedByRunIdAsync(
             runId,
-            offset: 1,
-            limit: 1,
+            1,
+            1,
             CancellationToken.None);
 
         total.Should().Be(3);
@@ -114,9 +117,9 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await repo.PatchBlobStorageFieldsAsync(
             "patch-trace",
-            fullSystemPromptBlobKey: "file:///sys",
-            fullUserPromptBlobKey: "file:///usr",
-            fullResponseBlobKey: "file:///rsp",
+            "file:///sys",
+            "file:///usr",
+            "file:///rsp",
             CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
@@ -142,9 +145,9 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await repo.PatchInlinePromptFallbackAsync(
             "inline-trace",
-            fullSystemPromptInline: "sys-full",
-            fullUserPromptInline: null,
-            fullResponseInline: "resp-full",
+            "sys-full",
+            null,
+            "resp-full",
             CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
@@ -155,9 +158,9 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await repo.PatchInlinePromptFallbackAsync(
             "inline-trace",
-            fullSystemPromptInline: null,
-            fullUserPromptInline: "user-full",
-            fullResponseInline: null,
+            null,
+            "user-full",
+            null,
             CancellationToken.None);
 
         list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
@@ -198,9 +201,10 @@ public abstract class AgentExecutionTraceRepositoryContractTests
 
         await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewTrace(runId, task.TaskId, "inline-fail-trace", DateTime.UtcNow), CancellationToken.None);
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "inline-fail-trace", DateTime.UtcNow),
+            CancellationToken.None);
 
-        await repo.PatchInlineFallbackFailedAsync("inline-fail-trace", failed: true, CancellationToken.None);
+        await repo.PatchInlineFallbackFailedAsync("inline-fail-trace", true, CancellationToken.None);
 
         AgentExecutionTrace? t = await repo.GetByTraceIdAsync("inline-fail-trace", CancellationToken.None);
 
@@ -218,7 +222,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             Objective = "o",
             Status = AgentTaskStatus.Created,
             CreatedUtc = DateTime.UtcNow,
-            EvidenceBundleRef = "eb-aet",
+            EvidenceBundleRef = "eb-aet"
         };
     }
 
@@ -231,7 +235,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
             TaskId = taskId,
             AgentType = AgentType.Topology,
             ParseSucceeded = true,
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
     }
 }

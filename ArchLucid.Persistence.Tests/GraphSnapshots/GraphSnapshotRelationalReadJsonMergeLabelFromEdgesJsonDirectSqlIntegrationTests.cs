@@ -14,9 +14,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 
 /// <summary>
-/// <see cref="GraphSnapshotRelationalRead.LoadEdgesRelationalAsync"/> merge path: relational edges exist,
-/// <c>GraphSnapshotEdgeProperties</c> is empty (<c>mergeMetadataFromJson</c> true), relational row has no label/props,
-/// <c>EdgesJson</c> supplies the label.
+///     <see cref="GraphSnapshotRelationalRead.LoadEdgesRelationalAsync" /> merge path: relational edges exist,
+///     <c>GraphSnapshotEdgeProperties</c> is empty (<c>mergeMetadataFromJson</c> true), relational row has no label/props,
+///     <c>EdgesJson</c> supplies the label.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -59,24 +59,24 @@ public sealed class GraphSnapshotRelationalReadJsonMergeLabelFromEdgesJsonDirect
                 EdgeType = "REL",
                 Weight = 2d,
                 Label = "from-json-label",
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["jk"] = "jv" },
-            },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["jk"] = "jv" }
+            }
         ];
 
         string edgesJson = JsonEntitySerializer.Serialize(jsonEdges);
 
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -89,14 +89,14 @@ public sealed class GraphSnapshotRelationalReadJsonMergeLabelFromEdgesJsonDirect
                     CreatedUtc = createdUtc,
                     NodesJson = JsonEntitySerializer.Serialize(new List<GraphNode>()),
                     EdgesJson = edgesJson,
-                    WarningsJson = JsonEntitySerializer.Serialize(new List<string>()),
+                    WarningsJson = JsonEntitySerializer.Serialize(new List<string>())
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertEdge = """
-            INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-            VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-            """;
+                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
+                                  """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -108,7 +108,7 @@ public sealed class GraphSnapshotRelationalReadJsonMergeLabelFromEdgesJsonDirect
                     FromNodeId = "a",
                     ToNodeId = "b",
                     EdgeType = "REL",
-                    Weight = 1d,
+                    Weight = 1d
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -118,10 +118,7 @@ public sealed class GraphSnapshotRelationalReadJsonMergeLabelFromEdgesJsonDirect
                 SELECT GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc, NodesJson, EdgesJson, WarningsJson
                 FROM dbo.GraphSnapshots WHERE GraphSnapshotId = @GraphSnapshotId;
                 """,
-                new
-                {
-                    GraphSnapshotId = graphId
-                },
+                new { GraphSnapshotId = graphId },
                 cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();

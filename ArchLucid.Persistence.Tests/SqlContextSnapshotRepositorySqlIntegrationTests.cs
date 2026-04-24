@@ -4,18 +4,19 @@ using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
 
-using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
-
 using Dapper;
 
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
+using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
+
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="SqlContextSnapshotRepository"/> against SQL Server + DbUp (relational children + JSON dual-write / read fallback).
+///     <see cref="SqlContextSnapshotRepository" /> against SQL Server + DbUp (relational children + JSON dual-write / read
+///     fallback).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -50,8 +51,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     SourceId = "src-1",
                     Properties = new Dictionary<string, string>(StringComparer.Ordinal)
                     {
-                        ["region"] = "east",
-                        ["tier"] = "p1"
+                        ["region"] = "east", ["tier"] = "p1"
                     }
                 }
             ],
@@ -106,23 +106,22 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         string hashesJson = JsonEntitySerializer.Serialize(
             new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                ["legacy/path.cs"] = "sha256:aa",
-                ["other"] = "bb",
+                ["legacy/path.cs"] = "sha256:aa", ["other"] = "bb"
             });
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         const string insertHeader = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
+                                    INSERT INTO dbo.ContextSnapshots
+                                    (
+                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                                    )
+                                    VALUES
+                                    (
+                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -173,10 +172,8 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 SourceId = "src-props-1",
                 Properties = new Dictionary<string, string>(StringComparer.Ordinal)
                 {
-                    ["region"] = "east",
-                    ["tier"] = "premium",
-                    ["env"] = "production",
-                },
+                    ["region"] = "east", ["tier"] = "premium", ["env"] = "production"
+                }
             },
             new()
             {
@@ -185,25 +182,25 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                 Name = "NoPropsSvc",
                 SourceType = "Catalog",
                 SourceId = "src-empty",
-                Properties = [],
-            },
+                Properties = []
+            }
         ];
 
         string canonicalJson = JsonEntitySerializer.Serialize(canonical);
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         const string insertHeader = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
+                                    INSERT INTO dbo.ContextSnapshots
+                                    (
+                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                                    )
+                                    VALUES
+                                    (
+                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -218,7 +215,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     DeltaSummary = (string?)null,
                     WarningsJson = JsonEntitySerializer.Serialize(new List<string>()),
                     ErrorsJson = JsonEntitySerializer.Serialize(new List<string>()),
-                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>())
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -257,17 +254,17 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         const string insertHeader = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
+                                    INSERT INTO dbo.ContextSnapshots
+                                    (
+                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                                    )
+                                    VALUES
+                                    (
+                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -282,7 +279,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     DeltaSummary = (string?)null,
                     WarningsJson = (string?)null,
                     ErrorsJson = (string?)null,
-                    SourceHashesJson = (string?)null,
+                    SourceHashesJson = (string?)null
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -321,17 +318,17 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
             CancellationToken.None);
 
         const string insertHeader = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
+                                    INSERT INTO dbo.ContextSnapshots
+                                    (
+                                        SnapshotId, RunId, ProjectId, CreatedUtc,
+                                        CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                                    )
+                                    VALUES
+                                    (
+                                        @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                        @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+                                    );
+                                    """;
 
         string empty = "";
 
@@ -348,7 +345,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
                     DeltaSummary = (string?)null,
                     WarningsJson = empty,
                     ErrorsJson = empty,
-                    SourceHashesJson = empty,
+                    SourceHashesJson = empty
                 },
                 cancellationToken: CancellationToken.None));
 

@@ -3,7 +3,8 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Value;
 
 /// <summary>
-/// Guard-rail: review-cycle SQL stays aligned with golden-manifest window scoping (no LocalDB harness in this assembly).
+///     Guard-rail: review-cycle SQL stays aligned with golden-manifest window scoping (no LocalDB harness in this
+///     assembly).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class DapperValueReportMetricsReaderReviewCycleTests

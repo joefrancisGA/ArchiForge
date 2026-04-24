@@ -7,13 +7,15 @@ namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 [Trait("ChangeSet", "59R")]
 public sealed class LearningPlanningReportBuilderTests
 {
-    private static ProductLearningScope Scope() =>
-        new()
+    private static ProductLearningScope Scope()
+    {
+        return new ProductLearningScope
         {
             TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
         };
+    }
 
     [Fact]
     public async Task BuildAsync_orders_themes_by_evidence_then_runs_then_id()
@@ -22,11 +24,11 @@ public sealed class LearningPlanningReportBuilderTests
         ProductLearningScope scope = Scope();
 
         await repo.InsertThemeAsync(
-            Theme(scope, evidence: 1, runs: 5, key: "low"),
+            Theme(scope, 1, 5, "low"),
             CancellationToken.None);
 
         await repo.InsertThemeAsync(
-            Theme(scope, evidence: 10, runs: 1, key: "high"),
+            Theme(scope, 10, 1, "high"),
             CancellationToken.None);
 
         LearningPlanningReportLimits limits = new()
@@ -35,7 +37,7 @@ public sealed class LearningPlanningReportBuilderTests
             MaxPlans = 50,
             MaxSignalRefsPerPlan = 100,
             MaxArtifactRefsPerPlan = 100,
-            MaxRunRefsPerPlan = 100,
+            MaxRunRefsPerPlan = 100
         };
 
         LearningPlanningReportDocument doc =
@@ -53,20 +55,21 @@ public sealed class LearningPlanningReportBuilderTests
         ProductLearningScope scope = Scope();
 
         await repo.InsertThemeAsync(
-            Theme(scope, evidence: 3, runs: 1, key: "th"),
+            Theme(scope, 3, 1, "th"),
             CancellationToken.None);
 
         Guid themeId = (await repo.ListThemesAsync(scope, 1, CancellationToken.None))[0].ThemeId;
 
         await repo.InsertPlanAsync(
-            Plan(scope, themeId, title: "LowPri", priority: 1, planKey: "b"),
+            Plan(scope, themeId, "LowPri", 1, "b"),
             CancellationToken.None);
 
         await repo.InsertPlanAsync(
-            Plan(scope, themeId, title: "HighPri", priority: 99, planKey: "a"),
+            Plan(scope, themeId, "HighPri", 99, "a"),
             CancellationToken.None);
 
-        IReadOnlyList<ProductLearningImprovementPlanRecord> listed = await repo.ListPlansAsync(scope, 10, CancellationToken.None);
+        IReadOnlyList<ProductLearningImprovementPlanRecord> listed =
+            await repo.ListPlansAsync(scope, 10, CancellationToken.None);
         Guid lowId = listed.Single(p => p.Title == "LowPri").PlanId;
         Guid highId = listed.Single(p => p.Title == "HighPri").PlanId;
 
@@ -75,9 +78,7 @@ public sealed class LearningPlanningReportBuilderTests
         await repo.AddPlanSignalLinkAsync(
             new ProductLearningImprovementPlanSignalLinkRecord
             {
-                PlanId = lowId,
-                SignalId = sig,
-                TriageStatusSnapshot = ProductLearningTriageStatusValues.Open
+                PlanId = lowId, SignalId = sig, TriageStatusSnapshot = ProductLearningTriageStatusValues.Open
             },
             CancellationToken.None);
 
@@ -91,7 +92,7 @@ public sealed class LearningPlanningReportBuilderTests
             MaxPlans = 50,
             MaxSignalRefsPerPlan = 100,
             MaxArtifactRefsPerPlan = 100,
-            MaxRunRefsPerPlan = 100,
+            MaxRunRefsPerPlan = 100
         };
 
         LearningPlanningReportDocument doc =
@@ -114,9 +115,9 @@ public sealed class LearningPlanningReportBuilderTests
         InMemoryProductLearningPlanningRepository repo = new();
         ProductLearningScope scope = Scope();
 
-        await repo.InsertThemeAsync(Theme(scope, evidence: 1, runs: 1, key: "k"), CancellationToken.None);
+        await repo.InsertThemeAsync(Theme(scope, 1, 1, "k"), CancellationToken.None);
         Guid themeId = (await repo.ListThemesAsync(scope, 1, CancellationToken.None))[0].ThemeId;
-        await repo.InsertPlanAsync(Plan(scope, themeId, title: "P", priority: 1, planKey: "x"), CancellationToken.None);
+        await repo.InsertPlanAsync(Plan(scope, themeId, "P", 1, "x"), CancellationToken.None);
         Guid planId = (await repo.ListPlansAsync(scope, 1, CancellationToken.None))[0].PlanId;
 
         Guid[] signalIds =
@@ -125,17 +126,13 @@ public sealed class LearningPlanningReportBuilderTests
             Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
             Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
             Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee")
         ];
 
         foreach (Guid sid in signalIds)
         {
             await repo.AddPlanSignalLinkAsync(
-                new ProductLearningImprovementPlanSignalLinkRecord
-                {
-                    PlanId = planId,
-                    SignalId = sid,
-                },
+                new ProductLearningImprovementPlanSignalLinkRecord { PlanId = planId, SignalId = sid },
                 CancellationToken.None);
         }
 
@@ -145,7 +142,7 @@ public sealed class LearningPlanningReportBuilderTests
             MaxPlans = 50,
             MaxSignalRefsPerPlan = 2,
             MaxArtifactRefsPerPlan = 100,
-            MaxRunRefsPerPlan = 100,
+            MaxRunRefsPerPlan = 100
         };
 
         LearningPlanningReportDocument doc =
@@ -159,8 +156,9 @@ public sealed class LearningPlanningReportBuilderTests
         ProductLearningScope scope,
         int evidence,
         int runs,
-        string key) =>
-        new()
+        string key)
+    {
+        return new ProductLearningImprovementThemeRecord
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
@@ -172,16 +170,18 @@ public sealed class LearningPlanningReportBuilderTests
             SeverityBand = "Low",
             EvidenceSignalCount = evidence,
             DistinctRunCount = runs,
-            DerivationRuleVersion = "59R-v1",
+            DerivationRuleVersion = "59R-v1"
         };
+    }
 
     private static ProductLearningImprovementPlanRecord Plan(
         ProductLearningScope scope,
         Guid themeId,
         string title,
         int priority,
-        string planKey) =>
-        new()
+        string planKey)
+    {
+        return new ProductLearningImprovementPlanRecord
         {
             ThemeId = themeId,
             TenantId = scope.TenantId,
@@ -192,12 +192,8 @@ public sealed class LearningPlanningReportBuilderTests
             PriorityScore = priority,
             ActionSteps =
             [
-                new ProductLearningImprovementPlanActionStep
-                {
-                    Ordinal = 1,
-                    ActionType = "A",
-                    Description = "d",
-                },
-            ],
+                new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "A", Description = "d" }
+            ]
         };
+    }
 }

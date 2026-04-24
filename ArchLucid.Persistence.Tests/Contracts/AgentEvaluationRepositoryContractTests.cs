@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IAgentEvaluationRepository"/>.
+///     Shared contract assertions for <see cref="IAgentEvaluationRepository" />.
 /// </summary>
 public abstract class AgentEvaluationRepositoryContractTests
 {
@@ -39,7 +39,7 @@ public abstract class AgentEvaluationRepositoryContractTests
         List<AgentEvaluation> first =
         [
             NewEvaluation(runId, taskId, "e1", EvaluationTypes.Support),
-            NewEvaluation(runId, taskId, "e2", EvaluationTypes.Caution),
+            NewEvaluation(runId, taskId, "e2", EvaluationTypes.Caution)
         ];
 
         await repo.CreateManyAsync(first, CancellationToken.None);
@@ -70,7 +70,7 @@ public abstract class AgentEvaluationRepositoryContractTests
         List<AgentEvaluation> batch =
         [
             NewEvaluation(runId, taskId, "late", EvaluationTypes.Support, newer),
-            NewEvaluation(runId, taskId, "early", EvaluationTypes.Support, older),
+            NewEvaluation(runId, taskId, "early", EvaluationTypes.Support, older)
         ];
 
         await repo.CreateManyAsync(batch, CancellationToken.None);
@@ -97,7 +97,7 @@ public abstract class AgentEvaluationRepositoryContractTests
             EvaluationType = evaluationType,
             ConfidenceDelta = 0.1,
             Rationale = "r",
-            CreatedUtc = createdUtc ?? DateTime.UtcNow,
+            CreatedUtc = createdUtc ?? DateTime.UtcNow
         };
     }
 }

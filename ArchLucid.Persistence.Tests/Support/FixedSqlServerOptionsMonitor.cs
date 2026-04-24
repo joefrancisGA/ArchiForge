@@ -4,7 +4,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Tests.Support;
 
-/// <summary>Minimal <see cref="IOptionsMonitor{TOptions}"/> for integration tests (mutable <see cref="SqlServerOptions"/> instance).</summary>
+/// <summary>
+///     Minimal <see cref="IOptionsMonitor{TOptions}" /> for integration tests (mutable
+///     <see cref="SqlServerOptions" /> instance).
+/// </summary>
 public sealed class FixedSqlServerOptionsMonitor(SqlServerOptions instance) : IOptionsMonitor<SqlServerOptions>
 {
     public SqlServerOptions CurrentValue
@@ -12,9 +15,15 @@ public sealed class FixedSqlServerOptionsMonitor(SqlServerOptions instance) : IO
         get;
     } = instance ?? throw new ArgumentNullException(nameof(instance));
 
-    public SqlServerOptions Get(string? name) => CurrentValue;
+    public SqlServerOptions Get(string? name)
+    {
+        return CurrentValue;
+    }
 
-    public IDisposable OnChange(Action<SqlServerOptions, string> listener) => NoopDisposable.Instance;
+    public IDisposable OnChange(Action<SqlServerOptions, string> listener)
+    {
+        return NoopDisposable.Instance;
+    }
 
     private sealed class NoopDisposable : IDisposable
     {

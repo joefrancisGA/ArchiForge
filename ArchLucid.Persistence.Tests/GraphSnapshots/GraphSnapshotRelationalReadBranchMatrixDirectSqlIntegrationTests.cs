@@ -14,19 +14,23 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 
 /// <summary>
-/// Additional branch coverage for <see cref="GraphSnapshotRelationalRead.HydrateAsync"/> (nodes / warnings /
-/// edges, relational vs JSON merge, label key vs generic property keys).
+///     Additional branch coverage for <see cref="GraphSnapshotRelationalRead.HydrateAsync" /> (nodes / warnings /
+///     edges, relational vs JSON merge, label key vs generic property keys).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "Core")]
-public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationTests(
+    SqlServerPersistenceFixture fixture)
 {
     private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    private static string EmptyGraphJsonList<T>() => JsonEntitySerializer.Serialize(new List<T>());
+    private static string EmptyGraphJsonList<T>()
+    {
+        return JsonEntitySerializer.Serialize(new List<T>());
+    }
 
     private static async Task<(Guid RunId, Guid ContextId, Guid GraphId, DateTime CreatedUtc)> SeedHeaderIntoAsync(
         SqlConnection connection,
@@ -61,17 +65,17 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         string warningsJson)
     {
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -84,7 +88,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                     CreatedUtc = createdUtc,
                     NodesJson = nodesJson,
                     EdgesJson = edgesJson,
-                    WarningsJson = warningsJson,
+                    WarningsJson = warningsJson
                 },
                 cancellationToken: CancellationToken.None));
     }
@@ -97,10 +101,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 SELECT GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc, NodesJson, EdgesJson, WarningsJson
                 FROM dbo.GraphSnapshots WHERE GraphSnapshotId = @Id;
                 """,
-                new
-                {
-                    Id = graphId
-                },
+                new { Id = graphId },
                 cancellationToken: CancellationToken.None));
 
         return await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row, CancellationToken.None);
@@ -133,11 +134,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 (GraphNodeRowId, GraphSnapshotId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
                 VALUES (@RowId, @G, 0, N'n1', N't', N'L', NULL, NULL, NULL);
                 """,
-                new
-                {
-                    RowId = nodeRowId,
-                    G = graphId
-                },
+                new { RowId = nodeRowId, G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -169,10 +166,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
                 VALUES (@G, 0, N'w-a');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -187,7 +181,17 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "elbl");
 
-        List<GraphEdge> edges = [new GraphEdge { EdgeId = "e1", FromNodeId = "a", ToNodeId = "b", EdgeType = "t", Weight = 1 }];
+        List<GraphEdge> edges =
+        [
+            new()
+            {
+                EdgeId = "e1",
+                FromNodeId = "a",
+                ToNodeId = "b",
+                EdgeType = "t",
+                Weight = 1
+            }
+        ];
         await InsertGraphHeaderAsync(
             connection,
             graphId,
@@ -206,10 +210,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
                 VALUES (@G, N'e1', 0, N'$ArchLucid:EdgeLabel', N'from-sql-label');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -222,9 +223,20 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
-        (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "eprop");
+        (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) =
+            await SeedHeaderIntoAsync(connection, "eprop");
 
-        List<GraphEdge> edges = [new GraphEdge { EdgeId = "e2", FromNodeId = "a", ToNodeId = "b", EdgeType = "t", Weight = 1 }];
+        List<GraphEdge> edges =
+        [
+            new()
+            {
+                EdgeId = "e2",
+                FromNodeId = "a",
+                ToNodeId = "b",
+                EdgeType = "t",
+                Weight = 1
+            }
+        ];
         await InsertGraphHeaderAsync(
             connection,
             graphId,
@@ -243,10 +255,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
                 VALUES (@G, N'e2', 0, N'k1', N'v1');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -263,7 +272,17 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "emix");
 
-        List<GraphEdge> edges = [new GraphEdge { EdgeId = "e3", FromNodeId = "a", ToNodeId = "b", EdgeType = "t", Weight = 1 }];
+        List<GraphEdge> edges =
+        [
+            new()
+            {
+                EdgeId = "e3",
+                FromNodeId = "a",
+                ToNodeId = "b",
+                EdgeType = "t",
+                Weight = 1
+            }
+        ];
         await InsertGraphHeaderAsync(
             connection,
             graphId,
@@ -284,10 +303,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 (@G, N'e3', 0, N'$ArchLucid:EdgeLabel', N'Lbl'),
                 (@G, N'e3', 1, N'p', N'q');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -306,15 +322,15 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e4",
                 FromNodeId = "a",
                 ToNodeId = "b",
                 EdgeType = "t",
                 Weight = 1,
-                Label = "json-label",
-            },
+                Label = "json-label"
+            }
         ];
 
         await InsertGraphHeaderAsync(
@@ -333,10 +349,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES (@G, N'e4', N'a', N'b', N't', 1.0);
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -351,22 +364,19 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "mj2");
 
-        Dictionary<string, string> props = new(StringComparer.Ordinal)
-        {
-            ["x"] = "y",
-        };
+        Dictionary<string, string> props = new(StringComparer.Ordinal) { ["x"] = "y" };
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e5",
                 FromNodeId = "a",
                 ToNodeId = "b",
                 EdgeType = "t",
                 Weight = 1,
-                Properties = props,
-            },
+                Properties = props
+            }
         ];
 
         await InsertGraphHeaderAsync(
@@ -385,10 +395,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES (@G, N'e5', N'a', N'b', N't', 1.0);
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -405,15 +412,15 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e6",
                 FromNodeId = "a",
                 ToNodeId = "b",
                 EdgeType = "t",
                 Weight = 1,
-                Label = "json-wins-if-empty",
-            },
+                Label = "json-wins-if-empty"
+            }
         ];
 
         await InsertGraphHeaderAsync(
@@ -434,10 +441,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
                 VALUES (@G, N'e6', 0, N'$ArchLucid:EdgeLabel', N'sql-label');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -452,22 +456,19 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "mj4");
 
-        Dictionary<string, string> jsonProps = new(StringComparer.Ordinal)
-        {
-            ["from"] = "json",
-        };
+        Dictionary<string, string> jsonProps = new(StringComparer.Ordinal) { ["from"] = "json" };
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e7",
                 FromNodeId = "a",
                 ToNodeId = "b",
                 EdgeType = "t",
                 Weight = 1,
-                Properties = jsonProps,
-            },
+                Properties = jsonProps
+            }
         ];
 
         await InsertGraphHeaderAsync(
@@ -488,10 +489,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
                 VALUES (@G, N'e7', 0, N'from', N'sql');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -508,15 +506,15 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "other",
                 FromNodeId = "a",
                 ToNodeId = "b",
                 EdgeType = "t",
                 Weight = 1,
-                Label = "only-other",
-            },
+                Label = "only-other"
+            }
         ];
 
         await InsertGraphHeaderAsync(
@@ -535,10 +533,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
                 VALUES (@G, N'e8', N'a', N'b', N't', 1.0);
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -571,11 +566,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 (GraphNodeRowId, GraphSnapshotId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId)
                 VALUES (@R, @G, 0, N'n2', N't2', N'Lb', NULL, NULL, NULL);
                 """,
-                new
-                {
-                    R = Guid.NewGuid(),
-                    G = graphId
-                },
+                new { R = Guid.NewGuid(), G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -612,11 +603,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotNodeProperties (GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue)
                 VALUES (@R, 0, N'a', N'b');
                 """,
-                new
-                {
-                    R = rowId,
-                    G = graphId
-                },
+                new { R = rowId, G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -629,16 +616,14 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
-        (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "nomerge");
+        (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) =
+            await SeedHeaderIntoAsync(connection, "nomerge");
 
-        Dictionary<string, string> jsonProps = new(StringComparer.Ordinal)
-        {
-            ["only"] = "json",
-        };
+        Dictionary<string, string> jsonProps = new(StringComparer.Ordinal) { ["only"] = "json" };
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e9",
                 FromNodeId = "a",
@@ -646,8 +631,8 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 EdgeType = "t",
                 Weight = 1,
                 Label = "jsonLabel",
-                Properties = jsonProps,
-            },
+                Properties = jsonProps
+            }
         ];
 
         await InsertGraphHeaderAsync(
@@ -668,10 +653,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
                 VALUES (@G, N'e9', 0, N'only', N'sql');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -690,24 +672,24 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "ea",
                 FromNodeId = "1",
                 ToNodeId = "2",
                 EdgeType = "t",
                 Weight = 1,
-                Label = "ja",
+                Label = "ja"
             },
-            new GraphEdge
+            new()
             {
                 EdgeId = "eb",
                 FromNodeId = "2",
                 ToNodeId = "3",
                 EdgeType = "t",
                 Weight = 2,
-                Label = "ignored-for-eb",
-            },
+                Label = "ignored-for-eb"
+            }
         ];
 
         await InsertGraphHeaderAsync(
@@ -730,10 +712,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotEdgeProperties (GraphSnapshotId, EdgeId, PropertySortOrder, PropertyKey, PropertyValue)
                 VALUES (@G, N'eb', 0, N'$ArchLucid:EdgeLabel', N'sql-b');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -743,7 +722,8 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
     }
 
     [SkippableFact]
-    public async Task HydrateAsync_relational_warnings_with_empty_nodes_and_edges_uses_row_warnings_json_fallback_false()
+    public async Task
+        HydrateAsync_relational_warnings_with_empty_nodes_and_edges_uses_row_warnings_json_fallback_false()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
@@ -758,10 +738,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
             createdUtc,
             EmptyGraphJsonList<GraphNode>(),
             EmptyGraphJsonList<GraphEdge>(),
-            JsonEntitySerializer.Serialize(new List<string>
-            {
-                "ignored-when-relational",
-            }));
+            JsonEntitySerializer.Serialize(new List<string> { "ignored-when-relational" }));
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -769,10 +746,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 INSERT INTO dbo.GraphSnapshotWarnings (GraphSnapshotId, SortOrder, WarningText)
                 VALUES (@G, 0, N'rel-w');
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
@@ -785,19 +759,20 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
-        (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "split");
+        (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) =
+            await SeedHeaderIntoAsync(connection, "split");
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "only-one",
                 FromNodeId = "1",
                 ToNodeId = "2",
                 EdgeType = "t",
                 Weight = 1,
-                Label = "L1",
-            },
+                Label = "L1"
+            }
         ];
 
         await InsertGraphHeaderAsync(
@@ -821,10 +796,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
                 (@G, N'only-one', N'1', N'2', N't', 1.0),
                 (@G, N'no-json', N'2', N'3', N't', 2.0);
                 """,
-                new
-                {
-                    G = graphId
-                },
+                new { G = graphId },
                 cancellationToken: CancellationToken.None));
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);

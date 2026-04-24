@@ -1,5 +1,4 @@
 using ArchLucid.Persistence.Data.Repositories;
-
 using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;

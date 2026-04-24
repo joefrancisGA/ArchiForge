@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IAlertDeliveryAttemptRepository"/>.
+///     Shared contract assertions for <see cref="IAlertDeliveryAttemptRepository" />.
 /// </summary>
 public abstract class AlertDeliveryAttemptRepositoryContractTests
 {
@@ -77,7 +77,8 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         await repo.CreateAsync(b, CancellationToken.None);
         await repo.CreateAsync(c, CancellationToken.None);
 
-        IReadOnlyList<AlertDeliveryAttempt> list = await repo.ListBySubscriptionAsync(subscriptionId, 2, CancellationToken.None);
+        IReadOnlyList<AlertDeliveryAttempt> list =
+            await repo.ListBySubscriptionAsync(subscriptionId, 2, CancellationToken.None);
 
         list.Should().HaveCount(2);
         list[0].AlertDeliveryAttemptId.Should().Be(c.AlertDeliveryAttemptId);
@@ -102,7 +103,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
             Status = AlertDeliveryAttemptStatus.Started,
             ChannelType = "test",
             Destination = "https://example.test/hook",
-            RetryCount = 0,
+            RetryCount = 0
         };
     }
 }

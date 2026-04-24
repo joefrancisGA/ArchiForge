@@ -5,19 +5,21 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Validates row-level security tenant filtering on <c>dbo.Runs</c> and <c>dbo.AuditEvents</c> with <c>SESSION_CONTEXT</c>
-/// when the deployed SQL policy (historical object name in <c>rls</c> schema) is temporarily enabled.
+///     Validates row-level security tenant filtering on <c>dbo.Runs</c> and <c>dbo.AuditEvents</c> with
+///     <c>SESSION_CONTEXT</c>
+///     when the deployed SQL policy (historical object name in <c>rls</c> schema) is temporarily enabled.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    /// <summary>Deployed policy identifier (post-rename — see DbUp 108_RlsRenameToArchLucid.sql).</summary>
-    private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
     private static readonly Guid TenantA = Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1");
     private static readonly Guid TenantB = Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2");
     private static readonly Guid WorkspaceW = Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1");
     private static readonly Guid ProjectP = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
+
+    /// <summary>Deployed policy identifier (post-rename — see DbUp 108_RlsRenameToArchLucid.sql).</summary>
+    private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
 
     [SkippableFact]
     public async Task Rls_filters_rows_by_session_context_and_bypass_sees_all()
@@ -81,9 +83,9 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
     {
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText = """
-            INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
-            VALUES (@RunId, N'rls-test', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId);
-            """;
+                          INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+                          VALUES (@RunId, N'rls-test', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId);
+                          """;
         cmd.Parameters.AddWithValue("@RunId", runId);
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
         cmd.Parameters.AddWithValue("@WorkspaceId", workspaceId);
@@ -109,13 +111,13 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
     {
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText = """
-            INSERT INTO dbo.ContextSnapshots (
-                SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId,
-                CreatedUtc, CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson)
-            VALUES (
-                @SnapshotId, @RunId, N'rls-ctx-test', @TenantId, @WorkspaceId, @ScopeProjectId,
-                SYSUTCDATETIME(), N'[]', NULL, N'[]', N'[]', N'{}');
-            """;
+                          INSERT INTO dbo.ContextSnapshots (
+                              SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId,
+                              CreatedUtc, CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson)
+                          VALUES (
+                              @SnapshotId, @RunId, N'rls-ctx-test', @TenantId, @WorkspaceId, @ScopeProjectId,
+                              SYSUTCDATETIME(), N'[]', NULL, N'[]', N'[]', N'{}');
+                          """;
         cmd.Parameters.AddWithValue("@SnapshotId", snapshotId);
         cmd.Parameters.AddWithValue("@RunId", runId);
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
@@ -309,13 +311,13 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
     {
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText = """
-            INSERT INTO dbo.AuditEvents (
-                EventId, OccurredUtc, EventType, ActorUserId, ActorUserName,
-                TenantId, WorkspaceId, ProjectId, DataJson)
-            VALUES (
-                @EventId, SYSUTCDATETIME(), N'RlsTest', N'test', N'Test User',
-                @TenantId, @WorkspaceId, @ProjectId, N'{}');
-            """;
+                          INSERT INTO dbo.AuditEvents (
+                              EventId, OccurredUtc, EventType, ActorUserId, ActorUserName,
+                              TenantId, WorkspaceId, ProjectId, DataJson)
+                          VALUES (
+                              @EventId, SYSUTCDATETIME(), N'RlsTest', N'test', N'Test User',
+                              @TenantId, @WorkspaceId, @ProjectId, N'{}');
+                          """;
         cmd.Parameters.AddWithValue("@EventId", eventId);
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
         cmd.Parameters.AddWithValue("@WorkspaceId", workspaceId);
@@ -407,9 +409,9 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
             {
                 await using SqlCommand insert = conn.CreateCommand();
                 insert.CommandText = """
-                    INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
-                    VALUES (@RunId, N'rls-block-test', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId);
-                    """;
+                                     INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+                                     VALUES (@RunId, N'rls-block-test', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId);
+                                     """;
                 insert.Parameters.AddWithValue("@RunId", runId);
                 insert.Parameters.AddWithValue("@TenantId", TenantB);
                 insert.Parameters.AddWithValue("@WorkspaceId", WorkspaceW);

@@ -1,0 +1,13 @@
+# ArchLucid — real Azure OpenAI overlay (additive; use with docker-compose.yml + docker-compose.demo.yml)
+#
+# Intended for `archlucid try --real` when ARCHLUCID_REAL_AOAI=1 and AZURE_OPENAI_* are set in the host environment.
+# Docker Compose passes these variables into the api service (see environment section below).
+#
+services:
+  api:
+    environment:
+      AgentExecution__Mode: "Real"
+      AzureOpenAI__Endpoint: "${AZURE_OPENAI_ENDPOINT}"
+      AzureOpenAI__ApiKey: "${AZURE_OPENAI_API_KEY}"
+      AzureOpenAI__DeploymentName: "${AZURE_OPENAI_DEPLOYMENT_NAME}"
+      AzureOpenAI__MaxCompletionTokens: "${AZURE_OPENAI_MAX_COMPLETION_TOKENS:-1024}"

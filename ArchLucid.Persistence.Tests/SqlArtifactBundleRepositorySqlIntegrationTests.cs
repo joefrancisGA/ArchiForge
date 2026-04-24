@@ -17,7 +17,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="SqlArtifactBundleRepository"/> against SQL Server + DbUp (relational slices + JSON dual-write).
+///     <see cref="SqlArtifactBundleRepository" /> against SQL Server + DbUp (relational slices + JSON dual-write).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -77,10 +77,11 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             Assumptions = [],
             Warnings = [],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
 
-        SqlGoldenManifestRepository manifestRepository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
         DateTime bundleCreated = new(2026, 8, 1, 12, 5, 0, DateTimeKind.Utc);
@@ -112,11 +113,10 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     ContentHash = "sha256:abc",
                     Metadata = new Dictionary<string, string>(StringComparer.Ordinal)
                     {
-                        ["Section"] = "Overview",
-                        ["Lang"] = "en-US",
+                        ["Section"] = "Overview", ["Lang"] = "en-US"
                     },
-                    ContributingDecisionIds = ["dec-a", "dec-b"],
-                },
+                    ContributingDecisionIds = ["dec-a", "dec-b"]
+                }
             ],
             Trace = new SynthesisTrace
             {
@@ -126,19 +126,15 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 CreatedUtc = bundleCreated,
                 GeneratorsUsed = ["ArchitectureNarrativeArtifactGenerator"],
                 SourceDecisionIds = ["sd-1"],
-                Notes = ["Synthesis complete."],
-            },
+                Notes = ["Synthesis complete."]
+            }
         };
 
-        SqlArtifactBundleRepository repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         await repository.SaveAsync(bundle, CancellationToken.None);
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
         loaded.Should().NotBeNull();
@@ -205,10 +201,11 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             Assumptions = [],
             Warnings = [],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
 
-        SqlGoldenManifestRepository manifestRepository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
         Guid bundleId = Guid.NewGuid();
@@ -229,8 +226,8 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 Content = "json-only path",
                 ContentHash = "h",
                 Metadata = new Dictionary<string, string> { ["k"] = "v" },
-                ContributingDecisionIds = ["x"],
-            },
+                ContributingDecisionIds = ["x"]
+            }
         ];
 
         SynthesisTrace trace = new()
@@ -241,21 +238,21 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             CreatedUtc = created,
             GeneratorsUsed = ["G"],
             SourceDecisionIds = ["Y"],
-            Notes = ["n"],
+            Notes = ["n"]
         };
 
         const string insertSql = """
-            INSERT INTO dbo.ArtifactBundles
-            (
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
-                TenantId, WorkspaceId, ProjectId
-            )
-            VALUES
-            (
-                @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
-                @TenantId, @WorkspaceId, @ProjectId
-            );
-            """;
+                                 INSERT INTO dbo.ArtifactBundles
+                                 (
+                                     BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                                     TenantId, WorkspaceId, ProjectId
+                                 )
+                                 VALUES
+                                 (
+                                     @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                                     @TenantId, @WorkspaceId, @ProjectId
+                                 );
+                                 """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -270,18 +267,14 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     TraceJson = JsonEntitySerializer.Serialize(trace),
                     TenantId,
                     WorkspaceId,
-                    ProjectId,
+                    ProjectId
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
-        SqlArtifactBundleRepository repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -355,10 +348,11 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             Assumptions = [],
             Warnings = [],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
 
-        SqlGoldenManifestRepository manifestRepository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
         Guid bundleId = Guid.NewGuid();
@@ -379,12 +373,8 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 Format = "binary",
                 Content = "body-one",
                 ContentHash = "hash-one",
-                Metadata = new Dictionary<string, string>(StringComparer.Ordinal)
-                {
-                    ["m1a"] = "v1a",
-                    ["m1b"] = "v1b",
-                },
-                ContributingDecisionIds = ["d1a", "d1b"],
+                Metadata = new Dictionary<string, string>(StringComparer.Ordinal) { ["m1a"] = "v1a", ["m1b"] = "v1b" },
+                ContributingDecisionIds = ["d1a", "d1b"]
             },
             new()
             {
@@ -397,13 +387,9 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                 Format = "utf8",
                 Content = "body-two",
                 ContentHash = "hash-two",
-                Metadata = new Dictionary<string, string>(StringComparer.Ordinal)
-                {
-                    ["m2a"] = "v2a",
-                    ["m2b"] = "v2b",
-                },
-                ContributingDecisionIds = ["d2a", "d2b", "d2c"],
-            },
+                Metadata = new Dictionary<string, string>(StringComparer.Ordinal) { ["m2a"] = "v2a", ["m2b"] = "v2b" },
+                ContributingDecisionIds = ["d2a", "d2b", "d2c"]
+            }
         ];
 
         SynthesisTrace trace = new()
@@ -414,21 +400,21 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             CreatedUtc = created,
             GeneratorsUsed = ["GeneratorOne", "GeneratorTwo"],
             SourceDecisionIds = ["src-dec-a", "src-dec-b"],
-            Notes = ["trace-note-a", "trace-note-b"],
+            Notes = ["trace-note-a", "trace-note-b"]
         };
 
         const string insertSql = """
-            INSERT INTO dbo.ArtifactBundles
-            (
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
-                TenantId, WorkspaceId, ProjectId
-            )
-            VALUES
-            (
-                @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
-                @TenantId, @WorkspaceId, @ProjectId
-            );
-            """;
+                                 INSERT INTO dbo.ArtifactBundles
+                                 (
+                                     BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                                     TenantId, WorkspaceId, ProjectId
+                                 )
+                                 VALUES
+                                 (
+                                     @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                                     @TenantId, @WorkspaceId, @ProjectId
+                                 );
+                                 """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -443,18 +429,14 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     TraceJson = JsonEntitySerializer.Serialize(trace),
                     TenantId,
                     WorkspaceId,
-                    ProjectId,
+                    ProjectId
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
-        SqlArtifactBundleRepository repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -538,10 +520,11 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             Assumptions = [],
             Warnings = [],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
 
-        SqlGoldenManifestRepository manifestRepository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
         Guid bundleId = Guid.NewGuid();
@@ -554,21 +537,21 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             CreatedUtc = created,
             GeneratorsUsed = [],
             SourceDecisionIds = [],
-            Notes = [],
+            Notes = []
         };
 
         const string insertSql = """
-            INSERT INTO dbo.ArtifactBundles
-            (
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
-                TenantId, WorkspaceId, ProjectId
-            )
-            VALUES
-            (
-                @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
-                @TenantId, @WorkspaceId, @ProjectId
-            );
-            """;
+                                 INSERT INTO dbo.ArtifactBundles
+                                 (
+                                     BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                                     TenantId, WorkspaceId, ProjectId
+                                 )
+                                 VALUES
+                                 (
+                                     @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                                     @TenantId, @WorkspaceId, @ProjectId
+                                 );
+                                 """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -583,18 +566,14 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     TraceJson = JsonEntitySerializer.Serialize(emptyTrace),
                     TenantId,
                     WorkspaceId,
-                    ProjectId,
+                    ProjectId
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
-        SqlArtifactBundleRepository repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -607,7 +586,8 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
     }
 
     [SkippableFact]
-    public async Task GetByManifestId_when_both_ArtifactsJson_and_TraceJson_null_returns_empty_artifacts_and_default_trace()
+    public async Task
+        GetByManifestId_when_both_ArtifactsJson_and_TraceJson_null_returns_empty_artifacts_and_default_trace()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
@@ -656,27 +636,28 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             Assumptions = [],
             Warnings = [],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
 
-        SqlGoldenManifestRepository manifestRepository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        SqlGoldenManifestRepository manifestRepository =
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
         Guid bundleId = Guid.NewGuid();
         DateTime created = new(2026, 11, 12, 11, 0, 0, DateTimeKind.Utc);
 
         const string insertSql = """
-            INSERT INTO dbo.ArtifactBundles
-            (
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
-                TenantId, WorkspaceId, ProjectId
-            )
-            VALUES
-            (
-                @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
-                @TenantId, @WorkspaceId, @ProjectId
-            );
-            """;
+                                 INSERT INTO dbo.ArtifactBundles
+                                 (
+                                     BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                                     TenantId, WorkspaceId, ProjectId
+                                 )
+                                 VALUES
+                                 (
+                                     @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                                     @TenantId, @WorkspaceId, @ProjectId
+                                 );
+                                 """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -691,18 +672,14 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     TraceJson = (string?)null,
                     TenantId,
                     WorkspaceId,
-                    ProjectId,
+                    ProjectId
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
-        SqlArtifactBundleRepository repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        SqlArtifactBundleRepository
+            repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -727,9 +704,9 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         CancellationToken ct)
     {
         const string insertRun = """
-            INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
-            VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
-            """;
+                                 INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+                                 VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
+                                 """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -741,7 +718,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     CreatedUtc = DateTime.UtcNow,
                     TenantId,
                     WorkspaceId,
-                    ScopeProjectId = ProjectId,
+                    ScopeProjectId = ProjectId
                 },
                 cancellationToken: ct));
 
@@ -749,17 +726,17 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         string emptyList = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertContext = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
+                                     INSERT INTO dbo.ContextSnapshots
+                                     (
+                                         SnapshotId, RunId, ProjectId, CreatedUtc,
+                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                                     )
+                                     VALUES
+                                     (
+                                         @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+                                     );
+                                     """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -774,7 +751,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,
                     ErrorsJson = emptyList,
-                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>())
                 },
                 cancellationToken: ct));
 
@@ -783,17 +760,17 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         string emptyGraphWarnings = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertGraph = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                   INSERT INTO dbo.GraphSnapshots
+                                   (
+                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                       NodesJson, EdgesJson, WarningsJson
+                                   )
+                                   VALUES
+                                   (
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                       @NodesJson, @EdgesJson, @WarningsJson
+                                   );
+                                   """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -806,22 +783,22 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     CreatedUtc = DateTime.UtcNow,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
-                    WarningsJson = emptyGraphWarnings,
+                    WarningsJson = emptyGraphWarnings
                 },
                 cancellationToken: ct));
 
         const string insertFindings = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
-            );
-            """;
+                                      INSERT INTO dbo.FindingsSnapshots
+                                      (
+                                          FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                                          SchemaVersion, FindingsJson
+                                      )
+                                      VALUES
+                                      (
+                                          @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                                          @SchemaVersion, @FindingsJson
+                                      );
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -841,27 +818,27 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                         ContextSnapshotId = contextSnapshotId,
                         GraphSnapshotId = graphSnapshotId,
                         CreatedUtc = DateTime.UtcNow,
-                        Findings = [],
-                    }),
+                        Findings = []
+                    })
                 },
                 cancellationToken: ct));
 
         const string insertTrace = """
-            INSERT INTO dbo.DecisioningTraces
-            (
-                DecisionTraceId, RunId, CreatedUtc,
-                RuleSetId, RuleSetVersion, RuleSetHash,
-                AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
-                TenantId, WorkspaceId, ProjectId
-            )
-            VALUES
-            (
-                @DecisionTraceId, @RunId, @CreatedUtc,
-                @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson,
-                @TenantId, @WorkspaceId, @ProjectId
-            );
-            """;
+                                   INSERT INTO dbo.DecisioningTraces
+                                   (
+                                       DecisionTraceId, RunId, CreatedUtc,
+                                       RuleSetId, RuleSetVersion, RuleSetHash,
+                                       AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
+                                       TenantId, WorkspaceId, ProjectId
+                                   )
+                                   VALUES
+                                   (
+                                       @DecisionTraceId, @RunId, @CreatedUtc,
+                                       @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                       @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson,
+                                       @TenantId, @WorkspaceId, @ProjectId
+                                   );
+                                   """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -880,7 +857,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     NotesJson = emptyList,
                     TenantId,
                     WorkspaceId,
-                    ProjectId,
+                    ProjectId
                 },
                 cancellationToken: ct));
     }

@@ -5,24 +5,23 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IArchitectureDigestRepository"/>.
-/// Subclass once with an InMemory implementation and once with Dapper + SQL Server
-/// to guarantee both behave identically.
+///     Shared contract assertions for <see cref="IArchitectureDigestRepository" />.
+///     Subclass once with an InMemory implementation and once with Dapper + SQL Server
+///     to guarantee both behave identically.
 /// </summary>
 public abstract class ArchitectureDigestRepositoryContractTests
 {
+    private const int SeededDigestsForScopeTakeContract = 5;
+
+    private static readonly Guid TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
+    private static readonly Guid WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
+    private static readonly Guid ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3");
     protected abstract IArchitectureDigestRepository CreateRepository();
 
     /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
     protected virtual void SkipIfSqlServerUnavailable()
     {
     }
-
-    private const int SeededDigestsForScopeTakeContract = 5;
-
-    private static readonly Guid TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
-    private static readonly Guid WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
-    private static readonly Guid ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3");
 
     private static ArchitectureDigest CreateDigest(Guid? digestId = null, DateTime? generatedUtc = null)
     {
@@ -89,7 +88,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         await repo.CreateAsync(otherProject, CancellationToken.None);
 
         IReadOnlyList<ArchitectureDigest> result = await repo.ListByScopeAsync(
-            TenantId, WorkspaceId, ProjectId, take: 100, CancellationToken.None);
+            TenantId, WorkspaceId, ProjectId, 100, CancellationToken.None);
 
         result.Should().Contain(d => d.DigestId == matching.DigestId);
         result.Should().NotContain(d => d.DigestId == otherProject.DigestId);
@@ -107,7 +106,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         await repo.CreateAsync(newer, CancellationToken.None);
 
         IReadOnlyList<ArchitectureDigest> result = await repo.ListByScopeAsync(
-            TenantId, WorkspaceId, ProjectId, take: 100, CancellationToken.None);
+            TenantId, WorkspaceId, ProjectId, 100, CancellationToken.None);
 
         List<ArchitectureDigest> ours = result
             .Where(d => d.DigestId == older.DigestId || d.DigestId == newer.DigestId)
@@ -134,7 +133,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         }
 
         IReadOnlyList<ArchitectureDigest> result = await repo.ListByScopeAsync(
-            TenantId, WorkspaceId, uniqueProject, take: 3, CancellationToken.None);
+            TenantId, WorkspaceId, uniqueProject, 3, CancellationToken.None);
 
         result.Should().HaveCount(3);
     }
@@ -146,7 +145,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         IArchitectureDigestRepository repo = CreateRepository();
 
         IReadOnlyList<ArchitectureDigest> result = await repo.ListByScopeAsync(
-            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), take: 10, CancellationToken.None);
+            Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), 10, CancellationToken.None);
 
         result.Should().BeEmpty();
     }

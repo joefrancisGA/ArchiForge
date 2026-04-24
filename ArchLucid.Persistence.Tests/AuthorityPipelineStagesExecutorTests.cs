@@ -29,7 +29,7 @@ using Moq;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="AuthorityPipelineStagesExecutor"/> OTel span parenting, stage tags, histogram, and error propagation.
+///     <see cref="AuthorityPipelineStagesExecutor" /> OTel span parenting, stage tags, histogram, and error propagation.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -56,13 +56,12 @@ public sealed class AuthorityPipelineStagesExecutorTests
         try
         {
             using Activity? parent = ArchLucidInstrumentation.AuthorityRun.StartActivity(
-                "authority.run.test",
-                ActivityKind.Internal);
+                "authority.run.test");
 
             parent.Should().NotBeNull();
 
             AuthorityPipelineStagesExecutor sut = CreateExecutor();
-            AuthorityPipelineContext ctx = CreateContext(parent, runId: Guid.NewGuid());
+            AuthorityPipelineContext ctx = CreateContext(parent, Guid.NewGuid());
 
             await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -133,22 +132,21 @@ public sealed class AuthorityPipelineStagesExecutorTests
             listener.EnableMeasurementEvents(instrument);
         };
 
-        meterListener.SetMeasurementEventCallback<double>(
-            (instrument, measurement, tags, _) =>
+        meterListener.SetMeasurementEventCallback<double>((instrument, measurement, tags, _) =>
+        {
+            if (instrument.Name != "archlucid_authority_pipeline_stage_duration_ms")
             {
-                if (instrument.Name != "archlucid_authority_pipeline_stage_duration_ms")
-                {
-                    return;
-                }
+                return;
+            }
 
-                List<KeyValuePair<string, object?>> tagList = [];
-                foreach (KeyValuePair<string, object?> t in tags)
-                {
-                    tagList.Add(t);
-                }
+            List<KeyValuePair<string, object?>> tagList = [];
+            foreach (KeyValuePair<string, object?> t in tags)
+            {
+                tagList.Add(t);
+            }
 
-                histograms.Add(new HistogramMeasurement(measurement, tagList));
-            });
+            histograms.Add(new HistogramMeasurement(measurement, tagList));
+        });
 
         meterListener.Start();
 
@@ -204,17 +202,16 @@ public sealed class AuthorityPipelineStagesExecutorTests
             }
         };
 
-        meterListener.SetMeasurementEventCallback<double>(
-            (_, measurement, tags, _) =>
+        meterListener.SetMeasurementEventCallback<double>((_, measurement, tags, _) =>
+        {
+            List<KeyValuePair<string, object?>> tagList = [];
+            foreach (KeyValuePair<string, object?> t in tags)
             {
-                List<KeyValuePair<string, object?>> tagList = [];
-                foreach (KeyValuePair<string, object?> t in tags)
-                {
-                    tagList.Add(t);
-                }
+                tagList.Add(t);
+            }
 
-                histograms.Add(new HistogramMeasurement(measurement, tagList));
-            });
+            histograms.Add(new HistogramMeasurement(measurement, tagList));
+        });
 
         meterListener.Start();
 
@@ -255,7 +252,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
         AuthorityPipelineStagesExecutor sut = CreateExecutor();
-        AuthorityPipelineContext ctx = CreateContext(runActivity: null, runId: Guid.NewGuid());
+        AuthorityPipelineContext ctx = CreateContext(null, Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -285,9 +282,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             UnitOfWork = uow.Object,
             Scope = new ScopeContext
             {
-                TenantId = run.TenantId,
-                WorkspaceId = run.WorkspaceId,
-                ProjectId = run.ScopeProjectId
+                TenantId = run.TenantId, WorkspaceId = run.WorkspaceId, ProjectId = run.ScopeProjectId
             },
             RunActivity = runActivity
         };
@@ -316,10 +311,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
                 .ReturnsAsync(
                     new ContextSnapshot
                     {
-                        SnapshotId = snapshotId,
-                        RunId = Guid.Empty,
-                        ProjectId = "p1",
-                        CreatedUtc = DateTime.UtcNow
+                        SnapshotId = snapshotId, RunId = Guid.Empty, ProjectId = "p1", CreatedUtc = DateTime.UtcNow
                     });
         }
 
@@ -350,12 +342,11 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         Mock<IFindingsOrchestrator> findingsOrch = new();
         findingsOrch
-            .Setup(
-                f => f.GenerateFindingsSnapshotAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<GraphSnapshot>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(f => f.GenerateFindingsSnapshotAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new FindingsSnapshot
                 {
@@ -387,22 +378,16 @@ public sealed class AuthorityPipelineStagesExecutorTests
         };
 
         DecisionTrace trace = RuleAuditTrace.From(
-            new RuleAuditTracePayload
-            {
-                DecisionTraceId = traceId,
-                RunId = Guid.Empty,
-                CreatedUtc = DateTime.UtcNow
-            });
+            new RuleAuditTracePayload { DecisionTraceId = traceId, RunId = Guid.Empty, CreatedUtc = DateTime.UtcNow });
 
         Mock<IDecisionEngine> decision = new();
         decision
-            .Setup(
-                d => d.DecideAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<GraphSnapshot>(),
-                    It.IsAny<FindingsSnapshot>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(d => d.DecideAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((manifest, trace));
 
         Mock<IDecisionTraceRepository> traceRepo = new();

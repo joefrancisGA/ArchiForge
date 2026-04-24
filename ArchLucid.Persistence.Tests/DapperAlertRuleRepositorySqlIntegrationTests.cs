@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="DapperAlertRuleRepository"/> against real SQL Server (Docker) + production-shaped DDL from DbUp.
+///     <see cref="DapperAlertRuleRepository" /> against real SQL Server (Docker) + production-shaped DDL from DbUp.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

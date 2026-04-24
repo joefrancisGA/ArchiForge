@@ -14,8 +14,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GoldenManifests;
 
 /// <summary>
-/// Covers <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync"/> <c>DeserializeCompliance</c> when
-/// <c>ComplianceJson</c> is whitespace-only (default <see cref="ComplianceSection"/>), independent of relational slices.
+///     Covers <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync" /> <c>DeserializeCompliance</c> when
+///     <c>ComplianceJson</c> is whitespace-only (default <see cref="ComplianceSection" />), independent of relational
+///     slices.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -63,25 +64,25 @@ public sealed class GoldenManifestPhase1RelationalReadComplianceWhitespaceDirect
         UnresolvedIssuesSection unresolved = new();
 
         const string insertManifest = """
-            INSERT INTO dbo.GoldenManifests
-            (
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
-                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson
-            );
-            """;
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                                          @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                                          @WarningsJson, @ProvenanceJson
+                                      );
+                                      """;
 
         DateTime createdUtc = new(2026, 4, 23, 12, 0, 0, DateTimeKind.Utc);
 
@@ -115,7 +116,7 @@ public sealed class GoldenManifestPhase1RelationalReadComplianceWhitespaceDirect
                     DecisionsJson = JsonEntitySerializer.Serialize(new List<ResolvedArchitectureDecision>()),
                     AssumptionsJson = JsonEntitySerializer.Serialize(new List<string>()),
                     WarningsJson = JsonEntitySerializer.Serialize(new List<string>()),
-                    ProvenanceJson = JsonEntitySerializer.Serialize(new ManifestProvenance()),
+                    ProvenanceJson = JsonEntitySerializer.Serialize(new ManifestProvenance())
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -131,15 +132,13 @@ public sealed class GoldenManifestPhase1RelationalReadComplianceWhitespaceDirect
                     WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
                 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;
                 """,
-                new
-                {
-                    ManifestId = manifestId
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated = await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
+        GoldenManifest hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Compliance.Should().NotBeNull();
         hydrated.Compliance.Gaps.Should().BeEmpty();

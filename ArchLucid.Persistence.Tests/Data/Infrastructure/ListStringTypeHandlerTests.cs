@@ -10,44 +10,6 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "Unit")]
 public sealed class ListStringTypeHandlerTests
 {
-#pragma warning disable CS8766, CS8767 // Test fake: IDataParameter nullability vs concrete storage
-    private sealed class FakeDbParameter : IDbDataParameter
-    {
-        public DbType DbType
-        {
-            get; set;
-        }
-        public ParameterDirection Direction
-        {
-            get; set;
-        }
-        public bool IsNullable => false;
-        public string ParameterName { get; set; } = "";
-        public string SourceColumn { get; set; } = "";
-        public DataRowVersion SourceVersion
-        {
-            get; set;
-        }
-        public object? Value
-        {
-            get; set;
-        }
-        public byte Precision
-        {
-            get; set;
-        }
-        public byte Scale
-        {
-            get; set;
-        }
-        public int Size
-        {
-            get; set;
-        }
-    }
-
-#pragma warning restore CS8766, CS8767
-
     private readonly ListStringTypeHandler _handler = new();
 
     [Fact]
@@ -152,4 +114,65 @@ public sealed class ListStringTypeHandlerTests
 
         act.Should().NotThrow();
     }
+#pragma warning disable CS8766, CS8767 // Test fake: IDataParameter nullability vs concrete storage
+    private sealed class FakeDbParameter : IDbDataParameter
+    {
+        public DbType DbType
+        {
+            get;
+            set;
+        }
+
+        public ParameterDirection Direction
+        {
+            get;
+            set;
+        }
+
+        public bool IsNullable => false;
+
+        public string ParameterName
+        {
+            get;
+            set;
+        } = "";
+
+        public string SourceColumn
+        {
+            get;
+            set;
+        } = "";
+
+        public DataRowVersion SourceVersion
+        {
+            get;
+            set;
+        }
+
+        public object? Value
+        {
+            get;
+            set;
+        }
+
+        public byte Precision
+        {
+            get;
+            set;
+        }
+
+        public byte Scale
+        {
+            get;
+            set;
+        }
+
+        public int Size
+        {
+            get;
+            set;
+        }
+    }
+
+#pragma warning restore CS8766, CS8767
 }

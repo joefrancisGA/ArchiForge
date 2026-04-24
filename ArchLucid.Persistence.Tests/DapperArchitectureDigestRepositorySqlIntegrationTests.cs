@@ -6,7 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="DapperArchitectureDigestRepository"/> against real SQL Server (Docker) + production-shaped DDL from DbUp.
+///     <see cref="DapperArchitectureDigestRepository" /> against real SQL Server (Docker) + production-shaped DDL from
+///     DbUp.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -57,7 +58,7 @@ public sealed class DapperArchitectureDigestRepositorySqlIntegrationTests(SqlSer
             tenantId,
             workspaceId,
             projectId,
-            take: 10,
+            10,
             CancellationToken.None);
 
         list.Should().ContainSingle(d => d.DigestId == digestId);

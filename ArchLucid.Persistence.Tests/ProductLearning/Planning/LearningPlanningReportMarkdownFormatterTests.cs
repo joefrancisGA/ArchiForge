@@ -23,7 +23,7 @@ public sealed class LearningPlanningReportMarkdownFormatterTests
                 PlanCount = 1,
                 TotalThemeEvidenceSignals = 3,
                 TotalLinkedSignalsAcrossPlans = 1,
-                MaxPlanPriorityScore = 10,
+                MaxPlanPriorityScore = 10
             },
             Themes =
             [
@@ -36,8 +36,8 @@ public sealed class LearningPlanningReportMarkdownFormatterTests
                     SeverityBand = "High",
                     EvidenceSignalCount = 3,
                     DistinctRunCount = 2,
-                    Status = "open",
-                },
+                    Status = "open"
+                }
             ],
             Plans =
             [
@@ -60,22 +60,18 @@ public sealed class LearningPlanningReportMarkdownFormatterTests
                         LinkedArchitectureRunCount = 0,
                         Signals =
                         [
-                            new LearningPlanningReportSignalRef
-                            {
-                                SignalId = sigId,
-                                TriageStatusSnapshot = "open",
-                            },
+                            new LearningPlanningReportSignalRef { SignalId = sigId, TriageStatusSnapshot = "open" }
                         ],
                         Artifacts = [],
-                        ArchitectureRunIds = [],
-                    },
-                },
-            ],
+                        ArchitectureRunIds = []
+                    }
+                }
+            ]
         };
 
         string md = LearningPlanningReportMarkdownFormatter.Format(doc);
 
-        string[] lines = md.Split('\n', StringSplitOptions.None);
+        string[] lines = md.Split('\n');
 
         Assert.StartsWith("# ", lines[0], StringComparison.Ordinal);
         Assert.Contains(lines, static l => l.StartsWith("## Summary", StringComparison.Ordinal));

@@ -5,10 +5,14 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IArchitectureRunIdempotencyRepository"/>.
+///     Shared contract assertions for <see cref="IArchitectureRunIdempotencyRepository" />.
 /// </summary>
 public abstract class ArchitectureRunIdempotencyRepositoryContractTests
 {
+    private static readonly Guid TenantId = Guid.Parse("10101010-1010-1010-1010-101010101010");
+    private static readonly Guid WorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020");
+    private static readonly Guid ProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030");
+
     protected virtual void SkipIfSqlServerUnavailable()
     {
     }
@@ -23,10 +27,6 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
 
         return Task.CompletedTask;
     }
-
-    private static readonly Guid TenantId = Guid.Parse("10101010-1010-1010-1010-101010101010");
-    private static readonly Guid WorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020");
-    private static readonly Guid ProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030");
 
     [SkippableFact]
     public async Task TryInsert_then_TryGet_round_trips()

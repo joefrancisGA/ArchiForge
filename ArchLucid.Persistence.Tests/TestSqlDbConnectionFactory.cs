@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="IDbConnectionFactory"/> over a fixed connection string for SQL-backed contract tests.
+///     <see cref="IDbConnectionFactory" /> over a fixed connection string for SQL-backed contract tests.
 /// </summary>
 public sealed class TestSqlDbConnectionFactory : IDbConnectionFactory
 {

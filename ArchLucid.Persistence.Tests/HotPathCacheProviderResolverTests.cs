@@ -17,9 +17,7 @@ public sealed class HotPathCacheProviderResolverTests
     {
         HotPathCacheOptions options = new()
         {
-            Provider = provider,
-            ExpectedApiReplicaCount = replicas,
-            RedisConnectionString = redis
+            Provider = provider, ExpectedApiReplicaCount = replicas, RedisConnectionString = redis
         };
 
         HotPathCacheProviderResolver.ResolveEffectiveProvider(options).Should().Be(expected);

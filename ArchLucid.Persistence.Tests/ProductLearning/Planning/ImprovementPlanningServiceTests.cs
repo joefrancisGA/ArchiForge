@@ -26,7 +26,7 @@ public sealed class ImprovementPlanningServiceTests
                 EvidenceCount = evidenceCount,
                 AffectedArtifactTypes = facets,
                 FirstSeenUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
-                LastSeenUtc = new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc),
+                LastSeenUtc = new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc)
             },
             ExampleEvidence =
             [
@@ -35,9 +35,9 @@ public sealed class ImprovementPlanningServiceTests
                     EvidenceId = Guid.NewGuid(),
                     ThemeId = themeId,
                     ArchitectureRunId = "run-1",
-                    SignalId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                },
-            ],
+                    SignalId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+                }
+            ]
         };
     }
 
@@ -57,7 +57,7 @@ public sealed class ImprovementPlanningServiceTests
                 EvidenceCount = 4,
                 AffectedArtifactTypes = [facet],
                 FirstSeenUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
-                LastSeenUtc = new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc),
+                LastSeenUtc = new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc)
             },
             ExampleEvidence =
             [
@@ -66,9 +66,9 @@ public sealed class ImprovementPlanningServiceTests
                     EvidenceId = Guid.NewGuid(),
                     ThemeId = themeId,
                     ArchitectureRunId = "run-1",
-                    SignalId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                },
-            ],
+                    SignalId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+                }
+            ]
         };
     }
 
@@ -83,8 +83,7 @@ public sealed class ImprovementPlanningServiceTests
 
         ImprovementPlanningOptions options = new()
         {
-            RuleVersion = "59R-plan-v1",
-            CreatedUtcOverride = new DateTime(2026, 4, 3, 0, 0, 0, DateTimeKind.Utc),
+            RuleVersion = "59R-plan-v1", CreatedUtcOverride = new DateTime(2026, 4, 3, 0, 0, 0, DateTimeKind.Utc)
         };
 
         IReadOnlyList<ImprovementPlan> plans = await svc.BuildPlansAsync(
@@ -136,21 +135,17 @@ public sealed class ImprovementPlanningServiceTests
             idRollup,
             "rollup:pat-a",
             "R",
-            evidenceCount: 2,
-            facets: ["a"]);
+            2,
+            ["a"]);
 
         ImprovementThemeWithEvidence unknown = ThemeWithKey(
             idUnknown,
             "custom:opaque",
             "U",
-            evidenceCount: 2,
-            facets: ["b"]);
+            2,
+            ["b"]);
 
-        ImprovementPlanningOptions options = new()
-        {
-            RuleVersion = "v1",
-            MaxStepsPerPlan = 1
-        };
+        ImprovementPlanningOptions options = new() { RuleVersion = "v1", MaxStepsPerPlan = 1 };
 
         IReadOnlyList<ImprovementPlan> plans = await svc.BuildPlansAsync(
             [unknown, rollup],
@@ -178,8 +173,8 @@ public sealed class ImprovementPlanningServiceTests
             themeId,
             "rollup:x",
             "H",
-            evidenceCount: 50,
-            facets: ["x"]);
+            50,
+            ["x"]);
 
         IReadOnlyList<ImprovementPlan> plans = await svc.BuildPlansAsync(
             [heavy],
@@ -256,6 +251,7 @@ public sealed class ImprovementPlanningServiceTests
         Assert.Equal(5, pRoll.ProposedChanges.Count);
 
         Assert.Equal(4, pCom.ProposedChanges.Count);
-        Assert.Equal(["Investigate", "UX", "Content", "Verify"], pCom.ProposedChanges.Select(s => s.ActionType).ToArray());
+        Assert.Equal(["Investigate", "UX", "Content", "Verify"],
+            pCom.ProposedChanges.Select(s => s.ActionType).ToArray());
     }
 }

@@ -3,7 +3,6 @@ using ArchLucid.Persistence.Connections;
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
-
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
@@ -11,7 +10,8 @@ using Moq;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="SessionContextSqlConnectionFactory"/> must not leak open connections when session context application fails.
+///     <see cref="SessionContextSqlConnectionFactory" /> must not leak open connections when session context application
+///     fails.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

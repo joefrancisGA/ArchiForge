@@ -17,21 +17,20 @@ internal static class SqlPersistenceRepositoryFactory
     internal static SqlGoldenManifestRepository CreateGoldenManifestRepository(ISqlConnectionFactory factory)
     {
         SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(factory);
-        return new SqlGoldenManifestRepository(factory, readMirror, new NullArtifactBlobStore(), DisabledLargePayloadOptions);
+        return new SqlGoldenManifestRepository(factory, readMirror, new NullArtifactBlobStore(),
+            DisabledLargePayloadOptions);
     }
 
-    internal static SqlArtifactBundleRepository CreateArtifactBundleRepository(ISqlConnectionFactory factory) =>
-        new(factory, new NullArtifactBlobStore(), DisabledLargePayloadOptions);
+    internal static SqlArtifactBundleRepository CreateArtifactBundleRepository(ISqlConnectionFactory factory)
+    {
+        return new SqlArtifactBundleRepository(factory, new NullArtifactBlobStore(), DisabledLargePayloadOptions);
+    }
 
     private static IOptionsMonitor<ArtifactLargePayloadOptions> CreateDisabledLargePayloadOptions()
     {
         Mock<IOptionsMonitor<ArtifactLargePayloadOptions>> mock = new();
         mock.Setup(static o => o.CurrentValue).Returns(
-            new ArtifactLargePayloadOptions
-            {
-                Enabled = false,
-                BlobProvider = "None",
-            });
+            new ArtifactLargePayloadOptions { Enabled = false, BlobProvider = "None" });
         return mock.Object;
     }
 }

@@ -21,7 +21,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
         Guid id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        AlertRoutingSubscription sub = BuildSubscription(id, isEnabled: true, BaseUtc, destination: "a@b.com");
+        AlertRoutingSubscription sub = BuildSubscription(id, true, BaseUtc, "a@b.com");
 
         await repo.CreateAsync(sub, CancellationToken.None);
 
@@ -37,7 +37,8 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
 
-        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
+        AlertRoutingSubscription? loaded = await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+            CancellationToken.None);
 
         loaded.Should().BeNull();
     }
@@ -47,9 +48,9 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
         Guid id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-        await repo.CreateAsync(BuildSubscription(id, isEnabled: true, BaseUtc, destination: "old"), CancellationToken.None);
+        await repo.CreateAsync(BuildSubscription(id, true, BaseUtc, "old"), CancellationToken.None);
 
-        AlertRoutingSubscription next = BuildSubscription(id, isEnabled: false, BaseUtc, destination: "new");
+        AlertRoutingSubscription next = BuildSubscription(id, false, BaseUtc, "new");
 
         await repo.UpdateAsync(next, CancellationToken.None);
 
@@ -64,13 +65,13 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
         Guid existingId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
-        await repo.CreateAsync(BuildSubscription(existingId, isEnabled: true, BaseUtc, destination: "keep"), CancellationToken.None);
+        await repo.CreateAsync(BuildSubscription(existingId, true, BaseUtc, "keep"), CancellationToken.None);
 
         AlertRoutingSubscription ghost = BuildSubscription(
             Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-            isEnabled: true,
+            true,
             BaseUtc,
-            destination: "ghost");
+            "ghost");
 
         await repo.UpdateAsync(ghost, CancellationToken.None);
 
@@ -99,7 +100,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
                 true,
                 BaseUtc.AddMinutes(30),
                 "c",
-                tenantId: Guid.Parse("99999999-9999-9999-9999-999999999999")),
+                Guid.Parse("99999999-9999-9999-9999-999999999999")),
             CancellationToken.None);
 
         IReadOnlyList<AlertRoutingSubscription> list =
@@ -145,7 +146,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
             ChannelType = "Email",
             Destination = destination,
             IsEnabled = isEnabled,
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
     }
 }

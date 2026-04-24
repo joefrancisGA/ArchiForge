@@ -18,9 +18,9 @@ public sealed class InMemoryTenantRepositoryEnterpriseScimSeatTests
             "Scim Seat Tenant",
             "slug-scim-seat",
             TenantTier.Enterprise,
-            entraTenantId: null,
-            ct: default,
-            enterpriseScimSeatsLimit: 2);
+            null,
+            default,
+            2);
 
         (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, default)).Should().BeTrue();
         (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, default)).Should().BeTrue();

@@ -4,7 +4,7 @@ using ArchLucid.Decisioning.Repositories;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="GoldenManifestRepositoryContractTests"/> against <see cref="InMemoryGoldenManifestRepository"/>.
+///     Runs <see cref="GoldenManifestRepositoryContractTests" /> against <see cref="InMemoryGoldenManifestRepository" />.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

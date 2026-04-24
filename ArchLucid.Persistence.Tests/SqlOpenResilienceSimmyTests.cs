@@ -10,7 +10,8 @@ using Polly.Simmy.Fault;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Ensures <see cref="SqlOpenResilienceDefaults"/> retry pipeline composes with Simmy SQL faults the same way as <see cref="ResilientSqlConnectionFactory"/> (retry outside chaos).
+///     Ensures <see cref="SqlOpenResilienceDefaults" /> retry pipeline composes with Simmy SQL faults the same way as
+///     <see cref="ResilientSqlConnectionFactory" /> (retry outside chaos).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -20,9 +21,9 @@ public sealed class SqlOpenResilienceSimmyTests
     public async Task Sql_open_retry_pipeline_outer_with_inner_chaos_transient_sql()
     {
         ResiliencePipeline sqlRetry = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
-            logger: null,
-            maxRetryAttempts: 4,
-            baseDelay: TimeSpan.FromMilliseconds(1));
+            null,
+            4,
+            TimeSpan.FromMilliseconds(1));
 
         int chaosWave = 0;
         int innerCalls = 0;

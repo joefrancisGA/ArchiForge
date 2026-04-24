@@ -7,13 +7,14 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Ensures operator/UI-facing artifact ordering stays deterministic (name, then id).
+///     Ensures operator/UI-facing artifact ordering stays deterministic (name, then id).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ArtifactDescriptorMapperTests
 {
-    private static SynthesizedArtifact Artifact(Guid id, string name) =>
-        new()
+    private static SynthesizedArtifact Artifact(Guid id, string name)
+    {
+        return new SynthesizedArtifact
         {
             ArtifactId = id,
             RunId = Guid.Parse("10000000-0000-0000-0000-000000000001"),
@@ -23,8 +24,9 @@ public sealed class ArtifactDescriptorMapperTests
             Name = name,
             Format = "json",
             Content = "{}",
-            ContentHash = "abc",
+            ContentHash = "abc"
         };
+    }
 
     [Fact]
     public void OrderSynthesizedArtifacts_SortsByNameCaseInsensitiveThenArtifactId()
@@ -35,7 +37,7 @@ public sealed class ArtifactDescriptorMapperTests
         [
             Artifact(idA, "same"),
             Artifact(idB, "same"),
-            Artifact(Guid.Parse("00000000-0000-0000-0000-000000000003"), "Alpha"),
+            Artifact(Guid.Parse("00000000-0000-0000-0000-000000000003"), "Alpha")
         ];
 
         IReadOnlyList<SynthesizedArtifact> ordered = ArtifactDescriptorMapper.OrderSynthesizedArtifacts(input);

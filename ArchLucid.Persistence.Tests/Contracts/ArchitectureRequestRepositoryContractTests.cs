@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IArchitectureRequestRepository"/>.
+///     Shared contract assertions for <see cref="IArchitectureRequestRepository" />.
 /// </summary>
 public abstract class ArchitectureRequestRepositoryContractTests
 {
@@ -30,7 +30,7 @@ public abstract class ArchitectureRequestRepositoryContractTests
             SystemName = "SysX",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
-            Description = "desc",
+            Description = "desc"
         };
 
         await repo.CreateAsync(request, CancellationToken.None);

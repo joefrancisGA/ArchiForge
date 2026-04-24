@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -6,11 +7,16 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Moq;
@@ -31,6 +37,11 @@ public sealed class ArchitectureApplicationServiceTests
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
     private readonly ArchitectureApplicationService _sut;
     private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader;
+    private readonly Mock<IRunRepository> _runRepository;
+    private readonly Mock<IScopeContextProvider> _scopeContextProvider;
+    private readonly IConfiguration _configuration;
+    private readonly Mock<IAuditService> _auditService;
+    private readonly Mock<IActorContext> _actorContext;
 
     public ArchitectureApplicationServiceTests()
     {
@@ -40,7 +51,30 @@ public sealed class ArchitectureApplicationServiceTests
         _requestRepository = new Mock<IArchitectureRequestRepository>();
         _agentEvidencePackageRepository = new Mock<IAgentEvidencePackageRepository>();
         _evidenceBuilder = new Mock<IEvidenceBuilder>();
+        _runRepository = new Mock<IRunRepository>();
+        _scopeContextProvider = new Mock<IScopeContextProvider>();
+        _configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "gpt-test" })
+            .Build();
+        _auditService = new Mock<IAuditService>();
+        _actorContext = new Mock<IActorContext>();
         Mock<ILogger<ArchitectureApplicationService>> logger = new();
+
+        _scopeContextProvider
+            .Setup(s => s.GetCurrentScope())
+            .Returns(
+                new ScopeContext
+                {
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                    ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+                });
+
+        _auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        _actorContext.Setup(a => a.GetActor()).Returns("unit-test");
 
         _agentEvidencePackageRepository
             .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -72,6 +106,11 @@ public sealed class ArchitectureApplicationServiceTests
             _agentEvidencePackageRepository.Object,
             _evidenceBuilder.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            _runRepository.Object,
+            _scopeContextProvider.Object,
+            _configuration,
+            _auditService.Object,
+            _actorContext.Object,
             logger.Object);
     }
 

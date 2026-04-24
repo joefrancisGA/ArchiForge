@@ -12,11 +12,7 @@ public sealed class SqlOpenResilienceOptionsTests
     [Fact]
     public void Normalize_clamps_max_retries_and_base_delay()
     {
-        SqlOpenResilienceOptions options = new()
-        {
-            MaxRetryAttempts = -5,
-            BaseDelayMilliseconds = -1
-        };
+        SqlOpenResilienceOptions options = new() { MaxRetryAttempts = -5, BaseDelayMilliseconds = -1 };
         options.Normalize();
 
         options.MaxRetryAttempts.Should().Be(0);
@@ -26,15 +22,11 @@ public sealed class SqlOpenResilienceOptionsTests
     [Fact]
     public async Task BuildSqlOpenRetryPipeline_uses_values_matching_bound_options()
     {
-        SqlOpenResilienceOptions options = new()
-        {
-            MaxRetryAttempts = 1,
-            BaseDelayMilliseconds = 1
-        };
+        SqlOpenResilienceOptions options = new() { MaxRetryAttempts = 1, BaseDelayMilliseconds = 1 };
         options.Normalize();
 
         ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
-            logger: null,
+            null,
             options.MaxRetryAttempts,
             TimeSpan.FromMilliseconds(options.BaseDelayMilliseconds));
 

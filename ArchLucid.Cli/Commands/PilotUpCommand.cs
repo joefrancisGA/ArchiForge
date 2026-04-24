@@ -1,5 +1,8 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+
+using ArchLucid.Cli.Real;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -13,7 +16,8 @@ internal static class PilotUpCommand
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(3);
     private static readonly TimeSpan ReadyDeadline = TimeSpan.FromSeconds(120);
 
-    public static async Task<int> RunAsync(CancellationToken cancellationToken = default)
+    /// <summary>Default pilot stack: base compose + demo overlay (simulator).</summary>
+    public static Task<int> RunAsync(CancellationToken cancellationToken = default)
     {
         string? composeDir = FindDockerComposeDirectory();
 
@@ -22,24 +26,55 @@ internal static class PilotUpCommand
             Console.WriteLine(
                 "Error: docker-compose.yml not found. Run from the ArchLucid repo root, or ensure docker-compose.yml exists in the current directory.");
 
-            return CliExitCode.UsageError;
+            return Task.FromResult(CliExitCode.UsageError);
         }
 
-        string composeBase = Path.Combine(composeDir, "docker-compose.yml");
-        string composeDemo = Path.Combine(composeDir, "docker-compose.demo.yml");
+        IReadOnlyList<string> abs = ComposePathListBuilder.BuildAbsolutePaths(composeDir, ComposeOverlayResolver.Resolve(false));
 
-        if (!File.Exists(composeDemo))
+        return RunWithComposeFilesAsync(abs, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Brings up Docker using an explicit ordered list of compose file <b>absolute</b> paths (first file is always
+    ///     <c>docker-compose.yml</c> under the repo root).
+    /// </summary>
+    public static Task<int> RunAsync(IReadOnlyList<string> composeAbsolutePaths, CancellationToken cancellationToken = default)
+    {
+        return RunWithComposeFilesAsync(composeAbsolutePaths, cancellationToken);
+    }
+
+    private static async Task<int> RunWithComposeFilesAsync(
+        IReadOnlyList<string> composeAbsolutePaths,
+        CancellationToken cancellationToken)
+    {
+        if (composeAbsolutePaths is null || composeAbsolutePaths.Count < 2)
         {
-            Console.WriteLine($"Error: Expected demo overlay at {composeDemo} (see scripts/demo-start.ps1).");
+            Console.WriteLine("Error: At least two compose files (base + overlay) are required.");
 
             return CliExitCode.UsageError;
         }
 
-        Console.WriteLine($"Starting pilot stack from {composeDir} (full-stack + demo overlay)...");
+        foreach (string path in composeAbsolutePaths)
+
+            if (!File.Exists(path))
+            {
+                Console.WriteLine($"Error: Compose file not found: {path}");
+
+                return CliExitCode.UsageError;
+            }
+
+
+        string composeDir = Path.GetDirectoryName(composeAbsolutePaths[0])!;
+
+        string composeArgs = string.Join(
+            " ",
+            composeAbsolutePaths.Select(static p => $"-f \"{p}\"")) + " --profile full-stack up -d --build";
+
+        Console.WriteLine($"Starting pilot stack from {composeDir} ({composeAbsolutePaths.Count} compose files)...");
 
         (int exitCode, string stdout, string stderr) = RunProcess(
             "docker",
-            $"compose -f \"{composeBase}\" -f \"{composeDemo}\" --profile full-stack up -d --build",
+            $"compose {composeArgs}",
             composeDir);
 
         if (exitCode != 0)
@@ -106,7 +141,8 @@ internal static class PilotUpCommand
         Console.WriteLine("  Health:        http://localhost:5000/health/ready");
         Console.WriteLine();
         Console.WriteLine("Demo seed runs at API startup when the demo overlay is applied (Demo__SeedOnStartup=true).");
-        Console.WriteLine("Agent execution uses the simulator (no Azure OpenAI keys required for this path).");
+        Console.WriteLine(
+            "Agent execution mode follows compose overlays (simulator by default; use docker-compose.real-aoai.yml for Real).");
 
         return CliExitCode.Success;
     }

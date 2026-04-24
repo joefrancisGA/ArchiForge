@@ -1,3 +1,4 @@
+using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
@@ -33,8 +34,11 @@ public sealed class AlertSimulationContextProviderTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunDetailDto
             {
-                Run = new RunRecord { RunId = runId, TenantId = tenantId, WorkspaceId = workspaceId, ScopeProjectId = projectId },
-                GoldenManifest = null,
+                Run = new RunRecord
+                {
+                    RunId = runId, TenantId = tenantId, WorkspaceId = workspaceId, ScopeProjectId = projectId
+                },
+                GoldenManifest = null
             });
 
         Mock<IImprovementAdvisorService> advisor = new();
@@ -54,9 +58,9 @@ public sealed class AlertSimulationContextProviderTests
             workspaceId,
             projectId,
             runId,
-            comparedToRunId: null,
-            recentRunCount: 5,
-            runProjectSlug: "default",
+            null,
+            5,
+            "default",
             CancellationToken.None);
 
         contexts.Should().BeEmpty();
@@ -70,7 +74,7 @@ public sealed class AlertSimulationContextProviderTests
             a => a.GeneratePlanAsync(
                 It.IsAny<GoldenManifest>(),
                 It.IsAny<FindingsSnapshot>(),
-                It.IsAny<Core.Comparison.ComparisonResult>(),
+                It.IsAny<ComparisonResult>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }

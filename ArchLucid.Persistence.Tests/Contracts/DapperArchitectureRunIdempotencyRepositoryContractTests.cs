@@ -1,5 +1,4 @@
 using ArchLucid.Persistence.Data.Repositories;
-
 using ArchLucid.Persistence.Tests.Support;
 
 using FluentAssertions;
@@ -32,8 +31,8 @@ public sealed class DapperArchitectureRunIdempotencyRepositoryContractTests(SqlS
     }
 
     /// <summary>
-    /// Concurrent callers racing on the same idempotency key: SQL unique constraint / first-wins semantics
-    /// must leave exactly one row (same as <see cref="ArchitectureRunCreateOrchestrator"/> persistence race).
+    ///     Concurrent callers racing on the same idempotency key: SQL unique constraint / first-wins semantics
+    ///     must leave exactly one row (same as <see cref="ArchitectureRunCreateOrchestrator" /> persistence race).
     /// </summary>
     [SkippableFact]
     [Trait("Suite", "SqlServer")]
@@ -63,7 +62,8 @@ public sealed class DapperArchitectureRunIdempotencyRepositoryContractTests(SqlS
         for (int i = 0; i < parallel; i++)
         {
             string rid = runIds[i];
-            tasks[i] = repo.TryInsertAsync(tenantId, workspaceId, projectId, keyHash, fingerprint, rid, CancellationToken.None);
+            tasks[i] = repo.TryInsertAsync(tenantId, workspaceId, projectId, keyHash, fingerprint, rid,
+                CancellationToken.None);
         }
 
         bool[] outcomes = await Task.WhenAll(tasks);

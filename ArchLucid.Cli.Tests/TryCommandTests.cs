@@ -1,4 +1,5 @@
 using ArchLucid.Cli.Commands;
+using ArchLucid.Cli.Real;
 using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
@@ -24,11 +25,41 @@ public sealed class TryCommandTests
 
         error.Should().BeNull();
         opts.Should().NotBeNull();
-        opts.ApiBaseUrl.Should().Be(TryCommandOptions.DefaultApiBaseUrl);
+        opts!.ApiBaseUrl.Should().Be(TryCommandOptions.DefaultApiBaseUrl);
         opts.UiBaseUrl.Should().Be(TryCommandOptions.DefaultUiBaseUrl);
         opts.OpenArtifacts.Should().BeTrue();
         opts.ReadinessDeadline.Should().Be(TryCommandOptions.DefaultReadinessDeadline);
         opts.CommitDeadline.Should().Be(TryCommandOptions.DefaultCommitDeadline);
+        opts.RealMode.Should().BeFalse();
+        opts.StrictReal.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Parse_Real_SetsLongerDefaultCommitDeadline()
+    {
+        TryCommandOptions? opts = TryCommandOptions.Parse(["--real"], out string? error);
+
+        error.Should().BeNull();
+        opts!.CommitDeadline.Should().Be(TryCommandOptions.RealModeDefaultCommitDeadline);
+        opts.RealMode.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Parse_Real_WithExplicitCommitDeadline_UsesOverride()
+    {
+        TryCommandOptions? opts = TryCommandOptions.Parse(["--real", "--commit-deadline", "90"], out string? error);
+
+        error.Should().BeNull();
+        opts!.CommitDeadline.Should().Be(TimeSpan.FromSeconds(90));
+    }
+
+    [Fact]
+    public void Parse_StrictReal_Parses()
+    {
+        TryCommandOptions? opts = TryCommandOptions.Parse(["--strict-real"], out string? error);
+
+        error.Should().BeNull();
+        opts!.StrictReal.Should().BeTrue();
     }
 
     [Fact]
@@ -113,6 +144,18 @@ public sealed class TryCommandTests
     }
 
     [Fact]
+    public async Task PollForCommittableStatusAsync_WhenFailed_ReturnsImmediately()
+    {
+        ArchitectureRunStatus result = await TryCommand.PollForCommittableStatusAsync(
+            _ => Task.FromResult<ArchitectureRunStatus?>(ArchitectureRunStatus.Failed),
+            TimeSpan.FromSeconds(5),
+            TimeSpan.FromMilliseconds(20),
+            CancellationToken.None);
+
+        result.Should().Be(ArchitectureRunStatus.Failed);
+    }
+
+    [Fact]
     public async Task
         PollForCommittableStatusAsync_WhenStatusNeverReachesReadyForCommit_ReturnsLastObservedAfterDeadline()
     {
@@ -188,7 +231,7 @@ public sealed class TryCommandTests
     /// </summary>
     private static TryCommandHooks MakeHooks(
         Func<string?>? findCompose = null,
-        Func<CancellationToken, Task<int>>? pilotUp = null)
+        Func<IReadOnlyList<string>, CancellationToken, Task<int>>? pilotUp = null)
     {
         return new TryCommandHooks
         {
@@ -196,13 +239,15 @@ public sealed class TryCommandTests
                 findCompose ?? (() =>
                     throw new InvalidOperationException("FindComposeDirectory should not have been invoked.")),
             PilotUp =
-                pilotUp ?? (_ => throw new InvalidOperationException("PilotUp should not have been invoked.")),
+                pilotUp ?? ((_, _) => Task.FromResult(CliExitCode.Success)),
+            ValidateRealModeEnv = () => new RealModePreflightResult(true, [], null),
+            ResolveComposeOverlays = _ => ["docker-compose.demo.yml"],
             DemoSeed = (_, __) => throw new InvalidOperationException("DemoSeed should not have been invoked."),
             CreateRun = (_, __) => throw new InvalidOperationException("CreateRun should not have been invoked."),
-            ExecuteRun = (_, __, ___) =>
+            ExecuteRun = (_, __, ___, ____) =>
                 throw new InvalidOperationException("ExecuteRun should not have been invoked."),
             GetRun = (_, __, ___) => throw new InvalidOperationException("GetRun should not have been invoked."),
-            SeedFakeResults = (_, __, ___) =>
+            SeedFakeResults = (_, __, ___, ____) =>
                 throw new InvalidOperationException("SeedFakeResults should not have been invoked."),
             CommitRun = (_, __, ___) =>
                 throw new InvalidOperationException("CommitRun should not have been invoked."),

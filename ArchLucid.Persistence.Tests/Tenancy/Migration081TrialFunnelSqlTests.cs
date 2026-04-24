@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
@@ -10,10 +12,11 @@ public sealed class Migration081TrialFunnelSqlTests
     [Fact]
     public void Embedded_081_migration_adds_trial_first_manifest_column()
     {
-        Assembly asm = typeof(ArchLucid.Persistence.Data.Infrastructure.DatabaseMigrator).Assembly;
+        Assembly asm = typeof(DatabaseMigrator).Assembly;
 
         string? resourceName = asm.GetManifestResourceNames()
-            .SingleOrDefault(static n => n.EndsWith("081_Tenants_TrialFirstManifestCommittedUtc.sql", StringComparison.Ordinal));
+            .SingleOrDefault(static n =>
+                n.EndsWith("081_Tenants_TrialFirstManifestCommittedUtc.sql", StringComparison.Ordinal));
 
         resourceName.Should().NotBeNull();
 

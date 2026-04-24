@@ -16,13 +16,10 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
 
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    private static ProductLearningScope Scope() =>
-        new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+    private static ProductLearningScope Scope()
+    {
+        return new ProductLearningScope { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+    }
 
     [Fact]
     public async Task GetSnapshotAsync_drops_rollups_below_MinSignalsPerAggregate()
@@ -36,9 +33,7 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
         ProductLearningFeedbackAggregationService svc = new(repo);
         ProductLearningTriageOptions options = new()
         {
-            MinSignalsPerAggregate = 2,
-            MaxFeedbackRollups = 50,
-            MaxArtifactTrends = 50,
+            MinSignalsPerAggregate = 2, MaxFeedbackRollups = 50, MaxArtifactTrends = 50
         };
 
         ProductLearningAggregationSnapshot snap =
@@ -63,7 +58,7 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
             SinceUtc = new DateTime(2026, 4, 15, 0, 0, 0, DateTimeKind.Utc),
             MinSignalsPerAggregate = 2,
             MaxFeedbackRollups = 50,
-            MaxArtifactTrends = 50,
+            MaxArtifactTrends = 50
         };
 
         ProductLearningAggregationSnapshot snap =
@@ -93,7 +88,7 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
             MinSignalsPerAggregate = 1,
             MaxFeedbackRollups = 50,
             MaxArtifactTrends = 50,
-            MinNegativeOutcomesOnArtifactTrend = 99,
+            MinNegativeOutcomesOnArtifactTrend = 99
         };
 
         ProductLearningAggregationSnapshot snap =
@@ -103,15 +98,18 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
         snap.TopRejectedRevisedRollups.Should().BeEmpty();
     }
 
-    private static ProductLearningPilotSignalRecord Signal(string patternKey, DateTime recordedUtc, string runId) =>
-        Signal(ProductLearningDispositionValues.Trusted, patternKey, recordedUtc, runId);
+    private static ProductLearningPilotSignalRecord Signal(string patternKey, DateTime recordedUtc, string runId)
+    {
+        return Signal(ProductLearningDispositionValues.Trusted, patternKey, recordedUtc, runId);
+    }
 
     private static ProductLearningPilotSignalRecord Signal(
         string disposition,
         string patternKey,
         DateTime recordedUtc,
-        string runId) =>
-        new()
+        string runId)
+    {
+        return new ProductLearningPilotSignalRecord
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -120,6 +118,7 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
             Disposition = disposition,
             PatternKey = patternKey,
             ArchitectureRunId = runId,
-            RecordedUtc = recordedUtc,
+            RecordedUtc = recordedUtc
         };
+    }
 }

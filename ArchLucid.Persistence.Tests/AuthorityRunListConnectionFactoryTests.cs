@@ -10,9 +10,10 @@ using Moq;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="ReadReplicaRoutedConnectionFactory"/> for <see cref="ReadReplicaQueryRoute.AuthorityRunList"/> opens via
-/// <see cref="ResilientSqlConnectionFactory"/> when no replica string is set, then applies
-/// <see cref="IRlsSessionContextApplicator"/> once.
+///     <see cref="ReadReplicaRoutedConnectionFactory" /> for <see cref="ReadReplicaQueryRoute.AuthorityRunList" /> opens
+///     via
+///     <see cref="ResilientSqlConnectionFactory" /> when no replica string is set, then applies
+///     <see cref="IRlsSessionContextApplicator" /> once.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class AuthorityRunListConnectionFactoryTests

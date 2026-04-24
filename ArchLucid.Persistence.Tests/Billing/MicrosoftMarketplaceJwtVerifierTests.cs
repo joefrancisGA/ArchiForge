@@ -1,7 +1,11 @@
+using System.Security.Claims;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Tests.Billing;
 
@@ -15,21 +19,20 @@ public sealed class MicrosoftMarketplaceJwtVerifierTests
         {
             AzureMarketplace = new AzureMarketplaceBillingOptions
             {
-                OpenIdMetadataAddress = null,
-                ValidAudiences = ["https://marketplaceapi.microsoft.com"],
-            },
+                OpenIdMetadataAddress = null, ValidAudiences = ["https://marketplaceapi.microsoft.com"]
+            }
         };
 
         TestMonitor<BillingOptions> monitor = new(billing);
         MicrosoftMarketplaceJwtVerifier sut = new(monitor);
 
-        System.Security.Claims.ClaimsPrincipal? principal =
+        ClaimsPrincipal? principal =
             await sut.ValidateAsync("any.jwt.here", CancellationToken.None);
 
         principal.Should().BeNull();
     }
 
-    private sealed class TestMonitor<T>(T value) : Microsoft.Extensions.Options.IOptionsMonitor<T>
+    private sealed class TestMonitor<T>(T value) : IOptionsMonitor<T>
         where T : class
     {
         public T CurrentValue
@@ -37,8 +40,14 @@ public sealed class MicrosoftMarketplaceJwtVerifierTests
             get;
         } = value;
 
-        public T Get(string? name) => CurrentValue;
+        public T Get(string? name)
+        {
+            return CurrentValue;
+        }
 
-        public IDisposable? OnChange(Action<T, string?> listener) => null;
+        public IDisposable? OnChange(Action<T, string?> listener)
+        {
+            return null;
+        }
     }
 }

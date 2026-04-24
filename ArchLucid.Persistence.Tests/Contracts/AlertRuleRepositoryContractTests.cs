@@ -5,22 +5,21 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IAlertRuleRepository"/>.
-/// Subclass once with an InMemory implementation and once with Dapper + SQL Server
-/// to guarantee both behave identically.
+///     Shared contract assertions for <see cref="IAlertRuleRepository" />.
+///     Subclass once with an InMemory implementation and once with Dapper + SQL Server
+///     to guarantee both behave identically.
 /// </summary>
 public abstract class AlertRuleRepositoryContractTests
 {
+    private static readonly Guid TenantId = Guid.Parse("a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0");
+    private static readonly Guid WorkspaceId = Guid.Parse("b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0");
+    private static readonly Guid ProjectId = Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0");
     protected abstract IAlertRuleRepository CreateRepository();
 
     /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
     protected virtual void SkipIfSqlServerUnavailable()
     {
     }
-
-    private static readonly Guid TenantId = Guid.Parse("a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0");
-    private static readonly Guid WorkspaceId = Guid.Parse("b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0");
-    private static readonly Guid ProjectId = Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0");
 
     private static AlertRule CreateRule(Guid? ruleId = null, bool isEnabled = true, DateTime? createdUtc = null)
     {

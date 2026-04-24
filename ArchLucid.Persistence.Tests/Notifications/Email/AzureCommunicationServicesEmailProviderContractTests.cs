@@ -23,20 +23,19 @@ public sealed class AzureCommunicationServicesEmailProviderContractTests
             {
                 Provider = EmailProviderNames.AzureCommunicationServices,
                 AzureCommunicationServicesEndpoint = "https://contoso.communication.azure.com/",
-                FromAddress = "DoNotReply@contoso.azurecomm.net",
+                FromAddress = "DoNotReply@contoso.azurecomm.net"
             });
 
         Mock<IAzureCommunicationEmailApi> api = new();
-        api.Setup(
-                a => a.SendAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<string>(),
-                    It.IsAny<CancellationToken>()))
+        api.Setup(a => a.SendAsync(
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync("op-123");
 
         AzureCommunicationServicesEmailProvider sut = new(options.Object, api.Object);
@@ -48,7 +47,7 @@ public sealed class AzureCommunicationServicesEmailProviderContractTests
             HtmlBody = "<p>Hi</p>",
             TextBody = "Hi",
             IdempotencyKey = "k",
-            Tags = new EmailMessageTags { TenantId = Guid.NewGuid(), EventType = "t" },
+            Tags = new EmailMessageTags { TenantId = Guid.NewGuid(), EventType = "t" }
         };
 
         await sut.SendAsync(message, CancellationToken.None);

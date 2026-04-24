@@ -2780,7 +2780,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -2863,7 +2863,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -2949,7 +2949,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3036,7 +3036,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3123,7 +3123,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3205,7 +3205,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3287,7 +3287,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3369,7 +3369,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3463,7 +3463,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3546,7 +3546,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3632,7 +3632,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3718,7 +3718,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3805,7 +3805,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -3892,7 +3892,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -5173,7 +5173,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {
@@ -5247,7 +5247,7 @@ namespace ArchLucid.Api.Client.Generated
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return default(void)!;
+                            return;
                         }
                         else
                         {

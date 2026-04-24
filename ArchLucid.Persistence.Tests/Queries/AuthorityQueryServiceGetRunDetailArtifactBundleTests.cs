@@ -19,19 +19,15 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
     [Theory]
     [InlineData(typeof(InMemoryAuthorityQueryService))]
     [InlineData(typeof(DapperAuthorityQueryService))]
-    public async Task GetRunDetailAsync_loads_bundle_by_manifest_when_golden_manifest_set_but_bundle_row_id_null(Type implementationType)
+    public async Task GetRunDetailAsync_loads_bundle_by_manifest_when_golden_manifest_set_but_bundle_row_id_null(
+        Type implementationType)
     {
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
         RunRecord run = new()
         {
@@ -44,11 +40,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
             ArtifactBundleId = null
         };
 
-        ArtifactBundle bundle = new()
-        {
-            ManifestId = manifestId,
-            BundleId = Guid.NewGuid()
-        };
+        ArtifactBundle bundle = new() { ManifestId = manifestId, BundleId = Guid.NewGuid() };
 
         Mock<IRunRepository> runs = new();
         runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(run);
@@ -89,12 +81,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
         RunRecord run = new()
         {
@@ -172,6 +159,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         }
 
 
-        throw new ArgumentException($"Unsupported query service type: {implementationType.Name}", nameof(implementationType));
+        throw new ArgumentException($"Unsupported query service type: {implementationType.Name}",
+            nameof(implementationType));
     }
 }

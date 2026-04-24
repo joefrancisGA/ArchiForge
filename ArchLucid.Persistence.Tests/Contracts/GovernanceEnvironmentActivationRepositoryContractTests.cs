@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IGovernanceEnvironmentActivationRepository"/>.
+///     Shared contract assertions for <see cref="IGovernanceEnvironmentActivationRepository" />.
 /// </summary>
 public abstract class GovernanceEnvironmentActivationRepositoryContractTests
 {
@@ -28,7 +28,8 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
         await repo.CreateAsync(NewActivation("act-old", "run-a", env, older, true), CancellationToken.None);
         await repo.CreateAsync(NewActivation("act-new", "run-b", env, newer, true), CancellationToken.None);
 
-        IReadOnlyList<GovernanceEnvironmentActivation> list = await repo.GetByEnvironmentAsync(env, CancellationToken.None);
+        IReadOnlyList<GovernanceEnvironmentActivation> list =
+            await repo.GetByEnvironmentAsync(env, CancellationToken.None);
 
         list.Should().HaveCount(2);
         list[0].ActivationId.Should().Be("act-new");
@@ -43,7 +44,8 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
         string runId = Guid.NewGuid().ToString("N");
         string activationId = "act-upd-" + Guid.NewGuid().ToString("N");
 
-        GovernanceEnvironmentActivation created = NewActivation(activationId, runId, GovernanceEnvironment.Dev, DateTime.UtcNow, true);
+        GovernanceEnvironmentActivation created =
+            NewActivation(activationId, runId, GovernanceEnvironment.Dev, DateTime.UtcNow, true);
         created.ManifestVersion = "v-before";
 
         await repo.CreateAsync(created, CancellationToken.None);
@@ -55,7 +57,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
             ManifestVersion = "v-after",
             Environment = GovernanceEnvironment.Test,
             IsActive = false,
-            ActivatedUtc = new DateTime(2099, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            ActivatedUtc = new DateTime(2099, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         };
 
         await repo.UpdateAsync(patch, CancellationToken.None);
@@ -103,7 +105,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
             ManifestVersion = "v1",
             Environment = environment,
             IsActive = isActive,
-            ActivatedUtc = activatedUtc,
+            ActivatedUtc = activatedUtc
         };
     }
 }

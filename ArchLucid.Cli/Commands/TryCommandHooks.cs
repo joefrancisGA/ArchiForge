@@ -1,3 +1,5 @@
+using ArchLucid.Cli.Real;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
@@ -15,7 +17,21 @@ internal sealed class TryCommandHooks
     }
 
     /// <summary>Brings up the pilot Docker stack and waits for <c>/health/ready</c>; returns a CLI exit code.</summary>
-    public required Func<CancellationToken, Task<int>> PilotUp
+    public required Func<IReadOnlyList<string>, CancellationToken, Task<int>> PilotUp
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Validates <c>AZURE_OPENAI_*</c> host environment when real mode is active.</summary>
+    public required Func<RealModePreflightResult> ValidateRealModeEnv
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Returns ordered overlay compose file names (relative) after <c>docker-compose.yml</c>.</summary>
+    public required Func<bool, IReadOnlyList<string>> ResolveComposeOverlays
     {
         get;
         init;
@@ -36,7 +52,7 @@ internal sealed class TryCommandHooks
     }
 
     /// <summary>POST /v1/architecture/run/{runId}/execute (best-effort).</summary>
-    public required Func<string, string, CancellationToken, Task<bool>> ExecuteRun
+    public required Func<string, string, bool, CancellationToken, Task<bool>> ExecuteRun
     {
         get;
         init;
@@ -50,7 +66,7 @@ internal sealed class TryCommandHooks
     }
 
     /// <summary>POST /v1/architecture/run/{runId}/seed (Development-only fallback).</summary>
-    public required Func<ArchLucidApiClient, string, CancellationToken, Task<ArchLucidApiClient.SeedFakeResultsResult?>>
+    public required Func<ArchLucidApiClient, string, bool, CancellationToken, Task<ArchLucidApiClient.SeedFakeResultsResult?>>
         SeedFakeResults
     {
         get;

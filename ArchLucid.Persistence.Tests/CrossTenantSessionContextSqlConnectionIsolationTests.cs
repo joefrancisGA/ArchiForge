@@ -5,25 +5,25 @@ using ArchLucid.Persistence.Tests.Support;
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
-
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Cross-tenant isolation using the production-style stack:
-/// <see cref="SqlConnectionFactory"/> → <see cref="ResilientSqlConnectionFactory"/> → <see cref="SessionContextSqlConnectionFactory"/>
-/// with <see cref="RlsSessionContextApplicator"/> and <see cref="IOptionsMonitor{SqlServerOptions}"/>.
+///     Cross-tenant isolation using the production-style stack:
+///     <see cref="SqlConnectionFactory" /> → <see cref="ResilientSqlConnectionFactory" /> →
+///     <see cref="SessionContextSqlConnectionFactory" />
+///     with <see cref="RlsSessionContextApplicator" /> and <see cref="IOptionsMonitor{SqlServerOptions}" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServerPersistenceFixture fixture)
 {
-    private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
     private static readonly Guid TenantA = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
     private static readonly Guid TenantB = Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2");
     private static readonly Guid WorkspaceW = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
     private static readonly Guid ProjectP = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
+    private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
 
     [SkippableFact]
     public async Task SessionContext_factory_path_filters_runs_per_tenant_scope()
@@ -51,7 +51,7 @@ public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServ
             MutableScopeContextProvider scopeProvider = new();
             SqlServerOptions sqlOptions = new()
             {
-                RowLevelSecurity = new SqlRowLevelSecuritySettings { ApplySessionContext = true },
+                RowLevelSecurity = new SqlRowLevelSecuritySettings { ApplySessionContext = true }
             };
             FixedSqlServerOptionsMonitor optionsMonitor = new(sqlOptions);
             RlsSessionContextApplicator applicator = new(scopeProvider, optionsMonitor);
@@ -65,9 +65,7 @@ public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServ
 
             scopeProvider.Current = new ScopeContext
             {
-                TenantId = TenantA,
-                WorkspaceId = WorkspaceW,
-                ProjectId = ProjectP,
+                TenantId = TenantA, WorkspaceId = WorkspaceW, ProjectId = ProjectP
             };
 
             await using (SqlConnection connA = await factory.CreateOpenConnectionAsync(CancellationToken.None))
@@ -78,9 +76,7 @@ public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServ
 
             scopeProvider.Current = new ScopeContext
             {
-                TenantId = TenantB,
-                WorkspaceId = WorkspaceW,
-                ProjectId = ProjectP,
+                TenantId = TenantB, WorkspaceId = WorkspaceW, ProjectId = ProjectP
             };
 
             await using (SqlConnection connB = await factory.CreateOpenConnectionAsync(CancellationToken.None))
@@ -110,9 +106,9 @@ public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServ
     {
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText = """
-            INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
-            VALUES (@RunId, N'rls-session-factory-test', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId);
-            """;
+                          INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+                          VALUES (@RunId, N'rls-session-factory-test', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId);
+                          """;
         cmd.Parameters.AddWithValue("@RunId", runId);
         cmd.Parameters.AddWithValue("@TenantId", tenantId);
         cmd.Parameters.AddWithValue("@WorkspaceId", workspaceId);

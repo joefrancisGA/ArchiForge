@@ -44,16 +44,14 @@ public sealed class DataArchivalCoordinatorCorrelationTests
             threads.Object,
             NullLogger<DataArchivalCoordinator>.Instance);
 
-        DataArchivalOptions options = new()
-        {
-            RunsRetentionDays = 1
-        };
+        DataArchivalOptions options = new() { RunsRetentionDays = 1 };
 
         await sut.RunOnceAsync(options, CancellationToken.None);
 
         stopped.Should().ContainSingle(a => a.OperationName == "DataArchival.RunOnce");
         Activity archivalActivity = stopped.Single(a => a.OperationName == "DataArchival.RunOnce");
-        archivalActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should().BeOfType<string>().Which.Should().StartWith("data-archival:");
+        archivalActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should().BeOfType<string>().Which
+            .Should().StartWith("data-archival:");
     }
 
     [Fact]
@@ -78,9 +76,7 @@ public sealed class DataArchivalCoordinatorCorrelationTests
                     ],
                     ChildCascade = new RunArchiveChildCascadeCounts
                     {
-                        FindingsSnapshots = 2,
-                        GraphSnapshots = 1,
-                        GoldenManifests = 0
+                        FindingsSnapshots = 2, GraphSnapshots = 1, GoldenManifests = 0
                     }
                 });
         Mock<IArchitectureDigestRepository> digests = new();
@@ -94,18 +90,15 @@ public sealed class DataArchivalCoordinatorCorrelationTests
             logger.Object);
 
         await sut.RunOnceAsync(
-            new DataArchivalOptions
-            {
-                RunsRetentionDays = 1, DigestsRetentionDays = 0, ConversationsRetentionDays = 0
-            },
+            new DataArchivalOptions { RunsRetentionDays = 1, DigestsRetentionDays = 0, ConversationsRetentionDays = 0 },
             CancellationToken.None);
 
         logger.Verify(
             x => x.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>(
-                    (v, _) => v != null && v.ToString()!.Contains("cascade counts", StringComparison.Ordinal)),
+                It.Is<It.IsAnyType>((v, _) =>
+                    v != null && v.ToString()!.Contains("cascade counts", StringComparison.Ordinal)),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);

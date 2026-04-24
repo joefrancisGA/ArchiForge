@@ -3,7 +3,8 @@ using ArchLucid.Persistence.Provenance;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="ProvenanceSnapshotRepositoryContractTests"/> against <see cref="SqlProvenanceSnapshotRepository"/>.
+///     Runs <see cref="ProvenanceSnapshotRepositoryContractTests" /> against
+///     <see cref="SqlProvenanceSnapshotRepository" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

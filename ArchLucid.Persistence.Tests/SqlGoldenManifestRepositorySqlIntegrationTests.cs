@@ -15,7 +15,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="SqlGoldenManifestRepository"/> against SQL Server + DbUp (phase-1 relational + JSON dual-write).
+///     <see cref="SqlGoldenManifestRepository" /> against SQL Server + DbUp (phase-1 relational + JSON dual-write).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -52,12 +52,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             "proj-gm",
             CancellationToken.None);
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
         GoldenManifest manifest = new()
         {
@@ -87,9 +82,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             Warnings = ["warn-w"],
             Provenance = new ManifestProvenance
             {
-                SourceFindingIds = ["pf1"],
-                SourceGraphNodeIds = ["pn1"],
-                AppliedRuleIds = ["pr1"],
+                SourceFindingIds = ["pf1"], SourceGraphNodeIds = ["pn1"], AppliedRuleIds = ["pr1"]
             },
             Decisions =
             [
@@ -102,12 +95,13 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
                     Rationale = "Why",
                     SupportingFindingIds = ["sf1"],
                     RelatedNodeIds = ["node-a"],
-                    RawDecisionJson = """{"x":1}""",
-                },
-            ],
+                    RawDecisionJson = """{"x":1}"""
+                }
+            ]
         };
 
-        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        SqlGoldenManifestRepository
+            repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await repository.SaveAsync(manifest, CancellationToken.None);
 
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
@@ -180,9 +174,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             Warnings = ["warn-from-json-a", "warn-from-json-b"],
             Provenance = new ManifestProvenance
             {
-                SourceFindingIds = ["pf-json-1"],
-                SourceGraphNodeIds = ["pn-json-1"],
-                AppliedRuleIds = ["pr-json-1"],
+                SourceFindingIds = ["pf-json-1"], SourceGraphNodeIds = ["pn-json-1"], AppliedRuleIds = ["pr-json-1"]
             },
             Decisions =
             [
@@ -195,31 +187,31 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
                     Rationale = "WhyJ",
                     SupportingFindingIds = ["sf-json"],
                     RelatedNodeIds = ["node-json"],
-                    RawDecisionJson = """{"slice":"json"}""",
-                },
-            ],
+                    RawDecisionJson = """{"slice":"json"}"""
+                }
+            ]
         };
 
         const string insertManifest = """
-            INSERT INTO dbo.GoldenManifests
-            (
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
-                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson
-            );
-            """;
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                                          @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                                          @WarningsJson, @ProvenanceJson
+                                      );
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -251,18 +243,14 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
                     DecisionsJson = JsonEntitySerializer.Serialize(original.Decisions),
                     AssumptionsJson = JsonEntitySerializer.Serialize(original.Assumptions),
                     WarningsJson = JsonEntitySerializer.Serialize(original.Warnings),
-                    ProvenanceJson = JsonEntitySerializer.Serialize(original.Provenance),
+                    ProvenanceJson = JsonEntitySerializer.Serialize(original.Provenance)
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
-        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        SqlGoldenManifestRepository
+            repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -284,8 +272,9 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
     }
 
     /// <summary>
-    /// <c>dbo.GoldenManifests</c> section JSON columns are NOT NULL, so rows with SQL NULL in those columns cannot exist.
-    /// Empty string exercises the same hydration path as null/whitespace in code (<c>string.IsNullOrWhiteSpace</c> fallbacks).
+    ///     <c>dbo.GoldenManifests</c> section JSON columns are NOT NULL, so rows with SQL NULL in those columns cannot exist.
+    ///     Empty string exercises the same hydration path as null/whitespace in code (<c>string.IsNullOrWhiteSpace</c>
+    ///     fallbacks).
     /// </summary>
     [SkippableFact]
     public async Task GetById_when_no_phase1_rows_and_json_columns_empty_string_returns_default_sections()
@@ -320,25 +309,25 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             CancellationToken.None);
 
         const string insertManifest = """
-            INSERT INTO dbo.GoldenManifests
-            (
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
-                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson
-            );
-            """;
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                                          @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                                          @WarningsJson, @ProvenanceJson
+                                      );
+                                      """;
 
         string empty = "";
 
@@ -372,18 +361,14 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
                     DecisionsJson = empty,
                     AssumptionsJson = empty,
                     WarningsJson = empty,
-                    ProvenanceJson = empty,
+                    ProvenanceJson = empty
                 },
                 cancellationToken: CancellationToken.None));
 
-        ScopeContext scope = new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-        };
+        ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
-        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        SqlGoldenManifestRepository
+            repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -412,5 +397,4 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         loaded.Provenance.SourceGraphNodeIds.Should().BeEmpty();
         loaded.Provenance.AppliedRuleIds.Should().BeEmpty();
     }
-
 }

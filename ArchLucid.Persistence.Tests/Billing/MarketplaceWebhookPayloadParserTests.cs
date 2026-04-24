@@ -23,10 +23,10 @@ public sealed class MarketplaceWebhookPayloadParserTests
     {
         using JsonDocument n = JsonDocument.Parse("""{"quantity":7}""");
 
-        MarketplaceWebhookPayloadParser.ReadQuantity(n.RootElement, 1).Should().Be(7);
+        MarketplaceWebhookPayloadParser.ReadQuantity(n.RootElement).Should().Be(7);
 
         using JsonDocument s = JsonDocument.Parse("""{"quantity":"9"}""");
 
-        MarketplaceWebhookPayloadParser.ReadQuantity(s.RootElement, 1).Should().Be(9);
+        MarketplaceWebhookPayloadParser.ReadQuantity(s.RootElement).Should().Be(9);
     }
 }

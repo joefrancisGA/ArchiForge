@@ -462,11 +462,14 @@ public sealed class ArchLucidApiClient
     /// <summary>
     ///     Seed fake results for a run (Development only).
     /// </summary>
-    public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(string runId, CancellationToken ct = default)
+    public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(
+        string runId,
+        bool pilotTryRealModeFellBack = false,
+        CancellationToken ct = default)
     {
         try
         {
-            Gen.SeedFakeResultsResponse result = await _api.SeedFakeResultsAsync(runId, ct);
+            Gen.SeedFakeResultsResponse result = await _api.SeedFakeResultsAsync(runId, pilotTryRealModeFellBack, ct);
             SeedFakeResultsResponse? mapped = DeserializeRoundTrip<SeedFakeResultsResponse>(result);
 
             return new SeedFakeResultsResult(true, mapped?.ResultCount ?? 0, null);
