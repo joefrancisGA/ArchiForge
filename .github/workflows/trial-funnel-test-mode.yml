@@ -1,0 +1,166 @@
+# Nightly **staging** trial-funnel TEST-mode smoke (Improvement 2 from
+# docs/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md §3).
+#
+# What it does:
+#   1. CLI API smoke: `archlucid trial smoke --staging` (one-line PASS/FAIL with
+#      correlation ID for support).
+#   2. Playwright UI smoke: e2e/trial-funnel-test-mode.spec.ts via the dedicated
+#      `playwright.trial-funnel-test-mode.config.ts` (no local Next.js — drives
+#      a real browser at signup.staging.archlucid.com).
+#   3. On failure, posts a single line to STAGING_ONCALL_WEBHOOK_URL (placeholder
+#      secret — owner sets the real Slack/Teams/PagerDuty URL later). Missing
+#      secret is a soft no-op so the workflow does not require secret rotation
+#      to start running.
+#
+# Stop-and-ask boundaries (mirror docs/library/V1_DEFERRED.md § 6b):
+#   - This workflow MUST NOT touch any Stripe LIVE configuration. The
+#     `STRIPE_TEST_KEY` repository secret is the only Stripe credential consumed
+#     and it is only read to satisfy the spec's skip guard.
+#   - This workflow MUST NOT publish the Marketplace listing (the staging
+#     environment stays at Status: Draft).
+#   - This workflow MUST NOT cut over signup.archlucid.com DNS — staging only.
+name: trial-funnel-test-mode
+
+on:
+  workflow_dispatch:
+    inputs:
+      override_base_url:
+        description: "Override staging base URL (default: signup.staging.archlucid.com)."
+        required: false
+        type: string
+  schedule:
+    - cron: "20 4 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trial-funnel-test-mode-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  trial-funnel-test-mode:
+    if: github.event.repository.fork == false
+    name: "Nightly: trial funnel — staging Stripe TEST mode"
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      STAGING_BASE_URL: ${{ inputs.override_base_url || vars.ARCHLUCID_STAGING_SIGNUP_BASE_URL || 'https://signup.staging.archlucid.com' }}
+      STAGING_OPERATOR_BASE_URL: ${{ vars.ARCHLUCID_STAGING_OPERATOR_BASE_URL || vars.ARCHLUCID_STAGING_SIGNUP_BASE_URL || 'https://signup.staging.archlucid.com' }}
+      STRIPE_TEST_KEY: ${{ secrets.STRIPE_TEST_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Skip when STRIPE_TEST_KEY secret is not configured
+        id: gate
+        run: |
+          if [ -z "${STRIPE_TEST_KEY:-}" ]; then
+            echo "STRIPE_TEST_KEY repository secret is not set — nothing to verify; exiting 0."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skipped=false" >> "$GITHUB_OUTPUT"
+
+      - name: Restore & build CLI (Release)
+        if: steps.gate.outputs.skipped != 'true'
+        run: |
+          dotnet restore ArchLucid.Cli/ArchLucid.Cli.csproj
+          dotnet build ArchLucid.Cli/ArchLucid.Cli.csproj --no-restore -c Release
+
+      - name: archlucid trial smoke --staging (one-line PASS/FAIL with correlation ID)
+        id: cli-smoke
+        if: steps.gate.outputs.skipped != 'true'
+        run: |
+          set +e
+          ts="$(date +%s)"
+          out="$(dotnet run --no-build -c Release --project ArchLucid.Cli/ArchLucid.Cli.csproj -- \
+            trial smoke --staging \
+            --org "TrialFunnelStaging-${ts}" \
+            --email "trial-smoke+${ts}@example.invalid" 2>&1)"
+          echo "$out"
+          echo "cli_summary<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$out" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          if echo "$out" | grep -q '^PASS '; then
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "result=fail" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - name: Install UI deps
+        if: steps.gate.outputs.skipped != 'true'
+        working-directory: archlucid-ui
+        run: npm ci
+
+      - name: Install Playwright browsers (chromium only)
+        if: steps.gate.outputs.skipped != 'true'
+        working-directory: archlucid-ui
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright trial funnel TEST-mode (UI)
+        id: ui-smoke
+        if: steps.gate.outputs.skipped != 'true'
+        working-directory: archlucid-ui
+        env:
+          CI: "1"
+        run: |
+          set +e
+          npx playwright test -c playwright.trial-funnel-test-mode.config.ts
+          rc=$?
+          if [ "$rc" -eq 0 ]; then
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=fail" >> "$GITHUB_OUTPUT"
+          fi
+          exit "$rc"
+
+      - name: Upload Playwright traces on failure
+        if: failure() && steps.gate.outputs.skipped != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: trial-funnel-test-mode-playwright-traces
+          path: |
+            archlucid-ui/test-results/**
+            archlucid-ui/playwright-report/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Page on-call (placeholder webhook)
+        if: failure() && steps.gate.outputs.skipped != 'true'
+        env:
+          STAGING_ONCALL_WEBHOOK_URL: ${{ secrets.STAGING_ONCALL_WEBHOOK_URL }}
+          CLI_SUMMARY: ${{ steps.cli-smoke.outputs.cli_summary }}
+          CLI_RESULT: ${{ steps.cli-smoke.outputs.result }}
+          UI_RESULT: ${{ steps.ui-smoke.outputs.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "${STAGING_ONCALL_WEBHOOK_URL:-}" ]; then
+            echo "STAGING_ONCALL_WEBHOOK_URL secret is not set — printing summary instead of paging."
+            echo "----- on-call summary -----"
+            echo "cli_result=${CLI_RESULT:-unknown}"
+            echo "ui_result=${UI_RESULT:-unknown}"
+            echo "run_url=${RUN_URL}"
+            echo "cli_summary=${CLI_SUMMARY:-<none>}"
+            exit 0
+          fi
+          payload=$(jq -n \
+            --arg text "trial-funnel-test-mode FAILED on staging — cli=${CLI_RESULT:-unknown} ui=${UI_RESULT:-unknown}. Run: ${RUN_URL}. CLI: ${CLI_SUMMARY:-<none>}" \
+            '{text: $text}')
+          curl -fsS -X POST -H "Content-Type: application/json" -d "$payload" "$STAGING_ONCALL_WEBHOOK_URL" || \
+            echo "WARNING: on-call webhook POST failed (non-fatal — workflow already in failure state)."

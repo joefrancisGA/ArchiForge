@@ -1,3 +1,5 @@
+> **Scope:** Reproducible sample-data ROI artifact (PDF + parsed Markdown table) generated from a fictional Contoso tenant via the existing value-report path; for buyer/seller demo conversations only. Not a real customer outcome and not a citable benchmark.
+
 # Worked example ROI (Contoso sample)
 
 > **Honesty:** This is sample data from a fictional Contoso tenant; numbers are reproducible from `scripts/ops/generate-worked-example-roi.ps1` (Docker demo profile + `POST /v1/demo/seed` + per-tenant `POST /v1/value-report/{tenantId}/generate`). **Do not cite as customer ROI.**
