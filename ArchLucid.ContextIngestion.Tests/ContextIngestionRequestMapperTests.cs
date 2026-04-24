@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Context Ingestion Request Mapper.
+///     Tests for Context Ingestion Request Mapper.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class ContextIngestionRequestMapperTests
 {
@@ -27,9 +26,7 @@ public sealed class ContextIngestionRequestMapperTests
             [
                 new ContextDocumentRequest
                 {
-                    Name = "spec.txt",
-                    ContentType = "text/plain",
-                    Content = "REQ: Must scale"
+                    Name = "spec.txt", ContentType = "text/plain", Content = "REQ: Must scale"
                 }
             ],
             InlineRequirements = ["ir1"],
@@ -40,9 +37,7 @@ public sealed class ContextIngestionRequestMapperTests
             [
                 new InfrastructureDeclarationRequest
                 {
-                    Name = "env.json",
-                    Format = "json",
-                    Content = """{"resources":[]}"""
+                    Name = "env.json", Format = "json", Content = """{"resources":[]}"""
                 }
             ]
         };

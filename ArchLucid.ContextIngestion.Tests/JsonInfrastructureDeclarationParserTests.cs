@@ -8,9 +8,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Json Infrastructure Declaration Parser.
+///     Tests for Json Infrastructure Declaration Parser.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class JsonInfrastructureDeclarationParserTests
 {
@@ -25,16 +24,16 @@ public sealed class JsonInfrastructureDeclarationParserTests
             Name = "core.json",
             Format = "json",
             Content = """
-            {
-              "resources": [
-                { "type": "vnet", "name": "core-vnet", "region": "eastus", "properties": { "addressSpace": "10.0.0.0/16" } },
-                { "type": "subnet", "name": "app-subnet", "region": "eastus", "properties": { "cidr": "10.0.1.0/24" } },
-                { "type": "storage", "name": "docstorage01", "region": "eastus", "properties": { "sku": "Standard_LRS" } },
-                { "type": "appservice", "name": "archlucid-api", "region": "eastus", "properties": { "plan": "P1v3" } },
-                { "type": "keyvault", "name": "archlucid-kv", "region": "eastus", "properties": {} }
-              ]
-            }
-            """
+                      {
+                        "resources": [
+                          { "type": "vnet", "name": "core-vnet", "region": "eastus", "properties": { "addressSpace": "10.0.0.0/16" } },
+                          { "type": "subnet", "name": "app-subnet", "region": "eastus", "properties": { "cidr": "10.0.1.0/24" } },
+                          { "type": "storage", "name": "docstorage01", "region": "eastus", "properties": { "sku": "Standard_LRS" } },
+                          { "type": "appservice", "name": "archlucid-api", "region": "eastus", "properties": { "plan": "P1v3" } },
+                          { "type": "keyvault", "name": "archlucid-kv", "region": "eastus", "properties": {} }
+                        ]
+                      }
+                      """
         };
 
         IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);

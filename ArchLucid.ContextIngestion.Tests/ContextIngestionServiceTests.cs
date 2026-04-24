@@ -10,12 +10,34 @@ using FluentAssertions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Context Ingestion Service.
+///     Tests for Context Ingestion Service.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class ContextIngestionServiceTests
 {
+    [Fact]
+    public async Task IngestAsync_ProducesEnrichedDeltaSummary()
+    {
+        InMemoryContextSnapshotRepository repo = new();
+        IContextConnector[] connectors = [new CountingConnector()];
+        ContextIngestionService sut = new(
+            connectors,
+            new CanonicalInfrastructureEnricher(),
+            new CanonicalDeduplicator(),
+            repo,
+            new DefaultContextDeltaSummaryBuilder());
+
+        ContextIngestionRequest request = new() { RunId = Guid.NewGuid(), ProjectId = "proj-ingest-test" };
+
+        ContextSnapshot snapshot = await sut.IngestAsync(request, CancellationToken.None);
+
+        snapshot.CanonicalObjects.Should().HaveCount(1);
+        snapshot.DeltaSummary.Should().Contain("connector summary");
+        snapshot.DeltaSummary.Should().Contain("test-connector");
+        snapshot.DeltaSummary.Should().Contain("1 produced");
+        snapshot.DeltaSummary.Should().Contain("Requirement×1");
+    }
+
     private sealed class CountingConnector : IContextConnector
     {
         public string ConnectorType => "test-connector";
@@ -53,32 +75,5 @@ public sealed class ContextIngestionServiceTests
             _ = ct;
             return Task.FromResult(new ContextDelta { Summary = "connector summary" });
         }
-    }
-
-    [Fact]
-    public async Task IngestAsync_ProducesEnrichedDeltaSummary()
-    {
-        InMemoryContextSnapshotRepository repo = new();
-        IContextConnector[] connectors = [new CountingConnector()];
-        ContextIngestionService sut = new(
-            connectors,
-            new CanonicalInfrastructureEnricher(),
-            new CanonicalDeduplicator(),
-            repo,
-            new DefaultContextDeltaSummaryBuilder());
-
-        ContextIngestionRequest request = new()
-        {
-            RunId = Guid.NewGuid(),
-            ProjectId = "proj-ingest-test"
-        };
-
-        ContextSnapshot snapshot = await sut.IngestAsync(request, CancellationToken.None);
-
-        snapshot.CanonicalObjects.Should().HaveCount(1);
-        snapshot.DeltaSummary.Should().Contain("connector summary");
-        snapshot.DeltaSummary.Should().Contain("test-connector");
-        snapshot.DeltaSummary.Should().Contain("1 produced");
-        snapshot.DeltaSummary.Should().Contain("Requirement×1");
     }
 }

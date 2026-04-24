@@ -21,24 +21,24 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
             Format = "terraform-show-json",
             DeclarationId = "d1",
             Content = """
-            {
-              "format_version": "1.0",
-              "values": {
-                "root_module": {
-                  "resources": [
-                    {
-                      "address": "azurerm_resource_group.main",
-                      "mode": "managed",
-                      "type": "azurerm_resource_group",
-                      "name": "main",
-                      "provider_name": "registry.terraform.io/hashicorp/azurerm",
-                      "values": { "location": "eastus", "name": "rg-demo" }
-                    }
-                  ]
-                }
-              }
-            }
-            """
+                      {
+                        "format_version": "1.0",
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "address": "azurerm_resource_group.main",
+                                "mode": "managed",
+                                "type": "azurerm_resource_group",
+                                "name": "main",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "values": { "location": "eastus", "name": "rg-demo" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
@@ -61,22 +61,22 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
             Format = "terraform-show-json",
             DeclarationId = "d2",
             Content = """
-            {
-              "values": {
-                "root_module": {
-                  "resources": [
-                    {
-                      "type": "azurerm_key_vault",
-                      "name": "core",
-                      "provider_name": "registry.terraform.io/hashicorp/azurerm",
-                      "mode": "managed",
-                      "values": { "name": "kv1" }
-                    }
-                  ]
-                }
-              }
-            }
-            """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_key_vault",
+                                "name": "core",
+                                "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                "mode": "managed",
+                                "values": { "name": "kv1" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
@@ -90,10 +90,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     {
         InfrastructureDeclarationReference decl = new()
         {
-            Name = "bad",
-            Format = "terraform-show-json",
-            DeclarationId = "d3",
-            Content = "{}"
+            Name = "bad", Format = "terraform-show-json", DeclarationId = "d3", Content = "{}"
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
@@ -110,27 +107,27 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
             Format = "terraform-show-json",
             DeclarationId = "d4",
             Content = """
-            {
-              "values": {
-                "root_module": {
-                  "resources": [],
-                  "child_modules": [
-                    {
-                      "resources": [
-                        {
-                          "type": "azurerm_storage_account",
-                          "name": "data",
-                          "mode": "managed",
-                          "provider_name": "registry.terraform.io/hashicorp/azurerm",
-                          "values": { "name": "stacct" }
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [],
+                            "child_modules": [
+                              {
+                                "resources": [
+                                  {
+                                    "type": "azurerm_storage_account",
+                                    "name": "data",
+                                    "mode": "managed",
+                                    "provider_name": "registry.terraform.io/hashicorp/azurerm",
+                                    "values": { "name": "stacct" }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
                         }
-                      ]
-                    }
-                  ]
-                }
-              }
-            }
-            """
+                      }
+                      """
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
@@ -149,20 +146,20 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
             Format = "terraform-show-json",
             DeclarationId = "d5",
             Content = """
-            {
-              "values": {
-                "root_module": {
-                  "resources": [
-                    {
-                      "type": "registry.terraform.io/hashicorp/azurerm/azurerm_network_security_group",
-                      "name": "nsg",
-                      "values": {}
-                    }
-                  ]
-                }
-              }
-            }
-            """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "registry.terraform.io/hashicorp/azurerm/azurerm_network_security_group",
+                                "name": "nsg",
+                                "values": {}
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
@@ -180,20 +177,20 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
             Format = "terraform-show-json",
             DeclarationId = "d6",
             Content = """
-            {
-              "values": {
-                "root_module": {
-                  "resources": [
-                    {
-                      "type": "azurerm_policy_assignment",
-                      "name": "audit",
-                      "values": { "name": "pa1" }
-                    }
-                  ]
-                }
-              }
-            }
-            """
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_policy_assignment",
+                                "name": "audit",
+                                "values": { "name": "pa1" }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                      """
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
@@ -211,26 +208,26 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
             Format = "terraform-show-json",
             DeclarationId = "d7",
             Content = """
-            {
-              "values": {
-                "root_module": {
-                  "resources": [
-                    {
-                      "type": "azurerm_resource_group",
-                      "name": "x",
-                      "values": {
-                        "sku": 42,
-                        "enabled": true,
-                        "disabled": false,
-                        "nested": { "a": 1 },
-                        "weird name!": "v"
+                      {
+                        "values": {
+                          "root_module": {
+                            "resources": [
+                              {
+                                "type": "azurerm_resource_group",
+                                "name": "x",
+                                "values": {
+                                  "sku": 42,
+                                  "enabled": true,
+                                  "disabled": false,
+                                  "nested": { "a": 1 },
+                                  "weird name!": "v"
+                                }
+                              }
+                            ]
+                          }
+                        }
                       }
-                    }
-                  ]
-                }
-              }
-            }
-            """
+                      """
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
@@ -254,20 +251,20 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
             Format = "terraform-show-json",
             DeclarationId = "d8",
             Content = $$"""
-            {
-              "values": {
-                "root_module": {
-                  "resources": [
-                    {
-                      "type": "azurerm_resource_group",
-                      "name": "x",
-                      "values": { "big": "{{longText}}" }
-                    }
-                  ]
-                }
-              }
-            }
-            """
+                        {
+                          "values": {
+                            "root_module": {
+                              "resources": [
+                                {
+                                  "type": "azurerm_resource_group",
+                                  "name": "x",
+                                  "values": { "big": "{{longText}}" }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                        """
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);
@@ -281,10 +278,7 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParserTests
     {
         InfrastructureDeclarationReference decl = new()
         {
-            Name = "empty",
-            Format = "terraform-show-json",
-            DeclarationId = "d9",
-            Content = "   "
+            Name = "empty", Format = "terraform-show-json", DeclarationId = "d9", Content = "   "
         };
 
         IReadOnlyList<CanonicalObject> objects = await _sut.ParseAsync(decl, CancellationToken.None);

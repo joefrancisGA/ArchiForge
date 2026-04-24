@@ -6,9 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Canonical Deduplicator.
+///     Tests for Canonical Deduplicator.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class CanonicalDeduplicatorTests
 {

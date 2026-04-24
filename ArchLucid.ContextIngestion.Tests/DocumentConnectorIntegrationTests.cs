@@ -12,9 +12,9 @@ using FluentAssertions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Integration tests for <see cref="DocumentConnector"/> exercised through
-/// <see cref="ContextIngestionService"/> with real parsers (no mocks).
-/// Covers the non-API caller path where <c>ContextDocumentRequestValidator</c> does not run.
+///     Integration tests for <see cref="DocumentConnector" /> exercised through
+///     <see cref="ContextIngestionService" /> with real parsers (no mocks).
+///     Covers the non-API caller path where <c>ContextDocumentRequestValidator</c> does not run.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -46,9 +46,7 @@ public sealed class DocumentConnectorIntegrationTests
             [
                 new ContextDocumentReference
                 {
-                    Name = "report.pdf",
-                    ContentType = "application/pdf",
-                    Content = "binary-like content"
+                    Name = "report.pdf", ContentType = "application/pdf", Content = "binary-like content"
                 }
             ]
         };
@@ -76,9 +74,7 @@ public sealed class DocumentConnectorIntegrationTests
             [
                 new ContextDocumentReference
                 {
-                    Name = "reqs.txt",
-                    ContentType = "text/plain",
-                    Content = "REQ: must encrypt data at rest"
+                    Name = "reqs.txt", ContentType = "text/plain", Content = "REQ: must encrypt data at rest"
                 }
             ]
         };
@@ -103,9 +99,7 @@ public sealed class DocumentConnectorIntegrationTests
             [
                 new ContextDocumentReference
                 {
-                    Name = "good.md",
-                    ContentType = "text/markdown",
-                    Content = "REQ: availability SLA"
+                    Name = "good.md", ContentType = "text/markdown", Content = "REQ: availability SLA"
                 },
                 new ContextDocumentReference
                 {

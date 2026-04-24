@@ -175,4 +175,213 @@ public sealed class EffectiveGovernanceResolverTests
 
         result.EffectiveContent.Metadata.Should().NotContainKey("orphan");
     }
+
+    [Fact]
+    public async Task ResolveAsync_Skips_assignment_when_policy_pack_row_missing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid missingPackId = Guid.NewGuid();
+
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                PolicyPackId = missingPackId,
+                PolicyPackVersion = "1.0.0",
+                ScopeLevel = GovernanceScopeLevel.Project,
+                AssignedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+
+        result.Notes.Should()
+            .Contain(n => n.Contains("pack not found", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task ResolveAsync_Skips_assignment_when_assigned_version_row_missing()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
+
+        await packRepo.CreateAsync(
+            new PolicyPack
+            {
+                PolicyPackId = packId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = "Has pack",
+                Description = "",
+                PackType = PolicyPackType.ProjectCustom,
+                Status = PolicyPackStatus.Active,
+                CurrentVersion = "1.0.0",
+            },
+            CancellationToken.None);
+
+        await versionRepo.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = packId,
+                Version = "1.0.0",
+                ContentJson = """{"metadata":{},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
+                CreatedUtc = DateTime.UtcNow,
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                PolicyPackId = packId,
+                PolicyPackVersion = "9.9.9",
+                ScopeLevel = GovernanceScopeLevel.Project,
+                AssignedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+
+        result.Notes.Should()
+            .Contain(n => n.Contains("version '9.9.9' not found", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task ResolveAsync_Skips_assignment_when_content_json_is_not_valid_json()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
+
+        await packRepo.CreateAsync(
+            new PolicyPack
+            {
+                PolicyPackId = packId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = "Bad json",
+                Description = "",
+                PackType = PolicyPackType.ProjectCustom,
+                Status = PolicyPackStatus.Active,
+                CurrentVersion = "1.0.0",
+            },
+            CancellationToken.None);
+
+        await versionRepo.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = packId,
+                Version = "1.0.0",
+                ContentJson = "{ not json",
+                CreatedUtc = DateTime.UtcNow,
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                PolicyPackId = packId,
+                PolicyPackVersion = "1.0.0",
+                ScopeLevel = GovernanceScopeLevel.Project,
+                AssignedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+
+        result.Notes.Should()
+            .Contain(n => n.Contains("content JSON is corrupt", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task ResolveAsync_Skips_assignment_when_content_json_is_json_null()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
+
+        await packRepo.CreateAsync(
+            new PolicyPack
+            {
+                PolicyPackId = packId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = "Null content",
+                Description = "",
+                PackType = PolicyPackType.ProjectCustom,
+                Status = PolicyPackStatus.Active,
+                CurrentVersion = "1.0.0",
+            },
+            CancellationToken.None);
+
+        await versionRepo.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = packId,
+                Version = "1.0.0",
+                ContentJson = "null",
+                CreatedUtc = DateTime.UtcNow,
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                PolicyPackId = packId,
+                PolicyPackVersion = "1.0.0",
+                ScopeLevel = GovernanceScopeLevel.Project,
+                AssignedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+
+        result.Notes.Should()
+            .Contain(n => n.Contains("deserialized to null", StringComparison.OrdinalIgnoreCase));
+    }
 }

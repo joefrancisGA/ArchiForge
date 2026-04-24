@@ -9,7 +9,7 @@ using Moq;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Infrastructure Declaration Connector.
+///     Tests for Infrastructure Declaration Connector.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class InfrastructureDeclarationConnectorTests
@@ -24,9 +24,7 @@ public sealed class InfrastructureDeclarationConnectorTests
             [
                 new InfrastructureDeclarationReference
                 {
-                    Name = "bad.fmt",
-                    Format = "hcl",
-                    Content = "resource \"x\" \"y\" {}"
+                    Name = "bad.fmt", Format = "hcl", Content = "resource \"x\" \"y\" {}"
                 }
             ]
         };
@@ -67,6 +65,7 @@ public sealed class InfrastructureDeclarationConnectorTests
         NormalizedContextBatch batch = await sut.NormalizeAsync(payload, CancellationToken.None);
 
         batch.CanonicalObjects.Should().HaveCount(1);
-        parser.Verify(p => p.ParseAsync(It.IsAny<InfrastructureDeclarationReference>(), It.IsAny<CancellationToken>()), Times.Once);
+        parser.Verify(p => p.ParseAsync(It.IsAny<InfrastructureDeclarationReference>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }
