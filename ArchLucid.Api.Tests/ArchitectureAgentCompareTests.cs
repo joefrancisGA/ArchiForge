@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Agent Compare.
+///     Tests for Architecture Agent Compare.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -23,16 +22,15 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
 
         var replayRequest = new
         {
-            commitReplay = false,
-            executionMode = "Current",
-            manifestVersionOverride = (string?)null
+            commitReplay = false, executionMode = "Current", manifestVersionOverride = (string?)null
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
@@ -41,7 +39,8 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
 
         replayResponse.EnsureSuccessStatusCode();
 
-        ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        ReplayRunResponseDto? replayPayload =
+            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         string replayRunId = replayPayload!.ReplayRunId;
 
         HttpResponseMessage compareResponse = await Client.GetAsync(
@@ -49,7 +48,8 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        AgentResultCompareSummaryResponse? payload = await compareResponse.Content.ReadFromJsonAsync<AgentResultCompareSummaryResponse>(JsonOptions);
+        AgentResultCompareSummaryResponse? payload =
+            await compareResponse.Content.ReadFromJsonAsync<AgentResultCompareSummaryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Format.Should().Be("markdown");
         payload.Summary.Should().Contain("# Agent Result Comparison");

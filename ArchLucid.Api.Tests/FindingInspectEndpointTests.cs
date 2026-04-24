@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP coverage for <c>GET /v1/findings/{findingId}/inspect</c> (ReadAuthority, in-memory or SQL read-model).
+///     HTTP coverage for <c>GET /v1/findings/{findingId}/inspect</c> (ReadAuthority, in-memory or SQL read-model).
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -30,8 +30,8 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
         $"finding-demo-{ContosoRetailDemoIdentifiers.AuthorityRunBaselineId:N}-primary";
 
     /// <summary>
-    /// Startup seed is optional (Demo:SeedOnStartup / Demo:Enabled may be off via user secrets); tests that need
-    /// Contoso baseline rows must seed explicitly like <see cref="DemoSeedServiceTests"/>.
+    ///     Startup seed is optional (Demo:SeedOnStartup / Demo:Enabled may be off via user secrets); tests that need
+    ///     Contoso baseline rows must seed explicitly like <see cref="DemoSeedServiceTests" />.
     /// </summary>
     private async Task EnsureDemoBaselineSeededAsync()
     {
@@ -91,7 +91,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
     {
         await using HealthEndpointSecurityApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage response = await client.GetAsync($"/v1/findings/{DemoPrimaryFindingId}/inspect");
 
@@ -103,22 +103,24 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
     {
         await using NoReadAuthorityRoleApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
-        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+        WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage response = await client.GetAsync($"/v1/findings/{DemoPrimaryFindingId}/inspect");
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    /// <summary>DevelopmentBypass principal with a role that does not satisfy <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ReadAuthority"/>.</summary>
+    /// <summary>
+    ///     DevelopmentBypass principal with a role that does not satisfy
+    ///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ReadAuthority" />.
+    /// </summary>
     private sealed class NoReadAuthorityRoleApiFactory : ArchLucidApiFactory
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             base.ConfigureWebHost(builder);
-            builder.ConfigureAppConfiguration(
-                (_, config) => config.AddInMemoryCollection(
-                    new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = "GuestNoRead" }));
+            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+                new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = "GuestNoRead" }));
         }
     }
 }

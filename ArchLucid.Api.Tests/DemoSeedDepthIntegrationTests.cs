@@ -13,24 +13,24 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// ADR 0030 PR A3 (2026-04-24): proves both <c>Demo:SeedDepth</c> modes (owner Decision B,
-/// 2026-04-23 — <c>quickstart | vertical</c>) commit through the authority FK chain and produce a
-/// <see cref="ArchitectureRunDetail.Manifest"/> with non-empty Services + Datastores + Relationships.
+///     ADR 0030 PR A3 (2026-04-24): proves both <c>Demo:SeedDepth</c> modes (owner Decision B,
+///     2026-04-23 — <c>quickstart | vertical</c>) commit through the authority FK chain and produce a
+///     <see cref="ArchitectureRunDetail.Manifest" /> with non-empty Services + Datastores + Relationships.
 /// </summary>
 /// <remarks>
-/// <para>
-/// The <c>quickstart</c> mode writes the one-of-each minimum (a single Checkout API service, single
-/// Orders datastore, and a single relationship from the service into the datastore). The
-/// <c>vertical</c> mode writes the production-realistic depth (additional Payment Gateway service
-/// + service-to-service and service-to-datastore relationships). Both must surface non-empty
-/// collections through <see cref="IRunDetailQueryService"/> — that is the post-condition the
-/// downstream operator UI, export, and governance flows depend on.
-/// </para>
-/// <para>
-/// Uses <see cref="ArchLucidApiFactory"/> (in-memory storage + ephemeral SQL catalog) so the test
-/// is identical to the surrounding <c>DemoSeedServiceTests</c> in factory shape; the only delta is
-/// the <c>Demo:SeedDepth</c> override applied via a per-test factory subclass.
-/// </para>
+///     <para>
+///         The <c>quickstart</c> mode writes the one-of-each minimum (a single Checkout API service, single
+///         Orders datastore, and a single relationship from the service into the datastore). The
+///         <c>vertical</c> mode writes the production-realistic depth (additional Payment Gateway service
+///         + service-to-service and service-to-datastore relationships). Both must surface non-empty
+///         collections through <see cref="IRunDetailQueryService" /> — that is the post-condition the
+///         downstream operator UI, export, and governance flows depend on.
+///     </para>
+///     <para>
+///         Uses <see cref="ArchLucidApiFactory" /> (in-memory storage + ephemeral SQL catalog) so the test
+///         is identical to the surrounding <c>DemoSeedServiceTests</c> in factory shape; the only delta is
+///         the <c>Demo:SeedDepth</c> override applied via a per-test factory subclass.
+///     </para>
 /// </remarks>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -72,15 +72,15 @@ public sealed class DemoSeedDepthIntegrationTests
     {
         detail.Should().NotBeNull("the demo seed must commit through the authority FK chain in both SeedDepth modes");
         detail!.Run.Status.Should().Be(ArchitectureRunStatus.Committed,
-            because: "ADR 0030 PR A3 wires DemoSeedService through the authority commit orchestrator; both modes must end Committed");
+            "ADR 0030 PR A3 wires DemoSeedService through the authority commit orchestrator; both modes must end Committed");
 
         detail.Manifest.Should().NotBeNull(
-            because: "IUnifiedGoldenManifestReader must project the authority manifest back into the contract for both quickstart and vertical seeds");
+            "IUnifiedGoldenManifestReader must project the authority manifest back into the contract for both quickstart and vertical seeds");
 
         detail.Manifest!.Services.Should().HaveCount(expectedServices);
         detail.Manifest.Datastores.Should().HaveCount(expectedDatastores);
         detail.Manifest.Relationships.Should().HaveCount(expectedRelationships,
-            because: "owner Decision B (2026-04-23) requires both seed depths to produce a non-empty Relationships collection — quickstart writes the minimum service-to-datastore edge, vertical adds the cross-service edges");
+            "owner Decision B (2026-04-23) requires both seed depths to produce a non-empty Relationships collection — quickstart writes the minimum service-to-datastore edge, vertical adds the cross-service edges");
 
         detail.Manifest.Services.Should().NotBeEmpty();
         detail.Manifest.Datastores.Should().NotBeEmpty();
@@ -89,13 +89,13 @@ public sealed class DemoSeedDepthIntegrationTests
         if (richSeed)
             detail.Manifest.Services.Should().Contain(
                 s => s.ServiceId.StartsWith("svc-payment-gateway", StringComparison.Ordinal),
-                because: "vertical mode must include the Payment Gateway service that distinguishes it from quickstart");
+                "vertical mode must include the Payment Gateway service that distinguishes it from quickstart");
     }
 
     /// <summary>
-    /// ADR 0030 PR A3 helper — clones <see cref="ArchLucidApiFactory"/> and pins
-    /// <c>Demo:SeedDepth</c> to the test value so each <c>[InlineData]</c> exercises the matching
-    /// branch of <c>DemoSeedService.IsVerticalDemoSeedDepth</c>.
+    ///     ADR 0030 PR A3 helper — clones <see cref="ArchLucidApiFactory" /> and pins
+    ///     <c>Demo:SeedDepth</c> to the test value so each <c>[InlineData]</c> exercises the matching
+    ///     branch of <c>DemoSeedService.IsVerticalDemoSeedDepth</c>.
     /// </summary>
     private sealed class SeedDepthApiFactory(string seedDepth) : ArchLucidApiFactory
     {
@@ -107,8 +107,7 @@ public sealed class DemoSeedDepthIntegrationTests
             {
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["Demo:Enabled"] = "true",
-                    ["Demo:SeedDepth"] = seedDepth,
+                    ["Demo:Enabled"] = "true", ["Demo:SeedDepth"] = seedDepth
                 });
             });
         }

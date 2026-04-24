@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Confirms Asp.Versioning response headers are present on versioned admin routes.
+///     Confirms Asp.Versioning response headers are present on versioned admin routes.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]

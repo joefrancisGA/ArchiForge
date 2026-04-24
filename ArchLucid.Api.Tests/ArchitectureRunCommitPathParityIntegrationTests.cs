@@ -4,18 +4,18 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using ArchLucid.Api.Tests.TestDtos;
-using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// ADR 0030 PR A2 cohort evidence (authority path only after PR A3): simulator create → execute → commit
-/// yields committed demo shape and stable <c>GET …/pilot-run-deltas</c> fields. Volatile clock fields,
-/// wall-clock seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded — see
-/// <c>docs/evidence/phase3/pr-a2-cohort-parity.md</c>.
+///     ADR 0030 PR A2 cohort evidence (authority path only after PR A3): simulator create → execute → commit
+///     yields committed demo shape and stable <c>GET …/pilot-run-deltas</c> fields. Volatile clock fields,
+///     wall-clock seconds-to-commit, <c>topFindingId</c>, and <c>topFindingEvidenceChain</c> are excluded — see
+///     <c>docs/evidence/phase3/pr-a2-cohort-parity.md</c>.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -24,8 +24,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     private static StringContent JsonContent(object value)
@@ -56,7 +55,8 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created!.Run.RunId;
 
@@ -66,7 +66,8 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, "commit should succeed on authority path");
 
-        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        CommitRunResponseDto? commitPayload =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
         int manifestTraceIdCount = commitPayload!.Manifest.Metadata.DecisionTraceIds.Count;
         string manifestJson = JsonSerializer.Serialize(commitPayload.Manifest, JsonOptions);
@@ -79,7 +80,8 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         deltasResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         string deltasJson = await deltasResponse.Content.ReadAsStringAsync();
 
-        HttpResponseMessage zipResponse = await client.GetAsync($"/v1/architecture/run/{runId}/traceability-bundle.zip");
+        HttpResponseMessage zipResponse =
+            await client.GetAsync($"/v1/architecture/run/{runId}/traceability-bundle.zip");
         zipResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         byte[] zipBytes = await zipResponse.Content.ReadAsByteArrayAsync();
         IReadOnlyList<string> zipNames = ReadZipEntryNames(zipBytes);
@@ -90,7 +92,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
     private static IReadOnlyList<string> ReadZipEntryNames(byte[] zipBytes)
     {
         using MemoryStream ms = new(zipBytes);
-        using ZipArchive zip = new(ms, ZipArchiveMode.Read, leaveOpen: false);
+        using ZipArchive zip = new(ms, ZipArchiveMode.Read, false);
 
         return zip.Entries
             .Select(static e => e.FullName)

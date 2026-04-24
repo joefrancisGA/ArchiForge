@@ -20,13 +20,11 @@ public sealed class ClientErrorTelemetryControllerTests
     {
         IScopeContextProvider scopeProvider = scopeProviderOverride ?? CreateDefaultScopeProvider();
 
-        ClientErrorTelemetryController controller = new(NullLogger<ClientErrorTelemetryController>.Instance, scopeProvider)
-        {
-            ControllerContext = new ControllerContext
+        ClientErrorTelemetryController controller =
+            new(NullLogger<ClientErrorTelemetryController>.Instance, scopeProvider)
             {
-                HttpContext = new DefaultHttpContext(),
-            }
-        };
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
 
         return controller;
     }
@@ -37,7 +35,7 @@ public sealed class ClientErrorTelemetryControllerTests
         {
             TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
             WorkspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"),
-            ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000"),
+            ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000")
         };
         Mock<IScopeContextProvider> mock = new();
         mock.Setup(s => s.GetCurrentScope()).Returns(ctx);
@@ -57,7 +55,7 @@ public sealed class ClientErrorTelemetryControllerTests
                 Stack = "at x",
                 Pathname = "/runs",
                 UserAgent = "Vitest",
-                TimestampUtc = "2026-04-16T00:00:00Z",
+                TimestampUtc = "2026-04-16T00:00:00Z"
             });
 
         result.Should().BeOfType<NoContentResult>();
@@ -96,11 +94,7 @@ public sealed class ClientErrorTelemetryControllerTests
         }
 
         IActionResult result = controller.PostClientError(
-            new ClientErrorReport
-            {
-                Message = "overflow",
-                Context = ctx,
-            });
+            new ClientErrorReport { Message = "overflow", Context = ctx });
 
         result.Should().BeAssignableTo<ObjectResult>();
     }

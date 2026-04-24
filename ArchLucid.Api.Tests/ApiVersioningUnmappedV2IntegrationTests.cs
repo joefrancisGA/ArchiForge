@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Regression: requesting API version 2 on versioned routes must not silently map to v1 controllers.
+///     Regression: requesting API version 2 on versioned routes must not silently map to v1 controllers.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]

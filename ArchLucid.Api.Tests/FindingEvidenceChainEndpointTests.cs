@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Smoke coverage for the explainability evidence-chain route (404 on unknown run is stable contract surface).
+///     Smoke coverage for the explainability evidence-chain route (404 on unknown run is stable contract surface).
 /// </summary>
 [Trait("Suite", "Integration")]
 public sealed class FindingEvidenceChainEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)

@@ -14,7 +14,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit coverage for governance dashboard HTTP wiring (scope + dashboard service).
+///     Unit coverage for governance dashboard HTTP wiring (scope + dashboard service).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class GovernanceControllerDashboardTests
@@ -32,18 +32,17 @@ public sealed class GovernanceControllerDashboardTests
             PendingApprovals = [new GovernanceApprovalRequest { ApprovalRequestId = "x1" }],
             RecentDecisions = [],
             RecentChanges = [],
-            PendingCount = 1,
+            PendingCount = 1
         };
 
         Mock<IGovernanceDashboardService> dashboard = new();
         dashboard
-            .Setup(
-                d => d.GetDashboardAsync(
-                    tenantId,
-                    20,
-                    20,
-                    20,
-                    It.IsAny<CancellationToken>()))
+            .Setup(d => d.GetDashboardAsync(
+                tenantId,
+                20,
+                20,
+                20,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
         GovernanceController sut = new(

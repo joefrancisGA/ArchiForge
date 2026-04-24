@@ -14,8 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests.Auth;
 
 /// <summary>
-/// JWT minted like trial local identity (same issuer/audience/signing key as <see cref="JwtLocalSigningWebAppFactory"/>)
-/// must satisfy <see cref="ArchLucidPolicies.ReadAuthority"/> for Reader and fail <see cref="ArchLucidPolicies.ExecuteAuthority"/> until Operator/Admin.
+///     JWT minted like trial local identity (same issuer/audience/signing key as
+///     <see cref="JwtLocalSigningWebAppFactory" />)
+///     must satisfy <see cref="ArchLucidPolicies.ReadAuthority" /> for Reader and fail
+///     <see cref="ArchLucidPolicies.ExecuteAuthority" /> until Operator/Admin.
 /// </summary>
 [Trait("Suite", "Api")]
 [Trait("Category", "Integration")]
@@ -27,7 +29,8 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
         await using TrialJwtHost host = await TrialJwtHost.CreateAsync();
         host.SetBearer(host.MintJwt(ArchLucidRoles.Reader));
 
-        using HttpResponseMessage response = await host.Client.GetAsync("/v1/jobs/00000000-0000-0000-0000-000000000001", CancellationToken.None);
+        using HttpResponseMessage response =
+            await host.Client.GetAsync("/v1/jobs/00000000-0000-0000-0000-000000000001", CancellationToken.None);
 
         Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
@@ -53,10 +56,10 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
                         constraints = Array.Empty<string>(),
                         requiredCapabilities = new[] { "SQL" },
                         assumptions = Array.Empty<string>(),
-                        priorManifestVersion = (string?)null,
+                        priorManifestVersion = (string?)null
                     }),
                 Encoding.UTF8,
-                "application/json"),
+                "application/json")
         };
 
         using HttpResponseMessage response = await host.Client.SendAsync(request, CancellationToken.None);
@@ -84,10 +87,10 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
                         constraints = Array.Empty<string>(),
                         requiredCapabilities = new[] { "SQL" },
                         assumptions = Array.Empty<string>(),
-                        priorManifestVersion = (string?)null,
+                        priorManifestVersion = (string?)null
                     }),
                 Encoding.UTF8,
-                "application/json"),
+                "application/json")
         };
 
         using HttpResponseMessage response = await host.Client.SendAsync(request, CancellationToken.None);
@@ -117,26 +120,44 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
             get;
         }
 
+        public async ValueTask DisposeAsync()
+        {
+            Client.Dispose();
+            await App.DisposeAsync().ConfigureAwait(false);
+
+            try
+            {
+                if (File.Exists(_privateKeyPath))
+                {
+                    File.Delete(_privateKeyPath);
+                }
+            }
+            catch
+            {
+                // best-effort
+            }
+        }
+
         public static async Task<TrialJwtHost> CreateAsync()
         {
             JwtLocalSigningWebAppFactory inner = new();
-            string privateKeyPath = Path.Combine(Path.GetTempPath(), $"archlucid-trial-local-jwt-{Guid.NewGuid():N}.pem");
+            string privateKeyPath =
+                Path.Combine(Path.GetTempPath(), $"archlucid-trial-local-jwt-{Guid.NewGuid():N}.pem");
             await File.WriteAllTextAsync(privateKeyPath, inner.PrivatePemForTests).ConfigureAwait(false);
 
             WebApplicationFactory<Program> app = inner.WithWebHostBuilder(builder =>
             {
-                builder.ConfigureAppConfiguration(
-                    (_, config) =>
-                    {
-                        config.AddInMemoryCollection(
-                            new Dictionary<string, string?>
-                            {
-                                ["Auth:Trial:Modes:0"] = "LocalIdentity",
-                                ["Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath"] = privateKeyPath,
-                                ["Auth:Trial:LocalIdentity:JwtIssuer"] = "https://test.archlucid.local",
-                                ["Auth:Trial:LocalIdentity:JwtAudience"] = "api://archlucid-jwt-local-test",
-                            });
-                    });
+                builder.ConfigureAppConfiguration((_, config) =>
+                {
+                    config.AddInMemoryCollection(
+                        new Dictionary<string, string?>
+                        {
+                            ["Auth:Trial:Modes:0"] = "LocalIdentity",
+                            ["Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath"] = privateKeyPath,
+                            ["Auth:Trial:LocalIdentity:JwtIssuer"] = "https://test.archlucid.local",
+                            ["Auth:Trial:LocalIdentity:JwtAudience"] = "api://archlucid-jwt-local-test"
+                        });
+                });
             });
 
             HttpClient client = app.CreateClient();
@@ -161,24 +182,6 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
                 ScopeIds.DefaultTenant,
                 ScopeIds.DefaultWorkspace,
                 ScopeIds.DefaultProject);
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            Client.Dispose();
-            await App.DisposeAsync().ConfigureAwait(false);
-
-            try
-            {
-                if (File.Exists(_privateKeyPath))
-                {
-                    File.Delete(_privateKeyPath);
-                }
-            }
-            catch
-            {
-                // best-effort
-            }
         }
     }
 }

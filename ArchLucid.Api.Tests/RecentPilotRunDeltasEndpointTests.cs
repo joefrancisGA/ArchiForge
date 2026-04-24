@@ -34,7 +34,8 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        RecentPilotRunDeltasResponse? body = await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
+        RecentPilotRunDeltasResponse? body =
+            await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body!.RequestedCount.Should().Be(5);
@@ -53,7 +54,8 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        RecentPilotRunDeltasResponse? body = await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
+        RecentPilotRunDeltasResponse? body =
+            await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body!.RequestedCount.Should().Be(3);
@@ -69,7 +71,8 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        RecentPilotRunDeltasResponse? body = await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
+        RecentPilotRunDeltasResponse? body =
+            await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body!.RequestedCount.Should().BeLessThanOrEqualTo(25);
@@ -86,7 +89,8 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        RecentPilotRunDeltasResponse? body = await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
+        RecentPilotRunDeltasResponse? body =
+            await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body!.RequestedCount.Should().Be(1);

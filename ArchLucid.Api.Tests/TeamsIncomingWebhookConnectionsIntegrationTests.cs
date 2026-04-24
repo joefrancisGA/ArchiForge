@@ -20,7 +20,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
+        PropertyNameCaseInsensitive = true
     };
 
     private readonly JwtLocalSigningWebAppFactory _factory;
@@ -35,18 +35,15 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "ReaderUser",
-            roles: [ArchLucidRoles.Reader]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        TeamsIncomingWebhookConnectionUpsertRequest body = new()
-        {
-            KeyVaultSecretName = "teams-incoming-webhook-demo",
-        };
+        TeamsIncomingWebhookConnectionUpsertRequest body = new() { KeyVaultSecretName = "teams-incoming-webhook-demo" };
 
         HttpResponseMessage res = await client.PostAsJsonAsync(
             new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
@@ -60,17 +57,17 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "OperatorUser",
-            roles: [ArchLucidRoles.Operator]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "OperatorUser",
+            [ArchLucidRoles.Operator]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         TeamsIncomingWebhookConnectionUpsertRequest body = new()
         {
-            KeyVaultSecretName = "https://example.invalid/hook",
+            KeyVaultSecretName = "https://example.invalid/hook"
         };
 
         HttpResponseMessage res = await client.PostAsJsonAsync(
@@ -85,15 +82,16 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "OperatorUser",
-            roles: [ArchLucidRoles.Operator]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "OperatorUser",
+            [ArchLucidRoles.Operator]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage get0 = await client.GetAsync(new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative));
+        HttpResponseMessage get0 =
+            await client.GetAsync(new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative));
         get0.StatusCode.Should().Be(HttpStatusCode.OK);
         TeamsIncomingWebhookConnectionResponse? parsed0 =
             await get0.Content.ReadFromJsonAsync<TeamsIncomingWebhookConnectionResponse>(JsonOptions);
@@ -110,8 +108,8 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
             EnabledTriggers =
             [
                 "com.archlucid.authority.run.completed",
-                "com.archlucid.alert.fired",
-            ],
+                "com.archlucid.alert.fired"
+            ]
         };
 
         HttpResponseMessage post = await client.PostAsJsonAsync(
@@ -123,17 +121,16 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         postParsed.Should().NotBeNull();
         postParsed!.IsConfigured.Should().BeTrue();
         postParsed.KeyVaultSecretName.Should().Be("kv-teams-webhook-ref");
-        postParsed.EnabledTriggers.Should().BeEquivalentTo(new[]
-        {
-            "com.archlucid.authority.run.completed",
-            "com.archlucid.alert.fired",
-        });
+        postParsed.EnabledTriggers.Should()
+            .BeEquivalentTo("com.archlucid.authority.run.completed", "com.archlucid.alert.fired");
 
-        HttpResponseMessage get1 = await client.GetAsync(new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative));
+        HttpResponseMessage get1 =
+            await client.GetAsync(new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative));
         get1.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage del = await client.SendAsync(
-            new HttpRequestMessage(HttpMethod.Delete, new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative)));
+            new HttpRequestMessage(HttpMethod.Delete,
+                new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative)));
         del.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 
@@ -142,10 +139,10 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "OperatorUser",
-            roles: [ArchLucidRoles.Operator]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "OperatorUser",
+            [ArchLucidRoles.Operator]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -153,7 +150,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         TeamsIncomingWebhookConnectionUpsertRequest body = new()
         {
             KeyVaultSecretName = "kv-teams-webhook-ref",
-            EnabledTriggers = ["com.archlucid.authority.run.completed", "com.archlucid.does.not.exist"],
+            EnabledTriggers = ["com.archlucid.authority.run.completed", "com.archlucid.does.not.exist"]
         };
 
         HttpResponseMessage res = await client.PostAsJsonAsync(
@@ -170,10 +167,10 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "ReaderUser",
-            roles: [ArchLucidRoles.Reader]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -198,7 +195,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
     {
         using RSA rsa = RSA.Create();
         rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(includePrivateParameters: true);
+        RSAParameters keyMaterial = rsa.ExportParameters(true);
         RsaSecurityKey signingKey = new(keyMaterial);
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
@@ -211,12 +208,12 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            notBefore: DateTime.UtcNow.AddMinutes(-1),
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);
+            issuer,
+            audience,
+            claims,
+            DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddHours(1),
+            creds);
 
         return handler.WriteToken(token);
     }

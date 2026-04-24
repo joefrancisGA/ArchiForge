@@ -15,12 +15,11 @@ public sealed class PrometheusEnabledArchLucidApiFactory : ArchLucidApiFactory
 
         base.ConfigureWebHost(builder);
 
-        builder.ConfigureAppConfiguration(
-            (_, config) => config.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["Observability:Prometheus:Enabled"] = "true",
-                    ["Observability:Prometheus:RequireScrapeAuthentication"] = "false",
-                }));
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                ["Observability:Prometheus:Enabled"] = "true",
+                ["Observability:Prometheus:RequireScrapeAuthentication"] = "false"
+            }));
     }
 }

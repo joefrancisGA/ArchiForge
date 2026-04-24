@@ -8,17 +8,11 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Comparison Audit.
+///     Tests for Architecture Comparison Audit.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private sealed class ReplayRunResponseDto
-    {
-        public string ReplayRunId { get; init; } = string.Empty;
-    }
-
     [Fact]
     public async Task EndToEndComparisonSummary_PersistsComparisonRecord()
     {
@@ -27,46 +21,43 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
         HttpResponseMessage createResponse = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", content: null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", content: null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/replay",
-            JsonContent(new
-            {
-                commitReplay = true,
-                executionMode = "Current",
-                manifestVersionOverride = "v1-replay"
-            }));
+            JsonContent(new { commitReplay = true, executionMode = "Current", manifestVersionOverride = "v1-replay" }));
         replayResponse.EnsureSuccessStatusCode();
 
-        ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        ReplayRunResponseDto? replayPayload =
+            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         string replayRunId = replayPayload!.ReplayRunId;
         replayRunId.Should().NotBeNullOrWhiteSpace();
 
         HttpResponseMessage compareResponse = await Client.PostAsync(
             $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={runId}&rightRunId={replayRunId}",
-            JsonContent(new
-            {
-                persist = true
-            }));
+            JsonContent(new { persist = true }));
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        compareResponse.Headers.TryGetValues("X-ArchLucid-ComparisonRecordId", out IEnumerable<string>? ids).Should().BeTrue();
+        compareResponse.Headers.TryGetValues("X-ArchLucid-ComparisonRecordId", out IEnumerable<string>? ids).Should()
+            .BeTrue();
 
         string comparisonRecordId = ids!.Single();
         comparisonRecordId.Should().NotBeNullOrWhiteSpace();
 
-        HttpResponseMessage recordResponse = await Client.GetAsync($"/v1/architecture/comparisons/{comparisonRecordId}");
+        HttpResponseMessage recordResponse =
+            await Client.GetAsync($"/v1/architecture/comparisons/{comparisonRecordId}");
         recordResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ComparisonRecordResponseDto? payload = await recordResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
+        ComparisonRecordResponseDto? payload =
+            await recordResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Record.ComparisonType.Should().Be("end-to-end-replay");
         payload.Record.LeftRunId.Should().Be(runId);
@@ -74,5 +65,13 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
         payload.Record.SummaryMarkdown.Should().NotBeNullOrWhiteSpace();
         payload.Record.PayloadJson.Should().NotBeNullOrWhiteSpace();
     }
-}
 
+    private sealed class ReplayRunResponseDto
+    {
+        public string ReplayRunId
+        {
+            get;
+            init;
+        } = string.Empty;
+    }
+}

@@ -27,10 +27,11 @@ public sealed class TenantTrialControllerTests
         {
             TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
         };
         Mock<ITenantRepository> tenants = new();
-        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync((TenantRecord?)null);
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
         Mock<IAuditService> audit = new();
@@ -38,10 +39,11 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 
@@ -56,7 +58,7 @@ public sealed class TenantTrialControllerTests
         {
             TenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
             WorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-            ProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+            ProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff")
         };
         TenantRecord tenant = new()
         {
@@ -67,7 +69,7 @@ public sealed class TenantTrialControllerTests
             CreatedUtc = DateTimeOffset.UtcNow,
             TrialRunsUsed = 1,
             TrialSeatsUsed = 0,
-            TrialStatus = "   ",
+            TrialStatus = "   "
         };
         Mock<ITenantRepository> tenants = new();
         tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
@@ -78,10 +80,11 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 
@@ -99,7 +102,7 @@ public sealed class TenantTrialControllerTests
         {
             TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
             WorkspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"),
-            ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000"),
+            ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000")
         };
         DateTimeOffset committed = DateTimeOffset.Parse("2026-04-10T08:00:00+00:00");
         TenantRecord tenant = new()
@@ -112,7 +115,7 @@ public sealed class TenantTrialControllerTests
             TrialRunsUsed = 0,
             TrialSeatsUsed = 0,
             TrialStatus = "   ",
-            TrialFirstManifestCommittedUtc = committed,
+            TrialFirstManifestCommittedUtc = committed
         };
         Mock<ITenantRepository> tenants = new();
         tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
@@ -123,10 +126,11 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 
@@ -143,7 +147,7 @@ public sealed class TenantTrialControllerTests
         {
             TenantId = Guid.Parse("dddddddd-eeee-ffff-0000-111111111111"),
             WorkspaceId = Guid.Parse("eeeeeeee-ffff-0000-1111-222222222222"),
-            ProjectId = Guid.Parse("ffffffff-0000-1111-2222-333333333333"),
+            ProjectId = Guid.Parse("ffffffff-0000-1111-2222-333333333333")
         };
         DateTimeOffset expires = DateTimeOffset.UtcNow.AddDays(9);
         DateTimeOffset committed = DateTimeOffset.Parse("2026-03-01T00:00:00+00:00");
@@ -161,7 +165,7 @@ public sealed class TenantTrialControllerTests
             TrialExpiresUtc = expires,
             TrialRunsLimit = 5,
             TrialSeatsLimit = 10,
-            TrialFirstManifestCommittedUtc = committed,
+            TrialFirstManifestCommittedUtc = committed
         };
         Mock<ITenantRepository> tenants = new();
         tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
@@ -172,10 +176,11 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 
@@ -192,7 +197,7 @@ public sealed class TenantTrialControllerTests
         {
             TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
         };
         DateTimeOffset expires = DateTimeOffset.UtcNow.AddDays(9);
         TenantRecord tenant = new()
@@ -208,7 +213,7 @@ public sealed class TenantTrialControllerTests
             TrialStartUtc = DateTimeOffset.UtcNow.AddDays(-1),
             TrialExpiresUtc = expires,
             TrialRunsLimit = 5,
-            TrialSeatsLimit = 10,
+            TrialSeatsLimit = 10
         };
         Mock<ITenantRepository> tenants = new();
         tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
@@ -219,10 +224,11 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
-        {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
-        };
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 

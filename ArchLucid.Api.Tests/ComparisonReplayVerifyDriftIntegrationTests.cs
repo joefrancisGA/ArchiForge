@@ -11,11 +11,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// End-to-end: persisted comparison payload is tampered, then verify replay returns 422 (real pipeline, not a stub service).
+///     End-to-end: persisted comparison payload is tampered, then verify replay returns 422 (real pipeline, not a stub
+///     service).
 /// </summary>
 /// <remarks>
-/// Default integration hosts use <c>ArchLucid:StorageProvider=InMemory</c>, so <c>ComparisonRecords</c> are not written to SQL.
-/// Payload is read via GET, then mutated in the in-memory repository through <see cref="InMemoryComparisonRecordRepository.ReplacePayloadJsonForIntegrationTest"/>.
+///     Default integration hosts use <c>ArchLucid:StorageProvider=InMemory</c>, so <c>ComparisonRecords</c> are not
+///     written to SQL.
+///     Payload is read via GET, then mutated in the in-memory repository through
+///     <see cref="InMemoryComparisonRecordRepository.ReplacePayloadJsonForIntegrationTest" />.
 /// </remarks>
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
@@ -33,7 +36,8 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFact
         HttpResponseMessage getResponse = await Client.GetAsync(
             $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}");
         getResponse.EnsureSuccessStatusCode();
-        ComparisonRecordResponseDto? dto = await getResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
+        ComparisonRecordResponseDto? dto =
+            await getResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
         string payloadJson = dto!.Record.PayloadJson;
         payloadJson.Should().NotBeNullOrWhiteSpace();
 
@@ -43,15 +47,13 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFact
 
         IComparisonRecordRepository repo = Factory.Services.GetRequiredService<IComparisonRecordRepository>();
         InMemoryComparisonRecordRepository memoryRepo = repo as InMemoryComparisonRecordRepository
-            ?? throw new InvalidOperationException(
-                "Expected IComparisonRecordRepository to be InMemoryComparisonRecordRepository (integration host with InMemory storage).");
+                                                        ?? throw new InvalidOperationException(
+                                                            "Expected IComparisonRecordRepository to be InMemoryComparisonRecordRepository (integration host with InMemory storage).");
         memoryRepo.ReplacePayloadJsonForIntegrationTest(comparisonRecordId, corrupted);
 
         string verifyBody = JsonSerializer.Serialize(new
         {
-            format = "markdown",
-            replayMode = "verify",
-            persistReplay = false
+            format = "markdown", replayMode = "verify", persistReplay = false
         });
         HttpResponseMessage verifyResponse = await Client.PostAsync(
             $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay",

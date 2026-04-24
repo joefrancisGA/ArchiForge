@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Decision Engine V2.
+///     Tests for Architecture Decision Engine V2.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -23,7 +22,8 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -35,7 +35,8 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
         HttpResponseMessage decisionsResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/decisions");
         decisionsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        DecisionNodeResponseDto? payload = await decisionsResponse.Content.ReadFromJsonAsync<DecisionNodeResponseDto>(JsonOptions);
+        DecisionNodeResponseDto? payload =
+            await decisionsResponse.Content.ReadFromJsonAsync<DecisionNodeResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Decisions.Should().NotBeEmpty();
         payload.Decisions.Should().Contain(d => d.Topic == "TopologyAcceptance");
@@ -43,4 +44,3 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchLucidApiFactory factor
         payload.Decisions.Should().Contain(d => d.Topic == "ComplexityDisposition");
     }
 }
-

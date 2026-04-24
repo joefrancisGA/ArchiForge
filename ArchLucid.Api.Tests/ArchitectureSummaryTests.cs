@@ -9,9 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Summary.
+///     Tests for Architecture Summary.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -24,7 +23,8 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -33,14 +33,17 @@ public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : Inte
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        CommitRunResponseDto? commitPayload =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
-        HttpResponseMessage summaryResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");
+        HttpResponseMessage summaryResponse =
+            await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");
 
         summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ManifestSummaryResponse? summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
+        ManifestSummaryResponse? summaryPayload =
+            await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Format.Should().Be("markdown");
         summaryPayload.Content.Should().Contain("# Architecture Summary: EnterpriseRag");

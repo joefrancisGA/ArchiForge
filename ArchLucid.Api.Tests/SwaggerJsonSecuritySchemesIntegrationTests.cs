@@ -11,7 +11,7 @@ using Swashbuckle.AspNetCore.Swagger;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Asserts Swashbuckle output reflects auth mode: JWT (Entra) vs DevelopmentBypass.
+///     Asserts Swashbuckle output reflects auth mode: JWT (Entra) vs DevelopmentBypass.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBearerWebAppFactory factory)
@@ -48,7 +48,8 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBea
         response.IsSuccessStatusCode.Should().BeTrue("swagger.json body: {0}", json);
 
         using JsonDocument doc = JsonDocument.Parse(json);
-        doc.RootElement.GetProperty("components").GetProperty("securitySchemes").GetProperty("Bearer").GetProperty("scheme")
+        doc.RootElement.GetProperty("components").GetProperty("securitySchemes").GetProperty("Bearer")
+            .GetProperty("scheme")
             .GetString()
             .Should().Be("bearer");
     }

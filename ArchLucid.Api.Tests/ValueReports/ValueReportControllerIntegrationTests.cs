@@ -29,12 +29,11 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
     {
         _factory = _baseFactory.WithWebHostBuilder(builder =>
         {
-            builder.ConfigureAppConfiguration(
-                (_, config) => config.AddInMemoryCollection(
-                    new Dictionary<string, string?>
-                    {
-                        ["ValueReport:Computation:AsyncJobWhenWindowDaysExceeds"] = "5000",
-                    }));
+            builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ValueReport:Computation:AsyncJobWhenWindowDaysExceeds"] = "5000"
+                }));
 
             builder.ConfigureTestServices(services =>
             {
@@ -74,13 +73,13 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
     {
         string token = MintJwt(
             _baseFactory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "OperatorUser",
-            roles: [ArchLucidRoles.Operator],
-            tenantId: ScopeIds.DefaultTenant,
-            workspaceId: ScopeIds.DefaultWorkspace,
-            projectId: ScopeIds.DefaultProject);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "OperatorUser",
+            [ArchLucidRoles.Operator],
+            ScopeIds.DefaultTenant,
+            ScopeIds.DefaultWorkspace,
+            ScopeIds.DefaultProject);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -89,7 +88,7 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
             $"/v1.0/value-report/{ScopeIds.DefaultTenant:D}/generate?from=2026-01-01T00:00:00.0000000Z&to=2026-01-10T00:00:00.0000000Z",
             UriKind.Relative);
 
-        using HttpResponseMessage res = await client.PostAsync(url, content: null);
+        using HttpResponseMessage res = await client.PostAsync(url, null);
 
         res.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Content.Headers.ContentType?.MediaType.Should()
@@ -110,17 +109,17 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
     {
         using RSA rsa = RSA.Create();
         rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(includePrivateParameters: true);
+        RSAParameters keyMaterial = rsa.ExportParameters(true);
         RsaSecurityKey signingKey = new(keyMaterial);
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
         List<Claim> claims =
         [
-            new Claim(JwtRegisteredClaimNames.Sub, "test-sub"),
-            new Claim("name", name),
-            new Claim("tenant_id", tenantId.ToString("D")),
-            new Claim("workspace_id", workspaceId.ToString("D")),
-            new Claim("project_id", projectId.ToString("D")),
+            new(JwtRegisteredClaimNames.Sub, "test-sub"),
+            new("name", name),
+            new("tenant_id", tenantId.ToString("D")),
+            new("workspace_id", workspaceId.ToString("D")),
+            new("project_id", projectId.ToString("D"))
         ];
 
         foreach (string r in roles)
@@ -128,12 +127,12 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            notBefore: DateTime.UtcNow.AddMinutes(-1),
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);
+            issuer,
+            audience,
+            claims,
+            DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddHours(1),
+            creds);
 
         return handler.WriteToken(token);
     }
@@ -157,17 +156,17 @@ public sealed class ValueReportControllerIntegrationTests : IAsyncLifetime
 
             ValueReportRawMetrics raw = new(
                 [new ValueReportRunStatusCount("Completed", 1)],
-                RunsCompletedCount: 1,
-                ManifestsCommittedCount: 1,
-                GovernanceEventCount: 1,
-                DriftAlertEventCount: 1,
-                FindingFeedbackNetScore: 0,
-                FindingFeedbackVoteCount: 0,
-                TenantBaselineReviewCycleHours: null,
-                TenantBaselineReviewCycleSource: null,
-                TenantBaselineReviewCycleCapturedUtc: null,
-                MeasuredAverageReviewCycleHoursForWindow: null,
-                MeasuredReviewCycleSampleSize: 0);
+                1,
+                1,
+                1,
+                1,
+                0,
+                0,
+                null,
+                null,
+                null,
+                null,
+                0);
 
             return Task.FromResult(raw);
         }

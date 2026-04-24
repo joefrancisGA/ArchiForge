@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// API host with a single explicit CORS origin for policy regression tests.
+///     API host with a single explicit CORS origin for policy regression tests.
 /// </summary>
 public sealed class CorsTrustedOriginApiFactory : ArchLucidApiFactory
 {

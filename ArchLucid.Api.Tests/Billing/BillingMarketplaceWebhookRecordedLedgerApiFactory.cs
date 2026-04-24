@@ -12,10 +12,16 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Api.Tests.Billing;
 
-/// <summary>GA-on marketplace webhook factory with <see cref="BillingLedgerDapperDispatchRecorder"/> over <see cref="SqlBillingLedger"/>.</summary>
+/// <summary>
+///     GA-on marketplace webhook factory with <see cref="BillingLedgerDapperDispatchRecorder" /> over
+///     <see cref="SqlBillingLedger" />.
+/// </summary>
 internal sealed class BillingMarketplaceWebhookRecordedLedgerApiFactory : BillingMarketplaceWebhookApiFactoryBase
 {
-    public ConcurrentBag<string> RecordedStoredProcedureLogicalNames { get; } = [];
+    public ConcurrentBag<string> RecordedStoredProcedureLogicalNames
+    {
+        get;
+    } = [];
 
     protected override bool GaEnabled => true;
 
@@ -23,19 +29,17 @@ internal sealed class BillingMarketplaceWebhookRecordedLedgerApiFactory : Billin
     {
         base.ConfigureWebHost(builder);
 
-        builder.ConfigureTestServices(
-            services =>
+        builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<IBillingLedger>();
+            services.AddScoped<IBillingLedger>(sp =>
             {
-                services.RemoveAll<IBillingLedger>();
-                services.AddScoped<IBillingLedger>(
-                    sp =>
-                    {
-                        ISqlConnectionFactory connectionFactory = sp.GetRequiredService<ISqlConnectionFactory>();
-                        IRlsSessionContextApplicator rls = sp.GetRequiredService<IRlsSessionContextApplicator>();
-                        SqlBillingLedger inner = new(connectionFactory, rls);
+                ISqlConnectionFactory connectionFactory = sp.GetRequiredService<ISqlConnectionFactory>();
+                IRlsSessionContextApplicator rls = sp.GetRequiredService<IRlsSessionContextApplicator>();
+                SqlBillingLedger inner = new(connectionFactory, rls);
 
-                        return new BillingLedgerDapperDispatchRecorder(inner, RecordedStoredProcedureLogicalNames);
-                    });
+                return new BillingLedgerDapperDispatchRecorder(inner, RecordedStoredProcedureLogicalNames);
             });
+        });
     }
 }

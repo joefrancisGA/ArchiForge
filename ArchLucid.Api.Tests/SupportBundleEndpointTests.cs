@@ -10,7 +10,8 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     HTTP coverage for <c>POST /v1/admin/support-bundle</c> — the in-product
 ///     support-bundle download (PENDING_QUESTIONS.md item 37, owner decisions F + G,
-///     2026-04-23). Asserts the policy guard (<see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority" />)
+///     2026-04-23). Asserts the policy guard (
+///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority" />)
 ///     and that the happy path returns a non-empty ZIP with the expected entries.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -26,10 +27,10 @@ public sealed class SupportBundleEndpointTests
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        using HttpResponseMessage response = await client.PostAsync(EndpointPath, content: null);
+        using HttpResponseMessage response = await client.PostAsync(EndpointPath, null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden,
-            because: "owner decision F gates /admin/support-bundle on ExecuteAuthority; Reader role lacks it.");
+            "owner decision F gates /admin/support-bundle on ExecuteAuthority; Reader role lacks it.");
     }
 
     [Fact]
@@ -39,10 +40,10 @@ public sealed class SupportBundleEndpointTests
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        using HttpResponseMessage response = await client.PostAsync(EndpointPath, content: null);
+        using HttpResponseMessage response = await client.PostAsync(EndpointPath, null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized,
-            because: "an unauthenticated caller must be rejected before policy evaluation.");
+            "an unauthenticated caller must be rejected before policy evaluation.");
     }
 
     [Fact]
@@ -52,7 +53,7 @@ public sealed class SupportBundleEndpointTests
         using HttpClient client = factory.CreateClient();
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
-        using HttpResponseMessage response = await client.PostAsync(EndpointPath, content: null);
+        using HttpResponseMessage response = await client.PostAsync(EndpointPath, null);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.MediaType.Should().Be("application/zip");
@@ -70,7 +71,7 @@ public sealed class SupportBundleEndpointTests
         string? contentDisposition = response.Content.Headers.ContentDisposition?.ToString();
         contentDisposition.Should().NotBeNullOrEmpty();
         contentDisposition.Should().Contain("archlucid-support-bundle-",
-            because: "the controller derives the download file name from the assembled artifact.");
+            "the controller derives the download file name from the assembled artifact.");
     }
 
     private static IReadOnlyList<string> ListZipEntryNames(byte[] zipBytes)

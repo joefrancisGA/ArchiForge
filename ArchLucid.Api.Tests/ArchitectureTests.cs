@@ -12,9 +12,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture.
+///     Tests for Architecture.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -119,8 +118,8 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
             request,
             "v1",
             [topology, cost, compliance],
-            evaluations: [],
-            decisionNodes: []);
+            [],
+            []);
 
         result.Success.Should().BeTrue();
 

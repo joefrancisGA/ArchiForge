@@ -11,10 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP integration tests for <c>GET .../comparisons/{id}/replay/cost-estimate</c>.
+///     HTTP integration tests for <c>GET .../comparisons/{id}/replay/cost-estimate</c>.
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFactory factory)
+    : IntegrationTestBase(factory)
 {
     private readonly ArchLucidApiFactory _factory = factory;
 

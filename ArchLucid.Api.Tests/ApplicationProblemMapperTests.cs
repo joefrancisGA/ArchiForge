@@ -13,20 +13,15 @@ using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Application Problem Mapper.
+///     Tests for Application Problem Mapper.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class ApplicationProblemMapperTests
 {
     [Fact]
     public void TryMapUnhandledException_ComparisonVerificationFailed_Returns422()
     {
-        DriftAnalysisResult drift = new()
-        {
-            DriftDetected = true,
-            Summary = "x"
-        };
+        DriftAnalysisResult drift = new() { DriftDetected = true, Summary = "x" };
         ComparisonVerificationFailedException ex = new("verify", drift);
         DefaultHttpContext http = CreateHttpContext("/p", "corr-verify");
 
@@ -140,10 +135,6 @@ public sealed class ApplicationProblemMapperTests
 
     private static DefaultHttpContext CreateHttpContext(string path, string traceIdentifier)
     {
-        return new DefaultHttpContext
-        {
-            TraceIdentifier = traceIdentifier,
-            Request = { Path = path }
-        };
+        return new DefaultHttpContext { TraceIdentifier = traceIdentifier, Request = { Path = path } };
     }
 }

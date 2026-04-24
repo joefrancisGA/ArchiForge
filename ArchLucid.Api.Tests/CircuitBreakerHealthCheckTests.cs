@@ -17,11 +17,7 @@ public sealed class CircuitBreakerHealthCheckTests
     public async Task AllClosed_Returns_Healthy()
     {
         ServiceCollection services = [];
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 5,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
         services.AddKeyedSingleton(
             OpenAiCircuitBreakerKeys.Completion,
             new CircuitBreakerGate(OpenAiCircuitBreakerKeys.Completion, options));
@@ -62,16 +58,8 @@ public sealed class CircuitBreakerHealthCheckTests
     public async Task OneOpen_Returns_Degraded()
     {
         ServiceCollection services = [];
-        CircuitBreakerOptions closedOpts = new()
-        {
-            FailureThreshold = 5,
-            DurationOfBreakSeconds = 60
-        };
-        CircuitBreakerOptions openOpts = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions closedOpts = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions openOpts = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
         CircuitBreakerGate openGate = new(OpenAiCircuitBreakerKeys.Completion, openOpts);
         openGate.RecordFailure();
 
@@ -89,8 +77,8 @@ public sealed class CircuitBreakerHealthCheckTests
         object gatesObj = result.Data["gates"];
         List<Dictionary<string, object>>? gateList = gatesObj as List<Dictionary<string, object>>;
         gateList.Should().NotBeNull();
-        Dictionary<string, object>? completionRow = gateList.FirstOrDefault(
-            r => (string)r["name"] == OpenAiCircuitBreakerKeys.Completion);
+        Dictionary<string, object>? completionRow =
+            gateList.FirstOrDefault(r => (string)r["name"] == OpenAiCircuitBreakerKeys.Completion);
         completionRow.Should().NotBeNull();
         completionRow["state"].Should().Be("Open");
         completionRow["consecutiveFailures"].Should().Be(1);

@@ -6,10 +6,12 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>Self-service registration with <see cref="GreenfieldSqlApiFactory"/> (full SQL DI + DbUp + schema bootstrap).</summary>
+/// <summary>Self-service registration with <see cref="GreenfieldSqlApiFactory" /> (full SQL DI + DbUp + schema bootstrap).</summary>
 /// <remarks>
-/// Requires a reachable SQL Server (see <c>docs/BUILD.md</c>): on non-Windows set <c>ARCHLUCID_SQL_TEST</c> or <c>ARCHLUCID_API_TEST_SQL</c>.
-/// Marked <c>Category=Integration</c> so <c>dotnet test --filter "Suite=Core&amp;Category!=Integration"</c> (fast core, no SQL) skips this class.
+///     Requires a reachable SQL Server (see <c>docs/BUILD.md</c>): on non-Windows set <c>ARCHLUCID_SQL_TEST</c> or
+///     <c>ARCHLUCID_API_TEST_SQL</c>.
+///     Marked <c>Category=Integration</c> so <c>dotnet test --filter "Suite=Core&amp;Category!=Integration"</c> (fast
+///     core, no SQL) skips this class.
 /// </remarks>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -18,7 +20,10 @@ public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApi
 {
     private readonly GreenfieldSqlApiFactory _fixture;
 
-    public RegistrationControllerTests(GreenfieldSqlApiFactory fixture) => _fixture = fixture;
+    public RegistrationControllerTests(GreenfieldSqlApiFactory fixture)
+    {
+        _fixture = fixture;
+    }
 
     [Fact]
     public async Task Register_creates_tenant_then_returns_conflict_for_same_organization()
@@ -67,8 +72,7 @@ public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApi
     {
         Dictionary<string, string?> payload = new()
         {
-            ["organizationName"] = organizationName,
-            ["adminEmail"] = adminEmail,
+            ["organizationName"] = organizationName, ["adminEmail"] = adminEmail
         };
 
         if (!string.IsNullOrWhiteSpace(displayName))

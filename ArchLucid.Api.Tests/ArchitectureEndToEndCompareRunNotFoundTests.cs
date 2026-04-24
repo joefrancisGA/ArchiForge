@@ -5,9 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture End To End Compare Run Not Found.
+///     Tests for Architecture End To End Compare Run Not Found.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureEndToEndCompareRunNotFoundTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)

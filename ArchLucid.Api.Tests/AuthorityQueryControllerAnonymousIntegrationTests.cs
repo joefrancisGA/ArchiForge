@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Anonymous callers cannot list authority runs when the host uses API-key mode (no DevelopmentBypass).
+///     Anonymous callers cannot list authority runs when the host uses API-key mode (no DevelopmentBypass).
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]

@@ -26,7 +26,7 @@ public sealed class RetrievalControllerTests
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
 
-        IActionResult result = await sut.Search(q: "   ", runId: null, manifestId: null, topK: 8, CancellationToken.None);
+        IActionResult result = await sut.Search("   ", null, null, 8, CancellationToken.None);
 
         ObjectResult problem = result.Should().BeOfType<ObjectResult>().Subject;
         problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
@@ -51,7 +51,7 @@ public sealed class RetrievalControllerTests
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
 
-        IActionResult result = await sut.Search(q: "hello", runId: null, manifestId: null, topK: 0, CancellationToken.None);
+        IActionResult result = await sut.Search("hello", null, null, 0, CancellationToken.None);
 
         result.Should().BeOfType<OkObjectResult>();
         retrieval.Verify(
@@ -79,7 +79,7 @@ public sealed class RetrievalControllerTests
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
 
-        IActionResult result = await sut.Search(q: "scope", runId: null, manifestId: null, topK: 200, CancellationToken.None);
+        IActionResult result = await sut.Search("scope", null, null, 200, CancellationToken.None);
 
         result.Should().BeOfType<OkObjectResult>();
         retrieval.Verify(

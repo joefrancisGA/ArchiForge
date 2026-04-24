@@ -30,7 +30,7 @@ public sealed class ArchLucidAllowRlsBypassConfigurationRulesTests
                 ["ConnectionStrings:ArchLucid"] =
                     "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
                 ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
-                ["WebhookDelivery:UseHttpClient"] = "false",
+                ["WebhookDelivery:UseHttpClient"] = "false"
             };
 
             IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -40,7 +40,8 @@ public sealed class ArchLucidAllowRlsBypassConfigurationRulesTests
             IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
             errors.Should()
-                .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+                .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true",
+                    StringComparison.OrdinalIgnoreCase));
         }
         finally
         {
@@ -67,7 +68,7 @@ public sealed class ArchLucidAllowRlsBypassConfigurationRulesTests
                     "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
                 ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
                 ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-                ["WebhookDelivery:UseHttpClient"] = "false",
+                ["WebhookDelivery:UseHttpClient"] = "false"
             };
 
             IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -77,7 +78,8 @@ public sealed class ArchLucidAllowRlsBypassConfigurationRulesTests
             IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
             errors.Should()
-                .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+                .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true",
+                    StringComparison.OrdinalIgnoreCase));
         }
         finally
         {

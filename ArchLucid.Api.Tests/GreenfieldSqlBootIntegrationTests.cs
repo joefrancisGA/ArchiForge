@@ -10,8 +10,10 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Verifies the API host can start against a newly created empty SQL database and apply embedded migrations + bootstrap.
-/// Catches ordering bugs between DbUp and <c>SqlSchemaBootstrapper</c> that pre-migrated integration DBs would not surface.
+///     Verifies the API host can start against a newly created empty SQL database and apply embedded migrations +
+///     bootstrap.
+///     Catches ordering bugs between DbUp and <c>SqlSchemaBootstrapper</c> that pre-migrated integration DBs would not
+///     surface.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -27,10 +29,12 @@ public sealed class GreenfieldSqlBootIntegrationTests
 
     private static bool IsSqlServerConfiguredForApiIntegration()
     {
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
             return true;
 
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
             return true;
 
         return OperatingSystem.IsWindows();

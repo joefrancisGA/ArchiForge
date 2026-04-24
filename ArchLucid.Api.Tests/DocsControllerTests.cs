@@ -17,10 +17,7 @@ public sealed class DocsControllerTests
         DocsController sut = new();
         DefaultHttpContext http = new()
         {
-            Request =
-            {
-                Scheme = "https", Host = new HostString("api.example.com"), PathBase = PathString.Empty
-            }
+            Request = { Scheme = "https", Host = new HostString("api.example.com"), PathBase = PathString.Empty }
         };
         sut.ControllerContext = new ControllerContext { HttpContext = http };
 

@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Replay.
+///     Tests for Architecture Replay.
 /// </summary>
-
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
@@ -18,13 +17,12 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
     [Fact]
     public async Task ReplayRun_ReexecutesPriorRun()
     {
-        string runId = await ComparisonReplayTestFixture.CreateRunAndExecuteAsync(Client, JsonOptions, "REQ-REPLAY-001");
+        string runId =
+            await ComparisonReplayTestFixture.CreateRunAndExecuteAsync(Client, JsonOptions, "REQ-REPLAY-001");
 
         var replayRequest = new
         {
-            commitReplay = false,
-            executionMode = "Current",
-            manifestVersionOverride = (string?)null
+            commitReplay = false, executionMode = "Current", manifestVersionOverride = (string?)null
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
@@ -33,7 +31,8 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ReplayRunResponseDto? payload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        ReplayRunResponseDto? payload =
+            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.OriginalRunId.Should().Be(runId);
         payload.ReplayRunId.Should().NotBeNullOrWhiteSpace();
@@ -50,7 +49,8 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -61,9 +61,7 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
 
         var replayRequest = new
         {
-            commitReplay = true,
-            executionMode = "Current",
-            manifestVersionOverride = "v1-replay"
+            commitReplay = true, executionMode = "Current", manifestVersionOverride = "v1-replay"
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(
@@ -72,7 +70,8 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ReplayRunResponseDto? payload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        ReplayRunResponseDto? payload =
+            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Manifest.Should().NotBeNull();
         payload.Manifest!.Metadata.ManifestVersion.Should().Be("v1-replay");

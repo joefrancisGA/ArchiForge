@@ -15,9 +15,9 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit-tests for <see cref="FeatureGateFilter"/>: confirms the filter forwards the action when the gate is open
-/// (<c>Demo:Enabled=true</c>) and short-circuits with <c>404 Not Found</c> Problem Details when it is not. The 404
-/// (rather than 403) is intentional so production-like deployments cannot leak the existence of demo surfaces.
+///     Unit-tests for <see cref="FeatureGateFilter" />: confirms the filter forwards the action when the gate is open
+///     (<c>Demo:Enabled=true</c>) and short-circuits with <c>404 Not Found</c> Problem Details when it is not. The 404
+///     (rather than 403) is intentional so production-like deployments cannot leak the existence of demo surfaces.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -83,10 +83,7 @@ public sealed class FeatureGateFilterTests
 
     private static ActionExecutingContext BuildExecutingContext(string requestPath)
     {
-        DefaultHttpContext httpContext = new()
-        {
-            Request = { Path = requestPath }
-        };
+        DefaultHttpContext httpContext = new() { Request = { Path = requestPath } };
 
         ActionContext actionContext = new(
             httpContext,
@@ -98,9 +95,11 @@ public sealed class FeatureGateFilterTests
             actionContext,
             [],
             new Dictionary<string, object?>(),
-            controller: new object());
+            new object());
     }
 
     private static ActionExecutedContext BuildExecutedContext(ActionExecutingContext executing)
-        => new(executing, [], controller: new object());
+    {
+        return new ActionExecutedContext(executing, [], new object());
+    }
 }

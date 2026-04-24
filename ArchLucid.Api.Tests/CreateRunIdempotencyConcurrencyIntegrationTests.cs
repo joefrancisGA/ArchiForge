@@ -11,7 +11,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Parallel POST <c>/v1/architecture/request</c> with the same <c>Idempotency-Key</c> must converge on a single authority run (SQL storage).
+///     Parallel POST <c>/v1/architecture/request</c> with the same <c>Idempotency-Key</c> must converge on a single
+///     authority run (SQL storage).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -28,10 +29,12 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 
     private static bool IsSqlServerConfiguredForApiIntegration()
     {
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
             return true;
 
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
             return true;
 
         return OperatingSystem.IsWindows();
@@ -57,8 +60,8 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
                 body,
                 idempotencyKey,
                 parallel,
-                maxAttempts: 10,
-                initialDelayMilliseconds: 500,
+                10,
+                500,
                 CancellationToken.None);
 
         responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
@@ -66,7 +69,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             body,
             idempotencyKey,
             responses,
-            maxPerSlotAttempts: 25,
+            25,
             CancellationToken.None);
 
         try
@@ -98,13 +101,14 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         authorityRunCount.Should().Be(1);
     }
 
-    private static async Task<int> CountRunsWithRequestIdAsync(SqlConnection connection, string requestId, CancellationToken ct)
+    private static async Task<int> CountRunsWithRequestIdAsync(SqlConnection connection, string requestId,
+        CancellationToken ct)
     {
         const string sql = """
-            SELECT COUNT(1)
-            FROM dbo.Runs
-            WHERE ArchitectureRequestId = @RequestId;
-            """;
+                           SELECT COUNT(1)
+                           FROM dbo.Runs
+                           WHERE ArchitectureRequestId = @RequestId;
+                           """;
 
         await using SqlCommand cmd = new(sql, connection);
         _ = cmd.Parameters.AddWithValue("@RequestId", requestId);

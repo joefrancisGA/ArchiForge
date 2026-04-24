@@ -10,8 +10,9 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// <see cref="ExportReplayService.ReplayAsync"/> contract: validation, rehydration failures, unsupported export types,
-/// and happy paths for <c>analysis-report-consulting-docx</c> vs <c>analysis-report-docx</c>.
+///     <see cref="ExportReplayService.ReplayAsync" /> contract: validation, rehydration failures, unsupported export
+///     types,
+///     and happy paths for <c>analysis-report-consulting-docx</c> vs <c>analysis-report-docx</c>.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ExportReplayServiceReplayAsyncTests
@@ -126,7 +127,8 @@ public sealed class ExportReplayServiceReplayAsyncTests
         consultingDocx.Setup(c => c.GenerateDocxAsync(built, It.IsAny<CancellationToken>()))
             .ReturnsAsync([1, 2, 3]);
 
-        ReplayExportResult result = await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });
+        ReplayExportResult result =
+            await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });
 
         result.Content.Should().Equal(1, 2, 3);
         result.FileName.Should().Be("base_replay.docx");
@@ -159,7 +161,8 @@ public sealed class ExportReplayServiceReplayAsyncTests
         standardDocx.Setup(s => s.GenerateDocxAsync(built, It.IsAny<CancellationToken>()))
             .ReturnsAsync([9]);
 
-        ReplayExportResult result = await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });
+        ReplayExportResult result =
+            await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });
 
         result.Content.Should().Equal("\t"u8.ToArray());
         standardDocx.Verify(
@@ -198,7 +201,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             ExportType = record.ExportType,
             Format = record.Format,
             FileName = "x.docx",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         audit.Setup(a => a.RecordAsync(
@@ -217,11 +220,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             .ReturnsAsync(persistedRow);
 
         ReplayExportResult replayResult = await sut.ReplayAsync(
-            new ReplayExportRequest
-            {
-                ExportRecordId = record.ExportRecordId,
-                RecordReplayExport = true
-            });
+            new ReplayExportRequest { ExportRecordId = record.ExportRecordId, RecordReplayExport = true });
 
         replayResult.RecordedReplayExportRecordId.Should().Be("persisted-replay-export-id");
 

@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Verifies <see cref="SqlTransientDetector"/> correctly classifies transient vs permanent exceptions.
+///     Verifies <see cref="SqlTransientDetector" /> correctly classifies transient vs permanent exceptions.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class SqlTransientDetectorTests
@@ -94,5 +94,4 @@ public sealed class SqlTransientDetectorTests
 
         SqlTransientDetector.IsTransient(outer).Should().BeTrue();
     }
-
 }

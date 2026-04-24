@@ -13,10 +13,7 @@ public sealed class ArchLucidConfigurationBridgeTests
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ArchLucid:StorageProvider"] = "Sql"
-                })
+                new Dictionary<string, string?> { ["ArchLucid:StorageProvider"] = "Sql" })
             .Build();
 
         ArchLucidOptions resolved = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
@@ -29,10 +26,7 @@ public sealed class ArchLucidConfigurationBridgeTests
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["Archi" + "Forge:StorageProvider"] = "Sql"
-                })
+                new Dictionary<string, string?> { ["Archi" + "Forge:StorageProvider"] = "Sql" })
             .Build();
 
         ArchLucidOptions resolved = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
@@ -45,10 +39,7 @@ public sealed class ArchLucidConfigurationBridgeTests
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ArchLucidAuth:Mode"] = "JwtBearer"
-                })
+                new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = "JwtBearer" })
             .Build();
 
         string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
@@ -61,10 +52,7 @@ public sealed class ArchLucidConfigurationBridgeTests
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["Archi" + "Forge" + "Auth:Mode"] = "JwtBearer"
-                })
+                new Dictionary<string, string?> { ["Archi" + "Forge" + "Auth:Mode"] = "JwtBearer" })
             .Build();
 
         string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
@@ -77,10 +65,7 @@ public sealed class ArchLucidConfigurationBridgeTests
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;"
-                })
+                new Dictionary<string, string?> { ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;" })
             .Build();
 
         string? cs = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
@@ -93,10 +78,7 @@ public sealed class ArchLucidConfigurationBridgeTests
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ConnectionStrings:" + "Archi" + "Forge"] = "Server=legacy;"
-                })
+                new Dictionary<string, string?> { ["ConnectionStrings:" + "Archi" + "Forge"] = "Server=legacy;" })
             .Build();
 
         string? cs = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);

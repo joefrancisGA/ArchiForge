@@ -14,7 +14,8 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures <see cref="AuditService"/> stamps <see cref="AuditEvent.CorrelationId"/> from the logical <c>correlation.id</c> activity tag (parent chain), not only the innermost span id.
+///     Ensures <see cref="AuditService" /> stamps <see cref="AuditEvent.CorrelationId" /> from the logical
+///     <c>correlation.id</c> activity tag (parent chain), not only the innermost span id.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class AuditServiceCorrelationTests
@@ -25,8 +26,7 @@ public sealed class AuditServiceCorrelationTests
     {
         ActivityListener listener = new()
         {
-            ShouldListenTo = s => s.Name == TestSource.Name,
-            Sample = (ref _) => ActivitySamplingResult.AllData,
+            ShouldListenTo = s => s.Name == TestSource.Name, Sample = (ref _) => ActivitySamplingResult.AllData
         };
         ActivitySource.AddActivityListener(listener);
     }
@@ -48,12 +48,7 @@ public sealed class AuditServiceCorrelationTests
         scopeProvider
             .Setup(s => s.GetCurrentScope())
             .Returns(
-                new ScopeContext
-                {
-                    TenantId = Guid.Empty,
-                    WorkspaceId = Guid.Empty,
-                    ProjectId = Guid.Empty
-                });
+                new ScopeContext { TenantId = Guid.Empty, WorkspaceId = Guid.Empty, ProjectId = Guid.Empty });
 
         AuditService sut = new(repo.Object, httpAccessor.Object, scopeProvider.Object);
 
@@ -64,9 +59,7 @@ public sealed class AuditServiceCorrelationTests
         await sut.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.ManifestGenerated,
-                ActorUserId = "u1",
-                ActorUserName = "tester"
+                EventType = AuditEventTypes.ManifestGenerated, ActorUserId = "u1", ActorUserName = "tester"
             },
             CancellationToken.None);
 
@@ -84,10 +77,7 @@ public sealed class AuditServiceCorrelationTests
             .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
             .Returns(Task.CompletedTask);
 
-        DefaultHttpContext httpContext = new()
-        {
-            TraceIdentifier = "trace-from-kestrel"
-        };
+        DefaultHttpContext httpContext = new() { TraceIdentifier = "trace-from-kestrel" };
 
         Mock<IHttpContextAccessor> httpAccessor = new();
         httpAccessor.Setup(h => h.HttpContext).Returns(httpContext);
@@ -96,22 +86,12 @@ public sealed class AuditServiceCorrelationTests
         scopeProvider
             .Setup(s => s.GetCurrentScope())
             .Returns(
-                new ScopeContext
-                {
-                    TenantId = Guid.Empty,
-                    WorkspaceId = Guid.Empty,
-                    ProjectId = Guid.Empty
-                });
+                new ScopeContext { TenantId = Guid.Empty, WorkspaceId = Guid.Empty, ProjectId = Guid.Empty });
 
         AuditService sut = new(repo.Object, httpAccessor.Object, scopeProvider.Object);
 
         await sut.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AlertTriggered,
-                ActorUserId = "u1",
-                ActorUserName = "tester"
-            },
+            new AuditEvent { EventType = AuditEventTypes.AlertTriggered, ActorUserId = "u1", ActorUserName = "tester" },
             CancellationToken.None);
 
         captured.Should().NotBeNull();

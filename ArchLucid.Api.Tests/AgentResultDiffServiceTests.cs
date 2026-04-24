@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Agent Result Diff Service.
+///     Tests for Agent Result Diff Service.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class AgentResultDiffServiceTests
 {
@@ -30,9 +29,7 @@ public sealed class AgentResultDiffServiceTests
                 Confidence = 0.90,
                 ProposedChanges = new ManifestDeltaProposal
                 {
-                    ProposalId = "P1",
-                    SourceAgent = AgentType.Compliance,
-                    RequiredControls = ["Managed Identity"]
+                    ProposalId = "P1", SourceAgent = AgentType.Compliance, RequiredControls = ["Managed Identity"]
                 }
             }
         ];

@@ -5,8 +5,9 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Minimal API host for OpenAPI contract checks: in-memory authority storage, no SQL, Development pipeline
-/// (Scalar + <c>/swagger/v1/swagger.json</c> + Microsoft OpenAPI; generation uses <c>CustomSchemaIds</c> and optional auth security filters).
+///     Minimal API host for OpenAPI contract checks: in-memory authority storage, no SQL, Development pipeline
+///     (Scalar + <c>/swagger/v1/swagger.json</c> + Microsoft OpenAPI; generation uses <c>CustomSchemaIds</c> and optional
+///     auth security filters).
 /// </summary>
 public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
 {
@@ -34,7 +35,7 @@ public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program
                     ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                     ["RateLimiting:Registration:PermitLimit"] = "100000",
                     ["RateLimiting:Registration:WindowMinutes"] = "1",
-                    ["Billing:Provider"] = "Noop",
+                    ["Billing:Provider"] = "Noop"
                 });
         });
     }

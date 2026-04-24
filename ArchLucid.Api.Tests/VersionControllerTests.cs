@@ -45,11 +45,8 @@ public sealed class VersionControllerTests
         VersionController controller = new(env.Object);
 
         OkObjectResult ok = (OkObjectResult)controller.Get();
-        string json = JsonSerializer.Serialize(ok.Value, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = false,
-        });
+        string json = JsonSerializer.Serialize(ok.Value,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false });
 
         using JsonDocument doc = JsonDocument.Parse(json);
         JsonElement root = doc.RootElement;

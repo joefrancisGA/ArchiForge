@@ -28,8 +28,8 @@ public sealed class HttpScopeContextProviderTests
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim("tenant_id", claimTenant.ToString("D"))],
-            authenticationType: "Bearer"))
+                [new Claim("tenant_id", claimTenant.ToString("D"))],
+                "Bearer"))
         };
         http.Request.Headers["x-tenant-id"] = headerTenant.ToString("D");
 
@@ -62,8 +62,8 @@ public sealed class HttpScopeContextProviderTests
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim("tenant_id", "not-a-guid")],
-            authenticationType: "Bearer"))
+                [new Claim("tenant_id", "not-a-guid")],
+                "Bearer"))
         };
 
         ScopeContext scope = CreateProvider(http).GetCurrentScope();
@@ -79,8 +79,8 @@ public sealed class HttpScopeContextProviderTests
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim("tenant_id", "not-a-guid")],
-            authenticationType: "Bearer"))
+                [new Claim("tenant_id", "not-a-guid")],
+                "Bearer"))
         };
         http.Request.Headers["x-tenant-id"] = headerTenant.ToString("D");
 
@@ -98,8 +98,8 @@ public sealed class HttpScopeContextProviderTests
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(
-            [new Claim("tenant_id", claimTenant.ToString("D"))],
-            authenticationType: "Bearer"))
+                [new Claim("tenant_id", claimTenant.ToString("D"))],
+                "Bearer"))
         };
         http.Request.Headers["x-tenant-id"] = claimTenant.ToString("D");
 
@@ -126,11 +126,11 @@ public sealed class HttpScopeContextProviderTests
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(
-            [
-                new Claim("workspace_id", claimWs.ToString("D")),
-                new Claim("project_id", claimProj.ToString("D"))
-            ],
-            authenticationType: "Bearer"))
+                [
+                    new Claim("workspace_id", claimWs.ToString("D")),
+                    new Claim("project_id", claimProj.ToString("D"))
+                ],
+                "Bearer"))
         };
         http.Request.Headers["x-workspace-id"] = headerWs.ToString("D");
         http.Request.Headers["x-project-id"] = headerProj.ToString("D");

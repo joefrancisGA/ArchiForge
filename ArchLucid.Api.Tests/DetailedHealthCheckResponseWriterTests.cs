@@ -22,14 +22,14 @@ public sealed class DetailedHealthCheckResponseWriterTests
                 HealthStatus.Healthy,
                 "Process is running.",
                 TimeSpan.FromMilliseconds(1),
-                exception: null,
-                data: null),
+                null,
+                null),
             ["database"] = new HealthReportEntry(
                 HealthStatus.Unhealthy,
                 "Cannot connect to SQL.",
                 TimeSpan.FromMilliseconds(250),
-                exception: new InvalidOperationException("Connection refused"),
-                data: null),
+                new InvalidOperationException("Connection refused"),
+                null)
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(260));
@@ -66,8 +66,8 @@ public sealed class DetailedHealthCheckResponseWriterTests
                 HealthStatus.Healthy,
                 "OK",
                 TimeSpan.FromMilliseconds(1),
-                exception: null,
-                data: null),
+                null,
+                null)
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(2));
@@ -94,8 +94,8 @@ public sealed class DetailedHealthCheckResponseWriterTests
                 HealthStatus.Unhealthy,
                 "SQL probe failed.",
                 TimeSpan.FromMilliseconds(12),
-                exception: new InvalidOperationException("timeout"),
-                data: null),
+                new InvalidOperationException("timeout"),
+                null)
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(15));
@@ -131,9 +131,9 @@ public sealed class DetailedHealthCheckResponseWriterTests
                     ["consecutiveFailures"] = 0,
                     ["failureThreshold"] = 5,
                     ["breakDurationSeconds"] = 30,
-                    ["lastStateChangeUtc"] = "never",
-                },
-            },
+                    ["lastStateChangeUtc"] = "never"
+                }
+            }
         };
 
         Dictionary<string, HealthReportEntry> entries = new()
@@ -142,8 +142,8 @@ public sealed class DetailedHealthCheckResponseWriterTests
                 HealthStatus.Healthy,
                 "All OpenAI circuit breakers closed.",
                 TimeSpan.FromMilliseconds(2),
-                exception: null,
-                data: checkData),
+                null,
+                checkData)
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(5));
@@ -184,9 +184,9 @@ public sealed class DetailedHealthCheckResponseWriterTests
                     ["consecutiveFailures"] = 5,
                     ["failureThreshold"] = 5,
                     ["breakDurationSeconds"] = 60,
-                    ["lastStateChangeUtc"] = lastChange,
-                },
-            },
+                    ["lastStateChangeUtc"] = lastChange
+                }
+            }
         };
 
         Dictionary<string, HealthReportEntry> entries = new()
@@ -195,8 +195,8 @@ public sealed class DetailedHealthCheckResponseWriterTests
                 HealthStatus.Degraded,
                 "One or more OpenAI circuits are open or probing.",
                 TimeSpan.FromMilliseconds(3),
-                exception: null,
-                data: checkData),
+                null,
+                checkData)
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(6));
@@ -224,8 +224,8 @@ public sealed class DetailedHealthCheckResponseWriterTests
                 HealthStatus.Unhealthy,
                 "SQL probe failed.",
                 TimeSpan.FromMilliseconds(12),
-                exception: new InvalidOperationException("timeout"),
-                data: null),
+                new InvalidOperationException("timeout"),
+                null)
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(15));

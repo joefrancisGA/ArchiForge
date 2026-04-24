@@ -27,12 +27,12 @@ public sealed class TrustCenterEvidencePackEndpointTests
         byte[] zipBytes = await response.Content.ReadAsByteArrayAsync();
         IReadOnlyList<string> entryNames = ListZipEntryNames(zipBytes);
 
-        entryNames.Should().Contain("README.md", because: "the builder auto-generates an index README.");
+        entryNames.Should().Contain("README.md", "the builder auto-generates an index README.");
 
         foreach (string canonical in EmbeddedResourceEvidencePackSourceProvider.OrderedZipNames)
         {
             entryNames.Should().Contain(canonical,
-                because: $"{canonical} is part of the canonical Trust Center evidence pack.");
+                $"{canonical} is part of the canonical Trust Center evidence pack.");
         }
     }
 
@@ -49,10 +49,10 @@ public sealed class TrustCenterEvidencePackEndpointTests
         IReadOnlyList<string> entryNames = ListZipEntryNames(zipBytes);
 
         entryNames.Should().NotContain(name => name.Contains("REDACTED", StringComparison.OrdinalIgnoreCase),
-            because: "the redacted pen-test summary is V1.1-gated per PENDING_QUESTIONS Q10.");
+            "the redacted pen-test summary is V1.1-gated per PENDING_QUESTIONS Q10.");
 
         entryNames.Should().NotContain(name => name.Contains("PGP", StringComparison.OrdinalIgnoreCase),
-            because: "the PGP key publication is V1.1-gated.");
+            "the PGP key publication is V1.1-gated.");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public sealed class TrustCenterEvidencePackEndpointTests
         HttpResponseMessage response = await client.GetAsync(EndpointPath);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK,
-            because: "the Trust Center evidence pack is a public procurement artefact (anonymous access).");
+            "the Trust Center evidence pack is a public procurement artefact (anonymous access).");
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public sealed class TrustCenterEvidencePackEndpointTests
         string expectedEtag = EvidencePackEtag.Compute(sources);
 
         actualEtag.Should().Be(expectedEtag,
-            because: "the controller MUST advertise the same SHA-256-derived ETag the builder computes.");
+            "the controller MUST advertise the same SHA-256-derived ETag the builder computes.");
     }
 
     private static IReadOnlyList<string> ListZipEntryNames(byte[] zipBytes)

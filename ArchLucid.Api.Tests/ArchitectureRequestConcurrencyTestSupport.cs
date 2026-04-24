@@ -6,14 +6,13 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Shared helpers for parallel <c>POST /v1/architecture/request</c> bursts (idempotency + transient 503 retry).
+///     Shared helpers for parallel <c>POST /v1/architecture/request</c> bursts (idempotency + transient 503 retry).
 /// </summary>
 internal static class ArchitectureRequestConcurrencyTestSupport
 {
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     internal static StringContent JsonContent(object value)
@@ -43,7 +42,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
             {
                 HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
                 {
-                    Content = JsonContent(body),
+                    Content = JsonContent(body)
                 };
 
                 request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
@@ -64,10 +63,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         string idempotencyKey,
         CancellationToken cancellationToken)
     {
-        HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
-        {
-            Content = JsonContent(body),
-        };
+        HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request") { Content = JsonContent(body) };
 
         request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
@@ -75,7 +71,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     }
 
     /// <summary>
-    /// Replays any <see cref="HttpStatusCode.ServiceUnavailable"/> slots with single POSTs (same idempotency key) until success or max attempts.
+    ///     Replays any <see cref="HttpStatusCode.ServiceUnavailable" /> slots with single POSTs (same idempotency key) until
+    ///     success or max attempts.
     /// </summary>
     internal static async Task<HttpResponseMessage[]> ResolveServiceUnavailablePerResponseAsync(
         HttpClient client,
@@ -96,7 +93,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                 responses[i].Dispose();
                 await Task.Delay(delayMs, cancellationToken);
                 delayMs = Math.Min(delayMs * 2, 4000);
-                responses[i] = await PostSingleArchitectureRequestAsync(client, body, idempotencyKey, cancellationToken);
+                responses[i] =
+                    await PostSingleArchitectureRequestAsync(client, body, idempotencyKey, cancellationToken);
             }
         }
 
@@ -104,7 +102,7 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     }
 
     /// <summary>
-    /// Under parallel POST, SQL can briefly return errors mapped to HTTP 503; retry the whole burst with backoff.
+    ///     Under parallel POST, SQL can briefly return errors mapped to HTTP 503; retry the whole burst with backoff.
     /// </summary>
     internal static async Task<HttpResponseMessage[]> PostParallelArchitectureRequestWithTransientRetryAsync(
         HttpClient client,
@@ -116,7 +114,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         CancellationToken cancellationToken)
     {
         int delayMilliseconds = initialDelayMilliseconds;
-        HttpResponseMessage[] responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
+        HttpResponseMessage[] responses =
+            await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
 
         for (int attempt = 0;
              attempt < maxAttempts - 1 && responses.Any(static r => r.StatusCode == HttpStatusCode.ServiceUnavailable);

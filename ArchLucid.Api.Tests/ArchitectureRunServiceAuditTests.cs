@@ -5,14 +5,11 @@ using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Governance;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
-using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
@@ -27,9 +24,8 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Run Service Audit.
+///     Tests for Architecture Run Service Audit.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class ArchitectureRunServiceAuditTests
 {
@@ -55,10 +51,10 @@ public sealed class ArchitectureRunServiceAuditTests
         Mock<IBaselineMutationAuditService> audit = new();
 
         ArchitectureRunService sut = CreateRunService(
-            runRepository: runRepo.Object,
-            scopeContextProvider: scopeProvider.Object,
-            actorContext: actor.Object,
-            baselineMutationAudit: audit.Object);
+            runRepo.Object,
+            scopeProvider.Object,
+            actor.Object,
+            audit.Object);
 
         Func<Task> act = () => sut.ExecuteRunAsync("missing");
 
@@ -93,10 +89,10 @@ public sealed class ArchitectureRunServiceAuditTests
         // tests. ArchitectureRunService is now only responsible for delegating CommitRunAsync; we assert
         // the exception still propagates to the caller.
         ArchitectureRunService sut = CreateRunService(
-            runRepository: runRepo.Object,
-            scopeContextProvider: scopeProvider.Object,
-            actorContext: actor.Object,
-            baselineMutationAudit: audit.Object);
+            runRepo.Object,
+            scopeProvider.Object,
+            actor.Object,
+            audit.Object);
 
         Func<Task> act = () => sut.CommitRunAsync("missing");
 
@@ -123,7 +119,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 Mock.Of<IUsageMeteringService>(),
                 new NoOpDistributedCreateRunIdempotencyLock(),
-                Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+                Options.Create(new ArchitectureRunCreateOptions()),
                 TimeProvider.System,
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(

@@ -22,10 +22,7 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
     private static IOptions<ObservabilityHostOptions> OptionsForPrometheus(ObservabilityPrometheusOptions prometheus)
     {
         return Options.Create(
-            new ObservabilityHostOptions
-            {
-                Prometheus = prometheus,
-            });
+            new ObservabilityHostOptions { Prometheus = prometheus });
     }
 
     [Fact]
@@ -35,7 +32,7 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
         {
             ScrapeUsername = "scraper",
             ScrapePassword = "secret",
-            ScrapePath = "/metrics",
+            ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
@@ -56,7 +53,7 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
         {
             ScrapeUsername = "scraper",
             ScrapePassword = "secret",
-            ScrapePath = "/metrics",
+            ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
@@ -79,7 +76,7 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
         {
             ScrapeUsername = "scraper",
             ScrapePassword = "secret",
-            ScrapePath = "/metrics",
+            ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
@@ -100,7 +97,7 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
         {
             ScrapeUsername = "",
             ScrapePassword = "",
-            ScrapePath = "/metrics",
+            ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
@@ -123,7 +120,7 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
             RequireScrapeAuthentication = true,
             ScrapeUsername = "",
             ScrapePassword = "",
-            ScrapePath = "/metrics",
+            ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()

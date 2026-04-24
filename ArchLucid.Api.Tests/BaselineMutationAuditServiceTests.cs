@@ -11,9 +11,8 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Baseline Mutation Audit Service.
+///     Tests for Baseline Mutation Audit Service.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class BaselineMutationAuditServiceTests
 {
@@ -23,7 +22,8 @@ public sealed class BaselineMutationAuditServiceTests
         Mock<ILogger<BaselineMutationAuditService>> logger = new();
         logger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
 
-        BaselineMutationAuditService sut = new(logger.Object, Mock.Of<IAuditService>(), Mock.Of<IScopeContextProvider>());
+        BaselineMutationAuditService sut = new(logger.Object, Mock.Of<IAuditService>(),
+            Mock.Of<IScopeContextProvider>());
 
         await sut.RecordAsync("Test.Event", "actor-1", "entity-1", "short detail", CancellationToken.None);
 
@@ -31,7 +31,8 @@ public sealed class BaselineMutationAuditServiceTests
             l => l.Log(
                 LogLevel.Information,
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((state, _) => state.ToString()!.Contains("BaselineMutation", StringComparison.Ordinal)),
+                It.Is<It.IsAnyType>((state, _) =>
+                    state.ToString()!.Contains("BaselineMutation", StringComparison.Ordinal)),
                 It.IsAny<Exception?>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
@@ -75,7 +76,8 @@ public sealed class BaselineMutationAuditServiceTests
                 }
             });
 
-        BaselineMutationAuditService sut = new(logger.Object, Mock.Of<IAuditService>(), Mock.Of<IScopeContextProvider>());
+        BaselineMutationAuditService sut = new(logger.Object, Mock.Of<IAuditService>(),
+            Mock.Of<IScopeContextProvider>());
 
         await sut.RecordAsync("Test.Event", "actor-1", "entity-1", "line1\nline2", CancellationToken.None);
 

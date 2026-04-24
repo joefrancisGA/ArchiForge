@@ -1,5 +1,5 @@
-using ArchLucid.Host.Core.Ask;
 using ArchLucid.Core.Conversation;
+using ArchLucid.Host.Core.Ask;
 using ArchLucid.Persistence.Conversation;
 
 using FluentAssertions;
@@ -9,14 +9,14 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// <see cref="ConversationService"/> thread lifecycle: get-or-create, append messages, history, last-updated bumps.
+///     <see cref="ConversationService" /> thread lifecycle: get-or-create, append messages, history, last-updated bumps.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ConversationServiceTests
 {
+    private readonly Guid _project = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
     private readonly Guid _tenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     private readonly Guid _workspace = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-    private readonly Guid _project = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     [Fact]
     public async Task GetOrCreateThreadAsync_creates_new_thread_when_id_null()
@@ -31,13 +31,13 @@ public sealed class ConversationServiceTests
         ConversationService sut = new(threads.Object, messages.Object);
 
         ConversationThread thread = await sut.GetOrCreateThreadAsync(
-            threadId: null,
+            null,
             _tenant,
             _workspace,
             _project,
-            runId: null,
-            baseRunId: null,
-            targetRunId: null,
+            null,
+            null,
+            null,
             CancellationToken.None);
 
         thread.ThreadId.Should().NotBeEmpty();
@@ -45,7 +45,9 @@ public sealed class ConversationServiceTests
         thread.WorkspaceId.Should().Be(_workspace);
         thread.ProjectId.Should().Be(_project);
 
-        threads.Verify(x => x.CreateAsync(It.Is<ConversationThread>(t => t.ThreadId == thread.ThreadId), It.IsAny<CancellationToken>()), Times.Once);
+        threads.Verify(
+            x => x.CreateAsync(It.Is<ConversationThread>(t => t.ThreadId == thread.ThreadId),
+                It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -195,10 +197,7 @@ public sealed class ConversationServiceTests
         [
             new()
             {
-                MessageId = Guid.NewGuid(),
-                ThreadId = threadId,
-                Role = ConversationMessageRole.User,
-                Content = "x"
+                MessageId = Guid.NewGuid(), ThreadId = threadId, Role = ConversationMessageRole.User, Content = "x"
             }
         ];
 

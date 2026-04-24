@@ -204,5 +204,4 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
         doc.RootElement.GetProperty("totalSignalsInScope").GetInt32().Should().Be(0);
         doc.RootElement.GetProperty("generatedUtc").Should().NotBeNull();
     }
-
 }

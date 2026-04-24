@@ -13,7 +13,7 @@ using Moq;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>Unit tests for <see cref="CircuitBreakerAuditBridge"/> (async audit scheduling).</summary>
+/// <summary>Unit tests for <see cref="CircuitBreakerAuditBridge" /> (async audit scheduling).</summary>
 public sealed class CircuitBreakerAuditBridgeTests
 {
     [Fact]
@@ -31,12 +31,7 @@ public sealed class CircuitBreakerAuditBridgeTests
         Mock<IScopeContextProvider> scopeProvider = new();
         Guid tenantId = Guid.NewGuid();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = tenantId,
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid(),
-            });
+            new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         Mock<ILogger<CircuitBreakerAuditBridge>> logger = new();
         Mock<IAuditRetryQueue> auditRetry = new();
@@ -74,12 +69,7 @@ public sealed class CircuitBreakerAuditBridgeTests
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid(),
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         CircuitBreakerAuditBridge sut = new(
             scopeFactory,
@@ -106,12 +96,7 @@ public sealed class CircuitBreakerAuditBridgeTests
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid(),
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         Mock<ILogger<CircuitBreakerAuditBridge>> logger = new();
         // Moq returns default(bool)=false for IsEnabled unless configured; the bridge guards LogWarning with IsEnabled.

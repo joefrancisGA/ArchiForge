@@ -8,7 +8,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ComparisonReplayCostEstimator"/> heuristics (no replay execution).
+///     Unit tests for <see cref="ComparisonReplayCostEstimator" /> heuristics (no replay execution).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ComparisonReplayCostEstimatorTests
@@ -33,9 +33,7 @@ public sealed class ComparisonReplayCostEstimatorTests
         repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
             new ComparisonRecord
             {
-                ComparisonRecordId = "c1",
-                ComparisonType = ComparisonTypes.EndToEndReplay,
-                PayloadJson = "{}"
+                ComparisonRecordId = "c1", ComparisonType = ComparisonTypes.EndToEndReplay, PayloadJson = "{}"
             });
         ComparisonReplayCostEstimator sut = new(repo.Object);
 
@@ -68,16 +66,14 @@ public sealed class ComparisonReplayCostEstimatorTests
         repo.Setup(r => r.GetByIdAsync("c1", It.IsAny<CancellationToken>())).ReturnsAsync(
             new ComparisonRecord
             {
-                ComparisonRecordId = "c1",
-                ComparisonType = ComparisonTypes.EndToEndReplay,
-                PayloadJson = "{}"
+                ComparisonRecordId = "c1", ComparisonType = ComparisonTypes.EndToEndReplay, PayloadJson = "{}"
             });
         ComparisonReplayCostEstimator sut = new(repo.Object);
 
         ComparisonReplayCostEstimate? withPersist =
-            await sut.TryEstimateAsync("c1", "markdown", "artifact", persistReplay: true, CancellationToken.None);
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", true, CancellationToken.None);
         ComparisonReplayCostEstimate? withoutPersist =
-            await sut.TryEstimateAsync("c1", "markdown", "artifact", persistReplay: false, CancellationToken.None);
+            await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
 
         withPersist.Should().NotBeNull();
         withoutPersist.Should().NotBeNull();

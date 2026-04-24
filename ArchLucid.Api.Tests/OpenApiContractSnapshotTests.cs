@@ -7,10 +7,13 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from the committed snapshot
-/// after <see cref="OpenApiJsonCanonicalizer"/> (stable across Windows/Linux reflection ordering).
-/// Swashbuckle <c>/swagger/v1/swagger.json</c> is covered by generation smoke tests; this snapshot uses the Microsoft OpenAPI document for stable contract diffing.
-/// Regenerate: <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo root.
+///     Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from the committed
+///     snapshot
+///     after <see cref="OpenApiJsonCanonicalizer" /> (stable across Windows/Linux reflection ordering).
+///     Swashbuckle <c>/swagger/v1/swagger.json</c> is covered by generation smoke tests; this snapshot uses the Microsoft
+///     OpenAPI document for stable contract diffing.
+///     Regenerate: <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo
+///     root.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory factory)
@@ -72,7 +75,9 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         string assemblyFile = typeof(OpenApiContractSnapshotTests).Assembly.Location;
         string? dir = Path.GetDirectoryName(assemblyFile);
 
-        for (int i = 0; i < TestRepositoryPathLimits.MaxStepsFromTestAssemblyBinToProjectOrContracts && dir is not null; i++)
+        for (int i = 0;
+             i < TestRepositoryPathLimits.MaxStepsFromTestAssemblyBinToProjectOrContracts && dir is not null;
+             i++)
         {
             string lucidCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");
             string legacyCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");

@@ -41,14 +41,15 @@ internal sealed class ForcedComparisonVerificationFailureService : IComparisonRe
 
     public Task<DriftAnalysisResult> AnalyzeDriftAsync(
         string comparisonRecordId,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult(new DriftAnalysisResult());
+        CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(new DriftAnalysisResult());
+    }
 }
 
 /// <summary>
-/// Tests for Comparison Replay Verify422.
+///     Tests for Comparison Replay Verify422.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory factory)
     : IClassFixture<ComparisonVerify422ApiFactory>
@@ -58,12 +59,8 @@ public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory
     [Fact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
-        string body = JsonSerializer.Serialize(new
-        {
-            format = "markdown",
-            replayMode = "verify",
-            persistReplay = false
-        });
+        string body =
+            JsonSerializer.Serialize(new { format = "markdown", replayMode = "verify", persistReplay = false });
         HttpResponseMessage response = await _client.PostAsync(
             "/v1/architecture/comparisons/does-not-matter/replay",
             new StringContent(body, Encoding.UTF8, "application/json"));

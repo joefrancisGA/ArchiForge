@@ -9,8 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP coverage for <c>GET /v1/pilots/why-archlucid-snapshot</c> — the read-only telemetry projection
-/// that powers the operator-shell <c>/why-archlucid</c> Core Pilot proof page.
+///     HTTP coverage for <c>GET /v1/pilots/why-archlucid-snapshot</c> — the read-only telemetry projection
+///     that powers the operator-shell <c>/why-archlucid</c> Core Pilot proof page.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]

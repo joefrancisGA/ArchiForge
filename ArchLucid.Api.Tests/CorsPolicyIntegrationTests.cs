@@ -5,7 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures <c>Cors:AllowedOrigins</c> does not reflect arbitrary browser <c>Origin</c> values (defense in depth with auth).
+///     Ensures <c>Cors:AllowedOrigins</c> does not reflect arbitrary browser <c>Origin</c> values (defense in depth with
+///     auth).
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory factory)
@@ -69,7 +70,8 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
         response.Headers.TryGetValues("Access-Control-Allow-Origin", out IEnumerable<string>? acao).Should().BeTrue();
         acao!.Should().ContainSingle().Which.Should().Be("https://trusted.app.example");
 
-        response.Headers.TryGetValues("Access-Control-Allow-Methods", out IEnumerable<string>? methods).Should().BeTrue();
+        response.Headers.TryGetValues("Access-Control-Allow-Methods", out IEnumerable<string>? methods).Should()
+            .BeTrue();
         string joined = string.Join(", ", methods!);
         joined.Contains("POST", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
     }
@@ -89,14 +91,15 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
             && HeaderNamesContainsToken(allowHeaders, "X-Custom-Header");
 
         allowsCustom.Should().BeFalse(
-            because: "requested header is not in the explicit Cors:AllowedHeaders allow-list");
+            "requested header is not in the explicit Cors:AllowedHeaders allow-list");
     }
 
     private static bool HeaderNamesContainsToken(IEnumerable<string> headerValues, string token)
     {
         foreach (string part in headerValues)
         {
-            foreach (string name in part.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            foreach (string name in part.Split(',',
+                         StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {
                 if (name.Equals(token, StringComparison.OrdinalIgnoreCase))
                     return true;

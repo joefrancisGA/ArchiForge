@@ -6,9 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Consulting Docx Recommendation.
+///     Tests for Architecture Consulting Docx Recommendation.
 /// </summary>
-
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFactory factory)
@@ -34,7 +33,8 @@ public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFa
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ConsultingDocxProfileRecommendationResponse? payload = await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
+        ConsultingDocxProfileRecommendationResponse? payload =
+            await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Recommendation.RecommendedProfileName.Should().Be("executive");
         payload.Recommendation.Reason.Should().NotBeNullOrWhiteSpace();
@@ -60,9 +60,9 @@ public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFa
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ConsultingDocxProfileRecommendationResponse? payload = await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
+        ConsultingDocxProfileRecommendationResponse? payload =
+            await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Recommendation.RecommendedProfileName.Should().Be("regulated");
     }
 }
-

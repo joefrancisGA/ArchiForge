@@ -31,7 +31,8 @@ public sealed class MeteringAdminControllerTests
         ObjectResult problem = result.Should().BeOfType<ObjectResult>().Subject;
         problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         metering.Verify(
-            m => m.GetSummaryAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+            m => m.GetSummaryAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -47,7 +48,7 @@ public sealed class MeteringAdminControllerTests
             Kind = UsageMeterKind.ApiRequest,
             TotalQuantity = 42,
             PeriodStartUtc = periodStart,
-            PeriodEndUtc = periodEnd,
+            PeriodEndUtc = periodEnd
         };
         Mock<IUsageMeteringService> metering = new();
         metering
@@ -58,10 +59,12 @@ public sealed class MeteringAdminControllerTests
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
 
-        IActionResult result = await sut.GetTenantSummaryAsync(tenantId, periodStart, periodEnd, CancellationToken.None);
+        IActionResult result =
+            await sut.GetTenantSummaryAsync(tenantId, periodStart, periodEnd, CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        IReadOnlyList<TenantUsageSummary> body = ok.Value.Should().BeAssignableTo<IReadOnlyList<TenantUsageSummary>>().Subject;
+        IReadOnlyList<TenantUsageSummary> body = ok.Value.Should().BeAssignableTo<IReadOnlyList<TenantUsageSummary>>()
+            .Subject;
         body.Should().ContainSingle().Which.Should().BeSameAs(row);
     }
 }

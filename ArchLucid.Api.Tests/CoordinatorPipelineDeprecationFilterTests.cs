@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Api.Filters;
 
 using FluentAssertions;
@@ -13,10 +15,10 @@ using Microsoft.AspNetCore.Routing;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="CoordinatorPipelineDeprecationFilter"/>: confirms the filter forwards the
-/// action to the next delegate and registers <c>OnStarting</c> callbacks that emit the standards-track
-/// deprecation triplet (RFC 9745 / 8594 / 8288). The filter is unconditional — ADR 0021 Phase 2 is a
-/// hard architectural milestone, not a per-deployment toggle.
+///     Unit tests for <see cref="CoordinatorPipelineDeprecationFilter" />: confirms the filter forwards the
+///     action to the next delegate and registers <c>OnStarting</c> callbacks that emit the standards-track
+///     deprecation triplet (RFC 9745 / 8594 / 8288). The filter is unconditional — ADR 0021 Phase 2 is a
+///     hard architectural milestone, not a per-deployment toggle.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -27,7 +29,8 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
     {
         CoordinatorPipelineDeprecationFilter sut = new();
 
-        ActionExecutingContext executing = BuildExecutingContext("/v1/architecture/run/abc/commit", out CapturingHttpResponseFeature feature);
+        ActionExecutingContext executing =
+            BuildExecutingContext("/v1/architecture/run/abc/commit", out CapturingHttpResponseFeature feature);
         bool delegateInvoked = false;
 
         await sut.OnActionExecutionAsync(executing, () =>
@@ -41,8 +44,10 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
         await feature.FireOnStartingAsync();
 
         executing.HttpContext.Response.Headers["Deprecation"].ToString().Should().Be("true");
-        executing.HttpContext.Response.Headers["Sunset"].ToString().Should().Be(CoordinatorPipelineDeprecationFilter.SunsetHttpDate);
-        executing.HttpContext.Response.Headers["Link"].ToString().Should().Be(CoordinatorPipelineDeprecationFilter.DeprecationLink);
+        executing.HttpContext.Response.Headers["Sunset"].ToString().Should()
+            .Be(CoordinatorPipelineDeprecationFilter.SunsetHttpDate);
+        executing.HttpContext.Response.Headers["Link"].ToString().Should()
+            .Be(CoordinatorPipelineDeprecationFilter.DeprecationLink);
     }
 
     [Fact]
@@ -52,7 +57,8 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
         // (rather than Append) keep us idempotent.
         CoordinatorPipelineDeprecationFilter sut = new();
 
-        ActionExecutingContext executing = BuildExecutingContext("/v1/architecture/run/abc/execute", out CapturingHttpResponseFeature feature);
+        ActionExecutingContext executing = BuildExecutingContext("/v1/architecture/run/abc/execute",
+            out CapturingHttpResponseFeature feature);
 
         await sut.OnActionExecutionAsync(executing, () => Task.FromResult(BuildExecutedContext(executing)));
 
@@ -60,8 +66,10 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
         await feature.FireOnStartingAsync();
 
         executing.HttpContext.Response.Headers["Deprecation"].Should().ContainSingle().Which.Should().Be("true");
-        executing.HttpContext.Response.Headers["Sunset"].Should().ContainSingle().Which.Should().Be(CoordinatorPipelineDeprecationFilter.SunsetHttpDate);
-        executing.HttpContext.Response.Headers["Link"].Should().ContainSingle().Which.Should().Be(CoordinatorPipelineDeprecationFilter.DeprecationLink);
+        executing.HttpContext.Response.Headers["Sunset"].Should().ContainSingle().Which.Should()
+            .Be(CoordinatorPipelineDeprecationFilter.SunsetHttpDate);
+        executing.HttpContext.Response.Headers["Link"].Should().ContainSingle().Which.Should()
+            .Be(CoordinatorPipelineDeprecationFilter.DeprecationLink);
     }
 
     [Fact]
@@ -71,15 +79,16 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
         DateTimeOffset parsedSunset = DateTimeOffset.ParseExact(
             CoordinatorPipelineDeprecationFilter.SunsetHttpDate,
             "r",
-            System.Globalization.CultureInfo.InvariantCulture);
+            CultureInfo.InvariantCulture);
 
         parsedSunset.Should().BeAfter(new DateTimeOffset(2026, 4, 21, 0, 0, 0, TimeSpan.Zero),
-            because: "Sunset must be in the future relative to the ADR 0021 Phase 2 ship date so consumers have a real migration window");
+            "Sunset must be in the future relative to the ADR 0021 Phase 2 ship date so consumers have a real migration window");
 
         string link = CoordinatorPipelineDeprecationFilter.DeprecationLink;
-        link.Should().StartWith("<", because: "RFC 8288 wraps the URI reference in angle brackets");
-        link.Should().Contain("rel=\"deprecation\"", because: "the link relation type must be \"deprecation\" per RFC 9745 §4");
-        link.Should().Contain("0021-coordinator-pipeline-strangler-plan.md", because: "the link must point at ADR 0021 (the canonical migration target)");
+        link.Should().StartWith("<", "RFC 8288 wraps the URI reference in angle brackets");
+        link.Should().Contain("rel=\"deprecation\"", "the link relation type must be \"deprecation\" per RFC 9745 §4");
+        link.Should().Contain("0021-coordinator-pipeline-strangler-plan.md",
+            "the link must point at ADR 0021 (the canonical migration target)");
     }
 
     [Fact]
@@ -88,14 +97,16 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
         CoordinatorPipelineDeprecationFilter sut = new();
         ActionExecutingContext context = BuildExecutingContext("/v1/architecture/x", out _);
 
-        Func<Task> withNullContext = async () => await sut.OnActionExecutionAsync(null!, () => Task.FromResult(BuildExecutedContext(context)));
+        Func<Task> withNullContext = async () =>
+            await sut.OnActionExecutionAsync(null!, () => Task.FromResult(BuildExecutedContext(context)));
         Func<Task> withNullDelegate = async () => await sut.OnActionExecutionAsync(context, null!);
 
         await withNullContext.Should().ThrowAsync<ArgumentNullException>();
         await withNullDelegate.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    private static ActionExecutingContext BuildExecutingContext(string requestPath, out CapturingHttpResponseFeature responseFeature)
+    private static ActionExecutingContext BuildExecutingContext(string requestPath,
+        out CapturingHttpResponseFeature responseFeature)
     {
         DefaultHttpContext httpContext = new()
         {
@@ -118,29 +129,48 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
             actionContext,
             [],
             new Dictionary<string, object?>(),
-            controller: new object());
+            new object());
     }
 
     private static ActionExecutedContext BuildExecutedContext(ActionExecutingContext executing)
-        => new(executing, [], controller: new object());
+    {
+        return new ActionExecutedContext(executing, [], new object());
+    }
 
     /// <summary>
-    /// Minimal <see cref="IHttpResponseFeature"/> implementation that captures every OnStarting callback
-    /// and exposes <see cref="FireOnStartingAsync"/> so unit tests can assert the headers the production
-    /// filter would emit on a real HTTP response. Only the members <see cref="DefaultHttpContext"/> and
-    /// the production filter actually touch are implemented; everything else is left as a no-op.
+    ///     Minimal <see cref="IHttpResponseFeature" /> implementation that captures every OnStarting callback
+    ///     and exposes <see cref="FireOnStartingAsync" /> so unit tests can assert the headers the production
+    ///     filter would emit on a real HTTP response. Only the members <see cref="DefaultHttpContext" /> and
+    ///     the production filter actually touch are implemented; everything else is left as a no-op.
     /// </summary>
     private sealed class CapturingHttpResponseFeature : IHttpResponseFeature
     {
         private readonly List<(Func<object, Task> Callback, object State)> _onStarting = [];
 
-        public int StatusCode { get; set; } = StatusCodes.Status200OK;
+        public int StatusCode
+        {
+            get;
+            set;
+        } = StatusCodes.Status200OK;
+
         public string? ReasonPhrase
         {
-            get; set;
+            get;
+            set;
         }
-        public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
-        public Stream Body { get; set; } = Stream.Null;
+
+        public IHeaderDictionary Headers
+        {
+            get;
+            set;
+        } = new HeaderDictionary();
+
+        public Stream Body
+        {
+            get;
+            set;
+        } = Stream.Null;
+
         public bool HasStarted => false;
 
         public void OnStarting(Func<object, Task> callback, object state)

@@ -15,7 +15,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP coverage for <c>GET /v1/marketing/why-archlucid-pack.pdf</c> — anonymous, demo-gated PDF bundle for the public <c>/why</c> page.
+///     HTTP coverage for <c>GET /v1/marketing/why-archlucid-pack.pdf</c> — anonymous, demo-gated PDF bundle for the public
+///     <c>/why</c> page.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -23,7 +24,10 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
 {
     private readonly ArchLucidApiFactory _factory;
 
-    public WhyArchlucidMarketingPackEndpointTests(ArchLucidApiFactory factory) => _factory = factory;
+    public WhyArchlucidMarketingPackEndpointTests(ArchLucidApiFactory factory)
+    {
+        _factory = factory;
+    }
 
     [Fact]
     public async Task GetWhyArchlucidPackPdf_returns_404_when_demo_not_enabled()
@@ -92,17 +96,22 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
 
     private sealed class NullPreviewClient : IDemoCommitPagePreviewClient
     {
-        public Task<DemoCommitPagePreviewResponse?> GetLatestCommittedDemoCommitPageAsync(CancellationToken cancellationToken = default) =>
-            Task.FromResult<DemoCommitPagePreviewResponse?>(null);
+        public Task<DemoCommitPagePreviewResponse?> GetLatestCommittedDemoCommitPageAsync(
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<DemoCommitPagePreviewResponse?>(null);
+        }
     }
 
     private sealed class StubPreviewClient : IDemoCommitPagePreviewClient
     {
         private static readonly DateTimeOffset FixedGeneratedUtc = DateTimeOffset.Parse("2026-04-01T12:00:00Z");
 
-        private static readonly DateTime FixedRowUtc = DateTime.SpecifyKind(new DateTime(2026, 3, 15, 8, 0, 0), DateTimeKind.Utc);
+        private static readonly DateTime FixedRowUtc =
+            DateTime.SpecifyKind(new DateTime(2026, 3, 15, 8, 0, 0), DateTimeKind.Utc);
 
-        public Task<DemoCommitPagePreviewResponse?> GetLatestCommittedDemoCommitPageAsync(CancellationToken cancellationToken = default)
+        public Task<DemoCommitPagePreviewResponse?> GetLatestCommittedDemoCommitPageAsync(
+            CancellationToken cancellationToken = default)
         {
             Guid manifestId = Guid.Parse("11111111-1111-1111-1111-111111111111");
             Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
@@ -112,22 +121,24 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
                 GeneratedUtc = FixedGeneratedUtc,
                 IsDemoData = true,
                 DemoStatusMessage = "demo tenant — replace before publishing",
-                Run = new DemoPreviewRun
-                {
-                    RunId = runId.ToString("N"),
-                    ProjectId = "default",
-                    Description = "stub",
-                    CreatedUtc = FixedRowUtc,
-                },
-                AuthorityChain = new DemoPreviewAuthorityChain
-                {
-                    ContextSnapshotId = null,
-                    GraphSnapshotId = null,
-                    FindingsSnapshotId = null,
-                    GoldenManifestId = manifestId.ToString("N"),
-                    DecisionTraceId = null,
-                    ArtifactBundleId = null,
-                },
+                Run =
+                    new DemoPreviewRun
+                    {
+                        RunId = runId.ToString("N"),
+                        ProjectId = "default",
+                        Description = "stub",
+                        CreatedUtc = FixedRowUtc
+                    },
+                AuthorityChain =
+                    new DemoPreviewAuthorityChain
+                    {
+                        ContextSnapshotId = null,
+                        GraphSnapshotId = null,
+                        FindingsSnapshotId = null,
+                        GoldenManifestId = manifestId.ToString("N"),
+                        DecisionTraceId = null,
+                        ArtifactBundleId = null
+                    },
                 Manifest = new DemoPreviewManifestSummary
                 {
                     ManifestId = manifestId.ToString("N"),
@@ -142,7 +153,7 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
                     Status = "ok",
                     HasWarnings = false,
                     HasUnresolvedIssues = false,
-                    OperatorSummary = "1 decisions, 0 warnings, 0 unresolved issues, status ok",
+                    OperatorSummary = "1 decisions, 0 warnings, 0 unresolved issues, status ok"
                 },
                 Artifacts = [],
                 PipelineTimeline = [],
@@ -151,8 +162,8 @@ public sealed class WhyArchlucidMarketingPackEndpointTests : IClassFixture<ArchL
                     Explanation = new ExplanationResult { Summary = "stub" },
                     ThemeSummaries = ["t1"],
                     OverallAssessment = "a",
-                    RiskPosture = "Low",
-                },
+                    RiskPosture = "Low"
+                }
             };
 
             return Task.FromResult<DemoCommitPagePreviewResponse?>(response);

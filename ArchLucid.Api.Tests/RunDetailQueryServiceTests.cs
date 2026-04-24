@@ -18,32 +18,32 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="RunDetailQueryService"/> — the canonical run detail assembly path.
+///     Unit tests for <see cref="RunDetailQueryService" /> — the canonical run detail assembly path.
 /// </summary>
 /// <remarks>
-/// ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> was deleted.
-/// Decision traces now come from the authority repository keyed by <see cref="RunRecord.DecisionTraceId"/>.
+///     ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> was deleted.
+///     Decision traces now come from the authority repository keyed by <see cref="RunRecord.DecisionTraceId" />.
 /// </remarks>
 [Trait("Category", "Unit")]
 public sealed class RunDetailQueryServiceTests
 {
-    private readonly ScopeContext _scope = new()
-    {
-        TenantId = Guid.NewGuid(),
-        WorkspaceId = Guid.NewGuid(),
-        ProjectId = Guid.NewGuid()
-    };
+    private readonly Mock<IDecisionTraceRepository> _authorityTraceRepo;
+    private readonly Mock<IAgentResultRepository> _resultRepo;
 
     private readonly Guid _runGuid1 = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private readonly Guid _runGuid2 = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
     private readonly Mock<IRunRepository> _runRepo;
+
+    private readonly ScopeContext _scope = new()
+    {
+        TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+    };
+
     private readonly Mock<IScopeContextProvider> _scopeProvider;
-    private readonly Mock<IAgentTaskRepository> _taskRepo;
-    private readonly Mock<IAgentResultRepository> _resultRepo;
-    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedManifestReader;
-    private readonly Mock<IDecisionTraceRepository> _authorityTraceRepo;
     private readonly RunDetailQueryService _sut;
+    private readonly Mock<IAgentTaskRepository> _taskRepo;
+    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedManifestReader;
 
     public RunDetailQueryServiceTests()
     {
@@ -70,39 +70,46 @@ public sealed class RunDetailQueryServiceTests
 
     private string Run2N => _runGuid2.ToString("N");
 
-    private static GoldenManifest Manifest(string runId, string version = "v1") => new()
+    private static GoldenManifest Manifest(string runId, string version = "v1")
     {
-        RunId = runId,
-        SystemName = "TestSystem",
-        Metadata = new ManifestMetadata { ManifestVersion = version }
-    };
+        return new GoldenManifest
+        {
+            RunId = runId, SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = version }
+        };
+    }
 
-    private RunRecord CommittedRunRecord(string manifestVersion = "v1", Guid? decisionTraceId = null) => new()
+    private RunRecord CommittedRunRecord(string manifestVersion = "v1", Guid? decisionTraceId = null)
     {
-        RunId = _runGuid1,
-        TenantId = _scope.TenantId,
-        WorkspaceId = _scope.WorkspaceId,
-        ScopeProjectId = _scope.ProjectId,
-        ProjectId = "proj",
-        ArchitectureRequestId = "req-1",
-        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
-        CreatedUtc = DateTime.UtcNow,
-        CompletedUtc = DateTime.UtcNow,
-        CurrentManifestVersion = manifestVersion,
-        DecisionTraceId = decisionTraceId,
-    };
+        return new RunRecord
+        {
+            RunId = _runGuid1,
+            TenantId = _scope.TenantId,
+            WorkspaceId = _scope.WorkspaceId,
+            ScopeProjectId = _scope.ProjectId,
+            ProjectId = "proj",
+            ArchitectureRequestId = "req-1",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = DateTime.UtcNow,
+            CompletedUtc = DateTime.UtcNow,
+            CurrentManifestVersion = manifestVersion,
+            DecisionTraceId = decisionTraceId
+        };
+    }
 
-    private RunRecord InProgressRunRecord() => new()
+    private RunRecord InProgressRunRecord()
     {
-        RunId = _runGuid2,
-        TenantId = _scope.TenantId,
-        WorkspaceId = _scope.WorkspaceId,
-        ScopeProjectId = _scope.ProjectId,
-        ProjectId = "proj",
-        ArchitectureRequestId = "req-2",
-        LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
-        CreatedUtc = DateTime.UtcNow
-    };
+        return new RunRecord
+        {
+            RunId = _runGuid2,
+            TenantId = _scope.TenantId,
+            WorkspaceId = _scope.WorkspaceId,
+            ScopeProjectId = _scope.ProjectId,
+            ProjectId = "proj",
+            ArchitectureRequestId = "req-2",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
+            CreatedUtc = DateTime.UtcNow
+        };
+    }
 
     [Fact]
     public async Task GetRunDetailAsync_RunNotFound_ReturnsNull()
@@ -122,16 +129,8 @@ public sealed class RunDetailQueryServiceTests
         Guid traceId = Guid.NewGuid();
         RunRecord record = CommittedRunRecord(decisionTraceId: traceId);
         GoldenManifest manifest = Manifest(Run1N);
-        AgentTask task = new()
-        {
-            TaskId = "t1",
-            RunId = Run1N
-        };
-        AgentResult agentResult = new()
-        {
-            ResultId = "r1",
-            RunId = Run1N
-        };
+        AgentTask task = new() { TaskId = "t1", RunId = Run1N };
+        AgentResult agentResult = new() { ResultId = "r1", RunId = Run1N };
         DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload { TraceId = "tr1", RunId = Run1N });
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
@@ -206,7 +205,8 @@ public sealed class RunDetailQueryServiceTests
         result.DecisionTraces.Should().BeEmpty();
         result.IsCommitted.Should().BeFalse();
 
-        _unifiedManifestReader.Verify(r => r.ReadByRunIdAsync(_scope, _runGuid2, It.IsAny<CancellationToken>()), Times.Once);
+        _unifiedManifestReader.Verify(r => r.ReadByRunIdAsync(_scope, _runGuid2, It.IsAny<CancellationToken>()),
+            Times.Once);
         _authorityTraceRepo.Verify(
             r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);

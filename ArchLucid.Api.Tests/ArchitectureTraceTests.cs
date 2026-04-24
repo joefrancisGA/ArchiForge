@@ -9,9 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Trace.
+///     Tests for Architecture Trace.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -24,7 +23,8 @@ public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : Integr
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -34,7 +34,8 @@ public sealed class ArchitectureTraceTests(ArchLucidApiFactory factory) : Integr
 
         tracesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        AgentExecutionTraceResponse? payload = await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>(JsonOptions);
+        AgentExecutionTraceResponse? payload =
+            await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Traces.Should().NotBeEmpty();
         payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.SystemPrompt));

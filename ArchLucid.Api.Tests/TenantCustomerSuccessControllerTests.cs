@@ -20,14 +20,16 @@ public sealed class TenantCustomerSuccessControllerTests
     {
         TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
         WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
     };
 
     [Fact]
     public async Task GetHealthScoreAsync_returns_not_calculated_when_repository_returns_null()
     {
         Mock<ITenantCustomerSuccessRepository> repo = new();
-        repo.Setup(r => r.GetHealthScoreAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
+        repo.Setup(r =>
+                r.GetHealthScoreAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                    It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantHealthScoreRecord?)null);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -57,10 +59,12 @@ public sealed class TenantCustomerSuccessControllerTests
             GovernanceScore = 3.5M,
             SupportScore = 3.2M,
             CompositeScore = 3.6M,
-            UpdatedUtc = updated,
+            UpdatedUtc = updated
         };
         Mock<ITenantCustomerSuccessRepository> repo = new();
-        repo.Setup(r => r.GetHealthScoreAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, It.IsAny<CancellationToken>()))
+        repo.Setup(r =>
+                r.GetHealthScoreAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId,
+                    It.IsAny<CancellationToken>()))
             .ReturnsAsync(row);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -106,7 +110,8 @@ public sealed class TenantCustomerSuccessControllerTests
     {
         ProductFeedbackSubmission? captured = null;
         Mock<ITenantCustomerSuccessRepository> repo = new();
-        repo.Setup(r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()))
+        repo.Setup(r =>
+                r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()))
             .Callback<ProductFeedbackSubmission, CancellationToken>((s, _) => captured = s)
             .Returns(Task.CompletedTask);
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -122,7 +127,7 @@ public sealed class TenantCustomerSuccessControllerTests
             FindingRef = "finding-1",
             RunId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
             Score = 1,
-            Comment = "ok",
+            Comment = "ok"
         };
 
         IActionResult result = await sut.PostProductFeedbackAsync(request, CancellationToken.None);
@@ -136,6 +141,8 @@ public sealed class TenantCustomerSuccessControllerTests
         captured.RunId.Should().Be(request.RunId);
         captured.Score.Should().Be(1);
         captured.Comment.Should().Be("ok");
-        repo.Verify(r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()), Times.Once);
+        repo.Verify(
+            r => r.InsertProductFeedbackAsync(It.IsAny<ProductFeedbackSubmission>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

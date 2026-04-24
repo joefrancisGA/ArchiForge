@@ -20,7 +20,8 @@ public sealed class ApiPagingTests
     [Fact]
     public void TryParseUtcTicksIdCursor_whitespace_cursor_succeeds_with_null_outputs()
     {
-        bool ok = ApiPaging.TryParseUtcTicksIdCursor("   ", out DateTime? createdUtc, out string? id, out string? error);
+        bool ok = ApiPaging.TryParseUtcTicksIdCursor("   ", out DateTime? createdUtc, out string? id,
+            out string? error);
 
         ok.Should().BeTrue();
         createdUtc.Should().BeNull();
@@ -31,7 +32,8 @@ public sealed class ApiPagingTests
     [Fact]
     public void TryParseUtcTicksIdCursor_invalid_format_returns_false_with_error()
     {
-        bool ok = ApiPaging.TryParseUtcTicksIdCursor("bad", out DateTime? createdUtc, out string? id, out string? error);
+        bool ok = ApiPaging.TryParseUtcTicksIdCursor("bad", out DateTime? createdUtc, out string? id,
+            out string? error);
 
         ok.Should().BeFalse();
         createdUtc.Should().BeNull();
@@ -46,7 +48,8 @@ public sealed class ApiPagingTests
         string idPart = "rec-42";
         string cursor = $"{expected.UtcTicks}:{idPart}";
 
-        bool ok = ApiPaging.TryParseUtcTicksIdCursor(cursor, out DateTime? createdUtc, out string? id, out string? error);
+        bool ok = ApiPaging.TryParseUtcTicksIdCursor(cursor, out DateTime? createdUtc, out string? id,
+            out string? error);
 
         ok.Should().BeTrue();
         error.Should().BeNull();

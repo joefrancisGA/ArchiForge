@@ -8,20 +8,26 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server catalog per instance,
-/// wires <c>ConnectionStrings:ArchLucid</c>, and defaults <c>ArchLucid:StorageProvider=InMemory</c> so authority runs stay fast
-/// while SQL-backed probes can still open <see cref="SqlConnectionString"/> against the same catalog when needed.
+///     <see cref="WebApplicationFactory{TEntryPoint}" /> for the real API: provisions a dedicated SQL Server catalog per
+///     instance,
+///     wires <c>ConnectionStrings:ArchLucid</c>, and defaults <c>ArchLucid:StorageProvider=InMemory</c> so authority runs
+///     stay fast
+///     while SQL-backed probes can still open <see cref="SqlConnectionString" /> against the same catalog when needed.
 /// </summary>
 /// <remarks>
-/// <para>
-/// SQL Server connectivity is resolved by <see cref="SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString"/>:
-/// <see cref="TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable"/>, then <see cref="TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable"/>,
-/// then Windows <c>localhost</c> integrated security.
-/// </para>
-/// <para>
-/// In-memory configuration forces <c>AgentExecution:Mode=Simulator</c>, clears <c>AzureOpenAI:*</c> so user secrets
-/// cannot enable real completion clients (503 from circuit breaker), and raises rate limits for stable CI/local runs.
-/// </para>
+///     <para>
+///         SQL Server connectivity is resolved by
+///         <see cref="SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString" />:
+///         <see cref="TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable" />, then
+///         <see cref="TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable" />,
+///         then Windows <c>localhost</c> integrated security.
+///     </para>
+///     <para>
+///         In-memory configuration forces <c>AgentExecution:Mode=Simulator</c>, clears <c>AzureOpenAI:*</c> so user
+///         secrets
+///         cannot enable real completion clients (503 from circuit breaker), and raises rate limits for stable CI/local
+///         runs.
+///     </para>
 /// </remarks>
 public class ArchLucidApiFactory : WebApplicationFactory<Program>
 {
@@ -30,19 +36,16 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
     {
         string databaseName = "ArchLucidTest_" + Guid.NewGuid().ToString("N");
         string raw = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
-        SqlConnectionStringBuilder builder = new(raw)
-        {
-            MaxPoolSize = 200,
-            ConnectTimeout = 120,
-        };
+        SqlConnectionStringBuilder builder = new(raw) { MaxPoolSize = 200, ConnectTimeout = 120 };
 
         SqlConnectionString = builder.ConnectionString;
         SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
     }
 
     /// <summary>
-    /// Connection string for this factory’s SQL Server database (per-test database).
-    /// Tests that open <see cref="Microsoft.Data.SqlClient.SqlConnection"/> must use this instance property so they hit the same DB as the hosted API.
+    ///     Connection string for this factory’s SQL Server database (per-test database).
+    ///     Tests that open <see cref="Microsoft.Data.SqlClient.SqlConnection" /> must use this instance property so they hit
+    ///     the same DB as the hosted API.
     /// </summary>
     public string SqlConnectionString
     {
@@ -50,7 +53,8 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
     }
 
     /// <summary>
-    /// Points the hosted API at this factory’s SQL connection string and sets in-memory storage for non-relational dependencies.
+    ///     Points the hosted API at this factory’s SQL connection string and sets in-memory storage for non-relational
+    ///     dependencies.
     /// </summary>
     /// <param name="builder">ASP.NET Core host builder.</param>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -81,7 +85,7 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
-                ["Billing:Provider"] = "Noop",
+                ["Billing:Provider"] = "Noop"
             });
         });
     }

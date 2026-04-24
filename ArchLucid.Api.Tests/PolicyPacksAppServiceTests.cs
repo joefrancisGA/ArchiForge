@@ -8,9 +8,8 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Policy Packs App Service.
+///     Tests for Policy Packs App Service.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class PolicyPacksAppServiceTests
 {
@@ -22,23 +21,20 @@ public sealed class PolicyPacksAppServiceTests
         Guid projectId = Guid.NewGuid();
         PolicyPack returned = new()
         {
-            PolicyPackId = Guid.NewGuid(),
-            Name = "pack-a",
-            PackType = PolicyPackType.BuiltIn,
+            PolicyPackId = Guid.NewGuid(), Name = "pack-a", PackType = PolicyPackType.BuiltIn
         };
 
         Mock<IPolicyPackManagementService> management = new();
         management
-            .Setup(
-                x => x.CreatePackAsync(
-                    tenantId,
-                    workspaceId,
-                    projectId,
-                    "n",
-                    "d",
-                    PolicyPackType.BuiltIn,
-                    "{}",
-                    It.IsAny<CancellationToken>()))
+            .Setup(x => x.CreatePackAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                "n",
+                "d",
+                PolicyPackType.BuiltIn,
+                "{}",
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(returned);
 
         Mock<IAuditService> audit = new();
@@ -46,7 +42,8 @@ public sealed class PolicyPacksAppServiceTests
 
         PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
 
-        PolicyPack result = await sut.CreatePackAsync(tenantId, workspaceId, projectId, "n", "d", PolicyPackType.BuiltIn, "{}", CancellationToken.None);
+        PolicyPack result = await sut.CreatePackAsync(tenantId, workspaceId, projectId, "n", "d",
+            PolicyPackType.BuiltIn, "{}", CancellationToken.None);
 
         result.Should().BeSameAs(returned);
         audit.Verify(
@@ -82,7 +79,8 @@ public sealed class PolicyPacksAppServiceTests
 
         result.Should().BeNull();
         management.Verify(
-            x => x.AssignAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
+            x => x.AssignAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

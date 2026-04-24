@@ -7,13 +7,33 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class RunDetailsResponseDto
 {
-    public ArchitectureRun Run { get; set; } = new();
-    public List<AgentTask> Tasks { get; set; } = [];
-    public List<AgentResult> Results { get; set; } = [];
+    public ArchitectureRun Run
+    {
+        get;
+        set;
+    } = new();
+
+    public List<AgentTask> Tasks
+    {
+        get;
+        set;
+    } = [];
+
+    public List<AgentResult> Results
+    {
+        get;
+        set;
+    } = [];
+
     public GoldenManifest? Manifest
     {
-        get; set;
+        get;
+        set;
     }
-    public List<DecisionTrace> DecisionTraces { get; set; } = [];
-}
 
+    public List<DecisionTrace> DecisionTraces
+    {
+        get;
+        set;
+    } = [];
+}

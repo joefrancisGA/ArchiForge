@@ -15,7 +15,10 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public sealed class PolicyPackDryRunIntegrationApiFactory : ArchLucidApiFactory
 {
-    public CapturingAuditRepository Audit { get; } = new();
+    public CapturingAuditRepository Audit
+    {
+        get;
+    } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -38,11 +41,6 @@ public sealed class CapturingAuditRepository : IAuditRepository
     private readonly List<AuditEvent> _events = [];
     private readonly Lock _gate = new();
 
-    public IReadOnlyList<AuditEvent> Snapshot()
-    {
-        lock (_gate) return [.._events];
-    }
-
     public Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(auditEvent);
@@ -57,16 +55,20 @@ public sealed class CapturingAuditRepository : IAuditRepository
         Guid workspaceId,
         Guid projectId,
         int take,
-        CancellationToken ct) =>
-        Task.FromResult<IReadOnlyList<AuditEvent>>([]);
+        CancellationToken ct)
+    {
+        return Task.FromResult<IReadOnlyList<AuditEvent>>([]);
+    }
 
     public Task<IReadOnlyList<AuditEvent>> GetFilteredAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
         AuditEventFilter filter,
-        CancellationToken ct) =>
-        Task.FromResult<IReadOnlyList<AuditEvent>>([]);
+        CancellationToken ct)
+    {
+        return Task.FromResult<IReadOnlyList<AuditEvent>>([]);
+    }
 
     public Task<IReadOnlyList<AuditEvent>> GetExportAsync(
         Guid tenantId,
@@ -75,6 +77,13 @@ public sealed class CapturingAuditRepository : IAuditRepository
         DateTime fromUtc,
         DateTime toUtc,
         int maxRows,
-        CancellationToken ct) =>
-        Task.FromResult<IReadOnlyList<AuditEvent>>([]);
+        CancellationToken ct)
+    {
+        return Task.FromResult<IReadOnlyList<AuditEvent>>([]);
+    }
+
+    public IReadOnlyList<AuditEvent> Snapshot()
+    {
+        lock (_gate) return [.._events];
+    }
 }

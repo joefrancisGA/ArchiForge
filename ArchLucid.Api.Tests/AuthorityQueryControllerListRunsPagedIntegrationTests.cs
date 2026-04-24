@@ -9,8 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP coverage for <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController.ListRunsByProject"/> —
-/// non-paged array vs. paged envelope after a committed authority run exists.
+///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController.ListRunsByProject" /> —
+///     non-paged array vs. paged envelope after a committed authority run exists.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -24,7 +24,8 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AUTH-LIST-UNPAGED-001")));
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -48,7 +49,8 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-AUTH-LIST-PAGED-001")));
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);

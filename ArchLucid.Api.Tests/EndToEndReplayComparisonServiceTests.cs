@@ -14,17 +14,17 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures end-to-end run comparison loads both runs through <see cref="IRunDetailQueryService"/>
-/// (49R canonical path) rather than ad hoc repository assembly.
+///     Ensures end-to-end run comparison loads both runs through <see cref="IRunDetailQueryService" />
+///     (49R canonical path) rather than ad hoc repository assembly.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class EndToEndReplayComparisonServiceTests
 {
-    private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<IRunExportRecordRepository> _exportRepo = new();
     private readonly Mock<IAgentResultDiffService> _agentDiff = new();
-    private readonly Mock<IManifestDiffService> _manifestDiff = new();
     private readonly Mock<IExportRecordDiffService> _exportDiff = new();
+    private readonly Mock<IRunExportRecordRepository> _exportRepo = new();
+    private readonly Mock<IManifestDiffService> _manifestDiff = new();
+    private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
     private readonly EndToEndReplayComparisonService _sut;
 
     public EndToEndReplayComparisonServiceTests()
@@ -37,21 +37,25 @@ public sealed class EndToEndReplayComparisonServiceTests
             _exportDiff.Object);
     }
 
-    private static ArchitectureRun Run(string id, string? manifestVersion = null) => new()
+    private static ArchitectureRun Run(string id, string? manifestVersion = null)
     {
-        RunId = id,
-        RequestId = "req",
-        Status = ArchitectureRunStatus.Committed,
-        CreatedUtc = DateTime.UtcNow,
-        CurrentManifestVersion = manifestVersion
-    };
+        return new ArchitectureRun
+        {
+            RunId = id,
+            RequestId = "req",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = DateTime.UtcNow,
+            CurrentManifestVersion = manifestVersion
+        };
+    }
 
-    private static GoldenManifest Manifest(string runId, string version) => new()
+    private static GoldenManifest Manifest(string runId, string version)
     {
-        RunId = runId,
-        SystemName = "Sys",
-        Metadata = new ManifestMetadata { ManifestVersion = version }
-    };
+        return new GoldenManifest
+        {
+            RunId = runId, SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = version }
+        };
+    }
 
     [Fact]
     public async Task BuildAsync_LoadsBothRunsViaRunDetailQueryService_AndComparesManifestsFromDetail()
@@ -64,13 +68,13 @@ public sealed class EndToEndReplayComparisonServiceTests
         };
         ArchitectureRunDetail right = new()
         {
-            Run = Run("right", "vR"),
-            Results = [],
-            Manifest = Manifest("right", "vR")
+            Run = Run("right", "vR"), Results = [], Manifest = Manifest("right", "vR")
         };
 
-        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("left", It.IsAny<CancellationToken>())).ReturnsAsync(left);
-        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("right", It.IsAny<CancellationToken>())).ReturnsAsync(right);
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("left", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(left);
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("right", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(right);
         _exportRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<RunExportRecord>());
         _manifestDiff.Setup(m => m.Compare(left.Manifest, right.Manifest)).Returns(new ManifestDiffResult());

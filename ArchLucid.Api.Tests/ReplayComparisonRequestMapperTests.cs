@@ -6,9 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Replay Comparison Request Mapper.
+///     Tests for Replay Comparison Request Mapper.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class ReplayComparisonRequestMapperTests
 {
@@ -17,13 +16,11 @@ public sealed class ReplayComparisonRequestMapperTests
     {
         ReplayComparisonRequest request = new()
         {
-            Format = "",
-            ReplayMode = "verify",
-            Profile = "detailed",
-            PersistReplay = true
+            Format = "", ReplayMode = "verify", Profile = "detailed", PersistReplay = true
         };
 
-        Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-1", request, "html");
+        Application.Analysis.ReplayComparisonRequest mapped =
+            ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-1", request, "html");
 
         mapped.ComparisonRecordId.Should().Be("cmp-1");
         mapped.Format.Should().Be("html");
@@ -35,12 +32,10 @@ public sealed class ReplayComparisonRequestMapperTests
     [Fact]
     public void ToApplicationForReplayEndpoint_keeps_body_format_when_present()
     {
-        ReplayComparisonRequest request = new()
-        {
-            Format = "docx"
-        };
+        ReplayComparisonRequest request = new() { Format = "docx" };
 
-        Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-2", request, "html");
+        Application.Analysis.ReplayComparisonRequest mapped =
+            ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-2", request, "html");
 
         mapped.Format.Should().Be("docx");
     }
@@ -64,7 +59,7 @@ public sealed class ReplayComparisonRequestMapperTests
             "json",
             "regenerate",
             "executive",
-            persistReplay: true);
+            true);
 
         mapped.ComparisonRecordId.Should().Be("cmp-4");
         mapped.Format.Should().Be("json");

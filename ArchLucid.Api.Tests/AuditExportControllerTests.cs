@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -29,14 +30,14 @@ public sealed class AuditExportControllerTests
         AuditEvent evt = new()
         {
             EventId = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"),
-            OccurredUtc = DateTime.Parse("2026-01-01T12:00:00Z", null, System.Globalization.DateTimeStyles.RoundtripKind),
+            OccurredUtc = DateTime.Parse("2026-01-01T12:00:00Z", null, DateTimeStyles.RoundtripKind),
             EventType = "RunCreated",
             ActorUserId = "u1",
             ActorUserName = "User One",
             TenantId = Guid.Empty,
             WorkspaceId = Guid.Empty,
             ProjectId = Guid.Empty,
-            DataJson = "{}",
+            DataJson = "{}"
         };
 
         repo
@@ -72,7 +73,7 @@ public sealed class AuditExportControllerTests
         AuditEvent evt = new()
         {
             EventId = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"),
-            OccurredUtc = DateTime.Parse("2026-01-01T06:00:00Z", null, System.Globalization.DateTimeStyles.RoundtripKind),
+            OccurredUtc = DateTime.Parse("2026-01-01T06:00:00Z", null, DateTimeStyles.RoundtripKind),
             EventType = "T",
             ActorUserId = "a",
             ActorUserName = "A",
@@ -81,7 +82,7 @@ public sealed class AuditExportControllerTests
             ProjectId = Guid.Empty,
             RunId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1"),
             CorrelationId = "corr",
-            DataJson = "{\"x\":1}",
+            DataJson = "{\"x\":1}"
         };
 
         repo

@@ -16,6 +16,7 @@ public sealed class ScalarApiReferenceTests
 
         using HttpResponseMessage response = await client.GetAsync(new Uri("/scalar/v1", UriKind.Relative));
 
-        response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.MovedPermanently);
+        response.StatusCode.Should()
+            .BeOneOf(HttpStatusCode.OK, HttpStatusCode.Redirect, HttpStatusCode.MovedPermanently);
     }
 }

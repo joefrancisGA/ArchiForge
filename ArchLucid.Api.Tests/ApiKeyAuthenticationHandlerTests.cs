@@ -21,7 +21,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ApiKeyAuthenticationHandler"/> (handler is non-sealed to allow this test double).
+///     Unit tests for <see cref="ApiKeyAuthenticationHandler" /> (handler is non-sealed to allow this test double).
 /// </summary>
 public sealed class ApiKeyAuthenticationHandlerTests
 {
@@ -34,7 +34,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
             new Dictionary<string, string?>
             {
                 ["Authentication:ApiKey:Enabled"] = "false",
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "false"
             },
             http,
             env);
@@ -54,8 +54,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         ApiKeyAuthHandlerTestDouble handler = CreateHandler(
             new Dictionary<string, string?>
             {
-                ["Authentication:ApiKey:Enabled"] = "true",
-                ["Authentication:ApiKey:AdminKey"] = "secret-admin",
+                ["Authentication:ApiKey:Enabled"] = "true", ["Authentication:ApiKey:AdminKey"] = "secret-admin"
             },
             http,
             env);
@@ -77,8 +76,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
         IReadOnlyDictionary<string, string?> cfg = new Dictionary<string, string?>
         {
-            ["Authentication:ApiKey:Enabled"] = "true",
-            ["Authentication:ApiKey:AdminKey"] = "new-admin, old-admin",
+            ["Authentication:ApiKey:Enabled"] = "true", ["Authentication:ApiKey:AdminKey"] = "new-admin, old-admin"
         };
 
         AuthenticateResult first = await CreateHandler(cfg, httpFirst, env).InvokeHandleAuthenticateAsync();
@@ -97,8 +95,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         ApiKeyAuthHandlerTestDouble handler = CreateHandler(
             new Dictionary<string, string?>
             {
-                ["Authentication:ApiKey:Enabled"] = "true",
-                ["Authentication:ApiKey:AdminKey"] = "  only-key  , , ",
+                ["Authentication:ApiKey:Enabled"] = "true", ["Authentication:ApiKey:AdminKey"] = "  only-key  , , "
             },
             http,
             env);
@@ -117,8 +114,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         ApiKeyAuthHandlerTestDouble handler = CreateHandler(
             new Dictionary<string, string?>
             {
-                ["Authentication:ApiKey:Enabled"] = "true",
-                ["Authentication:ApiKey:AdminKey"] = "good-key",
+                ["Authentication:ApiKey:Enabled"] = "true", ["Authentication:ApiKey:AdminKey"] = "good-key"
             },
             http,
             env);
@@ -137,8 +133,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         ApiKeyAuthHandlerTestDouble handler = CreateHandler(
             new Dictionary<string, string?>
             {
-                ["Authentication:ApiKey:Enabled"] = "false",
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["Authentication:ApiKey:Enabled"] = "false", ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
             },
             http,
             env);
@@ -158,8 +153,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         ApiKeyAuthHandlerTestDouble handler = CreateHandler(
             new Dictionary<string, string?>
             {
-                ["Authentication:ApiKey:Enabled"] = "false",
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["Authentication:ApiKey:Enabled"] = "false", ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
             },
             http,
             env);
@@ -171,22 +165,15 @@ public sealed class ApiKeyAuthenticationHandlerTests
     }
 
     /// <summary>
-    /// Simulates configuration reload: first request sees key A, subsequent <see cref="IOptionsMonitor{TOptions}.CurrentValue"/> sees key B.
+    ///     Simulates configuration reload: first request sees key A, subsequent
+    ///     <see cref="IOptionsMonitor{TOptions}.CurrentValue" /> sees key B.
     /// </summary>
     [Fact]
     public async Task When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds()
     {
         IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
-        ApiKeyAuthenticationOptions first = new()
-        {
-            Enabled = true,
-            AdminKey = "rotate-a"
-        };
-        ApiKeyAuthenticationOptions second = new()
-        {
-            Enabled = true,
-            AdminKey = "rotate-b"
-        };
+        ApiKeyAuthenticationOptions first = new() { Enabled = true, AdminKey = "rotate-a" };
+        ApiKeyAuthenticationOptions second = new() { Enabled = true, AdminKey = "rotate-b" };
         int pass = 0;
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> apiKeyMonitor = new();
         apiKeyMonitor.Setup(m => m.CurrentValue).Returns(() => Interlocked.Increment(ref pass) == 1 ? first : second);
@@ -215,9 +202,11 @@ public sealed class ApiKeyAuthenticationHandlerTests
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(configData).Build();
         ServiceCollection services = [];
         services.AddOptions();
-        services.Configure<ApiKeyAuthenticationOptions>(configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
+        services.Configure<ApiKeyAuthenticationOptions>(
+            configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
         using ServiceProvider sp = services.BuildServiceProvider();
-        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor = sp.GetRequiredService<IOptionsMonitor<ApiKeyAuthenticationOptions>>();
+        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor =
+            sp.GetRequiredService<IOptionsMonitor<ApiKeyAuthenticationOptions>>();
 
         return CreateHandlerWithApiKeyMonitor(apiKeyMonitor, httpContext, environment);
     }
@@ -260,6 +249,9 @@ public sealed class ApiKeyAuthenticationHandlerTests
         {
         }
 
-        public Task<AuthenticateResult> InvokeHandleAuthenticateAsync() => HandleAuthenticateAsync();
+        public Task<AuthenticateResult> InvokeHandleAuthenticateAsync()
+        {
+            return HandleAuthenticateAsync();
+        }
     }
 }

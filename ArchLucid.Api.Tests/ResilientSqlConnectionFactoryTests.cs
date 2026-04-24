@@ -11,7 +11,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Verifies <see cref="ResilientSqlConnectionFactory"/> retry behaviour via <see cref="SqlOpenResilienceDefaults"/>.
+///     Verifies <see cref="ResilientSqlConnectionFactory" /> retry behaviour via <see cref="SqlOpenResilienceDefaults" />.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ResilientSqlConnectionFactoryTests
@@ -29,7 +29,7 @@ public sealed class ResilientSqlConnectionFactoryTests
 
         ResilientSqlConnectionFactory sut = new(
             inner.Object,
-            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 3));
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, 3));
 
         SqlConnection result = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -54,7 +54,7 @@ public sealed class ResilientSqlConnectionFactoryTests
 
         ResilientSqlConnectionFactory sut = new(
             inner.Object,
-            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 3, baseDelay: TimeSpan.FromMilliseconds(1)));
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, 3, TimeSpan.FromMilliseconds(1)));
 
         SqlConnection result = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -71,7 +71,7 @@ public sealed class ResilientSqlConnectionFactoryTests
 
         ResilientSqlConnectionFactory sut = new(
             inner.Object,
-            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 2, baseDelay: TimeSpan.FromMilliseconds(1)));
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, 2, TimeSpan.FromMilliseconds(1)));
 
         Func<Task> act = () => sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -90,7 +90,7 @@ public sealed class ResilientSqlConnectionFactoryTests
 
         ResilientSqlConnectionFactory sut = new(
             inner.Object,
-            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 3, baseDelay: TimeSpan.FromMilliseconds(1)));
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, 3, TimeSpan.FromMilliseconds(1)));
 
         Func<Task> act = () => sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -110,7 +110,7 @@ public sealed class ResilientSqlConnectionFactoryTests
 
         ResilientSqlConnectionFactory sut = new(
             inner.Object,
-            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 5, baseDelay: TimeSpan.FromSeconds(30)));
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, 5, TimeSpan.FromSeconds(30)));
 
         Task<SqlConnection> task = sut.CreateOpenConnectionAsync(cts.Token);
 
@@ -155,7 +155,7 @@ public sealed class ResilientSqlConnectionFactoryTests
 
         ResilientSqlConnectionFactory sut = new(
             inner.Object,
-            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 0, baseDelay: TimeSpan.FromMilliseconds(1)));
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, 0, TimeSpan.FromMilliseconds(1)));
 
         Func<Task> act = () => sut.CreateOpenConnectionAsync(CancellationToken.None);
 

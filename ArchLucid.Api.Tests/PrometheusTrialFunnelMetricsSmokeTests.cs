@@ -5,7 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures trial funnel instruments appear on the Prometheus scrape endpoint after emissions (requires Prometheus exporter).
+///     Ensures trial funnel instruments appear on the Prometheus scrape endpoint after emissions (requires Prometheus
+///     exporter).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -45,7 +46,7 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
             "archlucid_trial_conversion_total",
             "archlucid_trial_expirations_total",
             "archlucid_billing_checkouts_total",
-            "archlucid_trial_active_tenants",
+            "archlucid_trial_active_tenants"
         ];
 
         foreach (string needle in needles)

@@ -13,8 +13,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// End-to-end: index documents via DI → query via <c>GET v1/retrieval/search</c> → assert hits.
-/// Uses <see cref="AlertLifecycleWebAppFactory"/> (InMemory storage + <c>FakeEmbeddingService</c> + <c>InMemoryVectorIndex</c>).
+///     End-to-end: index documents via DI → query via <c>GET v1/retrieval/search</c> → assert hits.
+///     Uses <see cref="AlertLifecycleWebAppFactory" /> (InMemory storage + <c>FakeEmbeddingService</c> +
+///     <c>InMemoryVectorIndex</c>).
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class RetrievalQuerySmokeIntegrationTests
@@ -97,7 +98,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests
     private static async Task SeedRetrievalDocumentsAsync(IServiceProvider services)
     {
         using IServiceScope scope = services.CreateScope();
-        IRetrievalIndexingService indexingService = scope.ServiceProvider.GetRequiredService<IRetrievalIndexingService>();
+        IRetrievalIndexingService indexingService =
+            scope.ServiceProvider.GetRequiredService<IRetrievalIndexingService>();
 
         List<RetrievalDocument> documents =
         [
@@ -112,7 +114,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests
                 SourceType = "Manifest",
                 SourceId = "manifest-001",
                 Title = "Architecture Topology",
-                Content = "The system uses a microservices topology with three primary services: API Gateway, Order Service, and Payment Service.",
+                Content =
+                    "The system uses a microservices topology with three primary services: API Gateway, Order Service, and Payment Service.",
                 ContentHash = "hash-001",
                 CreatedUtc = DateTime.UtcNow
             },
@@ -127,7 +130,8 @@ public sealed class RetrievalQuerySmokeIntegrationTests
                 SourceType = "Artifact",
                 SourceId = "artifact-001",
                 Title = "Security Baseline",
-                Content = "All inter-service communication is encrypted using mTLS. No public SMB (port 445) exposure is permitted.",
+                Content =
+                    "All inter-service communication is encrypted using mTLS. No public SMB (port 445) exposure is permitted.",
                 ContentHash = "hash-002",
                 CreatedUtc = DateTime.UtcNow
             }

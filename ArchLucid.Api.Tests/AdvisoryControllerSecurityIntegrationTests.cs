@@ -9,8 +9,9 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Policy coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController"/>: anonymous callers on read routes,
-/// and <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority"/> on recommendation actions.
+///     Policy coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController" />: anonymous callers on read
+///     routes,
+///     and <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority" /> on recommendation actions.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]

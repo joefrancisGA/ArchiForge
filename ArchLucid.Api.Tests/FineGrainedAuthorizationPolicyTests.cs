@@ -5,8 +5,10 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanCommitRuns"/> when the
-/// <c>commit:run</c> permission claim is absent (Operator role otherwise).</summary>
+/// <summary>
+///     Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanCommitRuns" /> when the
+///     <c>commit:run</c> permission claim is absent (Operator role otherwise).
+/// </summary>
 public sealed class CommitRunRequiresCommitPermissionTests : IClassFixture<OperatorWithoutCommitRunPermissionApiFactory>
 {
     private readonly HttpClient _client;
@@ -21,14 +23,18 @@ public sealed class CommitRunRequiresCommitPermissionTests : IClassFixture<Opera
     {
         HttpResponseMessage response = await _client.PostAsync(
             $"/v1/architecture/run/{Guid.NewGuid():D}/commit",
-            content: null);
+            null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }
 
-/// <summary>Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanExportConsultingDocx"/> on analysis consulting DOCX routes.</summary>
-public sealed class ConsultingDocxRequiresExportPermissionTests : IClassFixture<OperatorWithoutConsultingDocxPermissionApiFactory>
+/// <summary>
+///     Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanExportConsultingDocx" /> on analysis
+///     consulting DOCX routes.
+/// </summary>
+public sealed class
+    ConsultingDocxRequiresExportPermissionTests : IClassFixture<OperatorWithoutConsultingDocxPermissionApiFactory>
 {
     private readonly HttpClient _client;
 
@@ -60,7 +66,10 @@ public sealed class ConsultingDocxRequiresExportPermissionTests : IClassFixture<
     }
 }
 
-/// <summary>Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanExportConsultingDocx"/> on architecture package DOCX (Reader satisfies read policy only).</summary>
+/// <summary>
+///     Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanExportConsultingDocx" /> on architecture
+///     package DOCX (Reader satisfies read policy only).
+/// </summary>
 public sealed class ArchitecturePackageDocxRequiresExportPermissionTests : IClassFixture<ReaderRoleArchLucidApiFactory>
 {
     private readonly HttpClient _client;

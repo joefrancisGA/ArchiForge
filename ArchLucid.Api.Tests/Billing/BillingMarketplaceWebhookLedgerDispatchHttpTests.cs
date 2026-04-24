@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -6,7 +7,10 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests.Billing;
 
-/// <summary>Asserts the GA webhook path reaches the SQL ledger layer (Dapper SP mapping) via the ledger dispatch recorder test double.</summary>
+/// <summary>
+///     Asserts the GA webhook path reaches the SQL ledger layer (Dapper SP mapping) via the ledger dispatch recorder
+///     test double.
+/// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 public sealed class BillingMarketplaceWebhookLedgerDispatchHttpTests
@@ -22,12 +26,12 @@ public sealed class BillingMarketplaceWebhookLedgerDispatchHttpTests
 
         string body =
             "{\"action\":\"ChangePlan\",\"subscriptionId\":\"sub-rec\",\"planId\":\"contoso-enterprise\",\"purchaser\":{\"tenantId\":\""
-            + tenantId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)
+            + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
         using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
         {
-            Content = new StringContent(body, Encoding.UTF8, "application/json"),
+            Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");

@@ -9,7 +9,6 @@ using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.ProductLearning;
-using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Persistence.Coordination.Evolution;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
@@ -20,8 +19,9 @@ using Moq;
 namespace ArchLucid.Api.Tests.Services.Evolution;
 
 /// <summary>
-/// Happy-path <see cref="EvolutionSimulationService.SimulateCandidateWithEvaluationAsync"/> with linked architecture run ids,
-/// including evaluation envelope serialization and prior simulation row deletion.
+///     Happy-path <see cref="EvolutionSimulationService.SimulateCandidateWithEvaluationAsync" /> with linked architecture
+///     run ids,
+///     including evaluation envelope serialization and prior simulation row deletion.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -31,7 +31,7 @@ public sealed class EvolutionSimulationServiceEvaluateLinkedRunsHappyPathTests
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false,
+        WriteIndented = false
     };
 
     [Fact]
@@ -41,9 +41,7 @@ public sealed class EvolutionSimulationServiceEvaluateLinkedRunsHappyPathTests
         string baselineRunId = Guid.NewGuid().ToString("N");
         ProductLearningScope scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         EvolutionPlanSnapshotDocument snapshot = new()
@@ -55,7 +53,7 @@ public sealed class EvolutionSimulationServiceEvaluateLinkedRunsHappyPathTests
             PriorityScore = 1,
             Status = "Open",
             ActionStepCount = 1,
-            LinkedArchitectureRunIds = [baselineRunId],
+            LinkedArchitectureRunIds = [baselineRunId]
         };
 
         string snapshotJson = JsonSerializer.Serialize(snapshot, SnapshotJsonOptions);
@@ -72,20 +70,18 @@ public sealed class EvolutionSimulationServiceEvaluateLinkedRunsHappyPathTests
             Summary = "s",
             PlanSnapshotJson = snapshotJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         ArchitectureAnalysisReport report = new()
         {
             Run = new ArchitectureRun
             {
-                RunId = baselineRunId,
-                Status = ArchitectureRunStatus.Committed,
-                CurrentManifestVersion = "v1",
+                RunId = baselineRunId, Status = ArchitectureRunStatus.Committed, CurrentManifestVersion = "v1"
             },
             Manifest = new GoldenManifest(),
             Summary = "ok",
-            Warnings = ["w1"],
+            Warnings = ["w1"]
         };
 
         Mock<IProductLearningPlanningRepository> planning = new();
@@ -119,7 +115,7 @@ public sealed class EvolutionSimulationServiceEvaluateLinkedRunsHappyPathTests
                 {
                     Score = new EvaluationScore { SimulationScore = 0.9d, ConfidenceScore = 0.8d },
                     ExplanationSummary = "summary",
-                    ExplanationDetailJson = "{}",
+                    ExplanationDetailJson = "{}"
                 });
 
         EvolutionSimulationService sut = new(
@@ -138,7 +134,8 @@ public sealed class EvolutionSimulationServiceEvaluateLinkedRunsHappyPathTests
         result[0].WarningsJson.Should().NotBeNullOrWhiteSpace();
 
         runs.Verify(r => r.DeleteByCandidateAsync(candidateId, It.IsAny<CancellationToken>()), Times.Once);
-        runs.Verify(r => r.InsertAsync(It.IsAny<EvolutionSimulationRunRecord>(), It.IsAny<CancellationToken>()), Times.Once);
+        runs.Verify(r => r.InsertAsync(It.IsAny<EvolutionSimulationRunRecord>(), It.IsAny<CancellationToken>()),
+            Times.Once);
         analysis.Verify(
             a => a.BuildAsync(
                 It.Is<ArchitectureAnalysisRequest>(req => req.RunId == baselineRunId),

@@ -10,7 +10,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer → list conversations via <c>GET v1/conversations</c>.
+///     End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer →
+///     list conversations via <c>GET v1/conversations</c>.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -32,11 +33,7 @@ public sealed class AskThreadIntegrationTests
 
         HttpResponseMessage askResponse = await client.PostAsJsonAsync(
             "v1/ask",
-            new AskRequest
-            {
-                RunId = runId,
-                Question = "What is the primary architecture topology?"
-            },
+            new AskRequest { RunId = runId, Question = "What is the primary architecture topology?" },
             JsonOptions,
             CancellationToken.None);
 

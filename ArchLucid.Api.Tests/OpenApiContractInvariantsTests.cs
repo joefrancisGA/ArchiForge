@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Small semantic checks on <c>/openapi/v1.json</c> that should hold even when the full snapshot is regenerated.
-/// Complements <see cref="OpenApiContractSnapshotTests"/> (canonical JSON equality after <see cref="OpenApiJsonCanonicalizer"/>).
+///     Small semantic checks on <c>/openapi/v1.json</c> that should hold even when the full snapshot is regenerated.
+///     Complements <see cref="OpenApiContractSnapshotTests" /> (canonical JSON equality after
+///     <see cref="OpenApiJsonCanonicalizer" />).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory factory)
@@ -34,10 +35,10 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
 
         string? title = root["info"]?["title"]?.GetValue<string>();
         title.Should().NotBeNullOrWhiteSpace();
-        title.Should().StartWith("ArchLucid", because: "public API title should reflect product name");
+        title.Should().StartWith("ArchLucid", "public API title should reflect product name");
 
         JsonObject? paths = root["paths"]?.AsObject();
         paths.Should().NotBeNull();
-        paths.ContainsKey("/v1/register").Should().BeTrue(because: "self-service registration remains a documented entrypoint");
+        paths.ContainsKey("/v1/register").Should().BeTrue("self-service registration remains a documented entrypoint");
     }
 }

@@ -1,8 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
-
-using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
@@ -11,8 +8,8 @@ using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Problem-details branches on <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController"/>:
-/// validation (whitespace project id), missing run summary, and provenance preconditions (422).
+///     Problem-details branches on <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController" />:
+///     validation (whitespace project id), missing run summary, and provenance preconditions (422).
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -49,7 +46,8 @@ public sealed class AuthorityQueryControllerProblemDetailsIntegrationTests(ArchL
     [Fact]
     public async Task GetRunProvenance_when_run_lacks_snapshot_chain_returns_422_problem()
     {
-        Guid runId = await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(Factory.Services, CancellationToken.None);
+        Guid runId =
+            await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(Factory.Services, CancellationToken.None);
 
         HttpResponseMessage response = await Client.GetAsync($"/v1/authority/runs/{runId:D}/provenance");
 

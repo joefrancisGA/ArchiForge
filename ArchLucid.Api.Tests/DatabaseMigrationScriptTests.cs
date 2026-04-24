@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Database Migration Script.
+///     Tests for Database Migration Script.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class DatabaseMigrationScriptTests
@@ -54,4 +53,3 @@ public sealed class DatabaseMigrationScriptTests
         }
     }
 }
-

@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ManifestDiagramService"/>.
+///     Unit tests for <see cref="ManifestDiagramService" />.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ManifestDiagramServiceTests
@@ -99,9 +99,7 @@ public sealed class ManifestDiagramServiceTests
         });
         manifest.Relationships.Add(new ManifestRelationship
         {
-            SourceId = "api",
-            TargetId = "db",
-            RelationshipType = RelationshipType.WritesTo
+            SourceId = "api", TargetId = "db", RelationshipType = RelationshipType.WritesTo
         });
 
         string mermaid = _sut.GenerateMermaid(manifest);
@@ -129,15 +127,10 @@ public sealed class ManifestDiagramServiceTests
         });
         manifest.Relationships.Add(new ManifestRelationship
         {
-            SourceId = "a",
-            TargetId = "b",
-            RelationshipType = RelationshipType.Calls
+            SourceId = "a", TargetId = "b", RelationshipType = RelationshipType.Calls
         });
 
-        ManifestDiagramOptions options = new()
-        {
-            RelationshipLabels = "none"
-        };
+        ManifestDiagramOptions options = new() { RelationshipLabels = "none" };
 
         string mermaid = _sut.GenerateMermaid(manifest, options);
 
@@ -157,10 +150,7 @@ public sealed class ManifestDiagramServiceTests
             RuntimePlatform = RuntimePlatform.ContainerApps
         });
 
-        ManifestDiagramOptions options = new()
-        {
-            IncludeRuntimePlatform = false
-        };
+        ManifestDiagramOptions options = new() { IncludeRuntimePlatform = false };
 
         string mermaid = _sut.GenerateMermaid(manifest, options);
 
@@ -187,10 +177,7 @@ public sealed class ManifestDiagramServiceTests
             RuntimePlatform = RuntimePlatform.Functions
         });
 
-        ManifestDiagramOptions options = new()
-        {
-            GroupBy = "runtimeplatform"
-        };
+        ManifestDiagramOptions options = new() { GroupBy = "runtimeplatform" };
 
         string mermaid = _sut.GenerateMermaid(manifest, options);
 
@@ -210,10 +197,7 @@ public sealed class ManifestDiagramServiceTests
             RuntimePlatform = RuntimePlatform.AppService
         });
 
-        ManifestDiagramOptions options = new()
-        {
-            GroupBy = "servicetype"
-        };
+        ManifestDiagramOptions options = new() { GroupBy = "servicetype" };
 
         string mermaid = _sut.GenerateMermaid(manifest, options);
 
@@ -247,10 +231,6 @@ public sealed class ManifestDiagramServiceTests
 
     private static GoldenManifest CreateMinimalManifest()
     {
-        return new GoldenManifest
-        {
-            RunId = Guid.NewGuid().ToString("N"),
-            SystemName = "Test"
-        };
+        return new GoldenManifest { RunId = Guid.NewGuid().ToString("N"), SystemName = "Test" };
     }
 }

@@ -17,7 +17,7 @@ using Moq;
 namespace ArchLucid.Api.Tests.Services.Evolution;
 
 /// <summary>
-/// Unit coverage for <see cref="EvolutionSimulationService"/> branches that do not require a hosted API or SQL.
+///     Unit coverage for <see cref="EvolutionSimulationService" /> branches that do not require a hosted API or SQL.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -27,7 +27,7 @@ public sealed class EvolutionSimulationServiceTests
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false,
+        WriteIndented = false
     };
 
     [Fact]
@@ -35,7 +35,8 @@ public sealed class EvolutionSimulationServiceTests
     {
         Mock<IProductLearningPlanningRepository> planning = new();
         planning
-            .Setup(p => p.GetPlanAsync(It.IsAny<Guid>(), It.IsAny<ProductLearningScope>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.GetPlanAsync(It.IsAny<Guid>(), It.IsAny<ProductLearningScope>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.FromResult<ProductLearningImprovementPlanRecord?>(null));
 
         Mock<IEvolutionCandidateChangeSetRepository> candidates = new();
@@ -52,9 +53,7 @@ public sealed class EvolutionSimulationServiceTests
 
         ProductLearningScope scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Guid planId = Guid.NewGuid();
@@ -79,9 +78,7 @@ public sealed class EvolutionSimulationServiceTests
         Guid candidateId = Guid.NewGuid();
         ProductLearningScope scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         EvolutionPlanSnapshotDocument snapshot = new()
@@ -93,7 +90,7 @@ public sealed class EvolutionSimulationServiceTests
             PriorityScore = 1,
             Status = "Open",
             ActionStepCount = 0,
-            LinkedArchitectureRunIds = [],
+            LinkedArchitectureRunIds = []
         };
 
         string snapshotJson = JsonSerializer.Serialize(snapshot, SnapshotJsonOptions);
@@ -110,7 +107,7 @@ public sealed class EvolutionSimulationServiceTests
             Summary = "s",
             PlanSnapshotJson = snapshotJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         Mock<IProductLearningPlanningRepository> planning = new();
@@ -149,7 +146,8 @@ public sealed class EvolutionSimulationServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
         runs.Verify(r => r.DeleteByCandidateAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
-        runs.Verify(r => r.InsertAsync(It.IsAny<EvolutionSimulationRunRecord>(), It.IsAny<CancellationToken>()), Times.Never);
+        runs.Verify(r => r.InsertAsync(It.IsAny<EvolutionSimulationRunRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
         analysis.Verify(
             a => a.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);

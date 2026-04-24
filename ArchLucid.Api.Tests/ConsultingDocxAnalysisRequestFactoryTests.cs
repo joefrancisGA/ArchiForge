@@ -1,5 +1,6 @@
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
+using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
 
@@ -21,10 +22,10 @@ public sealed class ConsultingDocxAnalysisRequestFactoryTests
             IncludeManifestCompare = true,
             CompareManifestVersion = "v9",
             IncludeAgentResultCompare = true,
-            CompareRunId = "run-b",
+            CompareRunId = "run-b"
         };
 
-        Application.Analysis.ArchitectureAnalysisRequest mapped =
+        ArchitectureAnalysisRequest mapped =
             ConsultingDocxAnalysisRequestFactory.Create("run-a", req);
 
         mapped.RunId.Should().Be("run-a");

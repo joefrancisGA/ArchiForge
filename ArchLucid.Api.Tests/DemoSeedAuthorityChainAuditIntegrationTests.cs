@@ -14,8 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// <c>dbo.AuditEvents</c> exists only after DbUp on a SQL-backed catalog. <see cref="ArchLucidApiFactory"/> forces
-/// <c>ArchLucid:StorageProvider=InMemory</c>, so authority-chain audit SQL assertions belong on <see cref="GreenfieldSqlApiFactory"/>.
+///     <c>dbo.AuditEvents</c> exists only after DbUp on a SQL-backed catalog. <see cref="ArchLucidApiFactory" /> forces
+///     <c>ArchLucid:StorageProvider=InMemory</c>, so authority-chain audit SQL assertions belong on
+///     <see cref="GreenfieldSqlApiFactory" />.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -31,10 +32,12 @@ public sealed class DemoSeedAuthorityChainAuditIntegrationTests
 
     private static bool IsSqlServerConfiguredForApiIntegration()
     {
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
             return true;
 
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
             return true;
 
         return OperatingSystem.IsWindows();

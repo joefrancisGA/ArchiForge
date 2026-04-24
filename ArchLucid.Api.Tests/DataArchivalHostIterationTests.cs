@@ -1,5 +1,5 @@
-using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Core.Audit;
+using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Archival;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="DataArchivalHostIteration"/> audit emission on coordinator failure.
+///     Unit tests for <see cref="DataArchivalHostIteration" /> audit emission on coordinator failure.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class DataArchivalHostIterationTests
@@ -22,10 +22,7 @@ public sealed class DataArchivalHostIterationTests
     public async Task RunOnceAsync_when_disabled_does_not_resolve_coordinator()
     {
         Mock<IServiceScopeFactory> scopeFactory = new();
-        DataArchivalOptions options = new()
-        {
-            Enabled = false
-        };
+        DataArchivalOptions options = new() { Enabled = false };
         DataArchivalHostHealthState health = new();
 
         bool ok = await DataArchivalHostIteration.RunOnceAsync(
@@ -70,10 +67,7 @@ public sealed class DataArchivalHostIterationTests
         Mock<IServiceScopeFactory> scopeFactory = new();
         scopeFactory.Setup(f => f.CreateScope()).Returns(() => scopes.Dequeue());
 
-        DataArchivalOptions options = new()
-        {
-            Enabled = true
-        };
+        DataArchivalOptions options = new() { Enabled = true };
         DataArchivalHostHealthState health = new();
 
         bool ok = await DataArchivalHostIteration.RunOnceAsync(
@@ -91,7 +85,7 @@ public sealed class DataArchivalHostIterationTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
-        HealthStatus status = health.Evaluate(archivalEnabled: true).Status;
+        HealthStatus status = health.Evaluate(true).Status;
         status.Should().Be(HealthStatus.Degraded);
     }
 
@@ -112,10 +106,7 @@ public sealed class DataArchivalHostIterationTests
         Mock<IServiceScopeFactory> scopeFactory = new();
         scopeFactory.Setup(f => f.CreateScope()).Returns(scopeCoordinator.Object);
 
-        DataArchivalOptions options = new()
-        {
-            Enabled = true
-        };
+        DataArchivalOptions options = new() { Enabled = true };
         DataArchivalHostHealthState health = new();
 
         bool ok = await DataArchivalHostIteration.RunOnceAsync(
@@ -126,7 +117,7 @@ public sealed class DataArchivalHostIterationTests
             CancellationToken.None);
 
         ok.Should().BeTrue();
-        HealthStatus status = health.Evaluate(archivalEnabled: true).Status;
+        HealthStatus status = health.Evaluate(true).Status;
         status.Should().Be(HealthStatus.Healthy);
     }
 }

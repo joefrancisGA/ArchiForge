@@ -7,9 +7,9 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures <see cref="OpenApiContractWebAppFactory"/> (InMemory storage, no SQL) and
-/// <see cref="GreenfieldSqlApiFactory"/> (Sql + DbUp) expose the same anonymous public HTTP surface
-/// for health and OpenAPI — catches wiring regressions that break only one storage path.
+///     Ensures <see cref="OpenApiContractWebAppFactory" /> (InMemory storage, no SQL) and
+///     <see cref="GreenfieldSqlApiFactory" /> (Sql + DbUp) expose the same anonymous public HTTP surface
+///     for health and OpenAPI — catches wiring regressions that break only one storage path.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -25,10 +25,12 @@ public sealed class StorageProviderPublicSurfaceParityIntegrationTests
 
     private static bool IsSqlServerConfiguredForApiIntegration()
     {
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
             return true;
 
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)))
             return true;
 
         return OperatingSystem.IsWindows();

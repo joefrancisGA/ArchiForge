@@ -11,20 +11,23 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>DevelopmentBypass with <see cref="ArchLucidRoles.Reader"/> — satisfies <see cref="ArchLucidPolicies.ReadAuthority"/> but not consulting-docx permission.</summary>
+/// <summary>
+///     DevelopmentBypass with <see cref="ArchLucidRoles.Reader" /> — satisfies
+///     <see cref="ArchLucidPolicies.ReadAuthority" /> but not consulting-docx permission.
+/// </summary>
 public sealed class ReaderRoleArchLucidApiFactory : ArchLucidApiFactory
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
-        builder.ConfigureAppConfiguration(
-            (_, config) => config.AddInMemoryCollection(
-                new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = ArchLucidRoles.Reader }));
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+            new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = ArchLucidRoles.Reader }));
     }
 }
 
 /// <summary>
-/// Like <see cref="ArchLucidRoleClaimsTransformation"/> but drops one <c>permission</c> for the Operator role (tests fine-grained policies).
+///     Like <see cref="ArchLucidRoleClaimsTransformation" /> but drops one <c>permission</c> for the Operator role (tests
+///     fine-grained policies).
 /// </summary>
 internal sealed class OmitOnePermissionForOperatorClaimsTransformation : IClaimsTransformation
 {
@@ -105,14 +108,13 @@ public abstract class OperatorWithoutOnePermissionArchLucidApiFactory : ArchLuci
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
-        builder.ConfigureAppConfiguration(
-            (_, config) => config.AddInMemoryCollection(
-                new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = ArchLucidRoles.Operator }));
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+            new Dictionary<string, string?> { ["ArchLucidAuth:DevRole"] = ArchLucidRoles.Operator }));
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IClaimsTransformation>();
-            services.AddScoped<IClaimsTransformation>(
-                _ => new OmitOnePermissionForOperatorClaimsTransformation(OmitPermission));
+            services.AddScoped<IClaimsTransformation>(_ =>
+                new OmitOnePermissionForOperatorClaimsTransformation(OmitPermission));
         });
     }
 }

@@ -15,16 +15,15 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Governance Preview Service.
+///     Tests for Governance Preview Service.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class GovernancePreviewServiceTests
 {
     private readonly Mock<IGovernanceEnvironmentActivationRepository> _activationRepo = new();
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedManifestReader = new();
     private readonly GovernancePreviewService _sut;
+    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedManifestReader = new();
 
     public GovernancePreviewServiceTests()
     {
@@ -50,23 +49,25 @@ public sealed class GovernancePreviewServiceTests
         };
     }
 
-    private static ArchitectureRun Run(string runId) => new()
+    private static ArchitectureRun Run(string runId)
     {
-        RunId = runId,
-        RequestId = "req-1",
-        Status = ArchitectureRunStatus.Committed,
-        CreatedUtc = DateTime.UtcNow
-    };
+        return new ArchitectureRun
+        {
+            RunId = runId,
+            RequestId = "req-1",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = DateTime.UtcNow
+        };
+    }
 
     /// <summary>
-    /// Returns a run detail whose manifest is null (pre-commit), so the service falls back to
-    /// <see cref="IUnifiedGoldenManifestReader.GetByVersionAsync"/> for the candidate manifest lookup.
+    ///     Returns a run detail whose manifest is null (pre-commit), so the service falls back to
+    ///     <see cref="IUnifiedGoldenManifestReader.GetByVersionAsync" /> for the candidate manifest lookup.
     /// </summary>
-    private static ArchitectureRunDetail RunDetail(string runId) => new()
+    private static ArchitectureRunDetail RunDetail(string runId)
     {
-        Run = Run(runId),
-        Manifest = null
-    };
+        return new ArchitectureRunDetail { Run = Run(runId), Manifest = null };
+    }
 
     [Fact]
     public async Task PreviewActivationAsync_WhenNoCurrentActiveRowExists_ReturnsPreviewAgainstEmptyCurrent()
@@ -80,16 +81,16 @@ public sealed class GovernancePreviewServiceTests
 
         GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
         {
-            RunId = "run-a",
-            ManifestVersion = "v1",
-            Environment = "dev"
+            RunId = "run-a", ManifestVersion = "v1", Environment = "dev"
         });
 
         result.CurrentRunId.Should().BeNull();
         result.CurrentManifestVersion.Should().BeNull();
         result.PreviewRunId.Should().Be("run-a");
-        result.Differences.Should().Contain(d => d.Key == "RequiredControls" && d.ChangeType == GovernanceDiffChangeType.Added);
-        result.Notes.Should().Contain(n => n.Contains("No current active governance activation", StringComparison.OrdinalIgnoreCase));
+        result.Differences.Should()
+            .Contain(d => d.Key == "RequiredControls" && d.ChangeType == GovernanceDiffChangeType.Added);
+        result.Notes.Should().Contain(n =>
+            n.Contains("No current active governance activation", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -124,14 +125,14 @@ public sealed class GovernancePreviewServiceTests
 
         GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
         {
-            RunId = "run-b",
-            ManifestVersion = "v2",
-            Environment = "test"
+            RunId = "run-b", ManifestVersion = "v2", Environment = "test"
         });
 
         result.CurrentRunId.Should().Be("run-old");
-        result.Differences.Should().Contain(d => d.Key == "RiskClassification" && d.ChangeType == GovernanceDiffChangeType.Changed);
-        result.Differences.Should().Contain(d => d.Key == "RequiredControls" && d.ChangeType == GovernanceDiffChangeType.Changed);
+        result.Differences.Should().Contain(d =>
+            d.Key == "RiskClassification" && d.ChangeType == GovernanceDiffChangeType.Changed);
+        result.Differences.Should().Contain(d =>
+            d.Key == "RequiredControls" && d.ChangeType == GovernanceDiffChangeType.Changed);
     }
 
     [Fact]
@@ -139,17 +140,11 @@ public sealed class GovernancePreviewServiceTests
     {
         GovernanceEnvironmentActivation srcAct = new()
         {
-            RunId = "r1",
-            ManifestVersion = "m1",
-            Environment = "dev",
-            IsActive = true
+            RunId = "r1", ManifestVersion = "m1", Environment = "dev", IsActive = true
         };
         GovernanceEnvironmentActivation tgtAct = new()
         {
-            RunId = "r2",
-            ManifestVersion = "m2",
-            Environment = "test",
-            IsActive = true
+            RunId = "r2", ManifestVersion = "m2", Environment = "test", IsActive = true
         };
 
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
@@ -162,54 +157,48 @@ public sealed class GovernancePreviewServiceTests
         _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("r2", "m2", g => g.CostClassification = "High"));
 
-        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
-        {
-            SourceEnvironment = "dev",
-            TargetEnvironment = "test"
-        });
+        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(
+            new GovernanceEnvironmentComparisonRequest { SourceEnvironment = "dev", TargetEnvironment = "test" });
 
         result.SourceEnvironment.Should().Be("dev");
         result.TargetEnvironment.Should().Be("test");
-        result.Differences.Should().Contain(d => d.Key == "CostClassification" && d.ChangeType == GovernanceDiffChangeType.Changed);
-        result.Notes.Should().Contain(n => n.Contains("Compared active governance", StringComparison.OrdinalIgnoreCase));
+        result.Differences.Should().Contain(d =>
+            d.Key == "CostClassification" && d.ChangeType == GovernanceDiffChangeType.Changed);
+        result.Notes.Should()
+            .Contain(n => n.Contains("Compared active governance", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
     public async Task CompareEnvironmentsAsync_WhenStatesAreEquivalent_ReturnsNoMeaningfulDiffs()
     {
-        ManifestGovernance gov = new()
+        ManifestGovernance gov = new() { RiskClassification = "Moderate", CostClassification = "Moderate" };
+        GoldenManifest m = Manifest("r1", "v1", _ =>
         {
-            RiskClassification = "Moderate",
-            CostClassification = "Moderate"
-        };
-        GoldenManifest m = Manifest("r1", "v1", _ => { });
+        });
         m.Governance = gov;
 
         GovernanceEnvironmentActivation act1 = new()
         {
-            RunId = "r1",
-            ManifestVersion = "v1",
-            Environment = "dev",
-            IsActive = true
+            RunId = "r1", ManifestVersion = "v1", Environment = "dev", IsActive = true
         };
         GovernanceEnvironmentActivation act2 = new()
         {
-            RunId = "r2",
-            ManifestVersion = "v2",
-            Environment = "prod",
-            IsActive = true
+            RunId = "r2", ManifestVersion = "v2", Environment = "prod", IsActive = true
         };
 
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>())).ReturnsAsync([act1]);
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("prod", It.IsAny<CancellationToken>())).ReturnsAsync([act2]);
-        _unifiedManifestReader.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r1", "v1"));
-        _unifiedManifestReader.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v2", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r2", "v2"));
+        _unifiedManifestReader
+            .Setup(goldenManifestRepository =>
+                goldenManifestRepository.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("r1", "v1"));
+        _unifiedManifestReader
+            .Setup(goldenManifestRepository =>
+                goldenManifestRepository.GetByVersionAsync("v2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Manifest("r2", "v2"));
 
-        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
-        {
-            SourceEnvironment = "dev",
-            TargetEnvironment = "prod"
-        });
+        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(
+            new GovernanceEnvironmentComparisonRequest { SourceEnvironment = "dev", TargetEnvironment = "prod" });
 
         result.Differences.Should().BeEmpty();
     }
@@ -226,13 +215,15 @@ public sealed class GovernancePreviewServiceTests
 
         await _sut.PreviewActivationAsync(new GovernancePreviewRequest
         {
-            RunId = "run-x",
-            ManifestVersion = "v1",
-            Environment = "dev"
+            RunId = "run-x", ManifestVersion = "v1", Environment = "dev"
         });
 
-        _activationRepo.Verify(a => a.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()), Times.Never);
-        _activationRepo.Verify(a => a.UpdateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()), Times.Never);
+        _activationRepo.Verify(
+            a => a.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _activationRepo.Verify(
+            a => a.UpdateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -243,9 +234,7 @@ public sealed class GovernancePreviewServiceTests
 
         Func<Task<GovernancePreviewResult>> act = () => _sut.PreviewActivationAsync(new GovernancePreviewRequest
         {
-            RunId = "missing",
-            ManifestVersion = "v1",
-            Environment = "dev"
+            RunId = "missing", ManifestVersion = "v1", Environment = "dev"
         });
 
         await act.Should().ThrowAsync<RunNotFoundException>();

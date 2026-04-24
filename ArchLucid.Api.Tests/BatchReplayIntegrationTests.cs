@@ -53,7 +53,8 @@ public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : I
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.MediaType.Should().Be("application/zip");
-        response.Headers.TryGetValues(ArchLucidHttpHeaders.BatchReplayPartial, out IEnumerable<string>? values).Should().BeTrue();
+        response.Headers.TryGetValues(ArchLucidHttpHeaders.BatchReplayPartial, out IEnumerable<string>? values).Should()
+            .BeTrue();
         values!.Single().Should().Be("true");
 
         byte[] zipBytes = await response.Content.ReadAsByteArrayAsync();

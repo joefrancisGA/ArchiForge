@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Export Record Diff.
+///     Tests for Architecture Export Record Diff.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -23,7 +22,8 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -91,7 +91,8 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
         HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
         historyResponse.EnsureSuccessStatusCode();
 
-        RunExportHistoryResponse? history = await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
+        RunExportHistoryResponse? history =
+            await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
         history.Should().NotBeNull();
         history.Exports.Should().HaveCountGreaterThanOrEqualTo(2);
 
@@ -103,9 +104,9 @@ public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factor
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ExportRecordDiffResponse? payload = await compareResponse.Content.ReadFromJsonAsync<ExportRecordDiffResponse>(JsonOptions);
+        ExportRecordDiffResponse? payload =
+            await compareResponse.Content.ReadFromJsonAsync<ExportRecordDiffResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Diff.ChangedTopLevelFields.Should().NotBeEmpty();
     }
 }
-

@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
@@ -22,8 +21,7 @@ public sealed class PolicyPackDryRunIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     [Fact]
@@ -40,9 +38,9 @@ public sealed class PolicyPackDryRunIntegrationTests
             ProposedThresholds = new Dictionary<string, string>
             {
                 { "maxCriticalFindings", "0" },
-                { "operatorNote", "ping me at alice@example.com about ssn 111-22-3333" },
+                { "operatorNote", "ping me at alice@example.com about ssn 111-22-3333" }
             },
-            EvaluateAgainstRunIds = new[] { "ghost-run-id-not-in-db" },
+            EvaluateAgainstRunIds = new[] { "ghost-run-id-not-in-db" }
         };
 
         StringContent json = new(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json");
@@ -70,7 +68,7 @@ public sealed class PolicyPackDryRunIntegrationTests
         using JsonDocument doc = JsonDocument.Parse(dryRunRow.DataJson);
         doc.RootElement.GetProperty("policyPackId").GetGuid().Should().Be(policyPackId);
         doc.RootElement.GetProperty("evaluatedRunIds").EnumerateArray()
-            .Select(e => e.GetString()).Should().BeEquivalentTo(["ghost-run-id-not-in-db"]);
+            .Select(e => e.GetString()).Should().BeEquivalentTo("ghost-run-id-not-in-db");
         doc.RootElement.GetProperty("deltaCounts").GetProperty("evaluated").GetInt32().Should().Be(1);
         doc.RootElement.GetProperty("deltaCounts").GetProperty("runMissing").GetInt32().Should().Be(1);
     }
@@ -86,8 +84,7 @@ public sealed class PolicyPackDryRunIntegrationTests
 
         var body = new
         {
-            ProposedThresholds = new Dictionary<string, string>(),
-            EvaluateAgainstRunIds = Array.Empty<string>(),
+            ProposedThresholds = new Dictionary<string, string>(), EvaluateAgainstRunIds = Array.Empty<string>()
         };
 
         StringContent json = new(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json");
@@ -110,7 +107,7 @@ public sealed class PolicyPackDryRunIntegrationTests
         var body = new
         {
             ProposedThresholds = new Dictionary<string, string> { { "maxCriticalFindings", "0" } },
-            EvaluateAgainstRunIds = new[] { "any" },
+            EvaluateAgainstRunIds = new[] { "any" }
         };
 
         StringContent json = new(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json");
@@ -128,32 +125,38 @@ public sealed class PolicyPackDryRunIntegrationTests
     {
         public Guid PolicyPackId
         {
-            get; set;
+            get;
+            set;
         }
 
         public int Page
         {
-            get; set;
+            get;
+            set;
         }
 
         public int PageSize
         {
-            get; set;
+            get;
+            set;
         }
 
         public int TotalRequestedRuns
         {
-            get; set;
+            get;
+            set;
         }
 
         public int ReturnedRuns
         {
-            get; set;
+            get;
+            set;
         }
 
         public string ProposedThresholdsRedactedJson
         {
-            get; set;
+            get;
+            set;
         } = string.Empty;
     }
 }

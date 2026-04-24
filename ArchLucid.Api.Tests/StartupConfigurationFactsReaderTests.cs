@@ -34,7 +34,7 @@ public sealed class StartupConfigurationFactsReaderTests
             ["Demo:SeedOnStartup"] = "false",
             ["SchemaValidation:EnableDetailedErrors"] = "true",
             ["Cors:AllowedOrigins:0"] = "https://a.example",
-            ["Cors:AllowedOrigins:1"] = "https://b.example",
+            ["Cors:AllowedOrigins:1"] = "https://b.example"
         };
 
         IConfiguration configuration = new ConfigurationBuilder()
@@ -77,7 +77,8 @@ public sealed class StartupConfigurationFactsReaderTests
     [Fact]
     public void FromConfiguration_when_keys_missing_uses_placeholders_and_false_flags()
     {
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
+        IConfiguration configuration =
+            new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
         Mock<IHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns("Production");
         env.SetupGet(e => e.ContentRootPath).Returns(string.Empty);

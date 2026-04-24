@@ -1,4 +1,5 @@
 using ArchLucid.Api.Services.Evolution;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
@@ -12,7 +13,8 @@ using Moq;
 namespace ArchLucid.Api.Tests.Services.Evolution;
 
 /// <summary>
-/// <see cref="EvolutionSimulationService.RunShadowEvaluationAsync"/> when stored <c>PlanSnapshotJson</c> does not deserialize.
+///     <see cref="EvolutionSimulationService.RunShadowEvaluationAsync" /> when stored <c>PlanSnapshotJson</c> does not
+///     deserialize.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -24,9 +26,7 @@ public sealed class EvolutionSimulationServiceInvalidPlanSnapshotJsonTests
         Guid candidateId = Guid.NewGuid();
         ProductLearningScope scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         EvolutionCandidateChangeSetRecord candidate = new()
@@ -41,7 +41,7 @@ public sealed class EvolutionSimulationServiceInvalidPlanSnapshotJsonTests
             Summary = "s",
             PlanSnapshotJson = "null",
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         Mock<IProductLearningPlanningRepository> planning = new();
@@ -51,7 +51,7 @@ public sealed class EvolutionSimulationServiceInvalidPlanSnapshotJsonTests
             .ReturnsAsync(candidate);
 
         Mock<IEvolutionSimulationRunRepository> runs = new();
-        Mock<ArchLucid.Application.Analysis.IArchitectureAnalysisService> analysis = new();
+        Mock<IArchitectureAnalysisService> analysis = new();
         Mock<ISimulationEvaluationService> evaluation = new();
 
         EvolutionSimulationService sut = new(
@@ -66,6 +66,7 @@ public sealed class EvolutionSimulationServiceInvalidPlanSnapshotJsonTests
         (await act.Should().ThrowAsync<InvalidOperationException>())
             .Which.Message.Should().Contain("Stored plan snapshot");
 
-        runs.Verify(r => r.InsertAsync(It.IsAny<EvolutionSimulationRunRecord>(), It.IsAny<CancellationToken>()), Times.Never);
+        runs.Verify(r => r.InsertAsync(It.IsAny<EvolutionSimulationRunRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

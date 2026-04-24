@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>JWT validation using <see cref="ArchLucidAuthOptions.JwtSigningPublicKeyPemPath"/> (CI / local E2E pattern).</summary>
+/// <summary>JWT validation using <see cref="ArchLucidAuthOptions.JwtSigningPublicKeyPemPath" /> (CI / local E2E pattern).</summary>
 public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     private readonly JwtLocalSigningWebAppFactory _factory;
@@ -27,10 +27,10 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "JwtTestUser",
-            roles: [ArchLucidRoles.Admin]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "JwtTestUser",
+            [ArchLucidRoles.Admin]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -61,7 +61,7 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
         using RSA rsa = RSA.Create();
 
         rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(includePrivateParameters: true);
+        RSAParameters keyMaterial = rsa.ExportParameters(true);
         RsaSecurityKey signingKey = new(keyMaterial);
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
@@ -74,12 +74,12 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            notBefore: DateTime.UtcNow.AddMinutes(-1),
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);
+            issuer,
+            audience,
+            claims,
+            DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddHours(1),
+            creds);
 
         return handler.WriteToken(token);
     }

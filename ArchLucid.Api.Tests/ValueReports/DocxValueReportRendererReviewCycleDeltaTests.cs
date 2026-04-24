@@ -20,8 +20,9 @@ public sealed class DocxValueReportRendererReviewCycleDeltaTests
         decimal? measured,
         int sample,
         decimal? delta,
-        decimal? deltaPct) =>
-        new(
+        decimal? deltaPct)
+    {
+        return new ValueReportSnapshot(
             Guid.Parse("11111111-1111-1111-1111-111111111111"),
             Guid.Parse("22222222-2222-2222-2222-222222222222"),
             Guid.Parse("33333333-3333-3333-3333-333333333333"),
@@ -53,6 +54,7 @@ public sealed class DocxValueReportRendererReviewCycleDeltaTests
             deltaPct,
             0,
             0);
+    }
 
     [Fact]
     public async Task RenderAsync_NoMeasurementYet_shows_heading_and_italic_stub()

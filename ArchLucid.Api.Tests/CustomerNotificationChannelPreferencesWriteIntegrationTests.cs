@@ -16,11 +16,12 @@ using Microsoft.IdentityModel.Tokens;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Separate fixture from read tests so InMemory preferences store starts empty (singleton repo per host).</summary>
-public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
+public sealed class
+    CustomerNotificationChannelPreferencesWriteIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
+        PropertyNameCaseInsensitive = true
     };
 
     private readonly JwtLocalSigningWebAppFactory _factory;
@@ -35,10 +36,10 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "ReaderUser",
-            roles: [ArchLucidRoles.Reader]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -47,7 +48,7 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
         {
             EmailCustomerNotificationsEnabled = false,
             TeamsCustomerNotificationsEnabled = true,
-            OutboundWebhookCustomerNotificationsEnabled = false,
+            OutboundWebhookCustomerNotificationsEnabled = false
         };
 
         HttpResponseMessage res = await client.PutAsJsonAsync(
@@ -62,10 +63,10 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "OperatorUser",
-            roles: [ArchLucidRoles.Operator]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "OperatorUser",
+            [ArchLucidRoles.Operator]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -74,7 +75,7 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
         {
             EmailCustomerNotificationsEnabled = false,
             TeamsCustomerNotificationsEnabled = true,
-            OutboundWebhookCustomerNotificationsEnabled = true,
+            OutboundWebhookCustomerNotificationsEnabled = true
         };
 
         HttpResponseMessage putRes = await client.PutAsJsonAsync(
@@ -91,7 +92,8 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
         putParsed.TeamsCustomerNotificationsEnabled.Should().BeTrue();
         putParsed.OutboundWebhookCustomerNotificationsEnabled.Should().BeTrue();
 
-        HttpResponseMessage getRes = await client.GetAsync(new Uri("/v1/notifications/customer-channel-preferences", UriKind.Relative));
+        HttpResponseMessage getRes =
+            await client.GetAsync(new Uri("/v1/notifications/customer-channel-preferences", UriKind.Relative));
 
         getRes.StatusCode.Should().Be(HttpStatusCode.OK);
         TenantNotificationChannelPreferencesResponse? getParsed =
@@ -113,7 +115,7 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
     {
         using RSA rsa = RSA.Create();
         rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(includePrivateParameters: true);
+        RSAParameters keyMaterial = rsa.ExportParameters(true);
         RsaSecurityKey signingKey = new(keyMaterial);
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
@@ -126,12 +128,12 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            notBefore: DateTime.UtcNow.AddMinutes(-1),
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);
+            issuer,
+            audience,
+            claims,
+            DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddHours(1),
+            creds);
 
         return handler.WriteToken(token);
     }

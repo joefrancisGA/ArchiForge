@@ -25,7 +25,7 @@ public sealed class EvolutionSimulationReportBuilderTests
                 priorityExplanation = "Because tests.",
                 status = "Open",
                 actionStepCount = 2,
-                linkedArchitectureRunIds = new[] { "run-1" },
+                linkedArchitectureRunIds = new[] { "run-1" }
             });
 
         EvolutionCandidateChangeSetRecord candidate = new()
@@ -40,7 +40,7 @@ public sealed class EvolutionSimulationReportBuilderTests
             Summary = "Candidate summary body.",
             PlanSnapshotJson = planJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         EvolutionSimulationReportDocument document =
@@ -72,7 +72,7 @@ public sealed class EvolutionSimulationReportBuilderTests
                 priorityExplanation = (string?)null,
                 status = "Open",
                 actionStepCount = 1,
-                linkedArchitectureRunIds = new[] { "run-x" },
+                linkedArchitectureRunIds = new[] { "run-x" }
             });
 
         EvolutionCandidateChangeSetRecord candidate = new()
@@ -87,7 +87,7 @@ public sealed class EvolutionSimulationReportBuilderTests
             Summary = "Cand sum",
             PlanSnapshotJson = planJson,
             DerivationRuleVersion = "60R-v1",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         const string outcomeJson =
@@ -104,7 +104,7 @@ public sealed class EvolutionSimulationReportBuilderTests
             OutcomeJson = outcomeJson,
             WarningsJson = null,
             CompletedUtc = DateTime.UtcNow,
-            IsShadowOnly = true,
+            IsShadowOnly = true
         };
 
         EvolutionSimulationReportDocument document =
@@ -112,8 +112,10 @@ public sealed class EvolutionSimulationReportBuilderTests
 
         document.SimulationRuns.Should().ContainSingle();
         document.SimulationRuns[0].DiffSummaryLines.Should().NotBeEmpty();
-        document.SimulationRuns[0].DiffSummaryLines.Should().Contain(line => line.Contains("appears on the plan snapshot", StringComparison.Ordinal));
-        document.SimulationRuns[0].DiffSummaryLines.Should().Contain(line => line.Contains("run status", StringComparison.OrdinalIgnoreCase));
+        document.SimulationRuns[0].DiffSummaryLines.Should().Contain(line =>
+            line.Contains("appears on the plan snapshot", StringComparison.Ordinal));
+        document.SimulationRuns[0].DiffSummaryLines.Should()
+            .Contain(line => line.Contains("run status", StringComparison.OrdinalIgnoreCase));
 
         string markdown = EvolutionSimulationReportMarkdownFormatter.Format(document);
         markdown.Should().Contain("Diff summary");

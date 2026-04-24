@@ -17,7 +17,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Durable audit for <c>POST .../run/exports/compare/summary</c> when <c>persist: true</c>.
+///     Durable audit for <c>POST .../run/exports/compare/summary</c> when <c>persist: true</c>.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ExportsControllerCompareSummaryAuditTests
@@ -45,7 +45,8 @@ public sealed class ExportsControllerCompareSummaryAuditTests
 
         Mock<IComparisonAuditService> comparisonAudit = new();
         comparisonAudit
-            .Setup(c => c.RecordExportDiffAsync(It.IsAny<ExportRecordDiffResult>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(c => c.RecordExportDiffAsync(It.IsAny<ExportRecordDiffResult>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(comparisonId);
 
         Mock<IAuditService> audit = new();

@@ -15,8 +15,7 @@ public sealed class ArchLucidAuthOptionsConfigurationTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucidAuth:Mode"] = "JwtBearer",
-            ["ArchLucidAuth:NameClaimType"] = "preferred_username",
+            ["ArchLucidAuth:Mode"] = "JwtBearer", ["ArchLucidAuth:NameClaimType"] = "preferred_username"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -32,10 +31,7 @@ public sealed class ArchLucidAuthOptionsConfigurationTests
     [Fact]
     public void GetSection_omitted_name_claim_type_defaults_to_claim_types_name()
     {
-        Dictionary<string, string?> data = new()
-        {
-            ["ArchLucidAuth:Mode"] = "JwtBearer",
-        };
+        Dictionary<string, string?> data = new() { ["ArchLucidAuth:Mode"] = "JwtBearer" };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
 

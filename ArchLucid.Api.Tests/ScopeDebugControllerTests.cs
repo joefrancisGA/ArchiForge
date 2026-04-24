@@ -21,7 +21,7 @@ public sealed class ScopeDebugControllerTests
         {
             TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
         };
         Mock<IScopeContextProvider> provider = new();
         provider.Setup(p => p.GetCurrentScope()).Returns(expected);

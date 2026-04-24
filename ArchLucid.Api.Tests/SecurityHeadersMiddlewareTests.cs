@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Http;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Security Headers Middleware.
+///     Tests for Security Headers Middleware.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class SecurityHeadersMiddlewareTests
@@ -32,7 +31,8 @@ public sealed class SecurityHeadersMiddlewareTests
         headers["X-Content-Type-Options"].ToString().Should().Be("nosniff");
         headers["X-Frame-Options"].ToString().Should().Be("DENY");
         headers["Referrer-Policy"].ToString().Should().Be("strict-origin-when-cross-origin");
-        headers["Content-Security-Policy"].ToString().Should().Be(SecurityHeadersMiddleware.ContentSecurityPolicyApiJson);
+        headers["Content-Security-Policy"].ToString().Should()
+            .Be(SecurityHeadersMiddleware.ContentSecurityPolicyApiJson);
         headers["Cache-Control"].ToString().Should().Be("no-store, max-age=0");
         headers["Pragma"].ToString().Should().Be("no-cache");
         headers["Cross-Origin-Resource-Policy"].ToString().Should().Be("cross-origin");
@@ -47,10 +47,7 @@ public sealed class SecurityHeadersMiddlewareTests
     [InlineData("/sitemap.xml")]
     public async Task InvokeAsync_PublicCrawlerPaths_UseShortPublicCache(string path)
     {
-        DefaultHttpContext context = new()
-        {
-            Request = { Path = path }
-        };
+        DefaultHttpContext context = new() { Request = { Path = path } };
         SecurityHeadersMiddleware middleware = new(_ => Task.CompletedTask);
 
         await middleware.InvokeAsync(context);

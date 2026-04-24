@@ -6,8 +6,6 @@ using ArchLucid.Api.Routing;
 
 using FluentAssertions;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Integration")]

@@ -8,8 +8,10 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Boots <see cref="Program"/> with <c>ArchLucid:StorageProvider=Sql</c> against an **empty** SQL catalog (no DbUp journal).
-/// Host startup must run DbUp then <c>ISchemaBootstrapper</c> — same path as greenfield deployments and CI <c>api-greenfield-boot</c>.
+///     Boots <see cref="Program" /> with <c>ArchLucid:StorageProvider=Sql</c> against an **empty** SQL catalog (no DbUp
+///     journal).
+///     Host startup must run DbUp then <c>ISchemaBootstrapper</c> — same path as greenfield deployments and CI
+///     <c>api-greenfield-boot</c>.
 /// </summary>
 public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 {
@@ -35,8 +37,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             SqlConnectionStringBuilder builder = new(raw)
             {
                 // Parallel integration tests (same host process) can open many connections at once; CI SQL is slower than local.
-                MaxPoolSize = 200,
-                ConnectTimeout = 120,
+                MaxPoolSize = 200, ConnectTimeout = 120
             };
 
             SqlConnectionString = builder.ConnectionString;
@@ -97,7 +98,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
                 // Parallel idempotency integration tests hold sp_getapplock while the first create-run completes; cold CI SQL + greenfield DbUp can exceed the default 120s waiter budget.
-                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "300000",
+                ["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "300000"
             });
         });
     }
@@ -132,7 +133,8 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             if (_rlsBreakGlassEnvRefCount++ == 0)
             {
                 _savedArchLucidAllowRlsBypassEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS");
-                _savedArchLucidPersistenceAllowRlsBypassEnv = Environment.GetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey);
+                _savedArchLucidPersistenceAllowRlsBypassEnv =
+                    Environment.GetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey);
                 Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", "true");
                 Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, "true");
             }
@@ -161,7 +163,8 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             if (_savedArchLucidPersistenceAllowRlsBypassEnv is null)
                 Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, null);
             else
-                Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, _savedArchLucidPersistenceAllowRlsBypassEnv);
+                Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey,
+                    _savedArchLucidPersistenceAllowRlsBypassEnv);
 
             _savedArchLucidAllowRlsBypassEnv = null;
             _savedArchLucidPersistenceAllowRlsBypassEnv = null;

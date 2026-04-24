@@ -8,9 +8,8 @@ using Microsoft.AspNetCore.Http;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Replay Comparison Result Headers.
+///     Tests for Replay Comparison Result Headers.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class ReplayComparisonResultHeadersTests
 {

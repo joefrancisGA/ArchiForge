@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Host.Core.DataAccess;
 using ArchLucid.Persistence.Connections;
 
@@ -11,7 +13,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="SqlScopedResolutionDbConnectionFactory"/>.
+///     Unit tests for <see cref="SqlScopedResolutionDbConnectionFactory" />.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -32,7 +34,7 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
             provider.GetRequiredService<IServiceScopeFactory>(),
             "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;TrustServerCertificate=True");
 
-        System.Data.IDbConnection conn = await sut.CreateOpenConnectionAsync(CancellationToken.None);
+        IDbConnection conn = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 
         conn.Should().BeSameAs(expected);
     }
@@ -48,9 +50,9 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
             "Server=(localdb)\\mssqllocaldb;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
         SqlScopedResolutionDbConnectionFactory sut = new(provider.GetRequiredService<IServiceScopeFactory>(), cs);
 
-        System.Data.IDbConnection conn = sut.CreateConnection();
+        IDbConnection conn = sut.CreateConnection();
 
         conn.Should().BeOfType<SqlConnection>();
-        conn.State.Should().Be(System.Data.ConnectionState.Closed);
+        conn.State.Should().Be(ConnectionState.Closed);
     }
 }

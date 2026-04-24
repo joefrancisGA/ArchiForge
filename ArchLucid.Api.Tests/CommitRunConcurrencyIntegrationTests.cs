@@ -11,8 +11,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Parallel <c>POST /v1/architecture/run/{runId}/commit</c> after execute: coordinator reconciliation returns the same
-/// manifest version for every parallel caller once the first commit wins.
+///     Parallel <c>POST /v1/architecture/run/{runId}/commit</c> after execute: coordinator reconciliation returns the same
+///     manifest version for every parallel caller once the first commit wins.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -21,8 +21,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     private static StringContent JsonContent(object value)
@@ -40,11 +39,13 @@ public sealed class CommitRunConcurrencyIntegrationTests
 
         HttpResponseMessage createResponse = await client.PostAsync(
             "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-PAR-" + Guid.NewGuid().ToString("N")[..8])));
+            JsonContent(
+                TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-PAR-" + Guid.NewGuid().ToString("N")[..8])));
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -68,7 +69,8 @@ public sealed class CommitRunConcurrencyIntegrationTests
             {
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-                CommitRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+                CommitRunResponseDto? payload =
+                    await response.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
                 payload.Should().NotBeNull();
                 payload.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();
 

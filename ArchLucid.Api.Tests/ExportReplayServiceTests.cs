@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
@@ -5,12 +7,12 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ExportReplayService"/> static helpers.
-/// The private <c>BuildReplayFileName</c> method is exercised indirectly
-/// via the public contract by inspecting <see cref="ReplayExportResult.FileName"/>
-/// on a stub result, or by extracting the logic under test to a testable surface.
-/// These tests validate the filename-building rules directly via reflection to
-/// preserve encapsulation while hitting 100% coverage for the helper.
+///     Unit tests for <see cref="ExportReplayService" /> static helpers.
+///     The private <c>BuildReplayFileName</c> method is exercised indirectly
+///     via the public contract by inspecting <see cref="ReplayExportResult.FileName" />
+///     on a stub result, or by extracting the logic under test to a testable surface.
+///     These tests validate the filename-building rules directly via reflection to
+///     preserve encapsulation while hitting 100% coverage for the helper.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ExportReplayServiceTests
@@ -23,10 +25,10 @@ public sealed class ExportReplayServiceTests
 
     private static string CallBuildReplayFileName(string originalFileName)
     {
-        System.Reflection.MethodInfo? method = typeof(ExportReplayService)
+        MethodInfo? method = typeof(ExportReplayService)
             .GetMethod(
                 "BuildReplayFileName",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+                BindingFlags.NonPublic | BindingFlags.Static);
 
         return (string)method!.Invoke(null, [originalFileName])!;
     }

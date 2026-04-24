@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Integration tests: Architecture Ingestion (HTTP host, database, or cross-component).
+///     Integration tests: Architecture Ingestion (HTTP host, database, or cross-component).
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -30,15 +29,16 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
             assumptions = Array.Empty<string>(),
             priorManifestVersion = (string?)null,
             inlineRequirements = new[] { "Must emit structured audit logs" },
-            documents = new[]
-            {
-                new
+            documents =
+                new[]
                 {
-                    name = "policy-hints.txt",
-                    contentType = "text/plain",
-                    content = "REQ: Multi-region failover\nPOL: Data classification enforced"
-                }
-            },
+                    new
+                    {
+                        name = "policy-hints.txt",
+                        contentType = "text/plain",
+                        content = "REQ: Multi-region failover\nPOL: Data classification enforced"
+                    }
+                },
             policyReferences = new[] { "ORG-POL-42" },
             topologyHints = new[] { "hub-spoke with shared services subnet" },
             securityBaselineHints = new[] { "TLS 1.2 minimum for all endpoints" },
@@ -56,9 +56,9 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory fa
                     name = "stub.tf",
                     format = "simple-terraform",
                     content = """
-                        resource "azurerm_virtual_network" "core"
-                        resource "azurerm_key_vault" "kv"
-                        """
+                              resource "azurerm_virtual_network" "core"
+                              resource "azurerm_key_vault" "kv"
+                              """
                 }
             }
         };

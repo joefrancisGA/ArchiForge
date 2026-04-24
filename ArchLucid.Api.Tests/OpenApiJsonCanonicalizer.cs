@@ -4,9 +4,9 @@ using System.Text.Json.Nodes;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Normalizes Microsoft OpenAPI JSON for stable <see cref="JsonNode.DeepEquals(JsonNode?, JsonNode?)"/> across
-/// OS/runtime differences: <c>JsonObject</c> property order and <c>tags</c> array order (reflection-driven controller
-/// discovery order differs between Linux and Windows).
+///     Normalizes Microsoft OpenAPI JSON for stable <see cref="JsonNode.DeepEquals(JsonNode?, JsonNode?)" /> across
+///     OS/runtime differences: <c>JsonObject</c> property order and <c>tags</c> array order (reflection-driven controller
+///     discovery order differs between Linux and Windows).
 /// </summary>
 internal static class OpenApiJsonCanonicalizer
 {
@@ -15,7 +15,7 @@ internal static class OpenApiJsonCanonicalizer
         if (node is null)
             throw new ArgumentNullException(nameof(node));
 
-        return CanonicalizeCore(node, parentPropertyName: null);
+        return CanonicalizeCore(node, null);
     }
 
     private static JsonNode CanonicalizeCore(JsonNode node, string? parentPropertyName)
@@ -46,7 +46,7 @@ internal static class OpenApiJsonCanonicalizer
     private static JsonArray CanonicalizeArray(JsonArray arr, string? parentPropertyName)
     {
         List<JsonNode?> items = arr.Select(static item =>
-            item is null ? null : CanonicalizeCore(item, parentPropertyName: null)).ToList();
+            item is null ? null : CanonicalizeCore(item, null)).ToList();
 
         if (string.Equals(parentPropertyName, "tags", StringComparison.Ordinal) && items.Count > 0)
             SortTagsArray(items);
