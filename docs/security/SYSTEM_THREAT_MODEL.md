@@ -53,7 +53,7 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 
 | Surface | Risk | Mitigation |
 |---------|------|------------|
-| Developer exports **`AZURE_OPENAI_API_KEY`** into shell / compose | Key theft via shoulder-surfing, screen share, or committed `.env` | Opt-in gate **`ARCHLUCID_REAL_AOAI=1`** + CLI preflight; document short-lived keys only (**[`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)**, **[`docs/library/CONFIGURATION_KEY_VAULT.md`](CONFIGURATION_KEY_VAULT.md)** § local). |
+| Developer exports **`AZURE_OPENAI_API_KEY`** into shell / compose | Key theft via shoulder-surfing, screen share, or committed `.env` | Opt-in gate **`ARCHLUCID_REAL_AOAI=1`** + CLI preflight; document short-lived keys only (**[`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)**, **[`docs/library/CONFIGURATION_KEY_VAULT.md`](../library/CONFIGURATION_KEY_VAULT.md)** § local). |
 | Fallback to simulator after AOAI failure | Buyer misreads simulator metrics as LLM output | Markdown **warning** callout + **Execution provenance** footer; audit **`FirstRealValueRunFellBackToSimulator`**. |
 | **`--strict-real`** in automation | Pipeline fails when AOAI unavailable | Explicit operator choice — no silent substitution. |
 
