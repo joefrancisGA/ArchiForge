@@ -9,7 +9,8 @@ using ArchLucid.Retrieval.Models;
 namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
-/// <see cref="IRetrievalRunCompletionIndexer"/> orchestration: <see cref="IRetrievalDocumentBuilder"/> (manifest, artifacts, provenance) then <see cref="IRetrievalIndexingService"/>.
+///     <see cref="IRetrievalRunCompletionIndexer" /> orchestration: <see cref="IRetrievalDocumentBuilder" /> (manifest,
+///     artifacts, provenance) then <see cref="IRetrievalIndexingService" />.
 /// </summary>
 public sealed class RetrievalRunCompletionIndexer(
     IRetrievalDocumentBuilder documentBuilder,

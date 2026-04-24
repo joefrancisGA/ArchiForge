@@ -9,14 +9,14 @@ using ArchLucid.Retrieval.Models;
 namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
-/// <see cref="IRetrievalDocumentBuilder"/> with stable <see cref="RetrievalDocument.DocumentId"/> patterns per source type.
+///     <see cref="IRetrievalDocumentBuilder" /> with stable <see cref="RetrievalDocument.DocumentId" /> patterns per
+///     source type.
 /// </summary>
 public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        WriteIndented = false,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        WriteIndented = false, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     /// <inheritdoc />
@@ -47,8 +47,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        IReadOnlyList<SynthesizedArtifact> artifacts) =>
-        artifacts.Select(x => new RetrievalDocument
+        IReadOnlyList<SynthesizedArtifact> artifacts)
+    {
+        return artifacts.Select(x => new RetrievalDocument
         {
             DocumentId = $"artifact-{x.ArtifactId:N}",
             TenantId = tenantId,
@@ -63,6 +64,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             ContentHash = x.ContentHash,
             CreatedUtc = x.CreatedUtc
         }).ToList();
+    }
 
     /// <inheritdoc />
     public IReadOnlyList<RetrievalDocument> BuildForConversation(
@@ -70,8 +72,9 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         Guid workspaceId,
         Guid projectId,
         Guid? runId,
-        IReadOnlyList<ConversationMessage> messages) =>
-        messages.Select(x => new RetrievalDocument
+        IReadOnlyList<ConversationMessage> messages)
+    {
+        return messages.Select(x => new RetrievalDocument
         {
             DocumentId = $"conversation-{x.MessageId:N}",
             TenantId = tenantId,
@@ -85,6 +88,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             ContentHash = x.MessageId.ToString("N"),
             CreatedUtc = x.CreatedUtc
         }).ToList();
+    }
 
     /// <inheritdoc />
     public IReadOnlyList<RetrievalDocument> BuildForProvenance(

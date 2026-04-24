@@ -4,8 +4,10 @@ namespace ArchLucid.Retrieval.Embedding;
 public sealed class FakeEmbeddingService : IEmbeddingService
 {
     /// <inheritdoc />
-    public Task<float[]> EmbedAsync(string text, CancellationToken ct) =>
-        Task.FromResult(Build(text));
+    public Task<float[]> EmbedAsync(string text, CancellationToken ct)
+    {
+        return Task.FromResult(Build(text));
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<float[]>> EmbedManyAsync(IReadOnlyList<string> texts, CancellationToken ct)

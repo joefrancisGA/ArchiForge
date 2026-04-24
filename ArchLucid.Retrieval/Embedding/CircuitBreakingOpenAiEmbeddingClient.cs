@@ -7,7 +7,8 @@ using Polly;
 namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>
-/// Decorator for <see cref="IOpenAiEmbeddingClient"/> that applies a <see cref="CircuitBreakerGate"/> around embedding calls.
+///     Decorator for <see cref="IOpenAiEmbeddingClient" /> that applies a <see cref="CircuitBreakerGate" /> around
+///     embedding calls.
 /// </summary>
 public sealed class CircuitBreakingOpenAiEmbeddingClient(
     IOpenAiEmbeddingClient inner,
@@ -15,10 +16,12 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient(
     ResiliencePipeline llmRetryPipeline,
     ILogger<CircuitBreakingOpenAiEmbeddingClient> logger) : IOpenAiEmbeddingClient
 {
-    private readonly IOpenAiEmbeddingClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
     private readonly CircuitBreakerGate _gate = gate ?? throw new ArgumentNullException(nameof(gate));
+    private readonly IOpenAiEmbeddingClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+
     private readonly ResiliencePipeline _llmRetryPipeline =
         llmRetryPipeline ?? throw new ArgumentNullException(nameof(llmRetryPipeline));
+
     private readonly ILogger<CircuitBreakingOpenAiEmbeddingClient> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -47,7 +50,8 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient(
         catch (Exception ex)
         {
             _gate.RecordFailure();
-            _logger.LogWarning(ex, "Azure OpenAI embedding call failed after retries; circuit breaker recorded failure.");
+            _logger.LogWarning(ex,
+                "Azure OpenAI embedding call failed after retries; circuit breaker recorded failure.");
             throw;
         }
     }
@@ -77,7 +81,8 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient(
         catch (Exception ex)
         {
             _gate.RecordFailure();
-            _logger.LogWarning(ex, "Azure OpenAI embedding batch failed after retries; circuit breaker recorded failure.");
+            _logger.LogWarning(ex,
+                "Azure OpenAI embedding batch failed after retries; circuit breaker recorded failure.");
             throw;
         }
     }

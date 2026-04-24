@@ -1,7 +1,7 @@
 namespace ArchLucid.Retrieval.Chunking;
 
 /// <summary>
-/// Character-window chunker with fixed stride <c>max(1, maxChars − overlap)</c>; no sentence awareness.
+///     Character-window chunker with fixed stride <c>max(1, maxChars − overlap)</c>; no sentence awareness.
 /// </summary>
 public sealed class SimpleTextChunker : ITextChunker
 {

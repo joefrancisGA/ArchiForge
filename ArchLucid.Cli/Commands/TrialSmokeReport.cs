@@ -26,4 +26,15 @@ public sealed class TrialSmokeReport
         get;
         init;
     }
+
+    /// <summary>
+    ///     <c>X-Correlation-ID</c> response header observed on the first <c>POST /v1/register</c> call.
+    ///     Used by <c>--staging</c> / <c>--one-line</c> output so an oncall responder has a single id
+    ///     to grep across logs / audit events.
+    /// </summary>
+    public string? RegistrationCorrelationId
+    {
+        get;
+        init;
+    }
 }

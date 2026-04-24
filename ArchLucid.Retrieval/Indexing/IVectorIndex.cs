@@ -3,7 +3,7 @@ using ArchLucid.Retrieval.Models;
 namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
-/// Vector store for <see cref="RetrievalChunk"/> upserts and scoped similarity search.
+///     Vector store for <see cref="RetrievalChunk" /> upserts and scoped similarity search.
 /// </summary>
 /// <remarks>Implementation is storage-specific (e.g. in-memory, external vector DB). Not HTTP-aware.</remarks>
 public interface IVectorIndex
@@ -12,10 +12,11 @@ public interface IVectorIndex
     Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct);
 
     /// <summary>
-    /// Returns up to <see cref="RetrievalQuery.TopK"/> hits filtered by tenant/workspace/project and optional run/manifest facets.
+    ///     Returns up to <see cref="RetrievalQuery.TopK" /> hits filtered by tenant/workspace/project and optional
+    ///     run/manifest facets.
     /// </summary>
     /// <param name="query">Scope filters and result cap.</param>
-    /// <param name="queryEmbedding">Embedding of <see cref="RetrievalQuery.QueryText"/>.</param>
+    /// <param name="queryEmbedding">Embedding of <see cref="RetrievalQuery.QueryText" />.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<IReadOnlyList<RetrievalHit>> SearchAsync(
         RetrievalQuery query,

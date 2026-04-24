@@ -86,6 +86,8 @@ public sealed class TrialSmokeCommandOptions
         decimal? baselineHours = null;
         string? baselineSource = null;
         bool skipDeltas = false;
+        bool targetStaging = false;
+        bool oneLine = false;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -96,6 +98,14 @@ public sealed class TrialSmokeCommandOptions
                 case "--api-base-url":
                     if (!TryReadValue(args, ref i, arg, out string? apiVal, out error)) return null;
                     apiBaseUrl = apiVal;
+                    break;
+
+                case "--staging":
+                    targetStaging = true;
+                    break;
+
+                case "--one-line":
+                    oneLine = true;
                     break;
 
                 case "--org":
@@ -159,11 +169,25 @@ public sealed class TrialSmokeCommandOptions
             return null;
         }
 
+        if (targetStaging && !string.IsNullOrWhiteSpace(apiBaseUrl) &&
+            !string.Equals(apiBaseUrl!.Trim().TrimEnd('/'), StagingApiBaseUrl, StringComparison.OrdinalIgnoreCase))
+        {
+            error = $"--staging cannot be combined with a different --api-base-url ('{apiBaseUrl}'). Drop one.";
+            return null;
+        }
+
+        if (targetStaging && string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            apiBaseUrl = StagingApiBaseUrl;
+        }
+
         error = null;
 
         return new TrialSmokeCommandOptions
         {
             ApiBaseUrl = apiBaseUrl,
+            TargetStaging = targetStaging,
+            OneLineOutput = oneLine || targetStaging,
             OrganizationName = org!.Trim(),
             AdminEmail = email!.Trim(),
             AdminDisplayName = string.IsNullOrWhiteSpace(displayName) ? DefaultDisplayName : displayName.Trim(),
