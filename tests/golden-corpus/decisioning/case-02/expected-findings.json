@@ -1,0 +1,36 @@
+[
+  {
+    "findingId": "77ba58d1bd594681801552718d3cb2ea",
+    "findingType": "RequirementFinding",
+    "category": "Requirement",
+    "severity": "Info",
+    "title": "Requirement detected: Auth-0",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "relatedNodeIds": [
+      "req-1"
+    ],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "requirement-surface"
+    ],
+    "decisionsTaken": [
+      "Promote requirement into candidate architecture decision input."
+    ]
+  },
+  {
+    "findingId": "0cbc632f558348719874675f9c4ee6a2",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

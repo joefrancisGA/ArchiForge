@@ -59,7 +59,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             if (!nodeById.ContainsKey(parentId))
                 continue;
 
-            edges.Add(CreateEdge(parentId, node.NodeId, GraphEdgeTypes.ContainsResource, "contains resource", WeightExplicitParentChild));
+            edges.Add(CreateEdge(parentId, node.NodeId, GraphEdgeTypes.ContainsResource, "contains resource",
+                WeightExplicitParentChild));
         }
     }
 
@@ -77,16 +78,14 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
 
         foreach (GraphNode network in networks)
 
-            foreach (GraphNode subnet in subnets)
+        foreach (GraphNode subnet in subnets)
 
-                edges.Add(CreateEdge(
-                    network.NodeId,
-                    subnet.NodeId,
-                    GraphEdgeTypes.ContainsResource,
-                    "contains resource",
-                    WeightHeuristicTopologyContainment));
-
-
+            edges.Add(CreateEdge(
+                network.NodeId,
+                subnet.NodeId,
+                GraphEdgeTypes.ContainsResource,
+                "contains resource",
+                WeightHeuristicTopologyContainment));
     }
 
     private static void InferSecurityProtection(
@@ -96,16 +95,14 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     {
         foreach (GraphNode security in securityNodes)
 
-            foreach (GraphNode resource in topologyNodes)
+        foreach (GraphNode resource in topologyNodes)
 
-                edges.Add(CreateEdge(
-                    security.NodeId,
-                    resource.NodeId,
-                    GraphEdgeTypes.Protects,
-                    "protects",
-                    WeightSecurityBroad));
-
-
+            edges.Add(CreateEdge(
+                security.NodeId,
+                resource.NodeId,
+                GraphEdgeTypes.Protects,
+                "protects",
+                WeightSecurityBroad));
     }
 
     private static void InferPolicyApplicability(
@@ -115,7 +112,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     {
         foreach (GraphNode policy in policyNodes)
         {
-            HashSet<string>? targeted = ParseTargetNodeIds(policy.Properties, CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds);
+            HashSet<string>? targeted =
+                ParseTargetNodeIds(policy.Properties, CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds);
             if (targeted is not null && targeted.Count > 0)
             {
                 foreach (GraphNode resource in topologyNodes)
@@ -142,7 +140,6 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                     GraphEdgeTypes.AppliesTo,
                     "applies to",
                     WeightPolicyBroad));
-
         }
     }
 
@@ -153,7 +150,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     {
         foreach (GraphNode requirement in requirementNodes)
         {
-            HashSet<string>? targeted = ParseTargetNodeIds(requirement.Properties, CanonicalGraphPropertyKeys.RelatedTopologyNodeIds);
+            HashSet<string>? targeted = ParseTargetNodeIds(requirement.Properties,
+                CanonicalGraphPropertyKeys.RelatedTopologyNodeIds);
             if (targeted is not null && targeted.Count > 0)
             {
                 foreach (GraphNode resource in topologyNodes)
@@ -186,13 +184,11 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                         GraphEdgeTypes.RelatesTo,
                         "relates to",
                         WeightRequirementHeuristic));
-
-
         }
     }
 
     /// <summary>
-    /// Parses comma-separated node ids; returns <see langword="null"/> when the key is missing or empty.
+    ///     Parses comma-separated node ids; returns <see langword="null" /> when the key is missing or empty.
     /// </summary>
     private static HashSet<string>? ParseTargetNodeIds(Dictionary<string, string> properties, string key)
     {
@@ -209,19 +205,26 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         string label = resource.Label.ToLowerInvariant();
         string category = resource.Category?.ToLowerInvariant() ?? string.Empty;
 
-        if (text.Contains("network", StringComparison.Ordinal) && (label.Contains("vnet", StringComparison.Ordinal) || label.Contains("subnet", StringComparison.Ordinal) || string.Equals(category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)))
+        if (text.Contains("network", StringComparison.Ordinal) && (label.Contains("vnet", StringComparison.Ordinal) ||
+                                                                   label.Contains("subnet", StringComparison.Ordinal) ||
+                                                                   string.Equals(category,
+                                                                       GraphTopologyCategories.Network,
+                                                                       StringComparison.OrdinalIgnoreCase)))
             return true;
 
-        if (text.Contains("storage", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase))
+        if (text.Contains("storage", StringComparison.Ordinal) && string.Equals(category,
+                GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (text.Contains("compute", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase))
+        if (text.Contains("compute", StringComparison.Ordinal) && string.Equals(category,
+                GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase))
             return true;
 
         if (text.Contains("security", StringComparison.Ordinal) && resource.NodeType == GraphNodeTypes.SecurityBaseline)
             return true;
 
-        return text.Contains("database", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase);
+        return text.Contains("database", StringComparison.Ordinal) && string.Equals(category,
+            GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase);
     }
 
     private static GraphEdge CreateEdge(

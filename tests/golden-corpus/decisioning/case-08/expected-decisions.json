@@ -1,0 +1,10 @@
+{
+  "authority": [
+    {
+      "category": "Requirement",
+      "selectedOption": "Accepted",
+      "title": "Auth-1",
+      "rationale": "Authenticate users"
+    }
+  ]
+}

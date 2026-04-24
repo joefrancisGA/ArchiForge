@@ -3,11 +3,11 @@ using ArchLucid.Core.Pagination;
 namespace ArchLucid.KnowledgeGraph.Models;
 
 /// <summary>
-/// Slices <see cref="GraphSnapshot.Nodes"/> with stable list order; edges are restricted to the page’s node id set.
+///     Slices <see cref="GraphSnapshot.Nodes" /> with stable list order; edges are restricted to the page’s node id set.
 /// </summary>
 public static class GraphSnapshotPagination
 {
-    /// <summary>Builds a page; <paramref name="snapshot"/> must not be null.</summary>
+    /// <summary>Builds a page; <paramref name="snapshot" /> must not be null.</summary>
     public static GraphSnapshotNodesPage CreatePage(GraphSnapshot snapshot, int page, int pageSize)
     {
         ArgumentNullException.ThrowIfNull(snapshot);

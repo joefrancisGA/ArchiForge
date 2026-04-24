@@ -1,7 +1,7 @@
 namespace ArchLucid.KnowledgeGraph;
 
 /// <summary>
-/// Canonical <see cref="Models.GraphNode.NodeType"/> values produced by the default builder and inferrer.
+///     Canonical <see cref="Models.GraphNode.NodeType" /> values produced by the default builder and inferrer.
 /// </summary>
 public static class GraphNodeTypes
 {
@@ -13,7 +13,8 @@ public static class GraphNodeTypes
 }
 
 /// <summary>
-/// Canonical <see cref="Models.GraphEdge.EdgeType"/> values inferred by <see cref="Inference.DefaultGraphEdgeInferer"/>.
+///     Canonical <see cref="Models.GraphEdge.EdgeType" /> values inferred by
+///     <see cref="Inference.DefaultGraphEdgeInferer" />.
 /// </summary>
 public static class GraphEdgeTypes
 {
@@ -25,7 +26,7 @@ public static class GraphEdgeTypes
 }
 
 /// <summary>
-/// Typical <see cref="Models.GraphNode.Category"/> values for topology resources (enrichment / heuristics).
+///     Typical <see cref="Models.GraphNode.Category" /> values for topology resources (enrichment / heuristics).
 /// </summary>
 public static class GraphTopologyCategories
 {

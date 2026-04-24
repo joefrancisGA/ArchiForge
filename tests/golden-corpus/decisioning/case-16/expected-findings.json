@@ -1,0 +1,36 @@
+[
+  {
+    "findingId": "4f54abd3af314ecb8ac9ff58ba1bf078",
+    "findingType": "CostConstraintFinding",
+    "category": "Cost",
+    "severity": "Info",
+    "title": "Cost constraint: Budget-2",
+    "rationale": "A cost constraint node was found and should constrain architecture choices.",
+    "relatedNodeIds": [
+      "c1"
+    ],
+    "payloadType": "CostConstraintFindingPayload",
+    "rulesApplied": [
+      "cost-constraint-surface"
+    ],
+    "decisionsTaken": [
+      "Emitted cost constraint finding from graph node."
+    ]
+  },
+  {
+    "findingId": "9dd0b540ed5348baa690b937e710af92",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

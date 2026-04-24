@@ -44,7 +44,7 @@ public static class GraphSnapshotExtensions
     }
 
     /// <summary>
-    /// Nodes that have an incoming <paramref name="edgeType"/> edge to <paramref name="toNodeId"/>.
+    ///     Nodes that have an incoming <paramref name="edgeType" /> edge to <paramref name="toNodeId" />.
     /// </summary>
     public static IReadOnlyList<GraphNode> GetIncomingSources(
         this GraphSnapshot snapshot,

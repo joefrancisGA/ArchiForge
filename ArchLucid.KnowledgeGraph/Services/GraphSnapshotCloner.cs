@@ -4,14 +4,14 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.KnowledgeGraph.Services;
 
 /// <summary>
-/// Clones a persisted <see cref="GraphSnapshot"/> for a new run when
-/// <see cref="GraphSnapshotCanonicalFingerprint"/> indicates an equivalent canonical context.
+///     Clones a persisted <see cref="GraphSnapshot" /> for a new run when
+///     <see cref="GraphSnapshotCanonicalFingerprint" /> indicates an equivalent canonical context.
 /// </summary>
 public static class GraphSnapshotCloner
 {
     /// <summary>
-    /// Produces a new snapshot with fresh <see cref="GraphSnapshot.GraphSnapshotId"/> and edge ids,
-    /// bound to <paramref name="newContext"/> and <paramref name="runId"/>.
+    ///     Produces a new snapshot with fresh <see cref="GraphSnapshot.GraphSnapshotId" /> and edge ids,
+    ///     bound to <paramref name="newContext" /> and <paramref name="runId" />.
     /// </summary>
     public static GraphSnapshot CloneForNewRun(GraphSnapshot source, ContextSnapshot newContext, Guid runId)
     {

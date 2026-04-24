@@ -2,7 +2,8 @@ using System.Globalization;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-using Cm = ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -246,18 +247,18 @@ public static class GoldenCorpusGraphFactory
                 Claims = ["Add API service"],
                 EvidenceRefs = ["request"],
                 Confidence = 0.9,
-                ProposedChanges = new Cm.ManifestDeltaProposal
+                ProposedChanges = new ManifestDeltaProposal
                 {
                     ProposalId = "PROP-GOLD-1",
                     SourceAgent = AgentType.Topology,
                     AddedServices =
                     [
-                        new Cm.ManifestService
+                        new ManifestService
                         {
                             ServiceId = "svc-golden-1",
                             ServiceName = "api",
-                            ServiceType = Cm.ServiceType.Api,
-                            RuntimePlatform = Cm.RuntimePlatform.AppService,
+                            ServiceType = ServiceType.Api,
+                            RuntimePlatform = RuntimePlatform.AppService,
                         },
                     ],
                 },

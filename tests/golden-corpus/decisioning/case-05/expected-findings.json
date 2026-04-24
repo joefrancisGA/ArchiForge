@@ -1,0 +1,36 @@
+[
+  {
+    "findingId": "de900e99e67048c9abfd158c9322f455",
+    "findingType": "SecurityControlFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Security baseline control: TLS-0",
+    "rationale": "A security baseline node was found in the graph and should influence resolved architecture decisions.",
+    "relatedNodeIds": [
+      "s1"
+    ],
+    "payloadType": "SecurityControlFindingPayload",
+    "rulesApplied": [
+      "security-baseline-coverage"
+    ],
+    "decisionsTaken": [
+      "Converted security graph node into a security finding."
+    ]
+  },
+  {
+    "findingId": "505e1cf62135431f97ee006881bc56b5",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "No topology resources were found",
+    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-presence"
+    ],
+    "decisionsTaken": [
+      "No TopologyResource nodes found in graph \u2014 emitted coverage warning."
+    ]
+  }
+]

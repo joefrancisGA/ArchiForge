@@ -1,0 +1,52 @@
+[
+  {
+    "findingId": "11e298e146364f30ab668798ed3a099d",
+    "findingType": "ComplianceFinding",
+    "category": "Compliance",
+    "severity": "Warning",
+    "title": "Compliance gap: Network resources must be protected by security baseline controls",
+    "rationale": "Every network resource should be protected by at least one security baseline control.",
+    "relatedNodeIds": [
+      "t1"
+    ],
+    "payloadType": "ComplianceFindingPayload",
+    "rulesApplied": [
+      "network-must-have-security-baseline"
+    ],
+    "decisionsTaken": [
+      "Detected uncovered resources against compliance rule requirements."
+    ]
+  },
+  {
+    "findingId": "73afcdbc815941f69bab5ed6200b55de",
+    "findingType": "SecurityCoverageFinding",
+    "category": "Security",
+    "severity": "Warning",
+    "title": "Some topology resources are not protected by any security baseline nodes",
+    "rationale": "Security protection coverage is incomplete for the current topology graph.",
+    "relatedNodeIds": [],
+    "payloadType": "SecurityCoverageFindingPayload",
+    "rulesApplied": [
+      "security-coverage-protection"
+    ],
+    "decisionsTaken": [
+      "Compared topology resources against PROTECTS edges."
+    ]
+  },
+  {
+    "findingId": "e2256c6fe2444eb1b9d325ca803c1e2f",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more expected categories.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

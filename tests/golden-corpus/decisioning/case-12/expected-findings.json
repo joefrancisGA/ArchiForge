@@ -1,0 +1,74 @@
+[
+  {
+    "findingId": "7622859f36c84b9cb6d0fb35e8df0e9c",
+    "findingType": "CostConstraintFinding",
+    "category": "Cost",
+    "severity": "Warning",
+    "title": "Cost constraint: Prod",
+    "rationale": "A cost constraint node was found and should constrain architecture choices.",
+    "relatedNodeIds": [
+      "c1"
+    ],
+    "payloadType": "CostConstraintFindingPayload",
+    "rulesApplied": [
+      "cost-constraint-surface"
+    ],
+    "decisionsTaken": [
+      "Emitted cost constraint finding from graph node."
+    ]
+  },
+  {
+    "findingId": "096af17ab5694e3188ebf3fd1759dfa7",
+    "findingType": "RequirementFinding",
+    "category": "Requirement",
+    "severity": "Info",
+    "title": "Requirement detected: Auth-1",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "relatedNodeIds": [
+      "r1",
+      "t1"
+    ],
+    "payloadType": "RequirementFindingPayload",
+    "rulesApplied": [
+      "requirement-surface"
+    ],
+    "decisionsTaken": [
+      "Linked requirement to topology resources via RELATES_TO graph edges."
+    ]
+  },
+  {
+    "findingId": "d3936122e78b414c8d7f6930510982db",
+    "findingType": "SecurityControlFinding",
+    "category": "Security",
+    "severity": "Error",
+    "title": "Security baseline control: MFA",
+    "rationale": "A security baseline node was found; PROTECTS edges associate it with topology resources that should inherit control scope.",
+    "relatedNodeIds": [
+      "s1",
+      "t1"
+    ],
+    "payloadType": "SecurityControlFindingPayload",
+    "rulesApplied": [
+      "security-baseline-coverage"
+    ],
+    "decisionsTaken": [
+      "Included topology targets linked via PROTECTS edges in explainability scope."
+    ]
+  },
+  {
+    "findingId": "a628bb209dad40108b2d8ce8a1149b9f",
+    "findingType": "TopologyCoverageFinding",
+    "category": "Topology",
+    "severity": "Warning",
+    "title": "Topology coverage is incomplete",
+    "rationale": "The graph contains topology resources but is missing one or more expected categories.",
+    "relatedNodeIds": [],
+    "payloadType": "TopologyCoverageFindingPayload",
+    "rulesApplied": [
+      "topology-coverage-categories"
+    ],
+    "decisionsTaken": [
+      "Compared present topology categories to expected coverage categories."
+    ]
+  }
+]

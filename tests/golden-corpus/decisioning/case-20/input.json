@@ -1,0 +1,27 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000002",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000002",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000002-0000-4000-8000-000000000003",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000002",
+    "runId": "20000000-0000-4000-8000-000000000002",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "req-1",
+        "nodeType": "Requirement",
+        "label": "Auth-3",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "text": "Authenticate users"
+        }
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null
+}

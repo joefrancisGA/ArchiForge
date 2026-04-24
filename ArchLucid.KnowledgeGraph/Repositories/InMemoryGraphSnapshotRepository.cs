@@ -8,8 +8,8 @@ namespace ArchLucid.KnowledgeGraph.Repositories;
 public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
 {
     private const int MaxEntries = 500;
-    private readonly Dictionary<Guid, GraphSnapshot> _store = [];
     private readonly Lock _lock = new();
+    private readonly Dictionary<Guid, GraphSnapshot> _store = [];
 
     public Task SaveAsync(
         GraphSnapshot snapshot,
@@ -58,7 +58,8 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         }
     }
 
-    public Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId, CancellationToken ct)
+    public Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId,
+        CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         lock (_lock)

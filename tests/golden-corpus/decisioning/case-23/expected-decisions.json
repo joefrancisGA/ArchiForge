@@ -1,0 +1,10 @@
+{
+  "authority": [
+    {
+      "category": "Security",
+      "selectedOption": "RequiredRemediation",
+      "title": "Enforce control: TLS-3",
+      "rationale": "Security control is missing and should be enforced."
+    }
+  ]
+}

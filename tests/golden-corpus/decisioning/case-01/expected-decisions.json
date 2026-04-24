@@ -1,0 +1,10 @@
+{
+  "authority": [],
+  "merge": {
+    "success": true,
+    "errors": [],
+    "serviceIds": [
+      "svc-golden-1"
+    ]
+  }
+}
