@@ -4,10 +4,10 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
+import { BRAND_CATEGORY } from "@/lib/brand-category";
 
-/** §3 “30-second pitch” in `docs/go-to-market/POSITIONING.md` (verbatim, without surrounding quotation marks). */
-const HERO_PITCH =
-  "ArchLucid is an AI Architecture Intelligence platform. You describe a system you want to build, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. Think of it as an AI-powered architecture review board that runs in minutes instead of weeks, with a full audit trail.";
+/** §3 “30-second pitch” in `docs/go-to-market/POSITIONING.md` — category label flows through `BRAND_CATEGORY`. */
+const HERO_PITCH = `ArchLucid is an ${BRAND_CATEGORY} platform. You describe a system you want to build, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. Think of it as an AI-powered architecture review board that runs in minutes instead of weeks, with a full audit trail.`;
 
 const PILLARS: { title: string; body: string }[] = [
   {
@@ -29,13 +29,19 @@ export function WelcomeMarketingPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
       <section aria-labelledby="hero-heading" className="mb-12 text-center">
-        <p className="text-sm font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
-          AI Architecture Intelligence
+        <p
+          className="text-sm font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300"
+          data-testid="welcome-brand-category-eyebrow"
+        >
+          {BRAND_CATEGORY}
         </p>
         <h1 id="hero-heading" className="mt-2 text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 sm:text-4xl">
           Ship governed architecture decisions faster
         </h1>
-        <p className="mx-auto mt-4 max-w-3xl text-left text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-center">
+        <p
+          className="mx-auto mt-4 max-w-3xl text-left text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-center"
+          data-testid="welcome-brand-category-paragraph"
+        >
           {HERO_PITCH}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">

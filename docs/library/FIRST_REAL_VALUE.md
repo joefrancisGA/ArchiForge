@@ -1,3 +1,5 @@
+> **Scope:** Evaluators who want the shipped `archlucid try` Docker stack to call their Azure OpenAI instead of the simulator; not production deployment architecture, cost governance beyond the noted token default, or ADR-level rationale (see the linked ADR).
+
 # First real value (`archlucid try --real`)
 
 **Audience:** Evaluators who want the same **demo stack** as `archlucid try`, but with **Azure OpenAI** completing agents instead of the deterministic simulator.

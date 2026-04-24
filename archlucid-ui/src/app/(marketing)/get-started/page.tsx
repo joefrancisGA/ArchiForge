@@ -4,12 +4,15 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { BUYER_GET_STARTED_VERTICAL_SLUGS } from "./get-started-verticals";
+import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 
 export const metadata: Metadata = {
   title: "Get started · ArchLucid",
-  description:
-    "Sign in, pick a vertical, run a sample, read your first finding — the first thirty minutes with ArchLucid, hosted, no install.",
+  description: `Sign in, pick a vertical, run a sample, read your first finding — the first thirty minutes with ArchLucid (${BRAND_CATEGORY}), hosted, no install.`,
   robots: { index: true, follow: true },
+  other: {
+    "x-archlucid-brand-category-legacy": BRAND_CATEGORY_LEGACY,
+  },
 };
 
 const PLACEHOLDER_MARKER = "<<placeholder copy — replace before external use>>";
@@ -54,6 +57,13 @@ export default function GetStartedPage(): ReactNode {
       <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
         Your first 30 minutes with ArchLucid
       </h1>
+      <p
+        className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        data-testid="get-started-brand-category-paragraph"
+      >
+        ArchLucid is an {BRAND_CATEGORY} product — this page walks through signup, vertical selection, and your first
+        sample run.
+      </p>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         ArchLucid is a SaaS product. Nothing on this page asks you to install Docker, SQL Server, .NET, Node, Terraform,
         or a CLI.

@@ -4,10 +4,14 @@ import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/Mark
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
+import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description: "ArchLucid packaging and pricing overview — start a free trial.",
+  description: `ArchLucid ${BRAND_CATEGORY} — packaging and pricing overview — start a free trial.`,
+  other: {
+    "x-archlucid-brand-category-legacy": BRAND_CATEGORY_LEGACY,
+  },
 };
 
 type PricingPageProps = {
@@ -20,6 +24,13 @@ export default async function PricingPage(props: PricingPageProps) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
+      <p
+        className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        data-testid="pricing-brand-category-paragraph"
+      >
+        ArchLucid is an {BRAND_CATEGORY} offering. Packaging tiers below load from the published pricing document at
+        build time.
+      </p>
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
         sectionTitle="Pricing"

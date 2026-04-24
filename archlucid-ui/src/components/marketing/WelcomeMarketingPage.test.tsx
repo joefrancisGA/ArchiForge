@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { BRAND_CATEGORY } from "@/lib/brand-category";
+
 import { WelcomeMarketingPage } from "./WelcomeMarketingPage";
 
 describe("WelcomeMarketingPage", () => {
@@ -38,8 +40,9 @@ describe("WelcomeMarketingPage", () => {
     render(<WelcomeMarketingPage />);
 
     expect(screen.getByRole("heading", { level: 1, name: /Ship governed architecture decisions faster/i })).toBeInTheDocument();
+    const escapedCategory = BRAND_CATEGORY.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     expect(
-      screen.getByText(/ArchLucid is an AI Architecture Intelligence platform\. You describe a system/i),
+      screen.getByText(new RegExp(`ArchLucid is an ${escapedCategory} platform\\. You describe a system`, "i")),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Three pillars/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /AI-native architecture analysis/i })).toBeInTheDocument();

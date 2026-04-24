@@ -27,7 +27,7 @@ This file is the running checklist for the seven PRs that complete the workstrea
 | PR | Surfaces | Status | Owner of execution |
 |----|----------|--------|--------------------|
 | **PR-1** (this PR) | `archlucid-ui/src/lib/brand-category.ts` (new seam) + `archlucid-ui/src/app/(marketing)/why/page.tsx` flip + WARN-mode CI guard `scripts/ci/assert_brand_category_seam.py` + `npm run rebrand-check` script + Vitest spec asserting `/why` renders `BRAND_CATEGORY` not the legacy string | **In flight** (this PR) | assistant |
-| **PR-2** | `archlucid-ui/src/app/(marketing)/welcome/page.tsx` (page-metadata `description`) + `archlucid-ui/src/app/(marketing)/get-started/page.tsx` (any landing prose) + `archlucid-ui/src/app/(marketing)/pricing/page.tsx` (any landing prose) | **Pending** — separate session | assistant |
+| **PR-2** | `archlucid-ui/src/app/(marketing)/welcome/page.tsx` (page-metadata `description`) + `archlucid-ui/src/app/(marketing)/get-started/page.tsx` (any landing prose) + `archlucid-ui/src/app/(marketing)/pricing/page.tsx` (any landing prose) | **DONE** (2026-04-24) | assistant |
 | **PR-3** | `docs/EXECUTIVE_SPONSOR_BRIEF.md` + `docs/go-to-market/COMPETITIVE_LANDSCAPE.md` (incl. comparison-table caption / row label rewrites) | **Pending** — separate session | assistant |
 | **PR-4** | Per-vertical brief docs under `templates/briefs/**/brief.md` (financial-services, healthcare, public-sector, public-sector-us, retail, saas) | **Pending** — separate session | assistant |
 | **PR-5** | `docs/trust-center.md` + `docs/library/PRODUCT_PACKAGING.md` (procurement-pack-facing surfaces) | **Pending** — separate session | assistant |

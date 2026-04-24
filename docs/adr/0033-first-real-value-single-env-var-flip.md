@@ -1,3 +1,5 @@
+> **Scope:** Maintainers recording why local `archlucid try --real` is opt-in, key-preflighted, and fallible-to-simulator; not hosted SaaS try-real, managed identity for the dev loop, or non-CLI execution paths.
+
 # ADR 0033 — First real value: single env-var flip for `archlucid try --real`
 
 ## Status
