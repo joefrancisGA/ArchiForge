@@ -131,6 +131,23 @@ public sealed class RunRecord
     }
 
     /// <summary>
+    ///     When <see langword="true" />, <c>archlucid try --real</c> substituted simulator output after real Azure OpenAI
+    ///     execution did not complete (first-value report shows a warning callout).
+    /// </summary>
+    public bool RealModeFellBackToSimulator
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional snapshot of <c>AzureOpenAI:DeploymentName</c> at fallback time (for provenance footer).</summary>
+    public string? PilotAoaiDeploymentSnapshot
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
     ///     SQL Server <c>ROWVERSION</c> for optimistic concurrency on updates; <see langword="null" /> before first
     ///     read/insert round-trip.
     /// </summary>

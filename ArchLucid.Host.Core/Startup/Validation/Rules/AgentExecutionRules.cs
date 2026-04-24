@@ -1,7 +1,44 @@
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class AgentExecutionRules
 {
+    /// <summary>
+    ///     After startup validation passes, emits a single INFO when <c>AgentExecution:Mode=Real</c> and Azure OpenAI
+    ///     credentials are present (operator confirmation for the first-real-value Docker overlay path).
+    /// </summary>
+    public static void LogInformationWhenRealModeConfigured(IConfiguration configuration, ILogger logger)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string? agentMode = configuration["AgentExecution:Mode"];
+
+        if (!string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
+            return;
+
+
+        string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
+
+        if (string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase))
+            return;
+
+
+        string? endpoint = configuration["AzureOpenAI:Endpoint"];
+        string? apiKey = configuration["AzureOpenAI:ApiKey"];
+        string? deployment = configuration["AzureOpenAI:DeploymentName"];
+
+        if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(deployment))
+            return;
+
+
+        if (logger.IsEnabled(LogLevel.Information))
+
+            logger.LogInformation(
+                "AgentExecution:Mode is Real and Azure OpenAI settings (Endpoint, ApiKey, DeploymentName) are configured.");
+    }
+
     public static void Collect(IConfiguration configuration, List<string> errors)
     {
         string? agentMode = configuration["AgentExecution:Mode"];
@@ -41,7 +78,9 @@ internal static class AgentExecutionRules
             string.IsNullOrWhiteSpace(deployment))
 
             errors.Add(
-                "AgentExecution:Mode is 'Real' but one or more AzureOpenAI settings (Endpoint, ApiKey, DeploymentName) are missing.");
+                "AgentExecution:Mode is 'Real' but Azure OpenAI is not fully configured. Set environment variables " +
+                "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT_NAME (or the matching " +
+                "AzureOpenAI:Endpoint, AzureOpenAI:ApiKey, AzureOpenAI:DeploymentName configuration keys).");
 
 
         int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);

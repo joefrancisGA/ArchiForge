@@ -11,9 +11,8 @@ using Moq;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Tests for Graph Snapshot Reuse Evaluator.
+///     Tests for Graph Snapshot Reuse Evaluator.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class GraphSnapshotReuseEvaluatorTests
 {
@@ -32,7 +31,17 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             .ReturnsAsync(built);
 
         InMemoryGraphSnapshotRepository graphs = new();
-        ContextSnapshot current = CreateSnapshot("p1", [new CanonicalObject { ObjectId = "a", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" }]);
+        ContextSnapshot current = CreateSnapshot("p1",
+        [
+            new CanonicalObject
+            {
+                ObjectId = "a",
+                ObjectType = "t",
+                Name = "n",
+                SourceType = "s",
+                SourceId = "1"
+            }
+        ]);
 
         GraphSnapshotResolutionResult result = await GraphSnapshotReuseEvaluator.ResolveAsync(
             null,
@@ -61,8 +70,28 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             });
 
         InMemoryGraphSnapshotRepository graphs = new();
-        ContextSnapshot prior = CreateSnapshot("p1", [new CanonicalObject { ObjectId = "a", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" }]);
-        ContextSnapshot current = CreateSnapshot("p1", [new CanonicalObject { ObjectId = "b", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" }]);
+        ContextSnapshot prior = CreateSnapshot("p1",
+        [
+            new CanonicalObject
+            {
+                ObjectId = "a",
+                ObjectType = "t",
+                Name = "n",
+                SourceType = "s",
+                SourceId = "1"
+            }
+        ]);
+        ContextSnapshot current = CreateSnapshot("p1",
+        [
+            new CanonicalObject
+            {
+                ObjectId = "b",
+                ObjectType = "t",
+                Name = "n",
+                SourceType = "s",
+                SourceId = "1"
+            }
+        ]);
 
         GraphSnapshotResolutionResult diff = await GraphSnapshotReuseEvaluator.ResolveAsync(
             prior,
@@ -91,7 +120,14 @@ public sealed class GraphSnapshotReuseEvaluatorTests
 
         List<CanonicalObject> objects =
         [
-            new() { ObjectId = "a", ObjectType = "TopologyResource", Name = "vnet", SourceType = "h", SourceId = "1" }
+            new()
+            {
+                ObjectId = "a",
+                ObjectType = "TopologyResource",
+                Name = "vnet",
+                SourceType = "h",
+                SourceId = "1"
+            }
         ];
         ContextSnapshot prior = CreateSnapshot("p1", objects);
         ContextSnapshot current = CreateSnapshot("p1", objects);
@@ -116,7 +152,14 @@ public sealed class GraphSnapshotReuseEvaluatorTests
 
         List<CanonicalObject> objects =
         [
-            new() { ObjectId = "a", ObjectType = "TopologyResource", Name = "vnet", SourceType = "h", SourceId = "1" }
+            new()
+            {
+                ObjectId = "a",
+                ObjectType = "TopologyResource",
+                Name = "vnet",
+                SourceType = "h",
+                SourceId = "1"
+            }
         ];
         ContextSnapshot prior = CreateSnapshot("p1", objects);
         ContextSnapshot current = CreateSnapshot("p1", objects);
@@ -129,7 +172,13 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             CreatedUtc = DateTime.UtcNow.AddDays(-1),
             Nodes =
             [
-                new GraphNode { NodeId = "n1", NodeType = "TopologyResource", Label = "vnet", Properties = new() }
+                new GraphNode
+                {
+                    NodeId = "n1",
+                    NodeType = "TopologyResource",
+                    Label = "vnet",
+                    Properties = new Dictionary<string, string>()
+                }
             ],
             Edges = []
         };

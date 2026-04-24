@@ -7,9 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Tests for Graph Node Factory.
+///     Tests for Graph Node Factory.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class GraphNodeFactoryTests
 {
@@ -36,7 +35,7 @@ public sealed class GraphNodeFactoryTests
     [Fact]
     public void CreateNode_SetsNodeTypeFromObjectType()
     {
-        CanonicalObject item = BuildItem(objectType: GraphNodeTypes.TopologyResource);
+        CanonicalObject item = BuildItem(GraphNodeTypes.TopologyResource);
 
         GraphNode node = _sut.CreateNode(item);
 
@@ -81,8 +80,7 @@ public sealed class GraphNodeFactoryTests
     {
         CanonicalObject item = BuildItem(properties: new Dictionary<string, string>
         {
-            ["text"] = "hello",
-            ["ref"] = "POL-001"
+            ["text"] = "hello", ["ref"] = "POL-001"
         });
 
         GraphNode node = _sut.CreateNode(item);

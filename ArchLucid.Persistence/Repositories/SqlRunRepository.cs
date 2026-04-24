@@ -42,7 +42,7 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
                            )
                            OUTPUT inserted.RowVersionStamp
                            VALUES
@@ -51,7 +51,7 @@ public sealed class SqlRunRepository(
                                @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
                                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
                                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId,
-                               @IsPublicShowcase
+                               @IsPublicShowcase, @RealModeFellBackToSimulator, @PilotAoaiDeploymentSnapshot
                            );
                            """;
 
@@ -95,7 +95,7 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase,
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                RowVersionStamp AS RowVersion
                            FROM dbo.Runs
                            WHERE RunId = @RunId
@@ -128,7 +128,7 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
                            FROM dbo.Runs WITH (NOLOCK)
                            WHERE ProjectId = @ProjectSlug
                              AND TenantId = @TenantId
@@ -184,7 +184,7 @@ public sealed class SqlRunRepository(
                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                    ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsPublicShowcase
+                                   IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
                                FROM dbo.Runs WITH (NOLOCK)
                                WHERE ProjectId = @ProjectSlug
                                  AND TenantId = @TenantId
@@ -233,7 +233,7 @@ public sealed class SqlRunRepository(
                                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
                            FROM dbo.Runs WITH (NOLOCK)
                            WHERE TenantId = @TenantId
                              AND WorkspaceId = @WorkspaceId
@@ -285,7 +285,9 @@ public sealed class SqlRunRepository(
                                LegacyRunStatus = @LegacyRunStatus,
                                CompletedUtc = @CompletedUtc,
                                CurrentManifestVersion = @CurrentManifestVersion,
-                               IsPublicShowcase = @IsPublicShowcase
+                               IsPublicShowcase = @IsPublicShowcase,
+                               RealModeFellBackToSimulator = @RealModeFellBackToSimulator,
+                               PilotAoaiDeploymentSnapshot = @PilotAoaiDeploymentSnapshot
                            OUTPUT inserted.RowVersionStamp
                            WHERE RunId = @RunId
                              AND (@RowVersion IS NULL OR RowVersionStamp = @RowVersion);
@@ -668,6 +670,8 @@ public sealed class SqlRunRepository(
                     run.CompletedUtc,
                     run.CurrentManifestVersion,
                     run.IsPublicShowcase,
+                    run.RealModeFellBackToSimulator,
+                    run.PilotAoaiDeploymentSnapshot,
                     run.RowVersion
                 },
                 transaction,

@@ -21,7 +21,8 @@ public sealed class JobsCommandLineTests
     [Fact]
     public void TryParseJobName_true_with_job_and_name()
     {
-        bool ok = JobsCommandLine.TryParseJobName(["--job", ArchLucidJobNames.AdvisoryScan], out string? name, out string? err);
+        bool ok = JobsCommandLine.TryParseJobName(["--job", ArchLucidJobNames.AdvisoryScan], out string? name,
+            out string? err);
 
         ok.Should().BeTrue();
         name.Should().Be(ArchLucidJobNames.AdvisoryScan);

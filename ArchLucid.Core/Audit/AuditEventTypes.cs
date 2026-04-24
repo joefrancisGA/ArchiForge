@@ -280,6 +280,15 @@ public static class AuditEventTypes
 
     public const string ScimGroupMembershipChanged = "ScimGroupMembershipChanged";
 
+    /// <summary>Pilot <c>archlucid try --real</c>: POST execute received with pilot try header (real AOAI attempt).</summary>
+    public const string FirstRealValueRunStarted = "FirstRealValueRunStarted";
+
+    /// <summary>Pilot <c>archlucid try --real</c>: pilot-marked execute completed without throwing.</summary>
+    public const string FirstRealValueRunCompleted = "FirstRealValueRunCompleted";
+
+    /// <summary>Pilot <c>archlucid try --real</c>: development seed path recorded simulator substitution after AOAI failure.</summary>
+    public const string FirstRealValueRunFellBackToSimulator = "FirstRealValueRunFellBackToSimulator";
+
     /// <summary>
     ///     Phase 2 canonical durable catalog for coordinator run-stage semantics (ADR 0021 § Phase 2).
     ///     Dual-written with legacy <c>CoordinatorRun*</c> wire values until the Sunset window closes.

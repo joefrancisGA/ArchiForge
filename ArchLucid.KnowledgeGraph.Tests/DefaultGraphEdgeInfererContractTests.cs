@@ -7,7 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="DefaultGraphEdgeInferer"/> edge inference rules (canonical object graphs from context snapshots).
+///     Unit tests for <see cref="DefaultGraphEdgeInferer" /> edge inference rules (canonical object graphs from context
+///     snapshots).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class DefaultGraphEdgeInfererContractTests
@@ -17,16 +18,13 @@ public sealed class DefaultGraphEdgeInfererContractTests
     [Fact]
     public void InferEdges_WhenChildDeclaresParentNodeId_AddsContainsResourceFromParentToChild()
     {
-        ContextSnapshot context = new()
-        {
-            SnapshotId = Guid.NewGuid()
-        };
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
         GraphNode parent = new()
         {
             NodeId = "topo-parent",
             NodeType = GraphNodeTypes.TopologyResource,
             Label = "parent",
-            Category = GraphTopologyCategories.Storage,
+            Category = GraphTopologyCategories.Storage
         };
         GraphNode child = new()
         {
@@ -36,14 +34,14 @@ public sealed class DefaultGraphEdgeInfererContractTests
             Category = GraphTopologyCategories.Storage,
             Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                ["parentNodeId"] = "topo-parent",
-            },
+                ["parentNodeId"] = "topo-parent"
+            }
         };
 
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [parent, child]);
 
-        GraphEdge? edge = edges.SingleOrDefault(
-            e => e is { EdgeType: GraphEdgeTypes.ContainsResource, FromNodeId: "topo-parent", ToNodeId: "topo-child" });
+        GraphEdge? edge = edges.SingleOrDefault(e => e is
+            { EdgeType: GraphEdgeTypes.ContainsResource, FromNodeId: "topo-parent", ToNodeId: "topo-child" });
 
         edge.Should().NotBeNull();
         edge.Weight.Should().Be(1d);
@@ -52,23 +50,20 @@ public sealed class DefaultGraphEdgeInfererContractTests
     [Fact]
     public void InferEdges_WhenPolicyListsApplicableTopologyNodeIds_OnlyTargetsListedResources()
     {
-        ContextSnapshot context = new()
-        {
-            SnapshotId = Guid.NewGuid()
-        };
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
         GraphNode topoA = new()
         {
             NodeId = "res-a",
             NodeType = GraphNodeTypes.TopologyResource,
             Label = "a",
-            Category = GraphTopologyCategories.Compute,
+            Category = GraphTopologyCategories.Compute
         };
         GraphNode topoB = new()
         {
             NodeId = "res-b",
             NodeType = GraphNodeTypes.TopologyResource,
             Label = "b",
-            Category = GraphTopologyCategories.Compute,
+            Category = GraphTopologyCategories.Compute
         };
         GraphNode policy = new()
         {
@@ -77,8 +72,8 @@ public sealed class DefaultGraphEdgeInfererContractTests
             Label = "policy",
             Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                [CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds] = "res-a",
-            },
+                [CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds] = "res-a"
+            }
         };
 
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [topoA, topoB, policy]);

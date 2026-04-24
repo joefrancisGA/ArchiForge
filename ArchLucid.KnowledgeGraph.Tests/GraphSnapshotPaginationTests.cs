@@ -24,7 +24,7 @@ public sealed class GraphSnapshotPaginationTests
             ]
         };
 
-        GraphSnapshotNodesPage page = GraphSnapshotPagination.CreatePage(snapshot, page: 1, pageSize: 2);
+        GraphSnapshotNodesPage page = GraphSnapshotPagination.CreatePage(snapshot, 1, 2);
 
         page.TotalNodes.Should().Be(3);
         page.Nodes.Should().HaveCount(2);
@@ -39,12 +39,9 @@ public sealed class GraphSnapshotPaginationTests
     [Fact]
     public void CreatePage_LastPage_HasMoreFalse()
     {
-        GraphSnapshot snapshot = new()
-        {
-            Nodes = [new GraphNode { NodeId = "x", NodeType = "t", Label = "X" }]
-        };
+        GraphSnapshot snapshot = new() { Nodes = [new GraphNode { NodeId = "x", NodeType = "t", Label = "X" }] };
 
-        GraphSnapshotNodesPage page = GraphSnapshotPagination.CreatePage(snapshot, page: 1, pageSize: 50);
+        GraphSnapshotNodesPage page = GraphSnapshotPagination.CreatePage(snapshot, 1, 50);
 
         page.HasMore.Should().BeFalse();
         page.TotalNodes.Should().Be(1);

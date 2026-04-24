@@ -1,3 +1,5 @@
+> **Scope:** Platform and tenant operators configuring SCIM bearer tokens, IdP provisioning, and rotation; not a buyer-facing product overview (see `SCIM_PROVISIONING.md`) or legal terms.
+
 # SCIM operator runbook
 
 ## Issue a tenant SCIM token

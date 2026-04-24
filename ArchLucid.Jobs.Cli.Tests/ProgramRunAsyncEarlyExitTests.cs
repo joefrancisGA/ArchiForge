@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Jobs.Cli.Tests;
 
-/// <summary>Covers <see cref="Program.RunAsync"/> paths before the web host is built (invalid <c>--job</c> CLI).</summary>
+/// <summary>Covers <see cref="Program.RunAsync" /> paths before the web host is built (invalid <c>--job</c> CLI).</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ProgramRunAsyncEarlyExitTests

@@ -1,3 +1,5 @@
+> **Scope:** Security reviewers assessing inbound SCIM risks and mitigations for v1; not a complete enterprise risk register, pen-test report, or IdP-specific configuration guide.
+
 # SCIM threat model (inbound, v1)
 
 ## Assets

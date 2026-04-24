@@ -7,9 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Tests for Graph Snapshot Cloner.
+///     Tests for Graph Snapshot Cloner.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class GraphSnapshotClonerTests
 {
@@ -50,10 +49,7 @@ public sealed class GraphSnapshotClonerTests
 
         ContextSnapshot newContext = new()
         {
-            SnapshotId = Guid.NewGuid(),
-            RunId = Guid.NewGuid(),
-            ProjectId = "proj",
-            CreatedUtc = DateTime.UtcNow
+            SnapshotId = Guid.NewGuid(), RunId = Guid.NewGuid(), ProjectId = "proj", CreatedUtc = DateTime.UtcNow
         };
 
         Guid newRunId = Guid.NewGuid();

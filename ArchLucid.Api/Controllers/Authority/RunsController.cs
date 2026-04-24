@@ -8,7 +8,9 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services;
 
@@ -17,6 +19,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Controllers.Authority;
@@ -45,9 +48,14 @@ public sealed partial class RunsController(
     IDeterminismCheckService determinismCheckService,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
+    IAuditService auditService,
+    IConfiguration configuration,
     ILogger<RunsController> logger)
     : ControllerBase
 {
+    /// <summary>When <c>1</c>, <c>archlucid try --real</c> is attributing telemetry/audit to this execute call.</summary>
+    internal const string PilotTryRealModeHeaderName = "X-ArchLucid-Pilot-Try-Real-Mode";
+
     // Required by LoggerMessage source generator (SYSLIB1019): concrete ILogger field named _logger.
 
     /// <summary>
@@ -158,14 +166,35 @@ public sealed partial class RunsController(
     {
         string user = User.Identity?.Name ?? "anonymous";
         string correlationId = HttpContext.TraceIdentifier;
+        bool pilotTryRealMode = IsPilotTryRealModeRequest();
 
         try
         {
+            if (pilotTryRealMode)
+            {
+                ArchLucidInstrumentation.RecordTryRealModePilotAttempted();
+                await LogPilotTryRealModeAuditAsync(
+                    AuditEventTypes.FirstRealValueRunStarted,
+                    runId,
+                    user,
+                    cancellationToken);
+            }
+
             ExecuteRunResult result = await architectureRunService.ExecuteRunAsync(runId, cancellationToken);
 
             ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
             LogRunExecuted(runId, result.Results.Count, user, correlationId);
+
+            if (pilotTryRealMode)
+            {
+                ArchLucidInstrumentation.RecordTryRealModePilotSucceeded();
+                await LogPilotTryRealModeAuditAsync(
+                    AuditEventTypes.FirstRealValueRunCompleted,
+                    runId,
+                    user,
+                    cancellationToken);
+            }
 
             return Ok(response);
         }
@@ -359,13 +388,17 @@ public sealed partial class RunsController(
     [Authorize(Policy = "CanSeedResults")]
     public async Task<IActionResult> SeedFakeResults(
         [FromRoute] string runId,
-        CancellationToken cancellationToken)
+        [FromQuery] bool pilotTryRealModeFellBack = false,
+        CancellationToken cancellationToken = default)
     {
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
+        PilotSeedFakeResultsOptions? pilot =
+            pilotTryRealModeFellBack ? new PilotSeedFakeResultsOptions(true) : null;
+
         SeedFakeResultsResult result =
-            await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
+            await architectureApplicationService.SeedFakeResultsAsync(runId, pilot, cancellationToken);
         if (!result.Success)
             return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
 

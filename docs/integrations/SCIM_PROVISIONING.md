@@ -1,3 +1,5 @@
+> **Scope:** Security, procurement, and IT stakeholders evaluating inbound SCIM automation and IdP integration; not operator runbooks, SQL DDL, or the full threat model (those live in linked docs).
+
 # SCIM 2.0 inbound provisioning (buyer overview)
 
 ArchLucid acts as a **SCIM 2.0 Service Provider** (RFC 7644). Your identity provider (Microsoft Entra ID, Okta, OneLogin, or any SCIM client speaking core User/Group semantics) can **provision, update, and deactivate** users mapped into ArchLucid **tenant-scoped** SCIM tables.

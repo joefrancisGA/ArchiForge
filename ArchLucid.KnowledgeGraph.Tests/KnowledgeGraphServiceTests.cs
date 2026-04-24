@@ -10,9 +10,8 @@ using Moq;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Tests for Knowledge Graph Service.
+///     Tests for Knowledge Graph Service.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class KnowledgeGraphServiceTests
@@ -29,8 +28,7 @@ public sealed class KnowledgeGraphServiceTests
     [Fact]
     public async Task BuildSnapshotAsync_NullSnapshot_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(
-            () => _sut.BuildSnapshotAsync(null!, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _sut.BuildSnapshotAsync(null!, CancellationToken.None));
     }
 
     [Fact]
@@ -38,7 +36,10 @@ public sealed class KnowledgeGraphServiceTests
     {
         ContextSnapshot contextSnapshot = BuildContextSnapshot();
         GraphBuildResult buildResult = new();
-        buildResult.Nodes.Add(new GraphNode { NodeId = "n1", NodeType = GraphNodeTypes.TopologyResource, Label = "n1" });
+        buildResult.Nodes.Add(new GraphNode
+        {
+            NodeId = "n1", NodeType = GraphNodeTypes.TopologyResource, Label = "n1"
+        });
 
         _graphBuilderMock
             .Setup(b => b.BuildAsync(contextSnapshot, It.IsAny<CancellationToken>()))
@@ -80,7 +81,10 @@ public sealed class KnowledgeGraphServiceTests
         ContextSnapshot contextSnapshot = BuildContextSnapshot();
         GraphBuildResult buildResult = new();
         buildResult.Nodes.Add(new GraphNode { NodeId = "x", NodeType = GraphNodeTypes.Requirement, Label = "req" });
-        buildResult.Edges.Add(new GraphEdge { EdgeId = "e1", FromNodeId = "x", ToNodeId = "x", EdgeType = GraphEdgeTypes.Contains });
+        buildResult.Edges.Add(new GraphEdge
+        {
+            EdgeId = "e1", FromNodeId = "x", ToNodeId = "x", EdgeType = GraphEdgeTypes.Contains
+        });
 
         _graphBuilderMock
             .Setup(b => b.BuildAsync(contextSnapshot, It.IsAny<CancellationToken>()))
@@ -109,16 +113,18 @@ public sealed class KnowledgeGraphServiceTests
             .Setup(v => v.Validate(It.IsAny<GraphSnapshot>()))
             .Throws(new InvalidOperationException("Graph node NodeId is required."));
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _sut.BuildSnapshotAsync(contextSnapshot, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _sut.BuildSnapshotAsync(contextSnapshot, CancellationToken.None));
     }
 
-    private static ContextSnapshot BuildContextSnapshot() =>
-        new()
+    private static ContextSnapshot BuildContextSnapshot()
+    {
+        return new ContextSnapshot
         {
             SnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
             ProjectId = "proj-test",
             CreatedUtc = DateTime.UtcNow
         };
+    }
 }

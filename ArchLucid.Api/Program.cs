@@ -104,6 +104,10 @@ public partial class Program
                 "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
         }
 
+        ArchLucid.Host.Core.Startup.Validation.Rules.AgentExecutionRules.LogInformationWhenRealModeConfigured(
+            app.Configuration,
+            app.Logger);
+
         ArchLucidAuthOptions authBound = ArchLucidAuthConfigurationBridge.Resolve(app.Configuration);
 
         if (!app.Environment.IsProduction()

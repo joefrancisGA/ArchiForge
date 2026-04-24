@@ -219,6 +219,24 @@ public static class ArchLucidInstrumentation
             "archlucid.demo.preview.cache_miss_total",
             description: "Demo marketing preview bundle cache misses (GET /v1/demo/preview).");
 
+    /// <summary><c>archlucid try --real</c> path: execute invoked with pilot try header (API-side proxy for CLI intent).</summary>
+    public static readonly Counter<long> TryRealModeAttemptedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid.try.real_mode.attempted_total",
+            description: "archlucid try --real: pilot-marked execute attempts.");
+
+    /// <summary><c>archlucid try --real</c> path: pilot-marked execute returned success.</summary>
+    public static readonly Counter<long> TryRealModeSucceededTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid.try.real_mode.succeeded_total",
+            description: "archlucid try --real: pilot-marked execute successes.");
+
+    /// <summary><c>archlucid try --real</c> path: simulator substitution after seed-fake-results fallback.</summary>
+    public static readonly Counter<long> TryRealModeFellBackToSimulatorTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid.try.real_mode.fellback_to_simulator_total",
+            description: "archlucid try --real: fell back to simulator output (development seed path).");
+
     /// <summary>
     ///     Schema validation of raw <c>AgentResult</c> LLM JSON (labels: <c>agent_type</c>, <c>outcome</c>
     ///     =valid|invalid).
@@ -638,6 +656,15 @@ public static class ArchLucidInstrumentation
 
             acc.AddCompletions(1);
     }
+
+    /// <summary>Increments <c>archlucid.try.real_mode.attempted_total</c>.</summary>
+    public static void RecordTryRealModePilotAttempted() => TryRealModeAttemptedTotal.Add(1);
+
+    /// <summary>Increments <c>archlucid.try.real_mode.succeeded_total</c>.</summary>
+    public static void RecordTryRealModePilotSucceeded() => TryRealModeSucceededTotal.Add(1);
+
+    /// <summary>Increments <c>archlucid.try.real_mode.fellback_to_simulator_total</c>.</summary>
+    public static void RecordTryRealModePilotFellBackToSimulator() => TryRealModeFellBackToSimulatorTotal.Add(1);
 
     /// <summary>Increments <c>archlucid_finding_engine_failures_total</c>.</summary>
     public static void RecordFindingEngineFailure(string engineType, string category)
