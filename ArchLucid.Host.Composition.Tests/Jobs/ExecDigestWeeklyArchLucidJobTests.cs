@@ -9,8 +9,9 @@ using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+
 using Moq;
 
 namespace ArchLucid.Host.Composition.Tests.Jobs;
@@ -22,7 +23,8 @@ public sealed class ExecDigestWeeklyArchLucidJobTests
     [Fact]
     public void Name_is_canonical_exec_digest_weekly_slug()
     {
-        ExecDigestWeeklyArchLucidJob job = new(Mock.Of<IServiceProvider>(), NullLogger<ExecDigestWeeklyArchLucidJob>.Instance);
+        ExecDigestWeeklyArchLucidJob job = new(Mock.Of<IServiceProvider>(),
+            NullLogger<ExecDigestWeeklyArchLucidJob>.Instance);
 
         job.Name.Should().Be(ArchLucidJobNames.ExecDigestWeekly);
     }

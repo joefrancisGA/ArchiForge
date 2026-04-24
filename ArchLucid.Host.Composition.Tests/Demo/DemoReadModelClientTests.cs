@@ -15,8 +15,9 @@ using Moq;
 namespace ArchLucid.Host.Composition.Tests.Demo;
 
 /// <summary>
-/// Unit-tests for <see cref="DemoReadModelClient"/>: confirms composition when a committed demo run is resolved
-/// and that a missing aggregate explanation always degrades to <see langword="null"/> so the controller can return 404.
+///     Unit-tests for <see cref="DemoReadModelClient" />: confirms composition when a committed demo run is resolved
+///     and that a missing aggregate explanation always degrades to <see langword="null" /> so the controller can return
+///     404.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -32,7 +33,7 @@ public sealed class DemoReadModelClientTests
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = manifestId,
             CurrentManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -49,8 +50,7 @@ public sealed class DemoReadModelClientTests
         Mock<IProvenanceQueryService> provenance = new();
         GraphViewModel graph = new()
         {
-            Nodes = [new GraphNodeVm { Id = "n1", Label = "manifest", Type = "Manifest" }],
-            Edges = [],
+            Nodes = [new GraphNodeVm { Id = "n1", Label = "manifest", Type = "Manifest" }], Edges = []
         };
         provenance
             .Setup(p => p.GetFullGraphAsync(It.IsAny<ScopeContext>(), baseline.RunId, It.IsAny<CancellationToken>()))
@@ -76,7 +76,8 @@ public sealed class DemoReadModelClientTests
             .Setup(s => s.ResolveLatestCommittedDemoRunAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        DemoReadModelClient sut = BuildSut(seedResolver, new Mock<IRunExplanationSummaryService>(), new Mock<IProvenanceQueryService>());
+        DemoReadModelClient sut = BuildSut(seedResolver, new Mock<IRunExplanationSummaryService>(),
+            new Mock<IProvenanceQueryService>());
 
         DemoExplainResponse? response = await sut.GetLatestCommittedDemoExplainAsync();
 
@@ -91,7 +92,7 @@ public sealed class DemoReadModelClientTests
             RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -119,7 +120,7 @@ public sealed class DemoReadModelClientTests
             RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -149,18 +150,24 @@ public sealed class DemoReadModelClientTests
     private static DemoReadModelClient BuildSut(
         Mock<IDemoSeedRunResolver> seedResolver,
         Mock<IRunExplanationSummaryService> explainSvc,
-        Mock<IProvenanceQueryService> provenance) => new(
+        Mock<IProvenanceQueryService> provenance)
+    {
+        return new DemoReadModelClient(
             seedResolver.Object,
             explainSvc.Object,
             provenance.Object,
             TimeProvider.System,
             NullLogger<DemoReadModelClient>.Instance);
+    }
 
-    private static RunExplanationSummary BuildSummary() => new()
+    private static RunExplanationSummary BuildSummary()
     {
-        Explanation = new ExplanationResult { Summary = "Summary" },
-        ThemeSummaries = ["Theme A"],
-        OverallAssessment = "Assessment",
-        RiskPosture = "Moderate",
-    };
+        return new RunExplanationSummary
+        {
+            Explanation = new ExplanationResult { Summary = "Summary" },
+            ThemeSummaries = ["Theme A"],
+            OverallAssessment = "Assessment",
+            RiskPosture = "Moderate"
+        };
+    }
 }

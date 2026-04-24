@@ -60,8 +60,8 @@ public sealed class TrialEmailScanArchLucidJobTests
         services.AddSingleton(integrationEventsOptions.Object);
         services.AddSingleton(trialLifecycleRouting.Object);
         services.AddScoped<TrialScheduledLifecycleEmailScanner>();
-        services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(
-            _ => NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);
+        services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(_ =>
+            NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);
 
         await using ServiceProvider provider = services.BuildServiceProvider();
         TrialEmailScanArchLucidJob job = new(provider, NullLogger<TrialEmailScanArchLucidJob>.Instance);
@@ -81,10 +81,7 @@ public sealed class TrialEmailScanArchLucidJobTests
         integrationEventsOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
         Mock<IOptionsMonitor<TrialLifecycleEmailRoutingOptions>> trialLifecycleRouting = new();
         trialLifecycleRouting.Setup(m => m.CurrentValue).Returns(
-            new TrialLifecycleEmailRoutingOptions
-            {
-                Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp,
-            });
+            new TrialLifecycleEmailRoutingOptions { Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp });
 
         ServiceCollection services = [];
         services.AddScoped<ITenantRepository>(_ => tenantRepo.Object);
@@ -93,8 +90,8 @@ public sealed class TrialEmailScanArchLucidJobTests
         services.AddSingleton(integrationEventsOptions.Object);
         services.AddSingleton(trialLifecycleRouting.Object);
         services.AddScoped<TrialScheduledLifecycleEmailScanner>();
-        services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(
-            _ => NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);
+        services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(_ =>
+            NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);
 
         await using ServiceProvider provider = services.BuildServiceProvider();
         TrialEmailScanArchLucidJob job = new(provider, NullLogger<TrialEmailScanArchLucidJob>.Instance);
@@ -123,8 +120,8 @@ public sealed class TrialEmailScanArchLucidJobTests
         services.AddSingleton(integrationEventsOptions.Object);
         services.AddSingleton(trialLifecycleRouting.Object);
         services.AddScoped<TrialScheduledLifecycleEmailScanner>();
-        services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(
-            _ => NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);
+        services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(_ =>
+            NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);
 
         return services.BuildServiceProvider();
     }

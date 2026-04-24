@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Host.Composition.Tests;
 
 /// <summary>
-/// Exercises <see cref="ServiceCollectionExtensions.AddArchLucidApplicationServices"/> for each
-/// <see cref="ArchLucidHostingRole"/> so composition registration branches (worker vs API vs combined)
-/// contribute to line coverage without starting Kestrel.
+///     Exercises <see cref="ServiceCollectionExtensions.AddArchLucidApplicationServices" /> for each
+///     <see cref="ArchLucidHostingRole" /> so composition registration branches (worker vs API vs combined)
+///     contribute to line coverage without starting Kestrel.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -37,7 +37,7 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
         {
             ArchLucidHostingRole.Api => "Api",
             ArchLucidHostingRole.Worker => "Worker",
-            _ => "Combined",
+            _ => "Combined"
         };
 
         return new ConfigurationBuilder()
@@ -56,7 +56,7 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
                     ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
                     ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
                     ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                    ["RateLimiting:Expensive:WindowMinutes"] = "1"
                 })
             .Build();
     }

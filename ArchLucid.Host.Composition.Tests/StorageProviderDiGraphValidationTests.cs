@@ -13,8 +13,9 @@ using Microsoft.Extensions.Hosting;
 namespace ArchLucid.Host.Composition.Tests;
 
 /// <summary>
-/// Validates that the composed DI graph can be built with <see cref="ServiceProviderOptions.ValidateOnBuild"/> for each
-/// storage provider — catches missing registrations (e.g. <c>IArtifactBlobStore</c> on the InMemory path).
+///     Validates that the composed DI graph can be built with <see cref="ServiceProviderOptions.ValidateOnBuild" /> for
+///     each
+///     storage provider — catches missing registrations (e.g. <c>IArtifactBlobStore</c> on the InMemory path).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -28,11 +29,7 @@ public sealed class StorageProviderDiGraphValidationTests
         services.AddHttpContextAccessor();
         _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
 
-        ServiceProviderOptions options = new()
-        {
-            ValidateOnBuild = true,
-            ValidateScopes = true
-        };
+        ServiceProviderOptions options = new() { ValidateOnBuild = true, ValidateScopes = true };
         Action act = () =>
         {
             ServiceProvider provider = services.BuildServiceProvider(options);
@@ -43,9 +40,9 @@ public sealed class StorageProviderDiGraphValidationTests
     }
 
     /// <summary>
-    /// Sql + <see cref="ServiceProviderOptions.ValidateOnBuild"/> is not run here: building the full graph eagerly
-    /// constructs many scoped services and can block on SQL/network; that path is covered by API integration tests
-    /// and CI full regression. This test only asserts Sql storage registration completes and wires the connection stack.
+    ///     Sql + <see cref="ServiceProviderOptions.ValidateOnBuild" /> is not run here: building the full graph eagerly
+    ///     constructs many scoped services and can block on SQL/network; that path is covered by API integration tests
+    ///     and CI full regression. This test only asserts Sql storage registration completes and wires the connection stack.
     /// </summary>
     [Fact]
     public void Sql_storage_AddArchLucidStorage_registers_sql_connection_abstractions()
@@ -95,7 +92,7 @@ public sealed class StorageProviderDiGraphValidationTests
                     ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
                     ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                     ["LlmCompletionCache:Enabled"] = "false",
-                    ["HotPathCache:Enabled"] = "false",
+                    ["HotPathCache:Enabled"] = "false"
                 })
             .Build();
     }
@@ -121,7 +118,7 @@ public sealed class StorageProviderDiGraphValidationTests
                     ["RateLimiting:Expensive:PermitLimit"] = "100000",
                     ["RateLimiting:Expensive:WindowMinutes"] = "1",
                     ["LlmCompletionCache:Enabled"] = "false",
-                    ["HotPathCache:Enabled"] = "false",
+                    ["HotPathCache:Enabled"] = "false"
                 })
             .Build();
     }
@@ -134,7 +131,7 @@ public sealed class StorageProviderDiGraphValidationTests
             {
                 TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
             };
         }
     }

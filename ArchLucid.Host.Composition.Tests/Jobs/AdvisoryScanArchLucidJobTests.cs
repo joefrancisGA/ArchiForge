@@ -23,9 +23,9 @@ public sealed class AdvisoryScanArchLucidJobTests
         Mock<IAdvisoryScanScheduleRepository> repo = new();
         ServiceCollection services = [];
         services.AddSingleton(repo.Object);
-        services.AddSingleton<IAdvisoryScanRunner>(Mock.Of<IAdvisoryScanRunner>());
-        services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(
-            _ => NullLogger<AdvisoryDueScheduleProcessor>.Instance);
+        services.AddSingleton(Mock.Of<IAdvisoryScanRunner>());
+        services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(_ =>
+            NullLogger<AdvisoryDueScheduleProcessor>.Instance);
         services.AddScoped<AdvisoryDueScheduleProcessor>();
 
         await using ServiceProvider provider = services.BuildServiceProvider();
@@ -44,9 +44,9 @@ public sealed class AdvisoryScanArchLucidJobTests
 
         ServiceCollection services = [];
         services.AddSingleton(repo.Object);
-        services.AddSingleton<IAdvisoryScanRunner>(Mock.Of<IAdvisoryScanRunner>());
-        services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(
-            _ => NullLogger<AdvisoryDueScheduleProcessor>.Instance);
+        services.AddSingleton(Mock.Of<IAdvisoryScanRunner>());
+        services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(_ =>
+            NullLogger<AdvisoryDueScheduleProcessor>.Instance);
         services.AddScoped<AdvisoryDueScheduleProcessor>();
 
         await using ServiceProvider provider = services.BuildServiceProvider();
@@ -67,9 +67,9 @@ public sealed class AdvisoryScanArchLucidJobTests
 
         ServiceCollection services = [];
         services.AddSingleton(repo.Object);
-        services.AddSingleton<IAdvisoryScanRunner>(Mock.Of<IAdvisoryScanRunner>());
-        services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(
-            _ => NullLogger<AdvisoryDueScheduleProcessor>.Instance);
+        services.AddSingleton(Mock.Of<IAdvisoryScanRunner>());
+        services.AddSingleton<ILogger<AdvisoryDueScheduleProcessor>>(_ =>
+            NullLogger<AdvisoryDueScheduleProcessor>.Instance);
         services.AddScoped<AdvisoryDueScheduleProcessor>();
 
         await using ServiceProvider provider = services.BuildServiceProvider();

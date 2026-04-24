@@ -18,7 +18,8 @@ namespace ArchLucid.Host.Composition.Tests;
 public sealed class ContainerJobsOffloadRegistrationTests
 {
     [Fact]
-    public void AddArchLucidApplicationServices_Worker_offloads_advisory_scan_does_not_register_AdvisoryScanHostedService()
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_advisory_scan_does_not_register_AdvisoryScanHostedService()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
         data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.AdvisoryScan;
@@ -105,7 +106,7 @@ public sealed class ContainerJobsOffloadRegistrationTests
             ["RateLimiting:Expensive:PermitLimit"] = "100000",
             ["RateLimiting:Expensive:WindowMinutes"] = "1",
             ["LlmCompletionCache:Enabled"] = "false",
-            ["HotPathCache:Enabled"] = "false",
+            ["HotPathCache:Enabled"] = "false"
         };
     }
 
@@ -128,7 +129,7 @@ public sealed class ContainerJobsOffloadRegistrationTests
             {
                 TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
             };
         }
     }

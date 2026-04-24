@@ -2,7 +2,8 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions on improvements **1**, **4**, **7**, **9**, **10** plus three cross-cutting items — see *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* table below; promotes pen-test publication and PGP key drop to **V1.1**, schedules "AI Architecture Review Board" rebrand workstream to **V1**, and approves the dedicated Azure OpenAI ~$50/month budget for the golden-cohort real-LLM gate — partially closes items **15 / 25**).
+**Last updated:** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions across improvements **1**–**10** — see *Resolved 2026-04-24 (independent assessment §8 ten-improvement owner Q&A — 14 decisions)* table below; closes all open sub-decisions on SCIM Service Provider, real-Azure-OpenAI first-value path, Confluence Cloud connector, brand-rebrand PR-2, opt-in tour copy approval shape, days-since-first-commit badge, single-page contributor index, audit-count CI guard reconciliation, and operator cost-preview endpoint posture; surfaces no new pending items).
+Prior: 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions on improvements **1**, **4**, **7**, **9**, **10** plus three cross-cutting items — see *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* table below; promotes pen-test publication and PGP key drop to **V1.1**, schedules "AI Architecture Review Board" rebrand workstream to **V1**, and approves the dedicated Azure OpenAI ~$50/month budget for the golden-cohort real-LLM gate — partially closes items **15 / 25**).
 Prior: 2026-04-23 (assessment §4 owner Q&A — 11 decisions on items **29**, **31–38**, plus two cross-cutting items — see *Resolved 2026-04-23 (assessment §4 items 29, 31–38 + two cross-cutting — 11 decisions)* table below; surfaces new pending question **39** for the "AI Architecture Review Board" rebrand workstream schedule).
 Prior: 2026-04-23 (commerce un-hold scope, reference-customer publication scope, ServiceNow + Slack connector scope, Jira connector scope, SaaS-framing follow-on Q&A — *Resolved 2026-04-23* tables below).
 Prior: 2026-04-22 (assessment owner Q&A — 16 decisions — *Resolved 2026-04-22 (assessment owner Q&A — 16 decisions)* table below; covers items **6**, **9**, **10**, **12**, **14**, **15 / 25**, **20**, **22**, **26**, **28**, **34**, **35d**, **35e**, plus four free-text answers on items **8**, **9**).
@@ -10,6 +11,85 @@ Prior: 2026-04-22 (owner Q&A on items **35a–c** + **35f**) — *Resolved 2026-
 Prior: 2026-04-21 (interactive owner Q&A session + same-day 5-decision follow-up + bundled DDL change set + Phase 3 PR A re-scope finding — see *Resolved 2026-04-21 (owner Q&A — 19 decisions)*, *Resolved 2026-04-21 (follow-up Q&A — 5 decisions)*, *Resolved 2026-04-21 (bundled DDL change set — Teams + RLS)*, and *Resolved 2026-04-21 (Phase 3 PR A re-scoped — ADR 0030)* tables below).
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-04-24 (independent assessment §8 ten-improvement owner Q&A — 14 decisions)
+
+These decisions came out of a structured owner Q&A on the ten improvement opportunities surfaced during the 2026-04-24 independent re-assessment session. The improvement numbering (**1**–**10**) is the one used in that session's chat-emitted improvement list (SCIM Service Provider, real-Azure-OpenAI first-value path, Confluence Cloud connector, brand-rebrand PR-2, opt-in tour copy, days-since-first-commit badge, single-page contributor index, audit-count CI reconciliation, privacy notice, operator cost-preview). They are recorded here as the single source of truth; downstream files (`AUDIT_COVERAGE_MATRIX.md`, `SCIM_OPERATOR_RUNBOOK.md`, `FIRST_REAL_VALUE.md`, `CONTRIBUTOR_ON_ONE_PAGE.md`, `SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`, ADR 0032 / 0033 stubs, `appsettings.json` defaults, the rebrand workstream tracker) update against this table in the implementation PRs that follow. **No production code touched in this entry** — this is a decision snapshot.
+
+### Improvement 1 — SCIM 2.0 Service Provider (V1.1 commit)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **1a — group-to-role override semantics** | **Override enabled.** SCIM group membership wins over manual `dbo.UserRoles` entries. The role mapper writes resolved roles with `Source = "Scim"`; manual rows carry `Source = "Manual"` and lose on conflict. Adds a new `RoleOverriddenByScim` typed audit event (now **8** new SCIM constants instead of 7; matrix marker bumps accordingly). | `ArchLucid.Application/Scim/RoleMapping/GroupToRoleMapper.cs`, `dbo.UserRoles.Source` column, `AuditEventTypes.cs`, `AUDIT_COVERAGE_MATRIX.md`. |
+| **1b — token rotation cadence** | **Six-month reminder cadence.** New option `Scim:TokenRotationReminderDays = 180`. A daily `ScimTokenRotationReminderJob` hosted service emits `archlucid.scim.token.rotation_due` warning logs and writes a `dbo.AdminNotifications` row when token age exceeds the threshold. **No automatic revocation.** Owner can disable by setting the option to `0`. | `ArchLucid.Application/Scim/Tokens/`, `appsettings.json`, `dbo.AdminNotifications`. |
+| **1c — Entra app gallery listing** | **Owner-undecided. Stay as TODO.** No stub PR. The SCIM operator runbook gets a clearly-marked `## Future: Entra app gallery listing` section with a one-paragraph explainer of the Microsoft Partner Center "Application Gallery" submission process (publisher verification, SCIM compliance demo, partner team review window). When the owner is ready, the gallery listing PR is its own ~100-line change against that runbook + a screenshots folder. | `docs/integrations/SCIM_OPERATOR_RUNBOOK.md` (Future section only). |
+
+### Improvement 2 — Real Azure OpenAI "first real value" path
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **2a — `--strict-real` posture for golden-cohort CI** | **Opt-in to `--strict-real`.** The nightly golden-cohort gate workflow passes `--strict-real`, which means real-mode failures fail the gate instead of silently falling back to the simulator. Developer-laptop `archlucid try --real` keeps the friendly fallback (more useful for evaluators than a hard failure). | `.github/workflows/golden-cohort-real-llm-scheduled.yml`, `ArchLucid.Cli/Commands/TryCommandOptions.cs`. |
+| **2b — default `MaxCompletionTokens`** | **16,384.** Matches the `gpt-4o` / `gpt-4.1` family model-enforced ceiling — setting higher (e.g., 32K) has no functional effect on those deployments. Worst-case cost per `try --real` ≈ $1.25 across a 5-call pipeline at gpt-4o pricing. Operators on `o1` / `o3` reasoning deployments override per-host with `AZURE_OPENAI_MAX_COMPLETION_TOKENS=32768` (or higher); the env var override is in the design. **Cap is per-LLM-call, not per-run, and is a CEILING, not a TARGET** — most calls land at 1–4K. | `appsettings.json` (`AzureOpenAI:MaxCompletionTokens`), `docker-compose.real-aoai.yml`, `docs/library/FIRST_REAL_VALUE.md` cost-explainer section. |
+
+### Improvement 3 — Confluence Cloud connector
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **3a — space targeting** | **Single fixed `Confluence:DefaultSpaceKey`.** No multi-space or per-tenant routing in v1. | `ArchLucid.Integrations.Confluence/ConfluenceIntegrationOptions.cs`. |
+| **3b — auth scheme** | **API token (basic auth) for v1.** OAuth deferred to a follow-on PR if/when a buyer asks. Documented in `docs/integrations/CONFLUENCE.md` § "v1 limits". | `ArchLucid.Integrations.Confluence/ConfluencePagePublisher.cs`, `docs/integrations/CONFLUENCE.md`. |
+
+### Improvement 4 — Brand rebrand workstream PR-2
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **4a — screenshot gallery refresh shape** | **Keep separate as PR-2.5.** The screenshot gallery refresh runs as its own PR after PR-2 merges and before PR-3, so PR-2's wording-swap diff stays small and reviewable. | `docs/architecture/REBRAND_WORKSTREAM_2026_04_23.md` (PR sequence table). |
+
+### Improvement 5 — DEFERRED: opt-in tour copy approval (post-owner-copy-approval)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **5a — wrapper-removal rollout shape** | **Option B — batch all five in one PR.** All five `<TourStepPendingApproval>` → `<>` fragment swaps + the five copy bodies land in a single PR after the owner approves all five copies. Avoids mixed-state UI ("step 2 polished, step 3 says pending approval") which reads worse than uniform "all five pending → all five live". One PR review instead of five. The marker-rendering pattern stays per-step (Q8 stop-and-ask), so no risk of accidental disclosure during the wait. | `archlucid-ui/src/components/OptInTour.tsx`, the five tour-step fragments, `OptInTour.test.tsx`. |
+
+### Improvement 6 — Days-since-first-commit badge
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **6a — operator-local timezone toggle** | **Defaults — UTC only in v1.** Operator-local timezone toggle is a follow-on if a pilot asks; UTC keeps the badge unambiguous. | `archlucid-ui/src/components/EmailRunToSponsorBanner.tsx`, `docs/library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`. |
+
+### Improvement 7 — Single-page contributor index
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **7a — line cap** | **100 lines (hard cap).** CI guard `scripts/ci/assert_contributor_on_one_page_size.py` enforces ≤ 100 lines on `docs/CONTRIBUTOR_ON_ONE_PAGE.md`; CI fails on overflow. | `docs/CONTRIBUTOR_ON_ONE_PAGE.md`, `scripts/ci/assert_contributor_on_one_page_size.py`, `.github/workflows/ci.yml`. |
+
+### Improvement 8 — Audit-count documentation / CI guard reconciliation
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **8a — drift resolution direction** | **Default: prefer adding the missing constant** (treat `AuditEventTypes.cs` as the source of truth and refresh `AUDIT_COVERAGE_MATRIX.md` to match). The new `scripts/ci/assert_audit_const_count.py` does both a count check **and** a name-set check so silent drift in either direction fails CI. | `scripts/ci/assert_audit_const_count.py`, `docs/library/AUDIT_COVERAGE_MATRIX.md`, `.github/workflows/ci.yml`. |
+
+### Improvement 9 — DEFERRED: privacy notice finalization
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **9a — finalization owner** | **Still owner-blocked. No 2026-04-24 decision.** Privacy notice content remains a legal/compliance owner-only item; the assistant continues to scaffold drafts under "pending legal sign-off" markers. | `archlucid-ui/src/app/(marketing)/privacy/page.tsx`, `docs/security/PRIVACY_NOTICE_DRAFT.md`. |
+
+### Improvement 10 — Operator UI in-product cost preview
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **10a — endpoint auth posture** | **`[AllowAnonymous]` on `GET /v1/agent-execution/cost-preview`.** Endpoint returns host-level configuration only — no tenant data, no PII, no run data. Marketing surface (`/pricing`, `/see-it`) can read it without auth. Documented in the controller XML doc and in `docs/library/COST_PREVIEW_ENDPOINT.md` (new). | `ArchLucid.Api/Controllers/AgentExecution/CostPreviewController.cs`, `archlucid-ui/src/app/(operator)/runs/new/NewRunWizardClient.tsx`, marketing pages. |
+
+### Cross-cutting notes (2026-04-24)
+
+| Item | Note |
+|---|---|
+| **Improvement 2 — `MaxCompletionTokens` clarification** | The cap is per-LLM-call (each agent in the pipeline), not per-run; and a CEILING, not a TARGET. Most calls in the demo seed land at 1–4K tokens. The `gpt-4o` family caps at 16,384 model-side regardless of the client setting; only `o1` / `o3` / `gpt-5` reasoning deployments benefit from a higher value. The 16K default + per-host env override gives operators a safe starting point with a clean upgrade path. |
+| **Improvement 5 — wrapper-removal pattern reused** | The Improvement 7 PR (single-page contributor index) documents the inline marker-removal protocol used by the tour-copy batch PR. Same pattern, same test discipline. |
+| **Improvement 8 — audit-count guard hardening** | The new Python guard supersedes the simple count-only guard. CI will now fail with a diff (added vs. removed constants) instead of just a count mismatch, eliminating the "drift the matrix to match the code" temptation that the count-only guard accidentally permitted. |
+| **No new pending items** | This Q&A round closed all sub-decisions surfaced in the 2026-04-24 chat-emitted improvement list. Improvements 4 and 9 remain DEFERRED (rebrand sequencing already gated by PR-2 merge, privacy notice still owner-blocked). |
 
 ---
 

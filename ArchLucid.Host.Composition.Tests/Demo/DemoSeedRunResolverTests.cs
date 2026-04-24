@@ -25,12 +25,13 @@ public sealed class DemoSeedRunResolverTests
             RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = manifestId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         Mock<IRunRepository> runRepo = new();
         runRepo
-            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), ContosoRetailDemoIdentifiers.AuthorityRunBaselineId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(baseline);
 
         DemoSeedRunResolver sut = new(runRepo.Object, NullLogger<DemoSeedRunResolver>.Instance);
@@ -50,7 +51,8 @@ public sealed class DemoSeedRunResolverTests
     {
         Mock<IRunRepository> runRepo = new();
         runRepo
-            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), ContosoRetailDemoIdentifiers.AuthorityRunBaselineId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
         RunRecord newest = new()
@@ -58,32 +60,33 @@ public sealed class DemoSeedRunResolverTests
             RunId = Guid.NewGuid(),
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.MultiTenantRequestPrefix + "abc",
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow.AddMinutes(-5),
+            CreatedUtc = DateTime.UtcNow.AddMinutes(-5)
         };
         RunRecord older = new()
         {
             RunId = Guid.NewGuid(),
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow.AddHours(-1),
+            CreatedUtc = DateTime.UtcNow.AddHours(-1)
         };
         RunRecord nonDemo = new()
         {
             RunId = Guid.NewGuid(),
             ArchitectureRequestId = "request-not-demo",
             GoldenManifestId = Guid.NewGuid(),
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
         RunRecord demoUncommitted = new()
         {
             RunId = Guid.NewGuid(),
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = null,
-            CreatedUtc = DateTime.UtcNow.AddMinutes(-1),
+            CreatedUtc = DateTime.UtcNow.AddMinutes(-1)
         };
 
         runRepo
-            .Setup(r => r.ListRecentInScopeAsync(It.IsAny<ScopeContext>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.ListRecentInScopeAsync(It.IsAny<ScopeContext>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<RunRecord> { older, nonDemo, demoUncommitted, newest });
 
         DemoSeedRunResolver sut = new(runRepo.Object, NullLogger<DemoSeedRunResolver>.Instance);
@@ -102,7 +105,8 @@ public sealed class DemoSeedRunResolverTests
             .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
         runRepo
-            .Setup(r => r.ListRecentInScopeAsync(It.IsAny<ScopeContext>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.ListRecentInScopeAsync(It.IsAny<ScopeContext>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         DemoSeedRunResolver sut = new(runRepo.Object, NullLogger<DemoSeedRunResolver>.Instance);

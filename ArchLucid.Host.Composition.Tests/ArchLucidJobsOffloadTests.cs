@@ -13,10 +13,7 @@ public sealed class ArchLucidJobsOffloadTests
     [Fact]
     public void IsOffloaded_returns_true_when_slug_listed_under_indexed_keys()
     {
-        Dictionary<string, string?> data = new()
-        {
-            ["Jobs:OffloadedToContainerJobs:0"] = "advisory-scan",
-        };
+        Dictionary<string, string?> data = new() { ["Jobs:OffloadedToContainerJobs:0"] = "advisory-scan" };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
 
