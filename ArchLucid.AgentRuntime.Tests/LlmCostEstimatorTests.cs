@@ -22,9 +22,7 @@ public sealed class LlmCostEstimatorTests
             Options.Create(
                 new LlmCostEstimationOptions
                 {
-                    Enabled = true,
-                    InputUsdPerMillionTokens = 3m,
-                    OutputUsdPerMillionTokens = 15m,
+                    Enabled = true, InputUsdPerMillionTokens = 3m, OutputUsdPerMillionTokens = 15m
                 }));
 
         decimal? usd = sut.EstimateUsd(2_000_000, 1_000_000);

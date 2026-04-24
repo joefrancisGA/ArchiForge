@@ -24,10 +24,7 @@ public sealed class AgentPromptReproTests
     [Fact]
     public void CachedCatalog_applies_release_label_from_options()
     {
-        AgentPromptCatalogOptions opts = new()
-        {
-            Versions = { [AgentTypeKeys.Topology] = "pilot-a" }
-        };
+        AgentPromptCatalogOptions opts = new() { Versions = { [AgentTypeKeys.Topology] = "pilot-a" } };
         IAgentSystemPromptCatalog catalog = AgentPromptCatalogTestFactory.Create(opts);
 
         ResolvedSystemPrompt r = catalog.Resolve(AgentType.Topology);

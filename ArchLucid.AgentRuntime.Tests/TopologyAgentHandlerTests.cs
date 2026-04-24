@@ -12,9 +12,8 @@ using Moq;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Tests for Topology Agent Handler.
+///     Tests for Topology Agent Handler.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class TopologyAgentHandlerTests
 {
@@ -103,12 +102,7 @@ public sealed class TopologyAgentHandlerTests
             .Returns(Task.CompletedTask);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid(),
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         TopologyAgentHandler handler = new(
             completionClient,

@@ -38,7 +38,8 @@ public sealed class LlmCallRetrySimmyTests
                 {
                     MaxRetryAttempts = 4,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException),
+                    ShouldHandle =
+                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaosOptions)
             .Build();
@@ -62,7 +63,7 @@ public sealed class LlmCallRetrySimmyTests
         {
             InjectionRate = 1.0,
             EnabledGenerator = static _ => new ValueTask<bool>(true),
-            FaultGenerator = static _ => new ValueTask<Exception?>(new HttpRequestException("down")),
+            FaultGenerator = static _ => new ValueTask<Exception?>(new HttpRequestException("down"))
         };
 
         ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
@@ -71,7 +72,8 @@ public sealed class LlmCallRetrySimmyTests
                 {
                     MaxRetryAttempts = 2,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException),
+                    ShouldHandle =
+                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaosOptions)
             .Build();
@@ -106,7 +108,7 @@ public sealed class LlmCallRetrySimmyTests
                 {
                     MaxRetryAttempts = 2,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<TimeoutRejectedException>(),
+                    ShouldHandle = new PredicateBuilder().Handle<TimeoutRejectedException>()
                 })
             .AddPipeline(innerTimeout)
             .Build();
@@ -129,7 +131,7 @@ public sealed class LlmCallRetrySimmyTests
         {
             InjectionRate = 0.5,
             EnabledGenerator = static _ => new ValueTask<bool>(true),
-            FaultGenerator = static _ => new ValueTask<Exception?>(new HttpRequestException("maybe")),
+            FaultGenerator = static _ => new ValueTask<Exception?>(new HttpRequestException("maybe"))
         };
 
         ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
@@ -138,7 +140,8 @@ public sealed class LlmCallRetrySimmyTests
                 {
                     MaxRetryAttempts = 6,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException),
+                    ShouldHandle =
+                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaosOptions)
             .Build();

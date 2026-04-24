@@ -12,9 +12,8 @@ using Moq;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Tests for Critic Agent Handler.
+///     Tests for Critic Agent Handler.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class CriticAgentHandlerTests
 {
@@ -80,12 +79,7 @@ public sealed class CriticAgentHandlerTests
             .Returns(Task.CompletedTask);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid(),
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         CriticAgentHandler handler = new(
             completionClient,

@@ -23,13 +23,10 @@ namespace ArchLucid.AgentRuntime.Tests.Explanation;
 [Trait("Category", "Unit")]
 public sealed class RunExplanationSummaryServiceTests
 {
-    private static ManifestIssue Issue(string severity) => new()
+    private static ManifestIssue Issue(string severity)
     {
-        IssueType = "Test",
-        Title = "t",
-        Description = "d",
-        Severity = severity,
-    };
+        return new ManifestIssue { IssueType = "Test", Title = "t", Description = "d", Severity = severity };
+    }
 
     [Fact]
     public void BuildThemeSummaries_groups_decision_key_drivers_by_category_and_collects_other_lines()
@@ -39,7 +36,7 @@ public sealed class RunExplanationSummaryServiceTests
             "Cost: Pick SKU → A",
             "Cost: Pick region → East",
             "Security: TLS → 1.3",
-            "3 topology resource(s) recorded.",
+            "3 topology resource(s) recorded."
         ];
 
         List<string> themes = RunExplanationSummaryService.BuildThemeSummaries(drivers);
@@ -65,10 +62,7 @@ public sealed class RunExplanationSummaryServiceTests
     [Fact]
     public void DeriveRiskPosture_no_unresolved_issues_is_Low()
     {
-        GoldenManifest manifest = new()
-        {
-            UnresolvedIssues = new UnresolvedIssuesSection()
-        };
+        GoldenManifest manifest = new() { UnresolvedIssues = new UnresolvedIssuesSection() };
 
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Low");
     }
@@ -78,10 +72,7 @@ public sealed class RunExplanationSummaryServiceTests
     {
         GoldenManifest manifest = new()
         {
-            UnresolvedIssues = new UnresolvedIssuesSection
-            {
-                Items = [Issue("Critical")],
-            },
+            UnresolvedIssues = new UnresolvedIssuesSection { Items = [Issue("Critical")] }
         };
 
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Critical");
@@ -92,10 +83,7 @@ public sealed class RunExplanationSummaryServiceTests
     {
         GoldenManifest manifest = new()
         {
-            UnresolvedIssues = new UnresolvedIssuesSection
-            {
-                Items = [Issue("Medium")],
-            },
+            UnresolvedIssues = new UnresolvedIssuesSection { Items = [Issue("Medium")] }
         };
 
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Medium");
@@ -108,8 +96,8 @@ public sealed class RunExplanationSummaryServiceTests
         {
             UnresolvedIssues = new UnresolvedIssuesSection
             {
-                Items = [Issue("Low"), Issue("Critical"), Issue("Medium")],
-            },
+                Items = [Issue("Low"), Issue("Critical"), Issue("Medium")]
+            }
         };
 
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Critical");
@@ -145,7 +133,8 @@ public sealed class RunExplanationSummaryServiceTests
 
         result.Should().BeNull();
         explanation.Verify(
-            e => e.ExplainRunAsync(It.IsAny<GoldenManifest>(), It.IsAny<DecisionProvenanceGraph?>(), It.IsAny<CancellationToken>()),
+            e => e.ExplainRunAsync(It.IsAny<GoldenManifest>(), It.IsAny<DecisionProvenanceGraph?>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -171,20 +160,17 @@ public sealed class RunExplanationSummaryServiceTests
             RuleSetHash = "rsh",
             Metadata = new ManifestMetadata(),
             UnresolvedIssues = new UnresolvedIssuesSection(),
-            Decisions = [new ResolvedArchitectureDecision { Category = "Cost", Title = "SKU", SelectedOption = "A" }],
-            Compliance = new ComplianceSection { Gaps = ["g1"] },
+            Decisions =
+                [new ResolvedArchitectureDecision { Category = "Cost", Title = "SKU", SelectedOption = "A" }],
+            Compliance = new ComplianceSection { Gaps = ["g1"] }
         };
 
         ExplanationResult explained = new()
         {
             Summary = "Exec summary.",
             KeyDrivers = ["Cost: SKU → A"],
-            Structured = new StructuredExplanation
-            {
-                Reasoning = "Body",
-                Confidence = 0.82m,
-            },
-            Confidence = 0.82m,
+            Structured = new StructuredExplanation { Reasoning = "Body", Confidence = 0.82m },
+            Confidence = 0.82m
         };
 
         Mock<IAuthorityQueryService> query = new();
@@ -205,7 +191,7 @@ public sealed class RunExplanationSummaryServiceTests
                                 Category = "c",
                                 EngineType = "e",
                                 Title = "f1",
-                                Rationale = "r",
+                                Rationale = "r"
                             },
                             new Finding
                             {
@@ -213,10 +199,10 @@ public sealed class RunExplanationSummaryServiceTests
                                 Category = "c",
                                 EngineType = "e",
                                 Title = "f2",
-                                Rationale = "r",
-                            },
-                        ],
-                    },
+                                Rationale = "r"
+                            }
+                        ]
+                    }
                 });
 
         Mock<IExplanationService> explanation = new();
@@ -248,9 +234,7 @@ public sealed class RunExplanationSummaryServiceTests
         RunExplanationSummary? summary = await svc.GetSummaryAsync(
             new ScopeContext
             {
-                TenantId = manifest.TenantId,
-                WorkspaceId = manifest.WorkspaceId,
-                ProjectId = manifest.ProjectId,
+                TenantId = manifest.TenantId, WorkspaceId = manifest.WorkspaceId, ProjectId = manifest.ProjectId
             },
             runId,
             CancellationToken.None);
@@ -292,15 +276,18 @@ public sealed class RunExplanationSummaryServiceTests
             RuleSetHash = "rsh",
             Metadata = new ManifestMetadata { Summary = "Manifest headline" },
             UnresolvedIssues = new UnresolvedIssuesSection(),
-            Decisions = [new ResolvedArchitectureDecision { Category = "Cost", Title = "SKU", SelectedOption = "A" }],
-            Compliance = new ComplianceSection(),
+            Decisions =
+            [
+                new ResolvedArchitectureDecision { Category = "Cost", Title = "SKU", SelectedOption = "A" }
+            ],
+            Compliance = new ComplianceSection()
         };
 
         ExplanationResult llmLayer = new()
         {
             Summary = "Hallucinated summary not grounded in findings.",
             DetailedNarrative = "Narrative without overlap.",
-            KeyDrivers = ["Cost: SKU → A"],
+            KeyDrivers = ["Cost: SKU → A"]
         };
 
         ExplanationResult deterministicLayer = new()
@@ -310,9 +297,8 @@ public sealed class RunExplanationSummaryServiceTests
             KeyDrivers = ["Cost: SKU → A"],
             Structured = new StructuredExplanation
             {
-                SchemaVersion = 1,
-                Reasoning = "Deterministic body from manifest signals.",
-            },
+                SchemaVersion = 1, Reasoning = "Deterministic body from manifest signals."
+            }
         };
 
         Mock<IAuthorityQueryService> query = new();
@@ -333,10 +319,10 @@ public sealed class RunExplanationSummaryServiceTests
                                 Category = "c",
                                 EngineType = "e",
                                 Title = "token-one",
-                                Rationale = "alpha",
-                            },
-                        ],
-                    },
+                                Rationale = "alpha"
+                            }
+                        ]
+                    }
                 });
 
         Mock<IExplanationService> explanation = new();
@@ -380,8 +366,7 @@ public sealed class RunExplanationSummaryServiceTests
 
         RunExplanationAggregateOptions opts = new()
         {
-            FaithfulnessFallbackEnabled = true,
-            MinSupportRatioToTrustLlmNarrative = 0.2,
+            FaithfulnessFallbackEnabled = true, MinSupportRatioToTrustLlmNarrative = 0.2
         };
 
         RunExplanationSummaryService svc = new(
@@ -396,9 +381,7 @@ public sealed class RunExplanationSummaryServiceTests
         RunExplanationSummary? summary = await svc.GetSummaryAsync(
             new ScopeContext
             {
-                TenantId = manifest.TenantId,
-                WorkspaceId = manifest.WorkspaceId,
-                ProjectId = manifest.ProjectId,
+                TenantId = manifest.TenantId, WorkspaceId = manifest.WorkspaceId, ProjectId = manifest.ProjectId
             },
             runId,
             CancellationToken.None);

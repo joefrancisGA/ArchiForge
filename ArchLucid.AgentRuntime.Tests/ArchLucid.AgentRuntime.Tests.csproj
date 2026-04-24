@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -42,7 +42,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\cohort.json" />
+    <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest"
+          Link="golden-cohort\cohort.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,7 +60,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\scripts\ci\prompt_regression_baseline.json" Link="Fixtures\Regression\prompt_regression_baseline.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\scripts\ci\prompt_regression_baseline.json"
+          Link="Fixtures\Regression\prompt_regression_baseline.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

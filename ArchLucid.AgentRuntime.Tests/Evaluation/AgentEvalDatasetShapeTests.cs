@@ -5,7 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 /// <summary>
-/// Keeps <c>tests/eval-datasets</c> aligned with <c>scripts/ci/eval_agent_quality.py</c> (shape-only until deterministic eval runs exist).
+///     Keeps <c>tests/eval-datasets</c> aligned with <c>scripts/ci/eval_agent_quality.py</c> (shape-only until
+///     deterministic eval runs exist).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

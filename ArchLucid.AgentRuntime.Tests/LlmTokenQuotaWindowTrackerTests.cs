@@ -16,7 +16,7 @@ public sealed class LlmTokenQuotaWindowTrackerTests
             Enabled = true,
             WindowMinutes = 60,
             MaxPromptTokensPerTenantPerWindow = 1_000_000,
-            MaxCompletionTokensPerTenantPerWindow = 0,
+            MaxCompletionTokensPerTenantPerWindow = 0
         };
 
         LlmTokenQuotaWindowTracker tracker = new(new StubOptionsMonitor<LlmTokenQuotaOptions>(opts));
@@ -35,7 +35,7 @@ public sealed class LlmTokenQuotaWindowTrackerTests
             Enabled = true,
             WindowMinutes = 60,
             MaxPromptTokensPerTenantPerWindow = 150,
-            AssumedMaxPromptTokensPerRequest = 50,
+            AssumedMaxPromptTokensPerRequest = 50
         };
 
         LlmTokenQuotaWindowTracker tracker = new(new StubOptionsMonitor<LlmTokenQuotaOptions>(opts));
@@ -51,12 +51,7 @@ public sealed class LlmTokenQuotaWindowTrackerTests
     [Fact]
     public void RecordUsage_ignores_empty_tenant()
     {
-        LlmTokenQuotaOptions opts = new()
-        {
-            Enabled = true,
-            WindowMinutes = 60,
-            MaxPromptTokensPerTenantPerWindow = 1,
-        };
+        LlmTokenQuotaOptions opts = new() { Enabled = true, WindowMinutes = 60, MaxPromptTokensPerTenantPerWindow = 1 };
 
         LlmTokenQuotaWindowTracker tracker = new(new StubOptionsMonitor<LlmTokenQuotaOptions>(opts));
 
@@ -67,11 +62,20 @@ public sealed class LlmTokenQuotaWindowTrackerTests
     private sealed class StubOptionsMonitor<T>(T value) : IOptionsMonitor<T>
         where T : class
     {
-        public T CurrentValue { get; } = value;
+        public T CurrentValue
+        {
+            get;
+        } = value;
 
-        public T Get(string? name) => CurrentValue;
+        public T Get(string? name)
+        {
+            return CurrentValue;
+        }
 
-        public IDisposable OnChange(Action<T, string?> listener) => NullDisposable.Instance;
+        public IDisposable OnChange(Action<T, string?> listener)
+        {
+            return NullDisposable.Instance;
+        }
 
         private sealed class NullDisposable : IDisposable
         {

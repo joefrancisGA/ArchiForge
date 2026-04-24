@@ -24,7 +24,7 @@ public sealed class AgentOutputEvaluationHarnessTests
             AgentType = AgentType.Topology,
             Claims = ["c1"],
             EvidenceRefs = [],
-            Confidence = 0.5,
+            Confidence = 0.5
         };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Topology, actual, new AgentOutputExpectation());
@@ -45,13 +45,10 @@ public sealed class AgentOutputEvaluationHarnessTests
             Claims = ["c1"],
             EvidenceRefs = [],
             Confidence = 0.5,
-            Findings = [],
+            Findings = []
         };
 
-        AgentOutputExpectation expected = new()
-        {
-            MinimumFindingCount = 1
-        };
+        AgentOutputExpectation expected = new() { MinimumFindingCount = 1 };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Topology, actual, expected);
 
@@ -73,14 +70,11 @@ public sealed class AgentOutputEvaluationHarnessTests
             Confidence = 0.5,
             Findings =
             [
-                new ArchitectureFinding { Category = "other", Message = "m", Severity = "Info" },
-            ],
+                new ArchitectureFinding { Category = "other", Message = "m", Severity = "Info" }
+            ]
         };
 
-        AgentOutputExpectation expected = new()
-        {
-            ExpectedFindingCategories = ["topology-gap"],
-        };
+        AgentOutputExpectation expected = new() { ExpectedFindingCategories = ["topology-gap"] };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Topology, actual, expected);
 
@@ -102,14 +96,13 @@ public sealed class AgentOutputEvaluationHarnessTests
             Confidence = 0.5,
             Findings =
             [
-                new ArchitectureFinding { Category = "topology-gap", Message = "m", Severity = "Warning" },
-            ],
+                new ArchitectureFinding { Category = "topology-gap", Message = "m", Severity = "Warning" }
+            ]
         };
 
         AgentOutputExpectation expected = new()
         {
-            ExpectedFindingCategories = ["topology-gap"],
-            MinimumFindingCount = 1,
+            ExpectedFindingCategories = ["topology-gap"], MinimumFindingCount = 1
         };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Topology, actual, expected);
@@ -129,13 +122,10 @@ public sealed class AgentOutputEvaluationHarnessTests
             AgentType = AgentType.Topology,
             Claims = ["c1"],
             EvidenceRefs = [],
-            Confidence = 0.5,
+            Confidence = 0.5
         };
 
-        AgentOutputExpectation expected = new()
-        {
-            RequiredJsonKeys = ["nonexistentPropertyKey"],
-        };
+        AgentOutputExpectation expected = new() { RequiredJsonKeys = ["nonexistentPropertyKey"] };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Topology, actual, expected);
 

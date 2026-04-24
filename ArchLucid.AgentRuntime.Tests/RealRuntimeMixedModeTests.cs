@@ -3,10 +3,10 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Coordinator.Services;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Interfaces;
@@ -23,7 +23,7 @@ using Moq;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Tests for Real Runtime Mixed Mode.
+///     Tests for Real Runtime Mixed Mode.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
@@ -198,12 +198,7 @@ public sealed class RealRuntimeMixedModeTests
             .Returns(Task.CompletedTask);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid(),
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         TopologyAgentHandler topologyHandler = new(
             new StubAgentCompletionClient(topologyJson),
@@ -232,24 +227,20 @@ public sealed class RealRuntimeMixedModeTests
             scopeProvider.Object);
 
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
-            new AgentExecutionResilienceOptions
-            {
-                MaxConcurrentHandlers = 0,
-                PerHandlerTimeoutSeconds = 0,
-            });
+            new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });
 
         RealAgentExecutor executor = new(
-        [
-            topologyHandler,
-            complianceHandler,
-            costHandler,
-            criticHandler
-        ],
-        NullLogger<RealAgentExecutor>.Instance,
-        new MixedModePromptMonitor(new AgentPromptCatalogOptions()),
-        new FixedScopeProviderForMixedMode(),
-        new AgentHandlerConcurrencyGate(resilience),
-        resilience);
+            [
+                topologyHandler,
+                complianceHandler,
+                costHandler,
+                criticHandler
+            ],
+            NullLogger<RealAgentExecutor>.Instance,
+            new MixedModePromptMonitor(new AgentPromptCatalogOptions()),
+            new FixedScopeProviderForMixedMode(),
+            new AgentHandlerConcurrencyGate(resilience),
+            resilience);
 
         ArchitectureRequest request = new()
         {
@@ -318,7 +309,8 @@ public sealed class RealRuntimeMixedModeTests
             }
         };
 
-        IReadOnlyList<AgentResult> results = await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
+        IReadOnlyList<AgentResult> results =
+            await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
 
         SchemaValidationService validationService = new(
             NullLogger<SchemaValidationService>.Instance,
@@ -326,13 +318,13 @@ public sealed class RealRuntimeMixedModeTests
 
         DecisionEngineService engine = new(validationService);
         DecisionMergeResult merge = engine.MergeResults(
-            runId: "RUN-001",
-            request: request,
-            manifestVersion: "v1",
-            results: results,
-            evaluations: [],
-            decisionNodes: [],
-            parentManifestVersion: null);
+            "RUN-001",
+            request,
+            "v1",
+            results,
+            [],
+            [],
+            null);
 
         merge.Success.Should().BeTrue();
         merge.Manifest.Services.Should().Contain(s => s.ServiceName == "rag-api");
@@ -345,22 +337,34 @@ public sealed class RealRuntimeMixedModeTests
 
     private sealed class FixedScopeProviderForMixedMode : IScopeContextProvider
     {
-        public ScopeContext GetCurrentScope() =>
-            new()
+        public ScopeContext GetCurrentScope()
+        {
+            return new ScopeContext
             {
                 TenantId = ScopeIds.DefaultTenant,
                 WorkspaceId = ScopeIds.DefaultWorkspace,
-                ProjectId = ScopeIds.DefaultProject,
+                ProjectId = ScopeIds.DefaultProject
             };
+        }
     }
 
-    private sealed class MixedModePromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    private sealed class MixedModePromptMonitor(AgentPromptCatalogOptions value)
+        : IOptionsMonitor<AgentPromptCatalogOptions>
     {
-        public AgentPromptCatalogOptions CurrentValue { get; } = value;
+        public AgentPromptCatalogOptions CurrentValue
+        {
+            get;
+        } = value;
 
-        public AgentPromptCatalogOptions Get(string? name) => CurrentValue;
+        public AgentPromptCatalogOptions Get(string? name)
+        {
+            return CurrentValue;
+        }
 
-        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
+        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener)
+        {
+            return null;
+        }
     }
 
     private sealed class FakeAuthorityRunOrchestratorForRuntimeTests : IAuthorityRunOrchestrator
@@ -405,7 +409,7 @@ public sealed class RealRuntimeMixedModeTests
                 FindingsSnapshotId = Guid.NewGuid(),
                 GoldenManifestId = Guid.NewGuid(),
                 DecisionTraceId = Guid.NewGuid(),
-                ArtifactBundleId = Guid.NewGuid(),
+                ArtifactBundleId = Guid.NewGuid()
             });
         }
     }

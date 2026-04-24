@@ -19,13 +19,8 @@ public sealed class DeterministicExplanationServiceTests
         {
             DecisionChanges =
             [
-                new DecisionDelta
-                {
-                    ChangeType = "Added",
-                    DecisionKey = "storage",
-                    TargetValue = "blob",
-                },
-            ],
+                new DecisionDelta { ChangeType = "Added", DecisionKey = "storage", TargetValue = "blob" }
+            ]
         };
 
         List<string> lines = sut.ExtractMajorChanges(comparison);
@@ -43,8 +38,8 @@ public sealed class DeterministicExplanationServiceTests
         {
             DecisionChanges =
             [
-                new DecisionDelta { ChangeType = "Modified", DecisionKey = "k", BaseValue = "a", TargetValue = "b" },
-            ],
+                new DecisionDelta { ChangeType = "Modified", DecisionKey = "k", BaseValue = "a", TargetValue = "b" }
+            ]
         };
         List<string> major = sut.ExtractMajorChanges(comparison);
 

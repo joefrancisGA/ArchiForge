@@ -35,16 +35,12 @@ public sealed class LlmCompletionCacheKeyTests
     {
         ScopeContext scopeA = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         ScopeContext scopeB = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         string keyA = LlmCompletionCacheKey.Compute(false, "dep", "sys", "user", scopeA);
@@ -58,9 +54,7 @@ public sealed class LlmCompletionCacheKeyTests
     {
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Action empty = () => LlmCompletionCacheKey.Compute(false, "", "s", "u", scope);
@@ -75,9 +69,7 @@ public sealed class LlmCompletionCacheKeyTests
     {
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Action act = () => LlmCompletionCacheKey.Compute(false, "dep", null!, "u", scope);
@@ -90,9 +82,7 @@ public sealed class LlmCompletionCacheKeyTests
     {
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Action act = () => LlmCompletionCacheKey.Compute(false, "dep", "s", null!, scope);

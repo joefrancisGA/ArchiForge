@@ -151,7 +151,7 @@ public sealed class AgentResultParserTests
             AgentResultSchemaPath = "schemas/agentresult.schema.json",
             GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
             ExplanationRunSchemaPath = "schemas/explanation-run.schema.json",
-            ComparisonExplanationSchemaPath = "schemas/comparison-explanation.schema.json",
+            ComparisonExplanationSchemaPath = "schemas/comparison-explanation.schema.json"
         };
 
         return new SchemaValidationService(log.Object, Options.Create(options));

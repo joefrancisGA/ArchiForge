@@ -27,7 +27,8 @@ public sealed class LlmProviderDescriptorTests
         a.AuthScheme.Should().Be(LlmProviderAuthScheme.ApiKey);
         a.ProviderKind.Should().Be("anthropic");
 
-        LlmProviderDescriptor b = LlmProviderDescriptor.ForBedrock(new Uri("https://bedrock-runtime.us-east-1.amazonaws.com/"), "arn:model");
+        LlmProviderDescriptor b =
+            LlmProviderDescriptor.ForBedrock(new Uri("https://bedrock-runtime.us-east-1.amazonaws.com/"), "arn:model");
         b.AuthScheme.Should().Be(LlmProviderAuthScheme.AwsSigV4);
         b.ProviderKind.Should().Be("bedrock");
     }

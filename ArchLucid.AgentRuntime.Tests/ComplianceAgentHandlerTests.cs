@@ -12,9 +12,8 @@ using Moq;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Tests for Compliance Agent Handler.
+///     Tests for Compliance Agent Handler.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class ComplianceAgentHandlerTests
 {
@@ -84,12 +83,7 @@ public sealed class ComplianceAgentHandlerTests
             .Returns(Task.CompletedTask);
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid(),
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         ComplianceAgentHandler handler = new(
             completionClient,
