@@ -3,11 +3,14 @@ using ArchLucid.Contracts.ProductLearning;
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
 /// <summary>
-/// Persistence for <see cref="ProductLearningPilotSignalRecord"/> rows (SQL Server via Dapper in production).
+///     Persistence for <see cref="ProductLearningPilotSignalRecord" /> rows (SQL Server via Dapper in production).
 /// </summary>
 public interface IProductLearningPilotSignalRepository
 {
-    /// <summary>Inserts a signal. Assigns <see cref="ProductLearningPilotSignalRecord.SignalId"/> and <see cref="ProductLearningPilotSignalRecord.RecordedUtc"/> when unset/default.</summary>
+    /// <summary>
+    ///     Inserts a signal. Assigns <see cref="ProductLearningPilotSignalRecord.SignalId" /> and
+    ///     <see cref="ProductLearningPilotSignalRecord.RecordedUtc" /> when unset/default.
+    /// </summary>
     Task InsertAsync(ProductLearningPilotSignalRecord record, CancellationToken cancellationToken);
 
     /// <summary>Latest signals for a tenant/workspace/project scope, newest first.</summary>
@@ -19,8 +22,8 @@ public interface IProductLearningPilotSignalRepository
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Run-level feedback rollups (pattern key when set, else subject+artifact composite key).
-    /// Ordering: newest activity first, then <see cref="FeedbackAggregate.AggregateKey"/> ascending.
+    ///     Run-level feedback rollups (pattern key when set, else subject+artifact composite key).
+    ///     Ordering: newest activity first, then <see cref="FeedbackAggregate.AggregateKey" /> ascending.
     /// </summary>
     Task<IReadOnlyList<FeedbackAggregate>> ListRunFeedbackAggregatesAsync(
         Guid tenantId,
@@ -50,7 +53,7 @@ public interface IProductLearningPilotSignalRepository
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Repeated leading text in comments (trimmed, first 200 chars). Deterministic; not semantic tagging.
+    ///     Repeated leading text in comments (trimmed, first 200 chars). Deterministic; not semantic tagging.
     /// </summary>
     Task<IReadOnlyList<RepeatedCommentTheme>> ListRepeatedCommentThemesAsync(
         Guid tenantId,
@@ -62,7 +65,7 @@ public interface IProductLearningPilotSignalRepository
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Candidates derived from aggregates with repeated poor outcomes (reject/follow-up) or heavy revision churn.
+    ///     Candidates derived from aggregates with repeated poor outcomes (reject/follow-up) or heavy revision churn.
     /// </summary>
     Task<IReadOnlyList<ImprovementOpportunity>> ListImprovementOpportunityCandidatesAsync(
         Guid tenantId,

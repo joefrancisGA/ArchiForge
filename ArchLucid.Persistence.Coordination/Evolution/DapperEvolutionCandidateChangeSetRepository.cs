@@ -18,37 +18,37 @@ public sealed class DapperEvolutionCandidateChangeSetRepository(ISqlConnectionFa
     public async Task InsertAsync(EvolutionCandidateChangeSetRecord record, CancellationToken cancellationToken)
     {
         const string sql = """
-            INSERT INTO dbo.EvolutionCandidateChangeSets
-            (
-                CandidateChangeSetId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                SourcePlanId,
-                Status,
-                Title,
-                Summary,
-                PlanSnapshotJson,
-                DerivationRuleVersion,
-                CreatedUtc,
-                CreatedByUserId
-            )
-            VALUES
-            (
-                @CandidateChangeSetId,
-                @TenantId,
-                @WorkspaceId,
-                @ProjectId,
-                @SourcePlanId,
-                @Status,
-                @Title,
-                @Summary,
-                @PlanSnapshotJson,
-                @DerivationRuleVersion,
-                @CreatedUtc,
-                @CreatedByUserId
-            );
-            """;
+                           INSERT INTO dbo.EvolutionCandidateChangeSets
+                           (
+                               CandidateChangeSetId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               SourcePlanId,
+                               Status,
+                               Title,
+                               Summary,
+                               PlanSnapshotJson,
+                               DerivationRuleVersion,
+                               CreatedUtc,
+                               CreatedByUserId
+                           )
+                           VALUES
+                           (
+                               @CandidateChangeSetId,
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId,
+                               @SourcePlanId,
+                               @Status,
+                               @Title,
+                               @Summary,
+                               @PlanSnapshotJson,
+                               @DerivationRuleVersion,
+                               @CreatedUtc,
+                               @CreatedByUserId
+                           );
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
@@ -67,7 +67,7 @@ public sealed class DapperEvolutionCandidateChangeSetRepository(ISqlConnectionFa
                     record.PlanSnapshotJson,
                     record.DerivationRuleVersion,
                     record.CreatedUtc,
-                    record.CreatedByUserId,
+                    record.CreatedByUserId
                 },
                 cancellationToken: cancellationToken));
     }
@@ -78,38 +78,32 @@ public sealed class DapperEvolutionCandidateChangeSetRepository(ISqlConnectionFa
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT
-                CandidateChangeSetId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                SourcePlanId,
-                Status,
-                Title,
-                Summary,
-                PlanSnapshotJson,
-                DerivationRuleVersion,
-                CreatedUtc,
-                CreatedByUserId
-            FROM dbo.EvolutionCandidateChangeSets
-            WHERE CandidateChangeSetId = @CandidateChangeSetId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId;
-            """;
+                           SELECT
+                               CandidateChangeSetId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               SourcePlanId,
+                               Status,
+                               Title,
+                               Summary,
+                               PlanSnapshotJson,
+                               DerivationRuleVersion,
+                               CreatedUtc,
+                               CreatedByUserId
+                           FROM dbo.EvolutionCandidateChangeSets
+                           WHERE CandidateChangeSetId = @CandidateChangeSetId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.QuerySingleOrDefaultAsync<EvolutionCandidateChangeSetRecord>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    CandidateChangeSetId = candidateChangeSetId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                },
+                new { CandidateChangeSetId = candidateChangeSetId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                 cancellationToken: cancellationToken));
     }
 
@@ -121,39 +115,34 @@ public sealed class DapperEvolutionCandidateChangeSetRepository(ISqlConnectionFa
         int n = take < 1 ? 1 : Math.Min(take, 100);
 
         const string sql = """
-            SELECT TOP (@Take)
-                CandidateChangeSetId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                SourcePlanId,
-                Status,
-                Title,
-                Summary,
-                PlanSnapshotJson,
-                DerivationRuleVersion,
-                CreatedUtc,
-                CreatedByUserId
-            FROM dbo.EvolutionCandidateChangeSets
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-            ORDER BY CreatedUtc DESC, CandidateChangeSetId ASC;
-            """;
+                           SELECT TOP (@Take)
+                               CandidateChangeSetId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               SourcePlanId,
+                               Status,
+                               Title,
+                               Summary,
+                               PlanSnapshotJson,
+                               DerivationRuleVersion,
+                               CreatedUtc,
+                               CreatedByUserId
+                           FROM dbo.EvolutionCandidateChangeSets
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC, CandidateChangeSetId ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<EvolutionCandidateChangeSetRecord> rows = await connection.QueryAsync<EvolutionCandidateChangeSetRecord>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    Take = n,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                },
-                cancellationToken: cancellationToken));
+        IEnumerable<EvolutionCandidateChangeSetRecord> rows =
+            await connection.QueryAsync<EvolutionCandidateChangeSetRecord>(
+                new CommandDefinition(
+                    sql,
+                    new { Take = n, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                    cancellationToken: cancellationToken));
 
         return rows.ToList();
     }
@@ -165,13 +154,13 @@ public sealed class DapperEvolutionCandidateChangeSetRepository(ISqlConnectionFa
         CancellationToken cancellationToken)
     {
         const string sql = """
-            UPDATE dbo.EvolutionCandidateChangeSets
-            SET Status = @Status
-            WHERE CandidateChangeSetId = @CandidateChangeSetId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId;
-            """;
+                           UPDATE dbo.EvolutionCandidateChangeSets
+                           SET Status = @Status
+                           WHERE CandidateChangeSetId = @CandidateChangeSetId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
@@ -183,7 +172,7 @@ public sealed class DapperEvolutionCandidateChangeSetRepository(ISqlConnectionFa
                     CandidateChangeSetId = candidateChangeSetId,
                     scope.TenantId,
                     scope.WorkspaceId,
-                    scope.ProjectId,
+                    scope.ProjectId
                 },
                 cancellationToken: cancellationToken));
     }

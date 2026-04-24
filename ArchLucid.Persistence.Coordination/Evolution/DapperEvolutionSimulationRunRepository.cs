@@ -17,29 +17,29 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
     public async Task InsertAsync(EvolutionSimulationRunRecord record, CancellationToken cancellationToken)
     {
         const string sql = """
-            INSERT INTO dbo.EvolutionSimulationRuns
-            (
-                SimulationRunId,
-                CandidateChangeSetId,
-                BaselineArchitectureRunId,
-                EvaluationMode,
-                OutcomeJson,
-                WarningsJson,
-                CompletedUtc,
-                IsShadowOnly
-            )
-            VALUES
-            (
-                @SimulationRunId,
-                @CandidateChangeSetId,
-                @BaselineArchitectureRunId,
-                @EvaluationMode,
-                @OutcomeJson,
-                @WarningsJson,
-                @CompletedUtc,
-                @IsShadowOnly
-            );
-            """;
+                           INSERT INTO dbo.EvolutionSimulationRuns
+                           (
+                               SimulationRunId,
+                               CandidateChangeSetId,
+                               BaselineArchitectureRunId,
+                               EvaluationMode,
+                               OutcomeJson,
+                               WarningsJson,
+                               CompletedUtc,
+                               IsShadowOnly
+                           )
+                           VALUES
+                           (
+                               @SimulationRunId,
+                               @CandidateChangeSetId,
+                               @BaselineArchitectureRunId,
+                               @EvaluationMode,
+                               @OutcomeJson,
+                               @WarningsJson,
+                               @CompletedUtc,
+                               @IsShadowOnly
+                           );
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
@@ -54,7 +54,7 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
                     record.OutcomeJson,
                     record.WarningsJson,
                     record.CompletedUtc,
-                    record.IsShadowOnly,
+                    record.IsShadowOnly
                 },
                 cancellationToken: cancellationToken));
     }
@@ -64,29 +64,26 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT
-                SimulationRunId,
-                CandidateChangeSetId,
-                BaselineArchitectureRunId,
-                EvaluationMode,
-                OutcomeJson,
-                WarningsJson,
-                CompletedUtc,
-                IsShadowOnly
-            FROM dbo.EvolutionSimulationRuns
-            WHERE CandidateChangeSetId = @CandidateChangeSetId
-            ORDER BY BaselineArchitectureRunId ASC, CompletedUtc ASC;
-            """;
+                           SELECT
+                               SimulationRunId,
+                               CandidateChangeSetId,
+                               BaselineArchitectureRunId,
+                               EvaluationMode,
+                               OutcomeJson,
+                               WarningsJson,
+                               CompletedUtc,
+                               IsShadowOnly
+                           FROM dbo.EvolutionSimulationRuns
+                           WHERE CandidateChangeSetId = @CandidateChangeSetId
+                           ORDER BY BaselineArchitectureRunId ASC, CompletedUtc ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<EvolutionSimulationRunRecord> rows = await connection.QueryAsync<EvolutionSimulationRunRecord>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    CandidateChangeSetId = candidateChangeSetId
-                },
+                new { CandidateChangeSetId = candidateChangeSetId },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();
@@ -95,18 +92,15 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
     public async Task DeleteByCandidateAsync(Guid candidateChangeSetId, CancellationToken cancellationToken)
     {
         const string sql = """
-            DELETE FROM dbo.EvolutionSimulationRuns
-            WHERE CandidateChangeSetId = @CandidateChangeSetId;
-            """;
+                           DELETE FROM dbo.EvolutionSimulationRuns
+                           WHERE CandidateChangeSetId = @CandidateChangeSetId;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    CandidateChangeSetId = candidateChangeSetId
-                },
+                new { CandidateChangeSetId = candidateChangeSetId },
                 cancellationToken: cancellationToken));
     }
 }

@@ -6,6 +6,8 @@ public sealed class InMemoryOutboxOperationalMetricsReader : IOutboxOperationalM
     private static readonly OutboxOperationalMetricsSnapshot Empty = new();
 
     /// <inheritdoc />
-    public Task<OutboxOperationalMetricsSnapshot> ReadSnapshotAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult(Empty);
+    public Task<OutboxOperationalMetricsSnapshot> ReadSnapshotAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(Empty);
+    }
 }

@@ -32,6 +32,27 @@ On assertion failure, `GoldenCorpusRegressionTests` writes sibling files with an
 
 ---
 
+## Coverage map (30 cases)
+
+Cases are `case-01` … `case-30`, built by cycling **six archetypes** (`index % 6`) with a stable suffix per block of six (`index / 6`).
+
+| Archetype | What it stresses |
+|-----------|------------------|
+| 0 | **Empty graph** — no nodes (boundary: minimal graph / empty finding sets where applicable). |
+| 1 | Requirement-only graph. |
+| 2 | **Topology** — `TopologyResource` nodes (topology coverage engines). |
+| 3 | **Cost** — `CostConstraint` with budget / risk properties. |
+| 4 | **Compliance / security baseline** — `SecurityBaseline` with missing control. |
+| 5 | **Multi-signal** — requirement + topology + security + cost + edges (cross-category density). |
+
+**Merge slice:** `case-01` … `case-03` include a minimal `DecisionEngineService.MergeResults` payload (success path with one proposed service). Remaining cases exercise authority + manifest only.
+
+**Simulator / LLM:** The harness uses **in-process** finding engines and `RuleBasedDecisionEngine` only. It does **not** start the agent runtime or call a live LLM. `AgentExecution:Mode=Simulator` applies to hosted runs; it is not required for this test path because no coordinator agent execution is invoked.
+
+**Severity / conflict edges:** Dedicated “threshold” and “conflicting decision node” fixtures are approximated by **multi-signal graphs** (several engines firing) and **merge + authority** on the first three cases. Tightening with extra named edge fixtures is a corpus expansion (add new case indices per the no-deletion rule), not a change to production decisioning.
+
+---
+
 ## Where the harness lives
 
 | Component | Location |

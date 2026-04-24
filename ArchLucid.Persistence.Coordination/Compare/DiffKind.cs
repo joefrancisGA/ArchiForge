@@ -1,7 +1,7 @@
 namespace ArchLucid.Persistence.Coordination.Compare;
 
 /// <summary>
-/// String labels stored in <see cref="DiffItem.DiffKind"/> for comparison results and API responses.
+///     String labels stored in <see cref="DiffItem.DiffKind" /> for comparison results and API responses.
 /// </summary>
 public static class DiffKind
 {

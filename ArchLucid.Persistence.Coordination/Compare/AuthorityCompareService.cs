@@ -7,11 +7,13 @@ using ArchLucid.Persistence.Queries;
 namespace ArchLucid.Persistence.Coordination.Compare;
 
 /// <summary>
-/// <see cref="IAuthorityCompareService"/> implementation: manifest diff across requirements, topology, security, cost, issues, assumptions, warnings, and decisions.
+///     <see cref="IAuthorityCompareService" /> implementation: manifest diff across requirements, topology, security,
+///     cost, issues, assumptions, warnings, and decisions.
 /// </summary>
 /// <remarks>
-/// Run comparison uses <see cref="IAuthorityQueryService.GetRunSummaryAsync"/>; manifest comparison uses <see cref="IGoldenManifestRepository.GetByIdAsync"/>.
-/// String-set diffs use case-insensitive equality; run-level <see cref="AddRunDiff"/> uses ordinal comparison.
+///     Run comparison uses <see cref="IAuthorityQueryService.GetRunSummaryAsync" />; manifest comparison uses
+///     <see cref="IGoldenManifestRepository.GetByIdAsync" />.
+///     String-set diffs use case-insensitive equality; run-level <see cref="AddRunDiff" /> uses ordinal comparison.
 /// </remarks>
 public sealed class AuthorityCompareService(
     IGoldenManifestRepository manifestRepository,
@@ -74,10 +76,7 @@ public sealed class AuthorityCompareService(
 
         RunComparisonResult result = new()
         {
-            LeftRunId = leftRunId,
-            RightRunId = rightRunId,
-            LeftRun = leftRun,
-            RightRun = rightRun
+            LeftRunId = leftRunId, RightRunId = rightRunId, LeftRun = leftRun, RightRun = rightRun
         };
 
         AddRunDiff(result.RunLevelDiffs, "Run", "ProjectId", leftRun.ProjectId, rightRun.ProjectId);
@@ -101,13 +100,35 @@ public sealed class AuthorityCompareService(
         return result;
     }
 
+    /// <inheritdoc />
+    public void AddRunDiff(
+        IList<DiffItem> diffs,
+        string section,
+        string key,
+        string? beforeValue,
+        string? afterValue)
+    {
+        if (!string.Equals(beforeValue, afterValue, StringComparison.Ordinal))
+
+            diffs.Add(new DiffItem
+            {
+                Section = section,
+                Key = key,
+                DiffKind = DiffKind.Changed,
+                BeforeValue = beforeValue,
+                AfterValue = afterValue
+            });
+    }
+
     private static void CompareRequirements(
         GoldenManifest left,
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        Dictionary<string, RequirementCoverageItem> leftMap = ToFirstWins(left.Requirements.Covered, x => x.RequirementName);
-        Dictionary<string, RequirementCoverageItem> rightMap = ToFirstWins(right.Requirements.Covered, x => x.RequirementName);
+        Dictionary<string, RequirementCoverageItem> leftMap = ToFirstWins(left.Requirements.Covered,
+            x => x.RequirementName);
+        Dictionary<string, RequirementCoverageItem> rightMap =
+            ToFirstWins(right.Requirements.Covered, x => x.RequirementName);
 
         CompareKeyedSets(
             result,
@@ -127,7 +148,8 @@ public sealed class AuthorityCompareService(
     {
         CompareStringLists(result, "Topology.Gaps", left.Topology.Gaps, right.Topology.Gaps);
         CompareStringLists(result, "Topology.Resources", left.Topology.Resources, right.Topology.Resources);
-        CompareStringLists(result, "Topology.Patterns", left.Topology.SelectedPatterns, right.Topology.SelectedPatterns);
+        CompareStringLists(result, "Topology.Patterns", left.Topology.SelectedPatterns,
+            right.Topology.SelectedPatterns);
     }
 
     private static void CompareSecurity(
@@ -207,8 +229,10 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        Dictionary<string, ResolvedArchitectureDecision> leftMap = ToFirstWins(left.Decisions, x => $"{x.Category}:{x.Title}");
-        Dictionary<string, ResolvedArchitectureDecision> rightMap = ToFirstWins(right.Decisions, x => $"{x.Category}:{x.Title}");
+        Dictionary<string, ResolvedArchitectureDecision> leftMap = ToFirstWins(left.Decisions,
+            x => $"{x.Category}:{x.Title}");
+        Dictionary<string, ResolvedArchitectureDecision> rightMap = ToFirstWins(right.Decisions,
+            x => $"{x.Category}:{x.Title}");
 
         CompareKeyedSets(
             result,
@@ -234,10 +258,7 @@ public sealed class AuthorityCompareService(
 
             result.Diffs.Add(new DiffItem
             {
-                Section = section,
-                Key = item,
-                DiffKind = DiffKind.Removed,
-                BeforeValue = item
+                Section = section, Key = item, DiffKind = DiffKind.Removed, BeforeValue = item
             });
 
 
@@ -245,12 +266,8 @@ public sealed class AuthorityCompareService(
 
             result.Diffs.Add(new DiffItem
             {
-                Section = section,
-                Key = item,
-                DiffKind = DiffKind.Added,
-                AfterValue = item
+                Section = section, Key = item, DiffKind = DiffKind.Added, AfterValue = item
             });
-
     }
 
     private static void CompareKeyedSets<T>(
@@ -306,7 +323,6 @@ public sealed class AuthorityCompareService(
                     AfterValue = rightValue,
                     Notes = $"Before: {leftNotes} | After: {rightNotes}"
                 });
-
         }
     }
 
@@ -327,38 +343,18 @@ public sealed class AuthorityCompareService(
                 BeforeValue = beforeValue,
                 AfterValue = afterValue
             });
-
     }
 
     /// <summary>
-    /// Builds a case-insensitive dictionary from <paramref name="source"/>, taking the first element
-    /// when duplicate keys are present. Prevents <see cref="ArgumentException"/> on bad persisted data.
+    ///     Builds a case-insensitive dictionary from <paramref name="source" />, taking the first element
+    ///     when duplicate keys are present. Prevents <see cref="ArgumentException" /> on bad persisted data.
     /// </summary>
     private static Dictionary<string, T> ToFirstWins<T>(
         IEnumerable<T> source,
-        Func<T, string> keySelector) =>
-        source
+        Func<T, string> keySelector)
+    {
+        return source
             .GroupBy(keySelector, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-
-    /// <inheritdoc />
-    public void AddRunDiff(
-        IList<DiffItem> diffs,
-        string section,
-        string key,
-        string? beforeValue,
-        string? afterValue)
-    {
-        if (!string.Equals(beforeValue, afterValue, StringComparison.Ordinal))
-
-            diffs.Add(new DiffItem
-            {
-                Section = section,
-                Key = key,
-                DiffKind = DiffKind.Changed,
-                BeforeValue = beforeValue,
-                AfterValue = afterValue
-            });
-
     }
 }

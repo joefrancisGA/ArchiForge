@@ -1,7 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Models;
@@ -10,10 +10,12 @@ using ArchLucid.Persistence.Queries;
 namespace ArchLucid.Persistence.Coordination.Replay;
 
 /// <summary>
-/// <see cref="IAuthorityReplayService"/> implementation: validate stored run, optionally rebuild manifest/trace and artifacts under scope derived from the run row.
+///     <see cref="IAuthorityReplayService" /> implementation: validate stored run, optionally rebuild manifest/trace and
+///     artifacts under scope derived from the run row.
 /// </summary>
 /// <remarks>
-/// Read path uses <see cref="IScopeContextProvider.GetCurrentScope"/>; writes use <see cref="RunRecord"/> tenant/workspace/<c>ScopeProjectId</c> when set, else default scope ids.
+///     Read path uses <see cref="IScopeContextProvider.GetCurrentScope" />; writes use <see cref="RunRecord" />
+///     tenant/workspace/<c>ScopeProjectId</c> when set, else default scope ids.
 /// </remarks>
 public sealed class AuthorityReplayService(
     IAuthorityQueryService queryService,
@@ -68,7 +70,6 @@ public sealed class AuthorityReplayService(
             if (!result.Validation.ManifestHashMatches)
 
                 result.Validation.Notes.Add("Stored manifest hash does not match recomputed manifest hash.");
-
         }
         else
 
@@ -156,9 +157,7 @@ public sealed class AuthorityReplayService(
 
         return new ScopeContext
         {
-            TenantId = run.TenantId,
-            WorkspaceId = run.WorkspaceId,
-            ProjectId = run.ScopeProjectId
+            TenantId = run.TenantId, WorkspaceId = run.WorkspaceId, ProjectId = run.ScopeProjectId
         };
     }
 

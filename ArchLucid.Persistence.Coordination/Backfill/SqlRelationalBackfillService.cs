@@ -16,10 +16,11 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Persistence.Coordination.Backfill;
 
 /// <summary>
-/// Scans authority tables for JSON-only rows, hydrates domain models (same paths as repositories), and inserts
-/// missing relational slices. Safe to re-run: each slice insert is skipped when child rows already exist.
+///     Scans authority tables for JSON-only rows, hydrates domain models (same paths as repositories), and inserts
+///     missing relational slices. Safe to re-run: each slice insert is skipped when child rows already exist.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "Entirely SQL-dependent; every method runs Dapper queries and transactions against live SQL Server.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Entirely SQL-dependent; every method runs Dapper queries and transactions against live SQL Server.")]
 public sealed class SqlRelationalBackfillService(
     ISqlConnectionFactory connectionFactory,
     SqlContextSnapshotRepository contextSnapshotRepository,
@@ -91,9 +92,7 @@ public sealed class SqlRelationalBackfillService(
                 report.Failures.Add(
                     new SqlRelationalBackfillFailure
                     {
-                        Stage = "ContextSnapshots",
-                        EntityKey = snapshotId.ToString(),
-                        Message = ex.Message,
+                        Stage = "ContextSnapshots", EntityKey = snapshotId.ToString(), Message = ex.Message
                     });
                 logger.LogError(ex, "Backfill ContextSnapshots: failed {SnapshotId}", snapshotId);
             }
@@ -139,9 +138,7 @@ public sealed class SqlRelationalBackfillService(
                 report.Failures.Add(
                     new SqlRelationalBackfillFailure
                     {
-                        Stage = "GraphSnapshots",
-                        EntityKey = graphSnapshotId.ToString(),
-                        Message = ex.Message,
+                        Stage = "GraphSnapshots", EntityKey = graphSnapshotId.ToString(), Message = ex.Message
                     });
                 logger.LogError(ex, "Backfill GraphSnapshots: failed {GraphSnapshotId}", graphSnapshotId);
             }
@@ -180,10 +177,7 @@ public sealed class SqlRelationalBackfillService(
                         FROM dbo.FindingRecords
                         WHERE FindingsSnapshotId = @FindingsSnapshotId;
                         """,
-                        new
-                        {
-                            snapshot.FindingsSnapshotId,
-                        },
+                        new { snapshot.FindingsSnapshotId },
                         tx,
                         cancellationToken: ct));
 
@@ -204,9 +198,7 @@ public sealed class SqlRelationalBackfillService(
                 report.Failures.Add(
                     new SqlRelationalBackfillFailure
                     {
-                        Stage = "FindingsSnapshots",
-                        EntityKey = findingsSnapshotId.ToString(),
-                        Message = ex.Message,
+                        Stage = "FindingsSnapshots", EntityKey = findingsSnapshotId.ToString(), Message = ex.Message
                     });
                 logger.LogError(ex, "Backfill FindingsSnapshots: failed {FindingsSnapshotId}", findingsSnapshotId);
             }
@@ -232,12 +224,7 @@ public sealed class SqlRelationalBackfillService(
 
             try
             {
-                ScopeContext scope = new()
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId,
-                };
+                ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
                 GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
                 if (manifest is null)
@@ -257,9 +244,7 @@ public sealed class SqlRelationalBackfillService(
                 report.Failures.Add(
                     new SqlRelationalBackfillFailure
                     {
-                        Stage = "GoldenManifestsPhase1",
-                        EntityKey = manifestId.ToString(),
-                        Message = ex.Message,
+                        Stage = "GoldenManifestsPhase1", EntityKey = manifestId.ToString(), Message = ex.Message
                     });
                 logger.LogError(ex, "Backfill GoldenManifests: failed {ManifestId}", manifestId);
             }
@@ -302,9 +287,7 @@ public sealed class SqlRelationalBackfillService(
                 report.Failures.Add(
                     new SqlRelationalBackfillFailure
                     {
-                        Stage = "ArtifactBundles",
-                        EntityKey = bundleId.ToString(),
-                        Message = ex.Message,
+                        Stage = "ArtifactBundles", EntityKey = bundleId.ToString(), Message = ex.Message
                     });
                 logger.LogError(ex, "Backfill ArtifactBundles: failed {BundleId}", bundleId);
             }

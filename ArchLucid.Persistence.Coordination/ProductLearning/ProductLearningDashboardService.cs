@@ -65,7 +65,7 @@ public sealed class ProductLearningDashboardService(
             ArtifactTrends = snapshot.ArtifactTrends,
             Opportunities = opportunities,
             TriageQueue = triageQueue,
-            SummaryNotes = notes,
+            SummaryNotes = notes
         };
     }
 
@@ -97,7 +97,8 @@ public sealed class ProductLearningDashboardService(
                     TriageStatus = ProductLearningTriageStatusValues.Open,
                     FirstSeenUtc = opportunity.FirstSeenUtc,
                     LastSeenUtc = opportunity.LastSeenUtc,
-                    SuggestedNextAction = "Review rollup and pilot context; confirm whether to file an engineering backlog item.",
+                    SuggestedNextAction =
+                        "Review rollup and pilot context; confirm whether to file an engineering backlog item."
                 }));
         }
 
@@ -128,7 +129,8 @@ public sealed class ProductLearningDashboardService(
                     TriageStatus = ProductLearningTriageStatusValues.Open,
                     FirstSeenUtc = theme.FirstSeenUtc,
                     LastSeenUtc = theme.LastSeenUtc,
-                    SuggestedNextAction = "Check whether the theme maps to a documentation or UX fix; avoid over-interpreting without pilot interviews.",
+                    SuggestedNextAction =
+                        "Check whether the theme maps to a documentation or UX fix; avoid over-interpreting without pilot interviews."
                 }));
         }
 
@@ -151,8 +153,9 @@ public sealed class ProductLearningDashboardService(
         return ranked;
     }
 
-    private static TriageQueueItem WithQueuePriority(TriageQueueItem item, int rank) =>
-        new()
+    private static TriageQueueItem WithQueuePriority(TriageQueueItem item, int rank)
+    {
+        return new TriageQueueItem
         {
             QueueItemId = item.QueueItemId,
             RelatedSignalId = item.RelatedSignalId,
@@ -165,8 +168,9 @@ public sealed class ProductLearningDashboardService(
             TriageStatus = item.TriageStatus,
             FirstSeenUtc = item.FirstSeenUtc,
             LastSeenUtc = item.LastSeenUtc,
-            SuggestedNextAction = item.SuggestedNextAction,
+            SuggestedNextAction = item.SuggestedNextAction
         };
+    }
 
     private static int ComputeOpportunityTriageScore(ImprovementOpportunity opportunity)
     {
@@ -176,8 +180,10 @@ public sealed class ProductLearningDashboardService(
         return band + rankBoost;
     }
 
-    private static int ComputeCommentThemeTriageScore(RepeatedCommentTheme theme) =>
-        400_000 + Math.Min(theme.OccurrenceCount, 9_999) * 100;
+    private static int ComputeCommentThemeTriageScore(RepeatedCommentTheme theme)
+    {
+        return 400_000 + Math.Min(theme.OccurrenceCount, 9_999) * 100;
+    }
 
     private static IReadOnlyList<string> BuildSummaryNotes(
         int totalSignals,

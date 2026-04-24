@@ -4,20 +4,19 @@ using ArchLucid.Contracts.ProductLearning.Planning;
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 /// <summary>
-/// In-memory 59R planning store for development/tests.
-/// Does not validate <c>dbo.Runs</c>, pilot signals, or authority artifacts (SQL repository does).
+///     In-memory 59R planning store for development/tests.
+///     Does not validate <c>dbo.Runs</c>, pilot signals, or authority artifacts (SQL repository does).
 /// </summary>
 public sealed class InMemoryProductLearningPlanningRepository : IProductLearningPlanningRepository
 {
-    private readonly List<ProductLearningImprovementThemeRecord> _themes = [];
+    private readonly List<ProductLearningImprovementPlanArtifactLinkRecord> _artifactLinks = [];
 
     private readonly List<ProductLearningImprovementPlanRecord> _plans = [];
 
     private readonly List<ProductLearningImprovementPlanRunLinkRecord> _runLinks = [];
 
     private readonly List<ProductLearningImprovementPlanSignalLinkRecord> _signalLinks = [];
-
-    private readonly List<ProductLearningImprovementPlanArtifactLinkRecord> _artifactLinks = [];
+    private readonly List<ProductLearningImprovementThemeRecord> _themes = [];
 
     public Task InsertThemeAsync(ProductLearningImprovementThemeRecord theme, CancellationToken cancellationToken)
     {
@@ -233,8 +232,7 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
         _runLinks.Add(
             new ProductLearningImprovementPlanRunLinkRecord
             {
-                PlanId = link.PlanId,
-                ArchitectureRunId = link.ArchitectureRunId
+                PlanId = link.PlanId, ArchitectureRunId = link.ArchitectureRunId
             });
 
         return Task.CompletedTask;
@@ -260,9 +258,7 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
         _signalLinks.Add(
             new ProductLearningImprovementPlanSignalLinkRecord
             {
-                PlanId = link.PlanId,
-                SignalId = link.SignalId,
-                TriageStatusSnapshot = link.TriageStatusSnapshot
+                PlanId = link.PlanId, SignalId = link.SignalId, TriageStatusSnapshot = link.TriageStatusSnapshot
             });
 
         return Task.CompletedTask;
@@ -342,9 +338,7 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
             .OrderBy(static s => s.SignalId)
             .Select(static s => new ProductLearningImprovementPlanSignalLinkRecord
             {
-                PlanId = s.PlanId,
-                SignalId = s.SignalId,
-                TriageStatusSnapshot = s.TriageStatusSnapshot
+                PlanId = s.PlanId, SignalId = s.SignalId, TriageStatusSnapshot = s.TriageStatusSnapshot
             })
             .ToList();
 

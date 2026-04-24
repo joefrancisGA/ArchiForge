@@ -8,8 +8,7 @@ internal static class ProductLearningPlanningJsonSerializer
 {
     private static readonly JsonSerializerOptions Options = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true
     };
 
     internal static string SerializeActionSteps(IReadOnlyList<ProductLearningImprovementPlanActionStep> steps)

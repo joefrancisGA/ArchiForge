@@ -21,19 +21,21 @@ public sealed class RetrievalIndexingOutboxProcessor(
     IServiceScopeFactory scopeFactory,
     ILogger<RetrievalIndexingOutboxProcessor> logger) : IRetrievalIndexingOutboxProcessor
 {
-    private readonly IServiceScopeFactory _scopeFactory =
-        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-
     private readonly ILogger<RetrievalIndexingOutboxProcessor> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
     /// <inheritdoc />
     public async Task ProcessPendingBatchAsync(CancellationToken ct)
     {
         using IServiceScope scope = _scopeFactory.CreateScope();
-        IRetrievalIndexingOutboxRepository outbox = scope.ServiceProvider.GetRequiredService<IRetrievalIndexingOutboxRepository>();
+        IRetrievalIndexingOutboxRepository outbox =
+            scope.ServiceProvider.GetRequiredService<IRetrievalIndexingOutboxRepository>();
         IAuthorityQueryService query = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
-        IRetrievalRunCompletionIndexer indexer = scope.ServiceProvider.GetRequiredService<IRetrievalRunCompletionIndexer>();
+        IRetrievalRunCompletionIndexer indexer =
+            scope.ServiceProvider.GetRequiredService<IRetrievalRunCompletionIndexer>();
         IProvenanceBuilder provenanceBuilder = scope.ServiceProvider.GetRequiredService<IProvenanceBuilder>();
 
         IReadOnlyList<RetrievalIndexingOutboxEntry> batch = await outbox.DequeuePendingAsync(25, ct);
@@ -53,9 +55,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
             {
                 ScopeContext scopeContext = new()
                 {
-                    TenantId = entry.TenantId,
-                    WorkspaceId = entry.WorkspaceId,
-                    ProjectId = entry.ProjectId
+                    TenantId = entry.TenantId, WorkspaceId = entry.WorkspaceId, ProjectId = entry.ProjectId
                 };
 
                 RunDetailDto? detail = await query.GetRunDetailAsync(scopeContext, entry.RunId, ct);

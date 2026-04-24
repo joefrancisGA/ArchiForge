@@ -3,13 +3,14 @@ using ArchLucid.Contracts.ProductLearning;
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
 /// <summary>
-/// Explicit, deterministic scoring for product-learning triage (documented for operators).
+///     Explicit, deterministic scoring for product-learning triage (documented for operators).
 /// </summary>
 public static class ProductLearningOpportunityScoring
 {
     /// <summary>
-    /// Weighted “bad” mass on a rollup: rejects and follow-ups weigh highest, revisions next.
-    /// Adds a small bonus when multiple signals exist with zero trusted outcomes (proxy for low trust until numeric scores exist).
+    ///     Weighted “bad” mass on a rollup: rejects and follow-ups weigh highest, revisions next.
+    ///     Adds a small bonus when multiple signals exist with zero trusted outcomes (proxy for low trust until numeric scores
+    ///     exist).
     /// </summary>
     public static int ComputeAggregateBadScore(FeedbackAggregate aggregate)
     {
@@ -26,16 +27,23 @@ public static class ProductLearningOpportunityScoring
         return score;
     }
 
-    public static int ComputeTrendNegativeMass(ArtifactOutcomeTrend trend) =>
-        trend.RejectionCount + trend.RevisionCount + trend.NeedsFollowUpCount;
+    public static int ComputeTrendNegativeMass(ArtifactOutcomeTrend trend)
+    {
+        return trend.RejectionCount + trend.RevisionCount + trend.NeedsFollowUpCount;
+    }
 
-    public static int TotalTrendSignals(ArtifactOutcomeTrend trend) =>
-        trend.AcceptedOrTrustedCount + trend.RejectionCount + trend.RevisionCount + trend.NeedsFollowUpCount;
+    public static int TotalTrendSignals(ArtifactOutcomeTrend trend)
+    {
+        return trend.AcceptedOrTrustedCount + trend.RejectionCount + trend.RevisionCount + trend.NeedsFollowUpCount;
+    }
 
-    public static string SeverityFromBadScore(int badScore) =>
-        badScore >= 12 ? "High" : badScore >= 6 ? "Medium" : "Low";
+    public static string SeverityFromBadScore(int badScore)
+    {
+        return badScore >= 12 ? "High" : badScore >= 6 ? "Medium" : "Low";
+    }
 
-    public static ImprovementOpportunity MapAggregateToOpportunity(FeedbackAggregate aggregate, int badScore, int priorityRank)
+    public static ImprovementOpportunity MapAggregateToOpportunity(FeedbackAggregate aggregate, int badScore,
+        int priorityRank)
     {
         string severity = SeverityFromBadScore(badScore);
         string title = aggregate.PatternKey is not null
@@ -62,11 +70,12 @@ public static class ProductLearningOpportunityScoring
             AverageTrustScore = aggregate.AverageTrustScore,
             RepeatedThemeSnippet = aggregate.DominantThemeHint,
             FirstSeenUtc = aggregate.FirstSignalRecordedUtc,
-            LastSeenUtc = aggregate.LastSignalRecordedUtc,
+            LastSeenUtc = aggregate.LastSignalRecordedUtc
         };
     }
 
-    public static ImprovementOpportunity MapTrendToOpportunity(ArtifactOutcomeTrend trend, int badScore, int priorityRank)
+    public static ImprovementOpportunity MapTrendToOpportunity(ArtifactOutcomeTrend trend, int badScore,
+        int priorityRank)
     {
         string severity = SeverityFromBadScore(badScore);
 
@@ -88,7 +97,7 @@ public static class ProductLearningOpportunityScoring
             AverageTrustScore = trend.AverageTrustScore,
             RepeatedThemeSnippet = trend.RepeatedThemeIndicator,
             FirstSeenUtc = trend.FirstSeenUtc,
-            LastSeenUtc = trend.LastSeenUtc,
+            LastSeenUtc = trend.LastSeenUtc
         };
     }
 

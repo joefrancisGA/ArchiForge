@@ -5,7 +5,10 @@ using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
-/// <summary>Deterministic markdown for <see cref="LearningPlanningReportDocument"/> (fixed section order, invariant numeric formatting).</summary>
+/// <summary>
+///     Deterministic markdown for <see cref="LearningPlanningReportDocument" /> (fixed section order, invariant
+///     numeric formatting).
+/// </summary>
 public static class LearningPlanningReportMarkdownFormatter
 {
     public static string Format(LearningPlanningReportDocument document)
@@ -25,9 +28,10 @@ public static class LearningPlanningReportMarkdownFormatter
         sb.AppendLine($"- Themes: {document.Summary.ThemeCount.ToString(inv)}");
         sb.AppendLine($"- Plans: {document.Summary.PlanCount.ToString(inv)}");
         sb.AppendLine($"- Theme evidence (signals): {document.Summary.TotalThemeEvidenceSignals.ToString(inv)}");
-        sb.AppendLine($"- Linked pilot signals (across plans): {document.Summary.TotalLinkedSignalsAcrossPlans.ToString(inv)}");
         sb.AppendLine(
-            $"- Max plan priority score: {(document.Summary.MaxPlanPriorityScore?.ToString(inv) ?? "—")}");
+            $"- Linked pilot signals (across plans): {document.Summary.TotalLinkedSignalsAcrossPlans.ToString(inv)}");
+        sb.AppendLine(
+            $"- Max plan priority score: {document.Summary.MaxPlanPriorityScore?.ToString(inv) ?? "—"}");
         sb.AppendLine();
 
         sb.AppendLine("## Top improvement themes");
@@ -119,7 +123,8 @@ public static class LearningPlanningReportMarkdownFormatter
         {
             int ord = a.AuthorityArtifactSortOrder ?? 0;
 
-            return $"`{a.LinkId:D}` — authority bundle `{bundleId:D}`, sort order {ord.ToString(CultureInfo.InvariantCulture)}";
+            return
+                $"`{a.LinkId:D}` — authority bundle `{bundleId:D}`, sort order {ord.ToString(CultureInfo.InvariantCulture)}";
         }
 
         string hint = string.IsNullOrWhiteSpace(a.PilotArtifactHint) ? "—" : OneLine(a.PilotArtifactHint!);
@@ -141,16 +146,24 @@ public static class LearningPlanningReportMarkdownFormatter
         foreach (string line in materialized)
 
             sb.AppendLine($"- {line}");
-
     }
 
-    private static string OneLine(string value) => value
-        .Replace("\r\n", " ", StringComparison.Ordinal)
-        .Replace('\n', ' ')
-        .Replace('\r', ' ')
-        .Trim();
+    private static string OneLine(string value)
+    {
+        return value
+            .Replace("\r\n", " ", StringComparison.Ordinal)
+            .Replace('\n', ' ')
+            .Replace('\r', ' ')
+            .Trim();
+    }
 
-    private static string EscapeHeading(string value) => OneLine(value);
+    private static string EscapeHeading(string value)
+    {
+        return OneLine(value);
+    }
 
-    private static string EscapeInline(string value) => OneLine(value).Replace('`', '\'');
+    private static string EscapeInline(string value)
+    {
+        return OneLine(value).Replace('`', '\'');
+    }
 }

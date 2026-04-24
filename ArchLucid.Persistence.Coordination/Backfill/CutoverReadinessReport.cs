@@ -1,16 +1,20 @@
 namespace ArchLucid.Persistence.Coordination.Backfill;
 
 /// <summary>
-/// Aggregate readiness report across all authority types and slices.
-/// Answers: "Is every backfilled slice ready so reads can rely on relational tables only?"
+///     Aggregate readiness report across all authority types and slices.
+///     Answers: "Is every backfilled slice ready so reads can rely on relational tables only?"
 /// </summary>
 public sealed class CutoverReadinessReport
 {
     /// <summary>Per-slice readiness assessments, one entry per assessed slice.</summary>
-    public IReadOnlyList<CutoverSliceReadiness> Slices { get; init; } = [];
+    public IReadOnlyList<CutoverSliceReadiness> Slices
+    {
+        get;
+        init;
+    } = [];
 
     /// <summary>
-    /// <c>true</c> only when every slice reports <see cref="CutoverSliceReadiness.IsReady"/>.
+    ///     <c>true</c> only when every slice reports <see cref="CutoverSliceReadiness.IsReady" />.
     /// </summary>
     public bool IsFullyReady => Slices.All(static s => s.IsReady);
 
