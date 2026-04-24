@@ -6,7 +6,10 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Integration;
 
-/// <summary>Guards JSON shapes for outbound integration events (additive fields allowed; required names/types should stay stable).</summary>
+/// <summary>
+///     Guards JSON shapes for outbound integration events (additive fields allowed; required names/types should stay
+///     stable).
+/// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class IntegrationEventPayloadContractTests
@@ -21,7 +24,7 @@ public sealed class IntegrationEventPayloadContractTests
             manifestId = Guid.NewGuid(),
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
-            projectId = Guid.NewGuid(),
+            projectId = Guid.NewGuid()
         };
 
         AssertPayloadMatchesCommittedSchema("authority-run-completed.v1.schema.json", payload);
@@ -41,7 +44,7 @@ public sealed class IntegrationEventPayloadContractTests
             manifestVersion = "v",
             sourceEnvironment = "dev",
             targetEnvironment = "test",
-            requestedBy = "u",
+            requestedBy = "u"
         };
 
         AssertPayloadMatchesCommittedSchema("governance-approval-submitted.v1.schema.json", payload);
@@ -61,7 +64,7 @@ public sealed class IntegrationEventPayloadContractTests
             manifestVersion = "v",
             environment = "prod",
             activatedBy = "u",
-            activatedUtc = DateTime.UtcNow,
+            activatedUtc = DateTime.UtcNow
         };
 
         AssertPayloadMatchesCommittedSchema("governance-promotion-activated.v1.schema.json", payload);
@@ -83,7 +86,7 @@ public sealed class IntegrationEventPayloadContractTests
             category = "c",
             severity = "High",
             title = "t",
-            deduplicationKey = "k",
+            deduplicationKey = "k"
         };
 
         AssertPayloadMatchesCommittedSchema("alert-fired.v1.schema.json", payload);
@@ -102,7 +105,7 @@ public sealed class IntegrationEventPayloadContractTests
             runId = (Guid?)null,
             deduplicationKey = "composite:rule:scope",
             resolvedByUserId = "u",
-            comment = (string?)null,
+            comment = (string?)null
         };
 
         AssertPayloadMatchesCommittedSchema("alert-resolved.v1.schema.json", payload);
@@ -123,7 +126,7 @@ public sealed class IntegrationEventPayloadContractTests
             runId = (Guid?)null,
             comparedToRunId = (Guid?)null,
             digestId = (Guid?)null,
-            completedUtc = DateTime.UtcNow,
+            completedUtc = DateTime.UtcNow
         };
 
         AssertPayloadMatchesCommittedSchema("advisory-scan-completed.v1.schema.json", payload);
@@ -142,7 +145,7 @@ public sealed class IntegrationEventPayloadContractTests
             escalatedUtc = DateTime.UtcNow,
             metricKey = "policyPackStaleHours",
             thresholdValue = 72.0,
-            observedValue = 96.0,
+            observedValue = 96.0
         };
 
         AssertPayloadMatchesCommittedSchema("compliance-drift-escalated.v1.schema.json", payload);
@@ -159,7 +162,7 @@ public sealed class IntegrationEventPayloadContractTests
             projectId = Guid.NewGuid(),
             reservationId = Guid.NewGuid(),
             releasedUtc = DateTime.UtcNow,
-            releaseReason = "expired",
+            releaseReason = "expired"
         };
 
         AssertPayloadMatchesCommittedSchema("seat-reservation-released.v1.schema.json", payload);
@@ -176,7 +179,7 @@ public sealed class IntegrationEventPayloadContractTests
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
             runId = (Guid?)Guid.NewGuid(),
-            targetTier = (string?)null,
+            targetTier = (string?)null
         };
 
         AssertPayloadMatchesCommittedSchema("trial-lifecycle-email.v1.schema.json", payload);
@@ -194,7 +197,7 @@ public sealed class IntegrationEventPayloadContractTests
             providerDedupeKey = "sub|Subscribe|ABCD1234",
             action = "Subscribe",
             subscriptionId = "guid-from-marketplace",
-            billingProvider = "AzureMarketplace",
+            billingProvider = "AzureMarketplace"
         };
 
         AssertPayloadMatchesCommittedSchema("billing-marketplace-webhook-received.v1.schema.json", payload);
@@ -224,14 +227,16 @@ public sealed class IntegrationEventPayloadContractTests
         {
             ["authority-run-completed.v1.schema.json"] = IntegrationEventTypes.AuthorityRunCompletedV1,
             ["governance-approval-submitted.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalSubmittedV1,
-            ["governance-promotion-activated.v1.schema.json"] = IntegrationEventTypes.GovernancePromotionActivatedV1,
+            ["governance-promotion-activated.v1.schema.json"] =
+                IntegrationEventTypes.GovernancePromotionActivatedV1,
             ["alert-fired.v1.schema.json"] = IntegrationEventTypes.AlertFiredV1,
             ["alert-resolved.v1.schema.json"] = IntegrationEventTypes.AlertResolvedV1,
             ["advisory-scan-completed.v1.schema.json"] = IntegrationEventTypes.AdvisoryScanCompletedV1,
             ["compliance-drift-escalated.v1.schema.json"] = IntegrationEventTypes.ComplianceDriftEscalatedV1,
             ["seat-reservation-released.v1.schema.json"] = IntegrationEventTypes.SeatReservationReleasedV1,
             ["trial-lifecycle-email.v1.schema.json"] = IntegrationEventTypes.TrialLifecycleEmailV1,
-            ["billing-marketplace-webhook-received.v1.schema.json"] = IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1,
+            ["billing-marketplace-webhook-received.v1.schema.json"] =
+                IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1
         };
 
         HashSet<string> catalogSchemaFiles = new(StringComparer.Ordinal);
@@ -248,7 +253,7 @@ public sealed class IntegrationEventPayloadContractTests
 
             string eventType = eventEntry.GetProperty("eventType").GetString()!;
             expectedFileToEventType.TryGetValue(schemaFile, out string? expectedType).Should().BeTrue(
-                because: $"unexpected schemaFile in catalog: {schemaFile}");
+                $"unexpected schemaFile in catalog: {schemaFile}");
             eventType.Should().Be(expectedType);
         }
 
@@ -259,7 +264,7 @@ public sealed class IntegrationEventPayloadContractTests
     {
         string path = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events", schemaFileName);
 
-        File.Exists(path).Should().BeTrue(because: $"schema file must be copied to test output: {path}");
+        File.Exists(path).Should().BeTrue($"schema file must be copied to test output: {path}");
 
         string schemaJson = File.ReadAllText(path);
         using JsonDocument schemaDoc = JsonDocument.Parse(schemaJson);
@@ -275,12 +280,12 @@ public sealed class IntegrationEventPayloadContractTests
         if (schemaRoot.TryGetProperty("required", out JsonElement requiredElement)
             && requiredElement.ValueKind == JsonValueKind.Array)
         {
-            foreach (var name in requiredElement.EnumerateArray().Select(nameElement => nameElement.GetString()))
+            foreach (string? name in requiredElement.EnumerateArray().Select(nameElement => nameElement.GetString()))
             {
                 name.Should().NotBeNullOrWhiteSpace();
 
                 payloadRoot.TryGetProperty(name, out JsonElement _).Should().BeTrue(
-                    because: $"required property '{name}' must exist in serialized payload for {schemaFileName}");
+                    $"required property '{name}' must exist in serialized payload for {schemaFileName}");
             }
         }
 
@@ -290,7 +295,6 @@ public sealed class IntegrationEventPayloadContractTests
             foreach (JsonProperty payloadProperty in payloadRoot.EnumerateObject())
             {
                 propertiesElement.TryGetProperty(payloadProperty.Name, out JsonElement _).Should().BeTrue(
-                    because:
                     $"serialized payload property '{payloadProperty.Name}' must be declared in schema {schemaFileName} (catch typos; additional payload fields require a schema update)");
             }
         }

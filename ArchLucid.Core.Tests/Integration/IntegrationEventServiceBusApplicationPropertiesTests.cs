@@ -16,11 +16,7 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     {
         byte[] utf8 = Encoding.UTF8.GetBytes(
             JsonSerializer.Serialize(
-                new
-                {
-                    schemaVersion = 1,
-                    environment = "Prod",
-                }));
+                new { schemaVersion = 1, environment = "Prod" }));
 
         IReadOnlyDictionary<string, object>? props =
             IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
@@ -47,12 +43,7 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     {
         byte[] utf8 = Encoding.UTF8.GetBytes(
             JsonSerializer.Serialize(
-                new
-                {
-                    schemaVersion = 1,
-                    severity = "High",
-                    deduplicationKey = "rule:1:run:a",
-                }));
+                new { schemaVersion = 1, severity = "High", deduplicationKey = "rule:1:run:a" }));
 
         IReadOnlyDictionary<string, object>? props =
             IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
@@ -69,11 +60,7 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
     {
         byte[] utf8 = Encoding.UTF8.GetBytes(
             JsonSerializer.Serialize(
-                new
-                {
-                    schemaVersion = 1,
-                    deduplicationKey = " k ",
-                }));
+                new { schemaVersion = 1, deduplicationKey = " k " }));
 
         IReadOnlyDictionary<string, object>? props =
             IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(

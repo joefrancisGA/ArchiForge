@@ -67,8 +67,8 @@ public sealed class SqlRowLevelSecurityBypassAmbientTests
         try
         {
             SqlRowLevelSecurityBypassAmbient.ConfigureBypassPolicy(
-                breakGlassEnabled: () => false,
-                strictBypassRequired: () => true);
+                () => false,
+                () => true);
 
             Action act = () => _ = SqlRowLevelSecurityBypassAmbient.Enter();
 
@@ -78,8 +78,8 @@ public sealed class SqlRowLevelSecurityBypassAmbientTests
         finally
         {
             SqlRowLevelSecurityBypassAmbient.ConfigureBypassPolicy(
-                breakGlassEnabled: () => true,
-                strictBypassRequired: () => false);
+                () => true,
+                () => false);
         }
     }
 }

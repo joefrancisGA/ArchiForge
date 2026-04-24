@@ -52,9 +52,8 @@ public sealed class LlmCostUsdInstrumentationTests
 
     private sealed class DoubleMeasurementCapture : IDisposable
     {
-        private readonly MeterListener _listener = new();
-
         private readonly List<DoubleMeasurementRecord> _doubleMeasures = [];
+        private readonly MeterListener _listener = new();
 
         private DoubleMeasurementCapture()
         {
@@ -65,9 +64,15 @@ public sealed class LlmCostUsdInstrumentationTests
 
         public IReadOnlyList<DoubleMeasurementRecord> DoubleMeasures => _doubleMeasures;
 
-        public static DoubleMeasurementCapture Start() => new();
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
 
-        public void Dispose() => _listener.Dispose();
+        public static DoubleMeasurementCapture Start()
+        {
+            return new DoubleMeasurementCapture();
+        }
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {

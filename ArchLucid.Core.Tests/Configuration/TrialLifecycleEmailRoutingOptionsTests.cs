@@ -27,7 +27,7 @@ public sealed class TrialLifecycleEmailRoutingOptionsTests
     {
         TrialLifecycleEmailRoutingOptions options = new()
         {
-            Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp,
+            Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp
         };
 
         options.IsLogicAppOwned().Should().BeTrue();
@@ -38,7 +38,7 @@ public sealed class TrialLifecycleEmailRoutingOptionsTests
     {
         TrialLifecycleEmailRoutingOptions options = new()
         {
-            Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.Hosted,
+            Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.Hosted
         };
 
         options.IsLogicAppOwned().Should().BeFalse();
@@ -47,10 +47,7 @@ public sealed class TrialLifecycleEmailRoutingOptionsTests
     [Fact]
     public void IsLogicAppOwned_false_when_owner_whitespace()
     {
-        TrialLifecycleEmailRoutingOptions options = new()
-        {
-            Owner = "   "
-        };
+        TrialLifecycleEmailRoutingOptions options = new() { Owner = "   " };
 
         options.IsLogicAppOwned().Should().BeFalse();
     }

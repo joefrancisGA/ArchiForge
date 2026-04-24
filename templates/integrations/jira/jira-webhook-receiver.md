@@ -1,5 +1,7 @@
 # Jira issue create — customer-operated webhook recipe
 
+> **Long-form V1 bridge (objectives, run + findings, Security, Operations):** [jira-webhook-bridge-recipe.md](jira-webhook-bridge-recipe.md)
+
 **Disclaimer:** This is a **recipe template**, not a first-party ArchLucid Jira connector. First-party Jira is **V1.1**; see [V1_DEFERRED.md](../../../docs/library/V1_DEFERRED.md) §6.
 
 **Contracts:** [catalog.json](../../../schemas/integration-events/catalog.json) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)

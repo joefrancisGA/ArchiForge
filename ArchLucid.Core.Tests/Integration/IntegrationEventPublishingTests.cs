@@ -32,11 +32,8 @@ public sealed class IntegrationEventPublishingTests
             publisher.Object,
             logger.Object,
             "com.archlucid.test",
-            new
-            {
-                x = 1
-            },
-            messageId: null,
+            new { x = 1 },
+            null,
             CancellationToken.None);
 
         await act.Should().NotThrowAsync();
@@ -61,11 +58,8 @@ public sealed class IntegrationEventPublishingTests
             publisher.Object,
             logger.Object,
             "com.archlucid.test",
-            new
-            {
-                x = 1
-            },
-            messageId: null,
+            new { x = 1 },
+            null,
             CancellationToken.None);
 
         await act.Should().ThrowAsync<OutOfMemoryException>();

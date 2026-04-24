@@ -7,7 +7,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Diagnostics;
 
-/// <summary>MeterListener coverage for business KPI instruments on <see cref="ArchLucidInstrumentation"/>.</summary>
+/// <summary>MeterListener coverage for business KPI instruments on <see cref="ArchLucidInstrumentation" />.</summary>
 [Trait("Suite", "Core")]
 public sealed class BusinessMetricsTests
 {
@@ -38,7 +38,8 @@ public sealed class BusinessMetricsTests
         capture.LongMeasures.Should().Contain(m =>
             m.Name == "archlucid_findings_produced_total"
             && m.Value == 2
-            && m.Tags.Any(t => t.Key == "severity" && string.Equals(t.Value as string, "Critical", StringComparison.Ordinal)));
+            && m.Tags.Any(t =>
+                t.Key == "severity" && string.Equals(t.Value as string, "Critical", StringComparison.Ordinal)));
     }
 
     [Fact]
@@ -93,14 +94,14 @@ public sealed class BusinessMetricsTests
             "archlucid_findings_produced_total",
             "archlucid_explanation_cache_hits_total",
             "archlucid_explanation_cache_misses_total",
-            "archlucid_authority_pipeline_timeouts_total",
+            "archlucid_authority_pipeline_timeouts_total"
         ];
+
+        private readonly List<IntMeasurementRecord> _intMeasures = [];
 
         private readonly MeterListener _listener = new();
 
         private readonly List<LongMeasurementRecord> _longMeasures = [];
-
-        private readonly List<IntMeasurementRecord> _intMeasures = [];
 
         private BusinessMeasurementCapture()
         {
@@ -114,9 +115,15 @@ public sealed class BusinessMetricsTests
 
         public IReadOnlyList<IntMeasurementRecord> IntMeasures => _intMeasures;
 
-        public static BusinessMeasurementCapture Start() => new();
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
 
-        public void Dispose() => _listener.Dispose();
+        public static BusinessMeasurementCapture Start()
+        {
+            return new BusinessMeasurementCapture();
+        }
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {

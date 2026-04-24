@@ -46,7 +46,8 @@ public sealed class TrialFunnelInstrumentationTests
 
         ArchLucidInstrumentation.RecordTrialFirstRunLatencySeconds(42);
 
-        c.DoubleMeasures.Should().Contain(m => m.Name == "archlucid_trial_first_run_seconds" && Math.Abs(m.Value - 42) < 0.001);
+        c.DoubleMeasures.Should().Contain(m =>
+            m.Name == "archlucid_trial_first_run_seconds" && Math.Abs(m.Value - 42) < 0.001);
     }
 
     [Fact]
@@ -58,7 +59,8 @@ public sealed class TrialFunnelInstrumentationTests
 
         ArchLucidInstrumentation.RecordTrialRunsUsedRatio(0.4);
 
-        c.DoubleMeasures.Should().Contain(m => m.Name == "archlucid_trial_runs_used_ratio" && Math.Abs(m.Value - 0.4) < 0.001);
+        c.DoubleMeasures.Should()
+            .Contain(m => m.Name == "archlucid_trial_runs_used_ratio" && Math.Abs(m.Value - 0.4) < 0.001);
     }
 
     [Fact]
@@ -136,14 +138,13 @@ public sealed class TrialFunnelInstrumentationTests
             }
         };
 
-        listener.SetMeasurementEventCallback<long>(
-            (instrument, measurement, _, _) =>
+        listener.SetMeasurementEventCallback<long>((instrument, measurement, _, _) =>
+        {
+            if (instrument.Name == "archlucid_trial_active_tenants")
             {
-                if (instrument.Name == "archlucid_trial_active_tenants")
-                {
-                    observed.Add(measurement);
-                }
-            });
+                observed.Add(measurement);
+            }
+        });
 
         listener.Start();
         listener.RecordObservableInstruments();
@@ -160,20 +161,20 @@ public sealed class TrialFunnelInstrumentationTests
             "archlucid_trial_conversion_total",
             "archlucid_trial_expirations_total",
             "archlucid_billing_checkouts_total",
-            "archlucid.ui.sponsor_banner.first_commit_badge_rendered",
+            "archlucid.ui.sponsor_banner.first_commit_badge_rendered"
         ];
 
         private static readonly string[] DoubleNames =
         [
             "archlucid_trial_first_run_seconds",
-            "archlucid_trial_runs_used_ratio",
+            "archlucid_trial_runs_used_ratio"
         ];
+
+        private readonly List<DoubleMeasurementRecord> _doubleMeasures = [];
 
         private readonly MeterListener _listener = new();
 
         private readonly List<LongMeasurementRecord> _longMeasures = [];
-
-        private readonly List<DoubleMeasurementRecord> _doubleMeasures = [];
 
         private TrialFunnelCapture()
         {
@@ -187,9 +188,15 @@ public sealed class TrialFunnelInstrumentationTests
 
         public IReadOnlyList<DoubleMeasurementRecord> DoubleMeasures => _doubleMeasures;
 
-        public static TrialFunnelCapture Start() => new();
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
 
-        public void Dispose() => _listener.Dispose();
+        public static TrialFunnelCapture Start()
+        {
+            return new TrialFunnelCapture();
+        }
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {

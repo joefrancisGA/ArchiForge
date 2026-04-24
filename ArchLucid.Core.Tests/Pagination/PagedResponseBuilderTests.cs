@@ -12,7 +12,7 @@ public sealed class PagedResponseBuilderTests
     {
         IReadOnlyList<int> all = [1, 2, 3, 4, 5];
 
-        PagedResponse<int> page = PagedResponseBuilder.Build(all, page: 2, pageSize: 2);
+        PagedResponse<int> page = PagedResponseBuilder.Build(all, 2, 2);
 
         page.Items.Should().Equal(3, 4);
         page.TotalCount.Should().Be(5);
@@ -25,7 +25,7 @@ public sealed class PagedResponseBuilderTests
     {
         IReadOnlyList<string> items = ["a"];
 
-        PagedResponse<string> page = PagedResponseBuilder.FromDatabasePage(items, totalCount: 99, page: 0, pageSize: 5);
+        PagedResponse<string> page = PagedResponseBuilder.FromDatabasePage(items, 99, 0, 5);
 
         page.Items.Should().Equal("a");
         page.TotalCount.Should().Be(99);

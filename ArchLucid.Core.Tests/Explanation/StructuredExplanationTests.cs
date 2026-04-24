@@ -12,8 +12,7 @@ public sealed class StructuredExplanationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true
     };
 
     [Fact]
@@ -26,7 +25,7 @@ public sealed class StructuredExplanationTests
             EvidenceRefs = ["edge-1", "node-2"],
             Confidence = 0.82m,
             AlternativesConsidered = ["Keep monolith"],
-            Caveats = ["Assumes latest scan"],
+            Caveats = ["Assumes latest scan"]
         };
 
         string json = JsonSerializer.Serialize(original, JsonOptions);
@@ -44,10 +43,7 @@ public sealed class StructuredExplanationTests
     [Fact]
     public void Defaults_schema_version_one_empty_evidence_null_optionals()
     {
-        StructuredExplanation sut = new()
-        {
-            Reasoning = "x",
-        };
+        StructuredExplanation sut = new() { Reasoning = "x" };
 
         sut.SchemaVersion.Should().Be(1);
         sut.EvidenceRefs.Should().BeEmpty();

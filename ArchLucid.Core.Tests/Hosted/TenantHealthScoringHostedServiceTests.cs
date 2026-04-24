@@ -62,7 +62,8 @@ public sealed class TenantHealthScoringHostedServiceTests
         HostLeaderElectionCoordinator coordinator = CreateCoordinatorWithElectionDisabled();
 
         Mock<IOptionsMonitor<TenantHealthScoringOptions>> scoringOpts = new();
-        scoringOpts.Setup(o => o.CurrentValue).Returns(new TenantHealthScoringOptions { Enabled = true, IntervalHours = 24 });
+        scoringOpts.Setup(o => o.CurrentValue)
+            .Returns(new TenantHealthScoringOptions { Enabled = true, IntervalHours = 24 });
 
         TenantHealthScoringHostedService sut = new(
             sp,

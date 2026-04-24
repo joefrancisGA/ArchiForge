@@ -21,12 +21,7 @@ public sealed class AmbientScopeContextTests
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
         Guid projectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
-        ScopeContext pushed = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId
-        };
+        ScopeContext pushed = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
         IDisposable handle = AmbientScopeContext.Push(pushed);
 
@@ -78,9 +73,7 @@ public sealed class AmbientScopeContextTests
     {
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         IDisposable handle = AmbientScopeContext.Push(scope);

@@ -79,13 +79,26 @@ public sealed class HostEnvironmentClassificationTests
 
         public string EnvironmentName
         {
-            get; set;
+            get;
+            set;
         }
 
-        public string ApplicationName { get; set; } = "ArchLucid.Core.Tests";
+        public string ApplicationName
+        {
+            get;
+            set;
+        } = "ArchLucid.Core.Tests";
 
-        public string ContentRootPath { get; set; } = "/";
+        public string ContentRootPath
+        {
+            get;
+            set;
+        } = "/";
 
-        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
+        public IFileProvider ContentRootFileProvider
+        {
+            get;
+            set;
+        } = new NullFileProvider();
     }
 }

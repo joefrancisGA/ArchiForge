@@ -64,10 +64,7 @@ public sealed class ExplanationResultTests
     {
         ComparisonExplanationResult sut = new()
         {
-            HighLevelSummary = "high",
-            Narrative = "long",
-            MajorChanges = ["a"],
-            KeyTradeoffs = ["b"]
+            HighLevelSummary = "high", Narrative = "long", MajorChanges = ["a"], KeyTradeoffs = ["b"]
         };
 
         sut.HighLevelSummary.Should().Be("high");

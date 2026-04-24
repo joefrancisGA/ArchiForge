@@ -196,7 +196,7 @@ ServiceNow JSON body (template):
 ## Error handling
 
 - HMAC failure → **401** / drop.  
-- Jira/ServiceNow **4xx** on create → log, alert, optional DLQ.  
+- ServiceNow **4xx** on create → log, alert, optional DLQ.  
 - ArchLucid **GET** **404** → no incident (stale `runId`).
 
 ---
@@ -205,7 +205,7 @@ ServiceNow JSON body (template):
 
 1. **When a HTTP request is received** (raw) — *prefer* **Function** in front for HMAC.  
 2. **Condition** on `type` from `json(body('HTTP'))?['type']`.  
-3. For **run.completed** → **HTTP** GET `https://@{parameters('archlucidHost')}/v1/authority/runs/@{...}` with **Active Directory OAuth** or **API key** header.  
+3. For **run.completed** → **HTTP** GET `https://@{parameters('archlucidHost')}/v1/authority/runs/@{...}` with **Microsoft Entra ID** app registration (OAuth) or **API key** header.  
 4. **Parse JSON** of run; **for each** finding: **HTTP POST** to `.../api/now/table/incident` with **Basic** or **SN OAuth**.  
 5. For **alert.fired** → single **HTTP POST** incident (mapping table B).
 

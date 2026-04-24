@@ -7,8 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.Core.Tests.Diagnostics;
 
 /// <summary>
-/// Unit tests for <see cref="MeterListenerCounterSnapshotProvider"/> — the host-singleton listener that
-/// powers the <c>/why-archlucid</c> proof page's process-life counter snapshot.
+///     Unit tests for <see cref="MeterListenerCounterSnapshotProvider" /> — the host-singleton listener that
+///     powers the <c>/why-archlucid</c> proof page's process-life counter snapshot.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class MeterListenerCounterSnapshotProviderTests
@@ -57,7 +57,8 @@ public sealed class MeterListenerCounterSnapshotProviderTests
 
         InstrumentationCounterSnapshot snapshot = sut.GetSnapshot();
 
-        snapshot.FindingsProducedBySeverity.Should().ContainKey("Critical").WhoseValue.Should().BeGreaterThanOrEqualTo(3);
+        snapshot.FindingsProducedBySeverity.Should().ContainKey("Critical").WhoseValue.Should()
+            .BeGreaterThanOrEqualTo(3);
         snapshot.FindingsProducedBySeverity.Should().ContainKey("High").WhoseValue.Should().BeGreaterThanOrEqualTo(3);
     }
 
@@ -93,7 +94,8 @@ public sealed class MeterListenerCounterSnapshotProviderTests
 
         InstrumentationCounterSnapshot snapshot = sut.GetSnapshot();
 
-        snapshot.FindingsProducedBySeverity.Should().ContainKey("unknown").WhoseValue.Should().BeGreaterThanOrEqualTo(7);
+        snapshot.FindingsProducedBySeverity.Should().ContainKey("unknown").WhoseValue.Should()
+            .BeGreaterThanOrEqualTo(7);
     }
 
     [Fact]
@@ -109,7 +111,9 @@ public sealed class MeterListenerCounterSnapshotProviderTests
 
         InstrumentationCounterSnapshot snapshot = sut.GetSnapshot();
 
-        snapshot.OperatorTaskSuccessByTask.Should().ContainKey("first_run_committed").WhoseValue.Should().BeGreaterThanOrEqualTo(2);
-        snapshot.OperatorTaskSuccessByTask.Should().ContainKey("first_session_completed").WhoseValue.Should().BeGreaterThanOrEqualTo(1);
+        snapshot.OperatorTaskSuccessByTask.Should().ContainKey("first_run_committed").WhoseValue.Should()
+            .BeGreaterThanOrEqualTo(2);
+        snapshot.OperatorTaskSuccessByTask.Should().ContainKey("first_session_completed").WhoseValue.Should()
+            .BeGreaterThanOrEqualTo(1);
     }
 }

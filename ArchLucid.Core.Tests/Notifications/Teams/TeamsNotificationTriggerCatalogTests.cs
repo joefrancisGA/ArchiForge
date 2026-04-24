@@ -50,10 +50,13 @@ public sealed class TeamsNotificationTriggerCatalogTests
     [Fact]
     public void ParseOrDefault_returns_full_catalog_for_null_or_empty_or_invalid_json()
     {
-        TeamsNotificationTriggerCatalog.ParseOrDefault(null).Should().BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
+        TeamsNotificationTriggerCatalog.ParseOrDefault(null).Should()
+            .BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
         TeamsNotificationTriggerCatalog.ParseOrDefault("").Should().BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
-        TeamsNotificationTriggerCatalog.ParseOrDefault("   ").Should().BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
-        TeamsNotificationTriggerCatalog.ParseOrDefault("not json").Should().BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
+        TeamsNotificationTriggerCatalog.ParseOrDefault("   ").Should()
+            .BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
+        TeamsNotificationTriggerCatalog.ParseOrDefault("not json").Should()
+            .BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
     }
 
     [Fact]
@@ -61,20 +64,14 @@ public sealed class TeamsNotificationTriggerCatalogTests
     {
         string json = JsonSerializer.Serialize(new[]
         {
-            IntegrationEventTypes.AuthorityRunCompletedV1,
-            "",
-            "com.archlucid.does.not.exist",
-            IntegrationEventTypes.AlertFiredV1,
-            IntegrationEventTypes.AuthorityRunCompletedV1,
+            IntegrationEventTypes.AuthorityRunCompletedV1, "", "com.archlucid.does.not.exist",
+            IntegrationEventTypes.AlertFiredV1, IntegrationEventTypes.AuthorityRunCompletedV1
         });
 
         IReadOnlyList<string> parsed = TeamsNotificationTriggerCatalog.ParseOrDefault(json);
 
-        parsed.Should().BeEquivalentTo(new[]
-        {
-            IntegrationEventTypes.AuthorityRunCompletedV1,
-            IntegrationEventTypes.AlertFiredV1,
-        });
+        parsed.Should().BeEquivalentTo(IntegrationEventTypes.AuthorityRunCompletedV1,
+            IntegrationEventTypes.AlertFiredV1);
     }
 
     [Fact]
@@ -112,7 +109,7 @@ public sealed class TeamsNotificationTriggerCatalogTests
             "com.archlucid.bad.two"
         ]);
 
-        unknown.Should().BeEquivalentTo(new[] { "com.archlucid.bad.one", "com.archlucid.bad.two" });
+        unknown.Should().BeEquivalentTo("com.archlucid.bad.one", "com.archlucid.bad.two");
     }
 
     [Fact]

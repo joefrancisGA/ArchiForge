@@ -25,7 +25,7 @@ public sealed class DurableAuditLogRetryTests
             NullLogger.Instance,
             "test-op",
             CancellationToken.None,
-            maxAttempts: 3);
+            3);
 
         calls.Should().Be(1);
     }
@@ -45,7 +45,7 @@ public sealed class DurableAuditLogRetryTests
             NullLogger.Instance,
             "test-op",
             CancellationToken.None,
-            maxAttempts: 3);
+            3);
 
         calls.Should().Be(2);
     }
@@ -65,7 +65,7 @@ public sealed class DurableAuditLogRetryTests
             NullLogger.Instance,
             "test-op",
             CancellationToken.None,
-            maxAttempts: 2);
+            2);
 
         calls.Should().Be(2);
     }

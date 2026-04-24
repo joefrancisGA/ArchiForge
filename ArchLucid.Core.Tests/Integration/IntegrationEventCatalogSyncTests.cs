@@ -7,7 +7,10 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Integration;
 
-/// <summary>Ensures <c>schemas/integration-events/catalog.json</c> stays aligned with <see cref="IntegrationEventTypes"/> and copied schema files.</summary>
+/// <summary>
+///     Ensures <c>schemas/integration-events/catalog.json</c> stays aligned with <see cref="IntegrationEventTypes" />
+///     and copied schema files.
+/// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class IntegrationEventCatalogSyncTests
@@ -16,7 +19,7 @@ public sealed class IntegrationEventCatalogSyncTests
     public void Catalog_json_matches_integration_event_types_and_schema_artifacts()
     {
         string catalogPath = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events", "catalog.json");
-        File.Exists(catalogPath).Should().BeTrue(because: $"catalog must be copied to test output: {catalogPath}");
+        File.Exists(catalogPath).Should().BeTrue($"catalog must be copied to test output: {catalogPath}");
 
         string catalogJson = File.ReadAllText(catalogPath);
         using JsonDocument catalogDoc = JsonDocument.Parse(catalogJson);
@@ -33,8 +36,10 @@ public sealed class IntegrationEventCatalogSyncTests
             string transport = eventElement.GetProperty("transport").GetString()!;
             bool outboxSupported = eventElement.GetProperty("outboxSupported").GetBoolean();
 
-            transport.Should().Be("Azure Service Bus (topic)", because: $"catalog transport for {eventType} must match published integration channel");
-            outboxSupported.Should().BeTrue(because: $"catalog outboxSupported for {eventType} must match transactional outbox coverage in docs");
+            transport.Should().Be("Azure Service Bus (topic)",
+                $"catalog transport for {eventType} must match published integration channel");
+            outboxSupported.Should()
+                .BeTrue($"catalog outboxSupported for {eventType} must match transactional outbox coverage in docs");
 
             catalogRows.Add((eventType, schemaFile, schemaUri));
         }
@@ -43,22 +48,23 @@ public sealed class IntegrationEventCatalogSyncTests
 
         catalogRows.Select(row => row.EventType).Should().BeEquivalentTo(
             codeEventTypes,
-            because: "every IntegrationEventTypes constant (except wildcard) must appear in catalog, and catalog must not list unknown types");
+            "every IntegrationEventTypes constant (except wildcard) must appear in catalog, and catalog must not list unknown types");
 
         string schemasDir = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events");
 
         foreach ((string _, string schemaFile, string schemaUri) in catalogRows)
         {
             string schemaPath = Path.Combine(schemasDir, schemaFile);
-            File.Exists(schemaPath).Should().BeTrue(because: $"catalog schemaFile must exist in test output: {schemaPath}");
+            File.Exists(schemaPath).Should().BeTrue($"catalog schemaFile must exist in test output: {schemaPath}");
 
             string schemaText = File.ReadAllText(schemaPath);
             using JsonDocument schemaDoc = JsonDocument.Parse(schemaText);
             JsonElement schemaRoot = schemaDoc.RootElement;
 
-            schemaRoot.TryGetProperty("$id", out JsonElement idElement).Should().BeTrue(because: $"schema {schemaFile} must declare $id");
+            schemaRoot.TryGetProperty("$id", out JsonElement idElement).Should()
+                .BeTrue($"schema {schemaFile} must declare $id");
             string? idFromFile = idElement.GetString();
-            idFromFile.Should().Be(schemaUri, because: "catalog schemaUri must match the schema file $id");
+            idFromFile.Should().Be(schemaUri, "catalog schemaUri must match the schema file $id");
         }
     }
 
