@@ -1,5 +1,7 @@
 > **Scope:** Canonical single entry point for every audience (buyer, security reviewer, contributor, architect); routes you to the right next document in one click. Not a primer, narrative, or substitute for the linked docs themselves.
 
+> **If you are pressed for time, read [`docs/CONTRIBUTOR_ON_ONE_PAGE.md`](CONTRIBUTOR_ON_ONE_PAGE.md) first.**
+
 # Read this first
 
 - **Are you a buyer or sponsor?** → [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)

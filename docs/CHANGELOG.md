@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-24 — Contributor one-pager + CI line budget
+
+**Outcome.** New **[`docs/CONTRIBUTOR_ON_ONE_PAGE.md`](CONTRIBUTOR_ON_ONE_PAGE.md)** (≤80 lines, scope-first) covers install order, a **60-second** `archlucid try` check, an **I want to…** pointer table, and **if broken** (`TROUBLESHOOTING.md`, support-bundle, doctor). **README** persona rows prepend that file as the **first** link without dropping existing targets. **`docs/READ_THIS_FIRST.md`** adds a time-pressed callout. **CI:** `scripts/ci/assert_contributor_on_one_page_size.py` + unit test under **`doc-markdown-links`**. **`assert_docs_root_size`** default **max** raised **30 → 31** for the extra root markdown file.
+
+---
+
 ## 2026-04-24 — Sponsor banner first-commit pin for all tenants + SQL backfill script
 
 **Outcome.** **`dbo.Tenants.TrialFirstManifestCommittedUtc`** is now written on the **first golden manifest commit for every tenant** (`ITenantRepository.TryMarkFirstManifestCommittedAsync`, renamed from the trial-only SQL guard). **`SqlTrialFunnelCommitHook`** still emits **`TrialFirstRunCompleted`** + trial histograms **only** when **`TrialExpiresUtc`** is set. **`GET /v1/tenant/trial-status`** already projected **`firstCommitUtc`** on both branches; operator **`EmailRunToSponsorBanner`** behaviour unchanged. **Maintenance:** idempotent **`ArchLucid.Persistence/Scripts/Maintenance/Backfill-FirstManifestCommittedUtc.sql`** sets the column from **`MIN(dbo.GoldenManifests.CreatedUtc)`** where still null. **Tests:** **`SqlTrialFunnelCommitHookTests`**, InMemory non-trial **`TryMarkFirstManifestCommittedAsync`** case, Vitest fake-clock day badge. **Docs:** **`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`**, **`API_CONTRACTS.md`**, **`EXECUTIVE_SPONSOR_BRIEF.md`**. **Audit matrix:** **`audit-core-const-count:118`** unchanged (no new **`AuditEventTypes`**).

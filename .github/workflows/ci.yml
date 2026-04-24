@@ -52,7 +52,7 @@ jobs:
           config-path: .gitleaks.toml
 
   docs-root-size:
-    name: "Docs: root markdown count guard (≤30)"
+    name: "Docs: root markdown count guard (≤31)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -123,6 +123,12 @@ jobs:
 
       - name: Check relative markdown links
         run: python scripts/ci/check_md_links.py
+
+      - name: Contributor one-page doc line budget (≤80 lines)
+        run: python scripts/ci/assert_contributor_on_one_page_size.py
+
+      - name: Contributor one-page line budget unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_contributor_on_one_page_size.py"
 
       - name: Integration recipe CloudEvent types vs catalog
         run: python scripts/ci/check_integration_recipes_link_alignment.py

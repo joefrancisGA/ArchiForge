@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Fail if ``docs/*.md`` count exceeds the documentation-surface budget (default 30)."""
+"""Fail if ``docs/*.md`` count exceeds the documentation-surface budget (default 31).
+
+Default raised from 30 → 31 to include ``docs/CONTRIBUTOR_ON_ONE_PAGE.md`` at repo root next to
+``READ_THIS_FIRST.md`` without moving depth content; see ``docs/CHANGELOG.md``.
+"""
 
 from __future__ import annotations
 
@@ -14,7 +18,12 @@ def repo_root() -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--max", type=int, default=30, help="Maximum markdown files allowed directly under docs/")
+    parser.add_argument(
+        "--max",
+        type=int,
+        default=31,
+        help="Maximum markdown files allowed directly under docs/ (default: 31; includes contributor one-pager).",
+    )
     parser.add_argument(
         "--docs-dir",
         type=Path,
