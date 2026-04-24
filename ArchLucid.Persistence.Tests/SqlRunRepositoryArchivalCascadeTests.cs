@@ -67,6 +67,10 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
             await repo.ArchiveRunsCreatedBeforeAsync(DateTimeOffset.UtcNow.AddDays(-1), CancellationToken.None);
 
         batch.UpdatedCount.Should().BeGreaterThanOrEqualTo(1);
+        batch.ChildCascade.ContextSnapshots.Should().BeGreaterThanOrEqualTo(1, "cascade count returned with bulk archive batch");
+        batch.ChildCascade.FindingsSnapshots.Should().BeGreaterThanOrEqualTo(1, "cascade count returned with bulk archive batch");
+        batch.ChildCascade.GraphSnapshots.Should().BeGreaterThanOrEqualTo(1, "cascade count returned with bulk archive batch");
+        batch.ChildCascade.DecisioningTraces.Should().BeGreaterThanOrEqualTo(1, "cascade count returned with bulk archive batch");
 
         DateTime? contextArchived = await ReadArchivedUtcAsync(seed, "dbo.ContextSnapshots", "SnapshotId", contextId, CancellationToken.None);
         DateTime? graphArchived = await ReadArchivedUtcAsync(seed, "dbo.GraphSnapshots", "GraphSnapshotId", graphId, CancellationToken.None);
@@ -125,6 +129,8 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         RunArchiveByIdsResult result = await repo.ArchiveRunsByIdsAsync([runId], CancellationToken.None);
 
         result.SucceededRunIds.Should().ContainSingle().Which.Should().Be(runId);
+        result.ChildCascade.ContextSnapshots.Should().BeGreaterThanOrEqualTo(1);
+        result.ChildCascade.FindingsSnapshots.Should().BeGreaterThanOrEqualTo(1);
 
         DateTime? contextArchived = await ReadArchivedUtcAsync(seed, "dbo.ContextSnapshots", "SnapshotId", contextId, CancellationToken.None);
         DateTime? graphArchived = await ReadArchivedUtcAsync(seed, "dbo.GraphSnapshots", "GraphSnapshotId", graphId, CancellationToken.None);
@@ -216,6 +222,7 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         RunArchiveByIdsResult result = await repo.ArchiveRunsByIdsAsync([runId], CancellationToken.None);
 
         result.SucceededRunIds.Should().ContainSingle().Which.Should().Be(runId);
+        result.ChildCascade.GoldenManifests.Should().BeGreaterThanOrEqualTo(1);
 
         DateTime? manifestArchived = await ReadArchivedUtcAsync(seed, "dbo.GoldenManifests", "ManifestId", manifestId, CancellationToken.None);
         manifestArchived.Should().NotBeNull("GoldenManifests.ArchivedUtc should be set in the same batch as dbo.Runs.");

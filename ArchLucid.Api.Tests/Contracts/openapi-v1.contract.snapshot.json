@@ -9815,6 +9815,9 @@
             },
             "type": "array"
           },
+          "childCascade": {
+            "$ref": "#/components/schemas/RunArchiveChildCascadeCounts"
+          },
           "updatedCount": {
             "format": "int32",
             "type": "integer"
@@ -9846,6 +9849,9 @@
             },
             "type": "array"
           },
+          "childCascade": {
+            "$ref": "#/components/schemas/RunArchiveChildCascadeCounts"
+          },
           "failed": {
             "items": {
               "$ref": "#/components/schemas/RunArchiveByIdFailure"
@@ -9858,6 +9864,43 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RunArchiveChildCascadeCounts": {
+        "properties": {
+          "agentExecutionTraces": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "artifactBundles": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "comparisonRecords": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "contextSnapshots": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "decisioningTraces": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "findingsSnapshots": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "goldenManifests": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "graphSnapshots": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"

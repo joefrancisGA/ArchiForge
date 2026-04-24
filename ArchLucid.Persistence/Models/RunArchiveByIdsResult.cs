@@ -25,6 +25,13 @@ public sealed class RunArchiveByIdsResult
         get;
         init;
     } = [];
+
+    /// <summary>Child <c>ArchivedUtc</c> row counts in the same transaction as the run updates.</summary>
+    public RunArchiveChildCascadeCounts ChildCascade
+    {
+        get;
+        init;
+    } = new();
 }
 
 /// <param name="RunId">Requested run id.</param>

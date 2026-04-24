@@ -16,4 +16,11 @@ public sealed class RunArchiveBatchResult
         get;
         init;
     } = [];
+
+    /// <summary>Child <c>ArchivedUtc</c> row counts in the same batch as <see cref="ArchivedRuns" />.</summary>
+    public RunArchiveChildCascadeCounts ChildCascade
+    {
+        get;
+        init;
+    } = new();
 }

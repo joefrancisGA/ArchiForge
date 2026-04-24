@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Support;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;
@@ -33,10 +36,15 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 [EnableRateLimiting("expensive")]
-public sealed class SupportBundleController(ISupportBundleAssembler assembler) : ControllerBase
+public sealed class SupportBundleController(
+    ISupportBundleAssembler assembler,
+    IAuditService auditService) : ControllerBase
 {
     private readonly ISupportBundleAssembler _assembler =
         assembler ?? throw new ArgumentNullException(nameof(assembler));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     /// <summary>Downloads a freshly-assembled, redacted support bundle ZIP.</summary>
     /// <returns>200 OK with <c>application/zip</c> body and a content-disposition file name.</returns>
@@ -53,6 +61,15 @@ public sealed class SupportBundleController(ISupportBundleAssembler assembler) :
             TenantDisplayName: null);
 
         SupportBundleArtifact artifact = await _assembler.AssembleAsync(request, cancellationToken);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.SupportBundleDownloaded,
+                DataJson = JsonSerializer.Serialize(
+                    new { fileName = artifact.FileName, sizeBytes = artifact.Bytes.Length })
+            },
+            cancellationToken);
 
         return File(artifact.Bytes, artifact.ContentType, artifact.FileName);
     }

@@ -9,12 +9,11 @@ using ArchLucid.Core.Integration;
 using FluentAssertions;
 
 using FsCheck;
-
 using FsCheck.Xunit;
 
 namespace ArchLucid.Contracts.Tests;
 
-/// <summary>Property-based JSON round-trip checks for key API contracts using <see cref="IntegrationEventJson.Options"/>.</summary>
+/// <summary>Property-based JSON round-trip checks for key API contracts using <see cref="IntegrationEventJson.Options" />.</summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class JsonRoundTripPropertyTests
@@ -52,7 +51,7 @@ public sealed class JsonRoundTripPropertyTests
     }
 }
 
-/// <summary>FsCheck generators for <see cref="JsonRoundTripPropertyTests"/>.</summary>
+/// <summary>FsCheck generators for <see cref="JsonRoundTripPropertyTests" />.</summary>
 public static class ContractJsonRoundTripArbitraries
 {
     private static readonly string[] GovernanceStatuses =
@@ -62,7 +61,7 @@ public static class ContractJsonRoundTripArbitraries
         GovernanceApprovalStatus.Approved,
         GovernanceApprovalStatus.Rejected,
         GovernanceApprovalStatus.Promoted,
-        GovernanceApprovalStatus.Activated,
+        GovernanceApprovalStatus.Activated
     ];
 
     public static Arbitrary<ArchitectureRequest> ArchitectureRequests()
@@ -84,7 +83,7 @@ public static class ContractJsonRoundTripArbitraries
             from completedFlag in Gen.Choose(0, 1)
             let completed = completedFlag == 1
             from created in Arb.Default.DateTime().Generator
-            let createdUtc = new DateTime(ticks: created.Ticks, kind: DateTimeKind.Utc)
+            let createdUtc = new DateTime(created.Ticks, DateTimeKind.Utc)
             let completedUtc = completed ? createdUtc.AddHours(1) : (DateTime?)null
             select new ArchitectureRun
             {
@@ -100,7 +99,7 @@ public static class ContractJsonRoundTripArbitraries
                 GoldenManifestId = null,
                 DecisionTraceId = null,
                 ArtifactBundleId = null,
-                TaskIds = [.. Enumerable.Range(0, taskCount).Select(static i => $"task-{i}")],
+                TaskIds = [.. Enumerable.Range(0, taskCount).Select(static i => $"task-{i}")]
             };
 
         return gen.ToArbitrary();
@@ -113,7 +112,7 @@ public static class ContractJsonRoundTripArbitraries
             from hasReviewFlag in Gen.Choose(0, 1)
             let hasReview = hasReviewFlag == 1
             from requested in Arb.Default.DateTime().Generator
-            let requestedUtc = new DateTime(ticks: requested.Ticks, kind: DateTimeKind.Utc)
+            let requestedUtc = new DateTime(requested.Ticks, DateTimeKind.Utc)
             from reviewer in Arb.Default.String().Generator
             from requestComment in Arb.Default.String().Generator
             select new GovernanceApprovalRequest
@@ -125,11 +124,11 @@ public static class ContractJsonRoundTripArbitraries
                 TargetEnvironment = GovernanceEnvironment.Test,
                 Status = status,
                 RequestedBy = "requester",
-                ReviewedBy = hasReview ? (string.IsNullOrWhiteSpace(reviewer) ? "rev" : reviewer.Trim()) : null,
+                ReviewedBy = hasReview ? string.IsNullOrWhiteSpace(reviewer) ? "rev" : reviewer.Trim() : null,
                 RequestComment = string.IsNullOrEmpty(requestComment) ? null : requestComment,
                 ReviewComment = hasReview ? "ok" : null,
                 RequestedUtc = requestedUtc,
-                ReviewedUtc = hasReview ? requestedUtc.AddHours(1) : null,
+                ReviewedUtc = hasReview ? requestedUtc.AddHours(1) : null
             };
 
         return gen.ToArbitrary();
@@ -157,7 +156,7 @@ public static class ContractJsonRoundTripArbitraries
             PolicyReferences = [],
             TopologyHints = [],
             SecurityBaselineHints = [],
-            InfrastructureDeclarations = [],
+            InfrastructureDeclarations = []
         };
     }
 

@@ -24,6 +24,22 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "SqlServer")]
 public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
+    // Keep in sync with ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanRemediationSql.SelectOrphanFindingsSnapshotIds
+    // (admin dry-run / remediation uses the same selection).
+    private const string AdminStyleOrphanFindingsSnapshotSelect = """
+        SELECT TOP (@MaxRows) f.FindingsSnapshotId
+        FROM dbo.FindingsSnapshots f
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM dbo.Runs r
+            WHERE r.RunId = f.RunId)
+          AND NOT EXISTS (
+            SELECT 1
+            FROM dbo.GoldenManifests g
+            WHERE g.FindingsSnapshotId = f.FindingsSnapshotId)
+        ORDER BY f.CreatedUtc ASC;
+        """;
+
     // Keep in sync with ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql.
     private const string ComparisonRecordsLeftRunId = """
         SELECT COUNT_BIG(1)
@@ -227,6 +243,14 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         rightOrphans.Should().Be(0L, because: "ComparisonRecords.RightRunId probe after archival");
         goldenOrphans.Should().Be(0L, because: "GoldenManifests.RunId probe after archival");
         findingsOrphans.Should().Be(0L, because: "FindingsSnapshots.RunId probe after archival");
+
+        // Same rows the admin POST …/orphan-findings-snapshots would list (not referenced by a golden manifest as orphan).
+        IReadOnlyList<Guid> adminOrphanList = (await verify.QueryAsync<Guid>(
+            new CommandDefinition(
+                AdminStyleOrphanFindingsSnapshotSelect,
+                new { MaxRows = 100 },
+                cancellationToken: CancellationToken.None))).ToList();
+        adminOrphanList.Should().BeEmpty("admin-style findings-snapshot orphan select after cascaded archival");
     }
 
     private static async Task<long> ScalarCountAsync(SqlConnection connection, string sql, CancellationToken ct)

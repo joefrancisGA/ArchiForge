@@ -314,6 +314,15 @@ public sealed class SqlRunRepository(
                                ScopeProjectId UNIQUEIDENTIFIER NOT NULL
                            );
 
+                           DECLARE @cntGolden INT = 0;
+                           DECLARE @cntFindings INT = 0;
+                           DECLARE @cntContext INT = 0;
+                           DECLARE @cntGraph INT = 0;
+                           DECLARE @cntDecisioning INT = 0;
+                           DECLARE @cntArtifact INT = 0;
+                           DECLARE @cntAgentTrace INT = 0;
+                           DECLARE @cntComparison INT = 0;
+
                            UPDATE dbo.Runs
                            SET ArchivedUtc = SYSUTCDATETIME()
                            OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
@@ -325,6 +334,7 @@ public sealed class SqlRunRepository(
                                UPDATE dbo.GoldenManifests
                                SET ArchivedUtc = SYSUTCDATETIME()
                                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                               SET @cntGolden = @cntGolden + @@ROWCOUNT;
                            END;
 
                            IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
@@ -332,6 +342,7 @@ public sealed class SqlRunRepository(
                                UPDATE dbo.FindingsSnapshots
                                SET ArchivedUtc = SYSUTCDATETIME()
                                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                               SET @cntFindings = @cntFindings + @@ROWCOUNT;
                            END;
 
                            IF COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NOT NULL
@@ -339,6 +350,7 @@ public sealed class SqlRunRepository(
                                UPDATE dbo.ContextSnapshots
                                SET ArchivedUtc = SYSUTCDATETIME()
                                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                               SET @cntContext = @cntContext + @@ROWCOUNT;
                            END;
 
                            IF COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NOT NULL
@@ -346,6 +358,7 @@ public sealed class SqlRunRepository(
                                UPDATE dbo.GraphSnapshots
                                SET ArchivedUtc = SYSUTCDATETIME()
                                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                               SET @cntGraph = @cntGraph + @@ROWCOUNT;
                            END;
 
                            IF COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NOT NULL
@@ -353,6 +366,7 @@ public sealed class SqlRunRepository(
                                UPDATE dbo.DecisioningTraces
                                SET ArchivedUtc = SYSUTCDATETIME()
                                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                               SET @cntDecisioning = @cntDecisioning + @@ROWCOUNT;
                            END;
 
                            IF COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NOT NULL
@@ -360,6 +374,7 @@ public sealed class SqlRunRepository(
                                UPDATE dbo.ArtifactBundles
                                SET ArchivedUtc = SYSUTCDATETIME()
                                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                               SET @cntArtifact = @cntArtifact + @@ROWCOUNT;
                            END;
 
                            IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ArchivedUtc') IS NOT NULL
@@ -368,6 +383,7 @@ public sealed class SqlRunRepository(
                                SET ArchivedUtc = SYSUTCDATETIME()
                                WHERE ArchivedUtc IS NULL
                                  AND TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived);
+                               SET @cntAgentTrace = @cntAgentTrace + @@ROWCOUNT;
                            END;
 
                            IF COL_LENGTH(N'dbo.ComparisonRecords', N'ArchivedUtc') IS NOT NULL
@@ -378,9 +394,19 @@ public sealed class SqlRunRepository(
                                  AND (
                                      TRY_CAST(LeftRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived)
                                      OR TRY_CAST(RightRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived));
+                               SET @cntComparison = @cntComparison + @@ROWCOUNT;
                            END;
 
                            SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;
+                           SELECT
+                               @cntGolden AS GoldenManifests,
+                               @cntFindings AS FindingsSnapshots,
+                               @cntContext AS ContextSnapshots,
+                               @cntGraph AS GraphSnapshots,
+                               @cntDecisioning AS DecisioningTraces,
+                               @cntArtifact AS ArtifactBundles,
+                               @cntAgentTrace AS AgentExecutionTraces,
+                               @cntComparison AS ComparisonRecords;
                            """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -388,17 +414,22 @@ public sealed class SqlRunRepository(
 
         try
         {
-            List<ArchivedRunScopeRow> rows = (await connection.QueryAsync<ArchivedRunScopeRow>(
-                    new CommandDefinition(
-                        sql,
-                        new { Cutoff = cutoffUtc.UtcDateTime },
-                        tran,
-                        cancellationToken: ct)))
-                .ToList();
+            await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+                new CommandDefinition(
+                    sql,
+                    new { Cutoff = cutoffUtc.UtcDateTime },
+                    tran,
+                    cancellationToken: ct));
+
+            List<ArchivedRunScopeRow> rows = (await multi.ReadAsync<ArchivedRunScopeRow>()).ToList();
+            RunArchiveChildCascadeCounts childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>()).Single();
 
             await tran.CommitAsync(ct);
 
-            return new RunArchiveBatchResult { UpdatedCount = rows.Count, ArchivedRuns = rows };
+            return new RunArchiveBatchResult
+            {
+                UpdatedCount = rows.Count, ArchivedRuns = rows, ChildCascade = childCascade
+            };
         }
         catch
         {
@@ -471,6 +502,15 @@ public sealed class SqlRunRepository(
                                      ScopeProjectId UNIQUEIDENTIFIER NOT NULL
                                  );
 
+                                 DECLARE @cntGolden INT = 0;
+                                 DECLARE @cntFindings INT = 0;
+                                 DECLARE @cntContext INT = 0;
+                                 DECLARE @cntGraph INT = 0;
+                                 DECLARE @cntDecisioning INT = 0;
+                                 DECLARE @cntArtifact INT = 0;
+                                 DECLARE @cntAgentTrace INT = 0;
+                                 DECLARE @cntComparison INT = 0;
+
                                  UPDATE dbo.Runs
                                  SET ArchivedUtc = SYSUTCDATETIME()
                                  OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
@@ -482,6 +522,7 @@ public sealed class SqlRunRepository(
                                      UPDATE dbo.GoldenManifests
                                      SET ArchivedUtc = SYSUTCDATETIME()
                                      WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                                     SET @cntGolden = @cntGolden + @@ROWCOUNT;
                                  END;
 
                                  IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
@@ -489,6 +530,7 @@ public sealed class SqlRunRepository(
                                      UPDATE dbo.FindingsSnapshots
                                      SET ArchivedUtc = SYSUTCDATETIME()
                                      WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                                     SET @cntFindings = @cntFindings + @@ROWCOUNT;
                                  END;
 
                                  IF COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NOT NULL
@@ -496,6 +538,7 @@ public sealed class SqlRunRepository(
                                      UPDATE dbo.ContextSnapshots
                                      SET ArchivedUtc = SYSUTCDATETIME()
                                      WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                                     SET @cntContext = @cntContext + @@ROWCOUNT;
                                  END;
 
                                  IF COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NOT NULL
@@ -503,6 +546,7 @@ public sealed class SqlRunRepository(
                                      UPDATE dbo.GraphSnapshots
                                      SET ArchivedUtc = SYSUTCDATETIME()
                                      WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                                     SET @cntGraph = @cntGraph + @@ROWCOUNT;
                                  END;
 
                                  IF COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NOT NULL
@@ -510,6 +554,7 @@ public sealed class SqlRunRepository(
                                      UPDATE dbo.DecisioningTraces
                                      SET ArchivedUtc = SYSUTCDATETIME()
                                      WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                                     SET @cntDecisioning = @cntDecisioning + @@ROWCOUNT;
                                  END;
 
                                  IF COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NOT NULL
@@ -517,6 +562,7 @@ public sealed class SqlRunRepository(
                                      UPDATE dbo.ArtifactBundles
                                      SET ArchivedUtc = SYSUTCDATETIME()
                                      WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+                                     SET @cntArtifact = @cntArtifact + @@ROWCOUNT;
                                  END;
 
                                  IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ArchivedUtc') IS NOT NULL
@@ -525,6 +571,7 @@ public sealed class SqlRunRepository(
                                      SET ArchivedUtc = SYSUTCDATETIME()
                                      WHERE ArchivedUtc IS NULL
                                        AND TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived);
+                                     SET @cntAgentTrace = @cntAgentTrace + @@ROWCOUNT;
                                  END;
 
                                  IF COL_LENGTH(N'dbo.ComparisonRecords', N'ArchivedUtc') IS NOT NULL
@@ -535,20 +582,34 @@ public sealed class SqlRunRepository(
                                        AND (
                                            TRY_CAST(LeftRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived)
                                            OR TRY_CAST(RightRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived));
+                                     SET @cntComparison = @cntComparison + @@ROWCOUNT;
                                  END;
 
                                  SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;
+                                 SELECT
+                                     @cntGolden AS GoldenManifests,
+                                     @cntFindings AS FindingsSnapshots,
+                                     @cntContext AS ContextSnapshots,
+                                     @cntGraph AS GraphSnapshots,
+                                     @cntDecisioning AS DecisioningTraces,
+                                     @cntArtifact AS ArtifactBundles,
+                                     @cntAgentTrace AS AgentExecutionTraces,
+                                     @cntComparison AS ComparisonRecords;
                                  """;
 
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
         List<ArchivedRunScopeRow> archived;
 
+        RunArchiveChildCascadeCounts childCascade;
+
         try
         {
-            archived = (await connection.QueryAsync<ArchivedRunScopeRow>(
-                    new CommandDefinition(updateSql, new { ToArchive = toArchive }, tran, cancellationToken: ct)))
-                .ToList();
+            await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
+                new CommandDefinition(updateSql, new { ToArchive = toArchive }, tran, cancellationToken: ct));
+
+            archived = (await multi.ReadAsync<ArchivedRunScopeRow>()).ToList();
+            childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>()).Single();
 
             await tran.CommitAsync(ct);
         }
@@ -572,7 +633,8 @@ public sealed class SqlRunRepository(
         {
             SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
             ArchivedRuns = archived,
-            Failed = failed
+            Failed = failed,
+            ChildCascade = childCascade
         };
     }
 

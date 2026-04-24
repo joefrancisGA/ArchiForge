@@ -20,8 +20,8 @@ public sealed class GoldenManifestFingerprintTests
             Services = [],
             Datastores = [],
             Relationships = [],
-            Governance = new(),
-            Metadata = new() { ManifestVersion = "v1-test", CreatedUtc = createdUtc },
+            Governance = new ManifestGovernance(),
+            Metadata = new ManifestMetadata { ManifestVersion = "v1-test", CreatedUtc = createdUtc }
         };
 
         GoldenManifest b = new()
@@ -31,8 +31,8 @@ public sealed class GoldenManifestFingerprintTests
             Services = [],
             Datastores = [],
             Relationships = [],
-            Governance = new(),
-            Metadata = new() { ManifestVersion = "v1-test", CreatedUtc = createdUtc },
+            Governance = new ManifestGovernance(),
+            Metadata = new ManifestMetadata { ManifestVersion = "v1-test", CreatedUtc = createdUtc }
         };
 
         string ha = GoldenManifestFingerprint.ComputeSha256Hex(a);

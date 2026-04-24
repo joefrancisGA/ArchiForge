@@ -35,6 +35,13 @@ public static class AuditEventTypes
 
     public const string ArtifactDownloaded = "ArtifactDownloaded";
     public const string BundleDownloaded = "BundleDownloaded";
+
+    /// <summary>
+    ///     In-product support bundle ZIP from <c>POST …/admin/support-bundle</c>. Payload is JSON with file name and
+    ///     size bytes only (no raw bundle contents).
+    /// </summary>
+    public const string SupportBundleDownloaded = "SupportBundleDownloaded";
+
     public const string RunExported = "RunExported";
 
     /// <summary>

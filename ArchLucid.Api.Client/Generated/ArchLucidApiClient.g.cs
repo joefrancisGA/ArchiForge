@@ -38438,6 +38438,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("archivedRuns")]
         public System.Collections.Generic.ICollection<ArchivedRunScopeRow>? ArchivedRuns { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("childCascade")]
+        public RunArchiveChildCascadeCounts? ChildCascade { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("updatedCount")]
         public int? UpdatedCount { get; set; } = default!;
 
@@ -38482,11 +38485,53 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("archivedRuns")]
         public System.Collections.Generic.ICollection<ArchivedRunScopeRow>? ArchivedRuns { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("childCascade")]
+        public RunArchiveChildCascadeCounts? ChildCascade { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("failed")]
         public System.Collections.Generic.ICollection<RunArchiveByIdFailure>? Failed { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("succeededRunIds")]
         public System.Collections.Generic.ICollection<System.Guid>? SucceededRunIds { get; set; } = default!;
+
+        private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class RunArchiveChildCascadeCounts
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentExecutionTraces")]
+        public int? AgentExecutionTraces { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("artifactBundles")]
+        public int? ArtifactBundles { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("comparisonRecords")]
+        public int? ComparisonRecords { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("contextSnapshots")]
+        public int? ContextSnapshots { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("decisioningTraces")]
+        public int? DecisioningTraces { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshots")]
+        public int? FindingsSnapshots { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("goldenManifests")]
+        public int? GoldenManifests { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("graphSnapshots")]
+        public int? GraphSnapshots { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
