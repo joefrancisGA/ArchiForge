@@ -59,7 +59,8 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         if (!Guid.TryParse(segments[1], out Guid pathTenant) ||
             pathTenant != _scopeProvider.GetCurrentScope().TenantId)
 
-            throw new InvalidOperationException("Local blob path tenant folder does not match the current tenant scope.");
+            throw new InvalidOperationException(
+                "Local blob path tenant folder does not match the current tenant scope.");
 
 
         return await File.ReadAllTextAsync(path, ct);
@@ -94,7 +95,8 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         blobName = blobName.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
 
         List<string> parts = [];
-        parts.AddRange(blobName.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries).Select(SanitizeSegment).Where(s => s.Length > 0));
+        parts.AddRange(blobName.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries)
+            .Select(SanitizeSegment).Where(s => s.Length > 0));
 
         return parts.Count > 0 ? Path.Combine(parts.ToArray()) : "payload.bin";
     }

@@ -10,7 +10,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Caching;
 
-/// <summary><see cref="IDistributedCache"/> (e.g. Redis) implementation with JSON payloads aligned to <see cref="JsonEntitySerializer"/>.</summary>
+/// <summary>
+///     <see cref="IDistributedCache" /> (e.g. Redis) implementation with JSON payloads aligned to
+///     <see cref="JsonEntitySerializer" />.
+/// </summary>
 public sealed class DistributedHotPathReadCache(
     IDistributedCache distributedCache,
     IOptionsMonitor<HotPathCacheOptions> optionsMonitor,
@@ -19,11 +22,11 @@ public sealed class DistributedHotPathReadCache(
     private readonly IDistributedCache _distributedCache =
         distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
 
-    private readonly IOptionsMonitor<HotPathCacheOptions> _optionsMonitor =
-        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-
     private readonly ILogger<DistributedHotPathReadCache> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOptionsMonitor<HotPathCacheOptions> _optionsMonitor =
+        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     /// <inheritdoc />
     public async Task<T?> GetOrCreateAsync<T>(
@@ -47,7 +50,8 @@ public sealed class DistributedHotPathReadCache(
 
             if (fromLegacy is not null)
             {
-                await PromoteLegacyToPrimaryAsync(key, legacyCacheKey, fromLegacy, ct, absoluteExpirationSecondsOverride);
+                await PromoteLegacyToPrimaryAsync(key, legacyCacheKey, fromLegacy, ct,
+                    absoluteExpirationSecondsOverride);
 
                 return fromLegacy;
             }
@@ -67,6 +71,12 @@ public sealed class DistributedHotPathReadCache(
         await _distributedCache.SetAsync(key, payload, entryOptions, ct);
 
         return created;
+    }
+
+    /// <inheritdoc />
+    public Task RemoveAsync(string key, CancellationToken ct)
+    {
+        return _distributedCache.RemoveAsync(key, ct);
     }
 
     private async Task<T?> TryDeserializeAsync<T>(string cacheKey, CancellationToken ct)
@@ -121,7 +131,4 @@ public sealed class DistributedHotPathReadCache(
 
         return TimeSpan.FromSeconds(seconds);
     }
-
-    /// <inheritdoc />
-    public Task RemoveAsync(string key, CancellationToken ct) => _distributedCache.RemoveAsync(key, ct);
 }

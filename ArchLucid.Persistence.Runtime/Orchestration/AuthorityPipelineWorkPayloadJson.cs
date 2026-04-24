@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace ArchLucid.Persistence.Orchestration;
 
-/// <summary>Shared JSON options for <see cref="AuthorityPipelineWorkPayload"/> serialization.</summary>
+/// <summary>Shared JSON options for <see cref="AuthorityPipelineWorkPayload" /> serialization.</summary>
 public static class AuthorityPipelineWorkPayloadJson
 {
     public static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
@@ -16,6 +16,8 @@ public static class AuthorityPipelineWorkPayloadJson
 
     public static AuthorityPipelineWorkPayload? Deserialize(string json)
     {
-        return string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<AuthorityPipelineWorkPayload>(json, Options);
+        return string.IsNullOrWhiteSpace(json)
+            ? null
+            : JsonSerializer.Deserialize<AuthorityPipelineWorkPayload>(json, Options);
     }
 }

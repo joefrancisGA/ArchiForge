@@ -6,9 +6,12 @@ using ArchLucid.Core.Transactions;
 namespace ArchLucid.Persistence.Transactions;
 
 /// <summary>
-/// Dapper-backed unit of work holding an open <see cref="IDbConnection"/> and <see cref="IDbTransaction"/>; <see cref="CommitAsync"/> commits once, <see cref="RollbackAsync"/> rolls back, and <see cref="DisposeAsync"/> rolls back if still pending then disposes both.
+///     Dapper-backed unit of work holding an open <see cref="IDbConnection" /> and <see cref="IDbTransaction" />;
+///     <see cref="CommitAsync" /> commits once, <see cref="RollbackAsync" /> rolls back, and <see cref="DisposeAsync" />
+///     rolls back if still pending then disposes both.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "Wraps IDbConnection/IDbTransaction commit/rollback lifecycle; requires live database transaction.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Wraps IDbConnection/IDbTransaction commit/rollback lifecycle; requires live database transaction.")]
 public sealed class DapperArchLucidUnitOfWork(IDbConnection connection, IDbTransaction transaction)
     : IArchLucidUnitOfWork
 {
@@ -18,13 +21,22 @@ public sealed class DapperArchLucidUnitOfWork(IDbConnection connection, IDbTrans
     public bool SupportsExternalTransaction => true;
 
     /// <inheritdoc />
-    public IDbConnection Connection { get; } = connection;
+    public IDbConnection Connection
+    {
+        get;
+    } = connection;
 
     /// <inheritdoc />
-    public IDbTransaction Transaction { get; } = transaction;
+    public IDbTransaction Transaction
+    {
+        get;
+    } = transaction;
 
     /// <inheritdoc />
-    /// <exception cref="InvalidOperationException">Thrown when commit is called after the unit of work has already been completed.</exception>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when commit is called after the unit of work has already been
+    ///     completed.
+    /// </exception>
     public Task CommitAsync(CancellationToken ct)
     {
         _ = ct;

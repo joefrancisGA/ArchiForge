@@ -115,6 +115,24 @@ These commercial milestones are **explicitly release-window-pinned to V1.1** so 
 
 ---
 
+## 6c. Security and assurance — V1.1 candidates (Resolved 2026-04-23, sixth pass)
+
+These two assurance milestones are **explicitly release-window-pinned to V1.1** so V1 readiness is no longer measured against them. They were previously open obligations that the fresh independent quality assessment (in-conversation, weighted readiness 65.34%) was treating as live V1 gaps; the 2026-04-23 sixth-pass owner decisions in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) **Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)** Q10 and Q12 / Q13 / Q14 move them into a named release window so external messaging — and internal scoring — stops reading them as V1 deficits.
+
+| Assurance milestone | V1 posture | V1.1 commitment |
+|---------------------|------------|------------------|
+| **Aeronova pen-test execution + redacted summary publication** — owner funds the Aeronova SoW, schedules the engagement, the assessor delivers a draft + final report, and the redacted summary is published on the public Trust Center "Recent assurance activity" row alongside the assessment date. Per owner Q11 (2026-04-23, sixth pass), the row may name finding categories (e.g. authn surface, RAG threat surface) when V1.1 publishes. | **Out of V1.** No executed pen test required for V1 GA. The pen-test SoW template at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md), redacted summary template at [`2026-Q2-REDACTED-SUMMARY.md`](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md), Trust Center scaffolding pointing at "redacted summary available under NDA", and owner-conducted security self-assessment all stay in V1. V1 quality assessments **do not** charge points against Trustworthiness or Procurement Readiness for the absence of an executed pen test. The owner-conducted [`OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md) is the V1 interim posture. | **In scope for V1.1.** Minimum V1.1 commitment: Aeronova engagement complete, redacted summary at `docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md` populated with non-placeholder content, Trust Center "Recent assurance activity" row updated in the same PR (per owner cross-cutting decision *"update immediately on assessor delivery"*). Calendar date is **not** pinned by this decision. The engagement scheduling and SoW funding are **owner-only**. |
+| **PGP key drop for `security@archlucid.com` (coordinated-disclosure key)** — owner generates the keypair (or designates a custodian), drops the public key block at `archlucid-ui/public/.well-known/pgp-key.txt`, references it from [`SECURITY.md`](../../SECURITY.md), and updates the marketing `/security` page in the **same single PR** (per owner Q14, 2026-04-23, sixth pass). | **Out of V1.** No PGP key drop required for V1 GA. The recipe at [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md) stays in place; the CI guard that turns green when the key file appears stays in place. V1 quality assessments **do not** charge points against Trustworthiness for the absence of the PGP key. | **In scope for V1.1.** Minimum V1.1 commitment: public key block committed at `archlucid-ui/public/.well-known/pgp-key.txt`, `SECURITY.md` key-fingerprint reference updated, marketing `/security` page reference updated — all in the **same PR**. UID is gated on `archlucid.com` domain acquisition; default proposal is `ArchLucid Security <security@archlucid.com>`, but if the domain is never acquired the owner provides the alternate UID at V1.1 planning. Calendar date is **not** pinned by this decision. |
+
+**Rules:**
+
+- These are **release-window** promises, not dates. Pinning calendar dates requires a follow-up owner entry recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+- Future quality assessments (after 2026-04-23) **must not** treat the pen-test publication or PGP key drop as V1 deficits. Pre-2026-04-23 assessments are correct *for their date*; this decision retroactively excludes both items from the new fresh assessment at [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](../QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md).
+- These decisions do **not** retract or downgrade other V1 security obligations — owner-conducted self-assessment, `BillingProductionSafetyRules`, RLS object-name discipline, OWASP ZAP baseline, Gitleaks, STRIDE-style threat modeling, audit-event coverage matrix, all remain V1 obligations.
+- A new security or assurance milestone **must not** be added to this table without its own owner decision recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |

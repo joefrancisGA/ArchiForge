@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Caching;
 
-/// <summary>In-process <see cref="IMemoryCache"/> implementation of <see cref="IHotPathReadCache"/>.</summary>
+/// <summary>In-process <see cref="IMemoryCache" /> implementation of <see cref="IHotPathReadCache" />.</summary>
 public sealed class MemoryHotPathReadCache(
     IMemoryCache memoryCache,
     IOptionsMonitor<HotPathCacheOptions> optionsMonitor) : IHotPathReadCache
@@ -36,6 +36,13 @@ public sealed class MemoryHotPathReadCache(
         PromoteLegacyToPrimary(key, legacyCacheKey, legacyTyped, absoluteExpirationSecondsOverride);
 
         return Task.FromResult<T?>(legacyTyped);
+    }
+
+    /// <inheritdoc />
+    public Task RemoveAsync(string key, CancellationToken ct)
+    {
+        _memoryCache.Remove(key);
+        return Task.CompletedTask;
     }
 
     private void PromoteLegacyToPrimary<T>(
@@ -87,12 +94,5 @@ public sealed class MemoryHotPathReadCache(
         seconds = Math.Clamp(seconds, 1, 3600);
 
         return TimeSpan.FromSeconds(seconds);
-    }
-
-    /// <inheritdoc />
-    public Task RemoveAsync(string key, CancellationToken ct)
-    {
-        _memoryCache.Remove(key);
-        return Task.CompletedTask;
     }
 }

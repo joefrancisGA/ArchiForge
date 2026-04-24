@@ -9,6 +9,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -23,7 +24,8 @@ using Serilog.Context;
 namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>
-/// <see cref="IAuthorityRunOrchestrator"/> implementation coordinating ingestion, knowledge graph, findings, decisioning, artifact synthesis, audit, and post-commit retrieval indexing.
+///     <see cref="IAuthorityRunOrchestrator" /> implementation coordinating ingestion, knowledge graph, findings,
+///     decisioning, artifact synthesis, audit, and post-commit retrieval indexing.
 /// </summary>
 public sealed class AuthorityRunOrchestrator(
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
@@ -53,7 +55,8 @@ public sealed class AuthorityRunOrchestrator(
         try
         {
             TimeSpan pipelineTimeout = authorityPipelineOptions.CurrentValue.PipelineTimeout;
-            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            using CancellationTokenSource
+                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             if (pipelineTimeout > TimeSpan.Zero)
 
@@ -77,7 +80,8 @@ public sealed class AuthorityRunOrchestrator(
             runActivity?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
 
             string logicalCorrelation =
-                ActivityCorrelation.FindTagValueInChain(runActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)
+                ActivityCorrelation.FindTagValueInChain(runActivity?.Parent,
+                    ActivityCorrelation.LogicalCorrelationIdTag)
                 ?? run.RunId.ToString("D");
             runActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
 
@@ -107,12 +111,8 @@ public sealed class AuthorityRunOrchestrator(
                     EventType = AuditEventTypes.RunStarted,
                     RunId = run.RunId,
                     DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            run.ProjectId,
-                            Queued = false
-                        },
-                        AuditJsonSerializationOptions.Instance),
+                        new { run.ProjectId, Queued = false },
+                        AuditJsonSerializationOptions.Instance)
                 },
                 pipelineCt);
 
@@ -127,8 +127,7 @@ public sealed class AuthorityRunOrchestrator(
 
                 AuthorityPipelineWorkPayload payload = new()
                 {
-                    ContextIngestionRequest = request,
-                    EvidenceBundleId = deferredEvidenceBundleId,
+                    ContextIngestionRequest = request, EvidenceBundleId = deferredEvidenceBundleId
                 };
 
                 await authorityPipelineWorkRepository.EnqueueAsync(
@@ -147,12 +146,8 @@ public sealed class AuthorityRunOrchestrator(
                         EventType = AuditEventTypes.RunStarted,
                         RunId = run.RunId,
                         DataJson = JsonSerializer.Serialize(
-                            new
-                            {
-                                run.ProjectId,
-                                Queued = true
-                            },
-                            AuditJsonSerializationOptions.Instance),
+                            new { run.ProjectId, Queued = true },
+                            AuditJsonSerializationOptions.Instance)
                     },
                     pipelineCt);
 
@@ -173,7 +168,7 @@ public sealed class AuthorityRunOrchestrator(
                 Request = request,
                 UnitOfWork = uow,
                 Scope = scope,
-                RunActivity = runActivity,
+                RunActivity = runActivity
             };
 
             await pipelineStagesExecutor.ExecuteAfterRunPersistedAsync(ctx, pipelineCt);
@@ -228,7 +223,8 @@ public sealed class AuthorityRunOrchestrator(
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
             RunRecord? existing = await runRepository.GetByIdAsync(scope, request.RunId, cancellationToken);
             if (existing is null)
-                throw new InvalidOperationException($"Run '{request.RunId:D}' was not found for queued authority completion.");
+                throw new InvalidOperationException(
+                    $"Run '{request.RunId:D}' was not found for queued authority completion.");
 
             if (existing.ContextSnapshotId is not null)
             {
@@ -243,7 +239,8 @@ public sealed class AuthorityRunOrchestrator(
             }
 
             TimeSpan pipelineTimeout = authorityPipelineOptions.CurrentValue.PipelineTimeout;
-            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            using CancellationTokenSource
+                linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             if (pipelineTimeout > TimeSpan.Zero)
 
@@ -258,7 +255,8 @@ public sealed class AuthorityRunOrchestrator(
             runActivity?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
 
             string logicalCorrelation =
-                ActivityCorrelation.FindTagValueInChain(runActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)
+                ActivityCorrelation.FindTagValueInChain(runActivity?.Parent,
+                    ActivityCorrelation.LogicalCorrelationIdTag)
                 ?? run.RunId.ToString("D");
             runActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
 
@@ -270,7 +268,7 @@ public sealed class AuthorityRunOrchestrator(
                 Request = request,
                 UnitOfWork = uow,
                 Scope = scope,
-                RunActivity = runActivity,
+                RunActivity = runActivity
             };
 
             await auditService.LogAsync(
@@ -279,13 +277,8 @@ public sealed class AuthorityRunOrchestrator(
                     EventType = AuditEventTypes.RunStarted,
                     RunId = run.RunId,
                     DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            run.ProjectId,
-                            Queued = true,
-                            ResumedFromQueue = true
-                        },
-                        AuditJsonSerializationOptions.Instance),
+                        new { run.ProjectId, Queued = true, ResumedFromQueue = true },
+                        AuditJsonSerializationOptions.Instance)
                 },
                 pipelineCt);
 
@@ -330,8 +323,8 @@ public sealed class AuthorityRunOrchestrator(
     private async Task<RunRecord> FinalizeCommittedPipelineAsync(
         RunRecord run,
         ContextSnapshot contextSnapshot,
-        Decisioning.Models.FindingsSnapshot findingsSnapshot,
-        Decisioning.Models.GoldenManifest manifest,
+        FindingsSnapshot findingsSnapshot,
+        GoldenManifest manifest,
         DecisionTrace trace,
         ScopeContext scope,
         IArchLucidUnitOfWork uow,
@@ -366,7 +359,7 @@ public sealed class AuthorityRunOrchestrator(
             manifestId = manifest.ManifestId,
             tenantId = scope.TenantId,
             workspaceId = scope.WorkspaceId,
-            projectId = scope.ProjectId,
+            projectId = scope.ProjectId
         };
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
@@ -394,12 +387,7 @@ public sealed class AuthorityRunOrchestrator(
                 RunId = run.RunId,
                 ManifestId = run.GoldenManifestId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        run.GoldenManifestId,
-                        run.ArtifactBundleId,
-                        run.DecisionTraceId
-                    },
+                    new { run.GoldenManifestId, run.ArtifactBundleId, run.DecisionTraceId },
                     AuditJsonSerializationOptions.Instance)
             },
             ct);

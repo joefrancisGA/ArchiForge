@@ -1,20 +1,25 @@
 using ArchLucid.Core.Scoping;
 
+using Azure;
 using Azure.Core;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
 namespace ArchLucid.Persistence.BlobStore;
 
-/// <summary>Azure Blob Storage using a shared <see cref="BlobServiceClient"/> and <see cref="TokenCredential"/>.</summary>
+/// <summary>Azure Blob Storage using a shared <see cref="BlobServiceClient" /> and <see cref="TokenCredential" />.</summary>
 public sealed class AzureBlobArtifactBlobStore(
     BlobServiceClient serviceClient,
     TokenCredential credential,
     IScopeContextProvider scopeProvider) : IArtifactBlobStore
 {
-    private readonly BlobServiceClient _serviceClient = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
     private readonly TokenCredential _credential = credential ?? throw new ArgumentNullException(nameof(credential));
-    private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly BlobServiceClient _serviceClient =
+        serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
 
     public async Task<string> WriteAsync(string containerName, string blobName, string content, CancellationToken ct)
     {
@@ -29,9 +34,9 @@ public sealed class AzureBlobArtifactBlobStore(
             new BinaryData(content),
             new BlobUploadOptions
             {
-                HttpHeaders = new BlobHttpHeaders { ContentType = "application/json; charset=utf-8" },
+                HttpHeaders = new BlobHttpHeaders { ContentType = "application/json; charset=utf-8" }
             },
-            cancellationToken: ct);
+            ct);
         return blob.Uri.ToString();
     }
 
@@ -43,7 +48,7 @@ public sealed class AzureBlobArtifactBlobStore(
         BlobClient blob = new(new Uri(blobUri, UriKind.Absolute), _credential);
         ArtifactBlobTenantPaths.EnsureReadBlobNameMatchesTenant(_scopeProvider, blob.Name);
 
-        Azure.Response<BlobDownloadResult> response = await blob.DownloadContentAsync(ct);
+        Response<BlobDownloadResult> response = await blob.DownloadContentAsync(ct);
         return response.Value.Content.ToString();
     }
 }

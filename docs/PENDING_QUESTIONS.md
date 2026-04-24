@@ -2,7 +2,8 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-23 (assessment §4 owner Q&A — 11 decisions on items **29**, **31–38**, plus two cross-cutting items — see *Resolved 2026-04-23 (assessment §4 items 29, 31–38 + two cross-cutting — 11 decisions)* table below; surfaces new pending question **39** for the "AI Architecture Review Board" rebrand workstream schedule).
+**Last updated:** 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions on improvements **1**, **4**, **7**, **9**, **10** plus three cross-cutting items — see *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* table below; promotes pen-test publication and PGP key drop to **V1.1**, schedules "AI Architecture Review Board" rebrand workstream to **V1**, and approves the dedicated Azure OpenAI ~$50/month budget for the golden-cohort real-LLM gate — partially closes items **15 / 25**).
+Prior: 2026-04-23 (assessment §4 owner Q&A — 11 decisions on items **29**, **31–38**, plus two cross-cutting items — see *Resolved 2026-04-23 (assessment §4 items 29, 31–38 + two cross-cutting — 11 decisions)* table below; surfaces new pending question **39** for the "AI Architecture Review Board" rebrand workstream schedule).
 Prior: 2026-04-23 (commerce un-hold scope, reference-customer publication scope, ServiceNow + Slack connector scope, Jira connector scope, SaaS-framing follow-on Q&A — *Resolved 2026-04-23* tables below).
 Prior: 2026-04-22 (assessment owner Q&A — 16 decisions — *Resolved 2026-04-22 (assessment owner Q&A — 16 decisions)* table below; covers items **6**, **9**, **10**, **12**, **14**, **15 / 25**, **20**, **22**, **26**, **28**, **34**, **35d**, **35e**, plus four free-text answers on items **8**, **9**).
 Prior: 2026-04-22 (owner Q&A on items **35a–c** + **35f**) — *Resolved 2026-04-22 (35c + 35f — ADR 0030)* + *Resolved 2026-04-22 (ADR 0030 owner sub-decisions — 35a + 35b)*.
@@ -220,8 +221,11 @@ These two work items were the dedicated-session items queued by the same-day fol
 2. **External pen-test vendor** — When funded, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery.
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.com`** is canonical. Trust Center, `SECURITY.md`, `INCIDENT_COMMUNICATIONS_POLICY.md`, and `security.txt` all aligned in this change set; the eventual PGP UID must use the same address.
+    - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Pen-test execution + summary publication are no longer V1 obligations — see *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* Q10 above and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6c. Trust Center "Recent assurance activity" wording stays unchanged in V1.
 
 3. **PGP for coordinated disclosure** — [`SECURITY.md`](../SECURITY.md) now points at `archlucid-ui/public/.well-known/pgp-key.txt` as **pending** until the custodian commits the public key. **Mailbox alignment (Resolved 2026-04-21): the UID is `security@archlucid.com`.** Items 10 / 21 still own the actual key generation.
+
+    - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Key generation, drop, and `SECURITY.md` / marketing `/security` updates are no longer V1 obligations — see Q12 / Q13 / Q14 in *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6c. UID is gated on `archlucid.com` domain acquisition.
 
 4. **Next Microsoft-aligned workflow integration** — GitHub manifest-delta and Azure DevOps pipeline tasks are shipped ([`GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md), [`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md`](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md)). **ServiceNow and Confluence are explicitly out of scope for now** (see Resolved table). Next anchor is a **product** call among remaining Microsoft surfaces (e.g. Teams / Logic Apps fan-out per ADR 0019), not Atlassian/ITSM.
 
@@ -276,6 +280,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
     - **Shipped (simulator, no new Azure spend):** `archlucid golden-cohort lock-baseline [--cohort <path>] [--write]` captures committed-manifest SHA-256 fingerprints against a **Simulator** API host; `.github/workflows/golden-cohort-nightly.yml` can run drift assertions when repository variable `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED` is set to `true` (cohort JSON must contain non-placeholder SHAs first — see item 33).
     - **Still gated on this item:** optional **real-LLM** cohort execution remains behind `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` plus injected Azure OpenAI secrets on a protected GitHub Environment (the assistant does not provision deployments or spend).
+    - **Budget (Resolved 2026-04-23, sixth pass):** **$50/month approved** at the same ceiling as the prior 2026-04-22 resolution. New **Improvement 11** in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md) §3 covers the cost-and-latency dashboard + nightly kill-switch. Azure OpenAI deployment provisioning + secret injection on the protected GitHub Environment **remain owner-only operational tasks**.
 
 16. **ADR 0021 Phase 3 — owner policy (Prompt 2 landed code + stopped at gate)** — Phase 2 catalog (`AuditEventTypes.Run.*` + dual-write), `IRunCommitOrchestrator` façade, and parity probe tooling shipped **2026-04-21**; Phase 3 **deletion** PRs remain blocked until ADR 0021 exit gates **(i)–(iv)**.
     - **Legacy `CoordinatorRun*` sunset (Resolved 2026-04-21):** **2026-05-15.** Product not yet released, so the strangler is being accelerated; the prior `Sunset: 2026-07-20` deprecation-header value drops to `Sunset: 2026-05-15` atomically across deprecation headers, parity-probe doc, [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md), and any client SDK release notes (see this change set). The earlier Draft [ADR 0028 — completion scaffold](adr/0028-coordinator-strangler-completion.md) is marked Superseded by 0029.
@@ -301,10 +306,12 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
 20. **Pen-test execution window for the awarded Aeronova SoW** — schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. (Improvement 2 / Prompt 2.)
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.com`**. All public surfaces aligned in this change set; assessor comms must use the same address.
+    - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Pen-test execution + redacted summary publication are no longer V1 obligations — see Q10 / Q11 in *Resolved 2026-04-23 (sixth pass)*.
 
 21. **PGP key custodian for `security@archlucid.com`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard added by Prompt 2 turns green automatically the moment the file appears.
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.com`** is the canonical UID. Generation + custodian-naming still owner-only.
+    - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Key generation + drop are no longer V1 obligations — see Q12 / Q13 / Q14 in *Resolved 2026-04-23 (sixth pass)*. UID gated on `archlucid.com` domain acquisition.
 
 22. **Marketplace + Stripe live go-live calendar — HELD (2026-04-21).** Owner has not chosen a calendar; production-safety guards (CI alignment, `BillingProductionSafetyRules`, `archlucid marketplace preflight`) continue to ship and stay green, but **no live keys are flipped**. When the owner picks a date, all four sub-items below become live decisions on that day; until then this item is intentionally parked, not abandoned.
 
@@ -320,6 +327,7 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
 
     - **Repo wiring today:** drift + lock-baseline **refuse** when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` is truthy in the operator shell, and the placeholder `cohort-real-llm-gate` job in `golden-cohort-nightly.yml` stays disabled until this item plus secrets are in place.
     - **Needed from owner:** the same deployment/budget answers as item 15, scoped explicitly to the **20-row cohort** workload (expected longer prompts than a single interactive chat turn).
+    - **Budget (Resolved 2026-04-23, sixth pass):** **$50/month approved** at the same ceiling as item 15. New **Improvement 11** adds the cost-and-latency dashboard + nightly kill-switch. Azure OpenAI deployment provisioning + secret injection on the protected GitHub Environment **remain owner-only operational tasks**.
 
 26. **VPAT publication decision** — produce a formal VPAT for accessibility published on the Trust Center, or stay with the WCAG 2.1 AA self-attestation in `ACCESSIBILITY.md`? (Adjacent to item 12 — accessibility publication channel.)
 
@@ -430,6 +438,51 @@ Owner decision (2026-04-23, fourth pass — same day as the Jira, ServiceNow + S
 - Future quality assessments (after this date) **must not** treat the commerce un-hold as a V1 deficit. Pre-2026-04-23 assessments are correct *for their date*; this decision retroactively re-scores the open 68.60 assessment via its §0.3 addendum.
 - This decision does **not** retract or downgrade the executed pen test summary publication, the PGP key generation, the board-pack PDF endpoint (Improvement 9), or the trial-funnel TEST-mode work (Improvement 2) — those remain **live V1 obligations**.
 - A new commercial milestone **must not** be added to `V1_DEFERRED.md` § 6b without its own owner decision recorded here.
+
+---
+
+## Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)
+
+Owner decisions (2026-04-23, sixth pass — same day as the Jira, ServiceNow + Slack, reference-customer, commerce un-hold, and assessment §4 items 29 / 31–38 scope resolutions above): a fresh first-principles independent quality assessment (in-conversation, weighted readiness **65.34%** before this Q&A) surfaced **17 owner-only questions** across improvements **1**, **4**, **7**, **9**, **10** plus three cross-cutting items. All 17 are recorded here so future sessions do not re-ask. The new file [`docs/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md) and its paired [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md) reflect the post-Q&A V1 contract.
+
+| # | Topic | Decision | Affects |
+|---|-------|----------|---------|
+| **Q1** — Improvement 1 buyer-facing brand voice | **Consultative / pragmatic** (architect-to-architect, plain English) | Voice for both `docs/BUYER_FIRST_30_MINUTES.md` and the marketing `(marketing)/get-started/` route. | Improvement 1 implementation PR — copy is consultative, not formal-corporate or playful-developer. Closes item 36 voice sub-question. |
+| **Q2** — Improvement 1 vertical-picker labels | **Use existing `templates/briefs/*` folder slugs** as the visible labels (defaults today). | Improvement 1 implementation PR — picker source-of-truth is the existing folder slugs (`financial-services`, `healthcare`, `manufacturing`, `public-sector`, `public-sector-us`); no new owner-supplied label set required. Closes item 36 vertical-name sub-question. |
+| **Q3** — Improvement 1 buyer-page screenshots | **Real anonymized tenant** — owner names `tenantId` and `runId` later. | Improvement 1 implementation PR ships placeholder screenshot slots in the buyer-facing first-30-minutes copy; the anonymized real-tenant capture is a follow-on owner task. Closes item 36 screenshot sub-question (deferred capture, not deferred decision). |
+| **Q4** — Improvement 1 placeholder copy in repo stub | **Yes — ship with q35-style markers** (`<<placeholder copy — replace before external use>>`). | Improvement 1 implementation PR uses the existing q35 placeholder discipline; the repo stub at `docs/BUYER_FIRST_30_MINUTES.md` ships immediately, with all owner-blocked prose marked. Closes item 36 placeholder sub-question. |
+| **Q5** — Improvement 1 "talk to a human" CTA | **V1.1** (defer). | Decision E in *Resolved 2026-04-23 (SaaS-framing follow-on Q&A — 9 decisions)* now has a release window. Improvement 1 ships without the CTA; V1.1 adds it. Closes the deferred sub-question. |
+| **Q6** — Improvement 4 brand-category replacement string | **AI Architecture Review Board** (the leading repositioning candidate). | Improvement 4 implementation PR ships the brand-neutral content seam (`brand-category.ts`) defaulted to today's "AI Architecture Intelligence"; the V1 rebrand workstream (Q7) flips it to "AI Architecture Review Board". Closes pending question **39** name sub-decision. |
+| **Q7** — Improvement 4 rebrand workstream schedule | **V1** — schedule it now. | The rebrand workstream (marketing site `/why` + `/pricing` + `/get-started`, sponsor brief, competitive landscape, per-vertical briefs, Trust Center, in-product copy) is in scope for V1. Closes pending question **39** schedule sub-decision. |
+| **Q8** — Improvement 7 tour-step copy | **Assistant drafts a first cut, marked "pending owner approval"**. | Improvement 7 implementation PR ships five placeholder strings clearly marked `<<tour copy — pending owner approval>>`. Owner replaces before any tenant sees the tour as primary nav. |
+| **Q9** — Improvement 7 tour audience | **Opt-in via "Show me around" button — never auto-launches**. | Improvement 7 implementation PR adds the button to the operator-shell home; no first-sign-in interception, no auto-launch on tenant creation. Lower-friction safety posture. |
+| **Q10** — Improvement 9 (pen-test publication, Aeronova summary) | **V1.1 deferred**. | Pen-test summary publication moves out of V1 actionable. Existing items **2**, **5**, **20** stay open but are now **release-window-pinned to V1.1** rather than indefinitely open. New `docs/library/V1_DEFERRED.md` § 6c row added; `docs/library/V1_SCOPE.md` § 3 gains a new "Out of scope for V1" row pointing at V1.1. Trust Center **`docs/trust-center.md`** "Recent assurance activity" wording does **not** update in V1; it updates when V1.1 publishes per Q11. |
+| **Q11** — Improvement 9 Trust Center "Recent assurance activity" specificity (when V1.1 publishes) | **May name finding categories** (e.g. authn surface, RAG threat surface). | Future V1.1 PR — when the Aeronova redacted summary lands, the Trust Center row may name specific category headings rather than the standing "redacted summary available under NDA" wording. Owner accepted the trade-off that category headings are public; specific findings remain NDA-gated. |
+| **Q12** — Improvement 10 PGP keypair status | **Generate later** (deferred). | The recipe at `docs/security/PGP_KEY_GENERATION_RECIPE.md` stays in place; no public key drops in V1. Items **3**, **10**, **21** stay open but are now **release-window-pinned to V1.1**. |
+| **Q13** — Improvement 10 PGP UID | **V1.1 deferred** — depends on `archlucid.com` domain acquisition. | UID is gated on domain ownership confirmation. Default proposal `ArchLucid Security <security@archlucid.com>` is the V1.1 starting point; if `archlucid.com` is never acquired, owner provides the alternate UID at V1.1 planning. |
+| **Q14** — Improvement 10 PGP publication timing (when key does drop in V1.1) | **Same-day single PR**: key + `SECURITY.md` + marketing `/security` page. | Future V1.1 PR — single change set drops the key block at `archlucid-ui/public/.well-known/pgp-key.txt`, references it from `SECURITY.md`, and updates the marketing `/security` page in the same PR. CI guard turns green automatically. |
+| **Q15** — Cross-cutting Azure OpenAI ~$50/month budget for golden-cohort real-LLM gate | **Approved** — provision and wire the gate. | **Items 15 and 25 partially Resolved**: budget approval portion is closed at `$50/month`. Dedicated Azure OpenAI deployment provisioning + secret injection on the protected GitHub Environment **remain owner-only operational tasks** (assistant cannot provision Azure deployments). New **Improvement 11** (Azure OpenAI cost-and-latency dashboard for the golden-cohort gate) added to V1 actionable to shadow the new spend; nightly workflow gains a kill-switch when month-to-date spend approaches the cap. `cohort-real-llm-gate` job in `golden-cohort-nightly.yml` flips from disabled to required once the deployment exists. |
+| **Q16** — Cross-cutting SOC 2 Type I ARR revisit threshold | **Keep $1M directional**. | Trust Center wording at item **6** stays at the existing "approximately $1M in ARR" line. No change. |
+| **Q17** — Cross-cutting Marketplace + Stripe live cutover dates | **No month pin** — keep at "V1.1 release window". | Already V1.1-deferred per *Resolved 2026-04-23 (Commerce un-hold scope)*; this confirms no month pin within Q2 2026. Item **22** stays open at the V1.1-window granularity. |
+
+**Knock-on V1 scope changes:**
+
+- **Improvement 9 (pen-test publication, Aeronova summary)** moves from V1 actionable to **V1.1**. Trust Center "Recent assurance activity" wording (per Q11) ships with the row when V1.1 lands.
+- **Improvement 10 (PGP key drop)** moves from V1 actionable to **V1.1**, gated on `archlucid.com` domain acquisition + `security@archlucid.com` mailbox provisioning.
+- **Improvements 1, 4, 7** all remain **V1 actionable** per the answers above.
+- **Q15 approval** unblocks the golden-cohort real-LLM regression gate (PENDING_QUESTIONS items 15 and 25 — both partially Resolved for the budget portion; Azure OpenAI deployment provisioning + secret injection still owner-only).
+- Two **new V1 actionable improvements** promoted to maintain the ≥ 8 Cursor-prompt floor:
+  - **Improvement 11** — Azure OpenAI cost-and-latency dashboard for the golden-cohort gate (natural pair to Q15 approval — measures the new spend, enforces the kill-switch).
+  - **Improvement 12** — first-tenant onboarding telemetry funnel (instruments the opt-in tour from Q9 so the 30-minute success rate can be measured before any marketing claim).
+
+**Score impact:** the prior quick in-conversation 65.34% estimate is superseded by the cell-by-cell tally in [`docs/QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md), which lands at **73.20%** under the post-Q&A V1 contract. The headline jump versus the in-conversation estimate is the result of scoring each quality consistently against the post-Q&A contract (V1.1-deferred milestones excluded as the operating rule requires) rather than as deltas from the more pessimistic earlier pass. See § 0 *Headline*, § 0.1 *Sixth-pass deferral re-score addendum*, and § 1.31 *Bucket totals (sanity check)* in that file for the per-quality arithmetic.
+
+**Rules:**
+
+- For **Q10** and **Q12 / Q13**, the pen-test publication and PGP key drop are **release-window-pinned to V1.1**, not indefinitely deferred. They join the existing reference-customer (V1.1) and commerce-un-hold (V1.1) rows in [`V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6b / new § 6c.
+- For **Q15**, the budget approval is **conditional on the kill-switch being shipped**. If the kill-switch is bypassed (e.g., a future change to the nightly workflow), real-LLM execution must revert to disabled until the kill-switch is restored.
+- For **Q7 (rebrand schedule = V1)**, the rebrand workstream consumes **separate session(s)** — it touches marketing site routes + sponsor brief + competitive landscape + per-vertical briefs + Trust Center + in-product copy. Sequence the workstream after Improvement 4's content seam ships so the seam can carry the new value as a one-line flip when each surface is rewritten.
+- For **Q9 (opt-in only tour)**, the "Show me around" button must not be promoted to a primary nav slot or auto-launch on first sign-in. If telemetry from Improvement 12 later shows < 5% engagement and a future ADR proposes a cold-start opener, the change requires its own owner decision.
 
 ---
 

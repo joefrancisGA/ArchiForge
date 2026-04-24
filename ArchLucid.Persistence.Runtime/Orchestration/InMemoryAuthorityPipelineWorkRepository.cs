@@ -26,7 +26,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
             WorkspaceId = workspaceId,
             ProjectId = projectId,
             PayloadJson = payloadJson,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         lock (_sync)
@@ -38,7 +38,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(int maxBatch,
+        CancellationToken cancellationToken)
     {
         int take = Math.Clamp(maxBatch, 1, 100);
 
@@ -70,6 +71,5 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
         lock (_sync)
 
             return Task.FromResult((long)_pending.Count);
-
     }
 }

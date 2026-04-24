@@ -1,7 +1,7 @@
 namespace ArchLucid.Persistence.Archival;
 
 /// <summary>
-/// Applies retention cutoffs to persistence stores (soft <c>ArchivedUtc</c> flags).
+///     Applies retention cutoffs to persistence stores (soft <c>ArchivedUtc</c> flags).
 /// </summary>
 public interface IDataArchivalCoordinator
 {

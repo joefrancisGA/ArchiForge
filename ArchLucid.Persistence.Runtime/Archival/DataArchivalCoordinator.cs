@@ -18,17 +18,17 @@ public sealed class DataArchivalCoordinator(
     IConversationThreadRepository conversationThreadRepository,
     ILogger<DataArchivalCoordinator> logger) : IDataArchivalCoordinator
 {
-    private readonly IRunRepository _runRepository =
-        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IConversationThreadRepository _conversationThreadRepository =
+        conversationThreadRepository ?? throw new ArgumentNullException(nameof(conversationThreadRepository));
 
     private readonly IArchitectureDigestRepository _digestRepository =
         digestRepository ?? throw new ArgumentNullException(nameof(digestRepository));
 
-    private readonly IConversationThreadRepository _conversationThreadRepository =
-        conversationThreadRepository ?? throw new ArgumentNullException(nameof(conversationThreadRepository));
-
     private readonly ILogger<DataArchivalCoordinator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     /// <inheritdoc />
     public async Task RunOnceAsync(DataArchivalOptions options, CancellationToken ct)

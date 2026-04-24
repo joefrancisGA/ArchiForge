@@ -5,33 +5,43 @@ public sealed class AuthorityPipelineWorkOutboxEntry
 {
     public Guid OutboxId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid RunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string PayloadJson { get; init; } = "";
+    public string PayloadJson
+    {
+        get;
+        init;
+    } = "";
 
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

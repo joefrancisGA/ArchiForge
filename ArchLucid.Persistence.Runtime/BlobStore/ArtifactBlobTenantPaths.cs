@@ -3,12 +3,15 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>
-/// Builds tenant-scoped blob paths so shared containers cannot accidentally address another tenant's objects.
+///     Builds tenant-scoped blob paths so shared containers cannot accidentally address another tenant's objects.
 /// </summary>
 public static class ArtifactBlobTenantPaths
 {
     /// <summary>Folder prefix under each container: <c>{tenantId:D}/</c> (GUID with hyphens).</summary>
-    public static string TenantPrefixDirectorySegment(Guid tenantId) => tenantId.ToString("D") + "/";
+    public static string TenantPrefixDirectorySegment(Guid tenantId)
+    {
+        return tenantId.ToString("D") + "/";
+    }
 
     /// <summary>Rejects path traversal and absolute-style blob names before they reach storage.</summary>
     public static void ThrowIfBlobRelativePathUnsafe(string blobName)
@@ -24,8 +27,8 @@ public static class ArtifactBlobTenantPaths
     }
 
     /// <summary>
-    /// Prefixes <paramref name="blobName"/> with the current tenant directory. Callers must pass a logical path
-    /// without an embedded tenant prefix (that would double-prefix or confuse audits).
+    ///     Prefixes <paramref name="blobName" /> with the current tenant directory. Callers must pass a logical path
+    ///     without an embedded tenant prefix (that would double-prefix or confuse audits).
     /// </summary>
     public static string PrefixWithTenant(IScopeContextProvider scopeProvider, string blobName)
     {
@@ -42,15 +45,15 @@ public static class ArtifactBlobTenantPaths
             return prefix + normalized;
 
         if (leadingFolder == tenantId)
-            throw new InvalidOperationException("Blob name must not include a tenant prefix; it is applied automatically.");
+            throw new InvalidOperationException(
+                "Blob name must not include a tenant prefix; it is applied automatically.");
 
         throw new InvalidOperationException("Blob name must not start with another tenant folder segment.");
-
     }
 
     /// <summary>
-    /// Ensures a blob name returned from storage (e.g. <see cref="Azure.Storage.Blobs.BlobClient.Name"/>) belongs to
-    /// the tenant resolved from <paramref name="scopeProvider"/>.
+    ///     Ensures a blob name returned from storage (e.g. <see cref="Azure.Storage.Blobs.BlobClient.Name" />) belongs to
+    ///     the tenant resolved from <paramref name="scopeProvider" />.
     /// </summary>
     public static void EnsureReadBlobNameMatchesTenant(IScopeContextProvider scopeProvider, string blobName)
     {
