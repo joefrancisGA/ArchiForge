@@ -218,6 +218,71 @@ public sealed class TrialSmokeRunnerTests
     }
 
     [Fact]
+    public async Task RunAsync_HappyPath_PropagatesXCorrelationIdFromRegisterResponse()
+    {
+        const string CorrelationId = "abcd-1234-correlation";
+        StubHandler handler = new();
+        handler.OnRequest = req =>
+        {
+            string path = req.RequestUri!.AbsolutePath;
+
+            if (req.Method == HttpMethod.Post && path == "/v1/register")
+            {
+                HttpResponseMessage created = JsonResponse(HttpStatusCode.Created, new
+                {
+                    tenantId = TenantId,
+                    defaultWorkspaceId = WorkspaceId,
+                    defaultProjectId = ProjectId,
+                });
+                created.Headers.Add("X-Correlation-ID", CorrelationId);
+                return Task.FromResult(created);
+            }
+
+            if (req.Method == HttpMethod.Get && path == "/v1/tenant/trial-status")
+                return Task.FromResult(JsonResponse(HttpStatusCode.OK, new
+                {
+                    status = "Active",
+                    trialWelcomeRunId = (string?)null,
+                }));
+
+            throw new InvalidOperationException($"Unexpected request to {path}.");
+        };
+
+        TrialSmokeReport report = await RunAsync(handler, new TrialSmokeCommandOptions
+        {
+            OrganizationName = "Acme",
+            AdminEmail = "ops@example.com",
+        });
+
+        report.AllPassed.Should().BeTrue();
+        report.RegistrationCorrelationId.Should().Be(CorrelationId);
+    }
+
+    [Fact]
+    public async Task RunAsync_RegisterFailsWithCorrelationHeader_StillReportsCorrelationId()
+    {
+        const string CorrelationId = "fail-trace-9999";
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                HttpResponseMessage conflict = JsonResponse(HttpStatusCode.Conflict, new { error = "duplicate_slug" });
+                conflict.Headers.Add("X-Correlation-ID", CorrelationId);
+                return Task.FromResult(conflict);
+            },
+        };
+
+        TrialSmokeReport report = await RunAsync(handler, new TrialSmokeCommandOptions
+        {
+            OrganizationName = "Acme",
+            AdminEmail = "ops@example.com",
+        });
+
+        report.AllPassed.Should().BeFalse();
+        report.RegistrationCorrelationId.Should().Be(CorrelationId);
+    }
+
+    [Fact]
     public async Task RunAsync_RegisterThrows_RecordsFailureWithoutCrashing()
     {
         StubHandler handler = new()

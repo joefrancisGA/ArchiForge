@@ -28,7 +28,8 @@ internal static class TrialSmokeCommand
             Console.Error.WriteLine(error);
             Console.Error.WriteLine(
                 "Usage: archlucid trial smoke --org <name> --email <email> [--display-name <name>] " +
-                "[--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]");
+                "[--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas] " +
+                "[--staging] [--one-line]");
 
             return CliExitCode.UsageError;
         }
@@ -51,6 +52,13 @@ internal static class TrialSmokeCommand
             return report.AllPassed ? CliExitCode.Success : CliExitCode.OperationFailed;
         }
 
+        if (options.OneLineOutput)
+        {
+            Console.WriteLine(TrialSmokeOneLineSummaryFormatter.Format(report, baseUrl));
+
+            return report.AllPassed ? CliExitCode.Success : CliExitCode.OperationFailed;
+        }
+
         Console.WriteLine($"archlucid trial smoke @ {baseUrl}");
         Console.WriteLine(new string('-', 60));
 
@@ -65,7 +73,7 @@ internal static class TrialSmokeCommand
 
         Console.WriteLine(new string('-', 60));
         Console.WriteLine(report.AllPassed
-            ? $"PASS — tenant={report.TenantId} welcomeRun={report.TrialWelcomeRunId ?? "<none>"}"
+            ? $"PASS — tenant={report.TenantId} welcomeRun={report.TrialWelcomeRunId ?? "<none>"} correlation={report.RegistrationCorrelationId ?? "<none>"}"
             : "FAIL — see step output above. Re-run with --json for machine-readable output.");
 
         return report.AllPassed ? CliExitCode.Success : CliExitCode.OperationFailed;
