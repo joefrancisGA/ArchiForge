@@ -12,9 +12,8 @@ public sealed class CliResilienceOptionsTests
         {
             HttpResilience = new ArchLucidProjectScaffolder.CliHttpResilienceConfig
             {
-                MaxRetryAttempts = 1,
-                InitialDelaySeconds = 2,
-            },
+                MaxRetryAttempts = 1, InitialDelaySeconds = 2
+            }
         };
 
         CliResilienceOptions options = CliResilienceOptions.FromCliConfig(config);
@@ -26,11 +25,7 @@ public sealed class CliResilienceOptionsTests
     [Fact]
     public void Normalize_clamps_extreme_values()
     {
-        CliResilienceOptions options = new()
-        {
-            MaxRetryAttempts = 100,
-            InitialDelaySeconds = 10_000
-        };
+        CliResilienceOptions options = new() { MaxRetryAttempts = 100, InitialDelaySeconds = 10_000 };
         options.Normalize();
 
         options.MaxRetryAttempts.Should().Be(10);

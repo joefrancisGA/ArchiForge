@@ -56,6 +56,7 @@ using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Telemetry;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 using ArchLucid.Persistence.Tenancy.Diagnostics;
@@ -141,6 +142,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
+        services.AddSingleton<IFirstTenantFunnelEventStore, NoopFirstTenantFunnelEventStore>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<IHostLeaderLeaseRepository, NoOpHostLeaderLeaseRepository>();

@@ -53,7 +53,8 @@ public sealed class RoiBulletinCommandOptionsTests
     [Fact]
     public void Parse_rejects_unknown_flag()
     {
-        RoiBulletinCommandOptions? opts = RoiBulletinCommandOptions.Parse(["--quarter", "Q1-2026", "--bogus"], out string? error);
+        RoiBulletinCommandOptions? opts =
+            RoiBulletinCommandOptions.Parse(["--quarter", "Q1-2026", "--bogus"], out string? error);
 
         opts.Should().BeNull();
         error.Should().Contain("--bogus");

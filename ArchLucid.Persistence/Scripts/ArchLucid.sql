@@ -4389,3 +4389,37 @@ BEGIN
         ON dbo.MarketingPricingQuoteRequests (CreatedUtc DESC);
 END;
 GO
+
+/* 112: First-tenant onboarding telemetry funnel rows
+   (see Migrations/112_FirstTenantFunnelEvents.sql; Improvement 12; pending question 40).
+   Schema is created unconditionally; rows appear only when
+   Telemetry:FirstTenantFunnel:PerTenantEmission is on (owner-only flag). */
+IF OBJECT_ID(N'dbo.FirstTenantFunnelEvents', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FirstTenantFunnelEvents
+    (
+        EventId      BIGINT           IDENTITY(1, 1) NOT NULL
+            CONSTRAINT PK_FirstTenantFunnelEvents2 PRIMARY KEY CLUSTERED,
+        TenantId     UNIQUEIDENTIFIER NOT NULL,
+        EventName    NVARCHAR(64)     NOT NULL,
+        OccurredUtc  DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_FirstTenantFunnelEvents_OccurredUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_FirstTenantFunnelEvents_EventName2
+            CHECK (EventName IN (
+                N'signup',
+                N'tour_opt_in',
+                N'first_run_started',
+                N'first_run_committed',
+                N'first_finding_viewed',
+                N'thirty_minute_milestone'
+            )),
+        CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FirstTenantFunnelEvents_TenantId_OccurredUtc2
+        ON dbo.FirstTenantFunnelEvents (TenantId, OccurredUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_FirstTenantFunnelEvents_OccurredUtc2
+        ON dbo.FirstTenantFunnelEvents (OccurredUtc DESC);
+END;
+GO

@@ -59,6 +59,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Telemetry;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 using ArchLucid.Persistence.Tenancy.Diagnostics;
@@ -175,6 +176,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
+        services.AddScoped<IFirstTenantFunnelEventStore, SqlFirstTenantFunnelEventStore>();
         services.AddScoped<IValueReportMetricsReader, DapperValueReportMetricsReader>();
         services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();

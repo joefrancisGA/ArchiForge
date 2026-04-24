@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Tests for <see cref="ArchLucidApiClient"/> URL resolution.
+///     Tests for <see cref="ArchLucidApiClient" /> URL resolution.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ArchLucidApiClientTests
@@ -11,10 +11,7 @@ public sealed class ArchLucidApiClientTests
     [Fact]
     public void ResolveBaseUrl_WhenConfigHasApiUrl_ReturnsConfigUrl()
     {
-        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
-        {
-            ApiUrl = "https://custom:9090"
-        };
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new() { ApiUrl = "https://custom:9090" };
 
         string result = ArchLucidApiClient.ResolveBaseUrl(config);
 
@@ -60,10 +57,7 @@ public sealed class ArchLucidApiClientTests
     [Fact]
     public void ResolveBaseUrl_WhenConfigHasApiUrlWithTrailingSlash_TrimsSlash()
     {
-        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
-        {
-            ApiUrl = "http://localhost:5128/"
-        };
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new() { ApiUrl = "http://localhost:5128/" };
 
         string result = ArchLucidApiClient.ResolveBaseUrl(config);
 

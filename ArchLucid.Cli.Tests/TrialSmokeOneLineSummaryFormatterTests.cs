@@ -19,7 +19,7 @@ public sealed class TrialSmokeOneLineSummaryFormatterTests
             TenantId = "tenant-1",
             TrialWelcomeRunId = "welcome-1",
             RegistrationCorrelationId = "corr-1",
-            Steps = [new TrialSmokeStepResult { Name = "register", Passed = true, Detail = "ok" }],
+            Steps = [new TrialSmokeStepResult { Name = "register", Passed = true, Detail = "ok" }]
         };
 
         string line = TrialSmokeOneLineSummaryFormatter.Format(report, BaseUrl);
@@ -37,8 +37,11 @@ public sealed class TrialSmokeOneLineSummaryFormatterTests
             RegistrationCorrelationId = "corr-7",
             Steps =
             [
-                new TrialSmokeStepResult { Name = "register", Passed = false, Detail = "boom", FailureHint = "look here" },
-            ],
+                new TrialSmokeStepResult
+                {
+                    Name = "register", Passed = false, Detail = "boom", FailureHint = "look here"
+                }
+            ]
         };
 
         string line = TrialSmokeOneLineSummaryFormatter.Format(report, BaseUrl);
@@ -56,7 +59,7 @@ public sealed class TrialSmokeOneLineSummaryFormatterTests
         TrialSmokeReport report = new()
         {
             AllPassed = false,
-            Steps = [new TrialSmokeStepResult { Name = "register", Passed = false, Detail = "x" }],
+            Steps = [new TrialSmokeStepResult { Name = "register", Passed = false, Detail = "x" }]
         };
 
         string line = TrialSmokeOneLineSummaryFormatter.Format(report, BaseUrl);

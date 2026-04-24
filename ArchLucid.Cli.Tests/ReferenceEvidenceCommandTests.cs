@@ -22,7 +22,7 @@ public sealed class ReferenceEvidenceCommandTests
                 "--run",
                 "6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501",
                 "--tenant",
-                "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
             ],
             CancellationToken.None);
 

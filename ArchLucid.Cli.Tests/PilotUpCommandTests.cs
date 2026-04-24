@@ -31,7 +31,7 @@ public sealed class PilotUpCommandTests
             int exit = await Program.RunAsync(["pilot"]);
 
             exit.Should().Be(CliExitCode.UsageError);
-            (outWriter.ToString() + errWriter.ToString()).Should().Contain("archlucid pilot up");
+            (outWriter + errWriter).Should().Contain("archlucid pilot up");
         }
         finally
         {

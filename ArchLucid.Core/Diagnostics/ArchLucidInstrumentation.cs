@@ -311,6 +311,18 @@ public static class ArchLucidInstrumentation
             description: "Increments once per tenant on first successful manifest commit.");
 
     /// <summary>
+    ///     First-tenant onboarding funnel events (Improvement 12). Aggregated counter — the
+    ///     <c>event</c> tag is the only label by default. The <c>tenant_id</c> tag is added only when the
+    ///     <c>Telemetry:FirstTenantFunnel:PerTenantEmission</c> feature flag is on (owner-only flip per
+    ///     pending question 40 / <c>docs/security/PRIVACY_NOTE.md</c> §3.A).
+    /// </summary>
+    public static readonly Counter<long> FirstTenantFunnelEventsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_first_tenant_funnel_events_total",
+            description:
+            "First-tenant onboarding funnel events (label: event=signup|tour_opt_in|first_run_started|first_run_committed|first_finding_viewed|thirty_minute_milestone). tenant_id label added ONLY when Telemetry:FirstTenantFunnel:PerTenantEmission is true.");
+
+    /// <summary>
     ///     Operator onboarding funnel successes (labels: <c>task</c> = <c>first_run_committed</c> |
     ///     <c>first_session_completed</c>).
     /// </summary>
@@ -744,6 +756,32 @@ public static class ArchLucidInstrumentation
     public static void RecordFirstSessionCompleted()
     {
         FirstSessionCompletedTotal.Add(1);
+    }
+
+    /// <summary>
+    ///     Increments <see cref="FirstTenantFunnelEventsTotal" />. <paramref name="eventName" /> must be one of
+    ///     <see cref="FirstTenantFunnelEventNames" />. <paramref name="tenantIdNormalized" /> is added as a
+    ///     <c>tenant_id</c> tag <b>only</b> when <paramref name="recordPerTenant" /> is true (owner-only flag
+    ///     per pending question 40). Never tags <c>userId</c>, IP, or any other personal data.
+    /// </summary>
+    public static void RecordFirstTenantFunnelEvent(
+        string eventName,
+        bool recordPerTenant,
+        string? tenantIdNormalized)
+    {
+        if (!FirstTenantFunnelEventNames.IsValid(eventName))
+            throw new ArgumentOutOfRangeException(
+                nameof(eventName),
+                eventName,
+                $"eventName must be one of: {string.Join(", ", FirstTenantFunnelEventNames.All)}.");
+
+        TagList tags = new() { { "event", eventName } };
+
+        if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
+
+            tags.Add("tenant_id", tenantIdNormalized);
+
+        FirstTenantFunnelEventsTotal.Add(1, tags);
     }
 
     /// <summary>Increments <see cref="OperatorTaskSuccessTotal" /> for a low-cardinality <paramref name="task" /> label.</summary>

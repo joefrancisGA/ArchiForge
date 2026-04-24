@@ -3,16 +3,16 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Tests for Command Line.
+///     Tests for Command Line.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class CommandLineTests
 {
     [Fact]
     public async Task NoArgs_Returns1_AndPrintsUsage()
     {
-        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
         try
         {
             int exitCode = await Program.RunAsync([]);
@@ -31,7 +31,8 @@ public sealed class CommandLineTests
     [Fact]
     public async Task UnknownCommand_Returns1_AndPrintsUnknown()
     {
-        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
         try
         {
             int exitCode = await Program.RunAsync(["invalid"]);
@@ -50,14 +51,16 @@ public sealed class CommandLineTests
     [Fact]
     public async Task Health_WhenApiUnreachable_Returns3()
     {
-        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
         try
         {
             int exitCode = await Program.RunAsync(["health"]);
 
             exitCode.Should().Be(CliExitCode.ApiUnavailable);
             string output = outWriter + errWriter.ToString();
-            (output.Contains("FAIL") || output.Contains("Cannot connect") || output.Contains("Cannot reach") || output.Contains("api_unreachable"))
+            (output.Contains("FAIL") || output.Contains("Cannot connect") || output.Contains("Cannot reach") ||
+             output.Contains("api_unreachable"))
                 .Should().BeTrue("output should contain unreachable guidance or JSON error code");
         }
         finally
@@ -69,7 +72,8 @@ public sealed class CommandLineTests
     [Fact]
     public async Task LeadingGlobalJson_WithNoArgs_WritesJsonUsageToStderr()
     {
-        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
         try
         {
             int exitCode = await Program.RunAsync(["--json"]);
@@ -90,7 +94,8 @@ public sealed class CommandLineTests
     [Fact]
     public async Task LeadingGlobalJson_HealthUnreachable_WritesJsonToStderr()
     {
-        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+            out TextWriter prevErr);
         try
         {
             int exitCode = await Program.RunAsync(["--json", "health"]);
@@ -140,7 +145,8 @@ public sealed class CommandLineTests
         }
     }
 
-    private static void RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr)
+    private static void RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+        out TextWriter prevErr)
     {
         outWriter = new StringWriter();
         errWriter = new StringWriter();
@@ -158,13 +164,20 @@ public sealed class CommandLineTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
-
         public TempDirectory()
         {
             Directory.CreateDirectory(Path);
         }
 
-        public void Dispose() => Directory.Delete(Path, recursive: true);
+        public string Path
+        {
+            get;
+        } = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+            "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
+
+        public void Dispose()
+        {
+            Directory.Delete(Path, true);
+        }
     }
 }

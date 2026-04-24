@@ -5,7 +5,7 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Support bundle environment snapshot: secret names and URL redaction (56R).
+///     Support bundle environment snapshot: secret names and URL redaction (56R).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -14,7 +14,8 @@ public sealed class SupportBundleEnvironmentRedactionTests
     private static readonly object EnvMutationLock = new();
 
     [Fact]
-    public void SnapshotEnvironmentForBundle_masks_archlucid_prefixed_key_containing_sql_even_when_value_looks_like_connection_string()
+    public void
+        SnapshotEnvironmentForBundle_masks_archlucid_prefixed_key_containing_sql_even_when_value_looks_like_connection_string()
     {
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string key = "ARCHLUCID_UNITTEST_SQL_" + suffix;

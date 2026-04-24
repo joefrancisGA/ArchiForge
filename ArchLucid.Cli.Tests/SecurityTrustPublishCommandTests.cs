@@ -10,18 +10,6 @@ namespace ArchLucid.Cli.Tests;
 [Trait("Suite", "Core")]
 public sealed class SecurityTrustPublishCommandTests
 {
-    private sealed class CapturingHandler : HttpMessageHandler
-    {
-        public HttpRequestMessage? LastRequest { get; private set; }
-
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            LastRequest = request;
-
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NoContent));
-        }
-    }
-
     [Fact]
     public async Task ExecutePublicationAsync_posts_json_and_returns_success()
     {
@@ -37,7 +25,7 @@ public sealed class SecurityTrustPublishCommandTests
                 "--summary-url",
                 "https://example.com/redacted.md",
                 "--assessment-code",
-                "2026-Q2",
+                "2026-Q2"
             ],
             out string? error);
 
@@ -52,5 +40,22 @@ public sealed class SecurityTrustPublishCommandTests
         string body = await handler.LastRequest.Content!.ReadAsStringAsync(CancellationToken.None);
         body.Should().Contain("2026-07-29");
         body.Should().Contain("2026-Q2");
+    }
+
+    private sealed class CapturingHandler : HttpMessageHandler
+    {
+        public HttpRequestMessage? LastRequest
+        {
+            get;
+            private set;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            LastRequest = request;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NoContent));
+        }
     }
 }

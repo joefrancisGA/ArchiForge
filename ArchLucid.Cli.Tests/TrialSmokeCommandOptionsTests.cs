@@ -53,7 +53,7 @@ public sealed class TrialSmokeCommandOptionsTests
                 "--baseline-hours", "16.5",
                 "--baseline-source", "team estimate",
                 "--display-name", "Ops User",
-                "--api-base-url", "https://staging.archlucid.com",
+                "--api-base-url", "https://staging.archlucid.com"
             ],
             out string? error);
 
@@ -140,7 +140,7 @@ public sealed class TrialSmokeCommandOptionsTests
                 "--staging",
                 "--api-base-url", "http://localhost:5128",
                 "--org", "Acme",
-                "--email", "ops@example.com",
+                "--email", "ops@example.com"
             ],
             out string? error);
 
@@ -156,7 +156,7 @@ public sealed class TrialSmokeCommandOptionsTests
                 "--staging",
                 "--api-base-url", TrialSmokeCommandOptions.StagingApiBaseUrl,
                 "--org", "Acme",
-                "--email", "ops@example.com",
+                "--email", "ops@example.com"
             ],
             out string? error);
 

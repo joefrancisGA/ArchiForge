@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Focused tests for operator-facing stderr hints after API failures (56R hardening).
+///     Focused tests for operator-facing stderr hints after API failures (56R hardening).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class CliOperatorHintsTests

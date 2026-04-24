@@ -5,8 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Deterministic “chaos” for the CLI HTTP stack: first outbound attempt fails, retry succeeds.
-/// Validates <see cref="CliRetryDelegatingHandler"/> + Polly pipeline without external Simmy dependency.
+///     Deterministic “chaos” for the CLI HTTP stack: first outbound attempt fails, retry succeeds.
+///     Validates <see cref="CliRetryDelegatingHandler" /> + Polly pipeline without external Simmy dependency.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class CliRetryDelegatingHandlerTests
@@ -27,7 +27,7 @@ public sealed class CliRetryDelegatingHandlerTests
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
         });
 
-        using HttpClient http = new(new CliRetryDelegatingHandler { InnerHandler = inner }, disposeHandler: true);
+        using HttpClient http = new(new CliRetryDelegatingHandler { InnerHandler = inner }, true);
 
         HttpResponseMessage response = await http.GetAsync("http://localhost/ping");
 
@@ -46,11 +46,8 @@ public sealed class CliRetryDelegatingHandlerTests
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
         });
 
-        CliResilienceOptions options = new()
-        {
-            MaxRetryAttempts = 0
-        };
-        using HttpClient http = new(new CliRetryDelegatingHandler(options) { InnerHandler = inner }, disposeHandler: true);
+        CliResilienceOptions options = new() { MaxRetryAttempts = 0 };
+        using HttpClient http = new(new CliRetryDelegatingHandler(options) { InnerHandler = inner }, true);
 
         HttpResponseMessage response = await http.GetAsync("http://localhost/ping");
 
@@ -64,7 +61,8 @@ public sealed class CliRetryDelegatingHandlerTests
         private readonly Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> _send =
             send ?? throw new ArgumentNullException(nameof(send));
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             return _send(request, cancellationToken);
         }
