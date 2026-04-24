@@ -11,7 +11,7 @@ Explain the small **“Day N since first commit”** badge shown next to **Time 
 
 ## Assumptions
 
-- The tenant row may carry **`dbo.Tenants.TrialFirstManifestCommittedUtc`**, set on the **first golden manifest commit** for eligible tenants (see commit orchestration + `TryMarkTrialFirstManifestCommittedAsync`).
+- The tenant row may carry **`dbo.Tenants.TrialFirstManifestCommittedUtc`**, set on the **first golden manifest commit** for **every** tenant via `ITenantRepository.TryMarkFirstManifestCommittedAsync` (column name unchanged). Trial-only **`TrialFirstRunCompleted`** audit + histograms still fire only when **`TrialExpiresUtc`** is set — see **`SqlTrialFunnelCommitHook`**.
 - The operator shell calls **`GET /v1/tenant/trial-status`** (via **`/api/proxy/v1/tenant/trial-status`**) with the same registration scope headers as **`TrialBanner`**.
 - **Day N** is computed in the browser as **full UTC 24-hour periods** since that timestamp: `floor((nowUtcMillis − firstCommitUtcMillis) / 86400000)`, clamped at zero — so **Day 0** covers the first 24 hours after the recorded commit instant.
 
@@ -19,7 +19,7 @@ Explain the small **“Day N since first commit”** badge shown next to **Time 
 
 - **No new SQL migration** — the column already exists (**081**).
 - **No new audit event** — badge render is read-only telemetry (`archlucid.ui.sponsor_banner.first_commit_badge_rendered`) plus optional **`POST /v1/diagnostics/sponsor-banner-first-commit-badge`** for server-side counting.
-- **Non-trial tenants** may have a **null** `firstCommitUtc` today; the badge stays hidden (see roadmap below).
+- **Non-trial tenants** keep a **null** `firstCommitUtc` until their first authority commit (or until ops run the one-shot backfill script below); the badge stays hidden when null.
 
 ## Architecture overview
 
@@ -54,7 +54,7 @@ sequenceDiagram
 
 ## Data flow
 
-1. First golden manifest commit (trial-gated write path today) sets **`TrialFirstManifestCommittedUtc`** once.
+1. First golden manifest commit sets **`TrialFirstManifestCommittedUtc`** once (all tiers).
 2. **`GET /v1/tenant/trial-status`** projects it to **`firstCommitUtc`** for both **Status = None** (blank trial status) and active trial payloads.
 3. The banner reads **`firstCommitUtc`**, computes **N**, shows **“Day N since first commit”**, and emits **one** telemetry increment per mount when a badge is shown.
 
@@ -68,7 +68,7 @@ sequenceDiagram
 
 - **Graceful degradation:** network failure, **5xx**, or missing **`firstCommitUtc`** → banner text and PDF button unchanged; **no** “Day NaN”.
 - **Stale day count:** the badge does **not** poll; N updates on **full page navigation** only.
-- **Roadmap (post-V1):** backfill **`TrialFirstManifestCommittedUtc`** for converted / non-trial tenants so paid workspaces get the same anchor — tracked as a TODO on the commit orchestrator and in this doc; **no column rename** (downstream callers depend on **`TrialFirstManifestCommittedUtc`**).
+- **Backfill (ops):** tenants with manifests but a null pin can be repaired idempotently with **`ArchLucid.Persistence/Scripts/Maintenance/Backfill-FirstManifestCommittedUtc.sql`** (sets the column to **`MIN(CreatedUtc)`** per tenant from **`dbo.GoldenManifests`**). **No column rename** — downstream callers depend on **`TrialFirstManifestCommittedUtc`**.
 
 ## Manual verification
 

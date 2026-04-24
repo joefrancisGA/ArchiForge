@@ -92,10 +92,11 @@ public interface ITenantRepository
         CancellationToken ct);
 
     /// <summary>
-    ///     Sets <c>TrialFirstManifestCommittedUtc</c> once for self-service trial tenants and returns funnel timing when this
-    ///     invocation performed the transition.
+    ///     Sets <c>TrialFirstManifestCommittedUtc</c> once on the tenant's first golden manifest commit (all tiers) and
+    ///     returns funnel timing when this invocation performed the transition. Trial-only metrics/audits are layered in
+    ///     <see cref="ITrialFunnelCommitHook" /> — this method only mutates the anchor column.
     /// </summary>
-    Task<TrialFirstManifestCommitOutcome?> TryMarkTrialFirstManifestCommittedAsync(
+    Task<TrialFirstManifestCommitOutcome?> TryMarkFirstManifestCommittedAsync(
         Guid tenantId,
         DateTimeOffset committedUtc,
         CancellationToken ct);

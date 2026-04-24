@@ -146,7 +146,7 @@ Each step lists: **what happens**, **file path / HTTP endpoint**, **durable audi
 | **API** | `POST /v1/architecture/run/{runId}/commit` (façade `IRunCommitOrchestrator` → legacy `IArchitectureRunCommitOrchestrator` during ADR 0021 Phase 2) |
 | **Audit (canonical + dual-write)** | `Run.CommitCompleted` + `CoordinatorRunCommitCompleted` |
 | **Tenant trial counter** | `dbo.Tenants.TrialRunsUsed` increment is **atomic in the same transaction** as the run insert (`SqlRunRepository.SaveAsync`) — see [`docs/security/TRIAL_LIMITS.md`](../security/TRIAL_LIMITS.md) § "Data flow" |
-| **First-commit pin** | `dbo.Tenants.TrialFirstManifestCommittedUtc` set once on the **tenant's first** committed manifest |
+| **First-commit pin** | `dbo.Tenants.TrialFirstManifestCommittedUtc` set once on the **tenant's first** committed golden manifest (**all** tiers; trial-only **`TrialFirstRunCompleted`** audit still gates on `TrialExpiresUtc`) |
 
 ### Step 8 — Sponsor banner + Day N badge + before-vs-measured panel
 

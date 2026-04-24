@@ -113,9 +113,9 @@ public sealed class TenantRecord
     }
 
     /// <summary>
-    ///     First time this tenant committed a golden manifest (trial funnel anchor). Used for sponsor-banner time-anchoring in
-    ///     the operator UI;
-    ///     surfaced on the wire as <c>firstCommitUtc</c> on <c>GET /v1/tenant/trial-status</c>.
+    ///     First time this tenant committed a golden manifest (UTC anchor for all tiers). Used for sponsor-banner
+    ///     time-anchoring in the operator UI; surfaced on the wire as <c>firstCommitUtc</c> on
+    ///     <c>GET /v1/tenant/trial-status</c>.
     /// </summary>
     public DateTimeOffset? TrialFirstManifestCommittedUtc
     {

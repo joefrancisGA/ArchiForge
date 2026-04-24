@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-24 — Sponsor banner first-commit pin for all tenants + SQL backfill script
+
+**Outcome.** **`dbo.Tenants.TrialFirstManifestCommittedUtc`** is now written on the **first golden manifest commit for every tenant** (`ITenantRepository.TryMarkFirstManifestCommittedAsync`, renamed from the trial-only SQL guard). **`SqlTrialFunnelCommitHook`** still emits **`TrialFirstRunCompleted`** + trial histograms **only** when **`TrialExpiresUtc`** is set. **`GET /v1/tenant/trial-status`** already projected **`firstCommitUtc`** on both branches; operator **`EmailRunToSponsorBanner`** behaviour unchanged. **Maintenance:** idempotent **`ArchLucid.Persistence/Scripts/Maintenance/Backfill-FirstManifestCommittedUtc.sql`** sets the column from **`MIN(dbo.GoldenManifests.CreatedUtc)`** where still null. **Tests:** **`SqlTrialFunnelCommitHookTests`**, InMemory non-trial **`TryMarkFirstManifestCommittedAsync`** case, Vitest fake-clock day badge. **Docs:** **`SPONSOR_BANNER_FIRST_COMMIT_BADGE.md`**, **`API_CONTRACTS.md`**, **`EXECUTIVE_SPONSOR_BRIEF.md`**. **Audit matrix:** **`audit-core-const-count:118`** unchanged (no new **`AuditEventTypes`**).
+
+---
+
 ## 2026-04-24 — Rebrand PR-2: `/welcome`, `/get-started`, `/pricing` use `BRAND_CATEGORY` seam
 
 **Outcome.** Per [`docs/architecture/REBRAND_WORKSTREAM_2026_04_23.md`](architecture/REBRAND_WORKSTREAM_2026_04_23.md) **PR-2**, marketing routes **`/welcome`** (page metadata + `WelcomeMarketingPage` hero copy), **`/get-started`**, and **`/pricing`** now render the buyer-facing category via **`import { BRAND_CATEGORY } from "@/lib/brand-category"`** (no hardcoded legacy phrase under `archlucid-ui/src/app/` for those surfaces). Each page’s Next.js **`metadata.other["x-archlucid-brand-category-legacy"]`** carries **`BRAND_CATEGORY_LEGACY`** for the SEO escape hatch (same pattern as PR-1 **`/why`**). **Tests:** Vitest specs **`welcome-brand-category.test.tsx`**, **`get-started-brand-category.test.tsx`**, **`pricing-brand-category.test.tsx`** assert the brand-category paragraph **`textContent`** contains **`BRAND_CATEGORY`** and not **`BRAND_CATEGORY_LEGACY`**. **Out of scope:** operator-shell copy (PR-6), CI guard FAIL flip (PR-7), screenshot gallery refresh.

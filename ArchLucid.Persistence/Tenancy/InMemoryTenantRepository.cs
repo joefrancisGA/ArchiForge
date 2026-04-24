@@ -429,7 +429,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public Task<TrialFirstManifestCommitOutcome?> TryMarkTrialFirstManifestCommittedAsync(
+    public Task<TrialFirstManifestCommitOutcome?> TryMarkFirstManifestCommittedAsync(
         Guid tenantId,
         DateTimeOffset committedUtc,
         CancellationToken ct)
@@ -439,10 +439,6 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         lock (_trialGate)
         {
             if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-                return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
-
-
-            if (t.TrialExpiresUtc is null)
                 return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
 
 

@@ -545,7 +545,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     }
 
     /// <inheritdoc />
-    public async Task<TrialFirstManifestCommitOutcome?> TryMarkTrialFirstManifestCommittedAsync(
+    public async Task<TrialFirstManifestCommitOutcome?> TryMarkFirstManifestCommittedAsync(
         Guid tenantId,
         DateTimeOffset committedUtc,
         CancellationToken ct)
@@ -560,7 +560,6 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                   INSERTED.CreatedUtc,
                                   INSERTED.TrialStartUtc
                            WHERE Id = @TenantId
-                             AND TrialExpiresUtc IS NOT NULL
                              AND TrialFirstManifestCommittedUtc IS NULL;
                            """;
 
