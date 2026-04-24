@@ -37,11 +37,13 @@ internal static class PipelineExtensions
                         .GetRequiredService<ILogger<WebApplication>>();
 
                     if (logger.IsEnabled(LogLevel.Error))
+                    {
+                        // LogSanitizer.Sanitize return = CodeQL log-injection barrier at call site (see docs/library/CODEQL_TRIAGE.md).
+                        string safeMethod = LogSanitizer.Sanitize(context.Request.Method);
+                        string safePath = LogSanitizer.Sanitize(context.Request.Path.Value);
 
-                        logger.LogErrorUnhandledWorkerHttpRequest(
-                            ex,
-                            context.Request.Method,
-                            context.Request.Path.ToString());
+                        logger.LogErrorUnhandledWorkerHttpRequest(ex, safeMethod, safePath);
+                    }
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()

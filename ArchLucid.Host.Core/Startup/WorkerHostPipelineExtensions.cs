@@ -35,11 +35,12 @@ public static class WorkerHostPipelineExtensions
                         .GetRequiredService<ILogger<WebApplication>>();
 
                     if (logger.IsEnabled(LogLevel.Error))
-                        logger.LogErrorUnhandledWorkerHttpRequest(
-                            ex,
-                            context.Request.Method,
-                            context.Request.Path.ToString());
+                    {
+                        string safeMethod = LogSanitizer.Sanitize(context.Request.Method);
+                        string safePath = LogSanitizer.Sanitize(context.Request.Path.Value);
 
+                        logger.LogErrorUnhandledWorkerHttpRequest(ex, safeMethod, safePath);
+                    }
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
