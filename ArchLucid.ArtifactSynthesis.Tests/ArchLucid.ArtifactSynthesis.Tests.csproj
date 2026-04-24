@@ -21,6 +21,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
+    <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\tests\golden-corpus\synthesis\**\*" Link="golden-corpus\synthesis\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

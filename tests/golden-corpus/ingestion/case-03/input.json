@@ -1,0 +1,8 @@
+{
+  "document": {
+    "documentId": "ingestion-doc-03",
+    "name": "architecture.md",
+    "contentType": "text/markdown",
+    "content": "# Sample\n\nREQ: All API requests must be authenticated with Entra ID.\nSEC: Data at rest uses customer-managed keys.\nTOP: Spoke VNet must peer to the hub VNet for shared services.\n"
+  }
+}

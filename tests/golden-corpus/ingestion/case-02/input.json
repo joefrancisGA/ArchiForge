@@ -1,0 +1,37 @@
+{
+  "infrastructureDeclaration": {
+    "name": "state",
+    "format": "terraform-show-json",
+    "declarationId": "ingestion-case-02",
+    "terraformDocument": {
+      "format_version": "1.0",
+      "values": {
+        "root_module": {
+          "resources": [
+            {
+              "mode": "managed",
+              "type": "azurerm_virtual_network",
+              "name": "core",
+              "provider_name": "registry.terraform.io/hashicorp/azurerm",
+              "values": { "name": "vnet-core", "location": "eastus", "address_space": "10.0.0.0/16" }
+            },
+            {
+              "mode": "managed",
+              "type": "azurerm_subnet",
+              "name": "app",
+              "provider_name": "registry.terraform.io/hashicorp/azurerm",
+              "values": { "name": "subnet-app", "address_prefixes": "10.0.1.0/24" }
+            },
+            {
+              "mode": "managed",
+              "type": "azurerm_network_security_group",
+              "name": "app",
+              "provider_name": "registry.terraform.io/hashicorp/azurerm",
+              "values": { "name": "nsg-app", "location": "eastus" }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+[
+  {
+    "name": "azurerm_resource_group.main",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/azurerm",
+      "terraformType": "azurerm_resource_group",
+      "tf.location": "eastus",
+      "tf.name": "rg-demo"
+    },
+    "sourceId": "ingestion-case-01",
+    "sourceType": "InfrastructureDeclaration"
+  },
+  {
+    "name": "azurerm_storage_account.data",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/azurerm",
+      "terraformType": "azurerm_storage_account",
+      "tf.name": "stdemo001",
+      "tf.resource_group_name": "rg-demo"
+    },
+    "sourceId": "ingestion-case-01",
+    "sourceType": "InfrastructureDeclaration"
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "azurerm_resource_group.main",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/azurerm",
+      "terraformType": "azurerm_resource_group",
+      "tf.location": "westeurope",
+      "tf.name": "rg-partial"
+    },
+    "sourceId": "ingestion-case-05",
+    "sourceType": "InfrastructureDeclaration"
+  },
+  {
+    "name": "acme_server.edge",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/edge",
+      "terraformType": "acme_server",
+      "tf.id": "edge-1"
+    },
+    "sourceId": "ingestion-case-05",
+    "sourceType": "InfrastructureDeclaration"
+  }
+]

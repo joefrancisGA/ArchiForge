@@ -1,0 +1,34 @@
+{
+  "infrastructureDeclaration": {
+    "name": "state",
+    "format": "terraform-show-json",
+    "declarationId": "ingestion-case-05",
+    "terraformDocument": {
+      "format_version": "1.0",
+      "values": {
+        "root_module": {
+          "resources": [
+            {
+              "mode": "managed",
+              "type": "azurerm_resource_group",
+              "name": "main",
+              "provider_name": "registry.terraform.io/hashicorp/azurerm",
+              "values": { "name": "rg-partial", "location": "westeurope" }
+            },
+            {
+              "mode": "managed",
+              "name": "invalid_row_missing_type"
+            },
+            {
+              "mode": "managed",
+              "type": "acme_server",
+              "name": "edge",
+              "provider_name": "registry.terraform.io/hashicorp/edge",
+              "values": { "id": "edge-1" }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
