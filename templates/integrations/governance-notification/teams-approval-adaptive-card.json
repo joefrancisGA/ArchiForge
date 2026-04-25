@@ -1,0 +1,47 @@
+{
+  "type": "message",
+  "attachments": [
+    {
+      "contentType": "application/vnd.microsoft.card.adaptive",
+      "contentUrl": null,
+      "content": {
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "type": "AdaptiveCard",
+        "version": "1.5",
+        "body": [
+          {
+            "type": "TextBlock",
+            "text": "ArchLucid — governance approval submitted",
+            "weight": "Bolder",
+            "size": "Large",
+            "wrap": true
+          },
+          {
+            "type": "FactSet",
+            "facts": [
+              { "title": "Approval request", "value": "${approvalRequestId}" },
+              { "title": "Run", "value": "${runId}" },
+              { "title": "Manifest version", "value": "${manifestVersion}" },
+              { "title": "Source env", "value": "${sourceEnvironment}" },
+              { "title": "Target env", "value": "${targetEnvironment}" },
+              { "title": "Requested by", "value": "${requestedBy}" }
+            ]
+          },
+          {
+            "type": "TextBlock",
+            "text": "Open the approval in ArchLucid to review or act.",
+            "wrap": true,
+            "isSubtle": true
+          }
+        ],
+        "actions": [
+          {
+            "type": "Action.OpenUrl",
+            "title": "Open in ArchLucid",
+            "url": "${actionUrl}"
+          }
+        ]
+      }
+    }
+  ]
+}

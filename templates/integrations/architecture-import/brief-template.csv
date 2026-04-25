@@ -1,0 +1,2 @@
+systemName,environment,description,cloudProvider,constraint1,constraint2
+ExampleLegacySystem,prod,"Describe the system boundary, data flows, and what must be true in one paragraph of at least ten characters.",Azure,Meet enterprise zero-trust baseline.,Documented recovery objectives.

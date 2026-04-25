@@ -1,0 +1,48 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "teamsIncomingWebhookUri": {
+        "type": "string"
+      }
+    },
+    "triggers": {
+      "When_a_POST_is_received": {
+        "type": "Request",
+        "kind": "Http",
+        "inputs": {
+          "method": "POST",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" },
+              "id": { "type": "string" },
+              "data": { "type": "object" }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "Compose_tenant_line": {
+        "type": "Compose",
+        "runAfter": {},
+        "inputs": "@{concat('Governance: ', string(triggerBody()?['data']?['approvalRequestId']))}"
+      },
+      "Http_post_Teams": {
+        "type": "Http",
+        "runAfter": {
+          "Compose_tenant_line": [ "Succeeded" ]
+        },
+        "inputs": {
+          "method": "POST",
+          "uri": "@{parameters('teamsIncomingWebhookUri')}",
+          "headers": { "Content-Type": "application/json" },
+          "body": { "text": "@{outputs('Compose_tenant_line')}" }
+        }
+      }
+    }
+  },
+  "kind": "Stateful"
+}

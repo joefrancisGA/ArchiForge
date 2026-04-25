@@ -10,6 +10,7 @@ import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { CommandPalette } from "@/components/CommandPalette";
 import { HelpPanel } from "@/components/HelpPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
+import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
@@ -77,6 +78,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
               <Breadcrumbs />
             </div>
           </header>
+          <LayerContextFromRoute />
           <div className="mx-auto flex w-full max-w-[1600px] flex-1">
             <aside className="hidden w-[15.5rem] shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50/80 px-2 py-4 dark:border-neutral-800 dark:bg-neutral-950/80 lg:block">
               <SidebarNav />
