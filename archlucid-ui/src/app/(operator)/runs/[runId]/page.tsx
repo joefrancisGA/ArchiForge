@@ -27,6 +27,7 @@ import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import {
   type ApiResponseWithTrace,
@@ -218,9 +219,12 @@ export default async function RunDetailPage({
       <RunDetailSectionNav sections={runDetailNavSections} />
 
       <section id="run-metadata" style={{ marginBottom: 24 }}>
-        <h3>Run</h3>
+        <h3>
+          <GlossaryTooltip termKey="run">Run</GlossaryTooltip>
+        </h3>
         <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
-          Manifest summary and artifacts appear below when this run has a golden manifest (after commit).
+          Manifest summary and artifacts appear below when this run has a{" "}
+          <GlossaryTooltip termKey="golden_manifest">golden manifest</GlossaryTooltip> (after commit).
         </p>
         <p>
           <strong>Run ID:</strong>{" "}
@@ -279,7 +283,7 @@ export default async function RunDetailPage({
           <li>Graph Snapshot: {resolvedDetail.run.graphSnapshotId ?? "—"}</li>
           <li>Findings Snapshot: {resolvedDetail.run.findingsSnapshotId ?? "—"}</li>
           <li>
-            Golden Manifest:{" "}
+            <GlossaryTooltip termKey="golden_manifest">Golden manifest</GlossaryTooltip>:{" "}
             {manifestId ? (
               <Link href={`/manifests/${manifestId}`}>{manifestId}</Link>
             ) : (
@@ -294,7 +298,11 @@ export default async function RunDetailPage({
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
           <p style={{ margin: 0 }}>
-            This run has no <strong>golden manifest</strong> yet (normal before commit). After the pipeline
+            This run has no{" "}
+            <GlossaryTooltip termKey="golden_manifest">
+              <strong>golden manifest</strong>
+            </GlossaryTooltip>{" "}
+            yet (normal before commit). After the pipeline
             finishes, commit through the <strong>API or CLI</strong>, then reload this page for manifest summary,
             artifacts, and ZIP exports.
           </p>

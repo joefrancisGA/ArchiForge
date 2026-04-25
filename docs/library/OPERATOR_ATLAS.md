@@ -49,14 +49,12 @@
 |--------|-----|-------------|-------------|-----------|---------------|
 | Ask (RAG Q&A) | — | Ask / retrieval routes | `/ask` | Read | [operator-shell.md](operator-shell.md) |
 | Search indexed content | — | search APIs | `/search` | Read | [API_CONTRACTS.md](API_CONTRACTS.md) |
-| Advisory scans & digests | — | `/v1/advisory…`, digest reads | `/advisory`, `/digests` | Read | [runbooks/ADVISORY_SCAN_FAILURES.md](../runbooks/ADVISORY_SCAN_FAILURES.md), [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
+| Advisory hub (scans + schedules) | — | `/v1/advisory…`; `/v1/advisory-scheduling…` (CRUD) | `/advisory` (default **Scans**; **Schedules** `?tab=schedules`; legacy `/advisory-scheduling` → redirect) | Read (scans); schedules tab lists GET at Read, mutations Execute | [runbooks/ADVISORY_SCAN_FAILURES.md](../runbooks/ADVISORY_SCAN_FAILURES.md), [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
+| Digests hub (browse + subs + schedule) | — | digest list reads; `/v1/digest-subscriptions…` (mutations); `/v1/tenant/exec-digest-preferences` (save) | `/digests` (default **Browse**; **Subscriptions** `?tab=subscriptions`; **Schedule** `?tab=schedule`; legacy `/digest-subscriptions` and `/settings/exec-digest` → redirect) | Read nav; subscription CRUD Execute; exec schedule GET Read, save Execute | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), [CHANGELOG.md](../CHANGELOG.md) |
 | Recommendation learning | — | learning APIs | `/recommendation-learning` | Read | [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) |
 | Pilot feedback | — | feedback APIs | `/product-learning` | Read | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
 | Planning themes | — | planning writes | `/planning` | Execute | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
 | Evolution candidates | — | evolution APIs | `/evolution-review` | Execute | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
-| Advisory schedules | — | schedule CRUD | `/advisory-scheduling` | Execute | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
-| Digest subscriptions | — | `/v1/digest-subscriptions…` | `/digest-subscriptions` | Execute | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
-| Exec digest email prefs | — | `/v1/tenant/exec-digest-preferences` | `/settings/exec-digest` | Read | [CHANGELOG.md](../CHANGELOG.md) (weekly digest entry) |
 
 ---
 
@@ -64,11 +62,7 @@
 
 | Action | CLI | Primary API | Operator UI | Authority | Runbook / doc |
 |--------|-----|-------------|-------------|-----------|---------------|
-| Alerts inbox | — | `/v1/alerts…` | `/alerts` | Read | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md) |
-| Alert rules | — | `/v1/alert-rules…` | `/alert-rules` | Read | [API_CONTRACTS.md](API_CONTRACTS.md) |
-| Alert routing | — | routing subscriptions | `/alert-routing` | Read | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
-| Composite alert rules | — | `/v1/composite-alert-rules…` | `/composite-alert-rules` | Read | [API_CONTRACTS.md](API_CONTRACTS.md) |
-| Alert simulation / tuning | — | simulation + tuning | `/alert-simulation`, `/alert-tuning` | Read | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
+| Alerts (hub) | — | `/v1/alerts…` and related alert APIs | `/alerts` — **Inbox**; **Rules** `?tab=rules`; **Routing** `?tab=routing`; **Composite** `?tab=composite`; **Simulation & Tuning** `?tab=simulation` (legacy paths redirect) | Read | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md), [API_CONTRACTS.md](API_CONTRACTS.md) |
 | Policy packs | — | `/v1/policy-packs…` | `/policy-packs` | Read / Admin on writes | [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
 | Governance resolution (read) | — | effective governance | `/governance-resolution` | Read | [PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md) |
 | Governance dashboard | — | dashboard aggregates | `/governance/dashboard` | Read | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |

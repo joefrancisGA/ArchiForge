@@ -36,10 +36,10 @@ public static class WorkerHostPipelineExtensions
 
                     if (logger.IsEnabled(LogLevel.Error))
                     {
-                        string safeMethod = LogSanitizer.Sanitize(context.Request.Method);
-                        string safePath = LogSanitizer.Sanitize(context.Request.Path.Value);
-
-                        logger.LogErrorUnhandledWorkerHttpRequest(ex, safeMethod, safePath);
+                        logger.LogErrorUnhandledWorkerHttpRequest(
+                            ex,
+                            context.Request.Method,
+                            context.Request.Path.Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
                     }
                 }
 

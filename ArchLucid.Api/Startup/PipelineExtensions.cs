@@ -38,11 +38,10 @@ internal static class PipelineExtensions
 
                     if (logger.IsEnabled(LogLevel.Error))
                     {
-                        // LogSanitizer.Sanitize return = CodeQL log-injection barrier at call site (see docs/library/CODEQL_TRIAGE.md).
-                        string safeMethod = LogSanitizer.Sanitize(context.Request.Method);
-                        string safePath = LogSanitizer.Sanitize(context.Request.Path.Value);
-
-                        logger.LogErrorUnhandledWorkerHttpRequest(ex, safeMethod, safePath);
+                        logger.LogErrorUnhandledWorkerHttpRequest(
+                            ex,
+                            context.Request.Method,
+                            context.Request.Path.Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
                     }
                 }
 

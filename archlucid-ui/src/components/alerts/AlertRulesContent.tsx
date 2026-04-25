@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
@@ -37,7 +38,7 @@ const RULE_TYPES = [
 
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
 
-export default function AlertRulesPage() {
+export function AlertRulesContent() {
   const canMutateAlertRules = useEnterpriseMutationCapability();
   const [items, setItems] = useState<AlertRule[]>([]);
   const [loading, setLoading] = useState(false);
@@ -86,11 +87,15 @@ export default function AlertRulesPage() {
   }
 
   return (
-    <main style={{ maxWidth: 800 }}>
+    <div style={{ maxWidth: 800 }}>
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateAlertRules ? alertRulesPageLeadOperator : alertRulesPageLeadReader}
+      </p>
+      <p className="mb-2 max-w-prose text-xs leading-snug text-neutral-600 dark:text-neutral-500">
+        Thresholds are driven by <GlossaryTooltip termKey="findings">findings</GlossaryTooltip> from the{" "}
+        <GlossaryTooltip termKey="finding_engine">finding engine</GlossaryTooltip> for completed runs in scope.
       </p>
       <AlertOperatorToolingRankCue />
 
@@ -237,6 +242,6 @@ export default function AlertRulesPage() {
           </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

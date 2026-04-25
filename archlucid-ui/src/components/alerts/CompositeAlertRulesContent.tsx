@@ -58,7 +58,7 @@ const DEDUPE = [
   { value: "RuleAndComparison", label: "Rule + run + comparison" },
 ];
 
-export default function CompositeAlertRulesPage() {
+export function CompositeAlertRulesContent() {
   const canMutateComposite = useEnterpriseMutationCapability();
   const [items, setItems] = useState<CompositeAlertRule[]>([]);
   const [loading, setLoading] = useState(false);
@@ -124,7 +124,7 @@ export default function CompositeAlertRulesPage() {
   }
 
   return (
-    <main style={{ maxWidth: 900 }}>
+    <div style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="composite-alert-rules" />
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
@@ -408,6 +408,6 @@ export default function CompositeAlertRulesPage() {
       </fieldset>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

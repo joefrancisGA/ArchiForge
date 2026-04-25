@@ -134,6 +134,23 @@ These two assurance milestones are **explicitly release-window-pinned to V1.1** 
 
 ---
 
+## 6d. Agent ecosystem / MCP — V1.1 candidates (scope documentation 2026-04-24)
+
+This section **promotes MCP from backlog-only text to the named V1.1 release window**, aligned with [V1_SCOPE.md §3](V1_SCOPE.md) and the engineering intent in [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md). It does **not** pin calendar dates; pinning dates still requires an owner entry in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+
+| MCP milestone | V1 posture | V1.1 commitment |
+|-----------------|------------|-----------------|
+| **Inbound MCP server (membrane)** — stdio and/or Streamable HTTP host process that registers **tenant-scoped, read-mostly** tools (`GetRunStatus`, manifest/provenance/governance summaries, artifact listing, audit slices, etc.) implemented as thin wrappers over **`ArchLucid.Application`** services; **SQL Server + RLS** remain authoritative; **typed audit** rows per tool class; **token / session caps** and **circuit breakers** consistent with existing LLM accounting patterns. | **Out of V1.** No MCP transport in the V1 shipping boundary; pilots and integrators use **REST**, **CLI**, and the **operator UI**. | **In scope for V1.1.** Minimum viable shape per [`MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`](MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md) §5–§6 (façade projects, tool list, data-flow sketch). **Hard rule:** the authoritative solution **never** takes a compile-time dependency on MCP — the membrane is removable without changing business logic. |
+| **Outbound MCP client (ArchLucid calls external tool servers)** | **Out of V1.** | **Out of V1.1** unless separately promoted — backlog default is **V2** with an explicit allowlist and approval-class mapping (see same backlog §5). |
+
+**Rules:**
+
+- Quality assessments **must not** treat absence of MCP as a V1 deficit after this alignment; MCP is a **V1.1** integration surface, not a pilot gate for V1 GA.
+- Security posture for MCP matches **private API** assumptions in the backlog (no new public ports that violate the existing **private endpoint / WAF** story; no god-mode SQL principal).
+- NuGet **MCP SDK** versioning remains **verify-at-implementation-time** per the backlog's uncertainty statement — pin only when the V1.1 engineering slice starts.
+
+---
+
 ## 7. Engineering backlog (not a product roadmap)
 
 | Item | Doc source |

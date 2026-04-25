@@ -5,7 +5,7 @@
 
 ## ArchLucid documentation index
 
-**Layout note (2026-04-23):** Most engineering pages that historically lived as `docs/<FILE>.md` now live under **`docs/library/<FILE>.md`**. Unless a path is explicitly one of the small `docs/` root spine files (`START_HERE`, `INSTALL_ORDER`, `FIRST_30_MINUTES`, `CORE_PILOT`, `ARCHITECTURE_ON_ONE_PAGE`, `PENDING_QUESTIONS`, …), read backtick paths below as **`docs/library/...`** — full listing in [`DOC_INVENTORY_2026_04_23.md`](DOC_INVENTORY_2026_04_23.md).
+**Layout note (2026-04-23):** Most engineering pages that historically lived as `docs/<FILE>.md` now live under **`docs/library/<FILE>.md`**. Unless a path is explicitly one of the small `docs/` root spine files (`START_HERE`, `INSTALL_ORDER`, `FIRST_30_MINUTES`, `CORE_PILOT`, `ARCHITECTURE_ON_ONE_PAGE`, `PENDING_QUESTIONS`, …), read backtick paths below as **`docs/library/...`** — full listing in [`DOC_INVENTORY_2026_04_23.md`](library/DOC_INVENTORY_2026_04_23.md).
 
 ### Orientation
 

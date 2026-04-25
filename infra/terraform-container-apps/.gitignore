@@ -12,3 +12,4 @@ terraform.rc
 *.tfvars
 !terraform.tfvars.example
 !production.tfvars.example
+!dev.tfvars.example

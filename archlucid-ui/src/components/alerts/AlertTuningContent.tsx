@@ -90,7 +90,7 @@ function CandidateCard({
   );
 }
 
-export default function AlertTuningPage() {
+export function AlertTuningContent() {
   const canMutateEnterpriseShell = useEnterpriseMutationCapability();
   const [ruleKind, setRuleKind] = useState<"Simple" | "Composite">("Simple");
   const [ruleType, setRuleType] = useState("CostIncreasePercent");
@@ -209,7 +209,7 @@ export default function AlertTuningPage() {
   const recommendedLabel = result?.recommendedCandidate?.candidate.label;
 
   return (
-    <main style={{ maxWidth: 900 }}>
+    <div style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="alert-tuning" />
       <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">{alertTuningPageLead}</p>
@@ -491,6 +491,6 @@ export default function AlertTuningPage() {
       </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

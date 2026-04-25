@@ -222,6 +222,28 @@ public static class Program
                 case "completions":
                     return await CompletionsCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                case "config":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "check", StringComparison.Ordinal))
+                    {
+                        return await ConfigCheckCommand.RunAsync(
+                            normalized
+                                .Skip(2)
+                                .ToArray());
+                    }
+
+                    if (CliExecutionContext.JsonOutput)
+                    {
+                        CliJson.WriteFailureLine(
+                            Console.Error, CliExitCode.UsageError, "usage",
+                            "Expected: archlucid config check [--no-api]");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Usage: archlucid config check [--no-api]");
+                    }
+
+                    return CliExitCode.UsageError;
+
                 default:
                     if (CliExecutionContext.JsonOutput)
 

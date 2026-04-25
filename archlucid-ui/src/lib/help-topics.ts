@@ -57,9 +57,10 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "alerts",
     title: "Alerts",
     keywords: ["inbox", "ack", "noise"],
-    summary: "Alerts surface governance and evaluation signals; tune rules from Alert rules and Alert tuning.",
+    summary:
+      "Alerts hub: inbox, rules, routing, composite, and simulation & tuning on one page (`/alerts?tab=`).",
     docPath: "docs/ALERTS.md",
-    routes: ["/alerts", "/alert-rules", "/alert-tuning"],
+    routes: ["/alerts", "/alerts?tab=rules", "/alerts?tab=simulation"],
   },
   {
     id: "policy-packs",

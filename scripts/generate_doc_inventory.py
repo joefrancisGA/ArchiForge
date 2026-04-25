@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Emit ``docs/DOC_INVENTORY_<date>.md`` — markdown table of every ``docs/**/*.md`` except ``docs/archive/``."""
+"""Emit ``docs/library/DOC_INVENTORY_<date>.md`` — markdown table of every ``docs/**/*.md`` except ``docs/archive/``."""
 
 from __future__ import annotations
 
@@ -83,7 +83,9 @@ def main() -> int:
     root = repo_root()
     docs = root / "docs"
     today = dt.date.today().isoformat()
-    out_path = docs / f"DOC_INVENTORY_{today.replace('-', '_')}.md"
+    library = docs / "library"
+    library.mkdir(parents=True, exist_ok=True)
+    out_path = library / f"DOC_INVENTORY_{today.replace('-', '_')}.md"
     rows: list[tuple[str, str, str, str, str, str]] = []
     for path in sorted(docs.rglob("*.md")):
         try:

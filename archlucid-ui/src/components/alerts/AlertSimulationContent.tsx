@@ -131,7 +131,7 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
   );
 }
 
-export default function AlertSimulationPage() {
+export function AlertSimulationContent() {
   const canMutateEnterpriseShell = useEnterpriseMutationCapability();
   const [tab, setTab] = useState<Tab>("simple");
   const [loading, setLoading] = useState(false);
@@ -292,7 +292,7 @@ export default function AlertSimulationPage() {
   }
 
   return (
-    <main style={{ maxWidth: 1100 }}>
+    <div style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
       <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
@@ -724,6 +724,6 @@ export default function AlertSimulationPage() {
           </section>
         </>
       ) : null}
-    </main>
+    </div>
   );
 }

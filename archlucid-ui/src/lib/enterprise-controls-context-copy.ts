@@ -503,7 +503,7 @@ export const digestsListRefreshButtonTitleOperator = "Reload digest list from th
 export const digestsListRefreshButtonTitleReader =
   "Reload digest list (GET). Email subscriptions are configured under Subscriptions (Execute+).";
 
-/** Digest subscriptions — subscription list **`h3`** (`digest-subscriptions/page.tsx`). */
+/** Digest subscriptions — subscription list **`h3`** (`components/digests/DigestSubscriptionsContent.tsx`). */
 export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Your subscriptions";
 
 export const digestSubscriptionsYourSubscriptionsHeadingReader = "Your subscriptions (inspect)";
@@ -530,7 +530,7 @@ export const digestSubscriptionsEmptyListOperatorLine = "None yet.";
 export const digestSubscriptionsEmptyListReaderLine =
   "None yet. Inspect when rows exist; create and toggle need operator on the API.";
 
-/** Advisory schedules — schedules list **`h3`** (`advisory-scheduling/page.tsx`). */
+/** Advisory schedules — schedules list **`h3`** (`components/advisory/AdvisorySchedulesContent.tsx`). */
 export const advisorySchedulesListHeadingOperator = "Schedules";
 
 export const advisorySchedulesListHeadingReader = "Schedules (inspect)";
@@ -555,7 +555,7 @@ export const advisorySchedulesLoadExecutionsButtonTitleOperator =
 export const advisorySchedulesLoadExecutionsButtonTitleReader =
   "Load executions (GET). Run now and create schedule need Execute+ on the API.";
 
-/** Advisory schedules — empty list (`advisory-scheduling/page.tsx`). */
+/** Advisory schedules — empty list (`components/advisory/AdvisorySchedulesContent.tsx`). */
 export const advisorySchedulesEmptyListOperatorLine = "No schedules yet.";
 
 export const advisorySchedulesEmptyListReaderLine =

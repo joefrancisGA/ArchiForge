@@ -90,7 +90,7 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 
 On **2026-04-23** the repository **compressed `/docs` root** so evaluators see ~20 active entry files instead of ~200. Most former root markdown files now live under **[`docs/library/`](library/)** with **relative links rewritten** across markdown. Superseded **quality / Cursor prompt packs** (except the current **68.60** pair) moved under **[`archive/quality/2026-04-23-doc-depth-reorg/`](archive/quality/2026-04-23-doc-depth-reorg/)**.
 
-**Inventory:** [`DOC_INVENTORY_2026_04_23.md`](DOC_INVENTORY_2026_04_23.md) lists every active markdown file (excluding `docs/archive/`) with last-modified metadata and audience tags.
+**Inventory:** [`DOC_INVENTORY_2026_04_23.md`](library/DOC_INVENTORY_2026_04_23.md) lists every active markdown file (excluding `docs/archive/`) with last-modified metadata and audience tags.
 
 ## Related (optional depth)
 

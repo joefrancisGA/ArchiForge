@@ -50,6 +50,8 @@ vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
 });
 
 vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/alerts",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));
 
@@ -121,13 +123,14 @@ import {
   policyPacksPackContentHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 
-import AdvisorySchedulingPage from "./advisory-scheduling/page";
-import AlertRulesPage from "./alert-rules/page";
-import DigestSubscriptionsPage from "./digest-subscriptions/page";
-import AlertSimulationPage from "./alert-simulation/page";
-import AlertTuningPage from "./alert-tuning/page";
-import CompositeAlertRulesPage from "./composite-alert-rules/page";
-import AlertsPage from "./alerts/page";
+import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
+import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
+import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
+import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
+import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
+
+import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
+import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
 import GovernanceResolutionPage from "./governance-resolution/page";
 import GovernanceWorkflowPage from "./governance/page";
 import PolicyPacksPage from "./policy-packs/page";
@@ -222,7 +225,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alerts inbox: triage preview opens but Confirm stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<AlertsPage />);
+    render(<AlertsInboxContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /Acknowledge/ })).not.toBeDisabled();
@@ -239,7 +242,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alerts inbox: triage Acknowledge enables after load when mutation capability is true", async () => {
     mutateCapability.current = true;
-    render(<AlertsPage />);
+    render(<AlertsInboxContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /^Acknowledge$/ })).not.toBeDisabled();
@@ -252,7 +255,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
    */
   it("Alerts inbox: shows inbox rank cue note when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<AlertsPage />);
+    render(<AlertsInboxContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /Acknowledge/ })).toBeInTheDocument();
@@ -264,7 +267,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alerts inbox: shows LayerHeader Execute rank cue when mutation capability is true (inbox cue omitted)", async () => {
     mutateCapability.current = true;
-    render(<AlertsPage />);
+    render(<AlertsInboxContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /^Acknowledge$/ })).toBeInTheDocument();
@@ -276,7 +279,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Digest subscriptions: Create subscription stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<DigestSubscriptionsPage />);
+    render(<DigestSubscriptionsContent />);
 
     await waitFor(() => {
       expect(apiHoisted.listDigestSubscriptions).toHaveBeenCalled();
@@ -289,7 +292,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Advisory schedules: Create schedule submit stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<AdvisorySchedulingPage />);
+    render(<AdvisorySchedulesContent />);
 
     await waitFor(() => {
       expect(apiHoisted.listAdvisorySchedules).toHaveBeenCalled();
@@ -302,14 +305,14 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alert tuning: Current tuning heading uses inspect framing when mutation capability is false", () => {
     mutateCapability.current = false;
-    render(<AlertTuningPage />);
+    render(<AlertTuningContent />);
 
     expect(screen.getByRole("heading", { name: alertTuningCurrentTuningHeadingReader })).toBeInTheDocument();
   });
 
   it("Alert simulation: Current behavior heading uses inspect framing when mutation capability is false", () => {
     mutateCapability.current = false;
-    render(<AlertSimulationPage />);
+    render(<AlertSimulationContent />);
 
     expect(
       screen.getAllByRole("heading", { name: alertSimulationCurrentBehaviorHeadingReader }).length,
@@ -318,7 +321,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alert rules: Create rule stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<AlertRulesPage />);
+    render(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /Create rule \(Execute\+\)/ })).toBeDisabled();
@@ -332,7 +335,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Alert rules: Create rule enables after load when mutation capability is true", async () => {
     mutateCapability.current = true;
-    render(<AlertRulesPage />);
+    render(<AlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
@@ -341,7 +344,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Composite alert rules: Create composite rule stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<CompositeAlertRulesPage />);
+    render(<CompositeAlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: compositeRulesCreateButtonLabelReaderRank })).toBeDisabled();
@@ -350,7 +353,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
   it("Composite alert rules: Create composite rule enables after load when mutation capability is true", async () => {
     mutateCapability.current = true;
-    render(<CompositeAlertRulesPage />);
+    render(<CompositeAlertRulesContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create composite rule" })).not.toBeDisabled();

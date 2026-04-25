@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
+import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
 
@@ -276,7 +277,7 @@ export function OperatorFirstRunWorkflowPanel() {
               Graph (visual)
             </Link>
             {" — "}provenance or architecture graph for a run ID. Enable via{" "}
-            <em>Show more links</em> in the sidebar.
+            <em>{NAV_DISCLOSURE.extended.show}</em> in the sidebar.
           </li>
           <li>
             <strong>Export a package</strong> — on run detail (committed), use{" "}

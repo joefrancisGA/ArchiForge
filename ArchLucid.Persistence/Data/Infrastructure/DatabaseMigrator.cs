@@ -33,11 +33,12 @@ public static class DatabaseMigrator
     /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
     public static void Run(string connectionString)
     {
-        using (MigrationCatalogMutexScope.Acquire(connectionString, MigrationRunMutexWait))
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
         {
-            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
-            RunWithScriptFilter(connectionString, static _ => true);
-            TryEnableReadCommittedSnapshotIfNeeded(connectionString);
+            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(secured);
+            RunWithScriptFilter(secured, static _ => true);
+            TryEnableReadCommittedSnapshotIfNeeded(secured);
         }
     }
 
@@ -58,14 +59,15 @@ public static class DatabaseMigrator
                 "Must be at least 1 and less than the total migration script count.");
 
 
-        using (MigrationCatalogMutexScope.Acquire(connectionString, MigrationRunMutexWait))
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(secured, MigrationRunMutexWait))
         {
-            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
+            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(secured);
 
             HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip)
                 .ToHashSet(StringComparer.Ordinal);
-            RunWithScriptFilter(connectionString, allowed.Contains);
-            TryEnableReadCommittedSnapshotIfNeeded(connectionString);
+            RunWithScriptFilter(secured, allowed.Contains);
+            TryEnableReadCommittedSnapshotIfNeeded(secured);
         }
     }
 
@@ -123,7 +125,9 @@ public static class DatabaseMigrator
     /// </summary>
     private static void TryEnableReadCommittedSnapshotIfNeeded(string connectionString)
     {
-        using SqlConnection connection = new(connectionString);
+        // Caller passes a string that already has Encrypt=Mandatory; normalize defensively (public migrator enforces it).
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using SqlConnection connection = new(secured);
         connection.Open();
 
         const string sql = """

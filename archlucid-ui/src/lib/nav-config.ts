@@ -13,7 +13,6 @@ import {
   Home,
   LayoutDashboard,
   ListOrdered,
-  Mail,
   MessageSquare,
   Play,
   Rocket,
@@ -23,9 +22,7 @@ import {
   ShieldCheck,
   Sparkles,
   Stars,
-  Tags,
   Wallet,
-  Wrench,
 } from "lucide-react";
 
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
@@ -122,7 +119,7 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`**
  *   (`AuthorityReplayController`).
  * - **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the
- *   API primary workflow is Execute-class (planning, evolution candidates, advisory **schedules**, digest **subscriptions** → **`ExecuteAuthority`**).
+ *   API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/advisory`** and **`/digests`** with in-page Execute gating).
  *   Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
  * - **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers
  *   are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
@@ -199,7 +196,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+y",
         icon: GitGraph,
         // Graph is a useful inspection tool but is not part of the Core Pilot path
-        // (create → run → commit → review). It surfaces under "Show more links".
+        // (create → run → commit → review). It surfaces under extended disclosure (see NAV_DISCLOSURE.extended).
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
@@ -259,7 +256,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/advisory",
         label: "Advisory",
-        title: "Advisory — scans and architecture digests",
+        title: "Advisory — architecture scans and scan schedules",
         icon: Activity,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
@@ -297,35 +294,11 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         requiredAuthority: "ExecuteAuthority",
       },
       {
-        href: "/advisory-scheduling",
-        label: "Schedules",
-        title: "Schedules — advisory scan windows",
-        icon: Wrench,
-        tier: "advanced",
-        requiredAuthority: "ExecuteAuthority",
-      },
-      {
         href: "/digests",
         label: "Digests",
-        title: "Digests — generated architecture digests",
+        title: "Digests — generated digests, subscriptions, and sponsor schedule",
         icon: FileSearch,
         tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/digest-subscriptions",
-        label: "Subscriptions",
-        title: "Subscriptions — digest email delivery",
-        icon: Mail,
-        tier: "advanced",
-        requiredAuthority: "ExecuteAuthority",
-      },
-      {
-        href: "/settings/exec-digest",
-        label: "Exec digest",
-        title: "Exec digest — weekly sponsor email schedule",
-        icon: Mail,
-        tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
       {
@@ -348,50 +321,10 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/alerts",
         label: "Alerts",
-        title: navTitleWithShortcut("Alerts — open and acknowledged operational inbox", "alt+l"),
+        title: navTitleWithShortcut("Alerts — inbox, rules, routing, simulation, and tuning", "alt+l"),
         keyShortcut: "alt+l",
         icon: Bell,
         tier: "essential",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/alert-rules",
-        label: "Alert rules",
-        title: "Alert rules — metric thresholds evaluated on advisory scans",
-        icon: Tags,
-        tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/alert-routing",
-        label: "Alert routing",
-        title: "Alert routing — delivery subscriptions when new alerts fire",
-        icon: Mail,
-        tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/composite-alert-rules",
-        label: "Composite rules",
-        title: "Composite rules — multi-metric AND/OR alert conditions",
-        icon: Tags,
-        tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/alert-simulation",
-        label: "Alert simulation",
-        title: "Alert simulation — evaluate rules against recent runs (what-if)",
-        icon: Activity,
-        tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/alert-tuning",
-        label: "Alert tuning",
-        title: "Alert tuning — threshold recommendations from simulation",
-        icon: Wrench,
-        tier: "advanced",
         requiredAuthority: "ReadAuthority",
       },
       {

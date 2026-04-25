@@ -71,7 +71,9 @@ public static partial class GreenfieldBaselineMigrationRunner
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentException("Connection string is required.", nameof(connectionString));
 
-        using SqlConnection connection = new(connectionString);
+        // Mandatory TLS: CodeQL cs/insecure-sql-connection; see SqlConnectionStringSecurity.
+        string secured = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
+        using SqlConnection connection = new(secured);
         connection.Open();
 
         if (SchemaVersionsJournalRecordsInitialSchema001(connection))

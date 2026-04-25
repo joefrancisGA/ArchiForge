@@ -1,6 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
+import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
+import { AlertSimulationContent } from "@/components/alerts/AlertSimulationContent";
+import { AlertTuningContent } from "@/components/alerts/AlertTuningContent";
+import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
+import { CompositeAlertRulesContent } from "@/components/alerts/CompositeAlertRulesContent";
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -11,21 +18,16 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-import AdvisoryPage from "./advisory/page";
-import AdvisorySchedulingPage from "./advisory-scheduling/page";
-import AlertRoutingPage from "./alert-routing/page";
-import AlertRulesPage from "./alert-rules/page";
-import AlertSimulationPage from "./alert-simulation/page";
-import AlertsPage from "./alerts/page";
-import AlertTuningPage from "./alert-tuning/page";
+import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
+import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
+import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
+import { DigestSubscriptionsContent } from "@/components/digests/DigestSubscriptionsContent";
+
 import AskPage from "./ask/page";
-import CompositeAlertRulesPage from "./composite-alert-rules/page";
-import DigestSubscriptionsPage from "./digest-subscriptions/page";
-import DigestsPage from "./digests/page";
+import EvolutionReviewPage from "./evolution-review/page";
 import GovernanceResolutionPage from "./governance-resolution/page";
 import OnboardingStartPage from "./onboarding/start/page";
 import PolicyPacksPage from "./policy-packs/page";
-import EvolutionReviewPage from "./evolution-review/page";
 import PlanningPage from "./planning/page";
 import ProductLearningPage from "./product-learning/page";
 import RecommendationLearningPage from "./recommendation-learning/page";
@@ -34,45 +36,47 @@ import SearchPage from "./search/page";
 /**
  * Render-gate: first paint + import chain for client-only operator pages that had no tests.
  * Does not assert API outcomes (useEffect may run after; fetch errors are caught in-page).
+ *
+ * Alert surfaces: bodies live in `@/components/alerts/*Content`; the `/alerts` route is the tabbed hub.
  */
 describe("operator client pages — render gate", () => {
-  it("AlertsPage renders primary heading", () => {
-    render(<AlertsPage />);
+  it("Alerts inbox content renders primary heading", () => {
+    render(<AlertsInboxContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Alerts" })).toBeInTheDocument();
   });
 
-  it("AlertRulesPage renders primary heading", () => {
-    render(<AlertRulesPage />);
+  it("Alert rules content renders primary heading", () => {
+    render(<AlertRulesContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Alert rules" })).toBeInTheDocument();
   });
 
-  it("AlertRoutingPage renders primary heading", () => {
-    render(<AlertRoutingPage />);
+  it("Alert routing content renders primary heading", () => {
+    render(<AlertRoutingContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Alert routing" })).toBeInTheDocument();
   });
 
-  it("AlertSimulationPage renders primary heading", () => {
-    render(<AlertSimulationPage />);
+  it("Alert simulation content renders primary heading", () => {
+    render(<AlertSimulationContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Alert rule simulation" })).toBeInTheDocument();
   });
 
-  it("AlertTuningPage renders primary heading", () => {
-    render(<AlertTuningPage />);
+  it("Alert tuning content renders primary heading", () => {
+    render(<AlertTuningContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Alert tuning" })).toBeInTheDocument();
   });
 
-  it("CompositeAlertRulesPage renders primary heading", () => {
-    render(<CompositeAlertRulesPage />);
+  it("Composite alert rules content renders primary heading", () => {
+    render(<CompositeAlertRulesContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Composite alert rules" })).toBeInTheDocument();
   });
 
-  it("AdvisoryPage renders primary heading", () => {
-    render(<AdvisoryPage />);
+  it("Advisory hub Scans tab content renders primary heading", () => {
+    render(<AdvisoryScansContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Improvement Advisor" })).toBeInTheDocument();
   });
 
-  it("AdvisorySchedulingPage renders primary heading", () => {
-    render(<AdvisorySchedulingPage />);
+  it("Advisory hub Schedules tab content renders primary heading", () => {
+    render(<AdvisorySchedulesContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Advisory schedules" })).toBeInTheDocument();
   });
 
@@ -96,13 +100,13 @@ describe("operator client pages — render gate", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Simulation review" })).toBeInTheDocument();
   });
 
-  it("DigestsPage renders primary heading", () => {
-    render(<DigestsPage />);
+  it("Digests hub Browse tab content renders primary heading", () => {
+    render(<DigestsBrowseContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Architecture digests" })).toBeInTheDocument();
   });
 
-  it("DigestSubscriptionsPage renders primary heading", () => {
-    render(<DigestSubscriptionsPage />);
+  it("Digests hub Subscriptions tab content renders primary heading", () => {
+    render(<DigestSubscriptionsContent />);
     expect(screen.getByRole("heading", { level: 2, name: "Digest subscriptions" })).toBeInTheDocument();
   });
 

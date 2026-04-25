@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
+
 import { OnboardingWizardClient } from "@/components/OnboardingWizardClient";
 
 export const metadata: Metadata = {
@@ -80,7 +82,8 @@ export default function OnboardingPage() {
           <Link href="/graph" title="Load architecture or provenance graph for a run">
             Graph
           </Link>{" "}
-          to validate the graph matches expectations. Enable via <em>Show more links</em> in the sidebar.
+          to validate the graph matches expectations. Enable via <em>{NAV_DISCLOSURE.extended.show}</em> in the
+          sidebar.
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Compare or replay.</strong> Use{" "}
@@ -91,7 +94,7 @@ export default function OnboardingPage() {
           <Link href="/replay" title="Re-validate the provenance chain for a run">
             Replay a run
           </Link>{" "}
-          for regression analysis. Enable via <em>Show more links</em>.
+          for regression analysis. Enable via <em>{NAV_DISCLOSURE.extended.show}</em>.
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Alerts and governance.</strong> When ready, configure{" "}

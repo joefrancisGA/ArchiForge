@@ -39,6 +39,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      { source: "/alert-rules", destination: "/alerts?tab=rules", permanent: false },
+      { source: "/alert-routing", destination: "/alerts?tab=routing", permanent: false },
+      { source: "/composite-alert-rules", destination: "/alerts?tab=composite", permanent: false },
+      { source: "/alert-simulation", destination: "/alerts?tab=simulation", permanent: false },
+      { source: "/alert-tuning", destination: "/alerts?tab=simulation", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

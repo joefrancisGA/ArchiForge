@@ -9,8 +9,8 @@
 
 **Relationship:**
 
-- [V1_SCOPE.md](V1_SCOPE.md) is the **V1 contract** — frozen. This file does **not** modify it.
-- [V1_DEFERRED.md](V1_DEFERRED.md) is the **doc inventory** of partial / V1.1+ stories. New items in this backlog land there only when promoted by program decision.
+- [V1_SCOPE.md](V1_SCOPE.md) is the **V1 contract**. MCP is **out of V1** and a **V1.1 candidate** in **§3** (MCP row) — aligned with this backlog.
+- [V1_DEFERRED.md](V1_DEFERRED.md) is the **doc inventory** of partial / V1.1+ stories; **§6d** records the **V1.1** MCP membrane commitment at the same level as other release-window pins.
 - [adr/README.md](../adr/README.md) is the durable decision log. The accompanying ADR for the membrane is **`adr/0029-mcp-membrane-and-agent-ecosystem.md`** (draft).
 - [ARCHITECTURE_ON_ONE_PAGE.md](../ARCHITECTURE_ON_ONE_PAGE.md), [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md), [security/MULTI_TENANT_RLS.md](../security/MULTI_TENANT_RLS.md) — the existing posture this plan must respect.
 

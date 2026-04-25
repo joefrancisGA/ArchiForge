@@ -20,7 +20,7 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
   description:
     "Try All or another status, or refresh after a scan window. New alerts appear when scheduled architecture-risk checks fire and dedupe rules allow a row.",
   actions: [
-    { label: "Configure alert rules", href: "/alert-rules" },
+    { label: "Configure alert rules", href: "/alerts?tab=rules" },
     { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "alerts",

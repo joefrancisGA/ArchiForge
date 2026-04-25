@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { enterpriseNavHintOperatorRank } from "@/lib/enterprise-controls-context-copy";
+import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 
 import { ShellNav } from "./ShellNav";
 
@@ -31,12 +32,12 @@ vi.mock("next/link", () => ({
 describe("ShellNav (sidebar re-export — primary navigation)", () => {
   beforeEach(() => {
     // Progressive disclosure persists `archlucid_nav_show_extended` in localStorage; clear so tests
-    // do not inherit "Show more links" from a prior case in the same file.
+    // do not inherit extended disclosure state from a prior case in the same file.
     localStorage.clear();
   });
 
   it(
-    "shows only Pilot essential links by default — Graph, Compare, and Replay require Show more links",
+    "shows only Pilot essential links by default — Graph, Compare, and Replay require extended disclosure",
     () => {
       render(<ShellNav />);
 
@@ -61,7 +62,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
 
       // After enabling extended links, all three become visible.
-      const showMore = screen.queryByRole("button", { name: "Show more links" });
+      const showMore = screen.queryByRole("button", { name: NAV_DISCLOSURE.extended.show });
       if (showMore) {
         fireEvent.click(showMore);
       }
@@ -92,7 +93,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     expect(screen.getByRole("navigation", { name: "Operate · analysis" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
 
-    const showMore = screen.queryByRole("button", { name: "Show more links" });
+    const showMore = screen.queryByRole("button", { name: NAV_DISCLOSURE.extended.show });
     if (showMore) {
       fireEvent.click(showMore);
     }
@@ -113,7 +114,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: "Show advanced links" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }));
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
     expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");

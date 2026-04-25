@@ -20,6 +20,7 @@ import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHin
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
@@ -213,11 +214,12 @@ export function SidebarNav() {
           variant={showExtended ? "secondary" : "outline"}
           size="sm"
           className="w-full justify-center text-xs"
+          title={NAV_DISCLOSURE.extended.title}
           onClick={() => {
             setShowExtended(!showExtended);
           }}
         >
-          {showExtended ? "Show fewer links" : "Show more links"}
+          {showExtended ? NAV_DISCLOSURE.extended.hide : NAV_DISCLOSURE.extended.show}
         </Button>
 
         <Button
@@ -248,7 +250,7 @@ export function SidebarNav() {
           <div className="space-y-4 py-2">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
-                <Label htmlFor="nav-extended">Show extended links</Label>
+                <Label htmlFor="nav-extended">{NAV_DISCLOSURE.extended.show}</Label>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   <strong>Advanced Analysis:</strong> compare, replay, graph, advisory, pilot feedback,
                   recommendation learning.{" "}
@@ -259,6 +261,7 @@ export function SidebarNav() {
                 id="nav-extended"
                 type="checkbox"
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                title={NAV_DISCLOSURE.extended.title}
                 checked={showExtended}
                 onChange={(e) => {
                   setShowExtended(e.target.checked);
@@ -267,7 +270,7 @@ export function SidebarNav() {
             </div>
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
-                <Label htmlFor="nav-advanced">Show advanced links</Label>
+                <Label htmlFor="nav-advanced">{NAV_DISCLOSURE.advanced.show}</Label>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   <strong>Enterprise Controls:</strong> audit log, alert rules, alert routing, alert tuning,
                   governance workflow, schedules. Requires extended links to be on.
@@ -277,6 +280,7 @@ export function SidebarNav() {
                 id="nav-advanced"
                 type="checkbox"
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 disabled:opacity-50 dark:border-neutral-600"
+                title={NAV_DISCLOSURE.advanced.title}
                 checked={showAdvanced}
                 disabled={!showExtended}
                 onChange={(e) => {

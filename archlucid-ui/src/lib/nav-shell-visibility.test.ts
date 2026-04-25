@@ -80,7 +80,7 @@ describe("filterNavLinksForOperatorShell", () => {
 
   /**
    * Tier runs before authority (`nav-shell-visibility`): higher rank must not “punch through” extended disclosure.
-   * Regression: reordering filters or mis-stating tiers would expose `/policy-packs` without “Show more links”.
+   * Regression: reordering filters or mis-stating tiers would expose `/policy-packs` without extended disclosure.
    */
   it("keeps extended-tier Enterprise links hidden when showExtended is off even for Execute rank and advanced on", () => {
     expect(enterprise).toBeDefined();
@@ -116,7 +116,7 @@ describe("filterNavLinksForOperatorShell", () => {
 
   /**
    * Same tier gate as Enterprise extended links: `/replay` is **extended** + **ExecuteAuthority** — Admin rank must
-   * not surface it until **Show more links** (`nav-tier` before `nav-authority`).
+   * not surface it until **Show analysis & investigation tools** (`nav-tier` before `nav-authority`).
    */
   it("hides Core Pilot extended Execute link (/replay) until showExtended even for Admin rank", () => {
     const core = NAV_GROUPS.find((g) => g.id === "pilot");

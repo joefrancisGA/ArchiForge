@@ -10,6 +10,7 @@ import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
+import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 
 export const metadata: Metadata = {
@@ -86,7 +87,7 @@ export default function HomePage() {
         </h3>
         <p className="mb-2 max-w-3xl text-xs font-medium text-neutral-600 dark:text-neutral-400">
           Not required for first-pilot proof. Use when you have a committed run <em>and</em> a concrete analytical question.
-          Sidebar: <em>Show more links</em>.
+          Sidebar: <em>{NAV_DISCLOSURE.extended.show}</em>.
         </p>
         <ul className="m-0 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           <li>

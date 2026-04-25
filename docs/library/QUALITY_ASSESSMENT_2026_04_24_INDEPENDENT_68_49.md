@@ -1197,7 +1197,7 @@ Acceptance criteria:
 
 **Title:** Structured baseline intake form and ROI instrumentation
 
-**Status:** Actionable — owner decisions resolved 2026-04-24. Full prompt at [`library/CURSOR_PROMPTS_COGNITIVE_LOAD_2026_04_24_63_65.md`](library/CURSOR_PROMPTS_COGNITIVE_LOAD_2026_04_24_63_65.md) Prompt 12.
+**Status:** Actionable — owner decisions resolved 2026-04-24. Full prompt at [`CURSOR_PROMPTS_COGNITIVE_LOAD_2026_04_24_63_65.md`](CURSOR_PROMPTS_COGNITIVE_LOAD_2026_04_24_63_65.md) Prompt 12.
 
 **Owner decisions (2026-04-24):** (a) V1 includes all three Tier 1 fields (review-cycle hours already exists; add manual prep hours per review and people per review). (b) Manual prep hours and people-per-review are deferrable — captured via a tenant settings page, not required at signup. (c) Company size persisted server-side with expanded range dropdown. (d) Architecture team size (numeric) and industry vertical (curated dropdown: Healthcare, Financial Services, Technology, Government / Public Sector, Manufacturing, Retail, Insurance, Energy / Utilities, Education, Telecommunications, Other) captured at signup.
 

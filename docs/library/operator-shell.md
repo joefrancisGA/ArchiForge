@@ -59,11 +59,11 @@ These four steps cover the complete first-pilot journey. They map directly to th
 
 ### Operate (analysis workloads) (available once you have a committed run)
 
-Enable these by clicking **Show more links** in the sidebar footer. These are **Operate (analysis workloads)** layer features.
+Enable these by clicking **Show analysis & investigation tools** in the sidebar footer. These are **Operate (analysis workloads)** layer features.
 
 5. **Compare / replay** — **Compare runs**: enter base (left) and target (right) run IDs; structured manifest deltas first, then legacy flat diff; optional AI explanation. **Replay run**: pick mode and read validation flags/notes.
 6. **Graph** — Enter a **run ID** (from Runs or run detail), choose a view (full provenance, decision subgraph, neighborhood, architecture), **Load graph**. Use this when you need a **visual** graph, not the tabular compare flow.
-7. **Ask / Advisory / Pilot feedback** — natural-language queries against architecture context; advisory scan results and digests; pilot feedback rollups.
+7. **Ask / Advisory / Pilot feedback** — natural-language queries against architecture context; the **Advisory** hub at `/advisory` combines **Scans** (default) and **Schedules** (`?tab=schedules`); the **Digests** hub at `/digests` combines **Browse** (default), **Subscriptions** (`?tab=subscriptions`, Execute-class writes), and **Schedule** (weekly executive digest, `?tab=schedule`); pilot feedback rollups.
 
 Breadcrumb links on key pages tie **Home · Runs · Compare · Graph** together.
 
@@ -71,11 +71,11 @@ Breadcrumb links on key pages tie **Home · Runs · Compare · Graph** together.
 
 These are **Operate (governance and trust)** layer features. Most require an operator or admin role and may require explicit configuration per environment (see `docs/PRE_COMMIT_GOVERNANCE_GATE.md`, `docs/ALERTS.md`).
 
-- **Governance dashboard** — cross-run pending approvals and policy changes. Enable **Show more links**.
-- **Policy packs / Governance resolution** — versioned rule sets and effective policy view. Enable **Show more links**.
-- **Audit log** — append-only search, filter, and CSV export. Enable **Show advanced links**.
-- **Alerts / Alert rules / Routing / Tuning** — configurable alert pipeline. Alerts (inbox) are **essential** tier; rules, routing, and tuning require **Show advanced links**.
-- **Governance workflow** — full approval, promotion, and activation surface. Enable **Show advanced links**.
+- **Governance dashboard** — cross-run pending approvals and policy changes. Enable **Show analysis & investigation tools** (extended links).
+- **Policy packs / Governance resolution** — versioned rule sets and effective policy view. Enable **Show analysis & investigation tools** (extended links).
+- **Audit log** — append-only search, filter, and CSV export. Enable **Show governance, audit & admin controls** (advanced links).
+- **Alerts** — one **Operate · governance** nav row opens the **Alerts** hub at `/alerts` (tabs: **Inbox**, **Rules**, **Routing**, **Composite**, **Simulation & Tuning**). The hub is **essential** tier; **Show governance, audit & admin controls** still controls other deep destinations in that group where applicable.
+- **Governance workflow** — full approval, promotion, and activation surface. Enable **Show governance, audit & admin controls** (advanced links).
 
 ---
 

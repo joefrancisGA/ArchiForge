@@ -84,7 +84,7 @@ function severityBadgeClass(severity: string): string {
   return "border-neutral-200 bg-neutral-100 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100";
 }
 
-export default function AlertsPage() {
+export function AlertsInboxContent() {
   const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
   const [alerts, setAlerts] = useState<AlertRecord[]>([]);
   const [status, setStatus] = useState<string>("Open");
@@ -133,7 +133,7 @@ export default function AlertsPage() {
           { label: "View runs list", href: "/runs?projectId=default" },
           {
             label: "Alert tooling (rules, routing, tuning)",
-            href: "/alert-rules",
+            href: "/alerts?tab=rules",
             variant: "outline" as const,
           },
         ]
@@ -141,7 +141,7 @@ export default function AlertsPage() {
           { label: "View runs list", href: "/runs?projectId=default" },
           {
             label: "Review alert tooling (read-only)",
-            href: "/alert-rules",
+            href: "/alerts?tab=rules",
             variant: "outline" as const,
           },
         ];
@@ -196,7 +196,7 @@ export default function AlertsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl">
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
@@ -459,6 +459,6 @@ export default function AlertsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </main>
+    </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -374,6 +375,10 @@ export default function AuditPage() {
             ? auditResultsSectionHeadingReader
             : auditResultsSectionHeadingOperator}
         </h3>
+        <p style={{ color: "#555", fontSize: 13, marginTop: 0, marginBottom: 8, maxWidth: "42rem" }}>
+          Each card below is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip> (time, type, actor,
+          run, and data JSON).
+        </p>
         <p role="status" aria-live="polite" aria-atomic="true" style={{ color: "#555", fontSize: 14, marginTop: 0 }}>
           {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first, {AUDIT_PAGE_SIZE} rows per request; use
           Load more for older rows.

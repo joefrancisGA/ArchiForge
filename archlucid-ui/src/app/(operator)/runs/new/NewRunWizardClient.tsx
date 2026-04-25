@@ -7,7 +7,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { FieldErrors } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
@@ -223,9 +222,8 @@ export function NewRunWizardClient() {
   const isReviewStep = stepIndex === 5;
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <FormProvider {...form}>
-        <div className="mx-auto w-full max-w-4xl space-y-6">
+    <FormProvider {...form}>
+      <div className="mx-auto w-full max-w-4xl space-y-6">
           <p
             className="m-0 text-sm text-neutral-600 dark:text-neutral-400"
             data-testid="new-run-wizard-step-line"
@@ -280,6 +278,5 @@ export function NewRunWizardClient() {
           </div>
         </div>
       </FormProvider>
-    </TooltipProvider>
   );
 }
