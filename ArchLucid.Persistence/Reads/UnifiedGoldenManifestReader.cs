@@ -50,7 +50,8 @@ public sealed class UnifiedGoldenManifestReader(
                 .GetByContractManifestVersionAsync(scope, manifestVersion, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (authorityModel is null) return null;
+        if (authorityModel is null)
+            return null;
 
         RunRecord? run = await _runRepository.GetByIdAsync(scope, authorityModel.RunId, cancellationToken)
             .ConfigureAwait(false);
@@ -73,7 +74,8 @@ public sealed class UnifiedGoldenManifestReader(
     {
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken);
 
-        if (run is null) return null;
+        if (run is null)
+            return null;
 
         if (run.GoldenManifestId is { } goldenId)
         {
@@ -101,7 +103,8 @@ public sealed class UnifiedGoldenManifestReader(
                 .GetByContractManifestVersionAsync(scope, manifestVersionKey, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (authorityByVersion is null) return null;
+        if (authorityByVersion is null)
+            return null;
 
         string fallbackSystemName = await ResolveSystemNameAsync(run, cancellationToken);
 
@@ -113,18 +116,15 @@ public sealed class UnifiedGoldenManifestReader(
 
     private async Task<string> ResolveSystemNameAsync(RunRecord run, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(run.ArchitectureRequestId) is false)
-        {
-            ArchitectureRequest? request =
-                await _requestRepository.GetByIdAsync(run.ArchitectureRequestId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(run.ArchitectureRequestId))
+            return !string.IsNullOrWhiteSpace(run.ProjectId) ? run.ProjectId : "Unknown";
 
-            if (request is not null && string.IsNullOrWhiteSpace(request.SystemName) is false)
-                return request.SystemName;
-        }
+        ArchitectureRequest? request =
+            await _requestRepository.GetByIdAsync(run.ArchitectureRequestId, cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(run.ProjectId) is false)
-            return run.ProjectId;
+        if (request is not null && !string.IsNullOrWhiteSpace(request.SystemName))
+            return request.SystemName;
 
-        return "Unknown";
+        return !string.IsNullOrWhiteSpace(run.ProjectId) ? run.ProjectId : "Unknown";
     }
 }

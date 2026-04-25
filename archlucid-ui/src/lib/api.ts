@@ -10,6 +10,7 @@ import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { getScopeHeaders } from "@/lib/scope";
 import type { GoldenManifestComparison } from "@/types/comparison";
@@ -152,6 +153,7 @@ function resolveBinaryGetRequest(path: string): { url: string; headers: HeadersI
     const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
     const headers: Record<string, string> = {
       Accept: "*/*",
+      ...getEffectiveBrowserProxyScopeHeaders(),
     };
     const bearer = getBearerToken();
 
@@ -183,6 +185,7 @@ function resolveRequest(path: string): { url: string; headers: HeadersInit } {
     const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
     const headers: Record<string, string> = {
       Accept: "application/json",
+      ...getEffectiveBrowserProxyScopeHeaders(),
     };
     const bearer = getBearerToken();
     if (bearer) headers.Authorization = `Bearer ${bearer}`;

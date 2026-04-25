@@ -23,6 +23,9 @@ const contextualHelpComponentKeys = [
   "advisory-hub",
   "semantic-search",
   "ask-archlucid",
+  "operator-scope-switcher",
+  "tenant-settings-page",
+  "admin-users-page",
 ] as const;
 
 describe("contextualHelpByKey", () => {

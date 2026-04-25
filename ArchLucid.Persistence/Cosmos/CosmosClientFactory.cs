@@ -141,10 +141,7 @@ public sealed class CosmosClientFactory : IDisposable
         if (string.Equals(containerId, "agent-traces", StringComparison.Ordinal))
             return "/runId";
 
-        if (string.Equals(containerId, "audit-events", StringComparison.Ordinal))
-            return "/tenantId";
-
-        throw new ArgumentOutOfRangeException(nameof(containerId), containerId, "Unknown Cosmos container id.");
+        return string.Equals(containerId, "audit-events", StringComparison.Ordinal) ? "/tenantId" : throw new ArgumentOutOfRangeException(nameof(containerId), containerId, "Unknown Cosmos container id.");
     }
 
     private CosmosClient CreateClient(CosmosDbOptions opts)
@@ -198,9 +195,6 @@ public sealed class CosmosClientFactory : IDisposable
         if (string.IsNullOrWhiteSpace(raw))
             return ConsistencyLevel.Session;
 
-        if (Enum.TryParse(raw.Trim(), true, out ConsistencyLevel level))
-            return level;
-
-        return ConsistencyLevel.Session;
+        return Enum.TryParse(raw.Trim(), true, out ConsistencyLevel level) ? level : ConsistencyLevel.Session;
     }
 }

@@ -102,7 +102,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                  """;
 
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
+            new CommandDefinition(selectSql, new
+            {
+                TraceId = traceId
+            }, cancellationToken: cancellationToken));
 
         if (string.IsNullOrEmpty(rowJson))
             return;
@@ -172,7 +175,11 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { TraceId = traceId, BlobUploadFailed = failed },
+                new
+                {
+                    TraceId = traceId,
+                    BlobUploadFailed = failed
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -195,7 +202,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                  """;
 
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
+            new CommandDefinition(selectSql, new
+            {
+                TraceId = traceId
+            }, cancellationToken: cancellationToken));
 
         if (string.IsNullOrEmpty(rowJson))
             return;
@@ -263,7 +273,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                                  """;
 
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
+            new CommandDefinition(selectSql, new
+            {
+                TraceId = traceId
+            }, cancellationToken: cancellationToken));
 
         if (string.IsNullOrEmpty(rowJson))
             return;
@@ -288,7 +301,12 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         await connection.ExecuteAsync(
             new CommandDefinition(
                 updateSql,
-                new { TraceId = traceId, InlineFallbackFailed = failed ? true : (bool?)null, TraceJson = updatedJson },
+                new
+                {
+                    TraceId = traceId,
+                    InlineFallbackFailed = failed ? true : (bool?)null,
+                    TraceJson = updatedJson
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -308,13 +326,12 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                            """;
 
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
-            new CommandDefinition(sql, new { TraceId = traceId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TraceId = traceId
+            }, cancellationToken: cancellationToken));
 
-        if (string.IsNullOrEmpty(rowJson))
-            return null;
-
-
-        return JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+        return string.IsNullOrEmpty(rowJson) ? null : JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
     }
 
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
@@ -333,7 +350,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return DeserializeTraces(rows, $"run '{runId}'");
@@ -361,7 +381,12 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         IEnumerable<TracePageRow> rows = await connection.QueryAsync<TracePageRow>(new CommandDefinition(
             sql,
-            new { RunId = runId, Offset = clampedOffset, Limit = clampedLimit },
+            new
+            {
+                RunId = runId,
+                Offset = clampedOffset,
+                Limit = clampedLimit
+            },
             cancellationToken: cancellationToken));
 
         List<TracePageRow> list = rows.ToList();
@@ -389,7 +414,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { TaskId = taskId },
+            new
+            {
+                TaskId = taskId
+            },
             cancellationToken: cancellationToken));
 
         return DeserializeTraces(rows, $"task '{taskId}'");

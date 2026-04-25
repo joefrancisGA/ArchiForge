@@ -79,7 +79,10 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.QuerySingleOrDefaultAsync<BackgroundJobRow>(
-            new CommandDefinition(sql, new { JobId = jobId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                JobId = jobId
+            }, cancellationToken: cancellationToken));
     }
 
     public async Task<int> TryMarkRunningAsync(string jobId, CancellationToken cancellationToken = default)
@@ -98,7 +101,10 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { JobId = jobId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                JobId = jobId
+            }, cancellationToken: cancellationToken));
     }
 
     /// <inheritdoc />
@@ -136,7 +142,10 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
             BackgroundJobRow? row = await connection.QuerySingleOrDefaultAsync<BackgroundJobRow>(
                 new CommandDefinition(
                     selectSql,
-                    new { JobId = jobId },
+                    new
+                    {
+                        JobId = jobId
+                    },
                     transaction,
                     cancellationToken: cancellationToken));
 
@@ -179,7 +188,10 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
             int affected = await connection.ExecuteAsync(
                 new CommandDefinition(
                     updateSql,
-                    new { JobId = jobId },
+                    new
+                    {
+                        JobId = jobId
+                    },
                     transaction,
                     cancellationToken: cancellationToken));
 
@@ -245,7 +257,13 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { JobId = jobId, ResultBlobName = resultBlobName, FileName = fileName, ContentType = contentType },
+                new
+                {
+                    JobId = jobId,
+                    ResultBlobName = resultBlobName,
+                    FileName = fileName,
+                    ContentType = contentType
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -269,7 +287,12 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { JobId = jobId, Error = error, RetryCount = retryCount },
+                new
+                {
+                    JobId = jobId,
+                    Error = error,
+                    RetryCount = retryCount
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -293,7 +316,12 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new { JobId = jobId, RetryCount = retryCount, Error = error },
+                new
+                {
+                    JobId = jobId,
+                    RetryCount = retryCount,
+                    Error = error
+                },
                 cancellationToken: cancellationToken));
     }
 
@@ -315,14 +343,6 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
 
     private static bool IsTerminalJobState(string state)
     {
-        if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-
-        if (string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-
-        return false;
+        return string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase) || string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase);
     }
 }

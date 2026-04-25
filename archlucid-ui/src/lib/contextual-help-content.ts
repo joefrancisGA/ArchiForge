@@ -70,6 +70,18 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "Multi-turn conversations about your architecture. First message needs a run ID; follow-ups reuse the thread.",
     learnMoreUrl: "/docs/operator-shell.md",
   },
+  "operator-scope-switcher": {
+    text: "Scope headers (tenant / workspace / project) slice API data. Pick a project when the workspace list exists; otherwise dev defaults or registration scope apply.",
+    learnMoreUrl: "/docs/library/GLOSSARY.md#scope-tenant--workspace--project",
+  },
+  "tenant-settings-page": {
+    text: "Operator-facing tenant preferences: trial status, executive digest email schedule, and the active request scope. Sensitive infrastructure settings remain server-only.",
+    learnMoreUrl: "/docs/library/API_CONTRACTS.md",
+  },
+  "admin-users-page": {
+    text: "Principals in this tenant and their effective authority rank. The API is authoritative; role changes need the admin user management endpoints to be available on your environment.",
+    learnMoreUrl: "/docs/library/API_CONTRACTS.md",
+  },
 };
 
 /**

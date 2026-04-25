@@ -143,12 +143,9 @@ public static partial class GreenfieldBaselineMigrationRunner
     ///     <c>017_GovernanceWorkflow</c>
     ///     (error 2714 / "already an object named …") — repaired like the tenant-present path.
     /// </summary>
-    internal static bool IsKnownDuplicateInitialMigrationTable(SqlException ex)
+    internal static bool IsKnownDuplicateInitialMigrationTable(SqlException? ex)
     {
-        if (ex is null)
-            return false;
-
-        return IsKnownDuplicateInitialMigrationTable(ex.Message, ex.Number);
+        return ex is not null && IsKnownDuplicateInitialMigrationTable(ex.Message, ex.Number);
     }
 
     /// <summary>
@@ -161,12 +158,9 @@ public static partial class GreenfieldBaselineMigrationRunner
     ///     constraint name even when historical migration <c>001–028</c> must not be edited — treat like other baseline
     ///     duplicate-object cases.
     /// </summary>
-    internal static bool IsKnownDuplicateBaselineConstraintName(SqlException ex)
+    internal static bool IsKnownDuplicateBaselineConstraintName(SqlException? ex)
     {
-        if (ex is null)
-            return false;
-
-        return IsKnownDuplicateBaselineConstraintName(ex.Message);
+        return ex is not null && IsKnownDuplicateBaselineConstraintName(ex.Message);
     }
 
     /// <summary>Test seam for <see cref="IsKnownDuplicateBaselineConstraintName(SqlException)" />.</summary>
@@ -178,10 +172,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         if (!IsKnownDuplicateBaselineConstraintMessage(message))
             return false;
 
-        if (message.Contains("already an object named", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return message.Contains("Could not create constraint", StringComparison.OrdinalIgnoreCase);
+        return message.Contains("already an object named", StringComparison.OrdinalIgnoreCase) || message.Contains("Could not create constraint", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -193,18 +184,13 @@ public static partial class GreenfieldBaselineMigrationRunner
     {
         if (message.Contains("FK_ArtifactBundles_GoldenManifests_ManifestId", StringComparison.OrdinalIgnoreCase)
             || message.Contains("FK_ArtifactBundles_Runs_RunId", StringComparison.OrdinalIgnoreCase))
-
             return true;
-
 
         if (message.Contains("FK_FindingsSnapshots_", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (message.Contains("FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId",
-                StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return false;
+        return message.Contains("FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId",
+            StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -335,10 +321,7 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </summary>
     private static bool ShouldSkipEmbeddedMigrationResourceAlreadyApplied(SqlConnection connection, string resourceName)
     {
-        if (!resourceName.Contains("017_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        return GovernanceWorkflow017TablesExist(connection);
+        return resourceName.Contains("017_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase) && GovernanceWorkflow017TablesExist(connection);
     }
 
     /// <summary>True when <c>dbo.AuditEvents</c> exists (created in <c>035_AuditProvenanceConversationTables</c>).</summary>

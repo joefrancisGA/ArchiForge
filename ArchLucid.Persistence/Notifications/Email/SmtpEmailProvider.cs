@@ -34,28 +34,28 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
 
 #pragma warning disable CA1416 // SmtpClient is obsolete but intentionally used for lightweight dev SMTP.
 #pragma warning disable SYSLIB0014
-        SmtpClient smtp = new(options.SmtpHost.Trim(), options.SmtpPort) { EnableSsl = options.SmtpPort is 587 or 465 };
+        SmtpClient smtp = new(options.SmtpHost.Trim(), options.SmtpPort)
+        {
+            EnableSsl = options.SmtpPort is 587 or 465
+        };
 
         if (!string.IsNullOrWhiteSpace(options.SmtpUser))
-
             smtp.Credentials = new NetworkCredential(options.SmtpUser.Trim(), options.SmtpPassword ?? string.Empty);
-
 
         MailAddress from = string.IsNullOrWhiteSpace(options.FromDisplayName)
             ? new MailAddress(options.FromAddress.Trim())
             : new MailAddress(options.FromAddress.Trim(), options.FromDisplayName.Trim());
 
         using (smtp)
-        using (MailMessage mail = new(from, new MailAddress(message.To.Trim()))
-               {
-                   Subject = message.Subject, Body = message.HtmlBody, IsBodyHtml = true
-               })
+        using (MailMessage mail = new(from, new MailAddress(message.To.Trim())))
         {
-            if (!string.IsNullOrWhiteSpace(message.TextBody))
+            mail.Subject = message.Subject;
+            mail.Body = message.HtmlBody;
+            mail.IsBodyHtml = true;
 
+            if (!string.IsNullOrWhiteSpace(message.TextBody))
                 mail.AlternateViews.Add(
                     AlternateView.CreateAlternateViewFromString(message.TextBody, null, "text/plain"));
-
 
             return smtp.SendMailAsync(mail, cancellationToken);
         }

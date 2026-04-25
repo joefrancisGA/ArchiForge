@@ -1,26 +1,13 @@
-import { isLikelySignedIn } from "@/lib/oidc/session";
-import { registrationScopeHeaders } from "@/lib/registration-session";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
 /**
- * Merges `x-tenant-id` / `x-workspace-id` / `x-project-id` from the post-registration browser session
- * into same-origin `/api/proxy/*` fetches when the operator has **not** completed OIDC sign-in.
- * JWT-bound scope wins on the API when claims are present; these headers unblock DevelopmentBypass
- * onboarding before the buyer signs in.
+ * Merges effective tenant/workspace/project scope headers for same-origin `/api/proxy/*` fetches: operator choice
+ * (localStorage) → post-registration session (unsigned) → dev defaults. Keeps the proxy aligned with
+ * `resolveRequest` in `api.ts`.
  */
 export function mergeRegistrationScopeForProxy(input?: RequestInit): RequestInit {
-  if (isLikelySignedIn()) {
-    return input ?? {};
-  }
-
-  const scope = registrationScopeHeaders();
-
-  if (scope === null) {
-    return input ?? {};
-  }
-
   const headers = new Headers(input?.headers);
-
-  for (const [key, value] of Object.entries(scope)) {
+  for (const [key, value] of Object.entries(getEffectiveBrowserProxyScopeHeaders())) {
     headers.set(key, value);
   }
 

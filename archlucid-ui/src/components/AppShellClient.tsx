@@ -12,6 +12,7 @@ import { HelpPanel } from "@/components/HelpPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
+import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SidebarNav } from "@/components/SidebarNav";
@@ -51,7 +52,8 @@ export function AppShellClient({ children }: AppShellClientProps) {
                   </Button>
                 </h1>
               </div>
-              <div className="flex flex-wrap items-center justify-end gap-2">
+              <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+                <ScopeSwitcher />
                 <Button
                   type="button"
                   variant="outline"

@@ -38,12 +38,12 @@ public sealed class DapperTenantExecDigestPreferencesRepository(ISqlConnectionFa
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         TenantExecDigestPreferencesRow? row = await connection.QueryFirstOrDefaultAsync<TenantExecDigestPreferencesRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
-        if (row is null)
-            return null;
-
-        return ExecDigestPreferencesMapper.ToResponse(row);
+        return row is null ? null : ExecDigestPreferencesMapper.ToResponse(row);
     }
 
     /// <inheritdoc />
@@ -64,7 +64,10 @@ public sealed class DapperTenantExecDigestPreferencesRepository(ISqlConnectionFa
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         int tenantCount = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(tenantExistsSql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(tenantExistsSql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
         if (tenantCount == 0)
             return null;
@@ -159,7 +162,10 @@ public sealed class DapperTenantExecDigestPreferencesRepository(ISqlConnectionFa
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         int n = await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: cancellationToken));
 
         return n > 0;
     }
