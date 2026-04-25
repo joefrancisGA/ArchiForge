@@ -27,6 +27,10 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy the UI source tree (everything in archlucid-ui/ becomes /app/).
 COPY archlucid-ui/ .
 
+# Vitest-only file at the UI root used to be typechecked by `next build` on older branches. It is not part
+# of the runtime app; remove if present so Docker builds never fail on Vitest RTL mocks (mock lives under `testing/`).
+RUN rm -f vitest-setup-rtl-mock.ts
+
 # Synthetic aggregate ROI bulletin sample (read at SSR; canonical file lives under docs/ at repo root).
 COPY docs/go-to-market/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md ./go-to-market-samples/SAMPLE_AGGREGATE_ROI_BULLETIN_SYNTHETIC.md
 
