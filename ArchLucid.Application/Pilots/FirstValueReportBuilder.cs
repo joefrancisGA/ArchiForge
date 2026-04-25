@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Scoping;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Pilots;
@@ -29,6 +30,8 @@ public sealed class FirstValueReportBuilder(
     IPilotRunDeltaComputer deltaComputer,
     ValueReportBuilder valueReportBuilder,
     IScopeContextProvider scopeProvider,
+    IExecutionProvenanceFooterRenderer executionProvenanceFooter,
+    IConfiguration configuration,
     ILogger<FirstValueReportBuilder> logger)
 {
     /// <summary>Sponsor-facing banner appended above any computed line for runs that match the demo seed.</summary>
@@ -45,6 +48,12 @@ public sealed class FirstValueReportBuilder(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IExecutionProvenanceFooterRenderer _executionProvenanceFooter =
+        executionProvenanceFooter ?? throw new ArgumentNullException(nameof(executionProvenanceFooter));
+
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     private readonly ILogger<FirstValueReportBuilder> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -95,6 +104,12 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine("This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
 
+        if (run.RealModeFellBackToSimulator)
+        {
+            sb.AppendLine(_executionProvenanceFooter.BuildYellowSimulatorSubstitutionCallout());
+            sb.AppendLine();
+        }
+
         if (deltas.IsDemoTenant)
         {
             sb.AppendLine("> " + DemoTenantBanner + " The numbers below come from the seeded Contoso Retail Modernization dataset and MUST NOT be quoted as a real-customer outcome.");
@@ -113,11 +128,28 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         sb.AppendLine("---");
         sb.AppendLine();
+        sb.AppendLine(_executionProvenanceFooter.BuildFooterMarkdown(BuildProvenanceInput(run, deltas)));
+        sb.AppendLine();
+        sb.AppendLine("---");
+        sb.AppendLine();
         sb.AppendLine("**Sponsor narrative (canonical):** repository `docs/EXECUTIVE_SPONSOR_BRIEF.md` (not served by this HTTP endpoint).");
         sb.AppendLine();
         sb.AppendLine($"*Generated from run `{run.RunId}`.*");
 
         return sb.ToString();
+    }
+
+    private ExecutionProvenanceFooterInput BuildProvenanceInput(ArchitectureRun run, PilotRunDeltas deltas)
+    {
+        string hostMode = _configuration["AgentExecution:Mode"]?.Trim() ?? "Simulator";
+        string? hostDeployment = _configuration["AzureOpenAI:DeploymentName"]?.Trim();
+
+        return new ExecutionProvenanceFooterInput(
+            run.RealModeFellBackToSimulator,
+            run.PilotAoaiDeploymentSnapshot,
+            hostMode,
+            hostDeployment,
+            deltas.LlmCallCount);
     }
 
     private static void AppendRunSection(StringBuilder sb, ArchitectureRun run, GoldenManifest? manifest, string baseUrl)

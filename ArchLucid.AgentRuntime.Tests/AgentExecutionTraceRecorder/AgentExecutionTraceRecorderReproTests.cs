@@ -3,7 +3,9 @@ using System.Diagnostics.Metrics;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
@@ -22,101 +24,6 @@ namespace ArchLucid.AgentRuntime.Tests.AgentExecutionTraceRecorder;
 [Trait("Suite", "Core")]
 public sealed class AgentExecutionTraceRecorderReproTests
 {
-    private sealed class FixedScopeProvider : IScopeContextProvider
-    {
-        public ScopeContext GetCurrentScope() =>
-            new()
-            {
-                TenantId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
-                WorkspaceId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                ProjectId = Guid.Parse("00000000-0000-0000-0000-000000000003"),
-            };
-    }
-
-    private sealed class NoOpAuditService : IAuditService
-    {
-        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken) => Task.CompletedTask;
-    }
-
-    private sealed class SpyAuditService : IAuditService
-    {
-        public AuditEvent? LastEvent
-        {
-            get; private set;
-        }
-
-        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
-        {
-            LastEvent = auditEvent;
-
-            return Task.CompletedTask;
-        }
-    }
-
-    private sealed class RecordingAuditService : IAuditService
-    {
-        public List<AuditEvent> Events { get; } = [];
-
-        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
-        {
-            Events.Add(auditEvent);
-
-            return Task.CompletedTask;
-        }
-    }
-
-    /// <summary>Forces SQL inline patch to throw while delegating other trace operations to memory.</summary>
-    private sealed class InlinePatchThrowsRepository : IAgentExecutionTraceRepository
-    {
-        private readonly InMemoryAgentExecutionTraceRepository _inner = new();
-
-        public Task CreateAsync(AgentExecutionTrace trace, CancellationToken cancellationToken = default) =>
-            _inner.CreateAsync(trace, cancellationToken);
-
-        public Task PatchBlobStorageFieldsAsync(
-            string traceId,
-            string? fullSystemPromptBlobKey,
-            string? fullUserPromptBlobKey,
-            string? fullResponseBlobKey,
-            CancellationToken cancellationToken = default) =>
-            _inner.PatchBlobStorageFieldsAsync(
-                traceId,
-                fullSystemPromptBlobKey,
-                fullUserPromptBlobKey,
-                fullResponseBlobKey,
-                cancellationToken);
-
-        public Task PatchBlobUploadFailedAsync(string traceId, bool failed, CancellationToken cancellationToken = default) =>
-            _inner.PatchBlobUploadFailedAsync(traceId, failed, cancellationToken);
-
-        public Task PatchInlinePromptFallbackAsync(
-            string traceId,
-            string? fullSystemPromptInline,
-            string? fullUserPromptInline,
-            string? fullResponseInline,
-            CancellationToken cancellationToken = default) =>
-            throw new IOException("simulated mandatory inline SQL patch failure");
-
-        public Task PatchInlineFallbackFailedAsync(string traceId, bool failed, CancellationToken cancellationToken = default) =>
-            _inner.PatchInlineFallbackFailedAsync(traceId, failed, cancellationToken);
-
-        public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId, CancellationToken cancellationToken = default) =>
-            _inner.GetByTraceIdAsync(traceId, cancellationToken);
-
-        public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default) =>
-            _inner.GetByRunIdAsync(runId, cancellationToken);
-
-        public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
-            string runId,
-            int offset,
-            int limit,
-            CancellationToken cancellationToken = default) =>
-            _inner.GetPagedByRunIdAsync(runId, offset, limit, cancellationToken);
-
-        public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId, CancellationToken cancellationToken = default) =>
-            _inner.GetByTaskIdAsync(taskId, cancellationToken);
-    }
-
     [Fact]
     public async Task RecordAsync_persists_prompt_repro_fields()
     {
@@ -133,8 +40,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "user",
             "{}",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null,
+            true,
+            null,
             meta);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
@@ -160,13 +67,13 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "user",
             "{}",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null,
-            promptRepro: null,
-            inputTokenCount: null,
-            outputTokenCount: null,
-            modelDeploymentName: null,
-            modelVersion: null);
+            true,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
@@ -183,9 +90,9 @@ public sealed class AgentExecutionTraceRecorderReproTests
             {
                 Enabled = true,
                 InputUsdPerMillionTokens = 1m,
-                OutputUsdPerMillionTokens = 2m,
+                OutputUsdPerMillionTokens = 2m
             });
-        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, costOptions: opts);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, opts);
 
         await sut.RecordAsync(
             "run-1",
@@ -195,11 +102,11 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "user",
             "{}",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null,
-            promptRepro: null,
-            inputTokenCount: 1_000_000,
-            outputTokenCount: 500_000);
+            true,
+            null,
+            null,
+            1_000_000,
+            500_000);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
@@ -222,8 +129,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "full-user",
             "full-response",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null);
+            true,
+            null);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
@@ -248,12 +155,13 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "full-user",
             "full-response",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null,
+            true,
+            null,
             isSimulatorExecution: true);
 
         blobMock.Verify(
-            b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
@@ -269,7 +177,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
         InMemoryAgentExecutionTraceRepository repo = new();
         Mock<IArtifactBlobStore> blobMock = new();
         blobMock
-            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .Returns((string _, string path, string _, CancellationToken _) =>
                 path.Contains("user-prompt", StringComparison.OrdinalIgnoreCase)
                     ? Task.FromResult<string>(null!)
@@ -285,8 +194,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "full-user",
             "full-response",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null);
+            true,
+            null);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
@@ -303,7 +212,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
         SpyAuditService spyAudit = new();
         Mock<IArtifactBlobStore> blobMock = new();
         blobMock
-            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new IOException("simulated blob failure"));
 
         AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(
@@ -319,8 +229,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "u",
             "r",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null);
+            true,
+            null);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
@@ -339,7 +249,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
         InMemoryAgentExecutionTraceRepository repo = new();
         Mock<IArtifactBlobStore> blobMock = new();
         blobMock
-            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .Returns((string _, string path, string _, CancellationToken _) =>
                 path.Contains("system-prompt", StringComparison.OrdinalIgnoreCase)
                     ? Task.FromException<string>(new IOException("simulated transient blob failure"))
@@ -355,8 +266,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "full-user",
             "full-response",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null);
+            true,
+            null);
 
         blobMock.Verify(
             b => b.WriteAsync(
@@ -384,14 +295,16 @@ public sealed class AgentExecutionTraceRecorderReproTests
     }
 
     [Fact]
-    public async Task RecordAsync_when_each_blob_exhausts_retries_increments_archlucid_agent_trace_blob_upload_failures_total()
+    public async Task
+        RecordAsync_when_each_blob_exhausts_retries_increments_archlucid_agent_trace_blob_upload_failures_total()
     {
         _ = ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal;
 
         InMemoryAgentExecutionTraceRepository repo = new();
         Mock<IArtifactBlobStore> blobMock = new();
         blobMock
-            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new IOException("always fail"));
 
         using BlobUploadFailureMeasurementCapture capture = BlobUploadFailureMeasurementCapture.Start();
@@ -406,10 +319,11 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "u",
             "r",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null);
+            true,
+            null);
 
-        IReadOnlyList<LongMeasurementRecord> failures = capture.MeasurementsFor("archlucid_agent_trace_blob_upload_failures_total");
+        IReadOnlyList<LongMeasurementRecord> failures =
+            capture.MeasurementsFor("archlucid_agent_trace_blob_upload_failures_total");
         failures.Should().HaveCount(3);
         failures.Sum(m => m.Value).Should().Be(3);
 
@@ -428,7 +342,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
         InMemoryAgentExecutionTraceRepository repo = new();
         Mock<IArtifactBlobStore> blobMock = new();
         blobMock
-            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new IOException("always fail"));
 
         using PromptInlineFallbackMeasurementCapture capture = PromptInlineFallbackMeasurementCapture.Start();
@@ -443,10 +358,11 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "u",
             "r",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null);
+            true,
+            null);
 
-        IReadOnlyList<LongMeasurementRecord> inline = capture.MeasurementsFor("archlucid_agent_trace_prompt_inline_fallback_total");
+        IReadOnlyList<LongMeasurementRecord> inline =
+            capture.MeasurementsFor("archlucid_agent_trace_prompt_inline_fallback_total");
         inline.Should().HaveCount(3);
         inline.Sum(m => m.Value).Should().Be(3);
 
@@ -464,7 +380,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
         RecordingAuditService recordingAudit = new();
         Mock<IArtifactBlobStore> blobMock = new();
         blobMock
-            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new IOException("blob down"));
 
         AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(
@@ -480,8 +397,8 @@ public sealed class AgentExecutionTraceRecorderReproTests
             "u",
             "r",
             "{}",
-            parseSucceeded: true,
-            errorMessage: null);
+            true,
+            null);
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
@@ -489,6 +406,159 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
         recordingAudit.Events.Should().Contain(e => e.EventType == AuditEventTypes.AgentTraceInlineFallbackFailed);
         recordingAudit.Events.Should().Contain(e => e.EventType == AuditEventTypes.AgentTraceBlobPersistenceFailed);
+    }
+
+    private static AgentRuntime.AgentExecutionTraceRecorder CreateRecorder(
+        IAgentExecutionTraceRepository repo,
+        IOptions<LlmCostEstimationOptions>? costOptions = null,
+        IArtifactBlobStore? blobStore = null,
+        IAuditService? auditService = null)
+    {
+        IOptions<LlmCostEstimationOptions> cost =
+            costOptions ?? Options.Create(new LlmCostEstimationOptions { Enabled = false });
+        ServiceCollection services = [];
+        services.AddScoped<IAgentExecutionTraceRepository>(_ => repo);
+        services.AddSingleton(blobStore ?? new InMemoryArtifactBlobStore());
+        services.AddSingleton(cost);
+        services.AddSingleton(Options.Create(new AgentExecutionTraceStorageOptions()));
+        services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
+        services.AddSingleton<IAuditService>(_ => auditService ?? new NoOpAuditService());
+        services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();
+        services.Configure<LlmPromptRedactionOptions>(o => o.Enabled = false);
+        services.AddSingleton<IPromptRedactor, PromptRedactor>();
+        services.AddLogging(b => b.SetMinimumLevel(LogLevel.None));
+        services.AddScoped<AgentRuntime.AgentExecutionTraceRecorder>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScope scope = provider.CreateScope();
+
+        return scope.ServiceProvider.GetRequiredService<AgentRuntime.AgentExecutionTraceRecorder>();
+    }
+
+    private sealed class FixedScopeProvider : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope()
+        {
+            return new ScopeContext
+            {
+                TenantId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                WorkspaceId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                ProjectId = Guid.Parse("00000000-0000-0000-0000-000000000003")
+            };
+        }
+    }
+
+    private sealed class NoOpAuditService : IAuditService
+    {
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class SpyAuditService : IAuditService
+    {
+        public AuditEvent? LastEvent
+        {
+            get;
+            private set;
+        }
+
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
+        {
+            LastEvent = auditEvent;
+
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class RecordingAuditService : IAuditService
+    {
+        public List<AuditEvent> Events
+        {
+            get;
+        } = [];
+
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
+        {
+            Events.Add(auditEvent);
+
+            return Task.CompletedTask;
+        }
+    }
+
+    /// <summary>Forces SQL inline patch to throw while delegating other trace operations to memory.</summary>
+    private sealed class InlinePatchThrowsRepository : IAgentExecutionTraceRepository
+    {
+        private readonly InMemoryAgentExecutionTraceRepository _inner = new();
+
+        public Task CreateAsync(AgentExecutionTrace trace, CancellationToken cancellationToken = default)
+        {
+            return _inner.CreateAsync(trace, cancellationToken);
+        }
+
+        public Task PatchBlobStorageFieldsAsync(
+            string traceId,
+            string? fullSystemPromptBlobKey,
+            string? fullUserPromptBlobKey,
+            string? fullResponseBlobKey,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchBlobStorageFieldsAsync(
+                traceId,
+                fullSystemPromptBlobKey,
+                fullUserPromptBlobKey,
+                fullResponseBlobKey,
+                cancellationToken);
+        }
+
+        public Task PatchBlobUploadFailedAsync(string traceId, bool failed,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchBlobUploadFailedAsync(traceId, failed, cancellationToken);
+        }
+
+        public Task PatchInlinePromptFallbackAsync(
+            string traceId,
+            string? fullSystemPromptInline,
+            string? fullUserPromptInline,
+            string? fullResponseInline,
+            CancellationToken cancellationToken = default)
+        {
+            throw new IOException("simulated mandatory inline SQL patch failure");
+        }
+
+        public Task PatchInlineFallbackFailedAsync(string traceId, bool failed,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchInlineFallbackFailedAsync(traceId, failed, cancellationToken);
+        }
+
+        public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetByTraceIdAsync(traceId, cancellationToken);
+        }
+
+        public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetByRunIdAsync(runId, cancellationToken);
+        }
+
+        public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+            string runId,
+            int offset,
+            int limit,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetPagedByRunIdAsync(runId, offset, limit, cancellationToken);
+        }
+
+        public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetByTaskIdAsync(taskId, cancellationToken);
+        }
     }
 
     private sealed class BlobUploadFailureMeasurementCapture : IDisposable
@@ -504,12 +574,20 @@ public sealed class AgentExecutionTraceRecorderReproTests
             _listener.Start();
         }
 
-        public static BlobUploadFailureMeasurementCapture Start() => new();
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
 
-        public void Dispose() => _listener.Dispose();
+        public static BlobUploadFailureMeasurementCapture Start()
+        {
+            return new BlobUploadFailureMeasurementCapture();
+        }
 
-        public IReadOnlyList<LongMeasurementRecord> MeasurementsFor(string instrumentName) =>
-            _longMeasures.Where(m => m.Name == instrumentName).ToList();
+        public IReadOnlyList<LongMeasurementRecord> MeasurementsFor(string instrumentName)
+        {
+            return _longMeasures.Where(m => m.Name == instrumentName).ToList();
+        }
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
@@ -555,12 +633,20 @@ public sealed class AgentExecutionTraceRecorderReproTests
             _listener.Start();
         }
 
-        public static PromptInlineFallbackMeasurementCapture Start() => new();
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
 
-        public void Dispose() => _listener.Dispose();
+        public static PromptInlineFallbackMeasurementCapture Start()
+        {
+            return new PromptInlineFallbackMeasurementCapture();
+        }
 
-        public IReadOnlyList<LongMeasurementRecord> MeasurementsFor(string instrumentName) =>
-            _longMeasures.Where(m => m.Name == instrumentName).ToList();
+        public IReadOnlyList<LongMeasurementRecord> MeasurementsFor(string instrumentName)
+        {
+            return _longMeasures.Where(m => m.Name == instrumentName).ToList();
+        }
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {
@@ -597,29 +683,4 @@ public sealed class AgentExecutionTraceRecorderReproTests
         string Name,
         long Value,
         IReadOnlyList<KeyValuePair<string, object?>> Tags);
-
-    private static AgentRuntime.AgentExecutionTraceRecorder CreateRecorder(
-        IAgentExecutionTraceRepository repo,
-        IOptions<LlmCostEstimationOptions>? costOptions = null,
-        IArtifactBlobStore? blobStore = null,
-        IAuditService? auditService = null)
-    {
-        IOptions<LlmCostEstimationOptions> cost = costOptions ?? Options.Create(new LlmCostEstimationOptions { Enabled = false });
-        ServiceCollection services = [];
-        services.AddScoped<IAgentExecutionTraceRepository>(_ => repo);
-        services.AddSingleton(blobStore ?? new InMemoryArtifactBlobStore());
-        services.AddSingleton(cost);
-        services.AddSingleton(Options.Create(new AgentExecutionTraceStorageOptions()));
-        services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
-        services.AddSingleton<IAuditService>(_ => auditService ?? new NoOpAuditService());
-        services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();
-        services.Configure<Core.Configuration.LlmPromptRedactionOptions>(o => o.Enabled = false);
-        services.AddSingleton<Core.Llm.Redaction.IPromptRedactor, Core.Llm.Redaction.PromptRedactor>();
-        services.AddLogging(b => b.SetMinimumLevel(LogLevel.None));
-        services.AddScoped<AgentRuntime.AgentExecutionTraceRecorder>();
-        ServiceProvider provider = services.BuildServiceProvider();
-        IServiceScope scope = provider.CreateScope();
-
-        return scope.ServiceProvider.GetRequiredService<AgentRuntime.AgentExecutionTraceRecorder>();
-    }
 }

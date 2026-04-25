@@ -1,28 +1,30 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
 
-import { OnboardingStartClient } from "./OnboardingStartClient";
-
-export const metadata: Metadata = {
-  title: "Trial onboarding",
-  description: "Post-signup checklist and links into the new-run wizard with your seeded sample run.",
+type OnboardingStartRedirectPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function OnboardingStartFallback() {
-  return <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>;
+function buildDestinationQuery(searchParams: Record<string, string | string[] | undefined>): string {
+  const u = new URL("http://local");
+  u.pathname = "/getting-started";
+
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (value === undefined) continue;
+
+    if (Array.isArray(value)) for (const v of value) u.searchParams.append(key, v);
+    else u.searchParams.set(key, value);
+  }
+
+  return `${u.pathname}${u.search}`;
 }
 
-export default function OnboardingStartPage() {
-  return (
-    <main>
-      <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Onboarding</h2>
-      <p className="mb-6 max-w-3xl text-sm text-neutral-700 dark:text-neutral-300">
-        Use the checklist below to confirm trial limits, then open the seeded sample run or continue in the guided
-        wizard with the sample highlighted on step one.
-      </p>
-      <Suspense fallback={<OnboardingStartFallback />}>
-        <OnboardingStartClient />
-      </Suspense>
-    </main>
-  );
+/**
+ * Preserves query (e.g. `source=registration` from handoff) while moving to the canonical getting-started page.
+ * @deprecated Bookmarks to `/onboarding/start` still work.
+ */
+export default async function OnboardingStartRedirectPage({ searchParams }: OnboardingStartRedirectPageProps) {
+  const resolved = await searchParams;
+  const dest = buildDestinationQuery(resolved);
+
+  redirect(dest);
 }

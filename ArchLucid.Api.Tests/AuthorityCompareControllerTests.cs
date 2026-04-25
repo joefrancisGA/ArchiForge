@@ -12,7 +12,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="AuthorityCompareController"/> problem responses (no full host).
+///     Unit tests for <see cref="AuthorityCompareController" /> problem responses (no full host).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class AuthorityCompareControllerTests
@@ -24,9 +24,7 @@ public sealed class AuthorityCompareControllerTests
         Guid rightManifestId = Guid.NewGuid();
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Mock<IAuthorityCompareService> compare = new();
@@ -42,7 +40,8 @@ public sealed class AuthorityCompareControllerTests
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
 
-        IActionResult action = await controller.CompareManifests(leftManifestId, rightManifestId, CancellationToken.None);
+        IActionResult action =
+            await controller.CompareManifests(leftManifestId, rightManifestId, CancellationToken.None);
 
         ObjectResult obj = action.Should().BeOfType<ObjectResult>().Subject;
         obj.StatusCode.Should().Be(StatusCodes.Status409Conflict);

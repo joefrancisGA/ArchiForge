@@ -1,8 +1,8 @@
 namespace ArchLucid.TestSupport;
 
 /// <summary>
-/// Maximum parent-directory steps when resolving repo artifacts from test assembly <c>bin</c> output
-/// (avoids infinite walk if layout changes).
+///     Maximum parent-directory steps when resolving repo artifacts from test assembly <c>bin</c> output
+///     (avoids infinite walk if layout changes).
 /// </summary>
 public static class TestRepositoryPathLimits
 {

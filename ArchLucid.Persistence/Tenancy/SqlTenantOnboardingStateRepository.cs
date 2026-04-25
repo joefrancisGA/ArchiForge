@@ -43,10 +43,7 @@ public sealed class SqlTenantOnboardingStateRepository(ISqlConnectionFactory con
                            """;
 
         bool first = await connection.QuerySingleAsync<bool>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         return first;
     }

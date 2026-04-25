@@ -8,10 +8,11 @@ using OpenAI.Embeddings;
 namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>
-/// Azure OpenAI text embeddings for a named embedding deployment on the resource.
+///     Azure OpenAI text embeddings for a named embedding deployment on the resource.
 /// </summary>
-/// <remarks>Uses synchronous SDK calls wrapped in <see cref="Task"/>; suitable for app startup registration as singleton.</remarks>
-[ExcludeFromCodeCoverage(Justification = "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
+/// <remarks>Uses synchronous SDK calls wrapped in <see cref="Task" />; suitable for app startup registration as singleton.</remarks>
+[ExcludeFromCodeCoverage(Justification =
+    "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
 public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
 {
     private readonly EmbeddingClient _embeddingClient;
@@ -40,7 +41,8 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
         if (texts.Count == 0)
             return Task.FromResult<IReadOnlyList<float[]>>([]);
 
-        ClientResult<OpenAIEmbeddingCollection>? response = _embeddingClient.GenerateEmbeddings(texts.ToList(), cancellationToken: ct);
+        ClientResult<OpenAIEmbeddingCollection>? response =
+            _embeddingClient.GenerateEmbeddings(texts.ToList(), cancellationToken: ct);
         List<float[]> vectors = response.Value.Select(e => e.ToFloats().ToArray()).ToList();
         return Task.FromResult<IReadOnlyList<float[]>>(vectors);
     }

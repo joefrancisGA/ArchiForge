@@ -15,7 +15,8 @@
     "test:e2e": "playwright test -c playwright.mock.config.ts",
     "e2e:mock": "playwright test -c playwright.mock.config.ts",
     "test:e2e:live": "playwright test",
-    "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json"
+    "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",
+    "rebrand-check": "python3 ../scripts/ci/assert_brand_category_seam.py"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -10,6 +10,8 @@ public sealed class NoOpMarketingPricingQuoteRequestRepository : IMarketingPrici
         string tierInterest,
         string message,
         byte[]? clientIpSha256,
-        CancellationToken cancellationToken) =>
-        Task.CompletedTask;
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 }

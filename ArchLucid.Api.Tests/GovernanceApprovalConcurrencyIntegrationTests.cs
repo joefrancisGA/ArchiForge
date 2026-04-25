@@ -8,11 +8,12 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Parallel governance approve calls: exactly one terminal success; peers receive <c>400</c> or <c>409</c>.
+///     Parallel governance approve calls: exactly one terminal success; peers receive <c>400</c> or <c>409</c>.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
-public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
+public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFactory factory)
+    : IntegrationTestBase(factory)
 {
     private async Task<string> CreateRunAsync(string requestId)
     {
@@ -30,23 +31,17 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
         string runId = await CreateRunAsync("REQ-GOV-32-" + Guid.NewGuid().ToString("N")[..8]);
         var submitBody = new
         {
-            RunId = runId,
-            ManifestVersion = "v1",
-            SourceEnvironment = "dev",
-            TargetEnvironment = "test",
+            RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
         };
 
-        HttpResponseMessage submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
+        HttpResponseMessage submitResponse =
+            await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
         submitResponse.EnsureSuccessStatusCode();
         GovernanceApprovalResponseDto? submitted =
             await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         string url = $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve";
-        var approveBody = new
-        {
-            ReviewedBy = "reviewer-32",
-            ReviewComment = "parallel-32",
-        };
+        var approveBody = new { ReviewedBy = "reviewer-32", ReviewComment = "parallel-32" };
 
         const int parallel = 32;
         Task<HttpResponseMessage>[] tasks = Enumerable.Range(0, parallel)

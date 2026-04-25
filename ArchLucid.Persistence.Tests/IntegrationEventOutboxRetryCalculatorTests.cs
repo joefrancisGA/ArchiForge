@@ -7,7 +7,7 @@ public sealed class IntegrationEventOutboxRetryCalculatorTests
     [Fact]
     public void DelayUntilNextAttempt_first_failure_uses_two_seconds()
     {
-        TimeSpan d = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(1, maxBackoffSeconds: 300);
+        TimeSpan d = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(1, 300);
 
         d.Should().Be(TimeSpan.FromSeconds(2));
     }
@@ -15,7 +15,7 @@ public sealed class IntegrationEventOutboxRetryCalculatorTests
     [Fact]
     public void DelayUntilNextAttempt_respects_cap()
     {
-        TimeSpan d = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(20, maxBackoffSeconds: 30);
+        TimeSpan d = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(20, 30);
 
         d.Should().Be(TimeSpan.FromSeconds(30));
     }

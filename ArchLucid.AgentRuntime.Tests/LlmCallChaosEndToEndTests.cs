@@ -36,17 +36,14 @@ public sealed class LlmCallChaosEndToEndTests
                 {
                     MaxRetryAttempts = 4,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException),
+                    ShouldHandle =
+                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaos)
             .Build();
 
         RecordingCompletionClient inner = new();
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 2,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 2, DurationOfBreakSeconds = 60 };
         CircuitBreakerGate gate = new("e2e-ok", options);
         CircuitBreakingAgentCompletionClient sut = new(
             inner,
@@ -68,7 +65,7 @@ public sealed class LlmCallChaosEndToEndTests
         {
             InjectionRate = 1.0,
             EnabledGenerator = static _ => new ValueTask<bool>(true),
-            FaultGenerator = static _ => new ValueTask<Exception?>(new HttpRequestException("permanent")),
+            FaultGenerator = static _ => new ValueTask<Exception?>(new HttpRequestException("permanent"))
         };
 
         ResiliencePipeline retryAndChaos = new ResiliencePipelineBuilder()
@@ -77,17 +74,14 @@ public sealed class LlmCallChaosEndToEndTests
                 {
                     MaxRetryAttempts = 2,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException),
+                    ShouldHandle =
+                        new PredicateBuilder().Handle<Exception>(LlmCallResilienceDefaults.ShouldRetryLlmException)
                 })
             .AddChaosFault(chaos)
             .Build();
 
         RecordingCompletionClient inner = new();
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
         CircuitBreakerGate gate = new("e2e-bad", options);
         CircuitBreakingAgentCompletionClient sut = new(
             inner,
@@ -106,7 +100,8 @@ public sealed class LlmCallChaosEndToEndTests
     {
         public int SuccessCount
         {
-            get; private set;
+            get;
+            private set;
         }
 
         public LlmProviderDescriptor Descriptor => LlmProviderDescriptor.ForOffline("test", "test");

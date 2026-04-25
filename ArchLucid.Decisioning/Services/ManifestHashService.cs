@@ -8,13 +8,13 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
-/// Computes a deterministic SHA-256 hash over a canonical JSON projection of a <see cref="GoldenManifest"/>.
+///     Computes a deterministic SHA-256 hash over a canonical JSON projection of a <see cref="GoldenManifest" />.
 /// </summary>
 /// <remarks>
-/// The canonical projection includes all structural manifest fields (topology, decisions, requirements,
-/// security, compliance, cost, constraints, provenance) but excludes non-deterministic metadata like
-/// <c>CreatedUtc</c>. Collection entries are sorted before serialization so that insertion-order
-/// differences do not produce different hashes.
+///     The canonical projection includes all structural manifest fields (topology, decisions, requirements,
+///     security, compliance, cost, constraints, provenance) but excludes non-deterministic metadata like
+///     <c>CreatedUtc</c>. Collection entries are sorted before serialization so that insertion-order
+///     differences do not produce different hashes.
 /// </remarks>
 public sealed class ManifestHashService : IManifestHashService
 {
@@ -56,7 +56,7 @@ public sealed class ManifestHashService : IManifestHashService
                     d.Rationale,
                     SupportingFindingIds = d.SupportingFindingIds.OrderBy(x => x).ToArray(),
                     RelatedNodeIds = d.RelatedNodeIds.OrderBy(x => x).ToArray(),
-                    d.RawDecisionJson,
+                    d.RawDecisionJson
                 })
                 .ToArray(),
             Assumptions = manifest.Assumptions.OrderBy(x => x).ToArray(),

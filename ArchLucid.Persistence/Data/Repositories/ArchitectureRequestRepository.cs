@@ -11,7 +11,7 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Dapper-backed persistence for <see cref="ArchitectureRequest"/> entities, serialising request state as JSON.
+///     Dapper-backed persistence for <see cref="ArchitectureRequest" /> entities, serialising request state as JSON.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectionFactory)
@@ -26,25 +26,25 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
         ArgumentNullException.ThrowIfNull(request);
 
         const string sql = """
-            INSERT INTO ArchitectureRequests
-            (
-                RequestId,
-                SystemName,
-                Environment,
-                CloudProvider,
-                RequestJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @RequestId,
-                @SystemName,
-                @Environment,
-                @CloudProvider,
-                @RequestJson,
-                @CreatedUtc
-            );
-            """;
+                           INSERT INTO ArchitectureRequests
+                           (
+                               RequestId,
+                               SystemName,
+                               Environment,
+                               CloudProvider,
+                               RequestJson,
+                               CreatedUtc
+                           )
+                           VALUES
+                           (
+                               @RequestId,
+                               @SystemName,
+                               @Environment,
+                               @CloudProvider,
+                               @RequestJson,
+                               @CreatedUtc
+                           );
+                           """;
 
         string json = JsonSerializer.Serialize(request, ContractJson.Default);
 
@@ -64,7 +64,7 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
                     RequestJson = json,
                     CreatedUtc = DateTime.UtcNow
                 },
-                transaction: transaction,
+                transaction,
                 cancellationToken: cancellationToken));
         }
         finally
@@ -73,22 +73,20 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
         }
     }
 
-    public async Task<ArchitectureRequest?> GetByIdAsync(string requestId, CancellationToken cancellationToken = default)
+    public async Task<ArchitectureRequest?> GetByIdAsync(string requestId,
+        CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT RequestJson
-            FROM ArchitectureRequests
-            WHERE RequestId = @RequestId;
-            """;
+                           SELECT RequestJson
+                           FROM ArchitectureRequests
+                           WHERE RequestId = @RequestId;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                RequestId = requestId
-            },
+            new { RequestId = requestId },
             cancellationToken: cancellationToken));
 
         if (json is null)
@@ -107,8 +105,8 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
         }
 
         return request
-            ?? throw new InvalidOperationException(
-                $"Request JSON for '{requestId}' deserialized to null. " +
-                "The stored JSON may be empty or corrupt.");
+               ?? throw new InvalidOperationException(
+                   $"Request JSON for '{requestId}' deserialized to null. " +
+                   "The stored JSON may be empty or corrupt.");
     }
 }

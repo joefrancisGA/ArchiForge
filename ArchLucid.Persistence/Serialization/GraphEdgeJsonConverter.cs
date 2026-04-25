@@ -6,7 +6,7 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Persistence.Serialization;
 
 /// <summary>
-/// Tolerates alternate property names when reading <see cref="GraphEdge"/> rows (e.g. <c>id</c> for <c>edgeId</c>).
+///     Tolerates alternate property names when reading <see cref="GraphEdge" /> rows (e.g. <c>id</c> for <c>edgeId</c>).
 /// </summary>
 internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
 {
@@ -70,7 +70,8 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
 
     private static bool TryGetIgnoreCase(JsonElement obj, string name, out JsonElement value)
     {
-        foreach (JsonProperty p in obj.EnumerateObject().Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        foreach (JsonProperty p in obj.EnumerateObject()
+                     .Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
             value = p.Value;
             return true;

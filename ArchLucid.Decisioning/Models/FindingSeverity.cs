@@ -7,4 +7,3 @@ public enum FindingSeverity
     Error = 2,
     Critical = 3
 }
-

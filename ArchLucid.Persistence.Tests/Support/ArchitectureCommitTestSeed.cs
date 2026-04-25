@@ -1,5 +1,7 @@
 using System.Data;
 
+using ArchLucid.Contracts.Agents;
+
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -7,7 +9,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Support;
 
 /// <summary>
-/// Minimal <c>dbo.ArchitectureRequests</c> and <c>dbo.Runs</c> rows for Data-layer SQL contract tests (logical run header).
+///     Minimal <c>dbo.ArchitectureRequests</c> and <c>dbo.Runs</c> rows for Data-layer SQL contract tests (logical run
+///     header).
 /// </summary>
 public static class ArchitectureCommitTestSeed
 {
@@ -18,7 +21,7 @@ public static class ArchitectureCommitTestSeed
 
     private static readonly Guid SeedScopeProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030");
 
-    /// <summary>Inserts <c>dbo.ArchitectureRequests</c> only (idempotent on <paramref name="requestId"/>).</summary>
+    /// <summary>Inserts <c>dbo.ArchitectureRequests</c> only (idempotent on <paramref name="requestId" />).</summary>
     public static async Task InsertArchitectureRequestOnlyAsync(
         SqlConnection connection,
         string requestId,
@@ -26,11 +29,11 @@ public static class ArchitectureCommitTestSeed
         CancellationToken ct)
     {
         const string insertRequest = """
-            IF NOT EXISTS (SELECT 1 FROM dbo.ArchitectureRequests WHERE RequestId = @RequestId)
-            INSERT INTO dbo.ArchitectureRequests
-            (RequestId, SystemName, Environment, CloudProvider, RequestJson, CreatedUtc)
-            VALUES (@RequestId, @SystemName, @Environment, @CloudProvider, @RequestJson, SYSUTCDATETIME());
-            """;
+                                     IF NOT EXISTS (SELECT 1 FROM dbo.ArchitectureRequests WHERE RequestId = @RequestId)
+                                     INSERT INTO dbo.ArchitectureRequests
+                                     (RequestId, SystemName, Environment, CloudProvider, RequestJson, CreatedUtc)
+                                     VALUES (@RequestId, @SystemName, @Environment, @CloudProvider, @RequestJson, SYSUTCDATETIME());
+                                     """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -41,12 +44,15 @@ public static class ArchitectureCommitTestSeed
                     SystemName = systemName,
                     Environment = "prod",
                     CloudProvider = "Azure",
-                    RequestJson = "{}",
+                    RequestJson = "{}"
                 },
                 cancellationToken: ct));
     }
 
-    /// <summary>Inserts request + authority <c>dbo.Runs</c> row (idempotent on <paramref name="requestId"/> / <paramref name="runId"/>).</summary>
+    /// <summary>
+    ///     Inserts request + authority <c>dbo.Runs</c> row (idempotent on <paramref name="requestId" /> /
+    ///     <paramref name="runId" />).
+    /// </summary>
     public static async Task InsertRequestAndRunAsync(
         SqlConnection connection,
         string requestId,
@@ -59,11 +65,11 @@ public static class ArchitectureCommitTestSeed
         }
 
         const string insertRequest = """
-            IF NOT EXISTS (SELECT 1 FROM dbo.ArchitectureRequests WHERE RequestId = @RequestId)
-            INSERT INTO dbo.ArchitectureRequests
-            (RequestId, SystemName, Environment, CloudProvider, RequestJson, CreatedUtc)
-            VALUES (@RequestId, @SystemName, @Environment, @CloudProvider, @RequestJson, SYSUTCDATETIME());
-            """;
+                                     IF NOT EXISTS (SELECT 1 FROM dbo.ArchitectureRequests WHERE RequestId = @RequestId)
+                                     INSERT INTO dbo.ArchitectureRequests
+                                     (RequestId, SystemName, Environment, CloudProvider, RequestJson, CreatedUtc)
+                                     VALUES (@RequestId, @SystemName, @Environment, @CloudProvider, @RequestJson, SYSUTCDATETIME());
+                                     """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -74,16 +80,16 @@ public static class ArchitectureCommitTestSeed
                     SystemName = "ContractSeed",
                     Environment = "prod",
                     CloudProvider = "Azure",
-                    RequestJson = "{}",
+                    RequestJson = "{}"
                 },
                 cancellationToken: ct));
 
         const string insertRun = """
-            IF NOT EXISTS (SELECT 1 FROM dbo.Runs WHERE RunId = @RunGuid)
-            INSERT INTO dbo.Runs
-            (RunId, ProjectId, Description, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId, ArchitectureRequestId, LegacyRunStatus)
-            VALUES (@RunGuid, N'ContractSeed', N'SQL contract test seed', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId, @RequestId, N'Created');
-            """;
+                                 IF NOT EXISTS (SELECT 1 FROM dbo.Runs WHERE RunId = @RunGuid)
+                                 INSERT INTO dbo.Runs
+                                 (RunId, ProjectId, Description, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId, ArchitectureRequestId, LegacyRunStatus)
+                                 VALUES (@RunGuid, N'ContractSeed', N'SQL contract test seed', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId, @RequestId, N'Created');
+                                 """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -94,23 +100,23 @@ public static class ArchitectureCommitTestSeed
                     RequestId = requestId,
                     TenantId = SeedTenantId,
                     WorkspaceId = SeedWorkspaceId,
-                    ScopeProjectId = SeedScopeProjectId,
+                    ScopeProjectId = SeedScopeProjectId
                 },
                 cancellationToken: ct));
     }
 
-    /// <summary>Requires <see cref="InsertRequestAndRunAsync"/> for <paramref name="runId"/> first.</summary>
+    /// <summary>Requires <see cref="InsertRequestAndRunAsync" /> for <paramref name="runId" /> first.</summary>
     public static async Task InsertAgentTaskAsync(
         IDbConnection connection,
-        ArchLucid.Contracts.Agents.AgentTask task,
+        AgentTask task,
         CancellationToken ct)
     {
         const string sql = """
-            IF NOT EXISTS (SELECT 1 FROM dbo.AgentTasks WHERE TaskId = @TaskId)
-            INSERT INTO dbo.AgentTasks
-            (TaskId, RunId, AgentType, Objective, Status, CreatedUtc, CompletedUtc, EvidenceBundleRef)
-            VALUES (@TaskId, @RunId, @AgentType, @Objective, @Status, @CreatedUtc, @CompletedUtc, @EvidenceBundleRef);
-            """;
+                           IF NOT EXISTS (SELECT 1 FROM dbo.AgentTasks WHERE TaskId = @TaskId)
+                           INSERT INTO dbo.AgentTasks
+                           (TaskId, RunId, AgentType, Objective, Status, CreatedUtc, CompletedUtc, EvidenceBundleRef)
+                           VALUES (@TaskId, @RunId, @AgentType, @Objective, @Status, @CreatedUtc, @CompletedUtc, @EvidenceBundleRef);
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -124,7 +130,7 @@ public static class ArchitectureCommitTestSeed
                     Status = task.Status.ToString(),
                     task.CreatedUtc,
                     task.CompletedUtc,
-                    task.EvidenceBundleRef,
+                    task.EvidenceBundleRef
                 },
                 cancellationToken: ct));
     }

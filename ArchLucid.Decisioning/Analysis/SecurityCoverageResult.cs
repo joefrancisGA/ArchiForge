@@ -4,16 +4,31 @@ public class SecurityCoverageResult
 {
     public int SecurityNodeCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int ProtectedResourceCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int UnprotectedResourceCount
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> ProtectedResources { get; set; } = [];
-    public List<string> UnprotectedResources { get; set; } = [];
+
+    public List<string> ProtectedResources
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> UnprotectedResources
+    {
+        get;
+        set;
+    } = [];
 }

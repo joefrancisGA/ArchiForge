@@ -3,7 +3,10 @@ using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
-/// <summary>Builds a deterministic 59R planning report from the planning repository (stable ordering, capped evidence lists).</summary>
+/// <summary>
+///     Builds a deterministic 59R planning report from the planning repository (stable ordering, capped evidence
+///     lists).
+/// </summary>
 public static class LearningPlanningReportBuilder
 {
     public static async Task<LearningPlanningReportDocument> BuildAsync(
@@ -52,8 +55,7 @@ public static class LearningPlanningReportBuilder
                 .Take(limits.MaxSignalRefsPerPlan)
                 .Select(s => new LearningPlanningReportSignalRef
                 {
-                    SignalId = s.SignalId,
-                    TriageStatusSnapshot = s.TriageStatusSnapshot,
+                    SignalId = s.SignalId, TriageStatusSnapshot = s.TriageStatusSnapshot
                 })
                 .ToList();
 
@@ -64,7 +66,7 @@ public static class LearningPlanningReportBuilder
                     LinkId = a.LinkId,
                     AuthorityBundleId = a.AuthorityBundleId,
                     AuthorityArtifactSortOrder = a.AuthorityArtifactSortOrder,
-                    PilotArtifactHint = a.PilotArtifactHint,
+                    PilotArtifactHint = a.PilotArtifactHint
                 })
                 .ToList();
 
@@ -92,8 +94,8 @@ public static class LearningPlanningReportBuilder
                         LinkedArchitectureRunCount = h.RunRows.Count,
                         Signals = signalRefs,
                         Artifacts = artifactRefs,
-                        ArchitectureRunIds = runRefs,
-                    },
+                        ArchitectureRunIds = runRefs
+                    }
                 });
         }
 
@@ -107,7 +109,7 @@ public static class LearningPlanningReportBuilder
                 SeverityBand = t.SeverityBand,
                 EvidenceSignalCount = t.EvidenceSignalCount,
                 DistinctRunCount = t.DistinctRunCount,
-                Status = t.Status,
+                Status = t.Status
             })
             .ToList();
 
@@ -117,15 +119,12 @@ public static class LearningPlanningReportBuilder
             PlanCount = planRows.Count,
             TotalThemeEvidenceSignals = themeRows.Sum(t => t.EvidenceSignalCount),
             TotalLinkedSignalsAcrossPlans = totalLinkedSignals,
-            MaxPlanPriorityScore = planRows.Count == 0 ? null : planRows.Max(p => p.PriorityScore),
+            MaxPlanPriorityScore = planRows.Count == 0 ? null : planRows.Max(p => p.PriorityScore)
         };
 
         return new LearningPlanningReportDocument
         {
-            GeneratedUtc = DateTime.UtcNow,
-            Summary = summary,
-            Themes = themeEntries,
-            Plans = planEntries,
+            GeneratedUtc = DateTime.UtcNow, Summary = summary, Themes = themeEntries, Plans = planEntries
         };
     }
 
@@ -146,8 +145,10 @@ public static class LearningPlanningReportBuilder
 
         await Task.WhenAll(signalsTask, artifactsTask, runsTask).ConfigureAwait(false);
 
-        IReadOnlyList<ProductLearningImprovementPlanSignalLinkRecord> signalRows = await signalsTask.ConfigureAwait(false);
-        IReadOnlyList<ProductLearningImprovementPlanArtifactLinkRecord> artifactRows = await artifactsTask.ConfigureAwait(false);
+        IReadOnlyList<ProductLearningImprovementPlanSignalLinkRecord> signalRows =
+            await signalsTask.ConfigureAwait(false);
+        IReadOnlyList<ProductLearningImprovementPlanArtifactLinkRecord> artifactRows =
+            await artifactsTask.ConfigureAwait(false);
         IReadOnlyList<string> runRows = await runsTask.ConfigureAwait(false);
 
         return new PlanHydration(signalRows, artifactRows, runRows);

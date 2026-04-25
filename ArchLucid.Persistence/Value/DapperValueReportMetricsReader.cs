@@ -22,61 +22,61 @@ public sealed class DapperValueReportMetricsReader(ISqlConnectionFactory connect
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string runsByStatusSql = """
-SELECT COALESCE(LegacyRunStatus, '(unknown)') AS LegacyRunStatusLabel, COUNT_BIG(*) AS Cnt
-FROM dbo.Runs
-WHERE TenantId = @TenantId
-  AND WorkspaceId = @WorkspaceId
-  AND ScopeProjectId = @ProjectId
-  AND CreatedUtc >= @FromUtc
-  AND CreatedUtc < @ToUtc
-  AND ArchivedUtc IS NULL
-GROUP BY LegacyRunStatus
-""";
+                                       SELECT COALESCE(LegacyRunStatus, '(unknown)') AS LegacyRunStatusLabel, COUNT_BIG(*) AS Cnt
+                                       FROM dbo.Runs
+                                       WHERE TenantId = @TenantId
+                                         AND WorkspaceId = @WorkspaceId
+                                         AND ScopeProjectId = @ProjectId
+                                         AND CreatedUtc >= @FromUtc
+                                         AND CreatedUtc < @ToUtc
+                                         AND ArchivedUtc IS NULL
+                                       GROUP BY LegacyRunStatus
+                                       """;
 
         const string runsCompletedSql = """
-SELECT COUNT_BIG(*)
-FROM dbo.Runs
-WHERE TenantId = @TenantId
-  AND WorkspaceId = @WorkspaceId
-  AND ScopeProjectId = @ProjectId
-  AND CreatedUtc >= @FromUtc
-  AND CreatedUtc < @ToUtc
-  AND ArchivedUtc IS NULL
-  AND CompletedUtc IS NOT NULL
-""";
+                                        SELECT COUNT_BIG(*)
+                                        FROM dbo.Runs
+                                        WHERE TenantId = @TenantId
+                                          AND WorkspaceId = @WorkspaceId
+                                          AND ScopeProjectId = @ProjectId
+                                          AND CreatedUtc >= @FromUtc
+                                          AND CreatedUtc < @ToUtc
+                                          AND ArchivedUtc IS NULL
+                                          AND CompletedUtc IS NOT NULL
+                                        """;
 
         const string manifestsSql = """
-SELECT COUNT_BIG(*)
-FROM dbo.GoldenManifests
-WHERE TenantId = @TenantId
-  AND WorkspaceId = @WorkspaceId
-  AND ProjectId = @ProjectId
-  AND CreatedUtc >= @FromUtc
-  AND CreatedUtc < @ToUtc
-  AND (ArchivedUtc IS NULL)
-""";
+                                    SELECT COUNT_BIG(*)
+                                    FROM dbo.GoldenManifests
+                                    WHERE TenantId = @TenantId
+                                      AND WorkspaceId = @WorkspaceId
+                                      AND ProjectId = @ProjectId
+                                      AND CreatedUtc >= @FromUtc
+                                      AND CreatedUtc < @ToUtc
+                                      AND (ArchivedUtc IS NULL)
+                                    """;
 
         const string governanceSql = """
-SELECT COUNT_BIG(*)
-FROM dbo.AuditEvents
-WHERE TenantId = @TenantId
-  AND WorkspaceId = @WorkspaceId
-  AND ProjectId = @ProjectId
-  AND OccurredUtc >= @FromUtc
-  AND OccurredUtc < @ToUtc
-  AND EventType IN @GovTypes
-""";
+                                     SELECT COUNT_BIG(*)
+                                     FROM dbo.AuditEvents
+                                     WHERE TenantId = @TenantId
+                                       AND WorkspaceId = @WorkspaceId
+                                       AND ProjectId = @ProjectId
+                                       AND OccurredUtc >= @FromUtc
+                                       AND OccurredUtc < @ToUtc
+                                       AND EventType IN @GovTypes
+                                     """;
 
         const string driftSql = """
-SELECT COUNT_BIG(*)
-FROM dbo.AuditEvents
-WHERE TenantId = @TenantId
-  AND WorkspaceId = @WorkspaceId
-  AND ProjectId = @ProjectId
-  AND OccurredUtc >= @FromUtc
-  AND OccurredUtc < @ToUtc
-  AND EventType IN @DriftTypes
-""";
+                                SELECT COUNT_BIG(*)
+                                FROM dbo.AuditEvents
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                  AND OccurredUtc >= @FromUtc
+                                  AND OccurredUtc < @ToUtc
+                                  AND EventType IN @DriftTypes
+                                """;
 
         object parameters = new
         {
@@ -86,14 +86,15 @@ WHERE TenantId = @TenantId
             FromUtc = fromUtcInclusive.UtcDateTime,
             ToUtc = toUtcExclusive.UtcDateTime,
             GovTypes = ValueReportMetricEventTypes.GovernanceEventTypes,
-            DriftTypes = ValueReportMetricEventTypes.DriftAlertEventTypes,
+            DriftTypes = ValueReportMetricEventTypes.DriftAlertEventTypes
         };
 
         IEnumerable<RunStatusSqlRow> rows = await connection.QueryAsync<RunStatusSqlRow>(
             new CommandDefinition(runsByStatusSql, parameters, cancellationToken: cancellationToken));
 
         List<ValueReportRunStatusCount> statusCounts = rows
-            .Select(static r => new ValueReportRunStatusCount(r.LegacyRunStatusLabel, (int)Math.Min(int.MaxValue, r.Cnt)))
+            .Select(static r =>
+                new ValueReportRunStatusCount(r.LegacyRunStatusLabel, (int)Math.Min(int.MaxValue, r.Cnt)))
             .ToList();
 
         long runsCompleted = await connection.QuerySingleAsync<long>(
@@ -109,23 +110,28 @@ WHERE TenantId = @TenantId
             new CommandDefinition(driftSql, parameters, cancellationToken: cancellationToken));
 
         const string findingFeedbackSql = """
-SELECT COALESCE(SUM(CAST(Score AS BIGINT)), 0) AS NetScore, COUNT_BIG(*) AS VoteCount
-FROM dbo.FindingFeedback
-WHERE TenantId = @TenantId
-  AND WorkspaceId = @WorkspaceId
-  AND ProjectId = @ProjectId
-  AND CreatedUtc >= @FromUtc
-  AND CreatedUtc < @ToUtc;
-""";
+                                          SELECT COALESCE(SUM(CAST(Score AS BIGINT)), 0) AS NetScore, COUNT_BIG(*) AS VoteCount
+                                          FROM dbo.FindingFeedback
+                                          WHERE TenantId = @TenantId
+                                            AND WorkspaceId = @WorkspaceId
+                                            AND ProjectId = @ProjectId
+                                            AND CreatedUtc >= @FromUtc
+                                            AND CreatedUtc < @ToUtc;
+                                          """;
 
         FindingFeedbackAggRow feedbackAgg = await connection.QuerySingleAsync<FindingFeedbackAggRow>(
             new CommandDefinition(findingFeedbackSql, parameters, cancellationToken: cancellationToken));
 
         const string tenantBaselineSql = """
-SELECT BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
-FROM dbo.Tenants
-WHERE Id = @TenantId;
-""";
+                                         SELECT BaselineReviewCycleHours,
+                                                BaselineReviewCycleSource,
+                                                BaselineReviewCycleCapturedUtc,
+                                                BaselineManualPrepHoursPerReview,
+                                                BaselinePeoplePerReview,
+                                                ArchitectureTeamSize
+                                         FROM dbo.Tenants
+                                         WHERE Id = @TenantId;
+                                         """;
 
         TenantBaselineRow? tenantBaseline = await connection.QuerySingleOrDefaultAsync<TenantBaselineRow>(
             new CommandDefinition(
@@ -134,19 +140,19 @@ WHERE Id = @TenantId;
                 cancellationToken: cancellationToken));
 
         const string reviewCycleSql = """
-SELECT
-    AVG(CAST(DATEDIFF(SECOND, r.CreatedUtc, m.CreatedUtc) AS DECIMAL(18, 6))) / 3600.0 AS AvgHours,
-    COUNT_BIG(*) AS Cnt
-FROM dbo.GoldenManifests m
-INNER JOIN dbo.Runs r ON m.RunId = r.RunId
-WHERE m.TenantId = @TenantId
-  AND m.WorkspaceId = @WorkspaceId
-  AND m.ProjectId = @ProjectId
-  AND m.CreatedUtc >= @FromUtc
-  AND m.CreatedUtc < @ToUtc
-  AND (m.ArchivedUtc IS NULL)
-  AND (r.ArchivedUtc IS NULL);
-""";
+                                      SELECT
+                                          AVG(CAST(DATEDIFF(SECOND, r.CreatedUtc, m.CreatedUtc) AS DECIMAL(18, 6))) / 3600.0 AS AvgHours,
+                                          COUNT_BIG(*) AS Cnt
+                                      FROM dbo.GoldenManifests m
+                                      INNER JOIN dbo.Runs r ON m.RunId = r.RunId
+                                      WHERE m.TenantId = @TenantId
+                                        AND m.WorkspaceId = @WorkspaceId
+                                        AND m.ProjectId = @ProjectId
+                                        AND m.CreatedUtc >= @FromUtc
+                                        AND m.CreatedUtc < @ToUtc
+                                        AND (m.ArchivedUtc IS NULL)
+                                        AND (r.ArchivedUtc IS NULL);
+                                      """;
 
         ReviewCycleMeasureRow measure = await connection.QuerySingleAsync<ReviewCycleMeasureRow>(
             new CommandDefinition(reviewCycleSql, parameters, cancellationToken: cancellationToken));
@@ -166,36 +172,93 @@ WHERE m.TenantId = @TenantId
             tenantBaseline?.BaselineReviewCycleSource,
             tenantBaseline?.BaselineReviewCycleCapturedUtc,
             measuredAvg,
-            sampleSize);
+            sampleSize,
+            tenantBaseline?.BaselineManualPrepHoursPerReview,
+            tenantBaseline?.BaselinePeoplePerReview,
+            tenantBaseline?.ArchitectureTeamSize);
     }
 
     private sealed class FindingFeedbackAggRow
     {
-        public long NetScore { get; init; }
+        public long NetScore
+        {
+            get;
+            init;
+        }
 
-        public long VoteCount { get; init; }
+        public long VoteCount
+        {
+            get;
+            init;
+        }
     }
 
     private sealed class TenantBaselineRow
     {
-        public decimal? BaselineReviewCycleHours { get; init; }
+        public decimal? BaselineReviewCycleHours
+        {
+            get;
+            init;
+        }
 
-        public string? BaselineReviewCycleSource { get; init; }
+        public string? BaselineReviewCycleSource
+        {
+            get;
+            init;
+        }
 
-        public DateTimeOffset? BaselineReviewCycleCapturedUtc { get; init; }
+        public DateTimeOffset? BaselineReviewCycleCapturedUtc
+        {
+            get;
+            init;
+        }
+
+        public decimal? BaselineManualPrepHoursPerReview
+        {
+            get;
+            init;
+        }
+
+        public int? BaselinePeoplePerReview
+        {
+            get;
+            init;
+        }
+
+        public int? ArchitectureTeamSize
+        {
+            get;
+            init;
+        }
     }
 
     private sealed class ReviewCycleMeasureRow
     {
-        public decimal? AvgHours { get; init; }
+        public decimal? AvgHours
+        {
+            get;
+            init;
+        }
 
-        public long Cnt { get; init; }
+        public long Cnt
+        {
+            get;
+            init;
+        }
     }
 
     private sealed class RunStatusSqlRow
     {
-        public string LegacyRunStatusLabel { get; init; } = "";
+        public string LegacyRunStatusLabel
+        {
+            get;
+            init;
+        } = "";
 
-        public long Cnt { get; init; }
+        public long Cnt
+        {
+            get;
+            init;
+        }
     }
 }

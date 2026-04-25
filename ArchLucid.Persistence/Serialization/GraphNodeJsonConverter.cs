@@ -6,8 +6,8 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Persistence.Serialization;
 
 /// <summary>
-/// Tolerates older or alternate JSON property names when reading <see cref="GraphNode"/> rows from storage
-/// (e.g. <c>id</c>/<c>nodeId</c>, <c>type</c>/<c>nodeType</c>, <c>name</c>/<c>label</c>).
+///     Tolerates older or alternate JSON property names when reading <see cref="GraphNode" /> rows from storage
+///     (e.g. <c>id</c>/<c>nodeId</c>, <c>type</c>/<c>nodeType</c>, <c>name</c>/<c>label</c>).
 /// </summary>
 internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 {
@@ -88,7 +88,8 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 
     private static bool TryGetIgnoreCase(JsonElement obj, string name, out JsonElement value)
     {
-        foreach (JsonProperty p in obj.EnumerateObject().Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        foreach (JsonProperty p in obj.EnumerateObject()
+                     .Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
             value = p.Value;
             return true;

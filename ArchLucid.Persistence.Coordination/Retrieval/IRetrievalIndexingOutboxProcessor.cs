@@ -1,7 +1,7 @@
 namespace ArchLucid.Persistence.Coordination.Retrieval;
 
 /// <summary>
-/// Drains <see cref="IRetrievalIndexingOutboxRepository"/> and invokes retrieval indexing for each pending run.
+///     Drains <see cref="IRetrievalIndexingOutboxRepository" /> and invokes retrieval indexing for each pending run.
 /// </summary>
 public interface IRetrievalIndexingOutboxProcessor
 {

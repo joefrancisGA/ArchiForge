@@ -10,8 +10,10 @@ public interface IBackgroundJobRepository
     Task<int> TryMarkRunningAsync(string jobId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Under <c>READ COMMITTED</c> + <c>UPDLOCK, ROWLOCK</c>, reads the job row and either deletes the queue message logically
-    /// (unknown/terminal/running duplicate), claims <c>Pending</c> by moving to <c>Running</c>, or leaves the message for retry.
+    ///     Under <c>READ COMMITTED</c> + <c>UPDLOCK, ROWLOCK</c>, reads the job row and either deletes the queue message
+    ///     logically
+    ///     (unknown/terminal/running duplicate), claims <c>Pending</c> by moving to <c>Running</c>, or leaves the message for
+    ///     retry.
     /// </summary>
     Task<QueuedBackgroundJobPrepareResult> TryPrepareQueuedJobAsync(
         string jobId,

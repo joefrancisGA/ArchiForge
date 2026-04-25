@@ -1,0 +1,13 @@
+{
+  "runId": "33333333-3333-3333-3333-333333333301",
+  "manifestId": "33333333-3333-3333-3333-333333333302",
+  "coveredRequirementNames": [ "REQ-ONLY" ],
+  "uncoveredRequirementNames": [],
+  "securityGaps": [ "Critical: missing WAF in front of API", "High: SQL without private link", "Medium: no JIT for admin" ],
+  "complianceGaps": [ "SOC2: no evidence pack", "ISO27001: no asset registry" ],
+  "unresolvedIssues": [
+    { "title": "Blocker A", "issueType": "defect", "description": "Breaks RTO.", "severity": "critical" },
+    { "title": "Nit B", "issueType": "style", "description": "Naming.", "severity": "low" }
+  ],
+  "topologyGaps": [ "Critical: missing peering", "High: missing WAF in diagram", "Low: ops dashboard not linked" ]
+}

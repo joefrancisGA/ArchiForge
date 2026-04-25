@@ -3,28 +3,51 @@ using System.Diagnostics.CodeAnalysis;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// Dapper row shape for <c>dbo.GraphSnapshots</c> JSON columns before mapping to <see cref="ArchLucid.KnowledgeGraph.Models.GraphSnapshot"/>.
+///     Dapper row shape for <c>dbo.GraphSnapshots</c> JSON columns before mapping to
+///     <see cref="ArchLucid.KnowledgeGraph.Models.GraphSnapshot" />.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 public sealed class GraphSnapshotStorageRow
 {
     public Guid GraphSnapshotId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ContextSnapshotId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid RunId
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
-    public string NodesJson { get; init; } = null!;
-    public string EdgesJson { get; init; } = null!;
-    public string WarningsJson { get; init; } = null!;
+
+    public string NodesJson
+    {
+        get;
+        init;
+    } = null!;
+
+    public string EdgesJson
+    {
+        get;
+        init;
+    } = null!;
+
+    public string WarningsJson
+    {
+        get;
+        init;
+    } = null!;
 }

@@ -3,7 +3,7 @@ using ArchLucid.Contracts.DecisionTraces;
 namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
-/// Appends <see cref="RunEventTrace"/> entries to a <see cref="DecisionMergeResult"/> during merge.
+///     Appends <see cref="RunEventTrace" /> entries to a <see cref="DecisionMergeResult" /> during merge.
 /// </summary>
 public static class DecisionMergeTraceRecorder
 {
@@ -27,7 +27,7 @@ public static class DecisionMergeTraceRecorder
             EventType = eventType,
             EventDescription = description,
             CreatedUtc = DateTime.UtcNow,
-            Metadata = snapshot,
+            Metadata = snapshot
         }));
     }
 }

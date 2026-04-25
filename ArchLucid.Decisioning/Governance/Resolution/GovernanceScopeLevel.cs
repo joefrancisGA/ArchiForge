@@ -3,11 +3,13 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
-/// Canonical string constants for <see cref="PolicyPackAssignment.ScopeLevel"/> (tenant baseline → workspace → project override).
+///     Canonical string constants for <see cref="PolicyPackAssignment.ScopeLevel" /> (tenant baseline → workspace →
+///     project override).
 /// </summary>
 /// <remarks>
-/// Persisted on assignment rows and interpreted by <see cref="EffectiveGovernanceResolver"/> and repositories’ hierarchical queries.
-/// API validation should reject unknown strings before assignments reach persistence.
+///     Persisted on assignment rows and interpreted by <see cref="EffectiveGovernanceResolver" /> and repositories’
+///     hierarchical queries.
+///     API validation should reject unknown strings before assignments reach persistence.
 /// </remarks>
 public static class GovernanceScopeLevel
 {
@@ -24,15 +26,18 @@ public static class GovernanceScopeLevel
     public static readonly string[] All = [Tenant, Workspace, Project];
 
     /// <summary>
-    /// Normalizes user/API input to canonical casing, or returns <c>null</c> if the value is not a known level.
+    ///     Normalizes user/API input to canonical casing, or returns <c>null</c> if the value is not a known level.
     /// </summary>
     /// <param name="value">Raw scope string (may be null, empty, or arbitrary casing).</param>
     /// <returns>
-    /// <see cref="Project"/> when <paramref name="value"/> is null/whitespace; otherwise the matching constant, or <c>null</c> if invalid.
+    ///     <see cref="Project" /> when <paramref name="value" /> is null/whitespace; otherwise the matching constant, or
+    ///     <c>null</c> if invalid.
     /// </returns>
-    /// <remarks>Used by <see cref="PolicyPacks.PolicyPackManagementService.AssignAsync"/> and API validators.</remarks>
+    /// <remarks>Used by <see cref="PolicyPacks.PolicyPackManagementService.AssignAsync" /> and API validators.</remarks>
     public static string? TryNormalize(string? value)
     {
-        return string.IsNullOrWhiteSpace(value) ? Project : All.FirstOrDefault(level => string.Equals(value, level, StringComparison.OrdinalIgnoreCase));
+        return string.IsNullOrWhiteSpace(value)
+            ? Project
+            : All.FirstOrDefault(level => string.Equals(value, level, StringComparison.OrdinalIgnoreCase));
     }
 }

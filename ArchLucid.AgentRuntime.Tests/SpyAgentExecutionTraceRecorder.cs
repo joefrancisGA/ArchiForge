@@ -3,10 +3,11 @@ using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
-/// <summary>Test double that records <see cref="IAgentExecutionTraceRecorder"/>.<c>RecordAsync</c> invocations.</summary>
+/// <summary>Test double that records <see cref="IAgentExecutionTraceRecorder" />.<c>RecordAsync</c> invocations.</summary>
 public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorder
 {
-    public List<(string RunId, string TaskId, AgentType AgentType, string? ModelDeploymentName, string? ModelVersion, bool IsSimulatorExecution)>
+    public List<(string RunId, string TaskId, AgentType AgentType, string? ModelDeploymentName, string? ModelVersion,
+            bool IsSimulatorExecution)>
         Calls
     {
         get;

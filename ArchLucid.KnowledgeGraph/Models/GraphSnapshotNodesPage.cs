@@ -1,26 +1,43 @@
 namespace ArchLucid.KnowledgeGraph.Models;
 
 /// <summary>
-/// One page of nodes from a <see cref="GraphSnapshot"/> plus edges whose endpoints both lie in that page.
+///     One page of nodes from a <see cref="GraphSnapshot" /> plus edges whose endpoints both lie in that page.
 /// </summary>
 public sealed class GraphSnapshotNodesPage
 {
     public int Page
     {
-        get; init;
+        get;
+        init;
     }
+
     public int PageSize
     {
-        get; init;
+        get;
+        init;
     }
+
     public int TotalNodes
     {
-        get; init;
+        get;
+        init;
     }
+
     public bool HasMore
     {
-        get; init;
+        get;
+        init;
     }
-    public IReadOnlyList<GraphNode> Nodes { get; init; } = [];
-    public IReadOnlyList<GraphEdge> Edges { get; init; } = [];
+
+    public IReadOnlyList<GraphNode> Nodes
+    {
+        get;
+        init;
+    } = [];
+
+    public IReadOnlyList<GraphEdge> Edges
+    {
+        get;
+        init;
+    } = [];
 }

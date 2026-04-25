@@ -1,14 +1,13 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
-using System.Data;
-
 using ArchLucid.Contracts.Decisions;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IDecisionNodeRepository"/> (JSON clone-on-read).
+///     Thread-safe in-memory <see cref="IDecisionNodeRepository" /> (JSON clone-on-read).
 /// </summary>
 public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
 {

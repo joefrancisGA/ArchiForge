@@ -23,7 +23,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await expect(runSummarySection.getByText(FIXTURE_PROJECT_ID)).toBeVisible();
     await expect(page.getByText(/E2E fixture run \(no live API\)/)).toBeVisible();
 
-    await expect(page.getByRole("heading", { name: "Authority chain", level: 3 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Provenance chain", level: 3 })).toBeVisible();
     await expect(page.getByText(/ctx-snap-fixture/)).toBeVisible();
     await expect(page.getByText(/graph-snap-fixture/)).toBeVisible();
 

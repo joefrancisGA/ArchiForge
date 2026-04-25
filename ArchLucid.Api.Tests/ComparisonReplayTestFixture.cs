@@ -12,7 +12,7 @@ public static class ComparisonReplayTestFixture
     private static readonly JsonSerializerOptions ReplayBodyJson = new(JsonSerializerDefaults.Web);
 
     /// <summary>
-    /// Creates a run via <c>POST /v1/architecture/request</c>, executes it, and returns the run id (no commit or replay).
+    ///     Creates a run via <c>POST /v1/architecture/request</c>, executes it, and returns the run id (no commit or replay).
     /// </summary>
     /// <param name="client">API test client.</param>
     /// <param name="jsonOptions">Deserializer options for create response DTOs.</param>
@@ -27,7 +27,8 @@ public static class ComparisonReplayTestFixture
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
@@ -35,7 +36,7 @@ public static class ComparisonReplayTestFixture
     }
 
     /// <summary>
-    /// Full golden path through commit and replay with fixed replay options; returns original and replay run ids.
+    ///     Full golden path through commit and replay with fixed replay options; returns original and replay run ids.
     /// </summary>
     /// <param name="client">API test client.</param>
     /// <param name="jsonOptions">JSON options for DTOs.</param>
@@ -50,7 +51,8 @@ public static class ComparisonReplayTestFixture
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -67,17 +69,17 @@ public static class ComparisonReplayTestFixture
             $"/v1/architecture/run/{runId}/replay",
             JsonContent(new
             {
-                commitReplay = true,
-                executionMode = "Current",
-                manifestVersionOverride = replayManifestVersion
+                commitReplay = true, executionMode = "Current", manifestVersionOverride = replayManifestVersion
             }));
         replayResponse.EnsureSuccessStatusCode();
-        ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(jsonOptions);
+        ReplayRunResponseDto? replayPayload =
+            await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(jsonOptions);
         return (runId, replayPayload!.ReplayRunId);
     }
 
     /// <summary>
-    /// Calls the end-to-end compare summary endpoint with <c>persist: true</c> and returns <c>X-ArchLucid-ComparisonRecordId</c>.
+    ///     Calls the end-to-end compare summary endpoint with <c>persist: true</c> and returns
+    ///     <c>X-ArchLucid-ComparisonRecordId</c>.
     /// </summary>
     /// <param name="client">API test client.</param>
     /// <param name="leftRunId">Baseline run id (query string).</param>
@@ -94,7 +96,9 @@ public static class ComparisonReplayTestFixture
             new StringContent("""{"persist":true}""", Encoding.UTF8, "application/json"));
         persist.EnsureSuccessStatusCode();
         string? comparisonRecordId = persist.Headers.GetValues("X-ArchLucid-ComparisonRecordId").FirstOrDefault();
-        return string.IsNullOrEmpty(comparisonRecordId) ? throw new InvalidOperationException("X-ArchLucid-ComparisonRecordId header missing.") : comparisonRecordId;
+        return string.IsNullOrEmpty(comparisonRecordId)
+            ? throw new InvalidOperationException("X-ArchLucid-ComparisonRecordId header missing.")
+            : comparisonRecordId;
     }
 
     private static StringContent JsonContent(object value)

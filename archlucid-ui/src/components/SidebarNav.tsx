@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,12 +20,14 @@ import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHin
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
+const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 
 /** Alerts & governance is collapsed by default until the user explicitly opens it (localStorage "1"). */
 function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean {
@@ -33,6 +36,60 @@ function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean 
   }
 
   return raw !== "0";
+}
+
+/**
+ * Collapsible "Recent activity" card at the top of the sidebar. Wraps the new
+ * `BeforeAfterDeltaPanel` `sidebar` variant so the median delta on findings + time
+ * is one glance away from any operator route. Open state persists in localStorage —
+ * collapsed by default the very first time so the card does not push nav links down
+ * for a brand-new operator with zero context.
+ */
+function SidebarRecentActivityCard() {
+  const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+
+      const raw = window.localStorage.getItem(RECENT_ACTIVITY_OPEN_KEY);
+
+      setOpen(raw === "1");
+    } catch {
+      setOpen(false);
+    }
+  }, []);
+
+  function persist(next: boolean): void {
+    setOpen(next);
+
+    try {
+      window.localStorage.setItem(RECENT_ACTIVITY_OPEN_KEY, next ? "1" : "0");
+    } catch {
+      /* private mode */
+    }
+  }
+
+  return (
+    <Collapsible open={open} onOpenChange={persist}>
+      <CollapsibleTrigger
+        aria-label="Recent activity"
+        className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+        type="button"
+      >
+        <span>Recent activity</span>
+        <ChevronDown
+          className={cn("mt-0.5 h-4 w-4 shrink-0 transition-transform", open ? "rotate-0" : "-rotate-90")}
+          aria-hidden
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div data-testid="sidebar-recent-activity-card" className="px-2 py-2">
+          <BeforeAfterDeltaPanel variant="sidebar" />
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
 }
 
 /**
@@ -79,6 +136,7 @@ export function SidebarNav() {
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
+      <SidebarRecentActivityCard />
       {listNavGroupsVisibleInOperatorShell(
         NAV_GROUPS,
         showExtended,
@@ -156,11 +214,12 @@ export function SidebarNav() {
           variant={showExtended ? "secondary" : "outline"}
           size="sm"
           className="w-full justify-center text-xs"
+          title={NAV_DISCLOSURE.extended.title}
           onClick={() => {
             setShowExtended(!showExtended);
           }}
         >
-          {showExtended ? "Show fewer links" : "Show more links"}
+          {showExtended ? NAV_DISCLOSURE.extended.hide : NAV_DISCLOSURE.extended.show}
         </Button>
 
         <Button
@@ -183,15 +242,15 @@ export function SidebarNav() {
             <DialogTitle>Navigation settings</DialogTitle>
             <DialogDescription>
               Control which sidebar links appear by progressive disclosure tier. The same destination list also
-              respects optional minimum API authority hints (Read / Execute / Admin) when the shell can resolve your
+              respects optional minimum API access-level hints (Read / Operator / Admin) when the shell can resolve your
               principal via <code className="text-xs">GET /api/auth/me</code>; the command palette (Ctrl+K) uses the
-              same tier + authority composition (see <code className="text-xs">nav-shell-visibility.ts</code>).
+              same tier + access-level composition (see <code className="text-xs">nav-shell-visibility.ts</code>).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
-                <Label htmlFor="nav-extended">Show extended links</Label>
+                <Label htmlFor="nav-extended">{NAV_DISCLOSURE.extended.show}</Label>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   <strong>Advanced Analysis:</strong> compare, replay, graph, advisory, pilot feedback,
                   recommendation learning.{" "}
@@ -202,6 +261,7 @@ export function SidebarNav() {
                 id="nav-extended"
                 type="checkbox"
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                title={NAV_DISCLOSURE.extended.title}
                 checked={showExtended}
                 onChange={(e) => {
                   setShowExtended(e.target.checked);
@@ -210,7 +270,7 @@ export function SidebarNav() {
             </div>
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-0.5">
-                <Label htmlFor="nav-advanced">Show advanced links</Label>
+                <Label htmlFor="nav-advanced">{NAV_DISCLOSURE.advanced.show}</Label>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   <strong>Enterprise Controls:</strong> audit log, alert rules, alert routing, alert tuning,
                   governance workflow, schedules. Requires extended links to be on.
@@ -220,6 +280,7 @@ export function SidebarNav() {
                 id="nav-advanced"
                 type="checkbox"
                 className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 disabled:opacity-50 dark:border-neutral-600"
+                title={NAV_DISCLOSURE.advanced.title}
                 checked={showAdvanced}
                 disabled={!showExtended}
                 onChange={(e) => {

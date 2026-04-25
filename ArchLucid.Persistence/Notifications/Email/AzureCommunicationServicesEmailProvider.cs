@@ -9,10 +9,10 @@ public sealed class AzureCommunicationServicesEmailProvider(
     IOptionsMonitor<EmailNotificationOptions> optionsMonitor,
     IAzureCommunicationEmailApi acsApi) : IEmailProvider
 {
+    private readonly IAzureCommunicationEmailApi _acsApi = acsApi ?? throw new ArgumentNullException(nameof(acsApi));
+
     private readonly IOptionsMonitor<EmailNotificationOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-
-    private readonly IAzureCommunicationEmailApi _acsApi = acsApi ?? throw new ArgumentNullException(nameof(acsApi));
 
     /// <inheritdoc />
     public string ProviderName => EmailProviderNames.AzureCommunicationServices;

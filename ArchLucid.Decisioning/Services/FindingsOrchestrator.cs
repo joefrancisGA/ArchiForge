@@ -20,12 +20,12 @@ public partial class FindingsOrchestrator(
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
     /// <summary>
-    /// Initialises the orchestrator without a payload validator or logger.
+    ///     Initialises the orchestrator without a payload validator or logger.
     /// </summary>
     /// <remarks>
-    /// No payload validation is performed when using this overload.
-    /// Prefer the primary constructor with an explicit <see cref="IFindingPayloadValidator"/>
-    /// injected from the DI container.
+    ///     No payload validation is performed when using this overload.
+    ///     Prefer the primary constructor with an explicit <see cref="IFindingPayloadValidator" />
+    ///     injected from the DI container.
     /// </remarks>
     [Obsolete("Use the primary constructor that accepts IFindingPayloadValidator and ILogger<FindingsOrchestrator>. " +
               "This overload silently skips payload validation.")]
@@ -35,11 +35,11 @@ public partial class FindingsOrchestrator(
     }
 
     /// <summary>
-    /// Initialises the orchestrator with a validator but without a logger.
+    ///     Initialises the orchestrator with a validator but without a logger.
     /// </summary>
     /// <remarks>
-    /// No structured logging is emitted when using this overload.
-    /// Prefer the primary constructor that also accepts <see cref="ILogger{TCategoryName}"/>.
+    ///     No structured logging is emitted when using this overload.
+    ///     Prefer the primary constructor that also accepts <see cref="ILogger{TCategoryName}" />.
     /// </remarks>
     [Obsolete("Use the primary constructor that also accepts ILogger<FindingsOrchestrator>. " +
               "This overload discards all log output.")]
@@ -49,30 +49,6 @@ public partial class FindingsOrchestrator(
         : this(engines, validator, SilentLogger.Instance, TimeProvider.System)
     {
     }
-
-    [LoggerMessage(
-        EventId = 1,
-        Level = LogLevel.Error,
-        Message = "Finding engine failed: RunId={RunId} EngineType={EngineType} Category={Category} DurationMs={DurationMs}")]
-    private partial void LogEngineFailed(Exception ex, Guid runId, string engineType, string category, long durationMs);
-
-    [LoggerMessage(
-        EventId = 2,
-        Level = LogLevel.Information,
-        Message = "Finding engine completed: RunId={RunId} EngineType={EngineType} Category={Category} DurationMs={DurationMs} FindingsCount={Count}")]
-    private partial void LogEngineCompleted(Guid runId, string engineType, string category, long durationMs, int count);
-
-    [LoggerMessage(
-        EventId = 3,
-        Level = LogLevel.Information,
-        Message = "Findings snapshot built: RunId={RunId} FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}")]
-    private partial void LogSnapshotBuilt(Guid runId, Guid snapshotId, int total, int schemaVersion);
-
-    [LoggerMessage(
-        EventId = 4,
-        Level = LogLevel.Warning,
-        Message = "Findings snapshot built with engine failures: RunId={RunId} FailedEngineCount={FailedEngineCount}")]
-    private partial void LogPartialEngineFailures(Guid runId, int failedEngineCount);
 
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
         Guid runId,
@@ -114,7 +90,7 @@ public partial class FindingsOrchestrator(
                         ErrorMessage = ex.Message,
                         ExceptionType = ex.GetType().Name,
                         DurationMs = sw.ElapsedMilliseconds,
-                        OccurredUtc = _clock.GetUtcNow().UtcDateTime,
+                        OccurredUtc = _clock.GetUtcNow().UtcDateTime
                     });
 
                 continue;
@@ -171,6 +147,33 @@ public partial class FindingsOrchestrator(
         return snapshot;
     }
 
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Error,
+        Message =
+            "Finding engine failed: RunId={RunId} EngineType={EngineType} Category={Category} DurationMs={DurationMs}")]
+    private partial void LogEngineFailed(Exception ex, Guid runId, string engineType, string category, long durationMs);
+
+    [LoggerMessage(
+        EventId = 2,
+        Level = LogLevel.Information,
+        Message =
+            "Finding engine completed: RunId={RunId} EngineType={EngineType} Category={Category} DurationMs={DurationMs} FindingsCount={Count}")]
+    private partial void LogEngineCompleted(Guid runId, string engineType, string category, long durationMs, int count);
+
+    [LoggerMessage(
+        EventId = 3,
+        Level = LogLevel.Information,
+        Message =
+            "Findings snapshot built: RunId={RunId} FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}")]
+    private partial void LogSnapshotBuilt(Guid runId, Guid snapshotId, int total, int schemaVersion);
+
+    [LoggerMessage(
+        EventId = 4,
+        Level = LogLevel.Warning,
+        Message = "Findings snapshot built with engine failures: RunId={RunId} FailedEngineCount={FailedEngineCount}")]
+    private partial void LogPartialEngineFailures(Guid runId, int failedEngineCount);
+
     private sealed class NoOpFindingPayloadValidator : IFindingPayloadValidator
     {
         public void Validate(Finding finding)
@@ -187,9 +190,15 @@ public partial class FindingsOrchestrator(
         {
         }
 
-        public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull
+        {
+            return NullScope.Instance;
+        }
 
-        public bool IsEnabled(LogLevel logLevel) => false;
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return false;
+        }
 
         public void Log<TState>(
             LogLevel logLevel,
@@ -204,6 +213,7 @@ public partial class FindingsOrchestrator(
         {
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public static readonly NullScope Instance = new();
+
             public void Dispose()
             {
             }

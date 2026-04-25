@@ -17,15 +17,16 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ReadAuthority,
     );
 
+    expect(visible.some((l) => l.href === "/admin/health")).toBe(true);
     expect(visible.some((l) => l.href === "/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
   });
 
   /**
-   * Default shell (no extended / no advanced): Reader should still see Enterprise Controls as a single inbox entry.
+   * Default shell (no extended / no advanced): Reader should still see Enterprise Controls as system health + Alerts inbox.
    * If `/alerts` moves off `essential` tier, this fails loudly—avoiding an empty Enterprise group for first pilots.
    */
-  it("exposes only the Alerts inbox link in Enterprise Controls for Reader when extended and advanced are off", () => {
+  it("exposes system health and Alerts inbox in Enterprise Controls for Reader when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -35,7 +36,7 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ReadAuthority,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/alerts"]);
+    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
   });
 
   it("shows read-tier Enterprise extended links for Reader when extended disclosure is on", () => {
@@ -80,7 +81,7 @@ describe("filterNavLinksForOperatorShell", () => {
 
   /**
    * Tier runs before authority (`nav-shell-visibility`): higher rank must not “punch through” extended disclosure.
-   * Regression: reordering filters or mis-stating tiers would expose `/policy-packs` without “Show more links”.
+   * Regression: reordering filters or mis-stating tiers would expose `/policy-packs` without extended disclosure.
    */
   it("keeps extended-tier Enterprise links hidden when showExtended is off even for Execute rank and advanced on", () => {
     expect(enterprise).toBeDefined();
@@ -99,9 +100,9 @@ describe("filterNavLinksForOperatorShell", () => {
 
   /**
    * Default shell (no extended, no advanced): Execute-ranked operators see the same essential Enterprise strip as Reader
-   * — only the inbox. Rank widens authority-eligible hrefs but does not replace progressive disclosure.
+   * — system health + inbox. Rank widens authority-eligible hrefs but does not replace progressive disclosure.
    */
-  it("limits Enterprise Controls to the inbox for Execute rank when extended and advanced are off", () => {
+  it("limits Enterprise Controls to system health and Alerts for Execute rank when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -111,12 +112,12 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ExecuteAuthority,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/alerts"]);
+    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
   });
 
   /**
    * Same tier gate as Enterprise extended links: `/replay` is **extended** + **ExecuteAuthority** — Admin rank must
-   * not surface it until **Show more links** (`nav-tier` before `nav-authority`).
+   * not surface it until **Show analysis & investigation tools** (`nav-tier` before `nav-authority`).
    */
   it("hides Core Pilot extended Execute link (/replay) until showExtended even for Admin rank", () => {
     const core = NAV_GROUPS.find((g) => g.id === "pilot");

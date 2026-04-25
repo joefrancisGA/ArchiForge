@@ -5,11 +5,15 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Advisory.Services;
 
 /// <summary>
-/// Builds an <see cref="ImprovementPlan"/> from a golden manifest and findings, optionally enriched by a manifest comparison to another run.
+///     Builds an <see cref="ImprovementPlan" /> from a golden manifest and findings, optionally enriched by a manifest
+///     comparison to another run.
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="ImprovementAdvisorService"/>. HTTP entry: <c>ArchLucid.Api.Controllers.AdvisoryController.GetImprovements</c>.
-/// Uses <see cref="ArchLucid.Decisioning.Advisory.Analysis.IImprovementSignalAnalyzer"/> and <see cref="IRecommendationGenerator"/>; loads the latest <see cref="Learning.RecommendationLearningProfile"/> when available.
+///     Implementation: <see cref="ImprovementAdvisorService" />. HTTP entry:
+///     <c>ArchLucid.Api.Controllers.AdvisoryController.GetImprovements</c>.
+///     Uses <see cref="ArchLucid.Decisioning.Advisory.Analysis.IImprovementSignalAnalyzer" /> and
+///     <see cref="IRecommendationGenerator" />; loads the latest <see cref="Learning.RecommendationLearningProfile" />
+///     when available.
 /// </remarks>
 public interface IImprovementAdvisorService
 {
@@ -22,7 +26,7 @@ public interface IImprovementAdvisorService
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct);
 
-    /// <summary>Creates a plan using diff signals between <paramref name="comparison"/>.Base and the current manifest.</summary>
+    /// <summary>Creates a plan using diff signals between <paramref name="comparison" />.Base and the current manifest.</summary>
     /// <param name="manifest">Current run manifest (typically the “target” side of the comparison).</param>
     /// <param name="findingsSnapshot">Findings for the current run.</param>
     /// <param name="comparison">Result of comparing base vs target manifests; drives regression/gap style signals.</param>

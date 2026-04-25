@@ -4,11 +4,15 @@ using ArchLucid.Contracts.ProductLearning.Planning;
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 /// <summary>
-/// Persistence for 59R learning-to-planning bridge (themes, bounded plans, explicit links). No generation-side mutation.
+///     Persistence for 59R learning-to-planning bridge (themes, bounded plans, explicit links). No generation-side
+///     mutation.
 /// </summary>
 public interface IProductLearningPlanningRepository
 {
-    /// <summary>Inserts a theme. Assigns <see cref="ProductLearningImprovementThemeRecord.ThemeId"/> and <see cref="ProductLearningImprovementThemeRecord.CreatedUtc"/> when unset/default.</summary>
+    /// <summary>
+    ///     Inserts a theme. Assigns <see cref="ProductLearningImprovementThemeRecord.ThemeId" /> and
+    ///     <see cref="ProductLearningImprovementThemeRecord.CreatedUtc" /> when unset/default.
+    /// </summary>
     Task InsertThemeAsync(ProductLearningImprovementThemeRecord theme, CancellationToken cancellationToken);
 
     Task<ProductLearningImprovementThemeRecord?> GetThemeAsync(
@@ -16,13 +20,16 @@ public interface IProductLearningPlanningRepository
         ProductLearningScope scope,
         CancellationToken cancellationToken);
 
-    /// <summary>Newest first; stable tie-break on <see cref="ProductLearningImprovementThemeRecord.ThemeId"/> ascending.</summary>
+    /// <summary>Newest first; stable tie-break on <see cref="ProductLearningImprovementThemeRecord.ThemeId" /> ascending.</summary>
     Task<IReadOnlyList<ProductLearningImprovementThemeRecord>> ListThemesAsync(
         ProductLearningScope scope,
         int take,
         CancellationToken cancellationToken);
 
-    /// <summary>Inserts a plan. Assigns <see cref="ProductLearningImprovementPlanRecord.PlanId"/> and <see cref="ProductLearningImprovementPlanRecord.CreatedUtc"/> when unset/default.</summary>
+    /// <summary>
+    ///     Inserts a plan. Assigns <see cref="ProductLearningImprovementPlanRecord.PlanId" /> and
+    ///     <see cref="ProductLearningImprovementPlanRecord.CreatedUtc" /> when unset/default.
+    /// </summary>
     Task InsertPlanAsync(ProductLearningImprovementPlanRecord plan, CancellationToken cancellationToken);
 
     Task<ProductLearningImprovementPlanRecord?> GetPlanAsync(
@@ -30,7 +37,7 @@ public interface IProductLearningPlanningRepository
         ProductLearningScope scope,
         CancellationToken cancellationToken);
 
-    /// <summary>Newest first; stable tie-break on <see cref="ProductLearningImprovementPlanRecord.PlanId"/> ascending.</summary>
+    /// <summary>Newest first; stable tie-break on <see cref="ProductLearningImprovementPlanRecord.PlanId" /> ascending.</summary>
     Task<IReadOnlyList<ProductLearningImprovementPlanRecord>> ListPlansAsync(
         ProductLearningScope scope,
         int take,
@@ -60,13 +67,13 @@ public interface IProductLearningPlanningRepository
         ProductLearningScope scope,
         CancellationToken cancellationToken);
 
-    /// <summary>Deterministic order: <see cref="ProductLearningImprovementPlanSignalLinkRecord.SignalId"/> ascending.</summary>
+    /// <summary>Deterministic order: <see cref="ProductLearningImprovementPlanSignalLinkRecord.SignalId" /> ascending.</summary>
     Task<IReadOnlyList<ProductLearningImprovementPlanSignalLinkRecord>> ListPlanSignalLinksAsync(
         Guid planId,
         ProductLearningScope scope,
         CancellationToken cancellationToken);
 
-    /// <summary>Deterministic order: <see cref="ProductLearningImprovementPlanArtifactLinkRecord.LinkId"/> ascending.</summary>
+    /// <summary>Deterministic order: <see cref="ProductLearningImprovementPlanArtifactLinkRecord.LinkId" /> ascending.</summary>
     Task<IReadOnlyList<ProductLearningImprovementPlanArtifactLinkRecord>> ListPlanArtifactLinksAsync(
         Guid planId,
         ProductLearningScope scope,

@@ -88,10 +88,7 @@ public sealed class ProvenanceGraphViewMapperTests
             [
                 new ProvenanceEdge
                 {
-                    Id = Guid.NewGuid(),
-                    FromNodeId = from,
-                    ToNodeId = to,
-                    Type = ProvenanceEdgeType.SupportedBy
+                    Id = Guid.NewGuid(), FromNodeId = from, ToNodeId = to, Type = ProvenanceEdgeType.SupportedBy
                 }
             ]
         };

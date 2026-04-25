@@ -123,7 +123,7 @@ docker build -t archlucid-ui archlucid-ui/
 |-------|-----------|---------|
 | `restore` | `mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23` (pinned SDK band + Alpine; bump with `global.json` / CI) | Copy `.csproj` files and run `dotnet restore … -r linux-musl-x64` (RID required for later `publish --no-restore -r linux-musl-x64`; avoids NETSDK1047) |
 | `publish` | (extends `restore`) | Copy source, re-restore with same RID, then `dotnet publish -c Release -r linux-musl-x64 --no-restore` (API + Worker → `/app`) |
-| `runtime` | `mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23` (ASP.NET **runtime** tag — not the SDK `10.0.201` patch) | Non-root user, health check, port 8080 |
+| `runtime` | `mcr.microsoft.com/dotnet/aspnet:10.0-alpine` (ASP.NET **runtime** tag — not the SDK `10.0.201` patch) | Non-root user, health check, port 8080 |
 
 ### UI Dockerfile (`archlucid-ui/Dockerfile`)
 

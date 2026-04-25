@@ -12,8 +12,6 @@ namespace ArchLucid.Persistence.Data.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; integration-tested separately.")]
 public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connectionFactory) : IHostLeaderLeaseRepository
 {
-    private sealed record LeaseRow(string HolderInstanceId, DateTime LeaseExpiresUtc);
-
     /// <inheritdoc />
     public async Task<bool> TryAcquireOrRenewAsync(
         string leaseName,
@@ -40,10 +38,49 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
 
             if (result || attempt == maxAttempts - 1)
                 return result;
-
         }
 
         return false;
+    }
+
+    /// <inheritdoc />
+    public async Task TryReleaseAsync(string leaseName, string instanceId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(leaseName) || string.IsNullOrWhiteSpace(instanceId))
+            return;
+
+
+        const string sql = """
+                           DELETE FROM dbo.HostLeaderLeases
+                           WHERE LeaseName = @LeaseName
+                             AND HolderInstanceId = @HolderInstanceId
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new { LeaseName = leaseName, HolderInstanceId = instanceId },
+                cancellationToken: cancellationToken));
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<HostLeaderLeaseSnapshot>> ListAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT LeaseName, HolderInstanceId, LeaseExpiresUtc
+                           FROM dbo.HostLeaderLeases
+                           ORDER BY LeaseName ASC;
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<HostLeaderLeaseSnapshot> rows = await connection.QueryAsync<HostLeaderLeaseSnapshot>(
+            new CommandDefinition(sql, cancellationToken: cancellationToken));
+
+        return rows.ToList();
     }
 
     private async Task<bool> TryAcquireOrRenewOnceAsync(
@@ -58,19 +95,16 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
         try
         {
             const string selectSql = """
-                SELECT HolderInstanceId, LeaseExpiresUtc
-                FROM dbo.HostLeaderLeases WITH (UPDLOCK, ROWLOCK)
-                WHERE LeaseName = @LeaseName
-                """;
+                                     SELECT HolderInstanceId, LeaseExpiresUtc
+                                     FROM dbo.HostLeaderLeases WITH (UPDLOCK, ROWLOCK)
+                                     WHERE LeaseName = @LeaseName
+                                     """;
 
             LeaseRow? row = await connection.QuerySingleOrDefaultAsync<LeaseRow>(
                 new CommandDefinition(
                     selectSql,
-                    new
-                    {
-                        LeaseName = leaseName
-                    },
-                    transaction: transaction,
+                    new { LeaseName = leaseName },
+                    transaction,
                     cancellationToken: cancellationToken));
 
             DateTime nowUtc = DateTime.UtcNow;
@@ -79,9 +113,9 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
             if (row is null)
             {
                 const string insertSql = """
-                    INSERT INTO dbo.HostLeaderLeases (LeaseName, HolderInstanceId, LeaseExpiresUtc)
-                    VALUES (@LeaseName, @HolderInstanceId, @LeaseExpiresUtc)
-                    """;
+                                         INSERT INTO dbo.HostLeaderLeases (LeaseName, HolderInstanceId, LeaseExpiresUtc)
+                                         VALUES (@LeaseName, @HolderInstanceId, @LeaseExpiresUtc)
+                                         """;
 
                 try
                 {
@@ -90,11 +124,9 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
                             insertSql,
                             new
                             {
-                                LeaseName = leaseName,
-                                HolderInstanceId = instanceId,
-                                LeaseExpiresUtc = newExpiryUtc
+                                LeaseName = leaseName, HolderInstanceId = instanceId, LeaseExpiresUtc = newExpiryUtc
                             },
-                            transaction: transaction,
+                            transaction,
                             cancellationToken: cancellationToken));
 
                     transaction.Commit();
@@ -113,22 +145,17 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
                 || string.Equals(row.HolderInstanceId, instanceId, StringComparison.Ordinal))
             {
                 const string updateSql = """
-                    UPDATE dbo.HostLeaderLeases
-                    SET HolderInstanceId = @HolderInstanceId,
-                        LeaseExpiresUtc = @LeaseExpiresUtc
-                    WHERE LeaseName = @LeaseName
-                    """;
+                                         UPDATE dbo.HostLeaderLeases
+                                         SET HolderInstanceId = @HolderInstanceId,
+                                             LeaseExpiresUtc = @LeaseExpiresUtc
+                                         WHERE LeaseName = @LeaseName
+                                         """;
 
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         updateSql,
-                        new
-                        {
-                            LeaseName = leaseName,
-                            HolderInstanceId = instanceId,
-                            LeaseExpiresUtc = newExpiryUtc
-                        },
-                        transaction: transaction,
+                        new { LeaseName = leaseName, HolderInstanceId = instanceId, LeaseExpiresUtc = newExpiryUtc },
+                        transaction,
                         cancellationToken: cancellationToken));
 
                 transaction.Commit();
@@ -154,45 +181,5 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
         }
     }
 
-    /// <inheritdoc />
-    public async Task TryReleaseAsync(string leaseName, string instanceId, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(leaseName) || string.IsNullOrWhiteSpace(instanceId))
-            return;
-
-
-        const string sql = """
-            DELETE FROM dbo.HostLeaderLeases
-            WHERE LeaseName = @LeaseName
-              AND HolderInstanceId = @HolderInstanceId
-            """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    LeaseName = leaseName,
-                    HolderInstanceId = instanceId
-                },
-                cancellationToken: cancellationToken));
-    }
-
-    /// <inheritdoc />
-    public async Task<IReadOnlyList<HostLeaderLeaseSnapshot>> ListAllAsync(CancellationToken cancellationToken = default)
-    {
-        const string sql = """
-            SELECT LeaseName, HolderInstanceId, LeaseExpiresUtc
-            FROM dbo.HostLeaderLeases
-            ORDER BY LeaseName ASC;
-            """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        IEnumerable<HostLeaderLeaseSnapshot> rows = await connection.QueryAsync<HostLeaderLeaseSnapshot>(
-            new CommandDefinition(sql, cancellationToken: cancellationToken));
-
-        return rows.ToList();
-    }
+    private sealed record LeaseRow(string HolderInstanceId, DateTime LeaseExpiresUtc);
 }

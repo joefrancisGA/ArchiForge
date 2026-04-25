@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="InMemoryPolicyPackAssignmentRepository"/> parity with SQL semantics for archival.
+///     <see cref="InMemoryPolicyPackAssignmentRepository" /> parity with SQL semantics for archival.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class InMemoryPolicyPackAssignmentRepositoryTests
@@ -33,7 +33,7 @@ public sealed class InMemoryPolicyPackAssignmentRepositoryTests
                 IsEnabled = true,
                 ScopeLevel = GovernanceScopeLevel.Project,
                 AssignedUtc = DateTime.UtcNow,
-                ArchivedUtc = DateTime.UtcNow,
+                ArchivedUtc = DateTime.UtcNow
             },
             CancellationToken.None);
 
@@ -63,7 +63,7 @@ public sealed class InMemoryPolicyPackAssignmentRepositoryTests
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true,
                 ScopeLevel = GovernanceScopeLevel.Project,
-                AssignedUtc = DateTime.UtcNow,
+                AssignedUtc = DateTime.UtcNow
             },
             CancellationToken.None);
 

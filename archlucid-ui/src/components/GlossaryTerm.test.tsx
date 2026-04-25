@@ -17,7 +17,7 @@ describe("GlossaryTerm", () => {
     fireEvent.pointerMove(screen.getByText("Governance workflow"));
 
     expect(
-      (await screen.findAllByText(GLOSSARY_TERMS.governance_workflow, { exact: true })).length,
+      (await screen.findAllByText(GLOSSARY_TERMS.governance_workflow.definition, { exact: true })).length,
     ).toBeGreaterThan(0);
   });
 });

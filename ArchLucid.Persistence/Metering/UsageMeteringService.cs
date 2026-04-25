@@ -5,16 +5,16 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Metering;
 
-/// <summary>Persists <see cref="UsageEvent"/> rows when <see cref="MeteringOptions.Enabled"/> is true.</summary>
+/// <summary>Persists <see cref="UsageEvent" /> rows when <see cref="MeteringOptions.Enabled" /> is true.</summary>
 public sealed class UsageMeteringService(
     IUsageEventRepository repository,
     IOptionsMonitor<MeteringOptions> options) : IUsageMeteringService
 {
-    private readonly IUsageEventRepository _repository =
-        repository ?? throw new ArgumentNullException(nameof(repository));
-
     private readonly IOptionsMonitor<MeteringOptions> _options =
         options ?? throw new ArgumentNullException(nameof(options));
+
+    private readonly IUsageEventRepository _repository =
+        repository ?? throw new ArgumentNullException(nameof(repository));
 
     public async Task RecordAsync(UsageEvent usageEvent, CancellationToken ct)
     {

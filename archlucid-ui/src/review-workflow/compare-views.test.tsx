@@ -65,7 +65,7 @@ describe("Compare / review views (55R smoke)", () => {
 
     render(<LegacyRunComparisonView result={result} />);
 
-    expect(screen.getByText(/Authority run \/ manifest diff \(legacy\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Run record \/ manifest diff \(legacy\)/)).toBeInTheDocument();
     expect(screen.getByText("No run-level diffs")).toBeInTheDocument();
   });
 

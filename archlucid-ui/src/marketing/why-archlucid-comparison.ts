@@ -34,7 +34,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
       "Incumbent diagram-and-doc stacks typically scatter decisions across wikis, tickets, and decks; **reconstructing one architecture review cycle** for a single initiative often costs **2–6 skilled hours** of manual assembly (**first-party assertion (no external citation yet)**).",
     citation: "first-party assertion (no external citation yet)",
     narrativeParagraph:
-      "The audit controller is rate-limited and `ReadAuthority`-gated like other list surfaces, but the payload is **append-only rows** keyed to scope, not a free-form page history. The matrix doc lists the **78** event constants so procurement can map controls to rows. Together they mean \"prove what happened on this run\" is a **query**, not an archaeology sprint. Export and CSV tiers remain documented separately from this read surface.",
+      "The audit controller is rate-limited and read-access–gated like other list surfaces, but the payload is **append-only rows** keyed to scope, not a free-form page history. The matrix doc lists the **78** event constants so procurement can map controls to rows. Together they mean \"prove what happened on this run\" is a **query**, not an archaeology sprint. Export and CSV tiers remain documented separately from this read surface.",
   },
   {
     claim:

@@ -2,14 +2,27 @@ namespace ArchLucid.Decisioning.Findings.Payloads;
 
 public class PolicyApplicabilityFindingPayload
 {
-    public string PolicyName { get; set; } = "";
+    public string PolicyName
+    {
+        get;
+        set;
+    } = "";
+
     public string? PolicyReference
     {
-        get; set;
+        get;
+        set;
     }
+
     public int ApplicableTopologyResourceCount
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> ApplicableTopologyNodeIds { get; set; } = [];
+
+    public List<string> ApplicableTopologyNodeIds
+    {
+        get;
+        set;
+    } = [];
 }

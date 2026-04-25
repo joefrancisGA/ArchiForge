@@ -142,15 +142,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                         "Run not found.",
                         cancellationToken);
 
-                await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                    _auditService,
-                    _scopeContextProvider,
-                    _logger,
-                    actor,
-                    runId,
-                    "Run not found.",
-                    cancellationToken);
-
                 throw;
             }
             catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
@@ -279,15 +270,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     $"Commit blocked: {ex.Message}",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                $"Commit blocked: {ex.Message}",
-                cancellationToken);
-
             throw;
         }
 
@@ -333,6 +315,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 new() { SystemName = request.SystemName },
                 cancellationToken);
 
+            AlignAuthorityVersionToContract(manifestModel, contract);
+
             IReadOnlyList<string> traceabilityGaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(contract, [trace]);
 
             if (traceabilityGaps.Count > 0)
@@ -348,15 +332,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     runId,
                     ex.GetType().Name,
                     cancellationToken);
-
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                ex.GetType().Name,
-                cancellationToken);
 
             throw;
         }
@@ -383,15 +358,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     $"Persist failed: {ex.GetType().Name}",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                $"Persist failed: {ex.GetType().Name}",
-                cancellationToken);
-
             throw;
         }
 
@@ -400,49 +366,13 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 AuditEventTypes.Baseline.Architecture.RunCompleted,
                 actor,
                 runId,
-                $"ManifestVersion={contract.Metadata.ManifestVersion}; Authority=true; WarningCount={persisted.Warnings.Count}",
+                $"ManifestVersion={contract.Metadata.ManifestVersion}; SystemName={contract.SystemName}; WarningCount={persisted.Warnings.Count}; CommitPath=authority",
                 cancellationToken);
 
         ScopeContext commitScope = _scopeContextProvider.GetCurrentScope();
-        Guid? commitRunGuid = Guid.TryParse(runId, out Guid ridCommit) ? ridCommit : null;
-
-        try
-        {
-            AuditEvent legacyCommitCompleted = new()
-            {
-                EventType = AuditEventTypes.CoordinatorRunCommitCompleted,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = commitScope.TenantId,
-                WorkspaceId = commitScope.WorkspaceId,
-                ProjectId = commitScope.ProjectId,
-                RunId = commitRunGuid,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        runId,
-                        manifestVersion = contract.Metadata.ManifestVersion,
-                        systemName = contract.SystemName,
-                        commitPath = "authority"
-                    })
-            };
-
-            await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                _auditService,
-                legacyCommitCompleted,
-                AuditEventTypes.Run.CommitCompleted,
-                cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(
-                    ex,
-                    "Durable audit for authority Run.CommitCompleted failed for RunId={RunId}",
-                    LogSanitizer.Sanitize(runId));
-        }
 
         DateTimeOffset committedUtc = DateTimeOffset.UtcNow;
+        // Pins dbo.Tenants.TrialFirstManifestCommittedUtc for every tenant on first commit; trial-funnel audit/metrics stay inside the hook.
         await _trialFunnelCommitHook.OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken);
         await _firstSessionLifecycleHook.OnSuccessfulManifestCommitAsync(commitScope.TenantId, cancellationToken);
 
@@ -632,8 +562,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private async Task EnsureCommitPrerequisitesAsync(string runId, CancellationToken cancellationToken)
     {
+        // ADR 0030 PR A3 (2026-04-24): missing evidence package = run hasn't been executed yet,
+        // which is a conflict with the current run state, not a malformed request → 409 (not 400).
         _ = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
-            ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
+            ?? throw new ConflictException(
+                $"Run '{runId}' cannot be committed: no evidence package exists. Execute the run first.");
     }
 
     private static void EnforceCommitAllowedForStatus(ArchitectureRun run, string runId)
@@ -664,6 +597,25 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         manifest.TenantId = scope.TenantId;
         manifest.WorkspaceId = scope.WorkspaceId;
         manifest.ProjectId = scope.ProjectId;
+    }
+
+    /// <summary>
+    ///     ADR 0030 PR A3 (2026-04-24) — the authority engine stores <c>Metadata.Version</c> as a
+    ///     bare semver (e.g. <c>1.0.0</c>), while the projection builder maps it into the contract
+    ///     as a <c>v</c>-prefixed version (e.g. <c>v1.0.0</c>). The contract value is what the API
+    ///     returns to clients and what subsequent <c>GET /v1/architecture/manifest/{manifestVersion}</c>
+    ///     lookups compare against (ordinal exact match on <c>Metadata.Version</c> via
+    ///     <c>GetByContractManifestVersionAsync</c>). Without this alignment the persisted row would
+    ///     never match the version the client just received → 404. Copying the contract version onto
+    ///     the authority row before persistence keeps the read path round-tripping.
+    /// </summary>
+    private static void AlignAuthorityVersionToContract(Dm.GoldenManifest manifestModel, Cm.GoldenManifest contract)
+    {
+        if (manifestModel is null) throw new ArgumentNullException(nameof(manifestModel));
+        if (contract is null) throw new ArgumentNullException(nameof(contract));
+        if (string.IsNullOrWhiteSpace(contract.Metadata.ManifestVersion)) return;
+
+        manifestModel.Metadata.Version = contract.Metadata.ManifestVersion;
     }
 
     private async Task EvaluatePreCommitGovernanceGateOrThrowAsync(

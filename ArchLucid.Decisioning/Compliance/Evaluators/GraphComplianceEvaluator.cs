@@ -66,7 +66,6 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
                     AffectedNodeIds = uncoveredResources.Select(x => x.NodeId).ToList(),
                     AffectedResources = uncoveredResources.Select(x => x.Label).ToList()
                 });
-
         }
 
         return result;

@@ -6,12 +6,12 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IAgentExecutionTraceRepository"/> for tests (JSON clone-on-read).
+///     Thread-safe in-memory <see cref="IAgentExecutionTraceRepository" /> for tests (JSON clone-on-read).
 /// </summary>
 public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTraceRepository
 {
-    private readonly List<AgentExecutionTrace> _items = [];
     private readonly Lock _gate = new();
+    private readonly List<AgentExecutionTrace> _items = [];
 
     /// <inheritdoc />
     public Task CreateAsync(AgentExecutionTrace trace, CancellationToken cancellationToken = default)
@@ -172,7 +172,8 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
@@ -216,7 +217,8 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)

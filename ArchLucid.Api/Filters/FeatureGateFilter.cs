@@ -49,7 +49,7 @@ public sealed class FeatureGateFilter(
     {
         return key switch
         {
-            FeatureGateKey.DemoEnabled => _demoOptions.Value?.Enabled is true,
+            FeatureGateKey.DemoEnabled => _demoOptions.Value.Enabled,
             _ => false
         };
     }

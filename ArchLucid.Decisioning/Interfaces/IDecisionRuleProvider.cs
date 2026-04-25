@@ -6,4 +6,3 @@ public interface IDecisionRuleProvider
 {
     Task<DecisionRuleSet> GetRuleSetAsync(CancellationToken ct);
 }
-

@@ -9,9 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Diagram.
+///     Tests for Architecture Diagram.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -24,7 +23,8 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -33,10 +33,12 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        CommitRunResponseDto? commitPayload =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
-        HttpResponseMessage diagramResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
+        HttpResponseMessage diagramResponse =
+            await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
 
         diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -58,7 +60,8 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -67,7 +70,8 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        CommitRunResponseDto? commitPayload =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         HttpResponseMessage diagramResponse = await Client.GetAsync(
@@ -75,7 +79,8 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
 
         diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ManifestDiagramResponse? diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(JsonOptions);
+        ManifestDiagramResponse? diagramPayload =
+            await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.DiagramType.Should().Be("Mermaid");
         diagramPayload.Content.Should().Contain("flowchart TB");

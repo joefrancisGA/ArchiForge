@@ -5,58 +5,106 @@ using ArchLucid.Persistence.GoldenManifests;
 
 namespace ArchLucid.Persistence.BlobStore;
 
-/// <summary>Single JSON blob mirroring <see cref="GoldenManifestStorageRow"/> JSON columns for offload.</summary>
+/// <summary>Single JSON blob mirroring <see cref="GoldenManifestStorageRow" /> JSON columns for offload.</summary>
 public sealed class GoldenManifestPayloadBlobEnvelope
 {
     public const int CurrentSchemaVersion = 1;
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.Never
     };
 
     [JsonPropertyName("schemaVersion")]
-    public int SchemaVersion { get; init; } = CurrentSchemaVersion;
+    public int SchemaVersion
+    {
+        get;
+        init;
+    } = CurrentSchemaVersion;
 
     [JsonPropertyName("metadataJson")]
-    public string MetadataJson { get; init; } = "";
+    public string MetadataJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("requirementsJson")]
-    public string RequirementsJson { get; init; } = "";
+    public string RequirementsJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("topologyJson")]
-    public string TopologyJson { get; init; } = "";
+    public string TopologyJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("securityJson")]
-    public string SecurityJson { get; init; } = "";
+    public string SecurityJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("complianceJson")]
     public string? ComplianceJson
     {
-        get; init;
+        get;
+        init;
     }
 
     [JsonPropertyName("costJson")]
-    public string CostJson { get; init; } = "";
+    public string CostJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("constraintsJson")]
-    public string ConstraintsJson { get; init; } = "";
+    public string ConstraintsJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("unresolvedIssuesJson")]
-    public string UnresolvedIssuesJson { get; init; } = "";
+    public string UnresolvedIssuesJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("decisionsJson")]
-    public string DecisionsJson { get; init; } = "";
+    public string DecisionsJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("assumptionsJson")]
-    public string AssumptionsJson { get; init; } = "";
+    public string AssumptionsJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("warningsJson")]
-    public string WarningsJson { get; init; } = "";
+    public string WarningsJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("provenanceJson")]
-    public string ProvenanceJson { get; init; } = "";
+    public string ProvenanceJson
+    {
+        get;
+        init;
+    } = "";
 
     public static GoldenManifestPayloadBlobEnvelope FromSerializedSlices(
         string metadataJson,
@@ -70,8 +118,9 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         string decisionsJson,
         string assumptionsJson,
         string warningsJson,
-        string provenanceJson) =>
-        new()
+        string provenanceJson)
+    {
+        return new GoldenManifestPayloadBlobEnvelope
         {
             SchemaVersion = CurrentSchemaVersion,
             MetadataJson = metadataJson,
@@ -85,8 +134,9 @@ public sealed class GoldenManifestPayloadBlobEnvelope
             DecisionsJson = decisionsJson,
             AssumptionsJson = assumptionsJson,
             WarningsJson = warningsJson,
-            ProvenanceJson = provenanceJson,
+            ProvenanceJson = provenanceJson
         };
+    }
 
     public static int SumUtf16Length(
         string metadataJson,
@@ -100,21 +150,26 @@ public sealed class GoldenManifestPayloadBlobEnvelope
         string decisionsJson,
         string assumptionsJson,
         string warningsJson,
-        string provenanceJson) =>
-        metadataJson.Length
-        + requirementsJson.Length
-        + topologyJson.Length
-        + securityJson.Length
-        + (complianceJson?.Length ?? 0)
-        + costJson.Length
-        + constraintsJson.Length
-        + unresolvedIssuesJson.Length
-        + decisionsJson.Length
-        + assumptionsJson.Length
-        + warningsJson.Length
-        + provenanceJson.Length;
+        string provenanceJson)
+    {
+        return metadataJson.Length
+               + requirementsJson.Length
+               + topologyJson.Length
+               + securityJson.Length
+               + (complianceJson?.Length ?? 0)
+               + costJson.Length
+               + constraintsJson.Length
+               + unresolvedIssuesJson.Length
+               + decisionsJson.Length
+               + assumptionsJson.Length
+               + warningsJson.Length
+               + provenanceJson.Length;
+    }
 
-    public string ToJson() => JsonSerializer.Serialize(this, SerializerOptions);
+    public string ToJson()
+    {
+        return JsonSerializer.Serialize(this, SerializerOptions);
+    }
 
     public static GoldenManifestPayloadBlobEnvelope? TryDeserialize(string json)
     {
@@ -132,7 +187,8 @@ public sealed class GoldenManifestPayloadBlobEnvelope
     }
 
     /// <summary>Replaces JSON columns on the row when a blob overlay is applied; scalars unchanged.</summary>
-    internal static GoldenManifestStorageRow MergeIntoRow(GoldenManifestStorageRow row, GoldenManifestPayloadBlobEnvelope envelope)
+    internal static GoldenManifestStorageRow MergeIntoRow(GoldenManifestStorageRow row,
+        GoldenManifestPayloadBlobEnvelope envelope)
     {
         ArgumentNullException.ThrowIfNull(row);
         ArgumentNullException.ThrowIfNull(envelope);
@@ -165,7 +221,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
             AssumptionsJson = envelope.AssumptionsJson,
             WarningsJson = envelope.WarningsJson,
             ProvenanceJson = envelope.ProvenanceJson,
-            ManifestPayloadBlobUri = row.ManifestPayloadBlobUri,
+            ManifestPayloadBlobUri = row.ManifestPayloadBlobUri
         };
     }
 }

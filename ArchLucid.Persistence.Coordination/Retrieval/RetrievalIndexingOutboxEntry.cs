@@ -1,32 +1,43 @@
 namespace ArchLucid.Persistence.Coordination.Retrieval;
 
 /// <summary>
-/// One row in <c>dbo.RetrievalIndexingOutbox</c> (or in-memory equivalent) awaiting retrieval indexing.
+///     One row in <c>dbo.RetrievalIndexingOutbox</c> (or in-memory equivalent) awaiting retrieval indexing.
 /// </summary>
 public sealed class RetrievalIndexingOutboxEntry
 {
     public Guid OutboxId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid RunId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

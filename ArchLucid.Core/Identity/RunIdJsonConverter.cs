@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace ArchLucid.Core.Identity;
 
-/// <summary>JSON: run id as GUID string (round-trips with <see cref="RunId"/>).</summary>
+/// <summary>JSON: run id as GUID string (round-trips with <see cref="RunId" />).</summary>
 public sealed class RunIdJsonConverter : JsonConverter<RunId>
 {
     /// <inheritdoc />

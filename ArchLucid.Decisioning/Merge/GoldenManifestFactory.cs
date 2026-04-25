@@ -4,7 +4,7 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
-/// Builds the empty golden manifest shell before agent proposals and decision nodes are applied.
+///     Builds the empty golden manifest shell before agent proposals and decision nodes are applied.
 /// </summary>
 public static class GoldenManifestFactory
 {
@@ -21,22 +21,23 @@ public static class GoldenManifestFactory
             Services = [],
             Datastores = [],
             Relationships = [],
-            Governance = new ManifestGovernance
-            {
-                ComplianceTags = [],
-                PolicyConstraints = request.Constraints.ToList(),
-                RequiredControls = [],
-                RiskClassification = "Moderate",
-                CostClassification = "Moderate",
-            },
+            Governance =
+                new ManifestGovernance
+                {
+                    ComplianceTags = [],
+                    PolicyConstraints = request.Constraints.ToList(),
+                    RequiredControls = [],
+                    RiskClassification = "Moderate",
+                    CostClassification = "Moderate"
+                },
             Metadata = new ManifestMetadata
             {
                 ManifestVersion = manifestVersion,
                 ParentManifestVersion = parentManifestVersion,
                 ChangeDescription = $"Merged manifest for run {runId}",
                 DecisionTraceIds = [],
-                CreatedUtc = DateTime.UtcNow,
-            },
+                CreatedUtc = DateTime.UtcNow
+            }
         };
     }
 }

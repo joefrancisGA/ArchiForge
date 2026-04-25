@@ -4,21 +4,25 @@ namespace ArchLucid.Persistence.Tenancy;
 
 internal static class TenantTierSql
 {
-    internal static string ToTierString(TenantTier tier) =>
-        tier switch
+    internal static string ToTierString(TenantTier tier)
+    {
+        return tier switch
         {
             TenantTier.Free => "Free",
             TenantTier.Standard => "Standard",
             TenantTier.Enterprise => "Enterprise",
-            _ => throw new ArgumentOutOfRangeException(nameof(tier), tier, null),
+            _ => throw new ArgumentOutOfRangeException(nameof(tier), tier, null)
         };
+    }
 
-    internal static TenantTier ParseTier(string value) =>
-        value switch
+    internal static TenantTier ParseTier(string value)
+    {
+        return value switch
         {
             "Free" => TenantTier.Free,
             "Standard" => TenantTier.Standard,
             "Enterprise" => TenantTier.Enterprise,
-            _ => TenantTier.Standard,
+            _ => TenantTier.Standard
         };
+    }
 }

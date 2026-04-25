@@ -1,8 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-
 using ArchLucid.Persistence.Data.Repositories;
-
 using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;
@@ -24,7 +22,8 @@ public sealed class DapperAgentEvaluationRepositoryContractTests(SqlServerPersis
         return new AgentEvaluationRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
     }
 
-    protected override async Task PrepareRunAndTaskAsync(string requestId, string runId, string taskId, CancellationToken ct)
+    protected override async Task PrepareRunAndTaskAsync(string requestId, string runId, string taskId,
+        CancellationToken ct)
     {
         await using SqlConnection connection = new(fixture.ConnectionString);
         await connection.OpenAsync(ct);
@@ -38,7 +37,7 @@ public sealed class DapperAgentEvaluationRepositoryContractTests(SqlServerPersis
             Objective = "seed",
             Status = AgentTaskStatus.Created,
             CreatedUtc = DateTime.UtcNow,
-            EvidenceBundleRef = "eb-seed",
+            EvidenceBundleRef = "eb-seed"
         };
 
         await ArchitectureCommitTestSeed.InsertAgentTaskAsync(connection, task, ct);

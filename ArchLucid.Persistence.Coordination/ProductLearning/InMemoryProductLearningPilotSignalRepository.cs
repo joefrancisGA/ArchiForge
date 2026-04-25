@@ -2,12 +2,14 @@ using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
-/// <summary>In-memory store for Development / tests (deterministic ordering by <see cref="ProductLearningPilotSignalRecord.RecordedUtc"/> desc).</summary>
+/// <summary>
+///     In-memory store for Development / tests (deterministic ordering by
+///     <see cref="ProductLearningPilotSignalRecord.RecordedUtc" /> desc).
+/// </summary>
 public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearningPilotSignalRepository
 {
-    private readonly object _sync = new();
-
     private readonly List<ProductLearningPilotSignalRecord> _rows = [];
+    private readonly object _sync = new();
 
     public Task InsertAsync(ProductLearningPilotSignalRecord record, CancellationToken cancellationToken)
     {
@@ -29,9 +31,7 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
 
         ProductLearningPilotSignalRecord stored = record with
         {
-            SignalId = signalId,
-            RecordedUtc = recordedUtc,
-            TriageStatus = triage,
+            SignalId = signalId, RecordedUtc = recordedUtc, TriageStatus = triage
         };
 
         lock (_sync)
@@ -173,21 +173,14 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
             projectId,
             sinceUtc);
 
-        IReadOnlyList<ImprovementOpportunity> list = ProductLearningSignalAggregations.BuildImprovementOpportunityCandidates(
-            scoped,
-            minPoorOutcomeSignals,
-            minRevisedSignals,
-            take);
+        IReadOnlyList<ImprovementOpportunity> list =
+            ProductLearningSignalAggregations.BuildImprovementOpportunityCandidates(
+                scoped,
+                minPoorOutcomeSignals,
+                minRevisedSignals,
+                take);
 
         return Task.FromResult(list);
-    }
-
-    private IReadOnlyList<ProductLearningPilotSignalRecord> SnapshotRows()
-    {
-        lock (_sync)
-
-            return _rows.Select(static r => r with { }).ToList();
-
     }
 
     public Task<int> CountSignalsInScopeAsync(
@@ -228,5 +221,12 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
             .Count();
 
         return Task.FromResult(n);
+    }
+
+    private IReadOnlyList<ProductLearningPilotSignalRecord> SnapshotRows()
+    {
+        lock (_sync)
+
+            return _rows.Select(static r => r with { }).ToList();
     }
 }

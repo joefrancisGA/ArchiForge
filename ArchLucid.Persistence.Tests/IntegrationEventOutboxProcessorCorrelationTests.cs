@@ -30,7 +30,8 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
 
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Guid outboxId = Guid.NewGuid();
@@ -63,7 +64,8 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
             stopped
                 .Where(a =>
                     a.OperationName == "IntegrationEventOutbox.ProcessEntry"
-                    && string.Equals(a.GetTagItem("archlucid.outbox_id") as string, outboxIdTag, StringComparison.Ordinal))
+                    && string.Equals(a.GetTagItem("archlucid.outbox_id") as string, outboxIdTag,
+                        StringComparison.Ordinal))
                 .ToList();
 
         entryActivities.Should().ContainSingle();
@@ -88,7 +90,8 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
 
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Guid outboxId = Guid.NewGuid();
@@ -120,12 +123,14 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
             stopped
                 .Where(a =>
                     a.OperationName == "IntegrationEventOutbox.ProcessEntry"
-                    && string.Equals(a.GetTagItem("archlucid.outbox_id") as string, outboxIdTag, StringComparison.Ordinal))
+                    && string.Equals(a.GetTagItem("archlucid.outbox_id") as string, outboxIdTag,
+                        StringComparison.Ordinal))
                 .ToList();
 
         entryActivities.Should().ContainSingle();
         Activity entryActivity = entryActivities[0];
-        entryActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should().Be($"integration-outbox:{outboxId:D}");
+        entryActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should()
+            .Be($"integration-outbox:{outboxId:D}");
         entryActivity.GetTagItem("archlucid.outbox_id").Should().Be(outboxId.ToString("D"));
         entryActivity.GetTagItem("archlucid.run_id").Should().BeNull();
     }

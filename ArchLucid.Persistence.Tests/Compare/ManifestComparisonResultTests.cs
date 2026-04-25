@@ -16,8 +16,8 @@ public sealed class ManifestComparisonResultTests
                 new DiffItem { DiffKind = DiffKind.Added },
                 new DiffItem { DiffKind = DiffKind.Added },
                 new DiffItem { DiffKind = DiffKind.Removed },
-                new DiffItem { DiffKind = DiffKind.Changed },
-            ],
+                new DiffItem { DiffKind = DiffKind.Changed }
+            ]
         };
 
         result.AddedCount.Should().Be(2);

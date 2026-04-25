@@ -14,7 +14,8 @@ internal static class SqlRelationalScalarCount
         object param,
         CancellationToken ct)
     {
-        int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, transaction, cancellationToken: ct));
+        int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, transaction,
+            cancellationToken: ct));
 
         return count;
     }

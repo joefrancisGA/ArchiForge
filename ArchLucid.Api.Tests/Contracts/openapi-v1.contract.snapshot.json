@@ -239,6 +239,36 @@
         },
         "type": "object"
       },
+      "AgentExecutionCostPreviewResponse": {
+        "properties": {
+          "deploymentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "maxCompletionTokens": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mode"
+        ],
+        "type": "object"
+      },
       "AgentExecutionTrace": {
         "properties": {
           "agentType": {
@@ -1630,6 +1660,15 @@
               "null",
               "string"
             ]
+          },
+          "pilotAoaiDeploymentSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "realModeFellBackToSimulator": {
+            "type": "boolean"
           },
           "requestId": {
             "type": "string"
@@ -5308,6 +5347,82 @@
         },
         "type": "object"
       },
+      "FindingInspectEvidenceItem": {
+        "properties": {
+          "artifactId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "excerpt": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lineRange": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "FindingInspectResponse": {
+        "properties": {
+          "auditRowId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionRuleId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionRuleName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/FindingInspectEvidenceItem"
+            },
+            "type": "array"
+          },
+          "findingId": {
+            "type": "string"
+          },
+          "manifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "typedPayload": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonElement"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
       "FindingLlmAuditResult": {
         "properties": {
           "agentType": {
@@ -5500,6 +5615,17 @@
           "schemaVersion": {
             "format": "int32",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "FirstTenantFunnelEventRequest": {
+        "properties": {
+          "event": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -6509,6 +6635,7 @@
         ],
         "type": "object"
       },
+      "JsonElement": {},
       "LearningPlanDetailResponse": {
         "properties": {
           "actionSteps": {
@@ -8128,6 +8255,150 @@
         },
         "type": "object"
       },
+      "PolicyPackDryRunDeltaCounts": {
+        "properties": {
+          "evaluated": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "runMissing": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "wouldAllow": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "wouldBlock": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunRequest": {
+        "properties": {
+          "evaluateAgainstRunIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "proposedThresholds": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunResponse": {
+        "properties": {
+          "deltaCounts": {
+            "$ref": "#/components/schemas/PolicyPackDryRunDeltaCounts"
+          },
+          "evaluatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyPackDryRunRunItem"
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pageSize": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "policyPackId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "proposedThresholdsRedactedJson": {
+            "type": "string"
+          },
+          "returnedRuns": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalRequestedRuns": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunRunItem": {
+        "properties": {
+          "findingsBySeverity": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyPackDryRunSeverityCount"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "runMissing": {
+            "type": "boolean"
+          },
+          "thresholdOutcomes": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyPackDryRunThresholdOutcome"
+            },
+            "type": "array"
+          },
+          "wouldBlock": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunSeverityCount": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackDryRunThresholdOutcome": {
+        "properties": {
+          "actualValue": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "key": {
+            "type": "string"
+          },
+          "proposedValue": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "wouldBreach": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "PolicyPackVersion": {
         "properties": {
           "contentJson": {
@@ -8541,6 +8812,87 @@
           },
           "version": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RecentPilotRunDeltaSummaryResponse": {
+        "properties": {
+          "isDemoTenant": {
+            "type": "boolean"
+          },
+          "manifestCommittedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "runCreatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "timeToCommittedManifestTotalSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "topFindingSeverity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "totalFindings": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "RecentPilotRunDeltasResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RecentPilotRunDeltaSummaryResponse"
+            },
+            "type": "array"
+          },
+          "medianTimeToCommittedManifestTotalSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "medianTotalFindings": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "requestedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "returnedCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -9502,6 +9854,9 @@
             },
             "type": "array"
           },
+          "childCascade": {
+            "$ref": "#/components/schemas/RunArchiveChildCascadeCounts"
+          },
           "updatedCount": {
             "format": "int32",
             "type": "integer"
@@ -9533,6 +9888,9 @@
             },
             "type": "array"
           },
+          "childCascade": {
+            "$ref": "#/components/schemas/RunArchiveChildCascadeCounts"
+          },
           "failed": {
             "items": {
               "$ref": "#/components/schemas/RunArchiveByIdFailure"
@@ -9545,6 +9903,43 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "RunArchiveChildCascadeCounts": {
+        "properties": {
+          "agentExecutionTraces": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "artifactBundles": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "comparisonRecords": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "contextSnapshots": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "decisioningTraces": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "findingsSnapshots": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "goldenManifests": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "graphSnapshots": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -10120,8 +10515,17 @@
               "string"
             ]
           },
+          "pilotAoaiDeploymentSnapshot": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "projectId": {
             "type": "string"
+          },
+          "realModeFellBackToSimulator": {
+            "type": "boolean"
           },
           "rowVersion": {
             "format": "byte",
@@ -10871,6 +11275,17 @@
             "format": "date-time",
             "type": "string"
           },
+          "enterpriseSeatsLimit": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "enterpriseSeatsUsed": {
+            "format": "int32",
+            "type": "integer"
+          },
           "entraTenantId": {
             "format": "uuid",
             "type": [
@@ -11555,6 +11970,342 @@
         },
         "tags": [
           "ArchLucid.Api"
+        ]
+      }
+    },
+    "/scim/v2/Groups": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "startIndex",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      }
+    },
+    "/scim/v2/Groups/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimGroups"
+        ]
+      }
+    },
+    "/scim/v2/ResourceTypes": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimDiscovery"
+        ]
+      }
+    },
+    "/scim/v2/Schemas": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimDiscovery"
+        ]
+      }
+    },
+    "/scim/v2/ServiceProviderConfig": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimDiscovery"
+        ]
+      }
+    },
+    "/scim/v2/Users": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "startIndex",
+            "schema": {
+              "default": 1,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "default": 100,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      }
+    },
+    "/scim/v2/Users/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/scim\u002Bjson": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimUsers"
         ]
       }
     },
@@ -12281,6 +13032,57 @@
         ]
       }
     },
+    "/v1/admin/scim/tokens": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimTokensAdmin"
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimTokensAdmin"
+        ]
+      }
+    },
+    "/v1/admin/scim/tokens/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "ScimTokensAdmin"
+        ]
+      }
+    },
     "/v1/admin/security-trust/publications": {
       "post": {
         "requestBody": {
@@ -12330,6 +13132,41 @@
         },
         "tags": [
           "SecurityTrustPublication"
+        ]
+      }
+    },
+    "/v1/admin/support-bundle": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {}
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "SupportBundle"
         ]
       }
     },
@@ -13183,6 +14020,35 @@
         },
         "tags": [
           "Advisory"
+        ]
+      }
+    },
+    "/v1/agent-execution/cost-preview": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentExecutionCostPreviewResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentExecutionCostPreviewResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentExecutionCostPreviewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "AgentExecutionCostPreview"
         ]
       }
     },
@@ -21224,6 +22090,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "pilotTryRealModeFellBack",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -24573,6 +25447,78 @@
         ]
       }
     },
+    "/v1/diagnostics/first-tenant-funnel": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FirstTenantFunnelEventRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FirstTenantFunnelEventRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/FirstTenantFunnelEventRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "ClientErrorTelemetry"
+        ]
+      }
+    },
     "/v1/diagnostics/operator-task-success-rates": {
       "get": {
         "responses": {
@@ -26050,6 +26996,105 @@
         },
         "tags": [
           "Explanation"
+        ]
+      }
+    },
+    "/v1/findings/{findingId}/inspect": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "FindingInspect"
         ]
       }
     },
@@ -27739,6 +28784,140 @@
                 }
               },
               "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Governance"
+        ]
+      }
+    },
+    "/v1/governance/policy-packs/{id}/dry-run": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackDryRunRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackDryRunRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackDryRunRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackDryRunResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "402": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payment Required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -29565,6 +30744,27 @@
         ]
       }
     },
+    "/v1/marketing/trust-center/evidence-pack.zip": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {}
+            },
+            "description": "OK"
+          },
+          "304": {
+            "content": {
+              "application/zip": {}
+            },
+            "description": "Not Modified"
+          }
+        },
+        "tags": [
+          "TrustCenterEvidencePack"
+        ]
+      }
+    },
     "/v1/marketing/why-archlucid-pack.pdf": {
       "get": {
         "responses": {
@@ -29954,6 +31154,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PilotScorecardResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      }
+    },
+    "/v1/pilots/runs/recent-deltas": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "count",
+            "schema": {
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecentPilotRunDeltasResponse"
                 }
               }
             },
@@ -31877,6 +33130,26 @@
               }
             },
             "description": "Conflict"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error"
           }
         },
         "tags": [
@@ -32762,6 +34035,9 @@
       "name": "AdvisoryScheduling"
     },
     {
+      "name": "AgentExecutionCostPreview"
+    },
+    {
       "name": "AlertRoutingSubscriptions"
     },
     {
@@ -32870,6 +34146,9 @@
       "name": "FindingFeedback"
     },
     {
+      "name": "FindingInspect"
+    },
+    {
       "name": "Governance"
     },
     {
@@ -32948,10 +34227,25 @@
       "name": "Runs"
     },
     {
+      "name": "ScimDiscovery"
+    },
+    {
+      "name": "ScimGroups"
+    },
+    {
+      "name": "ScimTokensAdmin"
+    },
+    {
+      "name": "ScimUsers"
+    },
+    {
       "name": "ScopeDebug"
     },
     {
       "name": "SecurityTrustPublication"
+    },
+    {
+      "name": "SupportBundle"
     },
     {
       "name": "TeamsIncomingWebhookConnections"
@@ -32976,6 +34270,9 @@
     },
     {
       "name": "TrialLocalIdentityAuth"
+    },
+    {
+      "name": "TrustCenterEvidencePack"
     },
     {
       "name": "ValueReport"

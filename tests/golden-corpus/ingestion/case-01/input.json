@@ -1,0 +1,32 @@
+{
+  "infrastructureDeclaration": {
+    "name": "state",
+    "format": "terraform-show-json",
+    "declarationId": "ingestion-case-01",
+    "terraformDocument": {
+      "format_version": "1.0",
+      "values": {
+        "root_module": {
+          "resources": [
+            {
+              "address": "azurerm_resource_group.main",
+              "mode": "managed",
+              "type": "azurerm_resource_group",
+              "name": "main",
+              "provider_name": "registry.terraform.io/hashicorp/azurerm",
+              "values": { "location": "eastus", "name": "rg-demo" }
+            },
+            {
+              "address": "azurerm_storage_account.data",
+              "mode": "managed",
+              "type": "azurerm_storage_account",
+              "name": "data",
+              "provider_name": "registry.terraform.io/hashicorp/azurerm",
+              "values": { "name": "stdemo001", "resource_group_name": "rg-demo" }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

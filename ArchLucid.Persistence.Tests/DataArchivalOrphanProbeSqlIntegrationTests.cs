@@ -15,55 +15,72 @@ using Microsoft.Extensions.Logging.Abstractions;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// After run archival (<see cref="DataArchivalCoordinator"/>), authority rows remain in <c>dbo.Runs</c> (soft archive);
-/// child rows keyed by <c>RunId</c> must not appear as orphans to the same probes as
-/// <see cref="ArchLucid.Host.Core.Hosted.DataConsistencyOrphanProbeHostedService"/>.
+///     After run archival (<see cref="DataArchivalCoordinator" />), authority rows remain in <c>dbo.Runs</c> (soft
+///     archive);
+///     child rows keyed by <c>RunId</c> must not appear as orphans to the same probes as
+///     <see cref="ArchLucid.Host.Core.Hosted.DataConsistencyOrphanProbeHostedService" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "SqlServer")]
 public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
+    // Keep in sync with ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanRemediationSql.SelectOrphanFindingsSnapshotIds
+    // (admin dry-run / remediation uses the same selection).
+    private const string AdminStyleOrphanFindingsSnapshotSelect = """
+                                                                  SELECT TOP (@MaxRows) f.FindingsSnapshotId
+                                                                  FROM dbo.FindingsSnapshots f
+                                                                  WHERE NOT EXISTS (
+                                                                      SELECT 1
+                                                                      FROM dbo.Runs r
+                                                                      WHERE r.RunId = f.RunId)
+                                                                    AND NOT EXISTS (
+                                                                      SELECT 1
+                                                                      FROM dbo.GoldenManifests g
+                                                                      WHERE g.FindingsSnapshotId = f.FindingsSnapshotId)
+                                                                  ORDER BY f.CreatedUtc ASC;
+                                                                  """;
+
     // Keep in sync with ArchLucid.Host.Core.DataConsistency.DataConsistencyOrphanProbeSql.
     private const string ComparisonRecordsLeftRunId = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.ComparisonRecords c
-        WHERE c.LeftRunId IS NOT NULL
-          AND TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId) IS NOT NULL
-          AND NOT EXISTS (
-              SELECT 1
-              FROM dbo.Runs r
-              WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId));
-        """;
+                                                      SELECT COUNT_BIG(1)
+                                                      FROM dbo.ComparisonRecords c
+                                                      WHERE c.LeftRunId IS NOT NULL
+                                                        AND TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId) IS NOT NULL
+                                                        AND NOT EXISTS (
+                                                            SELECT 1
+                                                            FROM dbo.Runs r
+                                                            WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId));
+                                                      """;
 
     private const string ComparisonRecordsRightRunId = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.ComparisonRecords c
-        WHERE c.RightRunId IS NOT NULL
-          AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
-          AND NOT EXISTS (
-              SELECT 1
-              FROM dbo.Runs r
-              WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId));
-        """;
+                                                       SELECT COUNT_BIG(1)
+                                                       FROM dbo.ComparisonRecords c
+                                                       WHERE c.RightRunId IS NOT NULL
+                                                         AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
+                                                         AND NOT EXISTS (
+                                                             SELECT 1
+                                                             FROM dbo.Runs r
+                                                             WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId));
+                                                       """;
 
     private const string GoldenManifestsRunId = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.GoldenManifests g
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM dbo.Runs r
-            WHERE r.RunId = g.RunId);
-        """;
+                                                SELECT COUNT_BIG(1)
+                                                FROM dbo.GoldenManifests g
+                                                WHERE NOT EXISTS (
+                                                    SELECT 1
+                                                    FROM dbo.Runs r
+                                                    WHERE r.RunId = g.RunId);
+                                                """;
 
     private const string FindingsSnapshotsRunId = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.FindingsSnapshots f
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM dbo.Runs r
-            WHERE r.RunId = f.RunId);
-        """;
+                                                  SELECT COUNT_BIG(1)
+                                                  FROM dbo.FindingsSnapshots f
+                                                  WHERE NOT EXISTS (
+                                                      SELECT 1
+                                                      FROM dbo.Runs r
+                                                      WHERE r.RunId = f.RunId);
+                                                  """;
 
     private static readonly Guid SeedTenantId = Guid.Parse("10101010-1010-1010-1010-101010101010");
 
@@ -100,23 +117,23 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
                 graphId,
                 findingsSnapId,
                 decisionTraceId,
-                projectSlug: "ContractSeed",
+                "ContractSeed",
                 CancellationToken.None);
 
             const string insertManifest = """
-                IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
-                INSERT INTO dbo.GoldenManifests
-                (ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                 CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                 MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                 ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson, WarningsJson, ProvenanceJson,
-                 TenantId, WorkspaceId, ProjectId)
-                VALUES
-                (@ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                 SYSUTCDATETIME(), N'h', N'rs', N'1', N'rh', N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
-                 N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
-                 @TenantId, @WorkspaceId, @ScopeProjectId);
-                """;
+                                          IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
+                                          INSERT INTO dbo.GoldenManifests
+                                          (ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                           CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                           MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                           ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson, WarningsJson, ProvenanceJson,
+                                           TenantId, WorkspaceId, ProjectId)
+                                          VALUES
+                                          (@ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                           SYSUTCDATETIME(), N'h', N'rs', N'1', N'rh', N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
+                                           N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
+                                           @TenantId, @WorkspaceId, @ScopeProjectId);
+                                          """;
 
             await setup.ExecuteAsync(
                 new CommandDefinition(
@@ -131,37 +148,30 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
                         DecisionTraceId = decisionTraceId,
                         TenantId = SeedTenantId,
                         WorkspaceId = SeedWorkspaceId,
-                        ScopeProjectId = SeedScopeProjectId,
+                        ScopeProjectId = SeedScopeProjectId
                     },
                     cancellationToken: CancellationToken.None));
 
             string comparisonId = "cmp-" + runId;
 
             const string insertComparison = """
-                IF NOT EXISTS (SELECT 1 FROM dbo.ComparisonRecords WHERE ComparisonRecordId = @ComparisonRecordId)
-                INSERT INTO dbo.ComparisonRecords
-                (ComparisonRecordId, ComparisonType, LeftRunId, RightRunId, Format, PayloadJson, CreatedUtc)
-                VALUES
-                (@ComparisonRecordId, N'test', @LeftRunId, NULL, N'json', N'{}', SYSUTCDATETIME());
-                """;
+                                            IF NOT EXISTS (SELECT 1 FROM dbo.ComparisonRecords WHERE ComparisonRecordId = @ComparisonRecordId)
+                                            INSERT INTO dbo.ComparisonRecords
+                                            (ComparisonRecordId, ComparisonType, LeftRunId, RightRunId, Format, PayloadJson, CreatedUtc)
+                                            VALUES
+                                            (@ComparisonRecordId, N'test', @LeftRunId, NULL, N'json', N'{}', SYSUTCDATETIME());
+                                            """;
 
             await setup.ExecuteAsync(
                 new CommandDefinition(
                     insertComparison,
-                    new
-                    {
-                        ComparisonRecordId = comparisonId,
-                        LeftRunId = runId
-                    },
+                    new { ComparisonRecordId = comparisonId, LeftRunId = runId },
                     cancellationToken: CancellationToken.None));
 
             await setup.ExecuteAsync(
                 new CommandDefinition(
                     "UPDATE dbo.Runs SET CreatedUtc = DATEADD(day, -400, SYSUTCDATETIME()) WHERE RunId = @RunGuid;",
-                    new
-                    {
-                        RunGuid = runGuid
-                    },
+                    new { RunGuid = runGuid },
                     cancellationToken: CancellationToken.None));
         }
 
@@ -177,9 +187,7 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         await coordinator.RunOnceAsync(
             new DataArchivalOptions
             {
-                RunsRetentionDays = 30,
-                DigestsRetentionDays = 0,
-                ConversationsRetentionDays = 0,
+                RunsRetentionDays = 30, DigestsRetentionDays = 0, ConversationsRetentionDays = 0
             },
             CancellationToken.None);
 
@@ -188,10 +196,7 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         DateTime? archivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.Runs WHERE RunId = @RunGuid;",
-                new
-                {
-                    RunGuid = runGuid
-                },
+                new { RunGuid = runGuid },
                 cancellationToken: CancellationToken.None));
 
         archivedUtc.Should().NotBeNull();
@@ -199,34 +204,36 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         DateTime? manifestArchivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;",
-                new
-                {
-                    ManifestId = manifestId
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: CancellationToken.None));
 
-        manifestArchivedUtc.Should().NotBeNull(because: "bulk run archival cascades ArchivedUtc to dbo.GoldenManifests");
+        manifestArchivedUtc.Should().NotBeNull("bulk run archival cascades ArchivedUtc to dbo.GoldenManifests");
 
         DateTime? findingsArchivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.FindingsSnapshots WHERE FindingsSnapshotId = @FindingsSnapshotId;",
-                new
-                {
-                    FindingsSnapshotId = findingsSnapId
-                },
+                new { FindingsSnapshotId = findingsSnapId },
                 cancellationToken: CancellationToken.None));
 
-        findingsArchivedUtc.Should().NotBeNull(because: "bulk run archival cascades ArchivedUtc to dbo.FindingsSnapshots");
+        findingsArchivedUtc.Should().NotBeNull("bulk run archival cascades ArchivedUtc to dbo.FindingsSnapshots");
 
         long leftOrphans = await ScalarCountAsync(verify, ComparisonRecordsLeftRunId, CancellationToken.None);
         long rightOrphans = await ScalarCountAsync(verify, ComparisonRecordsRightRunId, CancellationToken.None);
         long goldenOrphans = await ScalarCountAsync(verify, GoldenManifestsRunId, CancellationToken.None);
         long findingsOrphans = await ScalarCountAsync(verify, FindingsSnapshotsRunId, CancellationToken.None);
 
-        leftOrphans.Should().Be(0L, because: "ComparisonRecords.LeftRunId probe after archival");
-        rightOrphans.Should().Be(0L, because: "ComparisonRecords.RightRunId probe after archival");
-        goldenOrphans.Should().Be(0L, because: "GoldenManifests.RunId probe after archival");
-        findingsOrphans.Should().Be(0L, because: "FindingsSnapshots.RunId probe after archival");
+        leftOrphans.Should().Be(0L, "ComparisonRecords.LeftRunId probe after archival");
+        rightOrphans.Should().Be(0L, "ComparisonRecords.RightRunId probe after archival");
+        goldenOrphans.Should().Be(0L, "GoldenManifests.RunId probe after archival");
+        findingsOrphans.Should().Be(0L, "FindingsSnapshots.RunId probe after archival");
+
+        // Same rows the admin POST …/orphan-findings-snapshots would list (not referenced by a golden manifest as orphan).
+        IReadOnlyList<Guid> adminOrphanList = (await verify.QueryAsync<Guid>(
+            new CommandDefinition(
+                AdminStyleOrphanFindingsSnapshotSelect,
+                new { MaxRows = 100 },
+                cancellationToken: CancellationToken.None))).ToList();
+        adminOrphanList.Should().BeEmpty("admin-style findings-snapshot orphan select after cascaded archival");
     }
 
     private static async Task<long> ScalarCountAsync(SqlConnection connection, string sql, CancellationToken ct)

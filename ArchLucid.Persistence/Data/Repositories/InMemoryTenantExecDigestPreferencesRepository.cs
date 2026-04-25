@@ -4,7 +4,10 @@ using ArchLucid.Contracts.Notifications;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
-/// <summary>In-memory store for integration tests and <see cref="ArchLucid.Core.Configuration.StorageProviderNames.InMemory"/>.</summary>
+/// <summary>
+///     In-memory store for integration tests and
+///     <see cref="ArchLucid.Core.Configuration.StorageProviderNames.InMemory" />.
+/// </summary>
 public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecDigestPreferencesRepository
 {
     private readonly ConcurrentDictionary<Guid, ExecDigestPreferencesResponse> _store = new();
@@ -36,11 +39,15 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
             TenantId = tenantId,
             IsConfigured = true,
             EmailEnabled = emailEnabled,
-            RecipientEmails = recipientEmails is null ? [] : recipientEmails.Where(static e => !string.IsNullOrWhiteSpace(e)).Select(static e => e.Trim()).ToList(),
+            RecipientEmails =
+                recipientEmails is null
+                    ? []
+                    : recipientEmails.Where(static e => !string.IsNullOrWhiteSpace(e)).Select(static e => e.Trim())
+                        .ToList(),
             IanaTimeZoneId = string.IsNullOrWhiteSpace(ianaTimeZoneId) ? "UTC" : ianaTimeZoneId.Trim(),
             DayOfWeek = dayOfWeek,
             HourOfDay = hourOfDay,
-            UpdatedUtc = DateTimeOffset.UtcNow,
+            UpdatedUtc = DateTimeOffset.UtcNow
         };
 
         _store[tenantId] = row;
@@ -80,7 +87,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepository : ITenantExecD
             IanaTimeZoneId = existing.IanaTimeZoneId,
             DayOfWeek = existing.DayOfWeek,
             HourOfDay = existing.HourOfDay,
-            UpdatedUtc = DateTimeOffset.UtcNow,
+            UpdatedUtc = DateTimeOffset.UtcNow
         };
 
         _store[tenantId] = updated;

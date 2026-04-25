@@ -7,17 +7,26 @@ public sealed class SqlRelationalBackfillReport
 {
     public int ProcessedCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int SuccessCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int FailureCount
     {
-        get; set;
+        get;
+        set;
     }
-    public List<SqlRelationalBackfillFailure> Failures { get; } = [];
+
+    public List<SqlRelationalBackfillFailure> Failures
+    {
+        get;
+    } = [];
 }
 
 [ExcludeFromCodeCoverage(Justification = "Backfill failure row DTO; no logic.")]
@@ -25,14 +34,19 @@ public sealed class SqlRelationalBackfillFailure
 {
     public required string Stage
     {
-        get; init;
+        get;
+        init;
     }
+
     public required string EntityKey
     {
-        get; init;
+        get;
+        init;
     }
+
     public required string Message
     {
-        get; init;
+        get;
+        init;
     }
 }

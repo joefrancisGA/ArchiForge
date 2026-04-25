@@ -16,7 +16,7 @@ public interface IBillingLedger
         int workspaces,
         CancellationToken cancellationToken);
 
-    /// <summary>Inserts webhook dedupe row; returns false when <paramref name="dedupeKey"/> already exists.</summary>
+    /// <summary>Inserts webhook dedupe row; returns false when <paramref name="dedupeKey" /> already exists.</summary>
     Task<bool> TryInsertWebhookEventAsync(
         string dedupeKey,
         string provider,
@@ -26,7 +26,10 @@ public interface IBillingLedger
 
     Task MarkWebhookProcessedAsync(string dedupeKey, string resultStatus, CancellationToken cancellationToken);
 
-    /// <summary>When webhook insert is duplicate, returns the last <see cref="MarkWebhookProcessedAsync"/> status (e.g. Processed).</summary>
+    /// <summary>
+    ///     When webhook insert is duplicate, returns the last <see cref="MarkWebhookProcessedAsync" /> status (e.g.
+    ///     Processed).
+    /// </summary>
     Task<string?> GetWebhookEventResultStatusAsync(string dedupeKey, CancellationToken cancellationToken);
 
     Task ActivateSubscriptionAsync(
@@ -51,5 +54,6 @@ public interface IBillingLedger
     Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson, CancellationToken cancellationToken);
 
     /// <summary>Updates <c>SeatsPurchased</c> from a Marketplace <c>ChangeQuantity</c> webhook (GA path only).</summary>
-    Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson, CancellationToken cancellationToken);
+    Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson,
+        CancellationToken cancellationToken);
 }

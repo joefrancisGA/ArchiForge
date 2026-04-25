@@ -9,9 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Summary Evidence.
+///     Tests for Architecture Summary Evidence.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -24,7 +23,8 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -33,7 +33,8 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        CommitRunResponseDto? commitPayload =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         // Evidence is appended on the dedicated endpoint; the default markdown summary is options-driven and evidence-agnostic.
@@ -42,7 +43,8 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchLucidApiFactory factory
 
         summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ManifestSummaryResponse? summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
+        ManifestSummaryResponse? summaryPayload =
+            await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Summary.Should().Contain("## Evidence Context");
         summaryPayload.Summary.Should().Contain("### Policy Evidence");

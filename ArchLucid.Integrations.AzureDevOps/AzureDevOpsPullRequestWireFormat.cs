@@ -2,6 +2,8 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using JetBrains.Annotations;
+
 namespace ArchLucid.Integrations.AzureDevOps;
 
 /// <summary>
@@ -59,10 +61,11 @@ public static class AzureDevOpsPullRequestWireFormat
 
     private sealed class ThreadCreateDto
     {
-        public ThreadCommentDto[] Comments { get; set; } = [];
+        public ThreadCommentDto[] Comments { [UsedImplicitly] get; set; } = [];
 
         public int Status
         {
+            [UsedImplicitly]
             get; set;
         }
     }
@@ -71,36 +74,39 @@ public static class AzureDevOpsPullRequestWireFormat
     {
         public int ParentCommentId
         {
+            [UsedImplicitly]
             get; set;
         }
 
-        public string Content { get; set; } = string.Empty;
+        public string Content { [UsedImplicitly] get; set; } = string.Empty;
 
         public int CommentType
         {
+            [UsedImplicitly]
             get; set;
         }
     }
 
     private sealed class StatusCreateDto
     {
-        public string State { get; set; } = string.Empty;
+        public string State { [UsedImplicitly] get; set; } = string.Empty;
 
-        public string Description { get; set; } = string.Empty;
+        public string Description { [UsedImplicitly] get; set; } = string.Empty;
 
-        public StatusContextDto Context { get; set; } = new();
+        public StatusContextDto Context { [UsedImplicitly] get; set; } = new();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? TargetUrl
         {
+            [UsedImplicitly]
             get; set;
         }
     }
 
     private sealed class StatusContextDto
     {
-        public string Name { get; set; } = string.Empty;
+        public string Name { [UsedImplicitly] get; set; } = string.Empty;
 
-        public string Genre { get; set; } = string.Empty;
+        public string Genre { [UsedImplicitly] get; set; } = string.Empty;
     }
 }

@@ -1,0 +1,12 @@
+{
+  "CoveredRequirementCount": 1,
+  "UncoveredRequirementCount": 0,
+  "SecurityGapCount": 3,
+  "ComplianceGapCount": 2,
+  "UnresolvedIssueCount": 2,
+  "TopologyGaps": [
+    "Critical: missing peering",
+    "High: missing WAF in diagram",
+    "Low: ops dashboard not linked"
+  ]
+}

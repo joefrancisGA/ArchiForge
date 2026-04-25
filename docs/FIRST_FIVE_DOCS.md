@@ -1,3 +1,3 @@
-> **Scope:** Redirect — filename alias for the canonical onboarding hub.
+> **Scope:** Legacy filename stub (alternate spelling of `FIRST_5_DOCS.md`) for the former five-document spine; preserved only so existing bookmarks keep working. New readers should follow the redirect — this file is not the entry point.
 
-Canonical entry: [docs/START_HERE.md](START_HERE.md).
+> **Redirect:** **[READ_THIS_FIRST.md](READ_THIS_FIRST.md)** — single forced entry tree (replaces this stub).

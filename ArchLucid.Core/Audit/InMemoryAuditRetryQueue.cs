@@ -5,7 +5,7 @@ using ArchLucid.Core.Diagnostics;
 namespace ArchLucid.Core.Audit;
 
 /// <summary>
-/// Thread-safe bounded channel for audit retry; drops with a metric when full.
+///     Thread-safe bounded channel for audit retry; drops with a metric when full.
 /// </summary>
 public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
 {
@@ -15,13 +15,13 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
 
     private int _pending;
 
-    /// <summary>Creates a queue with the default capacity (<see cref="DefaultCapacity"/>).</summary>
+    /// <summary>Creates a queue with the default capacity (<see cref="DefaultCapacity" />).</summary>
     public InMemoryAuditRetryQueue()
         : this(DefaultCapacity)
     {
     }
 
-    /// <param name="capacity">Maximum queued events before <see cref="TryEnqueue"/> fails.</param>
+    /// <param name="capacity">Maximum queued events before <see cref="TryEnqueue" /> fails.</param>
     public InMemoryAuditRetryQueue(int capacity)
     {
         if (capacity < 1)
@@ -29,9 +29,7 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
 
         BoundedChannelOptions options = new(capacity)
         {
-            FullMode = BoundedChannelFullMode.DropWrite,
-            SingleReader = true,
-            SingleWriter = false,
+            FullMode = BoundedChannelFullMode.DropWrite, SingleReader = true, SingleWriter = false
         };
 
         _channel = Channel.CreateBounded<AuditEvent>(options);
@@ -61,8 +59,10 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
     }
 
     /// <inheritdoc />
-    public ValueTask<AuditEvent> DequeueAsync(CancellationToken cancellationToken) =>
-        _channel.Reader.ReadAsync(cancellationToken);
+    public ValueTask<AuditEvent> DequeueAsync(CancellationToken cancellationToken)
+    {
+        return _channel.Reader.ReadAsync(cancellationToken);
+    }
 
     /// <inheritdoc />
     public void NotifyPersistedSuccess()
@@ -88,8 +88,9 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
         return false;
     }
 
-    private static AuditEvent CopyAuditEvent(AuditEvent source) =>
-        new()
+    private static AuditEvent CopyAuditEvent(AuditEvent source)
+    {
+        return new AuditEvent
         {
             EventId = source.EventId,
             OccurredUtc = source.OccurredUtc,
@@ -103,6 +104,7 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
             ManifestId = source.ManifestId,
             ArtifactId = source.ArtifactId,
             DataJson = source.DataJson,
-            CorrelationId = source.CorrelationId,
+            CorrelationId = source.CorrelationId
         };
+    }
 }

@@ -6,16 +6,25 @@ using FluentAssertions;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Tests for Graph Snapshot Canonical Fingerprint.
+///     Tests for Graph Snapshot Canonical Fingerprint.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class GraphSnapshotCanonicalFingerprintTests
 {
     [Fact]
     public void AreEquivalent_WhenPreviousNull_ReturnsFalse()
     {
-        ContextSnapshot current = BuildSnapshot("p1", [new CanonicalObject { ObjectId = "a", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" }]);
+        ContextSnapshot current = BuildSnapshot("p1",
+        [
+            new CanonicalObject
+            {
+                ObjectId = "a",
+                ObjectType = "t",
+                Name = "n",
+                SourceType = "s",
+                SourceId = "1"
+            }
+        ]);
 
         bool equivalent = GraphSnapshotCanonicalFingerprint.AreEquivalent(null, current);
 
@@ -39,8 +48,22 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
     {
         List<CanonicalObject> objects =
         [
-            new() { ObjectId = "b", ObjectType = "type", Name = "B", SourceType = "src", SourceId = "2" },
-            new() { ObjectId = "a", ObjectType = "type", Name = "A", SourceType = "src", SourceId = "1" }
+            new()
+            {
+                ObjectId = "b",
+                ObjectType = "type",
+                Name = "B",
+                SourceType = "src",
+                SourceId = "2"
+            },
+            new()
+            {
+                ObjectId = "a",
+                ObjectType = "type",
+                Name = "A",
+                SourceType = "src",
+                SourceId = "1"
+            }
         ];
 
         ContextSnapshot previous = BuildSnapshot("proj", objects, Guid.NewGuid());
@@ -56,13 +79,41 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
     {
         List<CanonicalObject> setA =
         [
-            new() { ObjectId = "a", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" },
-            new() { ObjectId = "b", ObjectType = "t", Name = "n2", SourceType = "s", SourceId = "2" }
+            new()
+            {
+                ObjectId = "a",
+                ObjectType = "t",
+                Name = "n",
+                SourceType = "s",
+                SourceId = "1"
+            },
+            new()
+            {
+                ObjectId = "b",
+                ObjectType = "t",
+                Name = "n2",
+                SourceType = "s",
+                SourceId = "2"
+            }
         ];
         List<CanonicalObject> setB =
         [
-            new() { ObjectId = "b", ObjectType = "t", Name = "n2", SourceType = "s", SourceId = "2" },
-            new() { ObjectId = "a", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" }
+            new()
+            {
+                ObjectId = "b",
+                ObjectType = "t",
+                Name = "n2",
+                SourceType = "s",
+                SourceId = "2"
+            },
+            new()
+            {
+                ObjectId = "a",
+                ObjectType = "t",
+                Name = "n",
+                SourceType = "s",
+                SourceId = "1"
+            }
         ];
 
         string fa = GraphSnapshotCanonicalFingerprint.Compute(BuildSnapshot("p", setA));
@@ -71,7 +122,8 @@ public sealed class GraphSnapshotCanonicalFingerprintTests
         fa.Should().Be(fb);
     }
 
-    private static ContextSnapshot BuildSnapshot(string projectId, List<CanonicalObject> objects, Guid? snapshotId = null)
+    private static ContextSnapshot BuildSnapshot(string projectId, List<CanonicalObject> objects,
+        Guid? snapshotId = null)
     {
         return new ContextSnapshot
         {

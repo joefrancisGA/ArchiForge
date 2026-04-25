@@ -67,13 +67,6 @@ describe("nav-config structure", () => {
 
     for (const link of core!.links) {
       if (link.tier === "essential") {
-        // `/onboard` is the deliberate exception: first-session wizard is Execute-gated while staying on the Core Pilot
-        // essential path (see `docs/ONBOARDING_WIZARD.md`).
-        if (link.href === "/onboard") {
-          expect(link.requiredAuthority, link.href).toBe("ExecuteAuthority");
-          continue;
-        }
-
         expect(link.requiredAuthority, link.href).toBeUndefined();
       }
     }

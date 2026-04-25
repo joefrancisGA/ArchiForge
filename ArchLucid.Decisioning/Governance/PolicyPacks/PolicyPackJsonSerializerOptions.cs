@@ -5,11 +5,13 @@ using ArchLucid.Decisioning.Governance.Resolution;
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
-/// Shared <see cref="JsonSerializerOptions"/> for serializing/deserializing <see cref="PolicyPackContentDocument"/> and pack <c>ContentJson</c>.
+///     Shared <see cref="JsonSerializerOptions" /> for serializing/deserializing <see cref="PolicyPackContentDocument" />
+///     and pack <c>ContentJson</c>.
 /// </summary>
 /// <remarks>
-/// <strong>Why static:</strong> avoids allocating new options per IO operation (analyzers / performance). Do not mutate after first use.
-/// Used by <see cref="EffectiveGovernanceResolver"/>, loaders, and API surfaces that round-trip JSON.
+///     <strong>Why static:</strong> avoids allocating new options per IO operation (analyzers / performance). Do not
+///     mutate after first use.
+///     Used by <see cref="EffectiveGovernanceResolver" />, loaders, and API surfaces that round-trip JSON.
 /// </remarks>
 public static class PolicyPackJsonSerializerOptions
 {
@@ -22,6 +24,6 @@ public static class PolicyPackJsonSerializerOptions
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
+        AllowTrailingCommas = true
     };
 }

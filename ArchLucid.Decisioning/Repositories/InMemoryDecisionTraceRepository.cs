@@ -11,9 +11,9 @@ namespace ArchLucid.Decisioning.Repositories;
 public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 {
     private const int MaxEntries = 500;
+    private readonly Lock _lock = new();
 
     private readonly List<DecisionTrace> _store = [];
-    private readonly Lock _lock = new();
 
     public Task SaveAsync(
         DecisionTrace trace,

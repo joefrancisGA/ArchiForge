@@ -12,7 +12,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
-/// Dapper access to <c>dbo.PolicyPackChangeLog</c> (INSERT and scoped reads only).
+///     Dapper access to <c>dbo.PolicyPackChangeLog</c> (INSERT and scoped reads only).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackChangeLogRepository(
@@ -34,19 +34,19 @@ public sealed class DapperPolicyPackChangeLogRepository(
         DateTime changedUtc = entry.ChangedUtc == default ? DateTime.UtcNow : entry.ChangedUtc;
 
         const string sql = """
-            INSERT INTO dbo.PolicyPackChangeLog
-            (
-                PolicyPackId, TenantId, WorkspaceId, ProjectId,
-                ChangeType, ChangedBy, ChangedUtc,
-                PreviousValue, NewValue, SummaryText
-            )
-            VALUES
-            (
-                @PolicyPackId, @TenantId, @WorkspaceId, @ProjectId,
-                @ChangeType, @ChangedBy, @ChangedUtc,
-                @PreviousValue, @NewValue, @SummaryText
-            );
-            """;
+                           INSERT INTO dbo.PolicyPackChangeLog
+                           (
+                               PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           )
+                           VALUES
+                           (
+                               @PolicyPackId, @TenantId, @WorkspaceId, @ProjectId,
+                               @ChangeType, @ChangedBy, @ChangedUtc,
+                               @PreviousValue, @NewValue, @SummaryText
+                           );
+                           """;
 
         object param = new
         {
@@ -59,7 +59,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
             ChangedUtc = changedUtc,
             entry.PreviousValue,
             entry.NewValue,
-            entry.SummaryText,
+            entry.SummaryText
         };
 
         (SqlConnection conn, bool ownsConnection) =
@@ -68,7 +68,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
         try
         {
             await conn.ExecuteAsync(
-                new CommandDefinition(sql, param, transaction: transaction, cancellationToken: cancellationToken));
+                new CommandDefinition(sql, param, transaction, cancellationToken: cancellationToken));
         }
         finally
         {
@@ -87,14 +87,14 @@ public sealed class DapperPolicyPackChangeLogRepository(
 
 
         const string sql = """
-            SELECT TOP (@MaxRows)
-                ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
-                ChangeType, ChangedBy, ChangedUtc,
-                PreviousValue, NewValue, SummaryText
-            FROM dbo.PolicyPackChangeLog
-            WHERE PolicyPackId = @PolicyPackId
-            ORDER BY ChangedUtc DESC;
-            """;
+                           SELECT TOP (@MaxRows)
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE PolicyPackId = @PolicyPackId
+                           ORDER BY ChangedUtc DESC;
+                           """;
 
         await using SqlConnection connection =
             await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -102,11 +102,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
         IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    PolicyPackId = policyPackId,
-                    MaxRows = maxRows
-                },
+                new { PolicyPackId = policyPackId, MaxRows = maxRows },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();
@@ -123,14 +119,14 @@ public sealed class DapperPolicyPackChangeLogRepository(
 
 
         const string sql = """
-            SELECT TOP (@MaxRows)
-                ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
-                ChangeType, ChangedBy, ChangedUtc,
-                PreviousValue, NewValue, SummaryText
-            FROM dbo.PolicyPackChangeLog
-            WHERE TenantId = @TenantId
-            ORDER BY ChangedUtc DESC;
-            """;
+                           SELECT TOP (@MaxRows)
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE TenantId = @TenantId
+                           ORDER BY ChangedUtc DESC;
+                           """;
 
         await using SqlConnection connection =
             await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -138,11 +134,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
         IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    MaxRows = maxRows
-                },
+                new { TenantId = tenantId, MaxRows = maxRows },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();
@@ -160,16 +152,16 @@ public sealed class DapperPolicyPackChangeLogRepository(
 
 
         const string sql = """
-            SELECT
-                ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
-                ChangeType, ChangedBy, ChangedUtc,
-                PreviousValue, NewValue, SummaryText
-            FROM dbo.PolicyPackChangeLog
-            WHERE TenantId = @TenantId
-              AND ChangedUtc >= @FromUtc
-              AND ChangedUtc < @ToUtc
-            ORDER BY ChangedUtc ASC;
-            """;
+                           SELECT
+                               ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                               ChangeType, ChangedBy, ChangedUtc,
+                               PreviousValue, NewValue, SummaryText
+                           FROM dbo.PolicyPackChangeLog
+                           WHERE TenantId = @TenantId
+                             AND ChangedUtc >= @FromUtc
+                             AND ChangedUtc < @ToUtc
+                           ORDER BY ChangedUtc ASC;
+                           """;
 
         await using SqlConnection connection =
             await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -177,12 +169,7 @@ public sealed class DapperPolicyPackChangeLogRepository(
         IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    FromUtc = fromUtc,
-                    ToUtc = toUtc
-                },
+                new { TenantId = tenantId, FromUtc = fromUtc, ToUtc = toUtc },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();

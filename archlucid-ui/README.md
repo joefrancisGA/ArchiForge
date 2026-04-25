@@ -71,9 +71,9 @@ The default experience is the **Pilot** path — four steps from an empty worksp
 New run (wizard) → pipeline runs → Commit → Artifacts
 ```
 
-**First-time operators:** open **Home** (`/`) and use the collapsible **Core Pilot checklist** panel (in-product label; step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The sidebar **Pilot** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default; **Show more links** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard).
+**First-time operators:** open **Home** (`/`) and use the collapsible **Core Pilot checklist** panel (in-product label; step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The sidebar **Pilot** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default; **Show analysis & investigation tools** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard).
 
-**End-to-end path:** Home → **New run** or **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two runs** / **Replay a run** / **Graph** (enable via **Show more links**).
+**End-to-end path:** Home → **New run** or **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two runs** / **Replay a run** / **Graph** (enable via **Show analysis & investigation tools**).
 
 - **Artifact review:** List (`[]` when empty), descriptor metadata, in-shell preview with raw disclosure, stable table order (name, then id — aligned with API).
 - **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
@@ -81,7 +81,7 @@ New run (wizard) → pipeline runs → Commit → Artifacts
 
 ## Operate — analysis (available once you have a committed run)
 
-Enable via **Show more links** in the sidebar. These are **Operate** analysis surfaces.
+Enable via **Show analysis & investigation tools** in the sidebar. These are **Operate** analysis surfaces.
 
 Use these when the next question is analytical:
 
@@ -128,10 +128,10 @@ This first wave is intentionally narrow and currently covers:
 
 This is a boundary-hardening step for clarity and operational accountability. It is **not** licensing, billing, or plan gating.
 
-- **Governance dashboard / Policy packs / Governance resolution** — approval workflows, segregation of duties, effective policy. Enable **Show more links**.
-- **Alerts** — open and acknowledged alerts (essential tier by default); rules, routing, and tuning via **Show advanced links**.
-- **Audit log** — append-only event search and CSV export. Enable **Show advanced links**.
-- **Governance workflow** — full approval, promotion, and activation surface. Enable **Show advanced links**.
+- **Governance dashboard / Policy packs / Governance resolution** — approval workflows, segregation of duties, effective policy. Enable **Show analysis & investigation tools** (extended links).
+- **Alerts** — open and acknowledged alerts (essential tier by default); rules, routing, and tuning via **Show governance, audit & admin controls** (advanced) when not on the default inbox surface.
+- **Audit log** — append-only event search and CSV export. Enable **Show governance, audit & admin controls** (advanced).
+- **Governance workflow** — full approval, promotion, and activation surface. Enable **Show governance, audit & admin controls** (advanced).
 
 ## Pilot feedback (58R)
 

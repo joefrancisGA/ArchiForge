@@ -5,31 +5,37 @@ public sealed class FindingEngineFailure
 {
     public required string EngineType
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Category
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ErrorMessage
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ExceptionType
     {
-        get; init;
+        get;
+        init;
     }
 
     public long DurationMs
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTime OccurredUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

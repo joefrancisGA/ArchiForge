@@ -24,40 +24,6 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Category", "Unit")]
 public sealed class AgentOutputEvaluationRecorderTests
 {
-    private sealed class EmptyReferenceCatalog : IAgentOutputReferenceCaseCatalog
-    {
-        public IReadOnlyList<AgentOutputReferenceCaseDefinition> Cases => [];
-    }
-
-    private sealed class CollectingLogger : ILogger<AgentOutputEvaluationRecorder>
-    {
-        public List<(LogLevel Level, string Text)> Entries { get; } = [];
-
-        public IDisposable BeginScope<TState>(TState state)
-            where TState : notnull => NullDisposable.Instance;
-
-        public bool IsEnabled(LogLevel logLevel) => true;
-
-        public void Log<TState>(
-            LogLevel logLevel,
-            EventId eventId,
-            TState state,
-            Exception? exception,
-            Func<TState, Exception?, string> formatter)
-        {
-            Entries.Add((logLevel, formatter(state, exception)));
-        }
-
-        private sealed class NullDisposable : IDisposable
-        {
-            public static readonly NullDisposable Instance = new();
-
-            public void Dispose()
-            {
-            }
-        }
-    }
-
     private static AgentOutputEvaluationRecorder CreateRecorder(
         IAgentExecutionTraceRepository traceRepository,
         ILogger<AgentOutputEvaluationRecorder> logger)
@@ -102,7 +68,7 @@ public sealed class AgentOutputEvaluationRecorderTests
                 TaskId = "task-1",
                 AgentType = AgentType.Topology,
                 ParseSucceeded = true,
-                ParsedResultJson = json,
+                ParsedResultJson = json
             },
             CancellationToken.None);
 
@@ -144,7 +110,7 @@ public sealed class AgentOutputEvaluationRecorderTests
                 TaskId = "task-1",
                 AgentType = AgentType.Topology,
                 ParseSucceeded = true,
-                ParsedResultJson = json,
+                ParsedResultJson = json
             },
             CancellationToken.None);
 
@@ -155,7 +121,8 @@ public sealed class AgentOutputEvaluationRecorderTests
 
         IReadOnlyList<DoubleMeasurementRecord> structural =
             capture.MeasurementsFor("archlucid_agent_output_structural_completeness_ratio");
-        IReadOnlyList<DoubleMeasurementRecord> semantic = capture.MeasurementsFor("archlucid_agent_output_semantic_score");
+        IReadOnlyList<DoubleMeasurementRecord> semantic =
+            capture.MeasurementsFor("archlucid_agent_output_semantic_score");
 
         structural.Should().ContainSingle();
         structural[0].Value.Should().Be(1.0);
@@ -163,7 +130,53 @@ public sealed class AgentOutputEvaluationRecorderTests
         semantic[0].Value.Should().BeGreaterThan(0.0);
     }
 
-    private readonly record struct DoubleMeasurementRecord(string Name, double Value, [UsedImplicitly] IReadOnlyList<KeyValuePair<string, object?>> Tags);
+    private sealed class EmptyReferenceCatalog : IAgentOutputReferenceCaseCatalog
+    {
+        public IReadOnlyList<AgentOutputReferenceCaseDefinition> Cases => [];
+    }
+
+    private sealed class CollectingLogger : ILogger<AgentOutputEvaluationRecorder>
+    {
+        public List<(LogLevel Level, string Text)> Entries
+        {
+            get;
+        } = [];
+
+        public IDisposable BeginScope<TState>(TState state)
+            where TState : notnull
+        {
+            return NullDisposable.Instance;
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return true;
+        }
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            Entries.Add((logLevel, formatter(state, exception)));
+        }
+
+        private sealed class NullDisposable : IDisposable
+        {
+            public static readonly NullDisposable Instance = new();
+
+            public void Dispose()
+            {
+            }
+        }
+    }
+
+    private readonly record struct DoubleMeasurementRecord(
+        string Name,
+        double Value,
+        [UsedImplicitly] IReadOnlyList<KeyValuePair<string, object?>> Tags);
 
     private sealed class EvaluationHistogramCapture : IDisposable
     {
@@ -177,12 +190,20 @@ public sealed class AgentOutputEvaluationRecorderTests
             _listener.Start();
         }
 
-        public static EvaluationHistogramCapture Start() => new();
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
 
-        public void Dispose() => _listener.Dispose();
+        public static EvaluationHistogramCapture Start()
+        {
+            return new EvaluationHistogramCapture();
+        }
 
-        public IReadOnlyList<DoubleMeasurementRecord> MeasurementsFor(string instrumentName) =>
-            _measures.Where(m => m.Name == instrumentName).ToList();
+        public IReadOnlyList<DoubleMeasurementRecord> MeasurementsFor(string instrumentName)
+        {
+            return _measures.Where(m => m.Name == instrumentName).ToList();
+        }
 
         private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
         {

@@ -1038,6 +1038,10 @@ export async function getTenantTrialStatus(
   trialSampleRunId?: string | null;
   trialWelcomeRunId?: string | null;
   trialExpiresUtc?: string | null;
+  firstCommitUtc?: string | null;
+  baselineReviewCycleHours?: number | null;
+  baselineReviewCycleSource?: string | null;
+  baselineReviewCycleCapturedUtc?: string | null;
 }> {
   const res = await request.get(`${liveApiBase}/v1/tenant/trial-status`, {
     headers: mergeTenantScope(liveAcceptHeaders(), scope),
@@ -1055,5 +1059,9 @@ export async function getTenantTrialStatus(
     trialSampleRunId?: string | null;
     trialWelcomeRunId?: string | null;
     trialExpiresUtc?: string | null;
+    firstCommitUtc?: string | null;
+    baselineReviewCycleHours?: number | null;
+    baselineReviewCycleSource?: string | null;
+    baselineReviewCycleCapturedUtc?: string | null;
   }>;
 }

@@ -13,7 +13,7 @@ Provide a **repeatable V1-style** path: build and push container images to ACR, 
 
 ## Assumptions
 
-- GitHub **Environments** `staging` and `production` exist with **required reviewers** for manual gates where you need human approval before jobs that reference those environments run.
+- GitHub **Environments** `dev`, `staging`, and `production` exist when you use those CD targets; use **required reviewers** on `staging` and `production` (and optionally on `dev`) for manual gates before jobs that reference those environments run.
 - Azure Federated Credentials map each environment (or the workflow) to Entra app registration(s) used by `azure/login@v2`.
 - Operators copy `terraform.tfvars.example` → `terraform.tfvars` and `production.tfvars.example` → `production.tfvars` inside `infra/terraform-container-apps/` (or your `TF_WORKING_DIRECTORY`) when using Terraform; committed `.example` files are templates only.
 
@@ -51,8 +51,8 @@ flowchart LR
 
 | Job | Purpose |
 |-----|---------|
-| `build-push-images` | Checkout, OIDC login, Docker Buildx, push **API** (`ArchLucid.Api/Dockerfile`) and **UI** (`archlucid-ui/Dockerfile`) to ACR. The API image contains **both** `ArchLucid.Api.dll` and `ArchLucid.Worker.dll` (see Dockerfile comments). Tags: `${IMAGE_TAG}` (defaults to `github.sha`), plus `latest-staging` or `latest-production` on manual CD. BuildKit cache scopes: `api-docker-smoke`, `ui-docker-smoke` (aligned with CI). |
-| `terraform-plan` | OIDC, `terraform init`, `terraform plan` (saved as `tfplan`), upload artifact `tfplan-<target>`, plan summary in step summary. **Skipped** when secret `TF_WORKING_DIRECTORY` is unset (job succeeds with no plan artifact). Production adds `-var-file=production.tfvars` when the file exists; staging adds `-var-file=terraform.tfvars` when present (otherwise default `terraform.tfvars` auto-load applies if present). |
+| `build-push-images` | Checkout, OIDC login, Docker Buildx, push **API** (`ArchLucid.Api/Dockerfile`) and **UI** (`archlucid-ui/Dockerfile`) to ACR. The API image contains **both** `ArchLucid.Api.dll` and `ArchLucid.Worker.dll` (see Dockerfile comments). Tags: `${IMAGE_TAG}` (defaults to `github.sha`), plus `latest-dev`, `latest-staging`, or `latest-production` on manual CD by target. BuildKit cache scopes: `api-docker-smoke`, `ui-docker-smoke` (aligned with CI). |
+| `terraform-plan` | Checkout; when `target=dev`, optionally writes `dev.tfvars` from environment secret **`DEV_TFVARS`** (see `.github/workflows/cd.yml`). OIDC, `terraform init`, `terraform plan` (saved as `tfplan`), upload artifact `tfplan-<target>`, plan summary in step summary. **Skipped** when secret `TF_WORKING_DIRECTORY` is unset (job succeeds with no plan artifact). Production adds `-var-file=production.tfvars` when the file exists; staging adds `-var-file=terraform.tfvars` when present; **dev** adds `-var-file=dev.tfvars` when present (including after materialization from `DEV_TFVARS`). |
 | `terraform-apply` | Runs only when `run_terraform_apply` is true and a plan was produced. Downloads the plan artifact and runs `terraform apply tfplan`. Uses the same environment as the target (reviewer gate). |
 | `deploy-container-apps` | OIDC, records API (and optional worker) revision **before** update, `az containerapp update --image` for API, **worker** (same image URI as API: `…/archlucid-api:<tag>`), and UI when configured, then records revisions **after**. Skips the whole update when `ACR_LOGIN_SERVER`, `AZURE_RESOURCE_GROUP`, or `CONTAINER_APP_API_NAME` is missing. Worker update runs only when secret **`CONTAINER_APP_WORKER_NAME`** is set (matches Terraform default `archlucid-worker`). |
 | `smoke-test` (job id; UI label **Post-deploy validation**) | Optional when `SMOKE_TEST_BASE_URL` unset. Otherwise runs **`scripts/ci/cd-post-deploy-verify.sh`**: see [Post-deploy validation behavior](#post-deploy-validation-behavior) below. |
@@ -93,11 +93,12 @@ Failures print **`::error::`** lines on GitHub Actions for visible annotations a
 
 ## GitHub Environment secrets and variables (checklist)
 
-Configure per **environment** (`staging` / `production`) or organization policy as you prefer.
+Configure per **environment** (`dev` / `staging` / `production`) or organization policy as you prefer.
 
 | Name | Required for | Notes |
 |------|----------------|-------|
 | `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` | All Azure steps | Federated credential workload identity. |
+| `DEV_TFVARS` | Terraform plan when `target=dev` | Optional multiline secret: full HCL body of `dev.tfvars` so the runner can plan without committing gitignored tfvars. When unset, `dev.tfvars` must already exist in the checkout (not typical). See [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md). |
 | `ACR_LOGIN_SERVER` | Image build/push and `az containerapp update` | e.g. `myregistry.azurecr.io`. When unset, build/push and app updates are skipped (job still succeeds). |
 | `ACR_NAME` | `az acr login` | Optional; defaults to first label of `ACR_LOGIN_SERVER`. |
 | `AZURE_RESOURCE_GROUP` | Container Apps CLI | Resource group that holds the apps. |
@@ -115,7 +116,7 @@ Configure per **environment** (`staging` / `production`) or organization policy 
 
 ## Operational considerations
 
-- **Environment protection**: Use `required_reviewers` on `staging` and `production` so `terraform-apply` and image deploy jobs respect your change-management process.
+- **Environment protection**: Use `required_reviewers` on `staging` and `production` so `terraform-apply` and image deploy jobs respect your change-management process. **`dev`** is usually ungated for engineer velocity; add reviewers if your org requires it.
 - **Failure behavior**: If `terraform-plan` fails, downstream deploy jobs do not run. If **post-deploy validation** fails, set `CD_ROLLBACK_ON_SMOKE_FAILURE` to let the workflow deactivate bad **API and worker** revisions automatically; read the job log for HTTP codes, readiness JSON, and body excerpts.
 - **Terraform vs CLI**: Routine CD updates **running** apps via `az containerapp update` without applying Terraform. Keep `api_container_image` / `ui_container_image` / `worker_container_image` in tfvars roughly aligned with what you deploy, or the next `terraform apply` may reset images to tfvars values—prefer updating tfvars when you use apply, or rely on CLI-only rollouts until the next planned apply.
 - **Migrations**: Schema still travels with the **API** process (DbUp / bootstrap on startup). Deploy API before relying on worker-only features that need new schema, or run a one-off migration job per your runbook.

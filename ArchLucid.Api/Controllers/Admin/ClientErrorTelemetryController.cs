@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Telemetry;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -22,7 +23,8 @@ namespace ArchLucid.Api.Controllers.Admin;
 [EnableRateLimiting("fixed")]
 public sealed class ClientErrorTelemetryController(
     ILogger<ClientErrorTelemetryController> logger,
-    IScopeContextProvider scopeContextProvider) : ControllerBase
+    IScopeContextProvider scopeContextProvider,
+    IFirstTenantFunnelEmitter firstTenantFunnelEmitter) : ControllerBase
 {
     private static readonly HashSet<string> SponsorBannerDayBuckets =
     [
@@ -38,6 +40,9 @@ public sealed class ClientErrorTelemetryController(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IFirstTenantFunnelEmitter _firstTenantFunnelEmitter =
+        firstTenantFunnelEmitter ?? throw new ArgumentNullException(nameof(firstTenantFunnelEmitter));
 
     /// <summary>Records sponsor-banner first-commit badge render (low-cardinality counter).</summary>
     [HttpPost("sponsor-banner-first-commit-badge")]
@@ -61,6 +66,38 @@ public sealed class ClientErrorTelemetryController(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ArchLucidInstrumentation.RecordSponsorBannerFirstCommitBadgeRendered(scope.TenantId, bucket);
+
+        return NoContent();
+    }
+
+    /// <summary>
+    ///     Records one first-tenant onboarding funnel event (Improvement 12). Server infers the
+    ///     tenant id from request scope; the body carries only the event name. Default emission is
+    ///     aggregated-only (no <c>tenant_id</c> tag, no SQL row); per-tenant emission is gated by the
+    ///     owner-only flag <c>Telemetry:FirstTenantFunnel:PerTenantEmission</c>.
+    /// </summary>
+    [HttpPost("first-tenant-funnel")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PostFirstTenantFunnelEvent(
+        [FromBody] FirstTenantFunnelEventRequest? body,
+        CancellationToken ct)
+    {
+        if (body is null || string.IsNullOrWhiteSpace(body.Event))
+            return this.BadRequestProblem(
+                "event is required.",
+                ProblemTypes.ValidationFailed);
+
+        string eventName = body.Event.Trim();
+
+        if (!FirstTenantFunnelEventNames.IsValid(eventName))
+            return this.BadRequestProblem(
+                $"event must be one of: {string.Join(", ", FirstTenantFunnelEventNames.All)}.",
+                ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        await _firstTenantFunnelEmitter.EmitAsync(eventName, scope.TenantId, ct);
 
         return NoContent();
     }

@@ -17,49 +17,49 @@ public static class AuditEventTypes
     /// <summary>Coordinator-level: architecture run commit completed (coordinator commit orchestrator).</summary>
     public const string CoordinatorRunCommitCompleted = "CoordinatorRunCommitCompleted";
 
-    /// <summary>Coordinator-level: architecture run failed after baseline <c>Architecture.RunFailed</c> (create, execute, or commit path).</summary>
-    public const string CoordinatorRunFailed = "CoordinatorRunFailed";
-
     /// <summary>
-    /// Phase 2 canonical durable catalog for coordinator run-stage semantics (ADR 0021 § Phase 2).
-    /// Dual-written with legacy <c>CoordinatorRun*</c> wire values until the Sunset window closes.
+    ///     Coordinator-level: architecture run failed after baseline <c>Architecture.RunFailed</c> (create, execute, or
+    ///     commit path).
     /// </summary>
-    public static class Run
-    {
-        /// <summary>Canonical twin of <see cref="CoordinatorRunCreated"/>.</summary>
-        public const string Created = "Run.Created";
-
-        /// <summary>Canonical twin of <see cref="CoordinatorRunExecuteStarted"/>.</summary>
-        public const string ExecuteStarted = "Run.ExecuteStarted";
-
-        /// <summary>Canonical twin of <see cref="CoordinatorRunExecuteSucceeded"/>.</summary>
-        public const string ExecuteSucceeded = "Run.ExecuteSucceeded";
-
-        /// <summary>Canonical twin of <see cref="CoordinatorRunCommitCompleted"/>.</summary>
-        public const string CommitCompleted = "Run.CommitCompleted";
-
-        /// <summary>Canonical twin of <see cref="CoordinatorRunFailed"/>.</summary>
-        public const string Failed = "Run.Failed";
-    }
+    public const string CoordinatorRunFailed = "CoordinatorRunFailed";
 
     public const string ManifestGenerated = "ManifestGenerated";
     public const string ArtifactsGenerated = "ArtifactsGenerated";
     public const string ReplayExecuted = "ReplayExecuted";
 
-    /// <summary>Demo seed or replay commit persisted the authority SQL FK chain (context / graph / findings / decision trace + golden manifest) outside the main pipeline executor.</summary>
+    /// <summary>
+    ///     Demo seed or replay commit persisted the authority SQL FK chain (context / graph / findings / decision trace +
+    ///     golden manifest) outside the main pipeline executor.
+    /// </summary>
     public const string AuthorityCommittedChainPersisted = "AuthorityCommittedChainPersisted";
 
     public const string ArtifactDownloaded = "ArtifactDownloaded";
     public const string BundleDownloaded = "BundleDownloaded";
+
+    /// <summary>
+    ///     In-product support bundle ZIP from <c>POST …/admin/support-bundle</c>. Payload is JSON with file name and
+    ///     size bytes only (no raw bundle contents).
+    /// </summary>
+    public const string SupportBundleDownloaded = "SupportBundleDownloaded";
+
     public const string RunExported = "RunExported";
 
-    /// <summary>Emitted when a structured architecture analysis report is built via the primary analysis-report API (<c>POST .../analysis-report</c>).</summary>
+    /// <summary>
+    ///     Emitted when a structured architecture analysis report is built via the primary analysis-report API (
+    ///     <c>POST .../analysis-report</c>).
+    /// </summary>
     public const string ArchitectureAnalysisReportGenerated = "ArchitectureAnalysisReportGenerated";
 
-    /// <summary>Emitted when the architecture-package DOCX export completes successfully (<c>GET .../docx/runs/{{runId}}/architecture-package</c>).</summary>
+    /// <summary>
+    ///     Emitted when the architecture-package DOCX export completes successfully (
+    ///     <c>GET .../docx/runs/{{runId}}/architecture-package</c>).
+    /// </summary>
     public const string ArchitectureDocxExportGenerated = "ArchitectureDocxExportGenerated";
 
-    /// <summary>Stakeholder DOCX value report generated for the current scope (<c>POST /v1/value-report/{{tenantId}}/generate</c>).</summary>
+    /// <summary>
+    ///     Stakeholder DOCX value report generated for the current scope (
+    ///     <c>POST /v1/value-report/{{tenantId}}/generate</c>).
+    /// </summary>
     public const string ValueReportGenerated = "ValueReportGenerated";
 
     /// <summary>Emitted when a replay export persists a new run export row (<c>RecordReplayExport</c> on replay POST).</summary>
@@ -118,7 +118,10 @@ public static class AuditEventTypes
     public const string GovernanceApprovalApproved = "GovernanceApprovalApproved";
     public const string GovernanceApprovalRejected = "GovernanceApprovalRejected";
 
-    /// <summary>Durable audit when a reviewer is blocked from approving or rejecting their own governance request (segregation of duties).</summary>
+    /// <summary>
+    ///     Durable audit when a reviewer is blocked from approving or rejecting their own governance request (segregation
+    ///     of duties).
+    /// </summary>
     public const string GovernanceSelfApprovalBlocked = "GovernanceSelfApprovalBlocked";
 
     /// <summary>Emitted when optional pre-commit governance blocks manifest commit due to critical findings.</summary>
@@ -130,34 +133,54 @@ public static class AuditEventTypes
     /// <summary>Emitted when a governance approval request breaches its SLA deadline.</summary>
     public const string GovernanceApprovalSlaBreached = "GovernanceApprovalSlaBreached";
 
-    /// <summary>Agent LLM output failed <c>AgentResult</c> JSON schema validation at parse time (payload lists errors and model metadata when known).</summary>
+    /// <summary>
+    ///     Agent LLM output failed <c>AgentResult</c> JSON schema validation at parse time (payload lists errors and
+    ///     model metadata when known).
+    /// </summary>
     public const string AgentResultSchemaViolation = "AgentResultSchemaViolation";
 
     /// <summary>Full agent trace prompt/response blob persistence failed or timed out after agent trace row insert.</summary>
     public const string AgentTraceBlobPersistenceFailed = "AgentTraceBlobPersistenceFailed";
 
-    /// <summary>Mandatory SQL inline fallback for full agent trace text failed or forensic coverage verification failed after blob issues.</summary>
+    /// <summary>
+    ///     Mandatory SQL inline fallback for full agent trace text failed or forensic coverage verification failed after
+    ///     blob issues.
+    /// </summary>
     public const string AgentTraceInlineFallbackFailed = "AgentTraceInlineFallbackFailed";
 
     public const string GovernanceManifestPromoted = "GovernanceManifestPromoted";
     public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";
 
-    /// <summary>Background <c>DataArchivalHostedService</c> iteration failed after logging (see payload for exception details).</summary>
+    /// <summary>
+    ///     Emitted when an operator runs a governance policy-pack dry-run / what-if evaluation
+    ///     (<c>POST /v1/governance/policy-packs/{id}/dry-run</c>). No real commit happens — the
+    ///     payload captures the proposed thresholds (always passed through the LLM-prompt redaction
+    ///     pipeline before serialisation, per PENDING_QUESTIONS Q37), the evaluated run ids, and
+    ///     would-be delta counts so reviewers can audit what was simulated and by whom.
+    /// </summary>
+    public const string GovernanceDryRunRequested = "GovernanceDryRunRequested";
+
+    /// <summary>
+    ///     Background <c>DataArchivalHostedService</c> iteration failed after logging (see payload for exception
+    ///     details).
+    /// </summary>
     public const string DataArchivalHostLoopFailed = "DataArchivalHostLoopFailed";
 
     /// <summary>
-    /// Admin remediation removed orphan <c>dbo.ComparisonRecords</c> rows whose run ids do not exist on <c>dbo.Runs</c>
-    /// (see <c>DataConsistencyOrphanRemediationSql</c>). Payload includes dry-run flag, count, and ids.
+    ///     Admin remediation removed orphan <c>dbo.ComparisonRecords</c> rows whose run ids do not exist on <c>dbo.Runs</c>
+    ///     (see <c>DataConsistencyOrphanRemediationSql</c>). Payload includes dry-run flag, count, and ids.
     /// </summary>
     public const string ComparisonRecordOrphansRemediated = "ComparisonRecordOrphansRemediated";
 
     /// <summary>
-    /// Admin remediation removed orphan <c>dbo.GoldenManifests</c> rows (no matching <c>dbo.Runs.RunId</c>), after deleting dependent <c>dbo.ArtifactBundles</c>.
+    ///     Admin remediation removed orphan <c>dbo.GoldenManifests</c> rows (no matching <c>dbo.Runs.RunId</c>), after
+    ///     deleting dependent <c>dbo.ArtifactBundles</c>.
     /// </summary>
     public const string GoldenManifestOrphansRemediated = "GoldenManifestOrphansRemediated";
 
     /// <summary>
-    /// Admin remediation removed orphan <c>dbo.FindingsSnapshots</c> rows (no matching run, not referenced by any golden manifest).
+    ///     Admin remediation removed orphan <c>dbo.FindingsSnapshots</c> rows (no matching run, not referenced by any golden
+    ///     manifest).
     /// </summary>
     public const string FindingsSnapshotOrphansRemediated = "FindingsSnapshotOrphansRemediated";
 
@@ -168,15 +191,19 @@ public static class AuditEventTypes
     public const string CircuitBreakerProbeOutcome = "CircuitBreakerProbeOutcome";
 
     /// <summary>
-    /// Trust center: a third-party or owner-approved security assessment summary was published for procurement / customer review
-    /// (payload: assessment code, summary reference, optional assessor display name).
+    ///     Trust center: a third-party or owner-approved security assessment summary was published for procurement / customer
+    ///     review
+    ///     (payload: assessment code, summary reference, optional assessor display name).
     /// </summary>
     public const string SecurityAssessmentPublished = "SecurityAssessmentPublished";
 
     /// <summary>SaaS tenant registry: new tenant + default workspace identifiers created (or idempotent replay).</summary>
     public const string TenantProvisioned = "TenantProvisioned";
 
-    /// <summary>Public self-service registration completed (audit complements <see cref="TenantProvisioned"/> on the same flow).</summary>
+    /// <summary>
+    ///     Public self-service registration completed (audit complements <see cref="TenantProvisioned" /> on the same
+    ///     flow).
+    /// </summary>
     public const string TenantSelfRegistered = "TenantSelfRegistered";
 
     /// <summary>Self-service trial activated with sample data (demo seed + trial window metadata).</summary>
@@ -185,7 +212,10 @@ public static class AuditEventTypes
     /// <summary>Trial marked converted (billing integration stub).</summary>
     public const string TenantTrialConverted = "TenantTrialConverted";
 
-    /// <summary>Automated trial lifecycle state transition (Worker scheduler; SQL row in <c>dbo.TenantLifecycleTransitions</c>).</summary>
+    /// <summary>
+    ///     Automated trial lifecycle state transition (Worker scheduler; SQL row in <c>dbo.TenantLifecycleTransitions</c>
+    ///     ).
+    /// </summary>
     public const string TrialLifecycleTransition = "TrialLifecycleTransition";
 
     /// <summary>Emitted when a mutating request is blocked because the tenant trial expired or exceeded runs/seats (HTTP 402).</summary>
@@ -194,11 +224,23 @@ public static class AuditEventTypes
     /// <summary>Self-service signup or local trial identity registration attempt observed at HTTP entry (funnel top).</summary>
     public const string TrialSignupAttempted = "TrialSignupAttempted";
 
-    /// <summary>Signup or trial bootstrap failed after <see cref="TrialSignupAttempted"/> (payload includes stage/reason).</summary>
+    /// <summary>Signup or trial bootstrap failed after <see cref="TrialSignupAttempted" /> (payload includes stage/reason).</summary>
     public const string TrialSignupFailed = "TrialSignupFailed";
+
+    /// <summary>
+    ///     Durable failure on <c>POST /v1/register</c> (validation, duplicate org, or unexpected server error). Payload
+    ///     includes <c>reason</c> and optional <c>message</c>.
+    /// </summary>
+    public const string TrialRegistrationFailed = "TrialRegistrationFailed";
 
     /// <summary>Prospect supplied optional review-cycle baseline hours at trial signup (persisted on <c>dbo.Tenants</c>).</summary>
     public const string TrialBaselineReviewCycleCaptured = "TrialBaselineReviewCycleCaptured";
+
+    /// <summary>First save of <c>BaselineManualPrep*</c> on <c>dbo.Tenants</c> (settings or migration from prior null).</summary>
+    public const string TrialBaselineManualPrepCaptured = "TrialBaselineManualPrepCaptured";
+
+    /// <summary>Subsequent edits to <c>BaselineManualPrep*</c> after the first capture.</summary>
+    public const string TrialBaselineManualPrepUpdated = "TrialBaselineManualPrepUpdated";
 
     /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
     public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";
@@ -209,30 +251,91 @@ public static class AuditEventTypes
     /// <summary>Hosted billing checkout session created successfully (payload may include provider session id).</summary>
     public const string BillingCheckoutCompleted = "BillingCheckoutCompleted";
 
-    /// <summary>Tenant-level customer notification channel toggles updated (<c>PUT /v1/notifications/customer-channel-preferences</c>).</summary>
+    /// <summary>
+    ///     Tenant-level customer notification channel toggles updated (
+    ///     <c>PUT /v1/notifications/customer-channel-preferences</c>).
+    /// </summary>
     public const string TenantNotificationChannelPreferencesUpdated = "TenantNotificationChannelPreferencesUpdated";
 
-    /// <summary>Tenant Microsoft Teams incoming-webhook Key Vault reference upserted (<c>POST /v1/integrations/teams/connections</c>).</summary>
+    /// <summary>
+    ///     Tenant Microsoft Teams incoming-webhook Key Vault reference upserted (
+    ///     <c>POST /v1/integrations/teams/connections</c>).
+    /// </summary>
     public const string TenantTeamsIncomingWebhookConnectionUpserted = "TenantTeamsIncomingWebhookConnectionUpserted";
 
-    /// <summary>Tenant Microsoft Teams incoming-webhook Key Vault reference removed (<c>DELETE /v1/integrations/teams/connections</c>).</summary>
+    /// <summary>
+    ///     Tenant Microsoft Teams incoming-webhook Key Vault reference removed (
+    ///     <c>DELETE /v1/integrations/teams/connections</c>).
+    /// </summary>
     public const string TenantTeamsIncomingWebhookConnectionRemoved = "TenantTeamsIncomingWebhookConnectionRemoved";
 
     /// <summary>Tenant weekly executive digest preferences updated (<c>POST /v1/tenant/exec-digest-preferences</c>).</summary>
     public const string ExecDigestPreferencesUpdated = "ExecDigestPreferencesUpdated";
 
-    /// <summary>Tenant crossed the configured warn threshold for the UTC-day combined LLM token budget (emitted at most once per tenant per UTC day).</summary>
+    /// <summary>
+    ///     Tenant crossed the configured warn threshold for the UTC-day combined LLM token budget (emitted at most once
+    ///     per tenant per UTC day).
+    /// </summary>
     public const string LlmTenantDailyBudgetApproaching = "LlmTenantDailyBudgetApproaching";
 
+    public const string ScimTokenIssued = "ScimTokenIssued";
+
+    public const string ScimTokenRevoked = "ScimTokenRevoked";
+
+    public const string ScimUserProvisioned = "ScimUserProvisioned";
+
+    public const string ScimUserUpdated = "ScimUserUpdated";
+
+    public const string ScimUserDeactivated = "ScimUserDeactivated";
+
+    public const string ScimGroupProvisioned = "ScimGroupProvisioned";
+
+    public const string ScimGroupMembershipChanged = "ScimGroupMembershipChanged";
+
+    /// <summary>Pilot <c>archlucid try --real</c>: POST execute received with pilot try header (real AOAI attempt).</summary>
+    public const string FirstRealValueRunStarted = "FirstRealValueRunStarted";
+
+    /// <summary>Pilot <c>archlucid try --real</c>: pilot-marked execute completed without throwing.</summary>
+    public const string FirstRealValueRunCompleted = "FirstRealValueRunCompleted";
+
+    /// <summary>Pilot <c>archlucid try --real</c>: development seed path recorded simulator substitution after AOAI failure.</summary>
+    public const string FirstRealValueRunFellBackToSimulator = "FirstRealValueRunFellBackToSimulator";
+
     /// <summary>
-    /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).
-    /// They are <b>not</b> written to <c>dbo.AuditEvents</c>.
+    ///     Phase 2 canonical durable catalog for coordinator run-stage semantics (ADR 0021 § Phase 2).
+    ///     Dual-written with legacy <c>CoordinatorRun*</c> wire values until the Sunset window closes.
+    /// </summary>
+    public static class Run
+    {
+        /// <summary>Canonical twin of <see cref="CoordinatorRunCreated" />.</summary>
+        public const string Created = "Run.Created";
+
+        /// <summary>Canonical twin of <see cref="CoordinatorRunExecuteStarted" />.</summary>
+        public const string ExecuteStarted = "Run.ExecuteStarted";
+
+        /// <summary>Canonical twin of <see cref="CoordinatorRunExecuteSucceeded" />.</summary>
+        public const string ExecuteSucceeded = "Run.ExecuteSucceeded";
+
+        /// <summary>Canonical twin of <see cref="CoordinatorRunCommitCompleted" />.</summary>
+        public const string CommitCompleted = "Run.CommitCompleted";
+
+        /// <summary>Canonical twin of <see cref="CoordinatorRunFailed" />.</summary>
+        public const string Failed = "Run.Failed";
+    }
+
+    /// <summary>
+    ///     Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured
+    ///     <c>ILogger</c> only).
+    ///     They are <b>not</b> written to <c>dbo.AuditEvents</c>.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// Dual-written governance flows also call <c>IAuditService</c> with the top-level <c>GovernanceApproval*</c> / <c>GovernanceManifestPromoted</c> / <c>GovernanceEnvironmentActivated</c> constants above.
-    /// Those durable <c>EventType</c> values (e.g. <c>GovernanceApprovalSubmitted</c>) differ from nested <c>Governance.*</c> string values (e.g. <c>Governance.ApprovalRequestSubmitted</c>) by design — do not unify without a migration plan for existing rows and log parsers.
-    /// </para>
+    ///     <para>
+    ///         Dual-written governance flows also call <c>IAuditService</c> with the top-level <c>GovernanceApproval*</c> /
+    ///         <c>GovernanceManifestPromoted</c> / <c>GovernanceEnvironmentActivated</c> constants above.
+    ///         Those durable <c>EventType</c> values (e.g. <c>GovernanceApprovalSubmitted</c>) differ from nested
+    ///         <c>Governance.*</c> string values (e.g. <c>Governance.ApprovalRequestSubmitted</c>) by design — do not unify
+    ///         without a migration plan for existing rows and log parsers.
+    ///     </para>
     /// </remarks>
     public static class Baseline
     {

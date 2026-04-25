@@ -1,7 +1,8 @@
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
-/// Selects which <see cref="SqlReadReplicaSettings"/> key wins when multiple read-scale-out connection strings are configured.
+///     Selects which <see cref="SqlReadReplicaSettings" /> key wins when multiple read-scale-out connection strings are
+///     configured.
 /// </summary>
 public enum ReadReplicaQueryRoute
 {
@@ -12,5 +13,5 @@ public enum ReadReplicaQueryRoute
     GovernanceResolution,
 
     /// <summary><c>dbo.GoldenManifests</c> lookup by scope + manifest id.</summary>
-    GoldenManifestLookup,
+    GoldenManifestLookup
 }

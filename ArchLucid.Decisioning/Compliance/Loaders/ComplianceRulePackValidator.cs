@@ -28,6 +28,5 @@ public class ComplianceRulePackValidator : IComplianceRulePackValidator
 
             if (string.IsNullOrWhiteSpace(rule.RuleId))
                 throw new InvalidOperationException("Each compliance rule must have a RuleId.");
-
     }
 }

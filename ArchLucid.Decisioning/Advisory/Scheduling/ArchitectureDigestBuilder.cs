@@ -21,8 +21,9 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
 
     /// <inheritdoc />
     /// <remarks>
-    /// Includes up to five highest-priority recommendations, all summary notes, and every alert as a bullet line.
-    /// <see cref="ArchitectureDigest.MetadataJson"/> stores counts: recommendation totals, top slice size, evaluated alerts, and high/critical alert count.
+    ///     Includes up to five highest-priority recommendations, all summary notes, and every alert as a bullet line.
+    ///     <see cref="ArchitectureDigest.MetadataJson" /> stores counts: recommendation totals, top slice size, evaluated
+    ///     alerts, and high/critical alert count.
     /// </remarks>
     public ArchitectureDigest Build(
         Guid tenantId,
@@ -113,7 +114,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
                 recommendationCount = plan.Recommendations.Count,
                 topRecommendationCount = top.Count,
                 evaluatedAlertCount = alerts.Count,
-                highOrCriticalAlertCount = highCritical,
+                highOrCriticalAlertCount = highCritical
             })
         };
     }

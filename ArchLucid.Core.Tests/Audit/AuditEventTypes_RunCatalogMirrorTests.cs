@@ -7,7 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.Core.Tests.Audit;
 
 /// <summary>
-/// ADR 0021 Phase 2: every legacy <c>CoordinatorRun*</c> durable constant must have a stable <see cref="AuditEventTypes.Run"/> twin.
+///     ADR 0021 Phase 2: every legacy <c>CoordinatorRun*</c> durable constant must have a stable
+///     <see cref="AuditEventTypes.Run" /> twin.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class AuditEventTypes_RunCatalogMirrorTests
@@ -18,7 +19,7 @@ public sealed class AuditEventTypes_RunCatalogMirrorTests
         [AuditEventTypes.CoordinatorRunExecuteStarted] = AuditEventTypes.Run.ExecuteStarted,
         [AuditEventTypes.CoordinatorRunExecuteSucceeded] = AuditEventTypes.Run.ExecuteSucceeded,
         [AuditEventTypes.CoordinatorRunCommitCompleted] = AuditEventTypes.Run.CommitCompleted,
-        [AuditEventTypes.CoordinatorRunFailed] = AuditEventTypes.Run.Failed,
+        [AuditEventTypes.CoordinatorRunFailed] = AuditEventTypes.Run.Failed
     };
 
     [Fact]
@@ -36,13 +37,14 @@ public sealed class AuditEventTypes_RunCatalogMirrorTests
 
             LegacyToCanonical.TryGetValue(legacyValue, out string? canonical)
                 .Should()
-                .BeTrue(because: $"legacy {pair.Key} must map to AuditEventTypes.Run.* (wire: {legacyValue})");
+                .BeTrue($"legacy {pair.Key} must map to AuditEventTypes.Run.* (wire: {legacyValue})");
 
             canonicalValues.Should().Contain(
                 canonical!,
-                because: $"canonical twin for {legacyValue} must exist as a public const on AuditEventTypes.Run");
+                $"canonical twin for {legacyValue} must exist as a public const on AuditEventTypes.Run");
 
-            canonical.Should().NotBe(legacyValue, because: "Phase 2 requires distinct wire strings for legacy vs canonical rows");
+            canonical.Should().NotBe(legacyValue,
+                "Phase 2 requires distinct wire strings for legacy vs canonical rows");
         }
     }
 
@@ -58,16 +60,20 @@ public sealed class AuditEventTypes_RunCatalogMirrorTests
         runConstants.Should().HaveCount(LegacyToCanonical.Count);
     }
 
-    private static IEnumerable<string> GetRunNestedConstantValues() =>
-        typeof(AuditEventTypes.Run)
+    private static IEnumerable<string> GetRunNestedConstantValues()
+    {
+        return typeof(AuditEventTypes.Run)
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
             .Where(f => f is { IsLiteral: true, IsInitOnly: false } && f.FieldType == typeof(string))
             .Select(f => (string)f.GetRawConstantValue()!);
+    }
 
-    private static IReadOnlyDictionary<string, string> GetTopLevelCoordinatorRunConstants() =>
-        typeof(AuditEventTypes)
+    private static IReadOnlyDictionary<string, string> GetTopLevelCoordinatorRunConstants()
+    {
+        return typeof(AuditEventTypes)
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
             .Where(f => f is { IsLiteral: true, IsInitOnly: false } && f.FieldType == typeof(string))
             .Where(f => f.Name.StartsWith("CoordinatorRun", StringComparison.Ordinal))
             .ToDictionary(f => f.Name, f => (string)f.GetRawConstantValue()!);
+    }
 }

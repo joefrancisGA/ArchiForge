@@ -7,7 +7,9 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
-/// <see cref="IRetrievalIndexingService"/> pipeline: <see cref="ITextChunker"/> → <see cref="IEmbeddingService.EmbedManyAsync"/> (batched) → <see cref="RetrievalChunk"/> → <see cref="IVectorIndex.UpsertChunksAsync"/>.
+///     <see cref="IRetrievalIndexingService" /> pipeline: <see cref="ITextChunker" /> →
+///     <see cref="IEmbeddingService.EmbedManyAsync" /> (batched) → <see cref="RetrievalChunk" /> →
+///     <see cref="IVectorIndex.UpsertChunksAsync" />.
 /// </summary>
 public sealed class RetrievalIndexingService(
     ITextChunker chunker,

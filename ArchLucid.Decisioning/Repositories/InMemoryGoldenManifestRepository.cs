@@ -4,20 +4,21 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Mapping;
 using ArchLucid.Decisioning.Models;
+
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Repositories;
 
 /// <summary>
-/// In-memory implementation of <see cref="IGoldenManifestRepository"/> for testing and local development.
-/// Capped at 500 entries; oldest entries are evicted when the cap is exceeded.
+///     In-memory implementation of <see cref="IGoldenManifestRepository" /> for testing and local development.
+///     Capped at 500 entries; oldest entries are evicted when the cap is exceeded.
 /// </summary>
 public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 {
     private const int MaxEntries = 500;
+    private readonly Lock _lock = new();
 
     private readonly List<GoldenManifest> _store = [];
-    private readonly Lock _lock = new();
 
     public Task SaveAsync(
         GoldenManifest manifest,
@@ -35,6 +36,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
             if (_store.Count > MaxEntries)
                 _store.RemoveRange(0, _store.Count - MaxEntries);
         }
+
         return Task.CompletedTask;
     }
 
@@ -71,6 +73,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
             if (_store.Count > MaxEntries)
                 _store.RemoveRange(0, _store.Count - MaxEntries);
         }
+
         return Task.FromResult(model);
     }
 
@@ -88,7 +91,8 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
     }
 
     /// <inheritdoc />
-    public Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion, CancellationToken ct)
+    public Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
+        CancellationToken ct)
     {
         if (scope is null)
             throw new ArgumentNullException(nameof(scope));
@@ -113,4 +117,3 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         }
     }
 }
-

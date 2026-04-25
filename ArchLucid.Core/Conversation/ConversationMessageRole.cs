@@ -1,7 +1,7 @@
 namespace ArchLucid.Core.Conversation;
 
 /// <summary>
-/// String constants stored in <see cref="ConversationMessage.Role"/> for Ask threads.
+///     String constants stored in <see cref="ConversationMessage.Role" /> for Ask threads.
 /// </summary>
 public static class ConversationMessageRole
 {

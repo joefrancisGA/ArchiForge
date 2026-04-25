@@ -1,6 +1,6 @@
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
-/// <summary>Lifecycle states for <see cref="PolicyPack.Status"/>.</summary>
+/// <summary>Lifecycle states for <see cref="PolicyPack.Status" />.</summary>
 /// <remarks>Transitions: Draft → Active on first publish; Retired reserved for future soft-delete flows.</remarks>
 public static class PolicyPackStatus
 {

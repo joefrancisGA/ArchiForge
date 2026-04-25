@@ -99,31 +99,7 @@ END
 GO
 
 /* ---- Manifest / evidence ---- */
-
-IF OBJECT_ID(N'dbo.GoldenManifestVersions', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.GoldenManifestVersions
-    (
-        ManifestVersion        NVARCHAR(50)  NOT NULL PRIMARY KEY,
-        RunId                  NVARCHAR(64)  NOT NULL,
-        SystemName             NVARCHAR(200) NOT NULL,
-        ManifestJson           NVARCHAR(MAX) NOT NULL,
-        ParentManifestVersion  NVARCHAR(50)  NULL,
-        CreatedUtc             DATETIME2     NOT NULL,
-        CONSTRAINT FK_GoldenManifestVersions_Parent FOREIGN KEY (ParentManifestVersion)
-            REFERENCES dbo.GoldenManifestVersions (ManifestVersion),
-        INDEX IX_GoldenManifestVersions_RunId NONCLUSTERED (RunId)
-    );
-END
-GO
-
-IF OBJECT_ID(N'dbo.GoldenManifestVersions', N'U') IS NOT NULL
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifestVersions_Parent')
-        ALTER TABLE dbo.GoldenManifestVersions ADD CONSTRAINT FK_GoldenManifestVersions_Parent
-            FOREIGN KEY (ParentManifestVersion) REFERENCES dbo.GoldenManifestVersions (ManifestVersion);
-END
-GO
+/* dbo.GoldenManifestVersions removed — ADR 0030 PR A4 (migration 111). Coordinator-shaped manifests persist via dbo.GoldenManifests. */
 
 IF OBJECT_ID(N'dbo.EvidenceBundles', N'U') IS NULL
 BEGIN
@@ -446,6 +422,16 @@ GO
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'OtelTraceId') IS NULL
     ALTER TABLE dbo.Runs ADD OtelTraceId NVARCHAR(64) NULL;
+GO
+
+/* Brownfield: pilot try --real provenance (DbUp 114 parity). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'RealModeFellBackToSimulator') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs ADD
+        RealModeFellBackToSimulator BIT NOT NULL CONSTRAINT DF_Runs_RealModeFellBackToSimulatorArchLucidSql DEFAULT (0),
+        PilotAoaiDeploymentSnapshot NVARCHAR(256) NULL;
+END;
 GO
 
 IF OBJECT_ID('dbo.ContextSnapshots', 'U') IS NULL
@@ -3018,6 +3004,59 @@ BEGIN
 END;
 GO
 
+/* 115: Structured baseline (see Migrations/115_Tenants_StructuredBaseline.sql). */
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'BaselineManualPrepHoursPerReview') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD
+        BaselineManualPrepHoursPerReview     DECIMAL(9,2)     NULL,
+        BaselinePeoplePerReview              INT              NULL,
+        BaselineManualPrepCapturedUtc        DATETIMEOFFSET(7) NULL,
+        CompanySize                          NVARCHAR(30)     NULL,
+        ArchitectureTeamSize                 INT              NULL,
+        IndustryVertical                     NVARCHAR(100)    NULL,
+        IndustryVerticalOther                NVARCHAR(200)    NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Tenants', N'BaselineManualPrepHoursPerReview') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.check_constraints
+       WHERE name = N'CK_Tenants_BaselineManualPrepHoursPerReview_Positive'
+         AND parent_object_id = OBJECT_ID(N'dbo.Tenants', N'U'))
+BEGIN
+    ALTER TABLE dbo.Tenants ADD CONSTRAINT CK_Tenants_BaselineManualPrepHoursPerReview_Positive
+        CHECK (BaselineManualPrepHoursPerReview IS NULL OR BaselineManualPrepHoursPerReview > 0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Tenants', N'BaselinePeoplePerReview') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.check_constraints
+       WHERE name = N'CK_Tenants_BaselinePeoplePerReview_Positive'
+         AND parent_object_id = OBJECT_ID(N'dbo.Tenants', N'U'))
+BEGIN
+    ALTER TABLE dbo.Tenants ADD CONSTRAINT CK_Tenants_BaselinePeoplePerReview_Positive
+        CHECK (BaselinePeoplePerReview IS NULL OR BaselinePeoplePerReview > 0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Tenants', N'ArchitectureTeamSize') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.check_constraints
+       WHERE name = N'CK_Tenants_ArchitectureTeamSize_Positive'
+         AND parent_object_id = OBJECT_ID(N'dbo.Tenants', N'U'))
+BEGIN
+    ALTER TABLE dbo.Tenants ADD CONSTRAINT CK_Tenants_ArchitectureTeamSize_Positive
+        CHECK (ArchitectureTeamSize IS NULL OR ArchitectureTeamSize > 0);
+END;
+GO
+
 IF OBJECT_ID(N'dbo.TenantTrialSeatOccupants', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantTrialSeatOccupants
@@ -4411,5 +4450,127 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_MarketingPricingQuoteRequests_CreatedUtc2
         ON dbo.MarketingPricingQuoteRequests (CreatedUtc DESC);
+END;
+GO
+
+/* 112: First-tenant onboarding telemetry funnel rows
+   (see Migrations/112_FirstTenantFunnelEvents.sql; Improvement 12; pending question 40).
+   Schema is created unconditionally; rows appear only when
+   Telemetry:FirstTenantFunnel:PerTenantEmission is on (owner-only flag). */
+IF OBJECT_ID(N'dbo.FirstTenantFunnelEvents', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FirstTenantFunnelEvents
+    (
+        EventId      BIGINT           IDENTITY(1, 1) NOT NULL
+            CONSTRAINT PK_FirstTenantFunnelEvents2 PRIMARY KEY CLUSTERED,
+        TenantId     UNIQUEIDENTIFIER NOT NULL,
+        EventName    NVARCHAR(64)     NOT NULL,
+        OccurredUtc  DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_FirstTenantFunnelEvents_OccurredUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_FirstTenantFunnelEvents_EventName2
+            CHECK (EventName IN (
+                N'signup',
+                N'tour_opt_in',
+                N'first_run_started',
+                N'first_run_committed',
+                N'first_finding_viewed',
+                N'thirty_minute_milestone'
+            )),
+        CONSTRAINT FK_FirstTenantFunnelEvents_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_FirstTenantFunnelEvents_TenantId_OccurredUtc2
+        ON dbo.FirstTenantFunnelEvents (TenantId, OccurredUtc DESC);
+
+    CREATE NONCLUSTERED INDEX IX_FirstTenantFunnelEvents_OccurredUtc2
+        ON dbo.FirstTenantFunnelEvents (OccurredUtc DESC);
+END;
+GO
+
+/* 113: SCIM 2.0 inbound provisioning (see Migrations/113_ScimProvisioning.sql). */
+IF COL_LENGTH(N'dbo.Tenants', N'EnterpriseSeatsLimit') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD
+        EnterpriseSeatsLimit INT NULL,
+        EnterpriseSeatsUsed INT NOT NULL CONSTRAINT DF_Tenants_EnterpriseSeatsUsed113 DEFAULT (0);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ScimTenantTokens', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ScimTenantTokens
+    (
+        Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ScimTenantTokens PRIMARY KEY
+            CONSTRAINT DF_ScimTenantTokens_Id DEFAULT NEWSEQUENTIALID(),
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        PublicLookupKey NVARCHAR(128) NOT NULL,
+        SecretHash VARBINARY(128) NOT NULL,
+        CreatedUtc DATETIME2(7) NOT NULL CONSTRAINT DF_ScimTenantTokens_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        RevokedUtc DATETIME2(7) NULL,
+        CONSTRAINT FK_ScimTenantTokens_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT UQ_ScimTenantTokens_PublicLookupKey UNIQUE (PublicLookupKey)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ScimTenantTokens_TenantId_Active
+        ON dbo.ScimTenantTokens (TenantId)
+        INCLUDE (SecretHash, CreatedUtc, Id)
+        WHERE RevokedUtc IS NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ScimUsers', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ScimUsers
+    (
+        Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ScimUsers PRIMARY KEY
+            CONSTRAINT DF_ScimUsers_Id DEFAULT NEWSEQUENTIALID(),
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        ExternalId NVARCHAR(256) NOT NULL,
+        UserName NVARCHAR(256) NOT NULL,
+        DisplayName NVARCHAR(256) NULL,
+        Active BIT NOT NULL CONSTRAINT DF_ScimUsers_Active DEFAULT (1),
+        ResolvedRole NVARCHAR(64) NULL,
+        CreatedUtc DATETIME2(7) NOT NULL CONSTRAINT DF_ScimUsers_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedUtc DATETIME2(7) NOT NULL CONSTRAINT DF_ScimUsers_UpdatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_ScimUsers_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT UQ_ScimUsers_TenantId_ExternalId UNIQUE (TenantId, ExternalId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ScimUsers_TenantId_UserName ON dbo.ScimUsers (TenantId, UserName);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ScimGroups', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ScimGroups
+    (
+        Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ScimGroups PRIMARY KEY
+            CONSTRAINT DF_ScimGroups_Id DEFAULT NEWSEQUENTIALID(),
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        ExternalId NVARCHAR(256) NOT NULL,
+        DisplayName NVARCHAR(256) NOT NULL,
+        CreatedUtc DATETIME2(7) NOT NULL CONSTRAINT DF_ScimGroups_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        UpdatedUtc DATETIME2(7) NOT NULL CONSTRAINT DF_ScimGroups_UpdatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_ScimGroups_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT UQ_ScimGroups_TenantId_ExternalId UNIQUE (TenantId, ExternalId)
+    );
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ScimGroupMembers', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ScimGroupMembers
+    (
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        GroupId UNIQUEIDENTIFIER NOT NULL,
+        UserId UNIQUEIDENTIFIER NOT NULL,
+        CreatedUtc DATETIME2(7) NOT NULL CONSTRAINT DF_ScimGroupMembers_CreatedUtc DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_ScimGroupMembers PRIMARY KEY (GroupId, UserId),
+        CONSTRAINT FK_ScimGroupMembers_Groups FOREIGN KEY (GroupId) REFERENCES dbo.ScimGroups (Id),
+        CONSTRAINT FK_ScimGroupMembers_Users FOREIGN KEY (UserId) REFERENCES dbo.ScimUsers (Id),
+        CONSTRAINT FK_ScimGroupMembers_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ScimGroupMembers_UserId ON dbo.ScimGroupMembers (UserId, TenantId);
 END;
 GO

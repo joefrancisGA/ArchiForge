@@ -4,7 +4,10 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>HTTP coverage for <c>GET /v1/architecture/run/{runId}/traceability-bundle.zip</c> (404 contract for unknown runs).</summary>
+/// <summary>
+///     HTTP coverage for <c>GET /v1/architecture/run/{runId}/traceability-bundle.zip</c> (404 contract for unknown
+///     runs).
+/// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class TraceabilityBundleZipEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)

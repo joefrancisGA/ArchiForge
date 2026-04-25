@@ -38,6 +38,7 @@ public static class ValueReportReviewCycleSectionFormatter
         string provenanceLabel = snapshot.ReviewCycleBaselineProvenance switch
         {
             ReviewCycleBaselineProvenance.TenantSuppliedAtSignup => "tenant-supplied at trial signup",
+            ReviewCycleBaselineProvenance.TenantSuppliedViaSettings => "tenant-supplied via baseline (settings) page",
             ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions =>
                 "default from PILOT_ROI_MODEL.md (tenant did not provide a baseline at signup)",
             _ => string.Empty
@@ -69,19 +70,28 @@ public static class ValueReportReviewCycleSectionFormatter
 
         list.Add(new ValueReportReviewCycleParagraph(deltaLine, false, false, 22));
 
-        if (snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.TenantSuppliedAtSignup)
+        if (snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.TenantSuppliedAtSignup
+            or ReviewCycleBaselineProvenance.TenantSuppliedViaSettings)
         {
             if (snapshot.TenantBaselineReviewCycleCapturedUtc is { } captured)
             {
+                string when = snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.TenantSuppliedViaSettings
+                    ? "Captured in baseline settings (UTC)"
+                    : "Captured at signup (UTC)";
+
                 list.Add(
                     new ValueReportReviewCycleParagraph(
-                        $"Captured at signup (UTC): {captured.ToString("O", CultureInfo.InvariantCulture)}",
+                        $"{when}: {captured.ToString("O", CultureInfo.InvariantCulture)}",
                         false,
                         true,
                         22));
             }
 
-            if (!string.IsNullOrWhiteSpace(snapshot.TenantBaselineReviewCycleSource))
+            if (!string.IsNullOrWhiteSpace(snapshot.TenantBaselineReviewCycleSource) &&
+                !string.Equals(
+                    snapshot.TenantBaselineReviewCycleSource.Trim(),
+                    "baseline_settings",
+                    StringComparison.Ordinal))
             {
                 list.Add(
                     new ValueReportReviewCycleParagraph(

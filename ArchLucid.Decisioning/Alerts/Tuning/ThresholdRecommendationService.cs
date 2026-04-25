@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Alerts.Simulation;
-
 // Type aliases avoid importing sibling namespace `...Alerts.Composite` (bare `Composite` → CS0118 here).
 using AlertRuleCondition = ArchLucid.Decisioning.Alerts.Composite.AlertRuleCondition;
 using CompositeAlertRule = ArchLucid.Decisioning.Alerts.Composite.CompositeAlertRule;
@@ -7,7 +6,8 @@ using CompositeAlertRule = ArchLucid.Decisioning.Alerts.Composite.CompositeAlert
 namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>
-/// Sweeps <see cref="ThresholdRecommendationRequest.CandidateThresholds"/> via <see cref="IRuleSimulationService"/> and ranks results with <see cref="IAlertNoiseScorer"/>.
+///     Sweeps <see cref="ThresholdRecommendationRequest.CandidateThresholds" /> via <see cref="IRuleSimulationService" />
+///     and ranks results with <see cref="IAlertNoiseScorer" />.
 /// </summary>
 /// <param name="simulationService">Dry-run evaluator over historical contexts.</param>
 /// <param name="noiseScorer">Heuristic ranking of each simulation.</param>
@@ -31,12 +31,12 @@ public sealed class ThresholdRecommendationService(
 
         ThresholdRecommendationResult result = new()
         {
-            EvaluatedUtc = DateTime.UtcNow,
-            RuleKind = request.RuleKind,
-            TunedMetricType = request.TunedMetricType,
+            EvaluatedUtc = DateTime.UtcNow, RuleKind = request.RuleKind, TunedMetricType = request.TunedMetricType
         };
 
-        string slug = string.IsNullOrWhiteSpace(request.RunProjectSlug) ? DefaultProjectSlug : request.RunProjectSlug.Trim();
+        string slug = string.IsNullOrWhiteSpace(request.RunProjectSlug)
+            ? DefaultProjectSlug
+            : request.RunProjectSlug.Trim();
 
         foreach (decimal threshold in request.CandidateThresholds.Distinct().OrderBy(x => x))
         {
@@ -49,19 +49,19 @@ public sealed class ThresholdRecommendationService(
                 AlertRule candidateRule = CloneSimpleRuleWithThreshold(baseRule, threshold);
 
                 simulation = await simulationService
-                    .SimulateAsync(
-                        tenantId,
-                        workspaceId,
-                        projectId,
-                        new RuleSimulationRequest
-                        {
-                            RuleKind = RuleKindSimple,
-                            SimpleRule = candidateRule,
-                            RecentRunCount = request.RecentRunCount,
-                            UseHistoricalWindow = true,
-                            RunProjectSlug = slug,
-                        },
-                        ct)
+                        .SimulateAsync(
+                            tenantId,
+                            workspaceId,
+                            projectId,
+                            new RuleSimulationRequest
+                            {
+                                RuleKind = RuleKindSimple,
+                                SimpleRule = candidateRule,
+                                RecentRunCount = request.RecentRunCount,
+                                UseHistoricalWindow = true,
+                                RunProjectSlug = slug
+                            },
+                            ct)
                     ;
             }
             else if (request.RuleKind.Equals(RuleKindComposite, StringComparison.OrdinalIgnoreCase) &&
@@ -73,19 +73,19 @@ public sealed class ThresholdRecommendationService(
                     threshold);
 
                 simulation = await simulationService
-                    .SimulateAsync(
-                        tenantId,
-                        workspaceId,
-                        projectId,
-                        new RuleSimulationRequest
-                        {
-                            RuleKind = RuleKindComposite,
-                            CompositeRule = candidateRule,
-                            RecentRunCount = request.RecentRunCount,
-                            UseHistoricalWindow = true,
-                            RunProjectSlug = slug,
-                        },
-                        ct)
+                        .SimulateAsync(
+                            tenantId,
+                            workspaceId,
+                            projectId,
+                            new RuleSimulationRequest
+                            {
+                                RuleKind = RuleKindComposite,
+                                CompositeRule = candidateRule,
+                                RecentRunCount = request.RecentRunCount,
+                                UseHistoricalWindow = true,
+                                RunProjectSlug = slug
+                            },
+                            ct)
                     ;
             }
             else
@@ -103,11 +103,10 @@ public sealed class ThresholdRecommendationService(
                 {
                     Candidate = new ThresholdCandidate
                     {
-                        ThresholdValue = threshold,
-                        Label = threshold.ToString("0.##"),
+                        ThresholdValue = threshold, Label = threshold.ToString("0.##")
                     },
                     SimulationResult = simulation,
-                    ScoreBreakdown = score,
+                    ScoreBreakdown = score
                 });
         }
 
@@ -145,8 +144,9 @@ public sealed class ThresholdRecommendationService(
         return copy;
     }
 
-    private static AlertRule CloneSimpleRuleWithThreshold(AlertRule source, decimal threshold) =>
-        new()
+    private static AlertRule CloneSimpleRuleWithThreshold(AlertRule source, decimal threshold)
+    {
+        return new AlertRule
         {
             RuleId = source.RuleId,
             TenantId = source.TenantId,
@@ -159,14 +159,16 @@ public sealed class ThresholdRecommendationService(
             IsEnabled = source.IsEnabled,
             TargetChannelType = source.TargetChannelType,
             MetadataJson = source.MetadataJson,
-            CreatedUtc = source.CreatedUtc,
+            CreatedUtc = source.CreatedUtc
         };
+    }
 
     private static CompositeAlertRule CloneCompositeRuleWithThreshold(
         CompositeAlertRule source,
         string tunedMetricType,
-        decimal threshold) =>
-        new()
+        decimal threshold)
+    {
+        return new CompositeAlertRule
         {
             CompositeRuleId = source.CompositeRuleId,
             TenantId = source.TenantId,
@@ -183,16 +185,16 @@ public sealed class ThresholdRecommendationService(
             TargetChannelType = source.TargetChannelType,
             CreatedUtc = source.CreatedUtc,
             Conditions = source.Conditions
-                .Select(
-                    c => new AlertRuleCondition
-                    {
-                        ConditionId = c.ConditionId,
-                        MetricType = c.MetricType,
-                        Operator = c.Operator,
-                        ThresholdValue = c.MetricType.Equals(tunedMetricType, StringComparison.OrdinalIgnoreCase)
-                            ? threshold
-                            : c.ThresholdValue,
-                    })
-                .ToList(),
+                .Select(c => new AlertRuleCondition
+                {
+                    ConditionId = c.ConditionId,
+                    MetricType = c.MetricType,
+                    Operator = c.Operator,
+                    ThresholdValue = c.MetricType.Equals(tunedMetricType, StringComparison.OrdinalIgnoreCase)
+                        ? threshold
+                        : c.ThresholdValue
+                })
+                .ToList()
         };
+    }
 }

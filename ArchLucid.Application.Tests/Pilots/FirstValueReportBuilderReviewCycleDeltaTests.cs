@@ -46,7 +46,9 @@ public sealed class FirstValueReportBuilderReviewCycleDeltaTests
             ReviewCycleHoursDelta: 6m,
             ReviewCycleHoursDeltaPercent: 60m,
             FindingFeedbackNetScore: 0,
-            FindingFeedbackVoteCount: 0);
+            FindingFeedbackVoteCount: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null);
 
         StringBuilder sb = new();
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, snapshot);

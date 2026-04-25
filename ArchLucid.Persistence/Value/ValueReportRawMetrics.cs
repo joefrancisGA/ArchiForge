@@ -14,4 +14,7 @@ public sealed record ValueReportRawMetrics(
     string? TenantBaselineReviewCycleSource,
     DateTimeOffset? TenantBaselineReviewCycleCapturedUtc,
     decimal? MeasuredAverageReviewCycleHoursForWindow,
-    int MeasuredReviewCycleSampleSize);
+    int MeasuredReviewCycleSampleSize,
+    decimal? TenantBaselineManualPrepHoursPerReview,
+    int? TenantBaselinePeoplePerReview,
+    int? TenantArchitectureTeamSize);

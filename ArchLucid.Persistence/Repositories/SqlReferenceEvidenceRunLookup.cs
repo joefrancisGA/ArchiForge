@@ -11,8 +11,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// SQL lookup for committed runs by tenant (admin reference-evidence path). Uses the authority list connection
-/// factory so results match dashboard-grade <see cref="SqlRunRepository"/> reads.
+///     SQL lookup for committed runs by tenant (admin reference-evidence path). Uses the authority list connection
+///     factory so results match dashboard-grade <see cref="SqlRunRepository" /> reads.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent; exercised via API integration tests with SQL.")]
 public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFactory connectionFactory)
@@ -30,27 +30,23 @@ public sealed class SqlReferenceEvidenceRunLookup(IAuthorityRunListConnectionFac
         int safeTake = Math.Clamp(take <= 0 ? 100 : take, 1, 500);
 
         const string sql = """
-            SELECT TOP (@Take)
-                r.RunId,
-                r.WorkspaceId,
-                r.ScopeProjectId,
-                r.ArchitectureRequestId AS RequestId
-            FROM dbo.Runs r WITH (NOLOCK)
-            WHERE r.TenantId = @TenantId
-              AND r.ArchivedUtc IS NULL
-              AND r.GoldenManifestId IS NOT NULL
-            ORDER BY r.CreatedUtc DESC;
-            """;
+                           SELECT TOP (@Take)
+                               r.RunId,
+                               r.WorkspaceId,
+                               r.ScopeProjectId,
+                               r.ArchitectureRequestId AS RequestId
+                           FROM dbo.Runs r WITH (NOLOCK)
+                           WHERE r.TenantId = @TenantId
+                             AND r.ArchivedUtc IS NULL
+                             AND r.GoldenManifestId IS NOT NULL
+                           ORDER BY r.CreatedUtc DESC;
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<ReferenceEvidenceRunCandidate> rows = await connection.QueryAsync<ReferenceEvidenceRunCandidate>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    Take = safeTake,
-                },
+                new { TenantId = tenantId, Take = safeTake },
                 cancellationToken: cancellationToken));
 
         return rows.ToList();

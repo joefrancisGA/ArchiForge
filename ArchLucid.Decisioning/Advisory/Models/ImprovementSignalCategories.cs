@@ -1,8 +1,8 @@
 namespace ArchLucid.Decisioning.Advisory.Models;
 
 /// <summary>
-/// Canonical <see cref="ImprovementSignal.Category"/> values used by
-/// <see cref="Analysis.ImprovementSignalAnalyzer"/> and <see cref="Services.RecommendationGenerator"/>.
+///     Canonical <see cref="ImprovementSignal.Category" /> values used by
+///     <see cref="Analysis.ImprovementSignalAnalyzer" /> and <see cref="Services.RecommendationGenerator" />.
 /// </summary>
 public static class ImprovementSignalCategories
 {

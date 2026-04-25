@@ -4,8 +4,6 @@ using ArchLucid.Core.Explanation;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Demo;
 
 /// <summary>Maps authority read-model DTOs into <see cref="DemoCommitPagePreviewResponse"/> for demo + public showcase.</summary>
@@ -26,30 +24,28 @@ public static class DemoCommitPagePreviewMapper
         ILogger logger,
         Guid runIdForLog)
     {
-        if (detail is null || manifestDto is null || explanation is null)
-        {
-            logger.LogWarning(
-                "Commit page preview: missing detail/manifest/explanation for run {RunId} (detail null? {DetailNull}, manifest null? {ManifestNull}, explain null? {ExplainNull}).",
-                runIdForLog,
-                detail is null,
-                manifestDto is null,
-                explanation is null);
+        if (detail is not null && manifestDto is not null && explanation is not null)
+            return new DemoCommitPagePreviewResponse
+            {
+                GeneratedUtc = generatedUtc,
+                IsDemoData = isDemoData,
+                DemoStatusMessage = demoStatusMessage ?? string.Empty,
+                Run = MapRun(detail.Run),
+                AuthorityChain = MapAuthorityChain(detail.Run),
+                Manifest = MapManifest(manifestDto),
+                Artifacts = MapArtifacts(descriptors),
+                PipelineTimeline = MapTimeline(timeline),
+                RunExplanation = explanation,
+            };
+        logger.LogWarning(
+            "Commit page preview: missing detail/manifest/explanation for run {RunId} (detail null? {DetailNull}, manifest null? {ManifestNull}, explain null? {ExplainNull}).",
+            runIdForLog,
+            detail is null,
+            manifestDto is null,
+            explanation is null);
 
-            return null;
-        }
+        return null;
 
-        return new DemoCommitPagePreviewResponse
-        {
-            GeneratedUtc = generatedUtc,
-            IsDemoData = isDemoData,
-            DemoStatusMessage = demoStatusMessage ?? string.Empty,
-            Run = MapRun(detail.Run),
-            AuthorityChain = MapAuthorityChain(detail.Run),
-            Manifest = MapManifest(manifestDto),
-            Artifacts = MapArtifacts(descriptors),
-            PipelineTimeline = MapTimeline(timeline),
-            RunExplanation = explanation,
-        };
     }
 
     private static DemoPreviewRun MapRun(RunRecord r) => new()

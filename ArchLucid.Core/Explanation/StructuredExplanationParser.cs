@@ -5,7 +5,8 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Core.Explanation;
 
 /// <summary>
-/// Parses LLM output into <see cref="StructuredExplanation"/>; never throws. Non-JSON or invalid payloads become a fallback envelope.
+///     Parses LLM output into <see cref="StructuredExplanation" />; never throws. Non-JSON or invalid payloads become a
+///     fallback envelope.
 /// </summary>
 public static class StructuredExplanationParser
 {
@@ -15,11 +16,12 @@ public static class StructuredExplanationParser
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         ReadCommentHandling = JsonCommentHandling.Skip,
         AllowTrailingCommas = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     /// <summary>
-    /// Returns <see langword="true"/> when <paramref name="rawText"/> is JSON that deserializes to a non-empty <c>reasoning</c> field.
+    ///     Returns <see langword="true" /> when <paramref name="rawText" /> is JSON that deserializes to a non-empty
+    ///     <c>reasoning</c> field.
     /// </summary>
     public static bool TryNormalizeStructuredJson(
         string? rawText,
@@ -32,7 +34,8 @@ public static class StructuredExplanationParser
 
         try
         {
-            StructuredExplanationDto? dto = JsonSerializer.Deserialize<StructuredExplanationDto>(rawText.Trim(), Options);
+            StructuredExplanationDto? dto =
+                JsonSerializer.Deserialize<StructuredExplanationDto>(rawText.Trim(), Options);
 
             if (dto is null || string.IsNullOrWhiteSpace(dto.Reasoning))
                 return false;
@@ -47,7 +50,8 @@ public static class StructuredExplanationParser
     }
 
     /// <summary>
-    /// Produces a <see cref="StructuredExplanation"/> from LLM output. On failure, returns an envelope with <see cref="StructuredExplanation.Reasoning"/> set to the trimmed raw text (may be empty).
+    ///     Produces a <see cref="StructuredExplanation" /> from LLM output. On failure, returns an envelope with
+    ///     <see cref="StructuredExplanation.Reasoning" /> set to the trimmed raw text (may be empty).
     /// </summary>
     public static StructuredExplanation Parse(string? rawText)
     {
@@ -61,7 +65,7 @@ public static class StructuredExplanationParser
             EvidenceRefs = [],
             Confidence = null,
             AlternativesConsidered = null,
-            Caveats = null,
+            Caveats = null
         };
     }
 
@@ -92,38 +96,47 @@ public static class StructuredExplanationParser
             EvidenceRefs = dto.EvidenceRefs ?? [],
             Confidence = ClampConfidence(dto.Confidence),
             AlternativesConsidered = dto.AlternativesConsidered,
-            Caveats = dto.Caveats,
+            Caveats = dto.Caveats
         };
     }
 
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     private sealed class StructuredExplanationDto
     {
-        public int SchemaVersion { get; set; } = 1;
+        public int SchemaVersion
+        {
+            get;
+            set;
+        } = 1;
 
         public string? Reasoning
         {
-            get; set;
+            get;
+            set;
         }
 
         public List<string>? EvidenceRefs
         {
-            get; set;
+            get;
+            set;
         }
 
         public decimal? Confidence
         {
-            get; set;
+            get;
+            set;
         }
 
         public List<string>? AlternativesConsidered
         {
-            get; set;
+            get;
+            set;
         }
 
         public List<string>? Caveats
         {
-            get; set;
+            get;
+            set;
         }
     }
 }

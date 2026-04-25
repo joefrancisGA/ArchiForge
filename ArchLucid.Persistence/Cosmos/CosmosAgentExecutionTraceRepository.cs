@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Cosmos;
 
-/// <summary>Cosmos-backed <see cref="IAgentExecutionTraceRepository"/>.</summary>
+/// <summary>Cosmos-backed <see cref="IAgentExecutionTraceRepository" />.</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]
 public sealed class CosmosAgentExecutionTraceRepository(
     CosmosClientFactory clientFactory,
@@ -42,7 +42,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
             TraceJson = json,
             CreatedUtc = trace.CreatedUtc.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture),
             TaskId = trace.TaskId,
-            Ttl = ttl,
+            Ttl = ttl
         };
 
         await container.CreateItemAsync(doc, new PartitionKey(trace.RunId), cancellationToken: cancellationToken);
@@ -68,7 +68,8 @@ public sealed class CosmosAgentExecutionTraceRepository(
     }
 
     /// <inheritdoc />
-    public async Task PatchBlobUploadFailedAsync(string traceId, bool failed, CancellationToken cancellationToken = default)
+    public async Task PatchBlobUploadFailedAsync(string traceId, bool failed,
+        CancellationToken cancellationToken = default)
     {
         AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
 
@@ -105,7 +106,8 @@ public sealed class CosmosAgentExecutionTraceRepository(
     }
 
     /// <inheritdoc />
-    public async Task PatchInlineFallbackFailedAsync(string traceId, bool failed, CancellationToken cancellationToken = default)
+    public async Task PatchInlineFallbackFailedAsync(string traceId, bool failed,
+        CancellationToken cancellationToken = default)
     {
         AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
 
@@ -117,7 +119,8 @@ public sealed class CosmosAgentExecutionTraceRepository(
     }
 
     /// <inheritdoc />
-    public async Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId, CancellationToken cancellationToken = default)
+    public async Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId,
+        CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
 
@@ -164,10 +167,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
         {
             FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(cancellationToken);
 
-            foreach (AgentTraceDocument doc in page)
-
-                list.Add(Deserialize(doc));
-
+            list.AddRange(page.Select(Deserialize));
         }
 
         return list;
@@ -218,10 +218,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
         {
             FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(ct);
 
-            foreach (AgentTraceDocument doc in page)
-
-                traces.Add(Deserialize(doc));
-
+            traces.AddRange(page.Select(Deserialize));
         }
 
         return (traces, total);
@@ -240,7 +237,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
             TraceJson = JsonSerializer.Serialize(trace, ContractJson.Default),
             CreatedUtc = trace.CreatedUtc.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture),
             TaskId = trace.TaskId,
-            Ttl = ttl,
+            Ttl = ttl
         };
 
         await container.ReplaceItemAsync(doc, trace.TraceId, new PartitionKey(trace.RunId), cancellationToken: ct);

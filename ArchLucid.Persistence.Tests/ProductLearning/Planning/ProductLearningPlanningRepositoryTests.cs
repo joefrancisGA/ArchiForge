@@ -7,13 +7,15 @@ namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 [Trait("ChangeSet", "59R")]
 public sealed class ProductLearningPlanningRepositoryTests
 {
-    private static ProductLearningScope Scope() =>
-        new()
+    private static ProductLearningScope Scope()
+    {
+        return new ProductLearningScope
         {
             TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
         };
+    }
 
     [Fact]
     public async Task InsertTheme_list_and_get_round_trips()
@@ -121,9 +123,7 @@ public sealed class ProductLearningPlanningRepositoryTests
             [
                 new ProductLearningImprovementPlanActionStep
                 {
-                    Ordinal = 1,
-                    ActionType = "Investigate",
-                    Description = "Read signals"
+                    Ordinal = 1, ActionType = "Investigate", Description = "Read signals"
                 }
             ],
             PriorityScore = 42
@@ -193,12 +193,7 @@ public sealed class ProductLearningPlanningRepositoryTests
                 Summary = "P",
                 ActionSteps =
                 [
-                    new ProductLearningImprovementPlanActionStep
-                    {
-                        Ordinal = 1,
-                        ActionType = "T",
-                        Description = "D"
-                    }
+                    new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "T", Description = "D" }
                 ],
                 PriorityScore = 1
             },
@@ -224,9 +219,7 @@ public sealed class ProductLearningPlanningRepositoryTests
         await repo.AddPlanSignalLinkAsync(
             new ProductLearningImprovementPlanSignalLinkRecord
             {
-                PlanId = planId,
-                SignalId = s2,
-                TriageStatusSnapshot = ProductLearningTriageStatusValues.Open
+                PlanId = planId, SignalId = s2, TriageStatusSnapshot = ProductLearningTriageStatusValues.Open
             },
             CancellationToken.None);
 
@@ -242,11 +235,7 @@ public sealed class ProductLearningPlanningRepositoryTests
         Assert.Equal(ProductLearningTriageStatusValues.Open, sigs[1].TriageStatusSnapshot);
 
         await repo.AddPlanArtifactLinkAsync(
-            new ProductLearningImprovementPlanArtifactLinkRecord
-            {
-                PlanId = planId,
-                PilotArtifactHint = "diagram.png"
-            },
+            new ProductLearningImprovementPlanArtifactLinkRecord { PlanId = planId, PilotArtifactHint = "diagram.png" },
             CancellationToken.None);
 
         IReadOnlyList<ProductLearningImprovementPlanArtifactLinkRecord> arts =
@@ -264,18 +253,8 @@ public sealed class ProductLearningPlanningRepositoryTests
 
         List<ProductLearningImprovementPlanActionStep> dupOrd =
         [
-            new()
-            {
-                Ordinal = 1,
-                ActionType = "A",
-                Description = "d"
-            },
-            new()
-            {
-                Ordinal = 1,
-                ActionType = "B",
-                Description = "d2"
-            }
+            new() { Ordinal = 1, ActionType = "A", Description = "d" },
+            new() { Ordinal = 1, ActionType = "B", Description = "d2" }
         ];
 
         Assert.Throws<ArgumentException>(() =>
@@ -285,9 +264,7 @@ public sealed class ProductLearningPlanningRepositoryTests
             Enumerable.Range(1, 21)
                 .Select(i => new ProductLearningImprovementPlanActionStep
                 {
-                    Ordinal = i,
-                    ActionType = "T",
-                    Description = "D"
+                    Ordinal = i, ActionType = "T", Description = "D"
                 })
                 .ToList();
 

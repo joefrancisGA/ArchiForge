@@ -5,28 +5,29 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Stable JSON shape for <c>artifacts/release/metadata.json</c> (script: Write-ReleasePackageArtifacts.ps1) — 56R handoff.
+///     Stable JSON shape for <c>artifacts/release/metadata.json</c> (script: Write-ReleasePackageArtifacts.ps1) — 56R
+///     handoff.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class ReleasePackageMetadataContractTests
 {
     private const string MinimalMetadataV11 = """
-{
-  "schemaVersion": "1.1",
-  "packageKind": "ArchLucid.ReleaseCandidate",
-  "application": "ArchLucid.Api",
-  "informationalVersion": "1.0.0+deadbeef",
-  "assemblyVersion": "1.0.0.0",
-  "fileVersion": "1.0.0.0",
-  "commitSha": "deadbeef",
-  "buildTimestampUtc": "2026-01-01T00:00:00.0000000Z",
-  "dotnetSdkVersion": "10.0.100",
-  "packagerHost": "ci-runner",
-  "apiPublishPathRelative": "artifacts/release/api",
-  "uiProductionBuildIncluded": false
-}
-""";
+                                              {
+                                                "schemaVersion": "1.1",
+                                                "packageKind": "ArchLucid.ReleaseCandidate",
+                                                "application": "ArchLucid.Api",
+                                                "informationalVersion": "1.0.0+deadbeef",
+                                                "assemblyVersion": "1.0.0.0",
+                                                "fileVersion": "1.0.0.0",
+                                                "commitSha": "deadbeef",
+                                                "buildTimestampUtc": "2026-01-01T00:00:00.0000000Z",
+                                                "dotnetSdkVersion": "10.0.100",
+                                                "packagerHost": "ci-runner",
+                                                "apiPublishPathRelative": "artifacts/release/api",
+                                                "uiProductionBuildIncluded": false
+                                              }
+                                              """;
 
     [Fact]
     public void Release_metadata_json_v1_1_parses_with_expected_handoff_fields()

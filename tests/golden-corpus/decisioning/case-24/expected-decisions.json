@@ -1,0 +1,16 @@
+{
+  "authority": [
+    {
+      "category": "Requirement",
+      "selectedOption": "Accepted",
+      "title": "Auth-3",
+      "rationale": "Authenticate users"
+    },
+    {
+      "category": "Security",
+      "selectedOption": "RequiredRemediation",
+      "title": "Enforce control: MFA",
+      "rationale": "Security control is missing and should be enforced."
+    }
+  ]
+}

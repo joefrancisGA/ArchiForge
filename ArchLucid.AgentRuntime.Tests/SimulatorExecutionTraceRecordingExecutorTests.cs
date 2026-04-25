@@ -8,7 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Tests for <see cref="SimulatorExecutionTraceRecordingExecutor"/>.
+///     Tests for <see cref="SimulatorExecutionTraceRecordingExecutor" />.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class SimulatorExecutionTraceRecordingExecutorTests
@@ -39,9 +39,9 @@ public sealed class SimulatorExecutionTraceRecordingExecutorTests
         spy.Calls.Should().HaveCount(4);
         spy.Calls.Select(c => c.TaskId).Should().BeEquivalentTo(tasks.Select(t => t.TaskId));
         spy.Calls.Should().OnlyContain(c => c.RunId == runId);
-        spy.Calls.Should().OnlyContain(
-            c => c.ModelDeploymentName == AgentExecutionTraceModelMetadata.SimulatorDeploymentName
-                 && c.ModelVersion == AgentExecutionTraceModelMetadata.SimulatorModelVersion);
+        spy.Calls.Should().OnlyContain(c =>
+            c.ModelDeploymentName == AgentExecutionTraceModelMetadata.SimulatorDeploymentName
+            && c.ModelVersion == AgentExecutionTraceModelMetadata.SimulatorModelVersion);
         spy.Calls.Should().OnlyContain(c => c.IsSimulatorExecution);
     }
 
@@ -77,10 +77,7 @@ public sealed class SimulatorExecutionTraceRecordingExecutorTests
             },
             new AgentTask
             {
-                TaskId = "task-cost",
-                RunId = runId,
-                AgentType = AgentType.Cost,
-                Objective = "Estimate cost."
+                TaskId = "task-cost", RunId = runId, AgentType = AgentType.Cost, Objective = "Estimate cost."
             },
             new AgentTask
             {
@@ -91,10 +88,7 @@ public sealed class SimulatorExecutionTraceRecordingExecutorTests
             },
             new AgentTask
             {
-                TaskId = "task-critic",
-                RunId = runId,
-                AgentType = AgentType.Critic,
-                Objective = "Critique design."
+                TaskId = "task-critic", RunId = runId, AgentType = AgentType.Critic, Objective = "Critique design."
             }
         ];
     }

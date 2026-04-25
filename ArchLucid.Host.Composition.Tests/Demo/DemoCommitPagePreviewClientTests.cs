@@ -33,7 +33,7 @@ public sealed class DemoCommitPagePreviewClientTests
             Description = "demo",
             CreatedUtc = DateTime.UtcNow,
             ContextSnapshotId = Guid.NewGuid(),
-            GraphSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid()
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -55,25 +55,25 @@ public sealed class DemoCommitPagePreviewClientTests
             DecisionCount = 2,
             WarningCount = 1,
             UnresolvedIssueCount = 0,
-            Status = "ok",
+            Status = "ok"
         };
 
         IReadOnlyList<ArtifactDescriptor> descriptors =
         [
-            new ArtifactDescriptor
+            new()
             {
                 ArtifactId = Guid.NewGuid(),
                 ArtifactType = "docx",
                 Name = "a",
                 Format = "binary",
                 CreatedUtc = DateTime.UtcNow,
-                ContentHash = "h1",
-            },
+                ContentHash = "h1"
+            }
         ];
 
         IReadOnlyList<RunPipelineTimelineItemDto> timeline =
         [
-            new RunPipelineTimelineItemDto(Guid.NewGuid(), DateTime.UtcNow, "Commit", "actor", "corr"),
+            new(Guid.NewGuid(), DateTime.UtcNow, "Commit", "actor", "corr")
         ];
 
         RunExplanationSummary summary = new()
@@ -81,7 +81,7 @@ public sealed class DemoCommitPagePreviewClientTests
             Explanation = new ExplanationResult { Summary = "S" },
             ThemeSummaries = ["t1"],
             OverallAssessment = "A",
-            RiskPosture = "Low",
+            RiskPosture = "Low"
         };
 
         Mock<IAuthorityQueryService> authority = new();
@@ -94,7 +94,8 @@ public sealed class DemoCommitPagePreviewClientTests
 
         Mock<IArtifactQueryService> artifacts = new();
         artifacts
-            .Setup(a => a.ListArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), manifestId, It.IsAny<CancellationToken>()))
+            .Setup(a => a.ListArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), manifestId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(descriptors);
 
         Mock<IRunPipelineAuditTimelineService> pipeline = new();
@@ -131,7 +132,8 @@ public sealed class DemoCommitPagePreviewClientTests
     public async Task GetLatestCommittedDemoCommitPageAsync_returns_null_when_resolver_has_no_run()
     {
         Mock<IDemoSeedRunResolver> seedResolver = new();
-        seedResolver.Setup(s => s.ResolveLatestCommittedDemoRunAsync(It.IsAny<CancellationToken>())).ReturnsAsync((RunRecord?)null);
+        seedResolver.Setup(s => s.ResolveLatestCommittedDemoRunAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
 
         DemoCommitPagePreviewClient sut = new(
             seedResolver.Object,
@@ -157,7 +159,7 @@ public sealed class DemoCommitPagePreviewClientTests
             ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
             GoldenManifestId = manifestId,
             ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         Mock<IDemoSeedRunResolver> seedResolver = new();
@@ -180,12 +182,13 @@ public sealed class DemoCommitPagePreviewClientTests
                 DecisionCount = 0,
                 WarningCount = 0,
                 UnresolvedIssueCount = 0,
-                Status = "s",
+                Status = "s"
             });
 
         Mock<IArtifactQueryService> artifacts = new();
         artifacts
-            .Setup(a => a.ListArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), manifestId, It.IsAny<CancellationToken>()))
+            .Setup(a => a.ListArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), manifestId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         Mock<IRunPipelineAuditTimelineService> pipeline = new();

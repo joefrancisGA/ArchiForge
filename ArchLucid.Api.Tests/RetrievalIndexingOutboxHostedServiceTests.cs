@@ -10,7 +10,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Shutdown and loop behavior tests for <see cref="RetrievalIndexingOutboxHostedService"/>.
+///     Shutdown and loop behavior tests for <see cref="RetrievalIndexingOutboxHostedService" />.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

@@ -1,0 +1,86 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000003",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000003",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000003-0000-4000-8000-000000000000",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000003",
+    "runId": "20000000-0000-4000-8000-000000000003",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "t1",
+        "nodeType": "TopologyResource",
+        "label": "vpc-0",
+        "category": "network",
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {}
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": {
+    "mergeRunId": "golden-merge-run-1",
+    "manifestVersion": "v1-golden",
+    "request": {
+      "requestId": "REQ-GOLDEN-001",
+      "description": "Golden corpus merge slice \u2014 deterministic description text.",
+      "systemName": "GoldenMergeSystem",
+      "environment": "prod",
+      "cloudProvider": 1,
+      "constraints": [
+        "HTTPS only"
+      ],
+      "requiredCapabilities": [],
+      "assumptions": [],
+      "priorManifestVersion": null,
+      "inlineRequirements": [],
+      "documents": [],
+      "policyReferences": [],
+      "topologyHints": [],
+      "securityBaselineHints": [],
+      "infrastructureDeclarations": []
+    },
+    "agentResults": [
+      {
+        "resultId": "RES-GOLD-1",
+        "taskId": "TASK-GOLD-1",
+        "runId": "golden-merge-run-1",
+        "agentType": 1,
+        "claims": [
+          "Add API service"
+        ],
+        "evidenceRefs": [
+          "request"
+        ],
+        "confidence": 0.9,
+        "findings": [],
+        "proposedChanges": {
+          "proposalId": "PROP-GOLD-1",
+          "sourceAgent": 1,
+          "addedServices": [
+            {
+              "serviceId": "svc-golden-1",
+              "serviceName": "api",
+              "serviceType": 1,
+              "runtimePlatform": 1,
+              "purpose": null,
+              "tags": [],
+              "requiredControls": []
+            }
+          ],
+          "addedDatastores": [],
+          "addedRelationships": [],
+          "requiredControls": [],
+          "warnings": []
+        },
+        "createdUtc": "2026-04-24T04:08:56.8914126Z"
+      }
+    ],
+    "evaluations": [],
+    "decisionNodes": [],
+    "parentManifestVersion": null
+  }
+}

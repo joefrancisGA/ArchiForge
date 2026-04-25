@@ -10,8 +10,9 @@ public interface ISchemaValidationService
 
     SchemaValidationResult ValidateComparisonExplanationJson(string json);
 
-    Task<SchemaValidationResult> ValidateAgentResultJsonAsync(string json, CancellationToken cancellationToken = default);
+    Task<SchemaValidationResult> ValidateAgentResultJsonAsync(string json,
+        CancellationToken cancellationToken = default);
 
-    Task<SchemaValidationResult> ValidateGoldenManifestJsonAsync(string json, CancellationToken cancellationToken = default);
+    Task<SchemaValidationResult> ValidateGoldenManifestJsonAsync(string json,
+        CancellationToken cancellationToken = default);
 }
-

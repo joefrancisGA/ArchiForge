@@ -29,6 +29,7 @@ describe("EmailRunToSponsorBanner", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.clearAllMocks();
   });
@@ -92,6 +93,46 @@ describe("EmailRunToSponsorBanner", () => {
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-primary-action")).not.toBeDisabled();
     });
+  });
+
+  it("renders Day 0 when first commit is within the first UTC day (fake timers)", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-03-10T14:00:00.000Z"));
+    const anchorIso = new Date("2026-03-10T12:00:00.000Z").toISOString();
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ firstCommitUtc: anchorIso }),
+    } as Response);
+
+    render(<EmailRunToSponsorBanner runId="run-42" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
+        "Day 0 since first commit",
+      );
+    });
+
+    expect(mockTelemetry).toHaveBeenCalledWith(0);
+  });
+
+  it("renders Day 1 once 24h elapsed since first commit (fake timers)", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-03-11T12:00:01.000Z"));
+    const anchorIso = new Date("2026-03-10T12:00:00.000Z").toISOString();
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ firstCommitUtc: anchorIso }),
+    } as Response);
+
+    render(<EmailRunToSponsorBanner runId="run-42" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
+        "Day 1 since first commit",
+      );
+    });
+
+    expect(mockTelemetry).toHaveBeenCalledWith(1);
   });
 
   it("renders Day 4 badge when firstCommitUtc is four and a half UTC-day periods earlier", async () => {

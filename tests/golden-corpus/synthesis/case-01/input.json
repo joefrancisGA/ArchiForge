@@ -1,0 +1,17 @@
+{
+  "runId": "11111111-1111-1111-1111-111111111101",
+  "manifestId": "11111111-1111-1111-1111-111111111102",
+  "coveredRequirementNames": [ "R1.1", "R1.2" ],
+  "uncoveredRequirementNames": [ "R2.1" ],
+  "securityGaps": [ "S1: missing NSG on subnet", "S2: PII in logs" ],
+  "complianceGaps": [ "C1: retention policy not documented" ],
+  "unresolvedIssues": [
+    {
+      "title": "Ambiguous data boundary",
+      "issueType": "clarification",
+      "description": "Service X ownership unclear.",
+      "severity": "medium"
+    }
+  ],
+  "topologyGaps": [ "Zone redundancy not stated", "Egress path missing" ]
+}

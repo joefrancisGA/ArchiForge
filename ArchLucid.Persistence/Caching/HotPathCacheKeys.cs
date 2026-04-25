@@ -43,8 +43,14 @@ public static class HotPathCacheKeys
     }
 
     /// <summary>Policy pack metadata by surrogate key.</summary>
-    public static string PolicyPack(Guid policyPackId) => $"{Prefix}pp:{policyPackId:N}";
+    public static string PolicyPack(Guid policyPackId)
+    {
+        return $"{Prefix}pp:{policyPackId:N}";
+    }
 
     /// <summary>Pre-rename policy pack key shape (read promotion / eviction only).</summary>
-    public static string LegacyPolicyPack(Guid policyPackId) => $"{LegacyPrefix}pp:{policyPackId:N}";
+    public static string LegacyPolicyPack(Guid policyPackId)
+    {
+        return $"{LegacyPrefix}pp:{policyPackId:N}";
+    }
 }

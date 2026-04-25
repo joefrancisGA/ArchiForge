@@ -12,13 +12,14 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Findings;
 
 /// <summary>
-/// Branch coverage for <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync"/> when
-/// <c>FindingRecords</c> exist but no child rows — <c>GetValueOrDefault</c> / empty collection paths.
+///     Branch coverage for <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync" /> when
+///     <c>FindingRecords</c> exist but no child rows — <c>GetValueOrDefault</c> / empty collection paths.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "Core")]
-public sealed class FindingsSnapshotRelationalReadMinimalChildrenDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class FindingsSnapshotRelationalReadMinimalChildrenDirectSqlIntegrationTests(
+    SqlServerPersistenceFixture fixture)
 {
     [SkippableFact]
     public async Task LoadRelationalSnapshotAsync_hydrates_relational_finding_with_empty_child_collections()
@@ -50,33 +51,31 @@ public sealed class FindingsSnapshotRelationalReadMinimalChildrenDirectSqlIntegr
             CancellationToken.None);
 
         const string selectHeader = """
-            SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
-            FROM dbo.FindingsSnapshots
-            WHERE FindingsSnapshotId = @FindingsSnapshotId;
-            """;
+                                    SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
+                                    FROM dbo.FindingsSnapshots
+                                    WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                                    """;
 
         FindingsSnapshotStorageRow? headerRow = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(selectHeader, new
-            {
-                FindingsSnapshotId = findingsId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectHeader, new { FindingsSnapshotId = findingsId },
+                cancellationToken: CancellationToken.None));
 
         headerRow.Should().NotBeNull();
 
         const string insertRecord = """
-            INSERT INTO dbo.FindingRecords
-            (
-                FindingRecordId, FindingsSnapshotId, SortOrder,
-                FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                Severity, Title, Rationale, PayloadType, PayloadJson
-            )
-            VALUES
-            (
-                @FindingRecordId, @FindingsSnapshotId, @SortOrder,
-                @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
-                @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingRecords
+                                    (
+                                        FindingRecordId, FindingsSnapshotId, SortOrder,
+                                        FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
+                                        Severity, Title, Rationale, PayloadType, PayloadJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingRecordId, @FindingsSnapshotId, @SortOrder,
+                                        @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
+                                        @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -95,12 +94,13 @@ public sealed class FindingsSnapshotRelationalReadMinimalChildrenDirectSqlIntegr
                     Title = "No children",
                     Rationale = "R",
                     PayloadType = (string?)null,
-                    PayloadJson = (string?)null,
+                    PayloadJson = (string?)null
                 },
                 cancellationToken: CancellationToken.None));
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow, CancellationToken.None);
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow,
+                CancellationToken.None);
 
         loaded.Findings.Should().ContainSingle();
         Finding f = loaded.Findings[0];

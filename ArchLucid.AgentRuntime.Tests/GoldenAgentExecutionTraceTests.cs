@@ -8,7 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Regression fixtures for persisted <see cref="AgentExecutionTrace"/> JSON shape (see <c>docs/AGENT_OUTPUT_EVALUATION.md</c>).
+///     Regression fixtures for persisted <see cref="AgentExecutionTrace" /> JSON shape (see
+///     <c>docs/AGENT_OUTPUT_EVALUATION.md</c>).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

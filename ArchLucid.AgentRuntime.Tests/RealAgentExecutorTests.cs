@@ -18,27 +18,11 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class RealAgentExecutorTests
 {
-    private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    private static IOptions<AgentExecutionResilienceOptions> UnlimitedResilienceOptions()
     {
-        public AgentPromptCatalogOptions CurrentValue { get; } = value;
-
-        public AgentPromptCatalogOptions Get(string? name) => CurrentValue;
-
-        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
+        return Options.Create(
+            new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });
     }
-
-    private sealed class FixedScopeProvider(ScopeContext scope) : IScopeContextProvider
-    {
-        public ScopeContext GetCurrentScope() => scope;
-    }
-
-    private static IOptions<AgentExecutionResilienceOptions> UnlimitedResilienceOptions() =>
-        Options.Create(
-            new AgentExecutionResilienceOptions
-            {
-                MaxConcurrentHandlers = 0,
-                PerHandlerTimeoutSeconds = 0,
-            });
 
     private static RealAgentExecutor CreateSut(params IAgentHandler[] handlers)
     {
@@ -53,7 +37,7 @@ public sealed class RealAgentExecutorTests
                 {
                     TenantId = ScopeIds.DefaultTenant,
                     WorkspaceId = ScopeIds.DefaultWorkspace,
-                    ProjectId = ScopeIds.DefaultProject,
+                    ProjectId = ScopeIds.DefaultProject
                 }),
             new AgentHandlerConcurrencyGate(ro),
             ro);
@@ -65,7 +49,7 @@ public sealed class RealAgentExecutorTests
         IAgentHandler[] handlers =
         [
             new StubAgentHandler(AgentType.Topology),
-            new StubAgentHandler(AgentType.Topology),
+            new StubAgentHandler(AgentType.Topology)
         ];
 
         Action act = () => _ = CreateSut(handlers);
@@ -85,7 +69,7 @@ public sealed class RealAgentExecutorTests
             RequestId = "r1",
             Description = "1234567890ab",
             SystemName = "S",
-            Environment = "prod",
+            Environment = "prod"
         };
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
@@ -93,13 +77,13 @@ public sealed class RealAgentExecutorTests
         {
             TaskId = "tz",
             RunId = runId,
-            AgentType = AgentType.Topology,
+            AgentType = AgentType.Topology
         };
         AgentTask taskC = new()
         {
             TaskId = "tc",
             RunId = runId,
-            AgentType = AgentType.Compliance,
+            AgentType = AgentType.Compliance
         };
 
         IReadOnlyList<AgentResult> results =
@@ -120,13 +104,13 @@ public sealed class RealAgentExecutorTests
         {
             RequestId = "r1",
             Description = "1234567890ab",
-            SystemName = "S",
+            SystemName = "S"
         };
         AgentTask task = new()
         {
             TaskId = "t",
             RunId = "run",
-            AgentType = AgentType.Cost,
+            AgentType = AgentType.Cost
         };
 
         Func<Task> act = async () =>
@@ -158,7 +142,7 @@ public sealed class RealAgentExecutorTests
                 RequestId = "r1",
                 Description = "1234567890ab",
                 SystemName = "S",
-                Environment = "prod",
+                Environment = "prod"
             };
             AgentEvidencePackage evidence = new();
             string runId = Guid.NewGuid().ToString("N");
@@ -166,13 +150,13 @@ public sealed class RealAgentExecutorTests
             {
                 TaskId = "tz",
                 RunId = runId,
-                AgentType = AgentType.Topology,
+                AgentType = AgentType.Topology
             };
             AgentTask taskC = new()
             {
                 TaskId = "tc",
                 RunId = runId,
-                AgentType = AgentType.Compliance,
+                AgentType = AgentType.Compliance
             };
 
             await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
@@ -208,7 +192,7 @@ public sealed class RealAgentExecutorTests
             RequestId = "r1",
             Description = "1234567890ab",
             SystemName = "S",
-            Environment = "prod",
+            Environment = "prod"
         };
         AgentEvidencePackage evidence = new();
         string runId = Guid.NewGuid().ToString("N");
@@ -216,13 +200,13 @@ public sealed class RealAgentExecutorTests
         {
             TaskId = "tz",
             RunId = runId,
-            AgentType = AgentType.Topology,
+            AgentType = AgentType.Topology
         };
         AgentTask taskCompliance = new()
         {
             TaskId = "tc",
             RunId = runId,
-            AgentType = AgentType.Compliance,
+            AgentType = AgentType.Compliance
         };
 
         using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(5));
@@ -231,6 +215,32 @@ public sealed class RealAgentExecutorTests
             await sut.ExecuteAsync(runId, request, evidence, [taskTopology, taskCompliance], timeout.Token);
 
         await act.Should().NotThrowAsync();
+    }
+
+    private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    {
+        public AgentPromptCatalogOptions CurrentValue
+        {
+            get;
+        } = value;
+
+        public AgentPromptCatalogOptions Get(string? name)
+        {
+            return CurrentValue;
+        }
+
+        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener)
+        {
+            return null;
+        }
+    }
+
+    private sealed class FixedScopeProvider(ScopeContext scope) : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope()
+        {
+            return scope;
+        }
     }
 
     private sealed class StubAgentHandler(AgentType agentType) : IAgentHandler
@@ -278,7 +288,7 @@ public sealed class RealAgentExecutorTests
                     TaskId = task.TaskId,
                     AgentType = agentType,
                     Claims = [],
-                    EvidenceRefs = [],
+                    EvidenceRefs = []
                 });
         }
     }
@@ -304,7 +314,7 @@ public sealed class RealAgentExecutorTests
                 TaskId = task.TaskId,
                 AgentType = AgentType.Compliance,
                 Claims = [],
-                EvidenceRefs = [],
+                EvidenceRefs = []
             };
         }
     }
@@ -331,7 +341,7 @@ public sealed class RealAgentExecutorTests
                     TaskId = task.TaskId,
                     AgentType = AgentType.Topology,
                     Claims = [],
-                    EvidenceRefs = [],
+                    EvidenceRefs = []
                 });
         }
     }

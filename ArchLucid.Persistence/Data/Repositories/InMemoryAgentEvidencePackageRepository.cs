@@ -7,7 +7,7 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IAgentEvidencePackageRepository"/> for tests (JSON clone-on-read).
+///     Thread-safe in-memory <see cref="IAgentEvidencePackageRepository" /> for tests (JSON clone-on-read).
 /// </summary>
 public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePackageRepository
 {
@@ -47,17 +47,16 @@ public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePacka
         lock (_gate)
 
             return Task.FromResult(_byRunId.TryGetValue(runId, out AgentEvidencePackage? p) ? Clone(p) : null);
-
     }
 
     /// <inheritdoc />
-    public Task<AgentEvidencePackage?> GetByIdAsync(string evidencePackageId, CancellationToken cancellationToken = default)
+    public Task<AgentEvidencePackage?> GetByIdAsync(string evidencePackageId,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
 
             return Task.FromResult(_byId.TryGetValue(evidencePackageId, out AgentEvidencePackage? p) ? Clone(p) : null);
-
     }
 
     private static AgentEvidencePackage Clone(AgentEvidencePackage source)

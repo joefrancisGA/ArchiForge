@@ -38,7 +38,7 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
                 Seats = 1,
                 Workspaces = 1,
                 ReturnUrl = "https://app.example.com/ok",
-                CancelUrl = "https://app.example.com/cancel",
+                CancelUrl = "https://app.example.com/cancel"
             });
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
@@ -49,10 +49,10 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "ReaderUser",
-            roles: [ArchLucidRoles.Reader]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -65,7 +65,7 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
                 Seats = 1,
                 Workspaces = 1,
                 ReturnUrl = "https://app.example.com/ok",
-                CancelUrl = "https://app.example.com/cancel",
+                CancelUrl = "https://app.example.com/cancel"
             });
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -76,10 +76,10 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "AdminUser",
-            roles: [ArchLucidRoles.Admin]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "AdminUser",
+            [ArchLucidRoles.Admin]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -93,7 +93,7 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
                 Workspaces = 1,
                 BillingEmail = "billing@example.com",
                 ReturnUrl = "https://app.example.com/ok",
-                CancelUrl = "https://app.example.com/cancel",
+                CancelUrl = "https://app.example.com/cancel"
             });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -117,7 +117,7 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
         using RSA rsa = RSA.Create();
 
         rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(includePrivateParameters: true);
+        RSAParameters keyMaterial = rsa.ExportParameters(true);
         RsaSecurityKey signingKey = new(keyMaterial);
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
@@ -130,12 +130,12 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            notBefore: DateTime.UtcNow.AddMinutes(-1),
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);
+            issuer,
+            audience,
+            claims,
+            DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddHours(1),
+            creds);
 
         return handler.WriteToken(token);
     }

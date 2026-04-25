@@ -7,7 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Golden <see cref="AgentResult"/>-shaped JSON for <see cref="AgentOutputEvaluator"/> / <see cref="AgentOutputSemanticEvaluator"/> regression (see <c>docs/AGENT_OUTPUT_EVALUATION.md</c>).
+///     Golden <see cref="AgentResult" />-shaped JSON for <see cref="AgentOutputEvaluator" /> /
+///     <see cref="AgentOutputSemanticEvaluator" /> regression (see <c>docs/AGENT_OUTPUT_EVALUATION.md</c>).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -64,7 +65,7 @@ public sealed class GoldenAgentResultJsonEvaluationTests
     }
 
     /// <summary>
-    /// Regression: stripping per-claim evidence must reduce semantic score (Prompt 2 — golden-set guard).
+    ///     Regression: stripping per-claim evidence must reduce semantic score (Prompt 2 — golden-set guard).
     /// </summary>
     [Fact]
     public void Golden_claim_without_evidence_refs_lowers_semantic_score_relative_to_valid_fixture()
@@ -73,7 +74,8 @@ public sealed class GoldenAgentResultJsonEvaluationTests
         string withoutClaimEvidenceJson = LoadFixtureText("golden-agent-result-claim-without-evidence.json");
 
         AgentOutputSemanticScore validSemantic = Semantic.Evaluate(TraceId, validJson, AgentType.Topology);
-        AgentOutputSemanticScore strippedSemantic = Semantic.Evaluate(TraceId, withoutClaimEvidenceJson, AgentType.Topology);
+        AgentOutputSemanticScore strippedSemantic =
+            Semantic.Evaluate(TraceId, withoutClaimEvidenceJson, AgentType.Topology);
 
         validSemantic.OverallSemanticScore.Should().BeApproximately(1.0, 0.001);
         strippedSemantic.ClaimsQualityRatio.Should().Be(0.0);

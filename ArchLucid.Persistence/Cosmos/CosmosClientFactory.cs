@@ -7,16 +7,16 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Cosmos;
 
-/// <summary>Lazy-initializes <see cref="CosmosClient"/> and shared containers for polyglot persistence.</summary>
+/// <summary>Lazy-initializes <see cref="CosmosClient" /> and shared containers for polyglot persistence.</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires live Cosmos account or emulator.")]
 public sealed class CosmosClientFactory : IDisposable
 {
-    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor;
-    private readonly ILogger<CosmosClientFactory> _logger;
+    private readonly ConcurrentDictionary<string, Container> _containers = new(StringComparer.Ordinal);
     private readonly SemaphoreSlim _initLock = new(1, 1);
+    private readonly ILogger<CosmosClientFactory> _logger;
+    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor;
     private CosmosClient? _client;
     private Database? _database;
-    private readonly ConcurrentDictionary<string, Container> _containers = new(StringComparer.Ordinal);
     private bool _disposed;
 
     public CosmosClientFactory(IOptionsMonitor<CosmosDbOptions> optionsMonitor, ILogger<CosmosClientFactory> logger)
@@ -52,7 +52,8 @@ public sealed class CosmosClientFactory : IDisposable
             CosmosDbOptions opts = _optionsMonitor.CurrentValue;
 
             if (string.IsNullOrWhiteSpace(opts.ConnectionString))
-                throw new InvalidOperationException("CosmosDb:ConnectionString is required when Cosmos features are enabled.");
+                throw new InvalidOperationException(
+                    "CosmosDb:ConnectionString is required when Cosmos features are enabled.");
 
             _client ??= CreateClient(opts);
             _database ??= await _client.CreateDatabaseIfNotExistsAsync(opts.DatabaseName, cancellationToken: ct);
@@ -60,7 +61,7 @@ public sealed class CosmosClientFactory : IDisposable
             int throughput = 400;
             ContainerProperties properties = new(containerId, GetPartitionKeyPath(containerId))
             {
-                DefaultTimeToLive = GetDefaultTtl(containerId, opts),
+                DefaultTimeToLive = GetDefaultTtl(containerId, opts)
             };
 
             ContainerResponse response = await _database.CreateContainerIfNotExistsAsync(
@@ -96,7 +97,8 @@ public sealed class CosmosClientFactory : IDisposable
             CosmosDbOptions opts = _optionsMonitor.CurrentValue;
 
             if (string.IsNullOrWhiteSpace(opts.ConnectionString))
-                throw new InvalidOperationException("CosmosDb:ConnectionString is required when Cosmos features are enabled.");
+                throw new InvalidOperationException(
+                    "CosmosDb:ConnectionString is required when Cosmos features are enabled.");
 
             _client ??= CreateClient(opts);
             _database ??= await _client.CreateDatabaseIfNotExistsAsync(opts.DatabaseName, cancellationToken: ct);
@@ -139,10 +141,7 @@ public sealed class CosmosClientFactory : IDisposable
         if (string.Equals(containerId, "agent-traces", StringComparison.Ordinal))
             return "/runId";
 
-        if (string.Equals(containerId, "audit-events", StringComparison.Ordinal))
-            return "/tenantId";
-
-        throw new ArgumentOutOfRangeException(nameof(containerId), containerId, "Unknown Cosmos container id.");
+        return string.Equals(containerId, "audit-events", StringComparison.Ordinal) ? "/tenantId" : throw new ArgumentOutOfRangeException(nameof(containerId), containerId, "Unknown Cosmos container id.");
     }
 
     private CosmosClient CreateClient(CosmosDbOptions opts)
@@ -151,7 +150,7 @@ public sealed class CosmosClientFactory : IDisposable
         {
             ApplicationName = "ArchLucid",
             ConnectionMode = ConnectionMode.Direct,
-            ConsistencyLevel = ParseConsistency(opts.DefaultConsistencyLevel),
+            ConsistencyLevel = ParseConsistency(opts.DefaultConsistencyLevel)
         };
 
         if (IsEmulatorConnection(opts.ConnectionString))
@@ -161,7 +160,7 @@ public sealed class CosmosClientFactory : IDisposable
             {
                 HttpClientHandler handler = new()
                 {
-                    ServerCertificateCustomValidationCallback = static (_, _, _, _) => true,
+                    ServerCertificateCustomValidationCallback = static (_, _, _, _) => true
                 };
 
                 return new HttpClient(handler);
@@ -196,9 +195,6 @@ public sealed class CosmosClientFactory : IDisposable
         if (string.IsNullOrWhiteSpace(raw))
             return ConsistencyLevel.Session;
 
-        if (Enum.TryParse(raw.Trim(), ignoreCase: true, out ConsistencyLevel level))
-            return level;
-
-        return ConsistencyLevel.Session;
+        return Enum.TryParse(raw.Trim(), true, out ConsistencyLevel level) ? level : ConsistencyLevel.Session;
     }
 }

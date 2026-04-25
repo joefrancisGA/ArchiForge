@@ -8,7 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Parallel <c>POST /v1/architecture/request</c> with the same <c>Idempotency-Key</c> converges on one authority run id.
+///     Parallel <c>POST /v1/architecture/request</c> with the same <c>Idempotency-Key</c> converges on one authority run
+///     id.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -33,8 +34,8 @@ public sealed class ArchitectureRequestIdempotencyConcurrencyIntegrationTests
                 body,
                 idempotencyKey,
                 parallel,
-                maxAttempts: 10,
-                initialDelayMilliseconds: 500,
+                10,
+                500,
                 CancellationToken.None);
 
         responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
@@ -42,7 +43,7 @@ public sealed class ArchitectureRequestIdempotencyConcurrencyIntegrationTests
             body,
             idempotencyKey,
             responses,
-            maxPerSlotAttempts: 25,
+            25,
             CancellationToken.None);
 
         try

@@ -6,4 +6,3 @@ public interface IFindingPayloadValidator
 {
     void Validate(Finding finding);
 }
-

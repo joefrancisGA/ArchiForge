@@ -9,9 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture End To End Comparison Export.
+///     Tests for Architecture End To End Comparison Export.
 /// </summary>
-
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactory factory)
@@ -28,7 +27,8 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        EndToEndReplayComparisonExportResponse? payload = await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonExportResponse>(JsonOptions);
+        EndToEndReplayComparisonExportResponse? payload =
+            await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Format.Should().Be("markdown");
         payload.Content.Should().Contain("# ArchLucid End-to-End Replay Comparison Export");
@@ -71,4 +71,3 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
         body.Length.Should().Be(16);
     }
 }
-

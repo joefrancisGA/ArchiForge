@@ -1,5 +1,7 @@
 > **Scope:** Canonical buyer + evaluator entry — Day-0 narrative, audience split, five-document contributor spine, and where to go next without opening 200 root files.
 
+> **Read this first (forced tree):** **[`READ_THIS_FIRST.md`](READ_THIS_FIRST.md)** — single Y/N entry surface; this file is the deeper hub after you pick a lane.
+
 # Start here — ArchLucid
 
 ## Objective
@@ -12,13 +14,14 @@ ArchLucid is a **SaaS** product. Pick the column that matches you — they share
 
 | You are… | What you ever touch | Start here | Never asked of you |
 |---|---|---|---|
-| **Buyer / evaluator / sponsor / customer** | The public site (`archlucid.com`), the in-product **operator UI** after sign-in, and the **Azure portal** only for your own tenant identity / billing artefacts. | **[`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)** → **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** → cloud trial signup at `archlucid.com/signup`. | **No Docker. No SQL. No .NET / Node SDKs. No Terraform. No CLI.** If any doc tells you to install one of those, you are reading a **contributor** doc by mistake. |
+| **Buyer / evaluator / sponsor / customer** | The public site (`archlucid.com`), the in-product **operator UI** after sign-in, and the **Azure portal** only for your own tenant identity / billing artefacts. | **[`BUYER_FIRST_30_MINUTES.md`](BUYER_FIRST_30_MINUTES.md)** (the canonical evaluator entry — five steps, no install) → **[`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)** → **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)**. The same five steps with screenshots live at the marketing route `archlucid.com/get-started`. | **No Docker. No SQL. No .NET / Node SDKs. No Terraform. No CLI.** If any doc tells you to install one of those, you are reading a **contributor** doc by mistake. |
 | **ArchLucid contributor / engineer / internal operator** | The repo, your local toolchain (Docker / SQL container / .NET / Node), the GitHub workflows, and (operator only) the production Azure subscription via OIDC. | The **five-document contributor spine** below. | None — this column is the one with the toolchain. |
 
-> **What about the buyer's first 30 minutes inside the product?** Today the cloud trial funnel (`archlucid.com/signup → /demo/preview → first sample run`) is wired in code but **not yet live in production** — see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §1.2 / §3 and [`runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md). The buyer-facing equivalent of [`engineering/FIRST_30_MINUTES.md`](engineering/FIRST_30_MINUTES.md) is therefore a **planned doc, not an existing one**; drafting the copy is owner-controlled (brand voice).
+> **What about the buyer's first 30 minutes inside the product?** The buyer-facing equivalent of [`engineering/FIRST_30_MINUTES.md`](engineering/FIRST_30_MINUTES.md) ships in two places: the repo stub at [`BUYER_FIRST_30_MINUTES.md`](BUYER_FIRST_30_MINUTES.md) (consultative scaffold, q35 placeholders on owner-blocked sentences) and the marketing route `archlucid.com/get-started` (same five steps with placeholder screenshot slots until owner names the real-tenant `tenantId` / `runId` for capture). The cloud trial funnel itself (`archlucid.com/signup → /demo/preview → first sample run`) is wired in code but **not yet live in production** — see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md) §3 and [`runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md).
 
 ## Assumptions
 
+- **Quick lookup:** [Doc Navigator](NAVIGATOR.md) — one table, 15 common tasks, each row links to a single best document.
 - You self-identified above. The **buyer column never installs anything**; the **contributor column** uses the spine.
 - Incomplete requirements and imperfect teams are normal — this layout keeps the **default path narrow** and pushes depth into [`docs/library/`](library/) and topic folders.
 
@@ -51,11 +54,12 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 
 ## Data flow — canonical **buyer / evaluator** journey (no install)
 
-1. **Believe the problem is real** — read **[`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)** (10–15 min).
-2. **See the system shape** — skim **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** (15 min; diagrams first; no install required, just look at the poster).
-3. **Run something — in the cloud, not locally** — sign up at **`archlucid.com/signup`** (cloud trial; status see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md)). Until that path is live, request a guided demo.
-4. **Run a serious pilot** — read **[`CORE_PILOT.md`](CORE_PILOT.md)** for the operator motion and review surfaces (you operate the in-product UI; ArchLucid hosts the stack).
-5. **Track open decisions** — **[`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)** (owner gates, cadence reminders).
+1. **Open the canonical first-30-minutes path** — **[`BUYER_FIRST_30_MINUTES.md`](BUYER_FIRST_30_MINUTES.md)** (5 min read; the same five steps render at `archlucid.com/get-started` with screenshots).
+2. **Believe the problem is real** — read **[`EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md)** (10–15 min).
+3. **See the system shape** — skim **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** (15 min; diagrams first; no install required, just look at the poster).
+4. **Run something — in the cloud, not locally** — sign up at **`archlucid.com/signup`** (cloud trial; status see Improvement 2 in [`QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md`](QUALITY_ASSESSMENT_2026_04_23_INDEPENDENT_73_20.md)). Until that path is live, request a guided demo.
+5. **Run a serious pilot** — read **[`CORE_PILOT.md`](CORE_PILOT.md)** for the operator motion and review surfaces (you operate the in-product UI; ArchLucid hosts the stack).
+6. **Track open decisions** — **[`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)** (owner gates, cadence reminders).
 
 ### Five-document **contributor / internal-engineer** spine (Day-1 reading order)
 
@@ -69,7 +73,7 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 | 4 | **[`ARCHITECTURE_ON_ONE_PAGE.md`](ARCHITECTURE_ON_ONE_PAGE.md)** | Poster + ownership (safe for buyers too) | ~15 min |
 | 5 | **[`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md)** | Owner decisions + gates | ~10 min |
 
-**Filename redirects:** [`FIRST_5_DOCS.md`](FIRST_5_DOCS.md), [`FIRST_FIVE_DOCS.md`](FIRST_FIVE_DOCS.md), [`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md), [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) are **thin stubs** pointing here so bookmarks stay stable.
+**Filename redirects:** [`FIRST_5_DOCS.md`](FIRST_5_DOCS.md), [`FIRST_FIVE_DOCS.md`](FIRST_FIVE_DOCS.md), [`FIRST_RUN_WIZARD.md`](FIRST_RUN_WIZARD.md), [`FIRST_RUN_WALKTHROUGH.md`](FIRST_RUN_WALKTHROUGH.md) are **thin stubs** pointing at [`READ_THIS_FIRST.md`](READ_THIS_FIRST.md) so bookmarks stay stable; spine detail stays in this file.
 
 ## Security model (read once)
 
@@ -86,7 +90,7 @@ ArchLucid coordinates **architecture requests → authority pipeline → committ
 
 On **2026-04-23** the repository **compressed `/docs` root** so evaluators see ~20 active entry files instead of ~200. Most former root markdown files now live under **[`docs/library/`](library/)** with **relative links rewritten** across markdown. Superseded **quality / Cursor prompt packs** (except the current **68.60** pair) moved under **[`archive/quality/2026-04-23-doc-depth-reorg/`](archive/quality/2026-04-23-doc-depth-reorg/)**.
 
-**Inventory:** [`library/DOC_INVENTORY_2026_04_23.md`](library/DOC_INVENTORY_2026_04_23.md) lists every active markdown file (excluding `docs/archive/`) with last-modified metadata and audience tags.
+**Inventory:** [`DOC_INVENTORY_2026_04_23.md`](DOC_INVENTORY_2026_04_23.md) lists every active markdown file (excluding `docs/archive/`) with last-modified metadata and audience tags.
 
 ## Related (optional depth)
 

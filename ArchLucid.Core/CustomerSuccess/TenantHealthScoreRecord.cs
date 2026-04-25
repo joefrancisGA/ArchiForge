@@ -5,41 +5,49 @@ public sealed class TenantHealthScoreRecord
 {
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal EngagementScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal BreadthScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal QualityScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal GovernanceScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal SupportScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public decimal CompositeScore
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset UpdatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

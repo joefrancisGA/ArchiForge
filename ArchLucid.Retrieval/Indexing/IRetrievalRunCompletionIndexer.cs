@@ -5,15 +5,17 @@ using ArchLucid.Provenance;
 namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
-/// Builds <see cref="ArchLucid.Retrieval.Models.RetrievalDocument"/> sets from a completed authority run and indexes them for semantic search.
+///     Builds <see cref="ArchLucid.Retrieval.Models.RetrievalDocument" /> sets from a completed authority run and indexes
+///     them for semantic search.
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="RetrievalRunCompletionIndexer"/>. Production hosts enqueue work via the persistence retrieval indexing outbox; a background processor calls this interface after the authority unit of work commits.
+///     Implementation: <see cref="RetrievalRunCompletionIndexer" />. Production hosts enqueue work via the persistence
+///     retrieval indexing outbox; a background processor calls this interface after the authority unit of work commits.
 /// </remarks>
 public interface IRetrievalRunCompletionIndexer
 {
     /// <summary>
-    /// Indexes manifest JSON, per-artifact bodies, and serialized provenance for <see cref="GoldenManifest.RunId"/>.
+    ///     Indexes manifest JSON, per-artifact bodies, and serialized provenance for <see cref="GoldenManifest.RunId" />.
     /// </summary>
     /// <param name="tenantId">Scope tenant.</param>
     /// <param name="workspaceId">Scope workspace.</param>

@@ -56,12 +56,12 @@ public class CostConstraintFindingEngine : IFindingEngine
                         ?
                         [
                             "Use reserved capacity or commitment discounts to lower effective monthly spend.",
-                            "Shift non-critical workloads to spot or burstable SKUs to stay under the cap.",
+                            "Shift non-critical workloads to spot or burstable SKUs to stay under the cap."
                         ]
                         :
                         [
                             "Keep current sizing; monitor actual spend against the declared budget.",
-                            "Right-size resources after a measurement window without changing the architecture pattern.",
+                            "Right-size resources after a measurement window without changing the architecture pattern."
                         ],
                     Notes =
                     [

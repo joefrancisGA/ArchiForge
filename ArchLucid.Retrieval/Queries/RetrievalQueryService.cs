@@ -5,7 +5,7 @@ using ArchLucid.Retrieval.Models;
 namespace ArchLucid.Retrieval.Queries;
 
 /// <summary>
-/// <see cref="IRetrievalQueryService"/> implementation: embed query text, delegate to <see cref="IVectorIndex"/>.
+///     <see cref="IRetrievalQueryService" /> implementation: embed query text, delegate to <see cref="IVectorIndex" />.
 /// </summary>
 public sealed class RetrievalQueryService(
     IEmbeddingService embeddingService,

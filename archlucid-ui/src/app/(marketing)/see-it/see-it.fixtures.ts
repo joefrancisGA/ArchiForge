@@ -1,0 +1,98 @@
+import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+
+/** Minimal valid `DemoCommitPagePreviewResponse` for Vitest (matches API contract shape). */
+export function createMinimalDemoPreviewPayload(): DemoCommitPagePreviewResponse {
+  return {
+    generatedUtc: "2026-04-23T00:00:00+00:00",
+    isDemoData: true,
+    demoStatusMessage: "demo tenant — replace before publishing",
+    run: {
+      runId: "feedfeedfeedfeedfeedfeedfeedfeed",
+      projectId: "default",
+      description: "fixture",
+      createdUtc: "2026-04-23T00:00:00+00:00",
+    },
+    manifest: {
+      manifestId: "cafebabecafebabecafebabecafebabe",
+      runId: "feedfeedfeedfeedfeedfeedfeedfeed",
+      createdUtc: "2026-04-23T00:00:00+00:00",
+      manifestHash: "fixturehash",
+      ruleSetId: "fixture-rules",
+      ruleSetVersion: "9.9.9-fixture",
+      decisionCount: 1,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+      status: "Committed",
+      operatorSummary: "Fixture manifest summary.",
+    },
+    authorityChain: {
+      contextSnapshotId: null,
+      graphSnapshotId: null,
+      findingsSnapshotId: null,
+      goldenManifestId: "cafebabecafebabecafebabecafebabe",
+      decisionTraceId: null,
+      artifactBundleId: null,
+    },
+    artifacts: [
+      {
+        artifactId: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        artifactType: "MarkdownReport",
+        name: "a.md",
+        format: "text/markdown",
+        createdUtc: "2026-04-23T00:00:01+00:00",
+        contentHash: "hash-a",
+      },
+      {
+        artifactId: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        artifactType: "JsonBundle",
+        name: "b.json",
+        format: "application/json",
+        createdUtc: "2026-04-23T00:00:02+00:00",
+        contentHash: "hash-b",
+      },
+      {
+        artifactId: "cccccccccccccccccccccccccccccccc",
+        artifactType: "Diagram",
+        name: "c.mmd",
+        format: "text/plain",
+        createdUtc: "2026-04-23T00:00:03+00:00",
+        contentHash: "hash-c",
+      },
+    ],
+    pipelineTimeline: [
+      {
+        eventId: "dddddddddddddddddddddddddddddddd",
+        occurredUtc: "2026-04-23T00:00:00+00:00",
+        eventType: "Commit",
+        actorUserName: "fixture",
+        correlationId: null,
+      },
+    ],
+    runExplanation: {
+      explanation: {
+        rawText: "",
+        structured: null,
+        confidence: null,
+        provenance: null,
+        summary: "Fixture",
+        keyDrivers: [],
+        riskImplications: [],
+        costImplications: [],
+        complianceImplications: [],
+        detailedNarrative: "",
+      },
+      themeSummaries: [],
+      overallAssessment: "Fixture",
+      riskPosture: "Low",
+      findingCount: 7,
+      decisionCount: 1,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 2,
+      faithfulnessSupportRatio: null,
+      usedDeterministicFallback: false,
+      faithfulnessWarning: null,
+      findingTraceConfidences: null,
+      citations: [],
+    },
+  };
+}

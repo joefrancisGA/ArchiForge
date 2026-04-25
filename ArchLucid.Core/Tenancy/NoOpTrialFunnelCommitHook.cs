@@ -9,7 +9,8 @@ public sealed class NoOpTrialFunnelCommitHook : ITrialFunnelCommitHook
     {
     }
 
-    public Task OnTrialTenantManifestCommittedAsync(Guid tenantId, DateTimeOffset committedUtc, CancellationToken cancellationToken)
+    public Task OnTrialTenantManifestCommittedAsync(Guid tenantId, DateTimeOffset committedUtc,
+        CancellationToken cancellationToken)
     {
         _ = tenantId;
         _ = committedUtc;

@@ -37,9 +37,9 @@ public sealed class FindingsSnapshotLegacyJsonReaderTests
                     EngineType = "E",
                     Severity = FindingSeverity.Info,
                     Title = "Legacy title",
-                    Rationale = "Legacy",
-                },
-            ],
+                    Rationale = "Legacy"
+                }
+            ]
         };
 
         string json = JsonEntitySerializer.Serialize(original);

@@ -20,18 +20,15 @@ public sealed class DapperTenantTrialEmailContactLookup(ISqlConnectionFactory co
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
-                             SELECT TOP (1) ActorUserId
-                             FROM dbo.AuditEvents
-                             WHERE TenantId = @TenantId
-                               AND EventType IN (N'TrialProvisioned', N'TenantSelfRegistered')
-                             ORDER BY OccurredUtc DESC;
-                             """;
+                           SELECT TOP (1) ActorUserId
+                           FROM dbo.AuditEvents
+                           WHERE TenantId = @TenantId
+                             AND EventType IN (N'TrialProvisioned', N'TenantSelfRegistered')
+                           ORDER BY OccurredUtc DESC;
+                           """;
 
         string? actor = await connection.ExecuteScalarAsync<string?>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         if (string.IsNullOrWhiteSpace(actor))
             return null;

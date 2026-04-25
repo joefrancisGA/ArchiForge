@@ -11,9 +11,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Locks DI registration for the context-ingestion connector pipeline to the order defined in
-/// <see cref="ArchLucid.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedContextConnectorPipeline"/>
-/// and <see cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers"/>.
+///     Locks DI registration for the context-ingestion connector pipeline to the order defined in
+///     <see
+///         cref="ArchLucid.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedContextConnectorPipeline" />
+///     and
+///     <see
+///         cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers" />
+///     .
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFactory factory)
@@ -39,8 +43,8 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFacto
     }
 
     /// <summary>
-    /// Catches accidental duplicate registrations (e.g. <c>AddSingleton&lt;IContextConnector, X&gt;</c>
-    /// alongside the pipeline factory) that would silently alter enumeration count or order.
+    ///     Catches accidental duplicate registrations (e.g. <c>AddSingleton&lt;IContextConnector, X&gt;</c>
+    ///     alongside the pipeline factory) that would silently alter enumeration count or order.
     /// </summary>
     [Fact]
     public void Services_Resolve_IEnumerable_IContextConnector_CountMatchesPipelineFactory()

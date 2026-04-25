@@ -10,17 +10,22 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
-/// Default <see cref="IPolicyPackManagementService"/> implementation: orchestrates repositories for create / publish / assign flows.
+///     Default <see cref="IPolicyPackManagementService" /> implementation: orchestrates repositories for create / publish
+///     / assign flows.
 /// </summary>
 /// <remarks>
-/// <para>
-/// <strong>Change log:</strong> <see cref="IPolicyPackChangeLogRepository"/> receives append-only rows for mutations.
-/// <see cref="CreatePackAsync"/> uses <c>ChangedBy = "system"</c> because the service has no caller identity parameter yet.
-/// </para>
-/// <para>
-/// <strong>Create + durability:</strong> The pack/version rows commit first; the change log append runs afterward on the
-/// repository default connection so a failed log insert cannot roll back the primary mutation (see <see cref="AppendChangeLogAsync"/>).
-/// </para>
+///     <para>
+///         <strong>Change log:</strong> <see cref="IPolicyPackChangeLogRepository" /> receives append-only rows for
+///         mutations.
+///         <see cref="CreatePackAsync" /> uses <c>ChangedBy = "system"</c> because the service has no caller identity
+///         parameter yet.
+///     </para>
+///     <para>
+///         <strong>Create + durability:</strong> The pack/version rows commit first; the change log append runs afterward
+///         on the
+///         repository default connection so a failed log insert cannot roll back the primary mutation (see
+///         <see cref="AppendChangeLogAsync" />).
+///     </para>
 /// </remarks>
 public sealed class PolicyPackManagementService(
     IPolicyPackRepository packRepository,
@@ -35,7 +40,7 @@ public sealed class PolicyPackManagementService(
     private static readonly JsonSerializerOptions ChangeLogJsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false,
+        WriteIndented = false
     };
 
     /// <inheritdoc />
@@ -63,7 +68,7 @@ public sealed class PolicyPackManagementService(
             PackType = packType,
             Status = PolicyPackStatus.Draft,
             CreatedUtc = DateTime.UtcNow,
-            CurrentVersion = InitialVersion,
+            CurrentVersion = InitialVersion
         };
 
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(ct);
@@ -83,7 +88,7 @@ public sealed class PolicyPackManagementService(
                             Version = InitialVersion,
                             ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
                             CreatedUtc = DateTime.UtcNow,
-                            IsPublished = false,
+                            IsPublished = false
                         },
                         ct,
                         uow.Connection,
@@ -102,7 +107,7 @@ public sealed class PolicyPackManagementService(
                             Version = InitialVersion,
                             ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
                             CreatedUtc = DateTime.UtcNow,
-                            IsPublished = false,
+                            IsPublished = false
                         },
                         ct);
             }
@@ -132,12 +137,10 @@ public sealed class PolicyPackManagementService(
             pack.ProjectId,
             PolicyPackChangeTypes.Created,
             "system",
-            previousValue: null,
-            newValue: newValueJson,
-            summaryText: $"Policy pack '{name}' created with initial version {InitialVersion}.",
-            ct,
-            connection: null,
-            transaction: null);
+            null,
+            newValueJson,
+            $"Policy pack '{name}' created with initial version {InitialVersion}.",
+            ct);
 
         return pack;
     }
@@ -157,7 +160,7 @@ public sealed class PolicyPackManagementService(
             await versionRepository.UpsertPublishedVersionAsync(policyPackId, version, normalizedJson, ct);
 
         PolicyPack pack = await packRepository.GetByIdAsync(policyPackId, ct) ?? throw new InvalidOperationException(
-                $"Policy pack '{policyPackId}' was not found. Cannot promote version '{version}' on a non-existent pack.");
+            $"Policy pack '{policyPackId}' was not found. Cannot promote version '{version}' on a non-existent pack.");
 
         pack.CurrentVersion = version;
         pack.Status = PolicyPackStatus.Active;
@@ -172,19 +175,18 @@ public sealed class PolicyPackManagementService(
             PolicyPackChangeTypes.VersionPublished,
             "system",
             previousValue,
-            newValue: normalizedJson,
-            summaryText: $"Version '{version}' published for pack '{policyPackId}'.",
-            ct,
-            connection: null,
-            transaction: null);
+            normalizedJson,
+            $"Version '{version}' published for pack '{policyPackId}'.",
+            ct);
 
         return packVersion;
     }
 
     /// <inheritdoc />
     /// <remarks>
-    /// Persists <see cref="GovernanceScopeLevel"/>-appropriate workspace/project ids (empty GUIDs when not part of the tier)
-    /// so <see cref="IPolicyPackAssignmentRepository.ListByScopeAsync"/> can match tenant-wide and workspace-wide rows.
+    ///     Persists <see cref="GovernanceScopeLevel" />-appropriate workspace/project ids (empty GUIDs when not part of the
+    ///     tier)
+    ///     so <see cref="IPolicyPackAssignmentRepository.ListByScopeAsync" /> can match tenant-wide and workspace-wide rows.
     /// </remarks>
     public async Task<PolicyPackAssignment> AssignAsync(
         Guid tenantId,
@@ -221,7 +223,7 @@ public sealed class PolicyPackManagementService(
             IsEnabled = true,
             ScopeLevel = normalized,
             IsPinned = isPinned,
-            AssignedUtc = DateTime.UtcNow,
+            AssignedUtc = DateTime.UtcNow
         };
 
         await assignmentRepository.CreateAsync(assignment, ct);
@@ -242,12 +244,10 @@ public sealed class PolicyPackManagementService(
             proj,
             PolicyPackChangeTypes.Assigned,
             "system",
-            previousValue: null,
-            newValue: assignJson,
-            summaryText: $"Pack '{policyPackId}' assigned at {normalized} scope, version '{version}'.",
-            ct,
-            connection: null,
-            transaction: null);
+            null,
+            assignJson,
+            $"Pack '{policyPackId}' assigned at {normalized} scope, version '{version}'.",
+            ct);
 
         return assignment;
     }
@@ -259,7 +259,8 @@ public sealed class PolicyPackManagementService(
         if (!ok)
             return false;
 
-        PolicyPackAssignment? row = await assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
+        PolicyPackAssignment? row =
+            await assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
         if (row is null)
             return true;
 
@@ -270,12 +271,10 @@ public sealed class PolicyPackManagementService(
             row.ProjectId,
             PolicyPackChangeTypes.AssignmentArchived,
             "system",
-            previousValue: null,
-            newValue: null,
-            summaryText: $"Assignment '{assignmentId}' archived.",
-            ct,
-            connection: null,
-            transaction: null);
+            null,
+            null,
+            $"Assignment '{assignmentId}' archived.",
+            ct);
 
         return true;
     }
@@ -309,7 +308,7 @@ public sealed class PolicyPackManagementService(
             ChangedUtc = DateTime.UtcNow,
             PreviousValue = previousValue,
             NewValue = newValue,
-            SummaryText = summaryText,
+            SummaryText = summaryText
         };
 
         try

@@ -27,7 +27,9 @@ public sealed class GreenfieldBaselineMigrationRunnerTests
     [Theory]
     [InlineData("There is already an object named 'ArchitectureRequests' in the database.", 0, true)]
     [InlineData("There is already an object named 'GovernanceApprovalRequests' in the database.", 0, true)]
-    [InlineData("Msg 2714, Level 16, State 6, Line 1: There is already an object named 'GovernancePromotionRecords' in the database.", 2714, true)]
+    [InlineData(
+        "Msg 2714, Level 16, State 6, Line 1: There is already an object named 'GovernancePromotionRecords' in the database.",
+        2714, true)]
     [InlineData("There is already an object named 'GovernanceEnvironmentActivations' in the database.", 2714, true)]
     [InlineData("There is already an object named 'OtherTable' in the database.", 2714, false)]
     [InlineData("select * from ArchitectureRequests", 0, false)]
@@ -58,7 +60,8 @@ public sealed class GreenfieldBaselineMigrationRunnerTests
         true)]
     [InlineData("There is already an object named 'FK_Other' in the database.", false)]
     [InlineData("Could not create constraint or index.", false)]
-    public void IsKnownDuplicateBaselineConstraintName_matches_artifact_bundle_duplicate_fk_messages(string message, bool expected)
+    public void IsKnownDuplicateBaselineConstraintName_matches_artifact_bundle_duplicate_fk_messages(string message,
+        bool expected)
     {
         bool actual = GreenfieldBaselineMigrationRunner.IsKnownDuplicateBaselineConstraintName(message);
 

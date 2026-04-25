@@ -47,9 +47,12 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
     public async Task GetLatestAsync_returns_most_recent_GeneratedUtc_for_scope()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
-        await repo.SaveAsync(BuildProfile(new DateTime(2026, 4, 4, 10, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
-        await repo.SaveAsync(BuildProfile(new DateTime(2026, 4, 4, 15, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
-        await repo.SaveAsync(BuildProfile(new DateTime(2026, 4, 4, 12, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
+        await repo.SaveAsync(BuildProfile(new DateTime(2026, 4, 4, 10, 0, 0, DateTimeKind.Utc)),
+            CancellationToken.None);
+        await repo.SaveAsync(BuildProfile(new DateTime(2026, 4, 4, 15, 0, 0, DateTimeKind.Utc)),
+            CancellationToken.None);
+        await repo.SaveAsync(BuildProfile(new DateTime(2026, 4, 4, 12, 0, 0, DateTimeKind.Utc)),
+            CancellationToken.None);
 
         RecommendationLearningProfile? latest =
             await repo.GetLatestAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
@@ -62,7 +65,8 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
     public async Task GetLatestAsync_ignores_other_scopes()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
-        await repo.SaveAsync(BuildProfile(new DateTime(2026, 4, 4, 20, 0, 0, DateTimeKind.Utc)), CancellationToken.None);
+        await repo.SaveAsync(BuildProfile(new DateTime(2026, 4, 4, 20, 0, 0, DateTimeKind.Utc)),
+            CancellationToken.None);
 
         RecommendationLearningProfile otherTenant = BuildProfile(new DateTime(2026, 4, 5, 1, 0, 0, DateTimeKind.Utc));
         otherTenant.TenantId = Guid.Parse("99999999-9999-9999-9999-999999999999");
@@ -116,10 +120,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
     {
         return new RecommendationLearningProfile
         {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ProjectId,
-            GeneratedUtc = generatedUtc,
+            TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId, GeneratedUtc = generatedUtc
         };
     }
 }

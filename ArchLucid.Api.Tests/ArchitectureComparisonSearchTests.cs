@@ -10,19 +10,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Comparison Search.
+///     Tests for Architecture Comparison Search.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly ArchLucidApiFactory _factory = factory;
-
     /// <summary>Records seeded so two pages of limit 2 do not overlap and ascending sort can be asserted.</summary>
     private const int SeededComparisonRecordsForPagingOverlapTest = 6;
 
     /// <summary>Records seeded for cursor-based paging (desc sort, limit 2 per page).</summary>
     private const int SeededComparisonRecordsForCursorPagingTest = 5;
+
+    private readonly ArchLucidApiFactory _factory = factory;
 
     [Fact]
     public async Task SearchComparisons_PagingDoesNotOverlap_AndSortAscWorks()
@@ -125,7 +124,8 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
         HttpResponseMessage badSkip = await Client.GetAsync("/v1/architecture/comparisons?skip=-1");
         badSkip.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        HttpResponseMessage badDates = await Client.GetAsync("/v1/architecture/comparisons?createdFromUtc=2026-01-02T00:00:00Z&createdToUtc=2026-01-01T00:00:00Z");
+        HttpResponseMessage badDates = await Client.GetAsync(
+            "/v1/architecture/comparisons?createdFromUtc=2026-01-02T00:00:00Z&createdToUtc=2026-01-01T00:00:00Z");
         badDates.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
         HttpResponseMessage badSort = await Client.GetAsync("/v1/architecture/comparisons?sortDir=sideways");
@@ -171,4 +171,3 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
         byTags.Records.Should().Contain(r => r.Label == "incident-42");
     }
 }
-

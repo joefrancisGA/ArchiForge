@@ -9,9 +9,11 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 /// <summary>
-/// Binds <c>scripts/ci/prompt_regression_baseline.json</c> (copied to output) to golden evaluator scores so CI fails
-/// when prompt/handler changes regress committed floors. All agent types share the same <see cref="AgentResult"/> JSON contract;
-/// the golden file uses <c>agentType: 1</c> (Topology) while evaluation passes each <see cref="AgentType"/> separately.
+///     Binds <c>scripts/ci/prompt_regression_baseline.json</c> (copied to output) to golden evaluator scores so CI fails
+///     when prompt/handler changes regress committed floors. All agent types share the same <see cref="AgentResult" />
+///     JSON contract;
+///     the golden file uses <c>agentType: 1</c> (Topology) while evaluation passes each <see cref="AgentType" />
+///     separately.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -29,16 +31,19 @@ public sealed class PromptRegressionBaselineContractTests
         baseline.TopologyMinStructural.Should().BeGreaterThan(0.0);
         baseline.TopologyMinSemantic.Should().BeGreaterThan(0.0);
 
-        string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "GoldenAgentResults", "golden-agent-result-valid.json");
+        string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "GoldenAgentResults",
+            "golden-agent-result-valid.json");
         string json = File.ReadAllText(fixturePath);
 
         AssertAgentMeetsFloor(json, AgentType.Topology, baseline.TopologyMinStructural, baseline.TopologyMinSemantic);
         AssertAgentMeetsFloor(json, AgentType.Cost, baseline.CostMinStructural, baseline.CostMinSemantic);
-        AssertAgentMeetsFloor(json, AgentType.Compliance, baseline.ComplianceMinStructural, baseline.ComplianceMinSemantic);
+        AssertAgentMeetsFloor(json, AgentType.Compliance, baseline.ComplianceMinStructural,
+            baseline.ComplianceMinSemantic);
         AssertAgentMeetsFloor(json, AgentType.Critic, baseline.CriticMinStructural, baseline.CriticMinSemantic);
     }
 
-    private static void AssertAgentMeetsFloor(string json, AgentType agentType, double minStructural, double minSemantic)
+    private static void AssertAgentMeetsFloor(string json, AgentType agentType, double minStructural,
+        double minSemantic)
     {
         AgentOutputEvaluationScore structuralScore = Structural.Evaluate(TraceId, json, agentType);
         structuralScore.IsJsonParseFailure.Should().BeFalse();
@@ -112,7 +117,8 @@ public sealed class PromptRegressionBaselineContractTests
 
         public static BaselineMins LoadFromOutput()
         {
-            string path = Path.Combine(AppContext.BaseDirectory, "Fixtures", "Regression", "prompt_regression_baseline.json");
+            string path = Path.Combine(AppContext.BaseDirectory, "Fixtures", "Regression",
+                "prompt_regression_baseline.json");
 
             if (!File.Exists(path))
             {

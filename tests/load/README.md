@@ -1,11 +1,64 @@
 # k6 load scripts (`tests/load`)
 
+## Core pilot load baseline (Flow A)
+
+**SLOs:** [../go-to-market/SLA_SUMMARY.md](../go-to-market/SLA_SUMMARY.md) — 99.5% availability, **p95 &lt; 2s** for API response time (5-minute windows; agent/LLM work may exceed this on longer paths). **Flow A:** [../library/ARCHITECTURE_FLOWS.md](../library/ARCHITECTURE_FLOWS.md) (create run → tasks/results → commit → manifest/artifacts).
+
+**What it measures:** `core-pilot.js` drives the **pilot** HTTP path against a **local** API (default `http://127.0.0.1:5001`), **DevelopmentBypass** (no Entra/JWT), **InMemory** storage, and **Simulator** agent mode — see `ArchLucid.Api/appsettings.Development.json`. Do not point this at production or staging.
+
+| Profile | VUs / duration (defaults) | Primary flows |
+|--------|----------------------------|---------------|
+| `core` (default) | 10 VUs, 5m | `POST /v1/architecture/request` → `POST .../execute` → `POST .../commit` → `GET /v1/authority/manifests/{id}/summary` → `GET /v1/artifacts/manifests/{id}` |
+| `read` | 50 VUs, 5m | `GET /v1/authority/projects/{project}/runs` → `GET /v1/authority/runs/{id}` → optional `GET /v1/authority/manifests/{id}/summary` when a committed manifest exists |
+| `mixed` | 5 writers + 25 readers, 10m | Same as `core` on writers, `read` on readers |
+
+**Run (single profile):**
+
+```text
+# From repo root; k6 in PATH. Start API with Development + InMemory + Simulator, e.g.:
+#   dotnet run --project ArchLucid.Api --urls http://127.0.0.1:5001
+#   (optional) set RateLimiting__FixedWindow__PermitLimit=200000 for high VU
+
+set ARCHLUCID_BASE_URL=http://127.0.0.1:5001
+k6 run tests/load/core-pilot.js
+set K6_LOAD_PROFILE=read & k6 run tests/load/core-pilot.js
+set K6_LOAD_PROFILE=mixed & k6 run tests/load/core-pilot.js
+```
+
+On PowerShell, use `$env:K6_LOAD_PROFILE='read'` before `k6 run`.
+
+**Output:** `handleSummary` writes a JSON fragment to `K6_BASELINE_PATH` or `tests/load/results/baseline-${K6_BASELINE_DATE}.json` (default `baseline-local.json` if unset). Each k6 `metrics` block includes **p50, p95, p99** on `http_req_duration` (global and per-`endpoint` tag), **http_req_failed** (error rate), and **http_reqs** (count + rate, ≈ rps in the test window).
+
+**One merged baseline (all three profiles):** after installing **k6** and **Python 3**:
+
+```powershell
+# Quick dry capture (20s/20s/30s windows) — for full 5m/5m/10m runs, omit -Compress
+./tests/load/record-baseline.ps1 -Date 2026-04-24 -BaseUrl http://127.0.0.1:5001 -Compress
+```
+
+**Committed snapshot:** [results/baseline-2026-04-24.json](results/baseline-2026-04-24.json) (example layout; **re-run `record-baseline.ps1` without `-Compress` on your machine to replace** with real k6 output for your CPU/network).
+
+**Compare later runs:** Keep the new handleSummary JSON and diff against the stored baseline (or use `k6` `--summary-export` in addition). Watch **p(95)** on each `http_req_duration{endpoint:...}` and **http_req_failed**; regressions: higher p95 (especially above ~2000ms on lightweight read endpoints) or higher error rate.
+
+| Variable | Default | Purpose |
+|----------|---------|--------|
+| `ARCHLUCID_BASE_URL` / `BASE_URL` | `http://127.0.0.1:5001` | API base URL (spec default for pilot baseline) |
+| `K6_LOAD_PROFILE` | `core` | `core` \| `read` \| `mixed` |
+| `K6_COMPRESS` | *off* | `1` or `true` = short dev durations (20s/20s/30s) |
+| `K6_BASELINE_PATH` / `K6_BASELINE_DATE` | (see `core-pilot.js`) | Output fragment path for `handleSummary` |
+| `K6_CORE_VUS` / `K6_READ_VUS` / `K6_MIXED_WRITERS` / `K6_MIXED_READERS` | 10 / 50 / 5 / 25 | VU counts |
+
+**Install k6 (Windows):** `winget install k6 --source winget` (or [grafana k6](https://grafana.com/docs/k6/latest/set-up/install-k6/)).
+
+---
+
 ## Environment variable matrix
 
 All scripts accept **`ARCHLUCID_BASE_URL`** (preferred) or **`BASE_URL`** (alias) for the API base URL. Default: `http://127.0.0.1:5128`.
 
 | Script | Required env | Optional env | Example one-liner | Summary path |
 |--------|-------------|-------------|-------------------|-------------|
+| **`core-pilot.js`** | — | `K6_LOAD_PROFILE` (`core`\|`read`\|`mixed`), `K6_COMPRESS`, `K6_BASELINE_PATH`, `K6_BASELINE_DATE`, `K6_CORE_VUS`, `K6_READ_VUS`, `K6_MIXED_*` | `k6 run tests/load/core-pilot.js` | `tests/load/results/baseline-*.json` (via `handleSummary`) or merge `record-baseline.ps1` |
 | **`k6-api-smoke.js`** | — | `ARCHLUCID_API_KEY`, `ARCHLUCID_AUTHORITY_PROJECT` (`default`), `K6_SCENARIO` (`smoke`\|`load`), `K6_SUMMARY_PATH` | `k6 run tests/load/k6-api-smoke.js` | `tests/load/results/k6-summary.json` (via `handleSummary`) |
 | **`ci-smoke.js`** | — | — | `k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json` | `--summary-export` arg |
 | **`smoke.js`** | — | — | `k6 run tests/load/smoke.js --out json=k6-results.json` | `--out` / `--summary-export` |

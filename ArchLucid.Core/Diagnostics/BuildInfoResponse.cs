@@ -1,28 +1,56 @@
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-/// Lightweight, non-secret build identity payload returned by <c>GET /version</c>
-/// and included in CLI <c>doctor</c> output for support handoff.
+///     Lightweight, non-secret build identity payload returned by <c>GET /version</c>
+///     and included in CLI <c>doctor</c> output for support handoff.
 /// </summary>
 public sealed class BuildInfoResponse
 {
-    public string Application { get; init; } = string.Empty;
-    public string InformationalVersion { get; init; } = string.Empty;
-    public string AssemblyVersion { get; init; } = string.Empty;
+    public string Application
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string InformationalVersion
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string AssemblyVersion
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public string? FileVersion
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? CommitSha
     {
-        get; init;
+        get;
+        init;
     }
-    public string RuntimeFramework { get; init; } = string.Empty;
-    public string Environment { get; init; } = string.Empty;
+
+    public string RuntimeFramework
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string Environment
+    {
+        get;
+        init;
+    } = string.Empty;
 
     /// <summary>
-    /// Creates a <see cref="BuildInfoResponse"/> from <paramref name="provenance"/>
-    /// and optional environment metadata.
+    ///     Creates a <see cref="BuildInfoResponse" /> from <paramref name="provenance" />
+    ///     and optional environment metadata.
     /// </summary>
     public static BuildInfoResponse FromProvenance(
         BuildProvenance provenance,
@@ -39,7 +67,7 @@ public sealed class BuildInfoResponse
             FileVersion = provenance.FileVersion,
             CommitSha = provenance.CommitSha,
             RuntimeFramework = provenance.RuntimeFrameworkDescription,
-            Environment = environmentName,
+            Environment = environmentName
         };
     }
 }

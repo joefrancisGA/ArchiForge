@@ -1,4 +1,5 @@
 using System.Data;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -10,11 +11,12 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Concurrency;
 
 /// <summary>
-/// SQL Server session application lock for cross-replica create-run idempotency (<c>sp_getapplock</c> / <c>sp_releaseapplock</c>).
+///     SQL Server session application lock for cross-replica create-run idempotency (<c>sp_getapplock</c> /
+///     <c>sp_releaseapplock</c>).
 /// </summary>
 /// <remarks>
-/// <c>sp_getapplock</c> return codes: 0 or 1 = granted, -1 = timeout, -2 = cancelled, -3 = deadlock victim.
-/// Resource name is limited to 255 NVARCHAR characters; longer keys are hashed to a fixed hex string.
+///     <c>sp_getapplock</c> return codes: 0 or 1 = granted, -1 = timeout, -2 = cancelled, -3 = deadlock victim.
+///     Resource name is limited to 255 NVARCHAR characters; longer keys are hashed to a fixed hex string.
 /// </remarks>
 public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnectionFactory connectionFactory)
     : IDistributedCreateRunIdempotencyLock
@@ -59,7 +61,7 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
             cmd.Parameters.AddWithValue("@timeoutMs", lockTimeoutMs);
 
             object? scalar = await cmd.ExecuteScalarAsync(cancellationToken);
-            int code = scalar is int i ? i : Convert.ToInt32(scalar, System.Globalization.CultureInfo.InvariantCulture);
+            int code = scalar is int i ? i : Convert.ToInt32(scalar, CultureInfo.InvariantCulture);
 
             if (code < 0)
                 throw new TimeoutException(
@@ -76,7 +78,7 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
     }
 
     /// <summary>
-    /// Maps lock wait milliseconds to <see cref="SqlCommand.CommandTimeout"/> seconds (0 = unlimited per SqlClient).
+    ///     Maps lock wait milliseconds to <see cref="SqlCommand.CommandTimeout" /> seconds (0 = unlimited per SqlClient).
     /// </summary>
     private static int SqlCommandTimeoutSecondsForLockWait(int lockTimeoutMs)
     {
@@ -86,10 +88,7 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
         // Ceiling to whole seconds, add buffer for scheduling. Max orchestrator lock is 600s; command timeout must exceed that.
         int seconds = (lockTimeoutMs + 999) / 1000 + 30;
 
-        if (seconds > 660)
-            return 660;
-
-        return seconds;
+        return seconds > 660 ? 660 : seconds;
     }
 
     private static string NormalizeResourceName(string lockResourceName)
@@ -104,15 +103,11 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
 
     private sealed class SessionLockScope(SqlConnection connection, string resourceName) : IAsyncDisposable
     {
-        private readonly SqlConnection _connection = connection;
-
-        private readonly string _resourceName = resourceName;
-
         public async ValueTask DisposeAsync()
         {
             try
             {
-                await using SqlCommand release = _connection.CreateCommand();
+                await using SqlCommand release = connection.CreateCommand();
                 release.CommandText =
                     """
                     DECLARE @result int;
@@ -120,7 +115,7 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
                     SELECT @result;
                     """;
                 SqlParameter pResource = release.Parameters.Add("@resource", SqlDbType.NVarChar, 255);
-                pResource.Value = _resourceName;
+                pResource.Value = resourceName;
 
                 await release.ExecuteNonQueryAsync();
             }
@@ -130,7 +125,7 @@ public sealed class SqlSessionDistributedCreateRunIdempotencyLock(ISqlConnection
             }
             finally
             {
-                await _connection.DisposeAsync();
+                await connection.DisposeAsync();
             }
         }
     }

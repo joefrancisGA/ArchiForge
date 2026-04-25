@@ -26,7 +26,7 @@ public sealed class ArchLucidProjectScaffolderTests
                 ProjectName = "NoTf",
                 BaseDirectory = temp.Path,
                 OverwriteExistingFiles = true,
-                IncludeTerraformStubs = false,
+                IncludeTerraformStubs = false
             });
 
         File.Exists(Path.Combine(projectRoot, "infra", "terraform", "main.tf")).Should().BeFalse();
@@ -44,7 +44,7 @@ public sealed class ArchLucidProjectScaffolderTests
                 ProjectName = "Reg",
                 BaseDirectory = temp.Path,
                 OverwriteExistingFiles = true,
-                RegisterProject = true,
+                RegisterProject = true
             });
 
         act.Should().Throw<InvalidOperationException>().WithMessage("*ConnectionString*");
@@ -110,26 +110,10 @@ public sealed class ArchLucidProjectScaffolderTests
         {
             schemaVersion = "1.0",
             projectName = "P",
-            inputs = new
-            {
-                brief = rootedBrief
-            },
-            outputs = new
-            {
-                localCacheDir = "outputs"
-            },
-            plugins = new
-            {
-                lockFile = "plugins/plugin-lock.json"
-            },
-            infra = new
-            {
-                terraform = new
-                {
-                    enabled = false,
-                    path = "infra/terraform"
-                }
-            },
+            inputs = new { brief = rootedBrief },
+            outputs = new { localCacheDir = "outputs" },
+            plugins = new { lockFile = "plugins/plugin-lock.json" },
+            infra = new { terraform = new { enabled = false, path = "infra/terraform" } }
         };
         string json = JsonSerializer.Serialize(
             payload,
@@ -170,17 +154,21 @@ public sealed class ArchLucidProjectScaffolderTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path
-        {
-            get;
-        } =
-            System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
-
         public TempDirectory()
         {
             Directory.CreateDirectory(Path);
         }
 
-        public void Dispose() => Directory.Delete(Path, recursive: true);
+        public string Path
+        {
+            get;
+        } =
+            System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+                "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
+
+        public void Dispose()
+        {
+            Directory.Delete(Path, true);
+        }
     }
 }

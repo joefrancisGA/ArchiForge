@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import type { WizardFormValues } from "@/lib/wizard-schema";
@@ -28,7 +29,12 @@ const ENVIRONMENT_OPTIONS = [
  * Step 2: system name, environment, cloud (Azure only), optional prior manifest version.
  */
 export function WizardStepIdentity() {
-  const { register, control } = useFormContext<WizardFormValues>();
+  const { register, control, formState, clearErrors } = useFormContext<WizardFormValues>();
+  const { errors } = formState;
+  const systemErr = errors.systemName?.message;
+  const priorErr = errors.priorManifestVersion?.message;
+  const environmentErr = errors.environment?.message;
+  const cloudErr = errors.cloudProvider?.message;
 
   return (
     <WizardStepPanel title="System identity" description="Names and deployment targets for this architecture request.">
@@ -39,7 +45,18 @@ export function WizardStepIdentity() {
             label="System name"
             hint="Short project slug, e.g. OrderService. Used as the ingestion project ID."
           />
-          <Input id="wizard-systemName" autoComplete="off" {...register("systemName")} />
+          <Input
+            id="wizard-systemName"
+            autoComplete="off"
+            aria-invalid={systemErr != null && String(systemErr).length > 0}
+            aria-describedby={systemErr ? "err-wizard-systemName" : undefined}
+            {...register("systemName", {
+              onChange: () => {
+                clearErrors("systemName");
+              },
+            })}
+          />
+          <WizardFieldError id="err-wizard-systemName" message={systemErr != null ? String(systemErr) : undefined} />
         </div>
 
         <div>
@@ -50,7 +67,13 @@ export function WizardStepIdentity() {
             name="environment"
             control={control}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value}
+                onValueChange={(v) => {
+                  clearErrors("environment");
+                  field.onChange(v);
+                }}
+              >
                 <SelectTrigger id="wizard-environment" className="w-full max-w-md">
                   <SelectValue placeholder="Select environment" />
                 </SelectTrigger>
@@ -64,6 +87,10 @@ export function WizardStepIdentity() {
               </Select>
             )}
           />
+          <WizardFieldError
+            id="err-wizard-environment"
+            message={environmentErr != null ? String(environmentErr) : undefined}
+          />
         </div>
 
         <div>
@@ -74,7 +101,13 @@ export function WizardStepIdentity() {
             name="cloudProvider"
             control={control}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value}
+                onValueChange={(v) => {
+                  clearErrors("cloudProvider");
+                  field.onChange(v);
+                }}
+              >
                 <SelectTrigger id="wizard-cloud-provider" className="w-full max-w-md">
                   <SelectValue />
                 </SelectTrigger>
@@ -96,6 +129,10 @@ export function WizardStepIdentity() {
               </Select>
             )}
           />
+          <WizardFieldError
+            id="err-wizard-cloud"
+            message={cloudErr != null ? String(cloudErr) : undefined}
+          />
           <p className="mt-1 text-xs text-neutral-500">Only Azure is available in this release.</p>
         </div>
 
@@ -107,7 +144,18 @@ export function WizardStepIdentity() {
             label="Prior manifest version (optional)"
             hint="Leave blank for greenfield. Enter a version string to use as baseline for incremental changes."
           />
-          <Input id="wizard-priorManifest" autoComplete="off" {...register("priorManifestVersion")} />
+          <Input
+            id="wizard-priorManifest"
+            autoComplete="off"
+            aria-invalid={priorErr != null && String(priorErr).length > 0}
+            aria-describedby={priorErr ? "err-wizard-priorManifest" : undefined}
+            {...register("priorManifestVersion", {
+              onChange: () => {
+                clearErrors("priorManifestVersion");
+              },
+            })}
+          />
+          <WizardFieldError id="err-wizard-priorManifest" message={priorErr != null ? String(priorErr) : undefined} />
         </div>
       </div>
     </WizardStepPanel>

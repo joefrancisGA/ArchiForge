@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-/// Structured <see cref="ILogger"/> helpers for Debug-level messages with user-derived string placeholders (CWE-117).
+///     Structured <see cref="ILogger" /> helpers for Debug-level messages with user-derived string placeholders (CWE-117).
 /// </summary>
 /// <remarks>
-/// CodeQL <c>cs/log-forging</c> may not propagate <see cref="LogSanitizer.Sanitize"/> through
-/// <see cref="LoggerExtensions.LogDebug(ILogger, string?, params object?[])"/> <c>params</c> boxing at call sites
-/// (see <c>docs/CODEQL_TRIAGE.md</c>).
+///     CodeQL <c>cs/log-forging</c> may not propagate <see cref="LogSanitizer.Sanitize" /> through
+///     <see cref="LoggerExtensions.LogDebug(ILogger, string?, params object?[])" /> <c>params</c> boxing at call sites
+///     (see <c>docs/CODEQL_TRIAGE.md</c>).
 /// </remarks>
 public static class SanitizedLoggerDebugExtensions
 {

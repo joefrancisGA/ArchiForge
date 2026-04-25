@@ -4,9 +4,19 @@ public class CostSection
 {
     public decimal? MaxMonthlyCost
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> CostRisks { get; set; } = [];
-    public List<string> Notes { get; set; } = [];
-}
 
+    public List<string> CostRisks
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> Notes
+    {
+        get;
+        set;
+    } = [];
+}

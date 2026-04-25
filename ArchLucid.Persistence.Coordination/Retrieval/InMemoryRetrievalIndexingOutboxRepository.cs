@@ -2,12 +2,11 @@ using System.Data;
 
 namespace ArchLucid.Persistence.Coordination.Retrieval;
 
-/// <summary>In-memory <see cref="IRetrievalIndexingOutboxRepository"/> for tests and <c>StorageProvider=InMemory</c>.</summary>
+/// <summary>In-memory <see cref="IRetrievalIndexingOutboxRepository" /> for tests and <c>StorageProvider=InMemory</c>.</summary>
 public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexingOutboxRepository
 {
-    private readonly List<RetrievalIndexingOutboxEntry> _pending = [];
-
     private readonly Lock _gate = new();
+    private readonly List<RetrievalIndexingOutboxEntry> _pending = [];
 
     /// <inheritdoc />
     public Task EnqueueAsync(
@@ -34,30 +33,6 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
         _ = transaction;
 
         return EnqueueCoreAsync(runId, tenantId, workspaceId, projectId, ct);
-    }
-
-    private Task EnqueueCoreAsync(
-        Guid runId,
-        Guid tenantId,
-        Guid workspaceId,
-        Guid projectId,
-        CancellationToken ct)
-    {
-        ct.ThrowIfCancellationRequested();
-        RetrievalIndexingOutboxEntry entry = new()
-        {
-            OutboxId = Guid.NewGuid(),
-            RunId = runId,
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-            CreatedUtc = DateTime.UtcNow
-        };
-
-        lock (_gate)
-            _pending.Add(entry);
-
-        return Task.CompletedTask;
     }
 
     /// <inheritdoc />
@@ -94,6 +69,29 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
         lock (_gate)
 
             return Task.FromResult((long)_pending.Count);
+    }
 
+    private Task EnqueueCoreAsync(
+        Guid runId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        RetrievalIndexingOutboxEntry entry = new()
+        {
+            OutboxId = Guid.NewGuid(),
+            RunId = runId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        lock (_gate)
+            _pending.Add(entry);
+
+        return Task.CompletedTask;
     }
 }

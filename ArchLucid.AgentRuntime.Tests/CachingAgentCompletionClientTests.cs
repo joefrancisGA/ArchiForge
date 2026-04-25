@@ -14,22 +14,17 @@ public sealed class CachingAgentCompletionClientTests
     {
         CountingCompletionClient inner = new();
         FixedScopeProvider scope = new(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid()
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         using MemoryLlmCompletionResponseStore store = new(8);
         CachingAgentCompletionClient sut = new(
             inner,
             store,
             "dep",
-            enabled: false,
-            partitionByScope: true,
-            absoluteExpiration: TimeSpan.FromMinutes(5),
-            scopeProvider: scope,
+            false,
+            true,
+            TimeSpan.FromMinutes(5),
+            scope,
             NullLogger<CachingAgentCompletionClient>.Instance);
 
         _ = await sut.CompleteJsonAsync("s", "u");
@@ -43,22 +38,17 @@ public sealed class CachingAgentCompletionClientTests
     {
         CountingCompletionClient inner = new();
         FixedScopeProvider scope = new(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid()
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         using MemoryLlmCompletionResponseStore store = new(8);
         CachingAgentCompletionClient sut = new(
             inner,
             store,
             "dep",
-            enabled: true,
-            partitionByScope: true,
-            absoluteExpiration: TimeSpan.FromMinutes(5),
-            scopeProvider: scope,
+            true,
+            true,
+            TimeSpan.FromMinutes(5),
+            scope,
             NullLogger<CachingAgentCompletionClient>.Instance);
 
         string first = await sut.CompleteJsonAsync("s", "u");
@@ -85,10 +75,10 @@ public sealed class CachingAgentCompletionClientTests
             inner,
             store,
             "dep",
-            enabled: true,
-            partitionByScope: true,
-            absoluteExpiration: TimeSpan.FromMinutes(5),
-            scopeProvider: scope,
+            true,
+            true,
+            TimeSpan.FromMinutes(5),
+            scope,
             NullLogger<CachingAgentCompletionClient>.Instance);
 
         _ = await sut.CompleteJsonAsync("s", "u");
@@ -109,7 +99,8 @@ public sealed class CachingAgentCompletionClientTests
     {
         public int CallCount
         {
-            get; private set;
+            get;
+            private set;
         }
 
         public LlmProviderDescriptor Descriptor => LlmProviderDescriptor.ForOffline("test", "counting");
@@ -137,7 +128,11 @@ public sealed class CachingAgentCompletionClientTests
 
     private sealed class MutableScopeProvider(ScopeContext initial) : IScopeContextProvider
     {
-        public ScopeContext Current { get; set; } = initial ?? throw new ArgumentNullException(nameof(initial));
+        public ScopeContext Current
+        {
+            get;
+            set;
+        } = initial ?? throw new ArgumentNullException(nameof(initial));
 
         public ScopeContext GetCurrentScope()
         {

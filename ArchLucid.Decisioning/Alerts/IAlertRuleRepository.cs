@@ -1,10 +1,11 @@
 namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
-/// CRUD and scoped queries for simple (non-composite) <see cref="AlertRule"/> definitions stored per tenant/workspace/project.
+///     CRUD and scoped queries for simple (non-composite) <see cref="AlertRule" /> definitions stored per
+///     tenant/workspace/project.
 /// </summary>
 /// <remarks>
-/// After loading, <c>AlertService</c> applies <c>PolicyPackGovernanceFilter.FilterAlertRules</c> before evaluation.
+///     After loading, <c>AlertService</c> applies <c>PolicyPackGovernanceFilter.FilterAlertRules</c> before evaluation.
 /// </remarks>
 public interface IAlertRuleRepository
 {
@@ -24,7 +25,7 @@ public interface IAlertRuleRepository
         Guid projectId,
         CancellationToken ct);
 
-    /// <summary>Rules eligible for evaluation (<see cref="AlertRule.IsEnabled"/> and scope match).</summary>
+    /// <summary>Rules eligible for evaluation (<see cref="AlertRule.IsEnabled" /> and scope match).</summary>
     Task<IReadOnlyList<AlertRule>> ListEnabledByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

@@ -1,7 +1,7 @@
 {
-  "description": "Baseline counts of coordinator interface name tokens in non-test ArchLucid*.cs sources. assert_coordinator_reference_ceiling.py fails if any count increases (strangler drift).",
+  "description": "Baseline counts of coordinator interface name tokens in non-test ArchLucid*.cs sources. assert_coordinator_reference_ceiling.py fails if any count increases (strangler drift). ADR 0030 PR A3 (2026-04-24) deleted the interfaces themselves; the remaining counts are explanatory comments in production files referencing the historical names.",
   "tokens": {
-    "ICoordinatorGoldenManifestRepository": 12,
-    "ICoordinatorDecisionTraceRepository": 11
+    "ICoordinatorGoldenManifestRepository": 2,
+    "ICoordinatorDecisionTraceRepository": 5
   }
 }

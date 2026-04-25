@@ -17,41 +17,41 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         ArgumentNullException.ThrowIfNull(item);
 
         const string sql = """
-            INSERT INTO GovernanceApprovalRequests
-            (
-                ApprovalRequestId,
-                RunId,
-                ManifestVersion,
-                SourceEnvironment,
-                TargetEnvironment,
-                Status,
-                RequestedBy,
-                ReviewedBy,
-                RequestComment,
-                ReviewComment,
-                RequestedUtc,
-                ReviewedUtc,
-                SlaDeadlineUtc,
-                SlaBreachNotifiedUtc
-            )
-            VALUES
-            (
-                @ApprovalRequestId,
-                @RunId,
-                @ManifestVersion,
-                @SourceEnvironment,
-                @TargetEnvironment,
-                @Status,
-                @RequestedBy,
-                @ReviewedBy,
-                @RequestComment,
-                @ReviewComment,
-                @RequestedUtc,
-                @ReviewedUtc,
-                @SlaDeadlineUtc,
-                @SlaBreachNotifiedUtc
-            );
-            """;
+                           INSERT INTO GovernanceApprovalRequests
+                           (
+                               ApprovalRequestId,
+                               RunId,
+                               ManifestVersion,
+                               SourceEnvironment,
+                               TargetEnvironment,
+                               Status,
+                               RequestedBy,
+                               ReviewedBy,
+                               RequestComment,
+                               ReviewComment,
+                               RequestedUtc,
+                               ReviewedUtc,
+                               SlaDeadlineUtc,
+                               SlaBreachNotifiedUtc
+                           )
+                           VALUES
+                           (
+                               @ApprovalRequestId,
+                               @RunId,
+                               @ManifestVersion,
+                               @SourceEnvironment,
+                               @TargetEnvironment,
+                               @Status,
+                               @RequestedBy,
+                               @ReviewedBy,
+                               @RequestComment,
+                               @ReviewComment,
+                               @RequestedUtc,
+                               @ReviewedUtc,
+                               @SlaDeadlineUtc,
+                               @SlaBreachNotifiedUtc
+                           );
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -72,7 +72,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 item.RequestedUtc,
                 item.ReviewedUtc,
                 item.SlaDeadlineUtc,
-                item.SlaBreachNotifiedUtc,
+                item.SlaBreachNotifiedUtc
             },
             cancellationToken: cancellationToken));
     }
@@ -93,22 +93,22 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         // Serializable + UPDLOCK: concurrent HTTP approvers each open their own connection; taking the row lock
         // before UPDATE serializes them on this key so only one transition from Draft/Submitted can commit.
         const string lockReviewableRowSql = """
-            SELECT 1
-            FROM dbo.GovernanceApprovalRequests WITH (UPDLOCK, ROWLOCK)
-            WHERE ApprovalRequestId = @ApprovalRequestId
-              AND (Status = @Draft OR Status = @Submitted);
-            """;
+                                            SELECT 1
+                                            FROM dbo.GovernanceApprovalRequests WITH (UPDLOCK, ROWLOCK)
+                                            WHERE ApprovalRequestId = @ApprovalRequestId
+                                              AND (Status = @Draft OR Status = @Submitted);
+                                            """;
 
         const string updateSql = """
-            UPDATE dbo.GovernanceApprovalRequests
-            SET
-                Status = @NewStatus,
-                ReviewedBy = @ReviewedBy,
-                ReviewComment = @ReviewComment,
-                ReviewedUtc = @ReviewedUtc
-            WHERE ApprovalRequestId = @ApprovalRequestId
-              AND (Status = @Draft OR Status = @Submitted);
-            """;
+                                 UPDATE dbo.GovernanceApprovalRequests
+                                 SET
+                                     Status = @NewStatus,
+                                     ReviewedBy = @ReviewedBy,
+                                     ReviewComment = @ReviewComment,
+                                     ReviewedUtc = @ReviewedUtc
+                                 WHERE ApprovalRequestId = @ApprovalRequestId
+                                   AND (Status = @Draft OR Status = @Submitted);
+                                 """;
 
         object transitionParams = new
         {
@@ -117,8 +117,8 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             ReviewedBy = reviewedBy,
             ReviewComment = reviewComment,
             ReviewedUtc = reviewedUtc,
-            Draft = GovernanceApprovalStatus.Draft,
-            Submitted = GovernanceApprovalStatus.Submitted,
+            GovernanceApprovalStatus.Draft,
+            GovernanceApprovalStatus.Submitted
         };
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -132,8 +132,8 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                     new
                     {
                         ApprovalRequestId = approvalRequestId,
-                        Draft = GovernanceApprovalStatus.Draft,
-                        Submitted = GovernanceApprovalStatus.Submitted,
+                        GovernanceApprovalStatus.Draft,
+                        GovernanceApprovalStatus.Submitted
                     },
                     transaction,
                     cancellationToken: cancellationToken));
@@ -162,16 +162,16 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         ArgumentNullException.ThrowIfNull(item);
 
         const string sql = """
-            UPDATE GovernanceApprovalRequests
-            SET
-                Status = @Status,
-                ReviewedBy = @ReviewedBy,
-                ReviewComment = @ReviewComment,
-                ReviewedUtc = @ReviewedUtc,
-                SlaDeadlineUtc = @SlaDeadlineUtc,
-                SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
-            WHERE ApprovalRequestId = @ApprovalRequestId;
-            """;
+                           UPDATE GovernanceApprovalRequests
+                           SET
+                               Status = @Status,
+                               ReviewedBy = @ReviewedBy,
+                               ReviewComment = @ReviewComment,
+                               ReviewedUtc = @ReviewedUtc,
+                               SlaDeadlineUtc = @SlaDeadlineUtc,
+                               SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
+                           WHERE ApprovalRequestId = @ApprovalRequestId;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -185,7 +185,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 item.ReviewComment,
                 item.ReviewedUtc,
                 item.SlaDeadlineUtc,
-                item.SlaBreachNotifiedUtc,
+                item.SlaBreachNotifiedUtc
             },
             cancellationToken: cancellationToken));
     }
@@ -195,33 +195,30 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT
-                ApprovalRequestId,
-                RunId,
-                ManifestVersion,
-                SourceEnvironment,
-                TargetEnvironment,
-                Status,
-                RequestedBy,
-                ReviewedBy,
-                RequestComment,
-                ReviewComment,
-                RequestedUtc,
-                ReviewedUtc,
-                SlaDeadlineUtc,
-                SlaBreachNotifiedUtc
-            FROM GovernanceApprovalRequests
-            WHERE ApprovalRequestId = @ApprovalRequestId;
-            """;
+                           SELECT
+                               ApprovalRequestId,
+                               RunId,
+                               ManifestVersion,
+                               SourceEnvironment,
+                               TargetEnvironment,
+                               Status,
+                               RequestedBy,
+                               ReviewedBy,
+                               RequestComment,
+                               ReviewComment,
+                               RequestedUtc,
+                               ReviewedUtc,
+                               SlaDeadlineUtc,
+                               SlaBreachNotifiedUtc
+                           FROM GovernanceApprovalRequests
+                           WHERE ApprovalRequestId = @ApprovalRequestId;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.QuerySingleOrDefaultAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
-            new
-            {
-                ApprovalRequestId = approvalRequestId
-            },
+            new { ApprovalRequestId = approvalRequestId },
             cancellationToken: cancellationToken));
     }
 
@@ -232,34 +229,32 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-            SELECT
-                ApprovalRequestId,
-                RunId,
-                ManifestVersion,
-                SourceEnvironment,
-                TargetEnvironment,
-                Status,
-                RequestedBy,
-                ReviewedBy,
-                RequestComment,
-                ReviewComment,
-                RequestedUtc,
-                ReviewedUtc,
-                SlaDeadlineUtc,
-                SlaBreachNotifiedUtc
-            FROM GovernanceApprovalRequests
-            WHERE RunId = @RunId
-            ORDER BY RequestedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(200)};
-            """;
+                      SELECT
+                          ApprovalRequestId,
+                          RunId,
+                          ManifestVersion,
+                          SourceEnvironment,
+                          TargetEnvironment,
+                          Status,
+                          RequestedBy,
+                          ReviewedBy,
+                          RequestComment,
+                          ReviewComment,
+                          RequestedUtc,
+                          ReviewedUtc,
+                          SlaDeadlineUtc,
+                          SlaBreachNotifiedUtc
+                      FROM GovernanceApprovalRequests
+                      WHERE RunId = @RunId
+                      ORDER BY RequestedUtc DESC
+                      {SqlPagingSyntax.FirstRowsOnly(200)};
+                      """;
 
-        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
-            sql,
-            new
-            {
-                RunId = runId
-            },
-            cancellationToken: cancellationToken));
+        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
+            new CommandDefinition(
+                sql,
+                new { RunId = runId },
+                cancellationToken: cancellationToken));
 
         return [.. rows];
     }
@@ -273,37 +268,33 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
 
 
         const string sql = """
-            SELECT TOP (@MaxRows)
-                ApprovalRequestId,
-                RunId,
-                ManifestVersion,
-                SourceEnvironment,
-                TargetEnvironment,
-                Status,
-                RequestedBy,
-                ReviewedBy,
-                RequestComment,
-                ReviewComment,
-                RequestedUtc,
-                ReviewedUtc,
-                SlaDeadlineUtc,
-                SlaBreachNotifiedUtc
-            FROM GovernanceApprovalRequests
-            WHERE Status IN (@Draft, @Submitted)
-            ORDER BY RequestedUtc DESC;
-            """;
+                           SELECT TOP (@MaxRows)
+                               ApprovalRequestId,
+                               RunId,
+                               ManifestVersion,
+                               SourceEnvironment,
+                               TargetEnvironment,
+                               Status,
+                               RequestedBy,
+                               ReviewedBy,
+                               RequestComment,
+                               ReviewComment,
+                               RequestedUtc,
+                               ReviewedUtc,
+                               SlaDeadlineUtc,
+                               SlaBreachNotifiedUtc
+                           FROM GovernanceApprovalRequests
+                           WHERE Status IN (@Draft, @Submitted)
+                           ORDER BY RequestedUtc DESC;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
-            sql,
-            new
-            {
-                MaxRows = maxRows,
-                Draft = GovernanceApprovalStatus.Draft,
-                Submitted = GovernanceApprovalStatus.Submitted,
-            },
-            cancellationToken: cancellationToken));
+        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
+            new CommandDefinition(
+                sql,
+                new { MaxRows = maxRows, GovernanceApprovalStatus.Draft, GovernanceApprovalStatus.Submitted },
+                cancellationToken: cancellationToken));
 
         return [.. rows];
     }
@@ -317,39 +308,40 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
 
 
         const string sql = """
-            SELECT TOP (@MaxRows)
-                ApprovalRequestId,
-                RunId,
-                ManifestVersion,
-                SourceEnvironment,
-                TargetEnvironment,
-                Status,
-                RequestedBy,
-                ReviewedBy,
-                RequestComment,
-                ReviewComment,
-                RequestedUtc,
-                ReviewedUtc,
-                SlaDeadlineUtc,
-                SlaBreachNotifiedUtc
-            FROM GovernanceApprovalRequests
-            WHERE Status IN (@Approved, @Rejected, @Promoted)
-              AND ReviewedUtc IS NOT NULL
-            ORDER BY ReviewedUtc DESC;
-            """;
+                           SELECT TOP (@MaxRows)
+                               ApprovalRequestId,
+                               RunId,
+                               ManifestVersion,
+                               SourceEnvironment,
+                               TargetEnvironment,
+                               Status,
+                               RequestedBy,
+                               ReviewedBy,
+                               RequestComment,
+                               ReviewComment,
+                               RequestedUtc,
+                               ReviewedUtc,
+                               SlaDeadlineUtc,
+                               SlaBreachNotifiedUtc
+                           FROM GovernanceApprovalRequests
+                           WHERE Status IN (@Approved, @Rejected, @Promoted)
+                             AND ReviewedUtc IS NOT NULL
+                           ORDER BY ReviewedUtc DESC;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
-            sql,
-            new
-            {
-                MaxRows = maxRows,
-                Approved = GovernanceApprovalStatus.Approved,
-                Rejected = GovernanceApprovalStatus.Rejected,
-                Promoted = GovernanceApprovalStatus.Promoted,
-            },
-            cancellationToken: cancellationToken));
+        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    MaxRows = maxRows,
+                    GovernanceApprovalStatus.Approved,
+                    GovernanceApprovalStatus.Rejected,
+                    GovernanceApprovalStatus.Promoted
+                },
+                cancellationToken: cancellationToken));
 
         return [.. rows];
     }
@@ -359,40 +351,36 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT TOP 200
-                ApprovalRequestId,
-                RunId,
-                ManifestVersion,
-                SourceEnvironment,
-                TargetEnvironment,
-                Status,
-                RequestedBy,
-                ReviewedBy,
-                RequestComment,
-                ReviewComment,
-                RequestedUtc,
-                ReviewedUtc,
-                SlaDeadlineUtc,
-                SlaBreachNotifiedUtc
-            FROM GovernanceApprovalRequests
-            WHERE Status IN (@Draft, @Submitted)
-              AND SlaDeadlineUtc IS NOT NULL
-              AND SlaDeadlineUtc <= @UtcNow
-              AND SlaBreachNotifiedUtc IS NULL
-            ORDER BY SlaDeadlineUtc ASC;
-            """;
+                           SELECT TOP 200
+                               ApprovalRequestId,
+                               RunId,
+                               ManifestVersion,
+                               SourceEnvironment,
+                               TargetEnvironment,
+                               Status,
+                               RequestedBy,
+                               ReviewedBy,
+                               RequestComment,
+                               ReviewComment,
+                               RequestedUtc,
+                               ReviewedUtc,
+                               SlaDeadlineUtc,
+                               SlaBreachNotifiedUtc
+                           FROM GovernanceApprovalRequests
+                           WHERE Status IN (@Draft, @Submitted)
+                             AND SlaDeadlineUtc IS NOT NULL
+                             AND SlaDeadlineUtc <= @UtcNow
+                             AND SlaBreachNotifiedUtc IS NULL
+                           ORDER BY SlaDeadlineUtc ASC;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
-            sql,
-            new
-            {
-                UtcNow = utcNow,
-                Draft = GovernanceApprovalStatus.Draft,
-                Submitted = GovernanceApprovalStatus.Submitted,
-            },
-            cancellationToken: cancellationToken));
+        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(
+            new CommandDefinition(
+                sql,
+                new { UtcNow = utcNow, GovernanceApprovalStatus.Draft, GovernanceApprovalStatus.Submitted },
+                cancellationToken: cancellationToken));
 
         return [.. rows];
     }
@@ -405,20 +393,16 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
 
         const string sql = """
-            UPDATE GovernanceApprovalRequests
-            SET SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
-            WHERE ApprovalRequestId = @ApprovalRequestId;
-            """;
+                           UPDATE GovernanceApprovalRequests
+                           SET SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
+                           WHERE ApprovalRequestId = @ApprovalRequestId;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
-            new
-            {
-                ApprovalRequestId = approvalRequestId,
-                SlaBreachNotifiedUtc = slaBreachNotifiedUtc
-            },
+            new { ApprovalRequestId = approvalRequestId, SlaBreachNotifiedUtc = slaBreachNotifiedUtc },
             cancellationToken: cancellationToken));
     }
 }

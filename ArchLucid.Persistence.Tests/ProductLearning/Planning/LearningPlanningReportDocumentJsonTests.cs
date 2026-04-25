@@ -13,7 +13,7 @@ public sealed class LearningPlanningReportDocumentJsonTests
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false,
+        WriteIndented = false
     };
 
     [Fact]
@@ -33,7 +33,7 @@ public sealed class LearningPlanningReportDocumentJsonTests
                 PlanCount = 1,
                 TotalThemeEvidenceSignals = 5,
                 TotalLinkedSignalsAcrossPlans = 2,
-                MaxPlanPriorityScore = 99,
+                MaxPlanPriorityScore = 99
             },
             Themes =
             [
@@ -46,8 +46,8 @@ public sealed class LearningPlanningReportDocumentJsonTests
                     SeverityBand = "high",
                     EvidenceSignalCount = 5,
                     DistinctRunCount = 2,
-                    Status = "open",
-                },
+                    Status = "open"
+                }
             ],
             Plans =
             [
@@ -69,10 +69,10 @@ public sealed class LearningPlanningReportDocumentJsonTests
                         LinkedArchitectureRunCount = 1,
                         Signals = [new LearningPlanningReportSignalRef { SignalId = signalId }],
                         Artifacts = [],
-                        ArchitectureRunIds = ["run-1"],
-                    },
-                },
-            ],
+                        ArchitectureRunIds = ["run-1"]
+                    }
+                }
+            ]
         };
 
         string json = JsonSerializer.Serialize(original, Options);
@@ -88,9 +88,11 @@ public sealed class LearningPlanningReportDocumentJsonTests
         JsonElement plan = root.GetProperty("plans")[0];
         Assert.Equal(99, plan.GetProperty("priorityScore").GetInt32());
         Assert.Equal(2, plan.GetProperty("evidence").GetProperty("linkedSignalCount").GetInt32());
-        Assert.Equal(signalId.ToString("D"), plan.GetProperty("evidence").GetProperty("signals")[0].GetProperty("signalId").GetString());
+        Assert.Equal(signalId.ToString("D"),
+            plan.GetProperty("evidence").GetProperty("signals")[0].GetProperty("signalId").GetString());
 
-        LearningPlanningReportDocument? back = JsonSerializer.Deserialize<LearningPlanningReportDocument>(json, Options);
+        LearningPlanningReportDocument?
+            back = JsonSerializer.Deserialize<LearningPlanningReportDocument>(json, Options);
 
         Assert.NotNull(back);
         Assert.Equal(original.Summary.TotalLinkedSignalsAcrossPlans, back.Summary.TotalLinkedSignalsAcrossPlans);

@@ -10,6 +10,8 @@ public sealed class InMemoryReferenceEvidenceRunLookup : IReferenceEvidenceRunLo
     public Task<IReadOnlyList<ReferenceEvidenceRunCandidate>> ListRecentCommittedRunsAsync(
         Guid tenantId,
         int take,
-        CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<ReferenceEvidenceRunCandidate>>([]);
+        CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult<IReadOnlyList<ReferenceEvidenceRunCandidate>>([]);
+    }
 }

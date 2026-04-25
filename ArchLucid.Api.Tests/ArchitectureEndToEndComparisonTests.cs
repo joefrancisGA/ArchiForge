@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture End To End Comparison.
+///     Tests for Architecture End To End Comparison.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
@@ -31,9 +30,9 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchLucidApiFactory fact
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        EndToEndReplayComparisonSummaryResponse? payload = await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonSummaryResponse>(JsonOptions);
+        EndToEndReplayComparisonSummaryResponse? payload =
+            await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonSummaryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Summary.Should().Contain("# End-to-End Replay Comparison:");
     }
 }
-

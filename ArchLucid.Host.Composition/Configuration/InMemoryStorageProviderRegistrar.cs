@@ -37,6 +37,7 @@ using ArchLucid.Persistence.Marketing;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.CustomerSuccess;
 using ArchLucid.Persistence.Feedback;
+using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Coordination.Diagnostics;
@@ -55,6 +56,9 @@ using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Telemetry;
+using ArchLucid.Core.Scim;
+using ArchLucid.Persistence.Scim;
 using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 using ArchLucid.Persistence.Tenancy.Diagnostics;
@@ -70,10 +74,15 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IContextSnapshotRepository, InMemoryContextSnapshotRepository>();
         services.AddSingleton<IGraphSnapshotRepository, InMemoryGraphSnapshotRepository>();
         services.AddSingleton<IFindingsSnapshotRepository, InMemoryFindingsSnapshotRepository>();
+        services.AddSingleton<IFindingInspectReadRepository>(sp =>
+            new InMemoryFindingInspectReadRepository(sp.GetRequiredService<IAuthorityQueryService>()));
         services.AddSingleton<IDecisionTraceRepository, InMemoryDecisionTraceRepository>();
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
+        services.AddSingleton<IScimTenantTokenRepository, InMemoryScimTenantTokenRepository>();
+        services.AddSingleton<IScimUserRepository, InMemoryScimUserRepository>();
+        services.AddSingleton<IScimGroupRepository, InMemoryScimGroupRepository>();
         services.AddSingleton<IRoiBulletinAggregateReader, InMemoryRoiBulletinAggregateReader>();
         services.AddSingleton<IReferenceEvidenceRunLookup, InMemoryReferenceEvidenceRunLookup>();
         services.AddSingleton<ITenantNotificationChannelPreferencesRepository, InMemoryTenantNotificationChannelPreferencesRepository>();
@@ -138,6 +147,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
         services.AddSingleton<IMarketingPricingQuoteRequestRepository, NoOpMarketingPricingQuoteRequestRepository>();
+        services.AddSingleton<IFirstTenantFunnelEventStore, NoopFirstTenantFunnelEventStore>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<IHostLeaderLeaseRepository, NoOpHostLeaderLeaseRepository>();

@@ -11,18 +11,20 @@ using AuthorityGoldenManifestRepository = ArchLucid.Decisioning.Interfaces.IGold
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Shared in-memory authority graph for advisory HTTP integration tests (<see cref="AlertLifecycleIntegrationTests"/>, digest delivery lifecycle).
+///     Shared in-memory authority graph for advisory HTTP integration tests (<see cref="AlertLifecycleIntegrationTests" />
+///     , digest delivery lifecycle).
 /// </summary>
 public static class AdvisoryIntegrationSeed
 {
     /// <summary>
-    /// Inserts one authority run + golden manifest for <see cref="ScopeIds"/> defaults and project slug <c>default</c>.
+    ///     Inserts one authority run + golden manifest for <see cref="ScopeIds" /> defaults and project slug <c>default</c>.
     /// </summary>
     /// <returns>The seeded run id (useful for Ask tests that need a run anchor).</returns>
     public static async Task<Guid> SeedDefaultScopeAuthorityRunAsync(IServiceProvider services, CancellationToken ct)
     {
         using IServiceScope scope = services.CreateScope();
-        AuthorityGoldenManifestRepository goldenRepo = scope.ServiceProvider.GetRequiredService<AuthorityGoldenManifestRepository>();
+        AuthorityGoldenManifestRepository goldenRepo =
+            scope.ServiceProvider.GetRequiredService<AuthorityGoldenManifestRepository>();
         IRunRepository runRepo = scope.ServiceProvider.GetRequiredService<IRunRepository>();
 
         Guid runId = Guid.NewGuid();

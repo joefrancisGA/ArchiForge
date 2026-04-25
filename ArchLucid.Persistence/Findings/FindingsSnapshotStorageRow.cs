@@ -8,27 +8,43 @@ internal sealed class FindingsSnapshotStorageRow
 {
     public Guid FindingsSnapshotId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid RunId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ContextSnapshotId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid GraphSnapshotId
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
+
     public int SchemaVersion
     {
-        get; init;
+        get;
+        init;
     }
-    public string FindingsJson { get; init; } = null!;
+
+    public string FindingsJson
+    {
+        get;
+        init;
+    } = null!;
 }

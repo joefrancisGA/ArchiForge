@@ -1,7 +1,8 @@
 namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
-/// Allowed values for <see cref="AlertActionRequest.Action"/>; mapped to new <see cref="AlertStatus"/> in persistence <c>AlertService.ApplyActionAsync</c>.
+///     Allowed values for <see cref="AlertActionRequest.Action" />; mapped to new <see cref="AlertStatus" /> in
+///     persistence <c>AlertService.ApplyActionAsync</c>.
 /// </summary>
 public static class AlertActionType
 {

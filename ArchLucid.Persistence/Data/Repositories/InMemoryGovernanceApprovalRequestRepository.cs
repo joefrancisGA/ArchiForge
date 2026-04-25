@@ -6,7 +6,7 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IGovernanceApprovalRequestRepository"/> (JSON clone-on-read).
+///     Thread-safe in-memory <see cref="IGovernanceApprovalRequestRepository" /> (JSON clone-on-read).
 /// </summary>
 public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApprovalRequestRepository
 {
@@ -55,7 +55,8 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
 
 
             bool reviewable = string.Equals(row.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
-                              || string.Equals(row.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal);
+                              || string.Equals(row.Status, GovernanceApprovalStatus.Submitted,
+                                  StringComparison.Ordinal);
 
             if (!reviewable)
                 return Task.FromResult(false);
@@ -99,7 +100,6 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
 
             return Task.FromResult(
                 _byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row) ? Clone(row) : null);
-
     }
 
     /// <inheritdoc />
@@ -136,9 +136,8 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         lock (_gate)
         {
             List<GovernanceApprovalRequest> ordered = _byId.Values
-                .Where(
-                    x => string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
-                         || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal))
+                .Where(x => string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
+                            || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal))
                 .OrderByDescending(x => x.RequestedUtc)
                 .Take(maxRows)
                 .Select(Clone)
@@ -162,11 +161,11 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         lock (_gate)
         {
             List<GovernanceApprovalRequest> ordered = _byId.Values
-                .Where(
-                    x => x.ReviewedUtc.HasValue
-                         && (string.Equals(x.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal)
-                             || string.Equals(x.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal)
-                             || string.Equals(x.Status, GovernanceApprovalStatus.Promoted, StringComparison.Ordinal)))
+                .Where(x => x.ReviewedUtc.HasValue
+                            && (string.Equals(x.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal)
+                                || string.Equals(x.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal)
+                                || string.Equals(x.Status, GovernanceApprovalStatus.Promoted,
+                                    StringComparison.Ordinal)))
                 .OrderByDescending(x => x.ReviewedUtc)
                 .Take(maxRows)
                 .Select(Clone)
@@ -186,12 +185,11 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         lock (_gate)
         {
             List<GovernanceApprovalRequest> breached = _byId.Values
-                .Where(
-                    x => (string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
-                          || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal))
-                         && x.SlaDeadlineUtc.HasValue
-                         && x.SlaDeadlineUtc.Value <= utcNow
-                         && !x.SlaBreachNotifiedUtc.HasValue)
+                .Where(x => (string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
+                             || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal))
+                            && x.SlaDeadlineUtc.HasValue
+                            && x.SlaDeadlineUtc.Value <= utcNow
+                            && !x.SlaBreachNotifiedUtc.HasValue)
                 .OrderBy(x => x.SlaDeadlineUtc)
                 .Select(Clone)
                 .ToList();
@@ -216,14 +214,14 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
                 row.SlaBreachNotifiedUtc = slaBreachNotifiedUtc;
 
 
-
         return Task.CompletedTask;
     }
 
     private static GovernanceApprovalRequest Clone(GovernanceApprovalRequest source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);
-        GovernanceApprovalRequest? copy = JsonSerializer.Deserialize<GovernanceApprovalRequest>(json, ContractJson.Default);
+        GovernanceApprovalRequest? copy =
+            JsonSerializer.Deserialize<GovernanceApprovalRequest>(json, ContractJson.Default);
 
         return copy ?? throw new InvalidOperationException("Clone produced null GovernanceApprovalRequest.");
     }

@@ -3,12 +3,12 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
-/// Coordinates SQL RLS break-glass: requires both environment variable and explicit configuration consent.
+///     Coordinates SQL RLS break-glass: requires both environment variable and explicit configuration consent.
 /// </summary>
 public static class RlsBreakGlass
 {
     /// <summary>
-    /// True when <c>ARCHLUCID_ALLOW_RLS_BYPASS=true</c> and <c>ArchLucid:Persistence:AllowRlsBypass</c> is true.
+    ///     True when <c>ARCHLUCID_ALLOW_RLS_BYPASS=true</c> and <c>ArchLucid:Persistence:AllowRlsBypass</c> is true.
     /// </summary>
     public static bool IsEnabled(IConfiguration configuration)
     {

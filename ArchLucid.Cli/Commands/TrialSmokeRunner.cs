@@ -22,25 +22,34 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
 
+    /// <summary>Canonical correlation header emitted by <c>CorrelationIdMiddleware</c> on every API response.</summary>
+    private const string CorrelationHeaderName = "X-Correlation-ID";
+
     public async Task<TrialSmokeReport> RunAsync(TrialSmokeCommandOptions options, CancellationToken ct = default)
     {
         if (options is null) throw new ArgumentNullException(nameof(options));
 
         List<TrialSmokeStepResult> steps = [];
 
-        (TrialSmokeStepResult registerStep, TrialSmokeRegisterResponse? registerResponse) =
+        (TrialSmokeStepResult registerStep, TrialSmokeRegisterResponse? registerResponse, string? correlationId) =
             await RegisterAsync(options, ct);
         steps.Add(registerStep);
 
         if (!registerStep.Passed || registerResponse is null)
-            return new TrialSmokeReport { Steps = steps, AllPassed = false };
+            return new TrialSmokeReport { Steps = steps, AllPassed = false, RegistrationCorrelationId = correlationId };
 
         (TrialSmokeStepResult statusStep, TrialSmokeTrialStatusResponse? statusResponse) =
             await TrialStatusAsync(registerResponse, ct);
         steps.Add(statusStep);
 
         if (!statusStep.Passed || statusResponse is null)
-            return new TrialSmokeReport { Steps = steps, AllPassed = false, TenantId = registerResponse.TenantId };
+            return new TrialSmokeReport
+            {
+                Steps = steps,
+                AllPassed = false,
+                TenantId = registerResponse.TenantId,
+                RegistrationCorrelationId = correlationId
+            };
 
         if (options.SkipPilotRunDeltas || string.IsNullOrWhiteSpace(statusResponse.TrialWelcomeRunId))
             return new TrialSmokeReport
@@ -48,7 +57,8 @@ public sealed class TrialSmokeRunner(HttpClient http)
                 Steps = steps,
                 AllPassed = steps.All(s => s.Passed),
                 TenantId = registerResponse.TenantId,
-                TrialWelcomeRunId = statusResponse.TrialWelcomeRunId
+                TrialWelcomeRunId = statusResponse.TrialWelcomeRunId,
+                RegistrationCorrelationId = correlationId
             };
 
         TrialSmokeStepResult deltasStep =
@@ -60,13 +70,13 @@ public sealed class TrialSmokeRunner(HttpClient http)
             Steps = steps,
             AllPassed = steps.All(s => s.Passed),
             TenantId = registerResponse.TenantId,
-            TrialWelcomeRunId = statusResponse.TrialWelcomeRunId
+            TrialWelcomeRunId = statusResponse.TrialWelcomeRunId,
+            RegistrationCorrelationId = correlationId
         };
     }
 
-    private async Task<(TrialSmokeStepResult Step, TrialSmokeRegisterResponse? Body)> RegisterAsync(
-        TrialSmokeCommandOptions options,
-        CancellationToken ct)
+    private async Task<(TrialSmokeStepResult Step, TrialSmokeRegisterResponse? Body, string? CorrelationId)>
+        RegisterAsync(TrialSmokeCommandOptions options, CancellationToken ct)
     {
         const string Name = "register";
         const string Hint = "Look for TrialSignupAttempted / TrialSignupFailed in dbo.AuditEvents.";
@@ -83,6 +93,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
         try
         {
             using HttpResponseMessage res = await _http.PostAsJsonAsync("/v1/register", payload, JsonCamel, ct);
+            string? correlationId = ReadCorrelationId(res);
 
             if (res.StatusCode != HttpStatusCode.Created)
             {
@@ -95,7 +106,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
                         Passed = false,
                         Detail = $"POST /v1/register returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
                         FailureHint = Hint
-                    }, null);
+                    }, null, correlationId);
             }
 
             TrialSmokeRegisterResponse? body200 =
@@ -109,13 +120,13 @@ public sealed class TrialSmokeRunner(HttpClient http)
                         Passed = false,
                         Detail = "POST /v1/register returned 201 but the response body did not contain a tenantId.",
                         FailureHint = Hint
-                    }, null);
+                    }, null, correlationId);
 
             return (
                 new TrialSmokeStepResult
                 {
                     Name = Name, Passed = true, Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId})."
-                }, body200);
+                }, body200, correlationId);
         }
         catch (Exception ex)
         {
@@ -126,8 +137,23 @@ public sealed class TrialSmokeRunner(HttpClient http)
                     Passed = false,
                     Detail = $"POST /v1/register threw: {ex.GetType().Name}: {ex.Message}",
                     FailureHint = Hint
-                }, null);
+                }, null, null);
         }
+    }
+
+    private static string? ReadCorrelationId(HttpResponseMessage res)
+    {
+        if (res is null) return null;
+
+        if (res.Headers.TryGetValues(CorrelationHeaderName, out IEnumerable<string>? values))
+        {
+            foreach (string v in values)
+            {
+                if (!string.IsNullOrWhiteSpace(v)) return v.Trim();
+            }
+        }
+
+        return null;
     }
 
     private async Task<(TrialSmokeStepResult Step, TrialSmokeTrialStatusResponse? Body)> TrialStatusAsync(

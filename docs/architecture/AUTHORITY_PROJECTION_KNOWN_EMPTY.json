@@ -1,10 +1,22 @@
 {
   "schemaVersion": 1,
-  "emptyFields": [
+  "emptyFields": [],
+  "history": [
+    {
+      "name": "Services",
+      "removedInPr": "ADR 0030 PR A0.5",
+      "removedDate": "2026-04-22"
+    },
+    {
+      "name": "Datastores",
+      "removedInPr": "ADR 0030 PR A0.5",
+      "removedDate": "2026-04-22"
+    },
     {
       "name": "Relationships",
-      "rationale": "No graph-edge projection in Commit projection yet; tracked by follow-on Relationships PR.",
-      "trackedBy": "TBD-Relationships-Graph-PR"
+      "removedInPr": "ADR 0030 PR A3",
+      "removedDate": "2026-04-24",
+      "removedBecause": "TopologySection.Relationships now round-trips contract ManifestRelationship rows through the Authority FK chain (TopologyJson). DemoSeedDepthIntegrationTests proves both quickstart + vertical seeds commit a manifest with non-empty Relationships."
     }
   ]
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -22,12 +23,12 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         string body =
             "{\"action\":\"ChangePlan\",\"subscriptionId\":\"sub-202-test\",\"planId\":\"contoso-enterprise\",\"quantity\":5,\"purchaser\":{\"tenantId\":\""
-            + tenantId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)
+            + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
         using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
         {
-            Content = new StringContent(body, Encoding.UTF8, "application/json"),
+            Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
@@ -36,7 +37,8 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        string tier = await BillingMarketplaceWebhookTestSeed.ReadBillingTierAsync(factory.SqlConnectionString, tenantId);
+        string tier =
+            await BillingMarketplaceWebhookTestSeed.ReadBillingTierAsync(factory.SqlConnectionString, tenantId);
 
         tier.Should().Be("Standard");
     }
@@ -52,12 +54,12 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         string body =
             "{\"action\":\"ChangePlan\",\"subscriptionId\":\"sub-200-test\",\"planId\":\"contoso-enterprise\",\"purchaser\":{\"tenantId\":\""
-            + tenantId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)
+            + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
         using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
         {
-            Content = new StringContent(body, Encoding.UTF8, "application/json"),
+            Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
@@ -66,7 +68,8 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        string tier = await BillingMarketplaceWebhookTestSeed.ReadBillingTierAsync(factory.SqlConnectionString, tenantId);
+        string tier =
+            await BillingMarketplaceWebhookTestSeed.ReadBillingTierAsync(factory.SqlConnectionString, tenantId);
 
         tier.Should().Be("Enterprise");
     }
@@ -82,12 +85,12 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         string body =
             "{\"action\":\"ChangeQuantity\",\"subscriptionId\":\"sub-qty\",\"quantity\":42,\"purchaser\":{\"tenantId\":\""
-            + tenantId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)
+            + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
         using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
         {
-            Content = new StringContent(body, Encoding.UTF8, "application/json"),
+            Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
@@ -96,7 +99,8 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        int seats = await BillingMarketplaceWebhookTestSeed.ReadBillingSeatsAsync(factory.SqlConnectionString, tenantId);
+        int seats = await BillingMarketplaceWebhookTestSeed.ReadBillingSeatsAsync(factory.SqlConnectionString,
+            tenantId);
 
         seats.Should().Be(42);
     }
@@ -112,12 +116,12 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         string body =
             "{\"action\":\"ChangeQuantity\",\"subscriptionId\":\"sub-qty-202\",\"quantity\":99,\"purchaser\":{\"tenantId\":\""
-            + tenantId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)
+            + tenantId.ToString("D", CultureInfo.InvariantCulture)
             + "\"}}";
 
         using HttpRequestMessage request = new(HttpMethod.Post, "/v1/billing/webhooks/marketplace")
         {
-            Content = new StringContent(body, Encoding.UTF8, "application/json"),
+            Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "test-bearer");
@@ -126,7 +130,8 @@ public sealed class BillingMarketplaceWebhookHttpTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        int seats = await BillingMarketplaceWebhookTestSeed.ReadBillingSeatsAsync(factory.SqlConnectionString, tenantId);
+        int seats = await BillingMarketplaceWebhookTestSeed.ReadBillingSeatsAsync(factory.SqlConnectionString,
+            tenantId);
 
         seats.Should().Be(2);
     }

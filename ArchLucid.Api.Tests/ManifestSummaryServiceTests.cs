@@ -7,15 +7,18 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ManifestSummaryService"/>.
+///     Unit tests for <see cref="ManifestSummaryService" />.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ManifestSummaryServiceTests
 {
-    private readonly ManifestSummaryService _sut = new();
-
-    /// <summary>Enough services and relationships to exceed <see cref="ManifestSummaryOptions.MaxRelationships"/> in the capped-output test.</summary>
+    /// <summary>
+    ///     Enough services and relationships to exceed <see cref="ManifestSummaryOptions.MaxRelationships" /> in the
+    ///     capped-output test.
+    /// </summary>
     private const int RelationshipStressPairCount = 5;
+
+    private readonly ManifestSummaryService _sut = new();
 
     [Fact]
     public void GenerateMarkdown_NullManifest_Throws()
@@ -158,15 +161,10 @@ public sealed class ManifestSummaryServiceTests
         });
         manifest.Relationships.Add(new ManifestRelationship
         {
-            SourceId = "a",
-            TargetId = "b",
-            RelationshipType = RelationshipType.Calls
+            SourceId = "a", TargetId = "b", RelationshipType = RelationshipType.Calls
         });
 
-        ManifestSummaryOptions options = new()
-        {
-            IncludeRelationships = false
-        };
+        ManifestSummaryOptions options = new() { IncludeRelationships = false };
 
         string markdown = _sut.GenerateMarkdown(manifest, options);
 
@@ -179,10 +177,7 @@ public sealed class ManifestSummaryServiceTests
         GoldenManifest manifest = CreateMinimalManifest("NoCT");
         manifest.Governance.ComplianceTags.Add("SOC2");
 
-        ManifestSummaryOptions options = new()
-        {
-            IncludeComplianceTags = false
-        };
+        ManifestSummaryOptions options = new() { IncludeComplianceTags = false };
 
         string markdown = _sut.GenerateMarkdown(manifest, options);
 
@@ -217,16 +212,11 @@ public sealed class ManifestSummaryServiceTests
         {
             manifest.Relationships.Add(new ManifestRelationship
             {
-                SourceId = $"svc{i}",
-                TargetId = "ds0",
-                RelationshipType = RelationshipType.Calls
+                SourceId = $"svc{i}", TargetId = "ds0", RelationshipType = RelationshipType.Calls
             });
         }
 
-        ManifestSummaryOptions options = new()
-        {
-            MaxRelationships = 2
-        };
+        ManifestSummaryOptions options = new() { MaxRelationships = 2 };
 
         string markdown = _sut.GenerateMarkdown(manifest, options);
 

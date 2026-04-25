@@ -81,7 +81,7 @@ Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manag
 | DOCX consulting export | — | ✓ | ✓ |
 | Webhook / CloudEvents | — | ✓ | ✓ |
 | Service Bus integration | — | — | ✓ |
-| SCIM provisioning | — | — | ✓ (roadmap) |
+| SCIM provisioning | — | — | ✓ |
 | Dedicated support | — | — | ✓ |
 
 ### 3.1 Canonical Marketplace tier names
@@ -264,7 +264,7 @@ Use this when first deals produce signal about price tolerance. Do not change li
 - **Professional services:** Custom connector development, bespoke policy packs, training workshops — priced separately.
 - **Custom infrastructure:** Dedicated compute, customer-managed keys (BYOK), air-gapped deployment — not available in V1 SaaS.
 - **Data migration:** Importing architecture data from other tools — roadmap connector (see [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)).
-- **Adds priced separately at Enterprise:** Custom policy pack authoring engagement, SCIM provisioning (when shipped), Azure Service Bus integration setup.
+- **Adds priced separately at Enterprise:** Custom policy pack authoring engagement, SCIM provisioning (inbound automation — see [`docs/integrations/SCIM_PROVISIONING.md`](../integrations/SCIM_PROVISIONING.md)), Azure Service Bus integration setup.
 
 ---
 

@@ -5,30 +5,35 @@ using JetBrains.Annotations;
 namespace ArchLucid.Persistence.Coordination.Compare;
 
 /// <summary>
-/// Scope-safe structural comparison of golden manifests and authority runs (diff lists for UI and advisory).
+///     Scope-safe structural comparison of golden manifests and authority runs (diff lists for UI and advisory).
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="AuthorityCompareService"/>. HTTP: <c>ArchLucid.Api.Controllers.AuthorityCompareController</c>.
+///     Implementation: <see cref="AuthorityCompareService" />. HTTP:
+///     <c>ArchLucid.Api.Controllers.AuthorityCompareController</c>.
 /// </remarks>
 public interface IAuthorityCompareService
 {
     /// <summary>
-    /// Appends a single <see cref="DiffKind.Changed"/> <see cref="DiffItem"/> when <paramref name="beforeValue"/> and <paramref name="afterValue"/> differ (ordinal).
+    ///     Appends a single <see cref="DiffKind.Changed" /> <see cref="DiffItem" /> when <paramref name="beforeValue" /> and
+    ///     <paramref name="afterValue" /> differ (ordinal).
     /// </summary>
     /// <remarks>No-op when values are equal; used for run-level fields and available for custom comparers.</remarks>
     /// <param name="diffs">Mutable list to append to.</param>
     /// <param name="section">Logical grouping label (e.g. <c>Run</c>).</param>
     /// <param name="key">Field name within the section.</param>
-    /// <param name="beforeValue">Left-hand value; may be <see langword="null"/>.</param>
-    /// <param name="afterValue">Right-hand value; may be <see langword="null"/>.</param>
+    /// <param name="beforeValue">Left-hand value; may be <see langword="null" />.</param>
+    /// <param name="afterValue">Right-hand value; may be <see langword="null" />.</param>
     [UsedImplicitly]
     void AddRunDiff(IList<DiffItem> diffs, string section, string key, string? beforeValue, string? afterValue);
 
     /// <summary>
-    /// Loads both manifests in <paramref name="scope"/> and produces a flat list of added/removed/changed facets.
+    ///     Loads both manifests in <paramref name="scope" /> and produces a flat list of added/removed/changed facets.
     /// </summary>
-    /// <returns>Comparison result, or <see langword="null"/> if either manifest is missing in <paramref name="scope"/>.</returns>
-    /// <exception cref="InvalidOperationException">Both manifests were found but their stored tenant/workspace/project keys differ (illegal comparison).</exception>
+    /// <returns>Comparison result, or <see langword="null" /> if either manifest is missing in <paramref name="scope" />.</returns>
+    /// <exception cref="InvalidOperationException">
+    ///     Both manifests were found but their stored tenant/workspace/project keys
+    ///     differ (illegal comparison).
+    /// </exception>
     /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
     /// <param name="leftManifestId">First manifest id (baseline).</param>
     /// <param name="rightManifestId">Second manifest id (target).</param>
@@ -40,10 +45,14 @@ public interface IAuthorityCompareService
         CancellationToken ct);
 
     /// <summary>
-    /// Compares two runs’ summaries and, when both reference golden manifests, nests <see cref="CompareManifestsAsync"/>.
-    /// Run-level diffs include <c>GoldenManifestId</c> so callers can see asymmetry when nested manifest comparison is omitted.
+    ///     Compares two runs’ summaries and, when both reference golden manifests, nests <see cref="CompareManifestsAsync" />.
+    ///     Run-level diffs include <c>GoldenManifestId</c> so callers can see asymmetry when nested manifest comparison is
+    ///     omitted.
     /// </summary>
-    /// <returns>Result with run-level diffs and optional manifest comparison, or <see langword="null"/> if either run summary is missing.</returns>
+    /// <returns>
+    ///     Result with run-level diffs and optional manifest comparison, or <see langword="null" /> if either run summary
+    ///     is missing.
+    /// </returns>
     /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
     /// <param name="leftRunId">Baseline run id.</param>
     /// <param name="rightRunId">Target run id.</param>

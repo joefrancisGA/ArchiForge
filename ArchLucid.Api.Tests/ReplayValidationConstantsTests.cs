@@ -5,9 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Replay Validation Constants.
+///     Tests for Replay Validation Constants.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class ReplayValidationConstantsTests
 {

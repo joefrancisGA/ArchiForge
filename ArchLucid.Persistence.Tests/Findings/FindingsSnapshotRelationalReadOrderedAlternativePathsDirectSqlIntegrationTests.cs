@@ -12,13 +12,15 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Findings;
 
 /// <summary>
-/// Covers <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync"/> ordering for
-/// <c>dbo.FindingTraceAlternativePaths</c> (<c>ORDER BY FindingRecordId, SortOrder</c> via <c>LoadOrderedPairsAsync</c>).
+///     Covers <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync" /> ordering for
+///     <c>dbo.FindingTraceAlternativePaths</c> (<c>ORDER BY FindingRecordId, SortOrder</c> via
+///     <c>LoadOrderedPairsAsync</c>).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "Core")]
-public sealed class FindingsSnapshotRelationalReadOrderedAlternativePathsDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class FindingsSnapshotRelationalReadOrderedAlternativePathsDirectSqlIntegrationTests(
+    SqlServerPersistenceFixture fixture)
 {
     [SkippableFact]
     public async Task LoadRelationalSnapshotAsync_returns_alternative_paths_in_SortOrder()
@@ -50,33 +52,31 @@ public sealed class FindingsSnapshotRelationalReadOrderedAlternativePathsDirectS
             CancellationToken.None);
 
         const string selectHeader = """
-            SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
-            FROM dbo.FindingsSnapshots
-            WHERE FindingsSnapshotId = @FindingsSnapshotId;
-            """;
+                                    SELECT FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc, SchemaVersion, FindingsJson
+                                    FROM dbo.FindingsSnapshots
+                                    WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                                    """;
 
         FindingsSnapshotStorageRow? headerRow = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(selectHeader, new
-            {
-                FindingsSnapshotId = findingsId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectHeader, new { FindingsSnapshotId = findingsId },
+                cancellationToken: CancellationToken.None));
 
         headerRow.Should().NotBeNull();
 
         const string insertRecord = """
-            INSERT INTO dbo.FindingRecords
-            (
-                FindingRecordId, FindingsSnapshotId, SortOrder,
-                FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                Severity, Title, Rationale, PayloadType, PayloadJson
-            )
-            VALUES
-            (
-                @FindingRecordId, @FindingsSnapshotId, @SortOrder,
-                @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
-                @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingRecords
+                                    (
+                                        FindingRecordId, FindingsSnapshotId, SortOrder,
+                                        FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
+                                        Severity, Title, Rationale, PayloadType, PayloadJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingRecordId, @FindingsSnapshotId, @SortOrder,
+                                        @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
+                                        @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -95,39 +95,30 @@ public sealed class FindingsSnapshotRelationalReadOrderedAlternativePathsDirectS
                     Title = "Paths",
                     Rationale = "R",
                     PayloadType = (string?)null,
-                    PayloadJson = (string?)null,
+                    PayloadJson = (string?)null
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertPath = """
-            INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
-            VALUES (@FindingRecordId, @SortOrder, @PathText);
-            """;
+                                  INSERT INTO dbo.FindingTraceAlternativePaths (FindingRecordId, SortOrder, PathText)
+                                  VALUES (@FindingRecordId, @SortOrder, @PathText);
+                                  """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertPath,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 1,
-                    PathText = "second-path-by-sort",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 1, PathText = "second-path-by-sort" },
                 cancellationToken: CancellationToken.None));
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 insertPath,
-                new
-                {
-                    FindingRecordId = findingRecordId,
-                    SortOrder = 0,
-                    PathText = "first-path-by-sort",
-                },
+                new { FindingRecordId = findingRecordId, SortOrder = 0, PathText = "first-path-by-sort" },
                 cancellationToken: CancellationToken.None));
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow, CancellationToken.None);
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow,
+                CancellationToken.None);
 
         loaded.Findings.Should().ContainSingle();
         Finding f = loaded.Findings[0];

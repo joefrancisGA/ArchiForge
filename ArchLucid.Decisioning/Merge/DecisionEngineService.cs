@@ -8,14 +8,14 @@ namespace ArchLucid.Decisioning.Merge;
 
 public sealed class DecisionEngineService : IDecisionEngineService
 {
-    private readonly ISchemaValidationService _schemaValidationService;
-    private readonly DecisionMergeInputGate _mergeInputGate;
     private readonly AgentProposalManifestMerger _agentProposalManifestMerger;
     private readonly DecisionNodeManifestMerger _decisionNodeManifestMerger;
     private readonly ManifestGovernanceMerger _manifestGovernanceMerger;
+    private readonly DecisionMergeInputGate _mergeInputGate;
+    private readonly ISchemaValidationService _schemaValidationService;
 
     /// <summary>
-    /// Preferred constructor for DI: merge steps are explicit dependencies for testing and extension.
+    ///     Preferred constructor for DI: merge steps are explicit dependencies for testing and extension.
     /// </summary>
     public DecisionEngineService(
         ISchemaValidationService schemaValidationService,
@@ -24,16 +24,20 @@ public sealed class DecisionEngineService : IDecisionEngineService
         DecisionNodeManifestMerger decisionNodeManifestMerger,
         ManifestGovernanceMerger manifestGovernanceMerger)
     {
-        _schemaValidationService = schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
+        _schemaValidationService =
+            schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
         _mergeInputGate = mergeInputGate ?? throw new ArgumentNullException(nameof(mergeInputGate));
-        _agentProposalManifestMerger = agentProposalManifestMerger ?? throw new ArgumentNullException(nameof(agentProposalManifestMerger));
-        _decisionNodeManifestMerger = decisionNodeManifestMerger ?? throw new ArgumentNullException(nameof(decisionNodeManifestMerger));
-        _manifestGovernanceMerger = manifestGovernanceMerger ?? throw new ArgumentNullException(nameof(manifestGovernanceMerger));
+        _agentProposalManifestMerger = agentProposalManifestMerger ??
+                                       throw new ArgumentNullException(nameof(agentProposalManifestMerger));
+        _decisionNodeManifestMerger = decisionNodeManifestMerger ??
+                                      throw new ArgumentNullException(nameof(decisionNodeManifestMerger));
+        _manifestGovernanceMerger = manifestGovernanceMerger ??
+                                    throw new ArgumentNullException(nameof(manifestGovernanceMerger));
     }
 
     /// <summary>
-    /// Convenience constructor for tests and tools: wires the default merge strategies (same behavior as full DI).
-    /// Host composition registers the five-argument constructor when merge strategies are in the container.
+    ///     Convenience constructor for tests and tools: wires the default merge strategies (same behavior as full DI).
+    ///     Host composition registers the five-argument constructor when merge strategies are in the container.
     /// </summary>
     public DecisionEngineService(ISchemaValidationService schemaValidationService)
         : this(
@@ -72,7 +76,8 @@ public sealed class DecisionEngineService : IDecisionEngineService
         if (!_mergeInputGate.ValidateAgentResultsAgainstSchema(validResults, output))
             return output;
 
-        GoldenManifest manifest = GoldenManifestFactory.CreateBase(runId, request, manifestVersion, parentManifestVersion);
+        GoldenManifest manifest =
+            GoldenManifestFactory.CreateBase(runId, request, manifestVersion, parentManifestVersion);
 
         _agentProposalManifestMerger.MergeAgentResultsIntoManifest(runId, validResults, manifest, output);
 

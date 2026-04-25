@@ -40,9 +40,17 @@ docker-compose*.yml
 
 # Docs — excluded from images except the pricing single-source document,
 # which the archlucid-ui Dockerfile build stage needs to generate pricing.json.
+# API image: ArchLucid.Application embeds go-to-market + security + library files for
+# the Trust Center evidence pack (`ArchLucid.Application.csproj` EmbeddedResource). Re-include
+# whole subfolders (same pattern as go-to-market) so nested paths (e.g. `pen-test-summaries/`)
+# are in the build context; per-file `!` alone can fail if a parent is excluded.
+# UI image: `archlucid-ui/Dockerfile` COPYs `docs/trust-center.md` for `/trust` SSR.
 docs/
 !docs/go-to-market/
 !docs/go-to-market/PRICING_PHILOSOPHY.md
+!docs/security/
+!docs/library/
+!docs/trust-center.md
 
 # CI
 .github/

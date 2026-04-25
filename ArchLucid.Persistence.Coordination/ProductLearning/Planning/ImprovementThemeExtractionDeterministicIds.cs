@@ -6,7 +6,7 @@ using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
-/// <summary>Stable <see cref="Guid"/> values derived from scope + canonical keys (no randomness).</summary>
+/// <summary>Stable <see cref="Guid" /> values derived from scope + canonical keys (no randomness).</summary>
 internal static class ImprovementThemeExtractionDeterministicIds
 {
     internal static Guid ThemeId(ProductLearningScope scope, string canonicalKey)

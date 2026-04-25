@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IAgentResultRepository"/>.
+///     Shared contract assertions for <see cref="IAgentResultRepository" />.
 /// </summary>
 public abstract class AgentResultRepositoryContractTests
 {
@@ -17,7 +17,8 @@ public abstract class AgentResultRepositoryContractTests
 
     protected abstract IAgentResultRepository CreateRepository();
 
-    protected virtual Task PrepareRunTaskChainAsync(string requestId, string runId, AgentTask task, CancellationToken ct)
+    protected virtual Task PrepareRunTaskChainAsync(string requestId, string runId, AgentTask task,
+        CancellationToken ct)
     {
         _ = requestId;
         _ = runId;
@@ -60,7 +61,8 @@ public abstract class AgentResultRepositoryContractTests
 
         await PrepareRunTaskChainAsync(requestId, runId, task, CancellationToken.None);
 
-        await repo.CreateAsync(NewResult(runId, task.TaskId, "old", DateTime.UtcNow.AddMinutes(-1)), CancellationToken.None);
+        await repo.CreateAsync(NewResult(runId, task.TaskId, "old", DateTime.UtcNow.AddMinutes(-1)),
+            CancellationToken.None);
 
         await repo.CreateManyAsync(
             [NewResult(runId, task.TaskId, "new", DateTime.UtcNow)],
@@ -82,7 +84,7 @@ public abstract class AgentResultRepositoryContractTests
             Objective = "o",
             Status = AgentTaskStatus.Created,
             CreatedUtc = DateTime.UtcNow,
-            EvidenceBundleRef = "eb-ar",
+            EvidenceBundleRef = "eb-ar"
         };
     }
 
@@ -97,7 +99,7 @@ public abstract class AgentResultRepositoryContractTests
             Claims = [],
             EvidenceRefs = [],
             Confidence = 0.5,
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
     }
 }

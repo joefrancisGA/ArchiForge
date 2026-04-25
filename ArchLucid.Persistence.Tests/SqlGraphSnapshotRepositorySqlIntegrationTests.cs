@@ -13,7 +13,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="SqlGraphSnapshotRepository"/> against SQL Server + DbUp (relational children + JSON dual-write; reads are relational-first).
+///     <see cref="SqlGraphSnapshotRepository" /> against SQL Server + DbUp (relational children + JSON dual-write; reads
+///     are relational-first).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -47,8 +48,8 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     Category = "app",
                     SourceType = "code",
                     SourceId = "src",
-                    Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["env"] = "prod" },
-                },
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["env"] = "prod" }
+                }
             ],
             Edges =
             [
@@ -60,10 +61,10 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     EdgeType = "CALLS",
                     Label = "sync",
                     Weight = 2d,
-                    Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["protocol"] = "grpc" },
-                },
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["protocol"] = "grpc" }
+                }
             ],
-            Warnings = ["w1"],
+            Warnings = ["w1"]
         };
 
         await repository.SaveAsync(snapshot, CancellationToken.None);
@@ -105,7 +106,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     FromNodeId = "a",
                     ToNodeId = "c",
                     EdgeType = "X",
-                    Weight = 2d,
+                    Weight = 2d
                 },
                 new GraphEdge
                 {
@@ -113,14 +114,15 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     FromNodeId = "a",
                     ToNodeId = "b",
                     EdgeType = "Y",
-                    Weight = 1d,
-                },
-            ],
+                    Weight = 1d
+                }
+            ]
         };
 
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
-        IReadOnlyList<GraphSnapshotIndexedEdge> indexed = await repository.ListIndexedEdgesAsync(snapshot.GraphSnapshotId, CancellationToken.None);
+        IReadOnlyList<GraphSnapshotIndexedEdge> indexed =
+            await repository.ListIndexedEdgesAsync(snapshot.GraphSnapshotId, CancellationToken.None);
         indexed.Should().HaveCount(2);
         indexed[0].EdgeId.Should().Be("a");
         indexed[1].EdgeId.Should().Be("b");
@@ -128,7 +130,8 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     }
 
     [SkippableFact]
-    public async Task GetById_relational_edges_merge_label_and_properties_from_edges_json_when_edge_properties_table_empty()
+    public async Task
+        GetById_relational_edges_merge_label_and_properties_from_edges_json_when_edge_properties_table_empty()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
@@ -140,13 +143,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         List<GraphNode> nodes =
         [
-            new()
-            {
-                NodeId = "legacy-n",
-                NodeType = "T",
-                Label = "Legacy",
-                Properties = [],
-            },
+            new() { NodeId = "legacy-n", NodeType = "T", Label = "Legacy", Properties = [] }
         ];
 
         List<GraphEdge> edges =
@@ -159,8 +156,8 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                 EdgeType = "REL",
                 Label = "edge-label-from-json",
                 Weight = 1d,
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["k"] = "v" },
-            },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["k"] = "v" }
+            }
         ];
 
         string nodesJson = JsonEntitySerializer.Serialize(nodes);
@@ -170,17 +167,17 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -193,14 +190,14 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     CreatedUtc = DateTime.UtcNow,
                     NodesJson = nodesJson,
                     EdgesJson = edgesJson,
-                    WarningsJson = warningsJson,
+                    WarningsJson = warningsJson
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertEdge = """
-            INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-            VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-            """;
+                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
+                                  """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -212,7 +209,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     FromNodeId = "legacy-n",
                     ToNodeId = "x",
                     EdgeType = "REL",
-                    Weight = 1d,
+                    Weight = 1d
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -226,8 +223,8 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     }
 
     /// <summary>
-    /// Header JSON columns are legacy dual-write artifacts; <see cref="GraphSnapshotRelationalRead"/> must not
-    /// deserialize them for nodes/warnings (and must not build edges without relational edge rows).
+    ///     Header JSON columns are legacy dual-write artifacts; <see cref="GraphSnapshotRelationalRead" /> must not
+    ///     deserialize them for nodes/warnings (and must not build edges without relational edge rows).
     /// </summary>
     [SkippableFact]
     public async Task GetById_when_no_relational_children_returns_empty_collections_even_when_json_columns_populated()
@@ -247,8 +244,8 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                 NodeId = "would-be-json-node",
                 NodeType = "T",
                 Label = "Should not appear",
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["ghost"] = "1" },
-            },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["ghost"] = "1" }
+            }
         ];
 
         List<GraphEdge> edgesIfRead =
@@ -260,8 +257,8 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                 ToNodeId = "b",
                 EdgeType = "X",
                 Label = "ghost-edge",
-                Weight = 1d,
-            },
+                Weight = 1d
+            }
         ];
 
         string nodesJson = JsonEntitySerializer.Serialize(nodesIfRead);
@@ -271,17 +268,17 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -294,7 +291,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     CreatedUtc = DateTime.UtcNow,
                     NodesJson = nodesJson,
                     EdgesJson = edgesJson,
-                    WarningsJson = warningsJson,
+                    WarningsJson = warningsJson
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -302,7 +299,8 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         loaded.Should().NotBeNull();
         loaded.Nodes.Should().BeEmpty("relational GraphSnapshotNodes has no rows — JSON must not hydrate nodes");
         loaded.Edges.Should().BeEmpty("relational GraphSnapshotEdges has no rows — JSON must not hydrate edges");
-        loaded.Warnings.Should().BeEmpty("relational GraphSnapshotWarnings has no rows — JSON must not hydrate warnings");
+        loaded.Warnings.Should()
+            .BeEmpty("relational GraphSnapshotWarnings has no rows — JSON must not hydrate warnings");
     }
 
     [SkippableFact]
@@ -332,17 +330,17 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             CancellationToken.None);
 
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -355,7 +353,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
                     CreatedUtc = createdUtc,
                     NodesJson = (string?)null,
                     EdgesJson = (string?)null,
-                    WarningsJson = (string?)null,
+                    WarningsJson = (string?)null
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -386,7 +384,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             CreatedUtc = DateTime.UtcNow,
             Nodes = [],
             Edges = [],
-            Warnings = ["tw"],
+            Warnings = ["tw"]
         };
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);

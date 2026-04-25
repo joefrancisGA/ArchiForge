@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Test host with <c>ArchLucidAuth:Mode = JwtBearer</c> so Swashbuckle emits Entra-oriented <c>securitySchemes</c>.
+///     Test host with <c>ArchLucidAuth:Mode = JwtBearer</c> so Swashbuckle emits Entra-oriented <c>securitySchemes</c>.
 /// </summary>
 public sealed class SwaggerJsonJwtBearerWebAppFactory : WebApplicationFactory<Program>
 {
@@ -32,8 +32,9 @@ public sealed class SwaggerJsonJwtBearerWebAppFactory : WebApplicationFactory<Pr
                     ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
                     ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                     ["ArchLucidAuth:Mode"] = "JwtBearer",
-                    ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/v2.0",
-                    ["ArchLucidAuth:Audience"] = "api://archlucid-swagger-test",
+                    ["ArchLucidAuth:Authority"] =
+                        "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/v2.0",
+                    ["ArchLucidAuth:Audience"] = "api://archlucid-swagger-test"
                 });
         });
     }

@@ -29,7 +29,7 @@ public sealed class SecurityTrustPublishCommandOptionsTests
                 "--date",
                 "2026-07-29",
                 "--summary-url",
-                "https://example.com/summary.md",
+                "https://example.com/summary.md"
             ],
             out string? error);
 

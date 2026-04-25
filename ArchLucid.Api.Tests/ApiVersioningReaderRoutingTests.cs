@@ -1,3 +1,5 @@
+using System.Net;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -5,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Verifies optional <c>api-version</c> query and header readers work alongside URL segment versioning.
+///     Verifies optional <c>api-version</c> query and header readers work alongside URL segment versioning.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -23,7 +25,7 @@ public sealed class ApiVersioningReaderRoutingTests(OpenApiContractWebAppFactory
         using HttpResponseMessage response =
             await client.GetAsync(OpenApiDocumentPath + "?api-version=1.0");
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -37,7 +39,7 @@ public sealed class ApiVersioningReaderRoutingTests(OpenApiContractWebAppFactory
 
         using HttpResponseMessage response = await client.SendAsync(request);
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -48,6 +50,6 @@ public sealed class ApiVersioningReaderRoutingTests(OpenApiContractWebAppFactory
 
         using HttpResponseMessage response = await client.GetAsync("/version");
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

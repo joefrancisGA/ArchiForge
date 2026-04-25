@@ -20,9 +20,9 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             INSERT INTO dbo.UsageEvents (Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId)
-                             VALUES (@Id, @TenantId, @WorkspaceId, @ProjectId, @Kind, @Quantity, @RecordedUtc, @CorrelationId);
-                             """;
+                           INSERT INTO dbo.UsageEvents (Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId)
+                           VALUES (@Id, @TenantId, @WorkspaceId, @ProjectId, @Kind, @Quantity, @RecordedUtc, @CorrelationId);
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -36,7 +36,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                     Kind = UsageMeterKindSql.ToKindString(usageEvent.Kind),
                     usageEvent.Quantity,
                     usageEvent.RecordedUtc,
-                    usageEvent.CorrelationId,
+                    usageEvent.CorrelationId
                 },
                 cancellationToken: ct));
     }
@@ -51,9 +51,9 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             INSERT INTO dbo.UsageEvents (Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId)
-                             VALUES (@Id, @TenantId, @WorkspaceId, @ProjectId, @Kind, @Quantity, @RecordedUtc, @CorrelationId);
-                             """;
+                           INSERT INTO dbo.UsageEvents (Id, TenantId, WorkspaceId, ProjectId, Kind, Quantity, RecordedUtc, CorrelationId)
+                           VALUES (@Id, @TenantId, @WorkspaceId, @ProjectId, @Kind, @Quantity, @RecordedUtc, @CorrelationId);
+                           """;
 
         foreach (UsageEvent e in events)
 
@@ -69,10 +69,9 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                         Kind = UsageMeterKindSql.ToKindString(e.Kind),
                         e.Quantity,
                         e.RecordedUtc,
-                        e.CorrelationId,
+                        e.CorrelationId
                     },
                     cancellationToken: ct));
-
     }
 
     public async Task<IReadOnlyList<TenantUsageSummary>> AggregateByKindAsync(
@@ -84,23 +83,18 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT TenantId, Kind, SUM(Quantity) AS TotalQuantity, @PeriodStart AS PeriodStartUtc, @PeriodEnd AS PeriodEndUtc
-                             FROM dbo.UsageEvents
-                             WHERE TenantId = @TenantId
-                               AND RecordedUtc >= @PeriodStart
-                               AND RecordedUtc < @PeriodEnd
-                             GROUP BY TenantId, Kind;
-                             """;
+                           SELECT TenantId, Kind, SUM(Quantity) AS TotalQuantity, @PeriodStart AS PeriodStartUtc, @PeriodEnd AS PeriodEndUtc
+                           FROM dbo.UsageEvents
+                           WHERE TenantId = @TenantId
+                             AND RecordedUtc >= @PeriodStart
+                             AND RecordedUtc < @PeriodEnd
+                           GROUP BY TenantId, Kind;
+                           """;
 
         IEnumerable<SummaryRow> rows = await connection.QueryAsync<SummaryRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    PeriodStart = periodStart,
-                    PeriodEnd = periodEnd
-                },
+                new { TenantId = tenantId, PeriodStart = periodStart, PeriodEnd = periodEnd },
                 cancellationToken: ct));
 
         return rows
@@ -110,7 +104,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                 Kind = UsageMeterKindSql.ParseKind(r.Kind),
                 TotalQuantity = r.TotalQuantity,
                 PeriodStartUtc = r.PeriodStartUtc,
-                PeriodEndUtc = r.PeriodEndUtc,
+                PeriodEndUtc = r.PeriodEndUtc
             })
             .ToList();
     }
@@ -144,18 +138,12 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                 TenantId = tenantId,
                 PeriodStart = periodStart,
                 PeriodEnd = periodEnd,
-                Kind = UsageMeterKindSql.ToKindString(kindFilter.Value),
+                Kind = UsageMeterKindSql.ToKindString(kindFilter.Value)
             };
         }
         else
 
-            parameters = new
-            {
-                Take = take,
-                TenantId = tenantId,
-                PeriodStart = periodStart,
-                PeriodEnd = periodEnd,
-            };
+            parameters = new { Take = take, TenantId = tenantId, PeriodStart = periodStart, PeriodEnd = periodEnd };
 
 
         sql += " ORDER BY RecordedUtc DESC;";
@@ -170,24 +158,32 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
     {
         public Guid TenantId
         {
-            get; init;
+            get;
+            init;
         }
 
-        public string Kind { get; init; } = string.Empty;
+        public string Kind
+        {
+            get;
+            init;
+        } = string.Empty;
 
         public long TotalQuantity
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset PeriodStartUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset PeriodEndUtc
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -195,43 +191,55 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
     {
         public Guid Id
         {
-            get; init;
+            get;
+            init;
         }
 
         public Guid TenantId
         {
-            get; init;
+            get;
+            init;
         }
 
         public Guid WorkspaceId
         {
-            get; init;
+            get;
+            init;
         }
 
         public Guid ProjectId
         {
-            get; init;
+            get;
+            init;
         }
 
-        public string Kind { get; init; } = string.Empty;
+        public string Kind
+        {
+            get;
+            init;
+        } = string.Empty;
 
         public long Quantity
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset RecordedUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public string? CorrelationId
         {
-            get; init;
+            get;
+            init;
         }
 
-        internal UsageEvent ToUsageEvent() =>
-            new()
+        internal UsageEvent ToUsageEvent()
+        {
+            return new UsageEvent
             {
                 Id = Id,
                 TenantId = TenantId,
@@ -240,7 +248,8 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                 Kind = UsageMeterKindSql.ParseKind(Kind),
                 Quantity = Quantity,
                 RecordedUtc = RecordedUtc,
-                CorrelationId = CorrelationId,
+                CorrelationId = CorrelationId
             };
+        }
     }
 }

@@ -1,7 +1,8 @@
 namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
-/// String values for <see cref="CompositeAlertRule.Operator"/>; combined with per-condition booleans in <see cref="CompositeAlertRuleEvaluator"/>.
+///     String values for <see cref="CompositeAlertRule.Operator" />; combined with per-condition booleans in
+///     <see cref="CompositeAlertRuleEvaluator" />.
 /// </summary>
 public static class CompositeOperator
 {

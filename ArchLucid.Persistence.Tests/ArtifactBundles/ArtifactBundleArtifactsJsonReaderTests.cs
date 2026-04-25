@@ -33,8 +33,8 @@ public sealed class ArtifactBundleArtifactsJsonReaderTests
                 Content = "body",
                 ContentHash = "h",
                 Metadata = new Dictionary<string, string> { ["k"] = "v" },
-                ContributingDecisionIds = ["d"],
-            },
+                ContributingDecisionIds = ["d"]
+            }
         ];
 
         string json = JsonEntitySerializer.Serialize(original);

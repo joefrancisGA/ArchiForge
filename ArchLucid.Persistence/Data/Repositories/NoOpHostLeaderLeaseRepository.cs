@@ -1,7 +1,8 @@
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Always succeeds; used when host leader election is disabled in configuration or storage is InMemory (no SQL leases).
+///     Always succeeds; used when host leader election is disabled in configuration or storage is InMemory (no SQL
+///     leases).
 /// </summary>
 public sealed class NoOpHostLeaderLeaseRepository : IHostLeaderLeaseRepository
 {

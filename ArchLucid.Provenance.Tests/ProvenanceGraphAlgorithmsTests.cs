@@ -105,7 +105,7 @@ public sealed class ProvenanceGraphAlgorithmsTests
     {
         DecisionProvenanceGraph graph = SampleGraph();
 
-        DecisionProvenanceGraph n = ProvenanceGraphAlgorithms.ExtractNeighborhood(graph, Guid.NewGuid(), depth: 2);
+        DecisionProvenanceGraph n = ProvenanceGraphAlgorithms.ExtractNeighborhood(graph, Guid.NewGuid(), 2);
 
         n.Nodes.Should().BeEmpty();
         n.Edges.Should().BeEmpty();
@@ -117,7 +117,7 @@ public sealed class ProvenanceGraphAlgorithmsTests
         DecisionProvenanceGraph graph = SampleGraph();
         Guid start = graph.Nodes[0].Id;
 
-        DecisionProvenanceGraph n = ProvenanceGraphAlgorithms.ExtractNeighborhood(graph, start, depth: 0);
+        DecisionProvenanceGraph n = ProvenanceGraphAlgorithms.ExtractNeighborhood(graph, start, 0);
 
         n.Nodes.Should().HaveCount(1);
         n.Nodes[0].Id.Should().Be(start);
@@ -138,27 +138,18 @@ public sealed class ProvenanceGraphAlgorithmsTests
             [
                 new ProvenanceNode
                 {
-                    Id = decisionId,
-                    Type = ProvenanceNodeType.Decision,
-                    ReferenceId = "ref-a",
-                    Name = "Decision A"
+                    Id = decisionId, Type = ProvenanceNodeType.Decision, ReferenceId = "ref-a", Name = "Decision A"
                 },
                 new ProvenanceNode
                 {
-                    Id = otherId,
-                    Type = ProvenanceNodeType.Finding,
-                    ReferenceId = "f-1",
-                    Name = "Finding"
+                    Id = otherId, Type = ProvenanceNodeType.Finding, ReferenceId = "f-1", Name = "Finding"
                 }
             ],
             Edges =
             [
                 new ProvenanceEdge
                 {
-                    Id = edgeId,
-                    FromNodeId = decisionId,
-                    ToNodeId = otherId,
-                    Type = ProvenanceEdgeType.SupportedBy
+                    Id = edgeId, FromNodeId = decisionId, ToNodeId = otherId, Type = ProvenanceEdgeType.SupportedBy
                 }
             ]
         };

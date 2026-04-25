@@ -42,4 +42,31 @@ public sealed class TenantRegistrationRequest
         get;
         init;
     }
+
+    [MaxLength(30)]
+    public string? CompanySize
+    {
+        get;
+        init;
+    }
+
+    public int? ArchitectureTeamSize
+    {
+        get;
+        init;
+    }
+
+    [MaxLength(100)]
+    public string? IndustryVertical
+    {
+        get;
+        init;
+    }
+
+    [MaxLength(200)]
+    public string? IndustryVerticalOther
+    {
+        get;
+        init;
+    }
 }

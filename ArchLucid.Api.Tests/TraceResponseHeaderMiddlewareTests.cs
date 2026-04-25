@@ -11,7 +11,7 @@ using Microsoft.Extensions.Primitives;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="TraceResponseHeaderMiddleware"/>.
+///     Unit tests for <see cref="TraceResponseHeaderMiddleware" />.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -28,7 +28,9 @@ public sealed class TraceResponseHeaderMiddlewareTests
         try
         {
             TraceResponseHeaderMiddleware middleware = new(_ => Task.CompletedTask);
-            DefaultHttpContext context = OnStartingCapturingHttpResponseFeature.CreateContext(out OnStartingCapturingHttpResponseFeature capture);
+            DefaultHttpContext context =
+                OnStartingCapturingHttpResponseFeature.CreateContext(
+                    out OnStartingCapturingHttpResponseFeature capture);
 
             await middleware.InvokeAsync(context);
             await capture.InvokeOnStartingCallbacksAsync();
@@ -53,7 +55,9 @@ public sealed class TraceResponseHeaderMiddlewareTests
         try
         {
             TraceResponseHeaderMiddleware middleware = new(_ => Task.CompletedTask);
-            DefaultHttpContext context = OnStartingCapturingHttpResponseFeature.CreateContext(out OnStartingCapturingHttpResponseFeature capture);
+            DefaultHttpContext context =
+                OnStartingCapturingHttpResponseFeature.CreateContext(
+                    out OnStartingCapturingHttpResponseFeature capture);
 
             await middleware.InvokeAsync(context);
             await capture.InvokeOnStartingCallbacksAsync();
@@ -84,7 +88,8 @@ public sealed class TraceResponseHeaderMiddlewareTests
             return Task.CompletedTask;
         });
 
-        DefaultHttpContext context = OnStartingCapturingHttpResponseFeature.CreateContext(out OnStartingCapturingHttpResponseFeature capture);
+        DefaultHttpContext context =
+            OnStartingCapturingHttpResponseFeature.CreateContext(out OnStartingCapturingHttpResponseFeature capture);
 
         await middleware.InvokeAsync(context);
         Activity.Current.Should().BeNull();

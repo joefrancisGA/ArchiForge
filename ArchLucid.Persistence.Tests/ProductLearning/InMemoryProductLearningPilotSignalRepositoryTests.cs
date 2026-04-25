@@ -32,7 +32,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
                 SubjectType = ProductLearningSubjectTypeValues.RunOutput,
                 Disposition = ProductLearningDispositionValues.Trusted,
                 RecordedUtc = t0,
-                SignalId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                SignalId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
             },
             CancellationToken.None);
 
@@ -46,7 +46,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
                 Disposition = ProductLearningDispositionValues.Rejected,
                 PatternKey = "diagram.layout",
                 RecordedUtc = t1,
-                SignalId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                SignalId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
             },
             CancellationToken.None);
 
@@ -70,7 +70,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
                 WorkspaceId = WorkspaceId,
                 ProjectId = ProjectId,
                 SubjectType = ProductLearningSubjectTypeValues.Other,
-                Disposition = ProductLearningDispositionValues.NeedsFollowUp,
+                Disposition = ProductLearningDispositionValues.NeedsFollowUp
             },
             CancellationToken.None);
 
@@ -95,7 +95,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
                 WorkspaceId = WorkspaceId,
                 ProjectId = ProjectId,
                 SubjectType = "",
-                Disposition = ProductLearningDispositionValues.Trusted,
+                Disposition = ProductLearningDispositionValues.Trusted
             },
             CancellationToken.None);
 
@@ -110,21 +110,22 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         await repo.InsertAsync(
             Signal(
                 ProductLearningDispositionValues.Trusted,
-                patternKey: "cost.section",
-                runId: "run-a",
-                comment: null),
+                "cost.section",
+                "run-a",
+                null),
             CancellationToken.None);
 
         await repo.InsertAsync(
             Signal(
                 ProductLearningDispositionValues.Rejected,
-                patternKey: "cost.section",
-                runId: "run-b",
-                comment: "too vague"),
+                "cost.section",
+                "run-b",
+                "too vague"),
             CancellationToken.None);
 
         IReadOnlyList<FeedbackAggregate> agg =
-            await repo.ListRunFeedbackAggregatesAsync(TenantId, WorkspaceId, ProjectId, sinceUtc: null, 50, CancellationToken.None);
+            await repo.ListRunFeedbackAggregatesAsync(TenantId, WorkspaceId, ProjectId, null, 50,
+                CancellationToken.None);
 
         agg.Should().ContainSingle();
         agg[0].AggregateKey.Should().Be("cost.section");
@@ -140,15 +141,15 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         InMemoryProductLearningPilotSignalRepository repo = new();
 
         await repo.InsertAsync(
-            Signal(ProductLearningDispositionValues.Rejected, patternKey: "a", runId: "r1"),
+            Signal(ProductLearningDispositionValues.Rejected, "a", "r1"),
             CancellationToken.None);
 
         await repo.InsertAsync(
-            Signal(ProductLearningDispositionValues.Revised, patternKey: "a", runId: "r2"),
+            Signal(ProductLearningDispositionValues.Revised, "a", "r2"),
             CancellationToken.None);
 
         await repo.InsertAsync(
-            Signal(ProductLearningDispositionValues.Rejected, patternKey: "b", runId: "r3"),
+            Signal(ProductLearningDispositionValues.Rejected, "b", "r3"),
             CancellationToken.None);
 
         IReadOnlyList<FeedbackAggregate> top =
@@ -156,8 +157,8 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
                 TenantId,
                 WorkspaceId,
                 ProjectId,
-                sinceUtc: null,
-                take: 5,
+                null,
+                5,
                 CancellationToken.None);
 
         top.Should().HaveCount(2);
@@ -175,11 +176,11 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         string longComment = new('x', 250);
 
         await repo.InsertAsync(
-            Signal(ProductLearningDispositionValues.Trusted, patternKey: "p1", runId: "r1", comment: longComment),
+            Signal(ProductLearningDispositionValues.Trusted, "p1", "r1", longComment),
             CancellationToken.None);
 
         await repo.InsertAsync(
-            Signal(ProductLearningDispositionValues.Trusted, patternKey: "p2", runId: "r2", comment: longComment + "tail"),
+            Signal(ProductLearningDispositionValues.Trusted, "p2", "r2", longComment + "tail"),
             CancellationToken.None);
 
         IReadOnlyList<RepeatedCommentTheme> themes =
@@ -187,9 +188,9 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
                 TenantId,
                 WorkspaceId,
                 ProjectId,
-                sinceUtc: null,
-                minOccurrences: 2,
-                take: 10,
+                null,
+                2,
+                10,
                 CancellationToken.None);
 
         themes.Should().ContainSingle();
@@ -203,15 +204,15 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         InMemoryProductLearningPilotSignalRepository repo = new();
 
         await repo.InsertAsync(
-            Signal(ProductLearningDispositionValues.Trusted, patternKey: "ok", runId: "r1"),
+            Signal(ProductLearningDispositionValues.Trusted, "ok", "r1"),
             CancellationToken.None);
 
         await repo.InsertAsync(
-            Signal(ProductLearningDispositionValues.Rejected, patternKey: "bad", runId: "r2"),
+            Signal(ProductLearningDispositionValues.Rejected, "bad", "r2"),
             CancellationToken.None);
 
         await repo.InsertAsync(
-            Signal(ProductLearningDispositionValues.NeedsFollowUp, patternKey: "bad", runId: "r3"),
+            Signal(ProductLearningDispositionValues.NeedsFollowUp, "bad", "r3"),
             CancellationToken.None);
 
         IReadOnlyList<ImprovementOpportunity> opps =
@@ -219,10 +220,10 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
                 TenantId,
                 WorkspaceId,
                 ProjectId,
-                sinceUtc: null,
-                minPoorOutcomeSignals: 2,
-                minRevisedSignals: 5,
-                take: 10,
+                null,
+                2,
+                5,
+                10,
                 CancellationToken.None);
 
         opps.Should().ContainSingle();
@@ -245,7 +246,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
             PatternKey = patternKey,
             ArchitectureRunId = runId,
             CommentShort = comment,
-            RecordedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+            RecordedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc)
         };
     }
 }

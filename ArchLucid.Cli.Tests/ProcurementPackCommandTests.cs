@@ -1,6 +1,3 @@
-using ArchLucid.Cli;
-using ArchLucid.Cli.Commands;
-
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
@@ -78,7 +75,7 @@ public sealed class ProcurementPackCommandTests
 
             int exit = await Program.RunAsync(["procurement-pack", "--dry-run"]);
 
-            exit.Should().Be(CliExitCode.Success, because: $"stdout+stderr: {outWriter}{errWriter}");
+            exit.Should().Be(CliExitCode.Success, $"stdout+stderr: {outWriter}{errWriter}");
             outWriter.ToString().Should().Contain("dry-run");
         }
         finally

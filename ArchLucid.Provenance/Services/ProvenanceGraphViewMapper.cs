@@ -2,8 +2,9 @@ namespace ArchLucid.Provenance.Services;
 
 public static class ProvenanceGraphViewMapper
 {
-    public static GraphViewModel ToViewModel(DecisionProvenanceGraph graph) =>
-        new()
+    public static GraphViewModel ToViewModel(DecisionProvenanceGraph graph)
+    {
+        return new GraphViewModel
         {
             Nodes = graph.Nodes
                 .Select(n => new GraphNodeVm
@@ -19,10 +20,9 @@ public static class ProvenanceGraphViewMapper
             Edges = graph.Edges
                 .Select(e => new GraphEdgeVm
                 {
-                    Source = e.FromNodeId.ToString("D"),
-                    Target = e.ToNodeId.ToString("D"),
-                    Type = e.Type.ToString()
+                    Source = e.FromNodeId.ToString("D"), Target = e.ToNodeId.ToString("D"), Type = e.Type.ToString()
                 })
                 .ToList()
         };
+    }
 }

@@ -5,9 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Topology Hint Stable Object Ids.
+///     Tests for Topology Hint Stable Object Ids.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class TopologyHintStableObjectIdsTests
 {

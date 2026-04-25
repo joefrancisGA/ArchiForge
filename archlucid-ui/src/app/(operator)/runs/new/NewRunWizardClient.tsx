@@ -4,10 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useRef, useState } from "react";
-import type { FieldErrors } from "react-hook-form";
+import type { FieldPath } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
@@ -19,8 +18,11 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import { createArchitectureRun } from "@/lib/api";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
+import { WIZARD_STEP_FIELD_GROUPS } from "@/lib/wizard-step-fields";
+import { validateWizardStep } from "@/lib/wizard-step-validate";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 const WIZARD_STEP_DEFINITIONS = [
   { label: "Starting point", description: "Preset or scratch" },
@@ -82,35 +84,6 @@ function tryParseSampleRunQuery(raw: string | null): string | null {
   return `${n.slice(0, 8)}-${n.slice(8, 12)}-${n.slice(12, 16)}-${n.slice(16, 20)}-${n.slice(20, 32)}`;
 }
 
-/** Fields validated before leaving each step (0 = preset, no validation). */
-const STEP_TRIGGER_FIELDS: Record<number, (keyof WizardFormValues)[] | null> = {
-  0: null,
-  1: ["systemName", "environment", "cloudProvider", "priorManifestVersion"],
-  2: ["description", "inlineRequirements"],
-  3: ["constraints", "requiredCapabilities", "assumptions"],
-  4: [
-    "policyReferences",
-    "topologyHints",
-    "securityBaselineHints",
-    "documents",
-    "infrastructureDeclarations",
-  ],
-};
-
-function stepHasBlockingErrors(stepIndex: number, errors: FieldErrors<WizardFormValues>): boolean {
-  if (stepIndex === 5) {
-    return Object.keys(errors).length > 0;
-  }
-
-  const fields = STEP_TRIGGER_FIELDS[stepIndex];
-
-  if (!fields || fields.length === 0) {
-    return false;
-  }
-
-  return fields.some((field) => errors[field] != null);
-}
-
 /** Seven-step client wizard: react-hook-form + zod, create run, poll summary with live region + toast. */
 export function NewRunWizardClient() {
   const searchParams = useSearchParams();
@@ -133,9 +106,9 @@ export function NewRunWizardClient() {
     mode: "onBlur",
   });
 
-  const { trigger, getValues, formState } = form;
+  const { trigger, getValues, setError, clearErrors } = form;
 
-  const canProceed = stepIndex === 0 || !stepHasBlockingErrors(stepIndex, formState.errors);
+  const canProceed = !submitting;
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
     if (kind === "ok") {
@@ -158,23 +131,27 @@ export function NewRunWizardClient() {
     setStepIndex((current) => Math.max(0, current - 1));
   };
 
-  const goNext = async () => {
+  const goNext = () => {
     if (stepIndex === 0) {
       setStepIndex(1);
-
       return;
     }
 
-    const fields = STEP_TRIGGER_FIELDS[stepIndex];
-
-    if (fields !== null && fields.length > 0) {
-      const ok = await trigger(fields, { shouldFocus: true });
-
-      if (!ok) {
-        showToast("err", "Fix the highlighted fields before continuing.");
-
-        return;
+    const fieldGroup = WIZARD_STEP_FIELD_GROUPS[stepIndex];
+    if (fieldGroup != null) {
+      for (const f of fieldGroup) {
+        clearErrors(f);
       }
+    }
+
+    const list = validateWizardStep(stepIndex, getValues());
+    if (list.length > 0) {
+      for (const e of list) {
+        setError(e.field as FieldPath<WizardFormValues>, { type: "validate", message: e.message });
+      }
+
+      showToast("err", "Fix the highlighted fields before continuing.");
+      return;
     }
 
     setStepIndex((current) => Math.min(STEP_INDEX_MAX, current + 1));
@@ -204,6 +181,7 @@ export function NewRunWizardClient() {
 
       setRunId(id);
       setStepIndex(6);
+      recordFirstTenantFunnelEvent("first_run_started");
       showToast("ok", `Run ${id} created — tracking pipeline below.`);
     } catch (error: unknown) {
       const message =
@@ -221,9 +199,8 @@ export function NewRunWizardClient() {
   const isReviewStep = stepIndex === 5;
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <FormProvider {...form}>
-        <div className="mx-auto w-full max-w-4xl space-y-6">
+    <FormProvider {...form}>
+      <div className="mx-auto w-full max-w-4xl space-y-6">
           <p
             className="m-0 text-sm text-neutral-600 dark:text-neutral-400"
             data-testid="new-run-wizard-step-line"
@@ -278,6 +255,5 @@ export function NewRunWizardClient() {
           </div>
         </div>
       </FormProvider>
-    </TooltipProvider>
   );
 }

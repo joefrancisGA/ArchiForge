@@ -13,9 +13,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
     {
         ArtifactLargePayloadOptions o = new()
         {
-            Enabled = false,
-            MinimumUtf16LengthToOffload = 1,
-            BlobProvider = "Local",
+            Enabled = false, MinimumUtf16LengthToOffload = 1, BlobProvider = "Local"
         };
 
         LargePayloadOffloadEvaluator.ShouldOffloadManifestOrBundle(o, 999_999).Should().BeFalse();
@@ -26,9 +24,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
     {
         ArtifactLargePayloadOptions o = new()
         {
-            Enabled = true,
-            MinimumUtf16LengthToOffload = 10,
-            BlobProvider = "None",
+            Enabled = true, MinimumUtf16LengthToOffload = 10, BlobProvider = "None"
         };
 
         LargePayloadOffloadEvaluator.ShouldOffloadManifestOrBundle(o, 100).Should().BeFalse();
@@ -39,9 +35,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
     {
         ArtifactLargePayloadOptions o = new()
         {
-            Enabled = true,
-            MinimumUtf16LengthToOffload = 10,
-            BlobProvider = "Local",
+            Enabled = true, MinimumUtf16LengthToOffload = 10, BlobProvider = "Local"
         };
 
         LargePayloadOffloadEvaluator.ShouldOffloadManifestOrBundle(o, 10).Should().BeTrue();

@@ -7,21 +7,21 @@ namespace ArchLucid.Persistence.Interfaces;
 
 // ReSharper disable InvalidXmlDocComment
 /// <summary>
-/// Persistence contract for <see cref="RunRecord"/> — the root authority run entity that
-/// anchors every snapshot, manifest, trace, and artifact bundle for an architecture run.
+///     Persistence contract for <see cref="RunRecord" /> — the root authority run entity that
+///     anchors every snapshot, manifest, trace, and artifact bundle for an architecture run.
 /// </summary>
 /// <remarks>
-/// The optional <paramref name="connection"/> and <paramref name="transaction"/> overloads on write
-/// methods allow callers to enlist the operation inside an existing ambient transaction.
-/// When omitted, each method opens its own connection.
+///     The optional <paramref name="connection" /> and <paramref name="transaction" /> overloads on write
+///     methods allow callers to enlist the operation inside an existing ambient transaction.
+///     When omitted, each method opens its own connection.
 /// </remarks>
 /// // ReSharper enable InvalidXmlDocComment
 public interface IRunRepository
 {
     /// <summary>
-    /// Inserts or replaces the <see cref="RunRecord"/>. Callers may pass an existing
-    /// <paramref name="connection"/> and <paramref name="transaction"/> to participate
-    /// in a multi-statement transaction.
+    ///     Inserts or replaces the <see cref="RunRecord" />. Callers may pass an existing
+    ///     <paramref name="connection" /> and <paramref name="transaction" /> to participate
+    ///     in a multi-statement transaction.
     /// </summary>
     /// <param name="run">The run to persist.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
@@ -34,8 +34,8 @@ public interface IRunRepository
         IDbTransaction? transaction = null);
 
     /// <summary>
-    /// Returns the run with the given <paramref name="runId"/> within <paramref name="scope"/>,
-    /// or <see langword="null"/> when not found or outside the caller's scope.
+    ///     Returns the run with the given <paramref name="runId" /> within <paramref name="scope" />,
+    ///     or <see langword="null" /> when not found or outside the caller's scope.
     /// </summary>
     /// <param name="scope">Tenant/workspace/project boundary for the lookup.</param>
     /// <param name="runId">Primary key of the run.</param>
@@ -43,18 +43,19 @@ public interface IRunRepository
     Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct);
 
     /// <summary>
-    /// Returns up to <paramref name="take"/> runs for <paramref name="projectId"/> within
-    /// <paramref name="scope"/>, ordered by <c>CreatedUtc</c> descending (newest first).
+    ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
+    ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>
     /// <param name="scope">Tenant/workspace/project boundary for the query.</param>
     /// <param name="projectId">Project slug or identifier to filter by.</param>
     /// <param name="take">Maximum number of rows to return.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
-    Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take, CancellationToken ct);
+    Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take,
+        CancellationToken ct);
 
     /// <summary>
-    /// Returns a page of runs for <paramref name="projectId"/> within <paramref name="scope"/>, ordered by
-    /// <c>CreatedUtc</c> descending, plus the total matching row count (excluding archived).
+    ///     Returns a page of runs for <paramref name="projectId" /> within <paramref name="scope" />, ordered by
+    ///     <c>CreatedUtc</c> descending, plus the total matching row count (excluding archived).
     /// </summary>
     /// <param name="skip">Zero-based offset (number of rows to skip after ordering).</param>
     /// <param name="take">Maximum rows on this page (clamped by the implementation, typically 1–200).</param>
@@ -66,15 +67,15 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
-    /// Returns up to <paramref name="take"/> runs in <paramref name="scope"/> (all project slugs), ordered by
-    /// <c>CreatedUtc</c> descending. Excludes archived rows.
+    ///     Returns up to <paramref name="take" /> runs in <paramref name="scope" /> (all project slugs), ordered by
+    ///     <c>CreatedUtc</c> descending. Excludes archived rows.
     /// </summary>
     Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct);
 
     /// <summary>
-    /// Applies an update to an existing run row. Callers may pass an existing
-    /// <paramref name="connection"/> and <paramref name="transaction"/> to participate
-    /// in a multi-statement transaction.
+    ///     Applies an update to an existing run row. Callers may pass an existing
+    ///     <paramref name="connection" /> and <paramref name="transaction" /> to participate
+    ///     in a multi-statement transaction.
     /// </summary>
     /// <param name="run">The run with updated field values.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
@@ -87,14 +88,15 @@ public interface IRunRepository
         IDbTransaction? transaction = null);
 
     /// <summary>
-    /// Sets <see cref="RunRecord.ArchivedUtc"/> for runs with <c>CreatedUtc</c> strictly before <paramref name="cutoffUtc"/>
-    /// that are not yet archived. Returns the count and scope keys for each archived row (for cache eviction).
+    ///     Sets <see cref="RunRecord.ArchivedUtc" /> for runs with <c>CreatedUtc</c> strictly before
+    ///     <paramref name="cutoffUtc" />
+    ///     that are not yet archived. Returns the count and scope keys for each archived row (for cache eviction).
     /// </summary>
     Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
 
     /// <summary>
-    /// Soft-archives up to 100 runs by primary key. Missing or already-archived ids are reported in
-    /// <see cref="RunArchiveByIdsResult.Failed"/> without failing the whole operation.
+    ///     Soft-archives up to 100 runs by primary key. Missing or already-archived ids are reported in
+    ///     <see cref="RunArchiveByIdsResult.Failed" /> without failing the whole operation.
     /// </summary>
     Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct);
 }

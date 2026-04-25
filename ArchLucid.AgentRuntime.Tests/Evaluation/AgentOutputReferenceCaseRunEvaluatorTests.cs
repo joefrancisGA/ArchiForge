@@ -15,11 +15,6 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Suite", "Core")]
 public sealed class AgentOutputReferenceCaseRunEvaluatorTests
 {
-    private sealed class FixedCatalog(IReadOnlyList<AgentOutputReferenceCaseDefinition> cases) : IAgentOutputReferenceCaseCatalog
-    {
-        public IReadOnlyList<AgentOutputReferenceCaseDefinition> Cases { get; } = cases;
-    }
-
     [Fact]
     public async Task EvaluateTraceAsync_when_enabled_appends_row_for_matching_agent_type()
     {
@@ -34,11 +29,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
 
         IReadOnlyList<AgentOutputReferenceCaseDefinition> cases =
         [
-            new()
-            {
-                CaseId = "case-a",
-                AgentType = AgentType.Topology,
-            },
+            new() { CaseId = "case-a", AgentType = AgentType.Topology }
         ];
 
         FixedCatalog catalog = new(cases);
@@ -62,7 +53,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
             TaskId = "t1",
             AgentType = AgentType.Topology,
             ParseSucceeded = true,
-            ParsedResultJson = parsedJson,
+            ParsedResultJson = parsedJson
         };
 
         await sut.EvaluateTraceAsync(trace, "run-1", CancellationToken.None);
@@ -99,10 +90,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
 
         AgentExecutionTrace trace = new()
         {
-            TraceId = "tr1",
-            AgentType = AgentType.Topology,
-            ParseSucceeded = true,
-            ParsedResultJson = "{}",
+            TraceId = "tr1", AgentType = AgentType.Topology, ParseSucceeded = true, ParsedResultJson = "{}"
         };
 
         await sut.EvaluateTraceAsync(trace, "run-1", CancellationToken.None);
@@ -110,5 +98,14 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
         results.Verify(
             r => r.AppendAsync(It.IsAny<AgentOutputEvaluationResultInsert>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    private sealed class FixedCatalog(IReadOnlyList<AgentOutputReferenceCaseDefinition> cases)
+        : IAgentOutputReferenceCaseCatalog
+    {
+        public IReadOnlyList<AgentOutputReferenceCaseDefinition> Cases
+        {
+            get;
+        } = cases;
     }
 }

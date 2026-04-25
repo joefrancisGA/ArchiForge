@@ -19,20 +19,20 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
-                                    TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                    TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                    BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
-                             FROM dbo.Tenants
-                             WHERE Id = @Id;
-                             """;
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
+                                  TrialStatus, TrialSampleRunId,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
+                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
+                           FROM dbo.Tenants
+                           WHERE Id = @Id;
+                           """;
 
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
-            {
-                Id = tenantId
-            }, cancellationToken: ct));
+            new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
 
         return row is null ? null : row.ToRecord();
     }
@@ -44,20 +44,20 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
-                                    TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                    TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                    BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
-                             FROM dbo.Tenants
-                             WHERE Slug = @Slug;
-                             """;
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
+                                  TrialStatus, TrialSampleRunId,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
+                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
+                           FROM dbo.Tenants
+                           WHERE Slug = @Slug;
+                           """;
 
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
-            {
-                Slug = slug.Trim().ToLowerInvariant()
-            }, cancellationToken: ct));
+            new CommandDefinition(sql, new { Slug = slug.Trim().ToLowerInvariant() }, cancellationToken: ct));
 
         return row is null ? null : row.ToRecord();
     }
@@ -67,20 +67,20 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
-                                    TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                    TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                    BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
-                             FROM dbo.Tenants
-                             WHERE EntraTenantId = @EntraTenantId;
-                             """;
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
+                                  TrialStatus, TrialSampleRunId,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
+                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
+                           FROM dbo.Tenants
+                           WHERE EntraTenantId = @EntraTenantId;
+                           """;
 
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new
-            {
-                EntraTenantId = entraTenantId
-            }, cancellationToken: ct));
+            new CommandDefinition(sql, new { EntraTenantId = entraTenantId }, cancellationToken: ct));
 
         return row is null ? null : row.ToRecord();
     }
@@ -90,16 +90,20 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
-                                    TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
-                                    TrialStatus, TrialSampleRunId,
-                                    TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
-                                    BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc
-                             FROM dbo.Tenants
-                             ORDER BY CreatedUtc DESC;
-                             """;
+                           SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc,
+                                  TrialStartUtc, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed, TrialSeatsLimit, TrialSeatsUsed,
+                                  TrialStatus, TrialSampleRunId,
+                                  TrialArchitecturePreseedEnqueuedUtc, TrialWelcomeRunId, TrialFirstManifestCommittedUtc,
+                                  BaselineReviewCycleHours, BaselineReviewCycleSource, BaselineReviewCycleCapturedUtc,
+                                  BaselineManualPrepHoursPerReview, BaselinePeoplePerReview, BaselineManualPrepCapturedUtc,
+                                  CompanySize, ArchitectureTeamSize, IndustryVertical, IndustryVerticalOther,
+                                  EnterpriseSeatsLimit, EnterpriseSeatsUsed
+                           FROM dbo.Tenants
+                           ORDER BY CreatedUtc DESC;
+                           """;
 
-        IEnumerable<TenantRow> rows = await connection.QueryAsync<TenantRow>(new CommandDefinition(sql, cancellationToken: ct));
+        IEnumerable<TenantRow> rows =
+            await connection.QueryAsync<TenantRow>(new CommandDefinition(sql, cancellationToken: ct));
 
         return rows.Select(static r => r.ToRecord()).ToList();
     }
@@ -115,25 +119,33 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         decimal? baselineReviewCycleHours,
         string? baselineReviewCycleSource,
         DateTimeOffset? baselineReviewCycleCapturedUtc,
+        string? companySize,
+        int? architectureTeamSize,
+        string? industryVertical,
+        string? industryVerticalOther,
         CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             UPDATE dbo.Tenants
-                             SET TrialStartUtc = @TrialStartUtc,
-                                 TrialExpiresUtc = @TrialExpiresUtc,
-                                 TrialRunsLimit = @TrialRunsLimit,
-                                 TrialRunsUsed = 0,
-                                 TrialSeatsLimit = @TrialSeatsLimit,
-                                 TrialSeatsUsed = 1,
-                                 TrialStatus = @TrialStatus,
-                                 TrialSampleRunId = @TrialSampleRunId,
-                                 BaselineReviewCycleHours = @BaselineReviewCycleHours,
-                                 BaselineReviewCycleSource = @BaselineReviewCycleSource,
-                                 BaselineReviewCycleCapturedUtc = @BaselineReviewCycleCapturedUtc
-                             WHERE Id = @Id;
-                             """;
+                           UPDATE dbo.Tenants
+                           SET TrialStartUtc = @TrialStartUtc,
+                               TrialExpiresUtc = @TrialExpiresUtc,
+                               TrialRunsLimit = @TrialRunsLimit,
+                               TrialRunsUsed = 0,
+                               TrialSeatsLimit = @TrialSeatsLimit,
+                               TrialSeatsUsed = 1,
+                               TrialStatus = @TrialStatus,
+                               TrialSampleRunId = @TrialSampleRunId,
+                               BaselineReviewCycleHours = @BaselineReviewCycleHours,
+                               BaselineReviewCycleSource = @BaselineReviewCycleSource,
+                               BaselineReviewCycleCapturedUtc = @BaselineReviewCycleCapturedUtc,
+                               CompanySize = @CompanySize,
+                               ArchitectureTeamSize = @ArchitectureTeamSize,
+                               IndustryVertical = @IndustryVertical,
+                               IndustryVerticalOther = @IndustryVerticalOther
+                           WHERE Id = @Id;
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -150,6 +162,41 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     BaselineReviewCycleHours = baselineReviewCycleHours,
                     BaselineReviewCycleSource = baselineReviewCycleSource,
                     BaselineReviewCycleCapturedUtc = baselineReviewCycleCapturedUtc,
+                    CompanySize = companySize,
+                    ArchitectureTeamSize = architectureTeamSize,
+                    IndustryVertical = industryVertical,
+                    IndustryVerticalOther = industryVerticalOther
+                },
+                cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateBaselineAsync(
+        Guid tenantId,
+        decimal? manualPrepHoursPerReview,
+        int? peoplePerReview,
+        DateTimeOffset? capturedUtc,
+        CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET BaselineManualPrepHoursPerReview = @ManualPrepHours,
+                               BaselinePeoplePerReview = @PeoplePerReview,
+                               BaselineManualPrepCapturedUtc = @CapturedUtc
+                           WHERE Id = @TenantId;
+                           """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    ManualPrepHours = manualPrepHoursPerReview,
+                    PeoplePerReview = peoplePerReview,
+                    CapturedUtc = capturedUtc
                 },
                 cancellationToken: ct));
     }
@@ -160,11 +207,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             UPDATE dbo.Tenants
-                             SET TrialStatus = @Converted,
-                                 Tier = CASE WHEN @NewTier IS NULL THEN Tier ELSE @NewTier END
-                             WHERE Id = @Id AND TrialStatus = @Active;
-                             """;
+                           UPDATE dbo.Tenants
+                           SET TrialStatus = @Converted,
+                               Tier = CASE WHEN @NewTier IS NULL THEN Tier ELSE @NewTier END
+                           WHERE Id = @Id AND TrialStatus = @Active;
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -172,9 +219,9 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 new
                 {
                     Id = tenantId,
-                    Active = TrialLifecycleStatus.Active,
-                    Converted = TrialLifecycleStatus.Converted,
-                    NewTier = newCommercialTier is null ? null : newCommercialTier.Value.ToString(),
+                    TrialLifecycleStatus.Active,
+                    TrialLifecycleStatus.Converted,
+                    NewTier = newCommercialTier is null ? null : newCommercialTier.Value.ToString()
                 },
                 cancellationToken: ct));
     }
@@ -185,14 +232,20 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         string slug,
         TenantTier tier,
         Guid? entraTenantId,
-        CancellationToken ct)
+        CancellationToken ct,
+        int? enterpriseScimSeatsLimit = null)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
-        const string sql = """
-                             INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
-                             VALUES (@Id, @Name, @Slug, @Tier, @EntraTenantId);
-                             """;
+        string sql = enterpriseScimSeatsLimit is null
+            ? """
+              INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
+              VALUES (@Id, @Name, @Slug, @Tier, @EntraTenantId);
+              """
+            : """
+              INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId, EnterpriseSeatsLimit)
+              VALUES (@Id, @Name, @Slug, @Tier, @EntraTenantId, @EnterpriseSeatsLimit);
+              """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -204,6 +257,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     Slug = slug,
                     Tier = TenantTierSql.ToTierString(tier),
                     EntraTenantId = entraTenantId,
+                    EnterpriseSeatsLimit = enterpriseScimSeatsLimit
                 },
                 cancellationToken: ct));
     }
@@ -218,20 +272,14 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
-                             VALUES (@Id, @TenantId, @Name, @DefaultProjectId);
-                             """;
+                           INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
+                           VALUES (@Id, @TenantId, @Name, @DefaultProjectId);
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    Id = workspaceId,
-                    TenantId = tenantId,
-                    Name = name,
-                    DefaultProjectId = defaultProjectId,
-                },
+                new { Id = workspaceId, TenantId = tenantId, Name = name, DefaultProjectId = defaultProjectId },
                 cancellationToken: ct));
     }
 
@@ -240,15 +288,12 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             UPDATE dbo.Tenants
-                             SET SuspendedUtc = SYSUTCDATETIME()
-                             WHERE Id = @Id;
-                             """;
+                           UPDATE dbo.Tenants
+                           SET SuspendedUtc = SYSUTCDATETIME()
+                           WHERE Id = @Id;
+                           """;
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, new
-        {
-            Id = tenantId
-        }, cancellationToken: ct));
+        await connection.ExecuteAsync(new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
     }
 
     public async Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct)
@@ -256,26 +301,19 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT TOP (1) Id AS WorkspaceId, DefaultProjectId
-                             FROM dbo.TenantWorkspaces
-                             WHERE TenantId = @TenantId
-                             ORDER BY CreatedUtc ASC;
-                             """;
+                           SELECT TOP (1) Id AS WorkspaceId, DefaultProjectId
+                           FROM dbo.TenantWorkspaces
+                           WHERE TenantId = @TenantId
+                           ORDER BY CreatedUtc ASC;
+                           """;
 
         WorkspaceRow? row = await connection.QuerySingleOrDefaultAsync<WorkspaceRow>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: ct));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct));
 
         if (row is null)
             return null;
 
-        return new TenantWorkspaceLink
-        {
-            WorkspaceId = row.WorkspaceId,
-            DefaultProjectId = row.DefaultProjectId,
-        };
+        return new TenantWorkspaceLink { WorkspaceId = row.WorkspaceId, DefaultProjectId = row.DefaultProjectId };
     }
 
     /// <inheritdoc />
@@ -334,16 +372,13 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
         const string tenantSql = """
-                                   SELECT TrialStatus, TrialSeatsLimit, TrialSeatsUsed, TrialExpiresUtc
-                                   FROM dbo.Tenants WITH (UPDLOCK, ROWLOCK)
-                                   WHERE Id = @Id;
-                                   """;
+                                 SELECT TrialStatus, TrialSeatsLimit, TrialSeatsUsed, TrialExpiresUtc
+                                 FROM dbo.Tenants WITH (UPDLOCK, ROWLOCK)
+                                 WHERE Id = @Id;
+                                 """;
 
         TenantSeatRow? t = await connection.QuerySingleOrDefaultAsync<TenantSeatRow>(
-            new CommandDefinition(tenantSql, new
-            {
-                Id = tenantId
-            }, transaction: tran, cancellationToken: ct));
+            new CommandDefinition(tenantSql, new { Id = tenantId }, tran, cancellationToken: ct));
 
         if (t is null)
         {
@@ -370,18 +405,15 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         }
 
         const string insertSql = """
-                                   INSERT INTO dbo.TenantTrialSeatOccupants (TenantId, PrincipalKey, CreatedUtc)
-                                   VALUES (@TenantId, @PrincipalKey, SYSUTCDATETIME());
-                                   """;
+                                 INSERT INTO dbo.TenantTrialSeatOccupants (TenantId, PrincipalKey, CreatedUtc)
+                                 VALUES (@TenantId, @PrincipalKey, SYSUTCDATETIME());
+                                 """;
 
         try
         {
             await connection.ExecuteAsync(
-                new CommandDefinition(insertSql, new
-                {
-                    TenantId = tenantId,
-                    PrincipalKey = key
-                }, transaction: tran, cancellationToken: ct));
+                new CommandDefinition(insertSql, new { TenantId = tenantId, PrincipalKey = key }, tran,
+                    cancellationToken: ct));
         }
         catch (SqlException ex) when (ex.Number == 2627)
         {
@@ -391,23 +423,18 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         }
 
         const string bumpSql = """
-                                 UPDATE dbo.Tenants
-                                 SET TrialSeatsUsed = TrialSeatsUsed + 1
-                                 WHERE Id = @Id
-                                   AND TrialStatus = @Active
-                                   AND TrialSeatsUsed < @SeatLimit;
-                                 """;
+                               UPDATE dbo.Tenants
+                               SET TrialSeatsUsed = TrialSeatsUsed + 1
+                               WHERE Id = @Id
+                                 AND TrialStatus = @Active
+                                 AND TrialSeatsUsed < @SeatLimit;
+                               """;
 
         int bumped = await connection.ExecuteAsync(
             new CommandDefinition(
                 bumpSql,
-                new
-                {
-                    Id = tenantId,
-                    Active = TrialLifecycleStatus.Active,
-                    SeatLimit = t.TrialSeatsLimit.Value,
-                },
-                transaction: tran,
+                new { Id = tenantId, TrialLifecycleStatus.Active, SeatLimit = t.TrialSeatsLimit.Value },
+                tran,
                 cancellationToken: ct));
 
         if (bumped == 0)
@@ -418,12 +445,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     DELETE FROM dbo.TenantTrialSeatOccupants
                     WHERE TenantId = @TenantId AND PrincipalKey = @PrincipalKey;
                     """,
-                    new
-                    {
-                        TenantId = tenantId,
-                        PrincipalKey = key
-                    },
-                    transaction: tran,
+                    new { TenantId = tenantId, PrincipalKey = key },
+                    tran,
                     cancellationToken: ct));
 
             await tran.RollbackAsync(ct);
@@ -442,21 +465,18 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT Id
-                             FROM dbo.Tenants
-                             WHERE TrialExpiresUtc IS NOT NULL
-                               AND TrialStatus IS NOT NULL
-                               AND TrialStatus <> @Converted
-                             ORDER BY CreatedUtc ASC;
-                             """;
+                           SELECT Id
+                           FROM dbo.Tenants
+                           WHERE TrialExpiresUtc IS NOT NULL
+                             AND TrialStatus IS NOT NULL
+                             AND TrialStatus <> @Converted
+                           ORDER BY CreatedUtc ASC;
+                           """;
 
         IEnumerable<Guid> ids = await connection.QueryAsync<Guid>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    Converted = TrialLifecycleStatus.Converted
-                },
+                new { TrialLifecycleStatus.Converted },
                 cancellationToken: ct));
 
         return ids.ToList();
@@ -468,38 +488,35 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             UPDATE dbo.Tenants
-                             SET TrialArchitecturePreseedEnqueuedUtc = SYSUTCDATETIME()
-                             WHERE Id = @Id
-                               AND TrialWelcomeRunId IS NULL
-                               AND (TrialArchitecturePreseedEnqueuedUtc IS NULL);
-                             """;
+                           UPDATE dbo.Tenants
+                           SET TrialArchitecturePreseedEnqueuedUtc = SYSUTCDATETIME()
+                           WHERE Id = @Id
+                             AND TrialWelcomeRunId IS NULL
+                             AND (TrialArchitecturePreseedEnqueuedUtc IS NULL);
+                           """;
 
         await connection.ExecuteAsync(new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<Guid>> ListTenantIdsPendingTrialArchitecturePreseedAsync(int take, CancellationToken ct)
+    public async Task<IReadOnlyList<Guid>> ListTenantIdsPendingTrialArchitecturePreseedAsync(int take,
+        CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT TOP (@Take) Id
-                             FROM dbo.Tenants WITH (UPDLOCK, ROWLOCK)
-                             WHERE TrialArchitecturePreseedEnqueuedUtc IS NOT NULL
-                               AND TrialWelcomeRunId IS NULL
-                               AND TrialStatus = @Active
-                             ORDER BY TrialArchitecturePreseedEnqueuedUtc ASC;
-                             """;
+                           SELECT TOP (@Take) Id
+                           FROM dbo.Tenants WITH (UPDLOCK, ROWLOCK)
+                           WHERE TrialArchitecturePreseedEnqueuedUtc IS NOT NULL
+                             AND TrialWelcomeRunId IS NULL
+                             AND TrialStatus = @Active
+                           ORDER BY TrialArchitecturePreseedEnqueuedUtc ASC;
+                           """;
 
         IEnumerable<Guid> ids = await connection.QueryAsync<Guid>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    Take = Math.Clamp(take, 1, 50),
-                    Active = TrialLifecycleStatus.Active,
-                },
+                new { Take = Math.Clamp(take, 1, 50), TrialLifecycleStatus.Active },
                 cancellationToken: ct));
 
         return ids.ToList();
@@ -511,11 +528,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             UPDATE dbo.Tenants
-                             SET TrialWelcomeRunId = @WelcomeRunId
-                             WHERE Id = @Id
-                               AND TrialWelcomeRunId IS NULL;
-                             """;
+                           UPDATE dbo.Tenants
+                           SET TrialWelcomeRunId = @WelcomeRunId
+                           WHERE Id = @Id
+                             AND TrialWelcomeRunId IS NULL;
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(sql, new { Id = tenantId, WelcomeRunId = welcomeRunId }, cancellationToken: ct));
@@ -548,9 +565,9 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     TenantId = tenantId,
                     FromStatus = expectedCurrentStatus,
                     ToStatus = nextStatus,
-                    Reason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim(),
+                    Reason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim()
                 },
-                transaction: tran,
+                tran,
                 cancellationToken: ct));
 
         const string updateTenant = """
@@ -562,13 +579,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         int updated = await connection.ExecuteAsync(
             new CommandDefinition(
                 updateTenant,
-                new
-                {
-                    TenantId = tenantId,
-                    ExpectedStatus = expectedCurrentStatus,
-                    NextStatus = nextStatus,
-                },
-                transaction: tran,
+                new { TenantId = tenantId, ExpectedStatus = expectedCurrentStatus, NextStatus = nextStatus },
+                tran,
                 cancellationToken: ct));
 
         if (updated == 0)
@@ -584,7 +596,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     }
 
     /// <inheritdoc />
-    public async Task<TrialFirstManifestCommitOutcome?> TryMarkTrialFirstManifestCommittedAsync(
+    public async Task<TrialFirstManifestCommitOutcome?> TryMarkFirstManifestCommittedAsync(
         Guid tenantId,
         DateTimeOffset committedUtc,
         CancellationToken ct)
@@ -592,25 +604,20 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             UPDATE dbo.Tenants
-                             SET TrialFirstManifestCommittedUtc = @CommittedUtc
-                             OUTPUT INSERTED.TrialRunsUsed,
-                                    INSERTED.TrialRunsLimit,
-                                    INSERTED.CreatedUtc,
-                                    INSERTED.TrialStartUtc
-                             WHERE Id = @TenantId
-                               AND TrialExpiresUtc IS NOT NULL
-                               AND TrialFirstManifestCommittedUtc IS NULL;
-                             """;
+                           UPDATE dbo.Tenants
+                           SET TrialFirstManifestCommittedUtc = @CommittedUtc
+                           OUTPUT INSERTED.TrialRunsUsed,
+                                  INSERTED.TrialRunsLimit,
+                                  INSERTED.CreatedUtc,
+                                  INSERTED.TrialStartUtc
+                           WHERE Id = @TenantId
+                             AND TrialFirstManifestCommittedUtc IS NULL;
+                           """;
 
         TrialFirstManifestOutputRow? row = await connection.QuerySingleOrDefaultAsync<TrialFirstManifestOutputRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    CommittedUtc = committedUtc,
-                },
+                new { TenantId = tenantId, CommittedUtc = committedUtc },
                 cancellationToken: ct));
 
         if (row is null)
@@ -627,11 +634,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
             ratio = (double)row.TrialRunsUsed / lim;
 
 
-        return new TrialFirstManifestCommitOutcome
-        {
-            SignupToCommitSeconds = seconds,
-            TrialRunUsageRatio = ratio,
-        };
+        return new TrialFirstManifestCommitOutcome { SignupToCommitSeconds = seconds, TrialRunUsageRatio = ratio };
     }
 
     /// <inheritdoc />
@@ -640,17 +643,44 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             UPDATE dbo.Tenants
-                             SET TrialExpiresUtc = @ExpiresUtc
-                             WHERE Id = @TenantId;
-                             """;
+                           UPDATE dbo.Tenants
+                           SET TrialExpiresUtc = @ExpiresUtc
+                           WHERE Id = @TenantId;
+                           """;
 
         await connection.ExecuteAsync(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId,
-                ExpiresUtc = expiresUtc
-            }, cancellationToken: ct));
+            new CommandDefinition(sql, new { TenantId = tenantId, ExpiresUtc = expiresUtc }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TryIncrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET EnterpriseSeatsUsed = EnterpriseSeatsUsed + 1
+                           WHERE Id = @TenantId
+                             AND (EnterpriseSeatsLimit IS NULL OR EnterpriseSeatsUsed < EnterpriseSeatsLimit);
+                           """;
+
+        int rows = await connection.ExecuteAsync(new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct));
+
+        return rows == 1;
+    }
+
+    /// <inheritdoc />
+    public async Task DecrementEnterpriseScimSeatAsync(Guid tenantId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET EnterpriseSeatsUsed = CASE WHEN EnterpriseSeatsUsed > 0 THEN EnterpriseSeatsUsed - 1 ELSE 0 END
+                           WHERE Id = @TenantId;
+                           """;
+
+        await connection.ExecuteAsync(new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct));
     }
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
@@ -673,10 +703,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         CancellationToken ct)
     {
         TrialRunGateRow? row = await connection.QuerySingleOrDefaultAsync<TrialRunGateRow>(
-            new CommandDefinition(selectSql, new
-            {
-                Id = tenantId
-            }, transaction: transaction, cancellationToken: ct));
+            new CommandDefinition(selectSql, new { Id = tenantId }, transaction, cancellationToken: ct));
 
         if (row is null)
             return;
@@ -703,12 +730,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         int updated = await connection.ExecuteAsync(
             new CommandDefinition(
                 updateSql,
-                new
-                {
-                    Id = tenantId,
-                    Active = TrialLifecycleStatus.Active
-                },
-                transaction: transaction,
+                new { Id = tenantId, TrialLifecycleStatus.Active },
+                transaction,
                 cancellationToken: ct));
 
         if (updated == 0)
@@ -716,29 +739,32 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
             throw new TrialLimitExceededException(
                 TrialLimitReason.RunsExceeded,
                 ComputeDaysRemaining(row.TrialExpiresUtc));
-
     }
 
     private sealed class TrialFirstManifestOutputRow
     {
         public int TrialRunsUsed
         {
-            get; init;
+            get;
+            init;
         }
 
         public int? TrialRunsLimit
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset CreatedUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? TrialStartUtc
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -746,22 +772,26 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     {
         public string? TrialStatus
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? TrialExpiresUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public int? TrialRunsLimit
         {
-            get; init;
+            get;
+            init;
         }
 
         public int TrialRunsUsed
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -769,22 +799,26 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     {
         public string? TrialStatus
         {
-            get; init;
+            get;
+            init;
         }
 
         public int? TrialSeatsLimit
         {
-            get; init;
+            get;
+            init;
         }
 
         public int TrialSeatsUsed
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? TrialExpiresUtc
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -792,12 +826,14 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     {
         public Guid WorkspaceId
         {
-            get; init;
+            get;
+            init;
         }
 
         public Guid DefaultProjectId
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -805,102 +841,187 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     {
         public Guid Id
         {
-            get; init;
+            get;
+            init;
         }
 
-        public string Name { get; init; } = string.Empty;
+        public string Name
+        {
+            get;
+            init;
+        } = string.Empty;
 
-        public string Slug { get; init; } = string.Empty;
+        public string Slug
+        {
+            get;
+            init;
+        } = string.Empty;
 
-        public string Tier { get; init; } = string.Empty;
+        public string Tier
+        {
+            get;
+            init;
+        } = string.Empty;
 
         public Guid? EntraTenantId
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset CreatedUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? SuspendedUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? TrialStartUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? TrialExpiresUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public int? TrialRunsLimit
         {
-            get; init;
+            get;
+            init;
         }
 
         public int TrialRunsUsed
         {
-            get; init;
+            get;
+            init;
         }
 
         public int? TrialSeatsLimit
         {
-            get; init;
+            get;
+            init;
         }
 
         public int TrialSeatsUsed
         {
-            get; init;
+            get;
+            init;
         }
 
         public string? TrialStatus
         {
-            get; init;
+            get;
+            init;
         }
 
         public Guid? TrialSampleRunId
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? TrialArchitecturePreseedEnqueuedUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public Guid? TrialWelcomeRunId
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? TrialFirstManifestCommittedUtc
         {
-            get; init;
+            get;
+            init;
         }
 
         public decimal? BaselineReviewCycleHours
         {
-            get; init;
+            get;
+            init;
         }
 
         public string? BaselineReviewCycleSource
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTimeOffset? BaselineReviewCycleCapturedUtc
         {
-            get; init;
+            get;
+            init;
         }
 
-        internal TenantRecord ToRecord() =>
-            new()
+        public decimal? BaselineManualPrepHoursPerReview
+        {
+            get;
+            init;
+        }
+
+        public int? BaselinePeoplePerReview
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? BaselineManualPrepCapturedUtc
+        {
+            get;
+            init;
+        }
+
+        public string? CompanySize
+        {
+            get;
+            init;
+        }
+
+        public int? ArchitectureTeamSize
+        {
+            get;
+            init;
+        }
+
+        public string? IndustryVertical
+        {
+            get;
+            init;
+        }
+
+        public string? IndustryVerticalOther
+        {
+            get;
+            init;
+        }
+
+        public int? EnterpriseSeatsLimit
+        {
+            get;
+            init;
+        }
+
+        public int EnterpriseSeatsUsed
+        {
+            get;
+            init;
+        }
+
+        internal TenantRecord ToRecord()
+        {
+            return new TenantRecord
             {
                 Id = Id,
                 Name = Name,
@@ -923,6 +1044,16 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 BaselineReviewCycleHours = BaselineReviewCycleHours,
                 BaselineReviewCycleSource = BaselineReviewCycleSource,
                 BaselineReviewCycleCapturedUtc = BaselineReviewCycleCapturedUtc,
+                BaselineManualPrepHoursPerReview = BaselineManualPrepHoursPerReview,
+                BaselinePeoplePerReview = BaselinePeoplePerReview,
+                BaselineManualPrepCapturedUtc = BaselineManualPrepCapturedUtc,
+                CompanySize = CompanySize,
+                ArchitectureTeamSize = ArchitectureTeamSize,
+                IndustryVertical = IndustryVertical,
+                IndustryVerticalOther = IndustryVerticalOther,
+                EnterpriseSeatsLimit = EnterpriseSeatsLimit,
+                EnterpriseSeatsUsed = EnterpriseSeatsUsed
             };
+        }
     }
 }

@@ -8,8 +8,8 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// In-memory API host with <c>ArchLucidAuth:Mode=JwtBearer</c> and local RSA validation
-/// (<c>ArchLucidAuth:JwtSigningPublicKeyPemPath</c>) — mirrors CI live E2E.
+///     In-memory API host with <c>ArchLucidAuth:Mode=JwtBearer</c> and local RSA validation
+///     (<c>ArchLucidAuth:JwtSigningPublicKeyPemPath</c>) — mirrors CI live E2E.
 /// </summary>
 public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program>
 {
@@ -68,7 +68,7 @@ public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program
                     ["ArchLucidAuth:JwtLocalIssuer"] = "https://test.archlucid.local",
                     ["ArchLucidAuth:JwtLocalAudience"] = "api://archlucid-jwt-local-test",
                     ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
-                    ["Billing:Provider"] = "Noop",
+                    ["Billing:Provider"] = "Noop"
                 });
         });
     }

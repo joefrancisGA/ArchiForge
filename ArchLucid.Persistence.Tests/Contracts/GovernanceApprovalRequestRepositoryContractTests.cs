@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IGovernanceApprovalRequestRepository"/>.
+///     Shared contract assertions for <see cref="IGovernanceApprovalRequestRepository" />.
 /// </summary>
 public abstract class GovernanceApprovalRequestRepositoryContractTests
 {
@@ -177,7 +177,8 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(50, CancellationToken.None);
 
         // GetPendingAsync is scoped to the whole table (Draft/Submitted); SQL contract tests share one database.
-        GovernanceApprovalRequest[] mine = [.. pending.Where(r => r.RunId == runId).OrderByDescending(r => r.RequestedUtc)];
+        GovernanceApprovalRequest[] mine =
+            [.. pending.Where(r => r.RunId == runId).OrderByDescending(r => r.RequestedUtc)];
 
         mine.Should().HaveCount(2);
         mine[0].ApprovalRequestId.Should().Be("apr-sub-new");
@@ -230,9 +231,11 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
 
         await repo.CreateAsync(NewApproval("apr-still-open", runId, requested), CancellationToken.None);
 
-        IReadOnlyList<GovernanceApprovalRequest> decisions = await repo.GetRecentDecisionsAsync(50, CancellationToken.None);
+        IReadOnlyList<GovernanceApprovalRequest> decisions =
+            await repo.GetRecentDecisionsAsync(50, CancellationToken.None);
 
-        GovernanceApprovalRequest[] mine = [.. decisions.Where(r => r.RunId == runId).OrderByDescending(r => r.ReviewedUtc)];
+        GovernanceApprovalRequest[] mine =
+            [.. decisions.Where(r => r.RunId == runId).OrderByDescending(r => r.ReviewedUtc)];
 
         mine.Should().HaveCount(2);
         mine[0].ApprovalRequestId.Should().Be("apr-rej");
@@ -250,7 +253,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
             TargetEnvironment = GovernanceEnvironment.Test,
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = "alice",
-            RequestedUtc = requestedUtc,
+            RequestedUtc = requestedUtc
         };
     }
 }

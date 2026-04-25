@@ -5,8 +5,8 @@ using Polly;
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
-/// Decorator over <see cref="ISqlConnectionFactory"/> that retries transient failures
-/// using <see cref="ResiliencePipeline"/> (Microsoft.Extensions.Resilience / Polly).
+///     Decorator over <see cref="ISqlConnectionFactory" /> that retries transient failures
+///     using <see cref="ResiliencePipeline" /> (Microsoft.Extensions.Resilience / Polly).
 /// </summary>
 public sealed class ResilientSqlConnectionFactory(
     ISqlConnectionFactory inner,

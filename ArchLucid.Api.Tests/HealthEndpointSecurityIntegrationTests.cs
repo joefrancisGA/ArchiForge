@@ -6,7 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Regression: anonymous callers must not receive detailed health payloads on <c>/health/ready</c>; <c>/health</c> requires ReadAuthority.
+///     Regression: anonymous callers must not receive detailed health payloads on <c>/health/ready</c>; <c>/health</c>
+///     requires ReadAuthority.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurityApiFactory factory)
@@ -99,7 +100,8 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
                     StringComparison.Ordinal));
 
         circuitEntry.GetProperty("status").GetString().Should().Be("Healthy");
-        circuitEntry.TryGetProperty("data", out JsonElement data).Should().BeTrue("detailed health must surface HealthCheckResult.Data for operators");
+        circuitEntry.TryGetProperty("data", out JsonElement data).Should()
+            .BeTrue("detailed health must surface HealthCheckResult.Data for operators");
         data.TryGetProperty("gates", out JsonElement gates).Should().BeTrue();
         gates.ValueKind.Should().Be(JsonValueKind.Array);
     }

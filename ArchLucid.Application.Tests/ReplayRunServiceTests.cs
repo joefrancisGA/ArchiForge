@@ -91,8 +91,6 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
-        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
 
         ReplayRunService sut = new(
@@ -103,8 +101,6 @@ public sealed class ReplayRunServiceTests
             authorityRuns.Object,
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            manifestRepo.Object,
-            traceRepo.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
@@ -213,9 +209,6 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
-        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
-
         ReplayRunService sut = new(
             resolver.Object,
             decision.Object,
@@ -224,8 +217,6 @@ public sealed class ReplayRunServiceTests
             authorityRuns.Object,
             scopeProvider.Object,
             CreateAuthorityChainWriterMock().Object,
-            manifestRepo.Object,
-            traceRepo.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
@@ -389,13 +380,7 @@ public sealed class ReplayRunServiceTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
-        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
-        manifestRepo.Setup(x => x.CreateAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
-        traceRepo.Setup(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        Mock<IAuthorityCommittedManifestChainWriter> chainWriter = CreateAuthorityChainWriterMock();
 
         ReplayRunService sut = new(
             resolver.Object,
@@ -404,9 +389,7 @@ public sealed class ReplayRunServiceTests
             detail.Object,
             authorityRuns.Object,
             scopeProvider.Object,
-            CreateAuthorityChainWriterMock().Object,
-            manifestRepo.Object,
-            traceRepo.Object,
+            chainWriter.Object,
             evidenceRepo.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAuditService>(),
@@ -418,9 +401,20 @@ public sealed class ReplayRunServiceTests
 
         output.Manifest.Should().NotBeNull();
         output.Manifest!.Metadata.ManifestVersion.Should().Be("v-override");
-        manifestRepo.Verify(x => x.CreateAsync(It.Is<GoldenManifest>(m => m.Metadata.ManifestVersion == "v-override"), It.IsAny<CancellationToken>()), Times.Once);
-        traceRepo.Verify(
-            x => x.CreateManyAsync(It.Is<IEnumerable<DecisionTrace>>(t => t.Count() == 1), It.IsAny<CancellationToken>()),
+        // ADR 0030 PR A3 (2026-04-24): the legacy ICoordinatorDecisionTraceRepository second-write was removed;
+        // decision traces are now persisted exclusively through the authority FK chain writer below.
+        chainWriter.Verify(
+            x => x.PersistCommittedChainAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.Is<GoldenManifest>(m => m.Metadata.ManifestVersion == "v-override"),
+                It.IsAny<AuthorityChainKeying>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()),
             Times.Once);
         Guid replayGuid = Guid.Parse(output.ReplayRunId);
         authorityRuns.Verify(

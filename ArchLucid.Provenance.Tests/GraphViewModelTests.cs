@@ -15,8 +15,7 @@ public sealed class GraphViewModelTests
 
         GraphViewModel populated = new()
         {
-            Nodes = [new GraphNodeVm(), new GraphNodeVm()],
-            Edges = [new GraphEdgeVm()]
+            Nodes = [new GraphNodeVm(), new GraphNodeVm()], Edges = [new GraphEdgeVm()]
         };
 
         populated.NodeCount.Should().Be(2);

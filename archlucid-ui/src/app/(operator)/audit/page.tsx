@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
@@ -243,7 +245,10 @@ export default function AuditPage() {
   return (
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="audit" />
-      <h2 style={{ marginTop: 0 }}>Audit log</h2>
+      <div className="m-0 flex flex-wrap items-center gap-2">
+        <h2 className="m-0">Audit log</h2>
+        <ContextualHelp helpKey="audit-log" />
+      </div>
       <AuditLogRankCue className="mb-2" />
 
       {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk ? (
@@ -374,6 +379,10 @@ export default function AuditPage() {
             ? auditResultsSectionHeadingReader
             : auditResultsSectionHeadingOperator}
         </h3>
+        <p style={{ color: "#555", fontSize: 13, marginTop: 0, marginBottom: 8, maxWidth: "42rem" }}>
+          Each card below is one <GlossaryTooltip termKey="audit_event">audit event</GlossaryTooltip> (time, type, actor,
+          run, and data JSON).
+        </p>
         <p role="status" aria-live="polite" aria-atomic="true" style={{ color: "#555", fontSize: 14, marginTop: 0 }}>
           {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first, {AUDIT_PAGE_SIZE} rows per request; use
           Load more for older rows.

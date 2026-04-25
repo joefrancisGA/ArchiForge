@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Integration;
 
-/// <summary>Logical integration event type strings published to Service Bus (<see cref="IIntegrationEventPublisher"/>).</summary>
+/// <summary>Logical integration event type strings published to Service Bus (<see cref="IIntegrationEventPublisher" />).</summary>
 /// <remarks>Canonical strings use <c>com.archlucid.*</c>.</remarks>
 public static class IntegrationEventTypes
 {
@@ -16,10 +16,16 @@ public static class IntegrationEventTypes
 
     public const string AdvisoryScanCompletedV1 = "com.archlucid.advisory.scan.completed";
 
-    /// <summary>Compliance drift breached its threshold and escalated (Teams notification trigger added 2026-04-21 per PENDING_QUESTIONS.md item 32).</summary>
+    /// <summary>
+    ///     Compliance drift breached its threshold and escalated (Teams notification trigger added 2026-04-21 per
+    ///     PENDING_QUESTIONS.md item 32).
+    /// </summary>
     public const string ComplianceDriftEscalatedV1 = "com.archlucid.compliance.drift.escalated";
 
-    /// <summary>A trial seat reservation expired or was released, freeing capacity (Teams notification trigger added 2026-04-21 per PENDING_QUESTIONS.md item 32).</summary>
+    /// <summary>
+    ///     A trial seat reservation expired or was released, freeing capacity (Teams notification trigger added
+    ///     2026-04-21 per PENDING_QUESTIONS.md item 32).
+    /// </summary>
     public const string SeatReservationReleasedV1 = "com.archlucid.seat.reservation.released";
 
     /// <summary>Trial / lifecycle transactional email dispatch (worker consumes JSON payload).</summary>
@@ -31,7 +37,7 @@ public static class IntegrationEventTypes
     /// <summary>Wildcard handler: receives every event type after no specific handler matched.</summary>
     public const string WildcardEventType = "*";
 
-    /// <summary>Returns <paramref name="eventType"/> trimmed (no legacy alias mapping).</summary>
+    /// <summary>Returns <paramref name="eventType" /> trimmed (no legacy alias mapping).</summary>
     public static string MapToCanonical(string eventType)
     {
         if (string.IsNullOrWhiteSpace(eventType))

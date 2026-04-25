@@ -6,7 +6,8 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Findings.Serialization;
 
 /// <summary>
-/// Serializes <see cref="Finding.Payload"/> as a typed JSON object; on read, rehydrates using <see cref="FindingPayloadRegistry"/>.
+///     Serializes <see cref="Finding.Payload" /> as a typed JSON object; on read, rehydrates using
+///     <see cref="FindingPayloadRegistry" />.
 /// </summary>
 public sealed class FindingJsonConverter : JsonConverter<Finding>
 {
@@ -16,12 +17,14 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         JsonElement root = doc.RootElement;
         Finding finding = new()
         {
-            FindingSchemaVersion = root.TryGetProperty("findingSchemaVersion", out JsonElement fsv) && fsv.TryGetInt32(out int v) ? v : 0,
+            FindingSchemaVersion =
+                root.TryGetProperty("findingSchemaVersion", out JsonElement fsv) && fsv.TryGetInt32(out int v) ? v : 0,
             FindingId = root.GetProperty("findingId").GetString() ?? Guid.NewGuid().ToString("N"),
             FindingType = root.GetProperty("findingType").GetString() ?? "",
             Category = root.TryGetProperty("category", out JsonElement cat) ? cat.GetString() ?? "" : "",
             EngineType = root.GetProperty("engineType").GetString() ?? "",
-            Severity = root.TryGetProperty("severity", out JsonElement sev) && Enum.TryParse(sev.GetString(), true, out FindingSeverity se)
+            Severity = root.TryGetProperty("severity", out JsonElement sev) &&
+                       Enum.TryParse(sev.GetString(), true, out FindingSeverity se)
                 ? se
                 : FindingSeverity.Info,
             Title = root.GetProperty("title").GetString() ?? "",
@@ -29,7 +32,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             RelatedNodeIds = ReadStringList(root, "relatedNodeIds"),
             RecommendedActions = ReadStringList(root, "recommendedActions"),
             Properties = ReadStringDict(root, "properties"),
-            PayloadType = root.TryGetProperty("payloadType", out JsonElement pt) ? pt.GetString() : null,
+            PayloadType = root.TryGetProperty("payloadType", out JsonElement pt) ? pt.GetString() : null
         };
 
         finding.Trace = ReadTrace(root, options, finding);
@@ -86,10 +89,10 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
     }
 
     /// <summary>
-    /// Deserializes the <c>trace</c> property from <paramref name="root"/>.
-    /// When deserialization fails the corrupt JSON is noted in <paramref name="finding"/>
-    /// <c>Properties["_traceDeserializationWarning"]</c> so downstream consumers
-    /// can detect data loss without silently discarding the error.
+    ///     Deserializes the <c>trace</c> property from <paramref name="root" />.
+    ///     When deserialization fails the corrupt JSON is noted in <paramref name="finding" />
+    ///     <c>Properties["_traceDeserializationWarning"]</c> so downstream consumers
+    ///     can detect data loss without silently discarding the error.
     /// </summary>
     private static ExplainabilityTrace ReadTrace(JsonElement root, JsonSerializerOptions options, Finding finding)
     {
@@ -97,7 +100,8 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             return new ExplainabilityTrace();
         try
         {
-            return JsonSerializer.Deserialize<ExplainabilityTrace>(tr.GetRawText(), options) ?? new ExplainabilityTrace();
+            return JsonSerializer.Deserialize<ExplainabilityTrace>(tr.GetRawText(), options) ??
+                   new ExplainabilityTrace();
         }
         catch (JsonException ex)
         {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { RunsListClient } from "@/app/(operator)/runs/RunsListClient";
+import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -97,6 +98,10 @@ export default async function RunsPage({
           Compare two runs
         </Link>
       </p>
+
+      {loadFailure === null && malformedMessage === null ? (
+        <BeforeAfterDeltaPanel variant="top" />
+      ) : null}
 
       {loadFailure === null && malformedMessage === null && firstCommittedRunId !== null ? (
         <RunsIndexBeforeAfterPanel committedRunId={firstCommittedRunId} />

@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Determinism.
+///     Tests for Architecture Determinism.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
@@ -25,18 +24,14 @@ public sealed class ArchitectureDeterminismTests(ArchLucidApiFactory factory) : 
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var request = new
-        {
-            iterations = 3,
-            executionMode = "Current",
-            commitReplays = false
-        };
+        var request = new { iterations = 3, executionMode = "Current", commitReplays = false };
 
         HttpResponseMessage response = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/determinism-check",
@@ -44,7 +39,8 @@ public sealed class ArchitectureDeterminismTests(ArchLucidApiFactory factory) : 
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        DeterminismCheckResponse? payload = await response.Content.ReadFromJsonAsync<DeterminismCheckResponse>(JsonOptions);
+        DeterminismCheckResponse? payload =
+            await response.Content.ReadFromJsonAsync<DeterminismCheckResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Result.SourceRunId.Should().Be(runId);
         payload.Result.Iterations.Should().Be(3);

@@ -3,18 +3,18 @@ using ArchLucid.Core.Audit;
 namespace ArchLucid.Persistence.Audit;
 
 /// <summary>
-/// In-memory implementation of <see cref="IAuditRepository"/> for testing and storage-off mode.
-/// Bounded at <see cref="MaxEvents"/> entries; when full, the oldest <see cref="EvictCount"/> events are
-/// removed in a single batch rather than one at a time to amortize eviction cost.
-/// All operations are thread-safe via an exclusive lock.
+///     In-memory implementation of <see cref="IAuditRepository" /> for testing and storage-off mode.
+///     Bounded at <see cref="MaxEvents" /> entries; when full, the oldest <see cref="EvictCount" /> events are
+///     removed in a single batch rather than one at a time to amortize eviction cost.
+///     All operations are thread-safe via an exclusive lock.
 /// </summary>
 public sealed class InMemoryAuditRepository : IAuditRepository
 {
     private const int MaxEvents = 5_000;
     private const int EvictCount = 1_000;
+    private readonly List<AuditEvent> _events = [];
 
     private readonly Lock _gate = new();
-    private readonly List<AuditEvent> _events = [];
 
     public Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
     {
@@ -71,11 +71,10 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         List<AuditEvent> snapshot;
         lock (_gate)
         {
-            IEnumerable<AuditEvent> query = _events.Where(
-                x =>
-                    x.TenantId == tenantId
-                    && x.WorkspaceId == workspaceId
-                    && x.ProjectId == projectId);
+            IEnumerable<AuditEvent> query = _events.Where(x =>
+                x.TenantId == tenantId
+                && x.WorkspaceId == workspaceId
+                && x.ProjectId == projectId);
 
             if (!string.IsNullOrWhiteSpace(filter.EventType))
 
@@ -94,14 +93,13 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
             if (!string.IsNullOrWhiteSpace(filter.CorrelationId))
 
-                query = query.Where(
-                    x => string.Equals(x.CorrelationId, filter.CorrelationId, StringComparison.Ordinal));
+                query = query.Where(x =>
+                    string.Equals(x.CorrelationId, filter.CorrelationId, StringComparison.Ordinal));
 
 
             if (!string.IsNullOrWhiteSpace(filter.ActorUserId))
 
-                query = query.Where(
-                    x => string.Equals(x.ActorUserId, filter.ActorUserId, StringComparison.Ordinal));
+                query = query.Where(x => string.Equals(x.ActorUserId, filter.ActorUserId, StringComparison.Ordinal));
 
 
             if (filter.RunId.HasValue)
@@ -116,10 +114,9 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 if (filter.BeforeEventId.HasValue)
                 {
                     Guid beforeEid = filter.BeforeEventId.Value;
-                    query = query.Where(
-                        x =>
-                            x.OccurredUtc < beforeUtc
-                            || (x.OccurredUtc == beforeUtc && x.EventId.CompareTo(beforeEid) < 0));
+                    query = query.Where(x =>
+                        x.OccurredUtc < beforeUtc
+                        || (x.OccurredUtc == beforeUtc && x.EventId.CompareTo(beforeEid) < 0));
                 }
                 else
                 {
@@ -154,13 +151,12 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         lock (_gate)
 
             result = _events
-                .Where(
-                    x =>
-                        x.TenantId == tenantId
-                        && x.WorkspaceId == workspaceId
-                        && x.ProjectId == projectId
-                        && x.OccurredUtc >= fromUtc
-                        && x.OccurredUtc < toUtc)
+                .Where(x =>
+                    x.TenantId == tenantId
+                    && x.WorkspaceId == workspaceId
+                    && x.ProjectId == projectId
+                    && x.OccurredUtc >= fromUtc
+                    && x.OccurredUtc < toUtc)
                 .OrderBy(x => x.OccurredUtc)
                 .ThenBy(x => x.EventId)
                 .Take(take)

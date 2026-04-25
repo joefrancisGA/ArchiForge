@@ -13,7 +13,7 @@
 
 **Default primary region (2026-04-21):** **`centralus`** for new production Terraform applies (`infra/terraform-container-apps` and related roots) unless data-residency or latency requirements dictate otherwise. Document exceptions in the environment README.
 
-**Subscription mapping:** see [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md) for the canonical `staging` / `production` / greenfield-CI subscription IDs and the GitHub Environment secret each one maps to. Do **not** hard-code subscription IDs in `infra/**/*.tf` or example tfvars — `azure/login@v2` exports `ARM_SUBSCRIPTION_ID` for every Terraform step in the CD pipeline.
+**Subscription mapping:** see [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md) for the canonical **`dev`** (optional engineer CD) / `staging` / `production` / greenfield-CI subscription IDs and the GitHub Environment secret each one maps to. Do **not** hard-code subscription IDs in `infra/**/*.tf` or example tfvars — `azure/login@v2` exports `ARM_SUBSCRIPTION_ID` for every Terraform step in the CD pipeline.
 
 ---
 

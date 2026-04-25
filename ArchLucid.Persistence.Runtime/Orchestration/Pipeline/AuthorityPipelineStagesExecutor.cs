@@ -26,8 +26,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Persistence.Orchestration.Pipeline;
 
 /// <summary>
-/// Default pipeline executor with one OpenTelemetry span per major stage (<c>authority.*</c> activity names),
-/// explicitly parented to <see cref="AuthorityPipelineContext.RunActivity"/> when present.
+///     Default pipeline executor with one OpenTelemetry span per major stage (<c>authority.*</c> activity names),
+///     explicitly parented to <see cref="AuthorityPipelineContext.RunActivity" /> when present.
 /// </summary>
 public sealed class AuthorityPipelineStagesExecutor(
     IRunRepository runRepository,
@@ -47,8 +47,14 @@ public sealed class AuthorityPipelineStagesExecutor(
     IOptionsMonitor<CosmosDbOptions> cosmosDbOptionsMonitor,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
-    private readonly IRunRepository _runRepository =
-        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IArtifactBundleRepository _artifactBundleRepository =
+        artifactBundleRepository ?? throw new ArgumentNullException(nameof(artifactBundleRepository));
+
+    private readonly IArtifactSynthesisService _artifactSynthesisService =
+        artifactSynthesisService ?? throw new ArgumentNullException(nameof(artifactSynthesisService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IContextIngestionService _contextIngestionService =
         contextIngestionService ?? throw new ArgumentNullException(nameof(contextIngestionService));
@@ -56,17 +62,8 @@ public sealed class AuthorityPipelineStagesExecutor(
     private readonly IContextSnapshotRepository _contextSnapshotRepository =
         contextSnapshotRepository ?? throw new ArgumentNullException(nameof(contextSnapshotRepository));
 
-    private readonly IKnowledgeGraphService _knowledgeGraphService =
-        knowledgeGraphService ?? throw new ArgumentNullException(nameof(knowledgeGraphService));
-
-    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
-        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
-
-    private readonly IFindingsOrchestrator _findingsOrchestrator =
-        findingsOrchestrator ?? throw new ArgumentNullException(nameof(findingsOrchestrator));
-
-    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
-        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+    private readonly IOptionsMonitor<CosmosDbOptions> _cosmosDbOptionsMonitor =
+        cosmosDbOptionsMonitor ?? throw new ArgumentNullException(nameof(cosmosDbOptionsMonitor));
 
     private readonly IDecisionEngine _decisionEngine =
         decisionEngine ?? throw new ArgumentNullException(nameof(decisionEngine));
@@ -74,26 +71,29 @@ public sealed class AuthorityPipelineStagesExecutor(
     private readonly IDecisionTraceRepository _decisionTraceRepository =
         decisionTraceRepository ?? throw new ArgumentNullException(nameof(decisionTraceRepository));
 
+    private readonly IFindingsOrchestrator _findingsOrchestrator =
+        findingsOrchestrator ?? throw new ArgumentNullException(nameof(findingsOrchestrator));
+
+    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
+        findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
     private readonly IGoldenManifestRepository _goldenManifestRepository =
         goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+
+    private readonly IGraphSnapshotRepository _graphSnapshotRepository =
+        graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
+
+    private readonly IKnowledgeGraphService _knowledgeGraphService =
+        knowledgeGraphService ?? throw new ArgumentNullException(nameof(knowledgeGraphService));
+
+    private readonly ILogger<AuthorityPipelineStagesExecutor> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly IManifestHashService _manifestHashService =
         manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
-    private readonly IArtifactSynthesisService _artifactSynthesisService =
-        artifactSynthesisService ?? throw new ArgumentNullException(nameof(artifactSynthesisService));
-
-    private readonly IArtifactBundleRepository _artifactBundleRepository =
-        artifactBundleRepository ?? throw new ArgumentNullException(nameof(artifactBundleRepository));
-
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IOptionsMonitor<CosmosDbOptions> _cosmosDbOptionsMonitor =
-        cosmosDbOptionsMonitor ?? throw new ArgumentNullException(nameof(cosmosDbOptionsMonitor));
-
-    private readonly ILogger<AuthorityPipelineStagesExecutor> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     /// <inheritdoc />
     public async Task ExecuteAfterRunPersistedAsync(AuthorityPipelineContext ctx, CancellationToken ct)

@@ -13,12 +13,13 @@ public sealed class BillingWebhookTrialActivator(
     ITenantRepository tenantRepository,
     IAuditService auditService)
 {
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
 
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     public async Task OnSubscriptionActivatedAsync(
         Guid tenantId,
@@ -45,7 +46,7 @@ public sealed class BillingWebhookTrialActivator(
             rawWebhookJson,
             cancellationToken);
 
-        TenantTier commercialTier = Enum.TryParse(tierStorageCode, ignoreCase: true, out TenantTier parsed)
+        TenantTier commercialTier = Enum.TryParse(tierStorageCode, true, out TenantTier parsed)
             ? parsed
             : TenantTier.Standard;
 
@@ -65,12 +66,7 @@ public sealed class BillingWebhookTrialActivator(
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        provider,
-                        providerSubscriptionId,
-                        checkoutTier = checkoutTierLabel,
-                    }),
+                    new { provider, providerSubscriptionId, checkoutTier = checkoutTierLabel })
             },
             cancellationToken);
 

@@ -1,0 +1,81 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# ${workbook_display_name}\n\nMonth-to-date Azure OpenAI spend, p50/p95/p99 latency per cohort scenario, daily token-count trend, and kill-switch status for the dedicated golden-cohort deployment.\n\n**Cap:** $${monthly_budget_usd}/month. **Warn:** ${warn_threshold_percent}% of cap. **Kill:** ${kill_switch_threshold_percent}% of cap (Q15-conditional rule).\n\nRead-only. Editing requires the cohort-ops role on the Azure subscription. Runbook: `docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`."
+      },
+      "name": "header"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "killSwitch",
+            "version": "KqlParameterItem/1.0",
+            "name": "killSwitchStatus",
+            "label": "Kill-switch status",
+            "type": 1,
+            "isRequired": false,
+            "value": "enabled (warn=${warn_threshold_percent}% / kill=${kill_switch_threshold_percent}%)"
+          }
+        ]
+      },
+      "name": "kill-switch-banner"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name == 'golden_cohort_mtd_usd'\n| summarize MtdUsd = max(value) by bin(timestamp, 1d)\n| order by timestamp desc",
+        "size": 0,
+        "title": "Month-to-date spend (USD) — golden cohort Azure OpenAI",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "linechart"
+      },
+      "name": "mtd-spend"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name in ('golden_cohort_latency_p50_ms','golden_cohort_latency_p95_ms','golden_cohort_latency_p99_ms')\n| summarize avg(value) by name, scenario = tostring(customDimensions['scenario'])\n| order by scenario asc",
+        "size": 0,
+        "title": "Per-scenario latency (p50/p95/p99 ms)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "barchart"
+      },
+      "name": "latency-percentiles"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name == 'golden_cohort_token_count'\n| summarize Tokens = sum(value) by bin(timestamp, 1d)\n| order by timestamp asc",
+        "size": 0,
+        "title": "Daily token-count trend",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "linechart"
+      },
+      "name": "tokens-daily"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Tile sources\n\n- **Cost tile** uses Azure Cost Management `ActualCost` with `MonthToDate` timeframe, filtered to the cohort `Microsoft.CognitiveServices/accounts` resource. Numbers are projected into App Insights `customMetrics` by `scripts/golden_cohort_budget_probe.py` (workflow `.github/workflows/golden-cohort-nightly.yml`).\n- **Latency tiles** read from `customMetrics` rows emitted by the .NET cohort tests (`GoldenCohortRealLlmGateTests`) when `ARCHLUCID_GOLDEN_COHORT_LATENCY_REPORT_PATH` is set.\n- **Kill-switch banner** reflects `tests/golden-cohort/budget.config.json` and is enforced at PR-merge time by `scripts/ci/assert_golden_cohort_kill_switch_present.py` (Q15-conditional rule)."
+      },
+      "name": "footer"
+    }
+  ],
+  "isLocked": true,
+  "fallbackResourceIds": [
+    "${application_insights_resource_id}"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

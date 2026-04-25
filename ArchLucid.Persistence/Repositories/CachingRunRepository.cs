@@ -8,14 +8,15 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// Decorates <see cref="IRunRepository"/> with hot-path read caching and evicts on single-row writes and after bulk archival.
+///     Decorates <see cref="IRunRepository" /> with hot-path read caching and evicts on single-row writes and after bulk
+///     archival.
 /// </summary>
 public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache hotPathReadCache) : IRunRepository
 {
-    private readonly IRunRepository _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
+
+    private readonly IRunRepository _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
     /// <inheritdoc />
     public async Task SaveAsync(
@@ -46,7 +47,10 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         ScopeContext scope,
         string projectId,
         int take,
-        CancellationToken ct) => _inner.ListByProjectAsync(scope, projectId, take, ct);
+        CancellationToken ct)
+    {
+        return _inner.ListByProjectAsync(scope, projectId, take, ct);
+    }
 
     /// <inheritdoc />
     public Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
@@ -54,7 +58,10 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         string projectId,
         int skip,
         int take,
-        CancellationToken ct) => _inner.ListByProjectPagedAsync(scope, projectId, skip, take, ct);
+        CancellationToken ct)
+    {
+        return _inner.ListByProjectPagedAsync(scope, projectId, skip, take, ct);
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct)
@@ -77,7 +84,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
-    public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc,
+        CancellationToken ct)
     {
         RunArchiveBatchResult batch = await _inner.ArchiveRunsCreatedBeforeAsync(cutoffUtc, ct);
 
@@ -85,9 +93,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         {
             ScopeContext scope = new()
             {
-                TenantId = row.TenantId,
-                WorkspaceId = row.WorkspaceId,
-                ProjectId = row.ScopeProjectId
+                TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId
             };
 
             await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
@@ -105,9 +111,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         {
             ScopeContext scope = new()
             {
-                TenantId = row.TenantId,
-                WorkspaceId = row.WorkspaceId,
-                ProjectId = row.ScopeProjectId,
+                TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId
             };
 
             await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
@@ -116,10 +120,11 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         return result;
     }
 
-    private static ScopeContext ScopeForRun(RunRecord run) => new()
+    private static ScopeContext ScopeForRun(RunRecord run)
     {
-        TenantId = run.TenantId,
-        WorkspaceId = run.WorkspaceId,
-        ProjectId = run.ScopeProjectId
-    };
+        return new ScopeContext
+        {
+            TenantId = run.TenantId, WorkspaceId = run.WorkspaceId, ProjectId = run.ScopeProjectId
+        };
+    }
 }

@@ -14,4 +14,3 @@ public interface IGoldenManifestBuilder
         DecisionTrace trace,
         DecisionRuleSet ruleSet);
 }
-

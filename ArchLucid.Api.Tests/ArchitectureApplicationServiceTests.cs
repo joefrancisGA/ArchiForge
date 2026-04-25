@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -6,11 +7,17 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Moq;
@@ -18,20 +25,24 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Application Service.
+///     Tests for Architecture Application Service.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ArchitectureApplicationServiceTests
 {
-    private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
-    private readonly Mock<IAgentResultRepository> _resultRepository;
-    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader;
-    private readonly Mock<IArchitectureRequestRepository> _requestRepository;
     private readonly Mock<IAgentEvidencePackageRepository> _agentEvidencePackageRepository;
     private readonly Mock<IEvidenceBuilder> _evidenceBuilder;
+    private readonly Mock<IArchitectureRequestRepository> _requestRepository;
+    private readonly Mock<IAgentResultRepository> _resultRepository;
+    private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
     private readonly ArchitectureApplicationService _sut;
+    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader;
+    private readonly Mock<IRunRepository> _runRepository;
+    private readonly Mock<IScopeContextProvider> _scopeContextProvider;
+    private readonly IConfiguration _configuration;
+    private readonly Mock<IAuditService> _auditService;
+    private readonly Mock<IActorContext> _actorContext;
 
     public ArchitectureApplicationServiceTests()
     {
@@ -41,13 +52,37 @@ public sealed class ArchitectureApplicationServiceTests
         _requestRepository = new Mock<IArchitectureRequestRepository>();
         _agentEvidencePackageRepository = new Mock<IAgentEvidencePackageRepository>();
         _evidenceBuilder = new Mock<IEvidenceBuilder>();
+        _runRepository = new Mock<IRunRepository>();
+        _scopeContextProvider = new Mock<IScopeContextProvider>();
+        _configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "gpt-test" })
+            .Build();
+        _auditService = new Mock<IAuditService>();
+        _actorContext = new Mock<IActorContext>();
         Mock<ILogger<ArchitectureApplicationService>> logger = new();
+
+        _scopeContextProvider
+            .Setup(s => s.GetCurrentScope())
+            .Returns(
+                new ScopeContext
+                {
+                    TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                    ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+                });
+
+        _auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        _actorContext.Setup(a => a.GetActor()).Returns("unit-test");
 
         _agentEvidencePackageRepository
             .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((AgentEvidencePackage?)null);
         _evidenceBuilder
-            .Setup(b => b.BuildAsync(It.IsAny<string>(), It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(b =>
+                b.BuildAsync(It.IsAny<string>(), It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((string rid, ArchitectureRequest _, CancellationToken _) => new AgentEvidencePackage
             {
                 EvidencePackageId = "pkg-1",
@@ -72,56 +107,73 @@ public sealed class ArchitectureApplicationServiceTests
             _agentEvidencePackageRepository.Object,
             _evidenceBuilder.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            _runRepository.Object,
+            _scopeContextProvider.Object,
+            _configuration,
+            _auditService.Object,
+            _actorContext.Object,
             logger.Object);
     }
 
-    private static ArchitectureRequest ValidRequest() => new()
+    private static ArchitectureRequest ValidRequest()
     {
-        RequestId = "req-1",
-        Description = "A system for testing architecture",
-        SystemName = "TestSystem",
-        Environment = "prod",
-        CloudProvider = CloudProvider.Azure
-    };
+        return new ArchitectureRequest
+        {
+            RequestId = "req-1",
+            Description = "A system for testing architecture",
+            SystemName = "TestSystem",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure
+        };
+    }
 
-    private static ArchitectureRun ValidRun(string runId = "run-1", string requestId = "req-1") => new()
+    private static ArchitectureRun ValidRun(string runId = "run-1", string requestId = "req-1")
     {
-        RunId = runId,
-        RequestId = requestId,
-        Status = ArchitectureRunStatus.TasksGenerated,
-        CreatedUtc = DateTime.UtcNow
-    };
+        return new ArchitectureRun
+        {
+            RunId = runId,
+            RequestId = requestId,
+            Status = ArchitectureRunStatus.TasksGenerated,
+            CreatedUtc = DateTime.UtcNow
+        };
+    }
 
-    private static AgentTask ValidTask(string runId = "run-1", AgentType type = AgentType.Topology) => new()
+    private static AgentTask ValidTask(string runId = "run-1", AgentType type = AgentType.Topology)
     {
-        TaskId = "task-1",
-        RunId = runId,
-        AgentType = type,
-        Objective = "Design topology",
-        Status = AgentTaskStatus.Created
-    };
+        return new AgentTask
+        {
+            TaskId = "task-1",
+            RunId = runId,
+            AgentType = type,
+            Objective = "Design topology",
+            Status = AgentTaskStatus.Created
+        };
+    }
 
-    private static AgentResult ValidResult(string runId = "run-1", AgentType type = AgentType.Topology) => new()
+    private static AgentResult ValidResult(string runId = "run-1", AgentType type = AgentType.Topology)
     {
-        ResultId = "result-1",
-        TaskId = "task-1",
-        RunId = runId,
-        AgentType = type,
-        Claims = ["Claim"],
-        EvidenceRefs = [],
-        Confidence = 0.9
-    };
+        return new AgentResult
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            RunId = runId,
+            AgentType = type,
+            Claims = ["Claim"],
+            EvidenceRefs = [],
+            Confidence = 0.9
+        };
+    }
 
     private static ArchitectureRunDetail DetailFor(
         ArchitectureRun run,
         IReadOnlyList<AgentTask>? tasks = null,
         IReadOnlyList<AgentResult>? results = null)
-        => new()
+    {
+        return new ArchitectureRunDetail
         {
-            Run = run,
-            Tasks = (tasks ?? []).ToList(),
-            Results = (results ?? []).ToList()
+            Run = run, Tasks = (tasks ?? []).ToList(), Results = (results ?? []).ToList()
         };
+    }
 
     #region GetRunAsync
 
@@ -163,7 +215,8 @@ public sealed class ArchitectureApplicationServiceTests
         GetRunResult? result = await _sut.GetRunAsync(runId!);
 
         result.Should().BeNull();
-        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -228,7 +281,8 @@ public sealed class ArchitectureApplicationServiceTests
 
         result.Success.Should().BeFalse();
         result.Error.Should().Be("RunId is required.");
-        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -238,7 +292,8 @@ public sealed class ArchitectureApplicationServiceTests
 
         result.Success.Should().BeFalse();
         result.Error.Should().Be("Agent result is required.");
-        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -324,7 +379,8 @@ public sealed class ArchitectureApplicationServiceTests
 
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("not found");
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -342,7 +398,8 @@ public sealed class ArchitectureApplicationServiceTests
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("does not accept agent results");
         sutResult.Error.Should().Contain("TasksGenerated");
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -359,7 +416,8 @@ public sealed class ArchitectureApplicationServiceTests
 
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("does not match");
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -372,7 +430,8 @@ public sealed class ArchitectureApplicationServiceTests
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
-        _resultRepository.Setup(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _resultRepository.Setup(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([result]);
 
@@ -397,7 +456,8 @@ public sealed class ArchitectureApplicationServiceTests
 
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("already been submitted");
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -415,7 +475,8 @@ public sealed class ArchitectureApplicationServiceTests
 
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("was not found");
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -433,7 +494,8 @@ public sealed class ArchitectureApplicationServiceTests
 
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("does not match task AgentType");
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     #endregion
@@ -445,11 +507,10 @@ public sealed class ArchitectureApplicationServiceTests
     {
         GoldenManifest manifest = new()
         {
-            RunId = "run-1",
-            SystemName = "TestSystem",
-            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
+            RunId = "run-1", SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
-        _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(manifest);
+        _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
 
         GoldenManifest? result = await _sut.GetManifestAsync("v1");
 
@@ -460,7 +521,8 @@ public sealed class ArchitectureApplicationServiceTests
     [Fact]
     public async Task GetManifestAsync_WhenVersionNotFound_ReturnsNull()
     {
-        _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("nonexistent", It.IsAny<CancellationToken>())).ReturnsAsync((GoldenManifest?)null);
+        _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("nonexistent", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
 
         GoldenManifest? result = await _sut.GetManifestAsync("nonexistent");
 
@@ -471,10 +533,7 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task GetManifestAsync_PassesCancellationTokenToRepository()
     {
         CancellationTokenSource cts = new();
-        GoldenManifest manifest = new()
-        {
-            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
-        };
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
         _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("v1", cts.Token)).ReturnsAsync(manifest);
 
         await _sut.GetManifestAsync("v1", cts.Token);
@@ -497,7 +556,8 @@ public sealed class ArchitectureApplicationServiceTests
         result.Success.Should().BeFalse();
         result.ResultCount.Should().Be(0);
         result.Error.Should().Be("RunId is required.");
-        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -516,7 +576,8 @@ public sealed class ArchitectureApplicationServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
-        _resultRepository.Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
+        _resultRepository.Setup(r =>
+                r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync("run-1");
@@ -526,7 +587,8 @@ public sealed class ArchitectureApplicationServiceTests
         result.ResultCount.Should().Be(4);
         result.Error.Should().BeNull();
         _resultRepository.Verify(
-            r => r.CreateManyAsync(It.Is<IReadOnlyList<AgentResult>>(list => list.Count == 4), It.IsAny<CancellationToken>()),
+            r => r.CreateManyAsync(It.Is<IReadOnlyList<AgentResult>>(list => list.Count == 4),
+                It.IsAny<CancellationToken>()),
             Times.Once);
         _agentEvidencePackageRepository.Verify(
             r => r.CreateAsync(It.IsAny<AgentEvidencePackage>(), It.IsAny<CancellationToken>()),
@@ -554,7 +616,8 @@ public sealed class ArchitectureApplicationServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
-        _resultRepository.Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
+        _resultRepository.Setup(r =>
+                r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync("run-1");
@@ -581,7 +644,8 @@ public sealed class ArchitectureApplicationServiceTests
         result.Should().NotBeNull();
         result.Success.Should().BeFalse();
         result.Error.Should().Contain("does not accept results").And.Contain("ReadyForCommit");
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -595,7 +659,8 @@ public sealed class ArchitectureApplicationServiceTests
         result.Should().NotBeNull();
         result.Success.Should().BeFalse();
         result.Error.Should().Contain("not found");
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -604,7 +669,8 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, [ValidTask()], []));
-        _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync((ArchitectureRequest?)null);
+        _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRequest?)null);
 
         SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync("run-1");
 
@@ -647,7 +713,62 @@ public sealed class ArchitectureApplicationServiceTests
         result.Success.Should().BeTrue();
         result.ResultCount.Should().Be(0);
         result.Error.Should().BeNull();
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task SeedFakeResultsAsync_WhenPilotMarkFellBack_UpdatesRunAndWritesAudit()
+    {
+        Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runId = runGuid.ToString("N");
+        ArchitectureRun run = ValidRun(runId);
+        ArchitectureRequest request = ValidRequest();
+        List<AgentTask> tasks =
+        [
+            ValidTask(runId),
+            ValidTask(runId, AgentType.Cost),
+            ValidTask(runId, AgentType.Compliance),
+            ValidTask(runId, AgentType.Critic)
+        ];
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailFor(run, tasks, []));
+        _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
+        _resultRepository.Setup(r =>
+                r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            ProjectId = "p",
+            CreatedUtc = DateTime.UtcNow,
+            RealModeFellBackToSimulator = false
+        };
+
+        _runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(header);
+
+        PilotSeedFakeResultsOptions pilot = new(MarkRealModeFellBackToSimulator: true);
+        SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync(runId, pilot);
+
+        result.Success.Should().BeTrue();
+        _runRepository.Verify(
+            r => r.UpdateAsync(
+                It.Is<RunRecord>(h => h.RealModeFellBackToSimulator && h.PilotAoaiDeploymentSnapshot == "gpt-test"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        _auditService.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.FirstRealValueRunFellBackToSimulator && e.RunId == runGuid),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     #endregion

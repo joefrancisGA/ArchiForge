@@ -49,7 +49,14 @@ export function MarketingSecurityTrustView(
         Engagement metadata for ArchLucid&rsquo;s most recent assurance activity.
         This page records that an activity occurred, what it covered, and how to
         obtain redacted material under NDA — it does not publish redacted
-        findings or customer names.
+        findings or customer names. For the consolidated posture table, questionnaires, and procurement links, open the{" "}
+        <Link
+          className="text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+          href="/trust"
+        >
+          Trust Center
+        </Link>
+        .
       </p>
 
       <section

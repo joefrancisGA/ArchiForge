@@ -13,8 +13,8 @@ using Polly.Simmy.Fault;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Simmy scenarios where a single outer retry pipeline must tolerate <b>multiple</b> transient failure shapes
-/// (SQL + HTTP), matching mixed dependency behavior during incidents without separate suites per subsystem.
+///     Simmy scenarios where a single outer retry pipeline must tolerate <b>multiple</b> transient failure shapes
+///     (SQL + HTTP), matching mixed dependency behavior during incidents without separate suites per subsystem.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -55,9 +55,8 @@ public sealed class CombinedFailureChaosTests
                 {
                     MaxRetryAttempts = 5,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(
-                        ex => SqlTransientDetector.IsTransient(ex)
-                              || LlmCallResilienceDefaults.ShouldRetryLlmException(ex)),
+                    ShouldHandle = new PredicateBuilder().Handle<Exception>(ex => SqlTransientDetector.IsTransient(ex)
+                        || LlmCallResilienceDefaults.ShouldRetryLlmException(ex))
                 })
             .AddChaosFault(chaosOptions)
             .Build();

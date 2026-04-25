@@ -3,7 +3,8 @@ using ArchLucid.Decisioning.Advisory.Delivery;
 namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
-/// Posts a simple <c>text</c> payload to a Slack incoming webhook (<see cref="AlertRoutingChannelType.SlackWebhook"/>).
+///     Posts a simple <c>text</c> payload to a Slack incoming webhook (<see cref="AlertRoutingChannelType.SlackWebhook" />
+///     ).
 /// </summary>
 /// <param name="webhookPoster">HTTP JSON POST helper shared with advisory delivery.</param>
 public sealed class AlertSlackWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IAlertDeliveryChannel
@@ -20,7 +21,7 @@ public sealed class AlertSlackWebhookDeliveryChannel(IWebhookPoster webhookPoste
                 $"*[{payload.Alert.Severity}]* {payload.Alert.Title}\n" +
                 $"Category: {payload.Alert.Category}\n" +
                 $"Trigger: {payload.Alert.TriggerValue}\n\n" +
-                $"{payload.Alert.Description}",
+                $"{payload.Alert.Description}"
         };
 
         return webhookPoster.PostJsonAsync(

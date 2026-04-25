@@ -64,7 +64,7 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
       </section>
 
       <section data-testid="demo-preview-authority-chain">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Authority chain</h2>
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Provenance chain</h2>
         <ul className="mt-2 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300">
           <li>Context Snapshot: {payload.authorityChain.contextSnapshotId ?? "—"}</li>
           <li>Graph Snapshot: {payload.authorityChain.graphSnapshotId ?? "—"}</li>

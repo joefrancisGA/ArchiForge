@@ -9,7 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 /// <summary>
-/// Golden JSON fixtures deserialized to <see cref="AgentResult"/> then scored by <see cref="IAgentOutputEvaluationHarness"/> (serializer round-trip).
+///     Golden JSON fixtures deserialized to <see cref="AgentResult" /> then scored by
+///     <see cref="IAgentOutputEvaluationHarness" /> (serializer round-trip).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -28,8 +29,7 @@ public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
 
         AgentOutputExpectation expected = new()
         {
-            MinimumStructuralCompleteness = 1.0,
-            RequiredJsonKeys = ["evidenceRefs"],
+            MinimumStructuralCompleteness = 1.0, RequiredJsonKeys = ["evidenceRefs"]
         };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Topology, actual, expected);
@@ -45,8 +45,7 @@ public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
 
         AgentOutputExpectation expected = new()
         {
-            MinimumStructuralCompleteness = 1.0,
-            RequiredJsonKeys = ["evidenceRefs", "findings"],
+            MinimumStructuralCompleteness = 1.0, RequiredJsonKeys = ["evidenceRefs", "findings"]
         };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Compliance, actual, expected);
@@ -60,11 +59,7 @@ public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
         AgentResult actual = LoadAgentResult("harness-agent-result-topology.json");
         actual.Findings.Clear();
 
-        AgentOutputExpectation expected = new()
-        {
-            MinimumStructuralCompleteness = 1.0,
-            MinimumFindingCount = 1,
-        };
+        AgentOutputExpectation expected = new() { MinimumStructuralCompleteness = 1.0, MinimumFindingCount = 1 };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Topology, actual, expected);
 

@@ -5,7 +5,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Round-trip and merge-shape checks for governance JSON documents used by the API stack.
+///     Round-trip and merge-shape checks for governance JSON documents used by the API stack.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

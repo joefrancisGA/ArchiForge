@@ -11,7 +11,8 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Dapper-backed persistence for <see cref="IRunExportRecordRepository"/>; persists and retrieves export records from the <c>RunExportRecords</c> table.
+///     Dapper-backed persistence for <see cref="IRunExportRecordRepository" />; persists and retrieves export records from
+///     the <c>RunExportRecords</c> table.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFactory) : IRunExportRecordRepository
@@ -23,63 +24,63 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         ArgumentNullException.ThrowIfNull(record);
 
         const string sql = """
-            INSERT INTO RunExportRecords
-            (
-                ExportRecordId,
-                RunId,
-                ExportType,
-                Format,
-                FileName,
-                TemplateProfile,
-                TemplateProfileDisplayName,
-                WasAutoSelected,
-                ResolutionReason,
-                ManifestVersion,
-                Notes,
-                AnalysisRequestJson,
-                IncludedEvidence,
-                IncludedExecutionTraces,
-                IncludedManifest,
-                IncludedDiagram,
-                IncludedSummary,
-                IncludedDeterminismCheck,
-                DeterminismIterations,
-                IncludedManifestCompare,
-                CompareManifestVersion,
-                IncludedAgentResultCompare,
-                CompareRunId,
-                RecordJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @ExportRecordId,
-                @RunId,
-                @ExportType,
-                @Format,
-                @FileName,
-                @TemplateProfile,
-                @TemplateProfileDisplayName,
-                @WasAutoSelected,
-                @ResolutionReason,
-                @ManifestVersion,
-                @Notes,
-                @AnalysisRequestJson,
-                @IncludedEvidence,
-                @IncludedExecutionTraces,
-                @IncludedManifest,
-                @IncludedDiagram,
-                @IncludedSummary,
-                @IncludedDeterminismCheck,
-                @DeterminismIterations,
-                @IncludedManifestCompare,
-                @CompareManifestVersion,
-                @IncludedAgentResultCompare,
-                @CompareRunId,
-                @RecordJson,
-                @CreatedUtc
-            );
-            """;
+                           INSERT INTO RunExportRecords
+                           (
+                               ExportRecordId,
+                               RunId,
+                               ExportType,
+                               Format,
+                               FileName,
+                               TemplateProfile,
+                               TemplateProfileDisplayName,
+                               WasAutoSelected,
+                               ResolutionReason,
+                               ManifestVersion,
+                               Notes,
+                               AnalysisRequestJson,
+                               IncludedEvidence,
+                               IncludedExecutionTraces,
+                               IncludedManifest,
+                               IncludedDiagram,
+                               IncludedSummary,
+                               IncludedDeterminismCheck,
+                               DeterminismIterations,
+                               IncludedManifestCompare,
+                               CompareManifestVersion,
+                               IncludedAgentResultCompare,
+                               CompareRunId,
+                               RecordJson,
+                               CreatedUtc
+                           )
+                           VALUES
+                           (
+                               @ExportRecordId,
+                               @RunId,
+                               @ExportType,
+                               @Format,
+                               @FileName,
+                               @TemplateProfile,
+                               @TemplateProfileDisplayName,
+                               @WasAutoSelected,
+                               @ResolutionReason,
+                               @ManifestVersion,
+                               @Notes,
+                               @AnalysisRequestJson,
+                               @IncludedEvidence,
+                               @IncludedExecutionTraces,
+                               @IncludedManifest,
+                               @IncludedDiagram,
+                               @IncludedSummary,
+                               @IncludedDeterminismCheck,
+                               @DeterminismIterations,
+                               @IncludedManifestCompare,
+                               @CompareManifestVersion,
+                               @IncludedAgentResultCompare,
+                               @CompareRunId,
+                               @RecordJson,
+                               @CreatedUtc
+                           );
+                           """;
 
         string json = JsonSerializer.Serialize(record, ContractJson.Default);
 
@@ -125,19 +126,16 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-            SELECT RecordJson
-            FROM RunExportRecords
-            WHERE RunId = @RunId
-            ORDER BY CreatedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(500)};
-            """;
+                      SELECT RecordJson
+                      FROM RunExportRecords
+                      WHERE RunId = @RunId
+                      ORDER BY CreatedUtc DESC
+                      {SqlPagingSyntax.FirstRowsOnly(500)};
+                      """;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
         List<RunExportRecord> records = [];
@@ -173,19 +171,16 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT RecordJson
-            FROM RunExportRecords
-            WHERE ExportRecordId = @ExportRecordId;
-            """;
+                           SELECT RecordJson
+                           FROM RunExportRecords
+                           WHERE ExportRecordId = @ExportRecordId;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                ExportRecordId = exportRecordId
-            },
+            new { ExportRecordId = exportRecordId },
             cancellationToken: cancellationToken));
 
         if (json is null)
@@ -204,9 +199,8 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         }
 
         return record
-            ?? throw new InvalidOperationException(
-                $"RunExportRecord JSON for '{exportRecordId}' deserialized to null. " +
-                "The stored JSON may be empty or corrupt.");
+               ?? throw new InvalidOperationException(
+                   $"RunExportRecord JSON for '{exportRecordId}' deserialized to null. " +
+                   "The stored JSON may be empty or corrupt.");
     }
 }
-

@@ -6,18 +6,18 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
-/// <see cref="IDecisionEngine"/> implementation that applies an ordered, priority-sorted
-/// rule set to each finding in a <see cref="FindingsSnapshot"/>, then delegates manifest
-/// construction to <see cref="IGoldenManifestBuilder"/>.
+///     <see cref="IDecisionEngine" /> implementation that applies an ordered, priority-sorted
+///     rule set to each finding in a <see cref="FindingsSnapshot" />, then delegates manifest
+///     construction to <see cref="IGoldenManifestBuilder" />.
 /// </summary>
 /// <remarks>
-/// Rules are applied in descending <c>Priority</c> order. For each finding the first matching
-/// rule per action type wins; unmatched findings are recorded in
-/// <see cref="RuleAuditTracePayload.Notes"/>. After manifest construction,
-/// <see cref="IGoldenManifestValidator.Validate"/> is called and a content hash is computed
-/// via <see cref="IManifestHashService"/>.
-/// Cancellation is forwarded to <see cref="IDecisionRuleProvider.GetRuleSetAsync"/>; the
-/// synchronous rule evaluation and manifest build steps do not observe the token.
+///     Rules are applied in descending <c>Priority</c> order. For each finding the first matching
+///     rule per action type wins; unmatched findings are recorded in
+///     <see cref="RuleAuditTracePayload.Notes" />. After manifest construction,
+///     <see cref="IGoldenManifestValidator.Validate" /> is called and a content hash is computed
+///     via <see cref="IManifestHashService" />.
+///     Cancellation is forwarded to <see cref="IDecisionRuleProvider.GetRuleSetAsync" />; the
+///     synchronous rule evaluation and manifest build steps do not observe the token.
 /// </remarks>
 public class RuleBasedDecisionEngine(
     IDecisionRuleProvider ruleProvider,
@@ -104,4 +104,3 @@ public class RuleBasedDecisionEngine(
         return (manifest, trace);
     }
 }
-

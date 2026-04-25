@@ -118,10 +118,10 @@ public sealed class SanitizedLoggerInformationExtensionsTests
             "type\tX",
             "fmt\rY",
             "mode\nZ",
-            persistReplay: true,
-            metadataOnly: false,
-            durationMs: 42,
-            verificationPassed: true);
+            true,
+            false,
+            42,
+            true);
 
         rendered.Should().NotBeNull();
         string text = rendered!;
@@ -256,7 +256,9 @@ public sealed class SanitizedLoggerInformationExtensionsTests
     {
         ILogger logger = null!;
 
-        Action act = () => logger.LogInformationAgentResultSubmitted("r", "s", AgentType.Cost, ArchitectureRunStatus.WaitingForResults);
+        Action act = () =>
+            logger.LogInformationAgentResultSubmitted("r", "s", AgentType.Cost,
+                ArchitectureRunStatus.WaitingForResults);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
     }

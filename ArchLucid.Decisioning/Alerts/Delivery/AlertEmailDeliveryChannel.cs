@@ -3,7 +3,8 @@ using ArchLucid.Decisioning.Advisory.Delivery;
 namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
-/// <see cref="IAlertDeliveryChannel"/> for <see cref="AlertRoutingChannelType.Email"/>; sends plain-text body via <see cref="IEmailSender"/>.
+///     <see cref="IAlertDeliveryChannel" /> for <see cref="AlertRoutingChannelType.Email" />; sends plain-text body via
+///     <see cref="IEmailSender" />.
 /// </summary>
 /// <param name="emailSender">Configured SMTP or provider abstraction from the host.</param>
 public sealed class AlertEmailDeliveryChannel(IEmailSender emailSender) : IAlertDeliveryChannel

@@ -24,6 +24,7 @@ using ArchLucid.Host.Core.Services.Ask;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Reads;
 
@@ -68,6 +69,10 @@ public static partial class ServiceCollectionExtensions
 
         ArchLucidOptions coordinatorStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
+        // ADR 0030 PR A3 (2026-04-24): ICoordinatorGoldenManifestRepository and ICoordinatorDecisionTraceRepository
+        // were deleted along with their concretes (InMemoryCoordinator*, GoldenManifestRepository, DecisionTraceRepository).
+        // dbo.GoldenManifestVersions is gone (PR A4 / migration 111); decision traces are persisted via the
+        // Authority FK chain (dbo.AuthorityDecisionTraces). The unified reader stays scoped (now authority-only).
         if (ArchLucidOptions.EffectiveIsInMemory(coordinatorStorage.StorageProvider))
         {
             services.AddSingleton<IArchitectureRequestRepository, InMemoryArchitectureRequestRepository>();
@@ -76,32 +81,25 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IAgentResultRepository, InMemoryAgentResultRepository>();
             services.AddSingleton<IAgentEvaluationRepository, InMemoryAgentEvaluationRepository>();
             services.AddSingleton<IDecisionNodeRepository, InMemoryDecisionNodeRepository>();
-            services.AddSingleton<ICoordinatorGoldenManifestRepository, InMemoryCoordinatorGoldenManifestRepository>();
             services.AddScoped<IUnifiedGoldenManifestReader, UnifiedGoldenManifestReader>();
             services.AddSingleton<IEvidenceBundleRepository, InMemoryEvidenceBundleRepository>();
-            services.AddSingleton<ICoordinatorDecisionTraceRepository, InMemoryCoordinatorDecisionTraceRepository>();
             services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
             services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
             services.AddSingleton<IAgentOutputEvaluationResultRepository, NoOpAgentOutputEvaluationResultRepository>();
+            return;
         }
-        else
-        {
-            services.AddScoped<IAgentEvaluationRepository, AgentEvaluationRepository>();
-            services.AddScoped<IDecisionNodeRepository, DecisionNodeRepository>();
-            services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
-            services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
-            services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
-            services.AddScoped<IAgentResultRepository, AgentResultRepository>();
-            // Data-layer contracts (CreateAsync / GetByVersionAsync / batch traces) — distinct from
-            // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchLucidStorage.
-            services.AddScoped<ICoordinatorGoldenManifestRepository, GoldenManifestRepository>();
-            services.AddScoped<IUnifiedGoldenManifestReader, UnifiedGoldenManifestReader>();
-            services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
-            services.AddScoped<ICoordinatorDecisionTraceRepository, DecisionTraceRepository>();
-            services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
-            services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
-            services.AddScoped<IAgentOutputEvaluationResultRepository, AgentOutputEvaluationResultRepository>();
-        }
+
+        services.AddScoped<IAgentEvaluationRepository, AgentEvaluationRepository>();
+        services.AddScoped<IDecisionNodeRepository, DecisionNodeRepository>();
+        services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
+        services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
+        services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
+        services.AddScoped<IAgentResultRepository, AgentResultRepository>();
+        services.AddScoped<IUnifiedGoldenManifestReader, UnifiedGoldenManifestReader>();
+        services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
+        services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
+        services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
+        services.AddScoped<IAgentOutputEvaluationResultRepository, AgentOutputEvaluationResultRepository>();
     }
 
     private static void RegisterRunExplanationSummaryService(

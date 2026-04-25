@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -22,7 +24,7 @@ public sealed class StripeBillingProviderWebhookTests
         BillingOptions billing = new()
         {
             Provider = BillingProviderNames.Stripe,
-            Stripe = new StripeBillingOptions { WebhookSigningSecret = "whsec_test" },
+            Stripe = new StripeBillingOptions { WebhookSigningSecret = "whsec_test" }
         };
 
         TestMonitor<BillingOptions> monitor = new(billing);
@@ -32,7 +34,8 @@ public sealed class StripeBillingProviderWebhookTests
         BillingWebhookTrialActivator activator = new(ledger.Object, tenants.Object, audit.Object);
         Mock<IMarketplaceChangePlanWebhookMutationHandler> changePlan = new();
         changePlan
-            .Setup(h => h.HandleAsync(It.IsAny<Guid>(), It.IsAny<System.Text.Json.JsonElement>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(h => h.HandleAsync(It.IsAny<Guid>(), It.IsAny<JsonElement>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(MarketplaceWebhookMutationOutcome.Applied);
         StripeBillingProvider sut = new(monitor, ledger.Object, activator, changePlan.Object);
 
@@ -43,7 +46,8 @@ public sealed class StripeBillingProviderWebhookTests
         result.Succeeded.Should().BeFalse();
         result.ErrorDetail.Should().NotBeNullOrWhiteSpace();
         ledger.Verify(
-            static l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            static l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -55,8 +59,14 @@ public sealed class StripeBillingProviderWebhookTests
             get;
         } = value;
 
-        public T Get(string? name) => CurrentValue;
+        public T Get(string? name)
+        {
+            return CurrentValue;
+        }
 
-        public IDisposable? OnChange(Action<T, string?> listener) => null;
+        public IDisposable? OnChange(Action<T, string?> listener)
+        {
+            return null;
+        }
     }
 }

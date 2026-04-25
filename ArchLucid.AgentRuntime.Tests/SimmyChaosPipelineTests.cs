@@ -12,7 +12,8 @@ using Polly.Timeout;
 namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
-/// Polly Simmy chaos strategies layered with retries / timeouts — mirrors production resilience patterns without external services.
+///     Polly Simmy chaos strategies layered with retries / timeouts — mirrors production resilience patterns without
+///     external services.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -51,7 +52,7 @@ public sealed class SimmyChaosPipelineTests
                 {
                     MaxRetryAttempts = 4,
                     Delay = TimeSpan.FromMilliseconds(1),
-                    ShouldHandle = new PredicateBuilder().Handle<Exception>(SqlTransientDetector.IsTransient),
+                    ShouldHandle = new PredicateBuilder().Handle<Exception>(SqlTransientDetector.IsTransient)
                 })
             .AddChaosFault(chaosOptions)
             .Build();

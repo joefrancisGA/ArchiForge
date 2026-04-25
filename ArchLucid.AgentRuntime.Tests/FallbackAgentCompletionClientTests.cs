@@ -8,7 +8,7 @@ using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
-/// <summary>Unit tests for <see cref="FallbackAgentCompletionClient"/>.</summary>
+/// <summary>Unit tests for <see cref="FallbackAgentCompletionClient" />.</summary>
 [Trait("Category", "Unit")]
 public sealed class FallbackAgentCompletionClientTests
 {

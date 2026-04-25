@@ -7,14 +7,16 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Resolves a SQL Server connection (environment variable or Windows LocalDB), ensures the test catalog exists,
-/// applies embedded <see cref="DatabaseMigrator"/> scripts (core Data-layer tables) and a minimal SQL supplement
-/// for persistence-only tables (AuditEvents, ConversationThreads, ProvenanceSnapshots) that DbUp omits.
+///     Resolves a SQL Server connection (environment variable or Windows LocalDB), ensures the test catalog exists,
+///     applies embedded <see cref="DatabaseMigrator" /> scripts (core Data-layer tables) and a minimal SQL supplement
+///     for persistence-only tables (AuditEvents, ConversationThreads, ProvenanceSnapshots) that DbUp omits.
 /// </summary>
 /// <remarks>
-/// No Docker/Testcontainers dependency in this fixture. When <see cref="EnvironmentConnectionStringVariable"/> is unset and LocalDB
-/// is unavailable, <see cref="IsSqlServerAvailable"/> is false and SQL integration tests should skip
-/// (see <c>Xunit.SkippableFact</c>). You can still filter with <c>dotnet test --filter "Category!=SqlServerContainer"</c>.
+///     No Docker/Testcontainers dependency in this fixture. When <see cref="EnvironmentConnectionStringVariable" /> is
+///     unset and LocalDB
+///     is unavailable, <see cref="IsSqlServerAvailable" /> is false and SQL integration tests should skip
+///     (see <c>Xunit.SkippableFact</c>). You can still filter with
+///     <c>dotnet test --filter "Category!=SqlServerContainer"</c>.
 /// </remarks>
 public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 {
@@ -24,7 +26,10 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     /// <summary>Full SQL Server connection string; when set, this is the only source tried and failures fail the fixture.</summary>
     public const string EnvironmentConnectionStringVariable = TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable;
 
-    /// <summary>Message passed to Xunit.SkippableFact <c>Skip</c> when no SQL Server could be reached without an explicit env connection string.</summary>
+    /// <summary>
+    ///     Message passed to Xunit.SkippableFact <c>Skip</c> when no SQL Server could be reached without an explicit env
+    ///     connection string.
+    /// </summary>
     public const string SqlServerUnavailableSkipReason =
         "No SQL Server for persistence tests (install LocalDB on Windows or set " + EnvironmentConnectionStringVariable
         + "). Or run: dotnet test --filter \"Category!=SqlServerContainer\".";
@@ -32,11 +37,16 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     /// <summary>True after a successful connection and schema migration.</summary>
     public bool IsSqlServerAvailable
     {
-        get; private set;
+        get;
+        private set;
     }
 
-    /// <summary>Connection string after <see cref="InitializeAsync"/> when <see cref="IsSqlServerAvailable"/> is true.</summary>
-    public string ConnectionString { get; private set; } = string.Empty;
+    /// <summary>Connection string after <see cref="InitializeAsync" /> when <see cref="IsSqlServerAvailable" /> is true.</summary>
+    public string ConnectionString
+    {
+        get;
+        private set;
+    } = string.Empty;
 
     public async Task InitializeAsync()
     {
@@ -45,7 +55,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         if (!string.IsNullOrWhiteSpace(fromEnv))
         {
             await InitializeFromExplicitConnectionStringOrThrowAsync(
-                SqlServerIntegrationTestConnections.NormalizePersistenceConnectionString(fromEnv.Trim(), DefaultTestDatabaseName));
+                SqlServerIntegrationTestConnections.NormalizePersistenceConnectionString(fromEnv.Trim(),
+                    DefaultTestDatabaseName));
 
             return;
         }
@@ -57,7 +68,10 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         ConnectionString = string.Empty;
     }
 
-    public Task DisposeAsync() => Task.CompletedTask;
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
 
     private async Task InitializeFromExplicitConnectionStringOrThrowAsync(string connectionString)
     {
@@ -76,7 +90,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         {
             throw new InvalidOperationException(
                 "SQL persistence tests require a reachable server when " + EnvironmentConnectionStringVariable
-                + " is set. See inner exception.",
+                                                                         + " is set. See inner exception.",
                 ex);
         }
     }
@@ -113,8 +127,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     }
 
     /// <summary>
-    /// Applies <c>PersistenceContractSupplement.sql</c>: tables DbUp does not create, without the
-    /// FK-hardening blocks from full <c>ArchLucid.sql</c> (those require seeded authority-chain rows).
+    ///     Applies <c>PersistenceContractSupplement.sql</c>: tables DbUp does not create, without the
+    ///     FK-hardening blocks from full <c>ArchLucid.sql</c> (those require seeded authority-chain rows).
     /// </summary>
     private static async Task RunPersistenceContractSupplementAsync(string connectionString)
     {

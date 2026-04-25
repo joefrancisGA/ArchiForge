@@ -5,8 +5,9 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Regression guard: versioned API controllers should not return bare MVC <c>NotFound()</c> / <c>Conflict</c>,
-/// bare numeric <c>StatusCode(404)</c>, or <c>StatusCode(StatusCodes.Status404NotFound)</c> without RFC 9457 Problem Details (see <c>docs/API_ERROR_CONTRACT.md</c>).
+///     Regression guard: versioned API controllers should not return bare MVC <c>NotFound()</c> / <c>Conflict</c>,
+///     bare numeric <c>StatusCode(404)</c>, or <c>StatusCode(StatusCodes.Status404NotFound)</c> without RFC 9457 Problem
+///     Details (see <c>docs/API_ERROR_CONTRACT.md</c>).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -31,7 +32,8 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
             dir = dir.Parent;
         }
 
-        throw new InvalidOperationException("Could not locate ArchLucid.sln / ArchLucid.Api/Controllers from test base directory.");
+        throw new InvalidOperationException(
+            "Could not locate ArchLucid.sln / ArchLucid.Api/Controllers from test base directory.");
     }
 
     [Fact]
@@ -51,7 +53,8 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
         Regex statusCodeNamed404 = new(
             @"\breturn\s+StatusCode\s*\(\s*StatusCodes\.Status404NotFound\s*\)\s*;",
             RegexOptions.CultureInvariant);
-        Regex objectResultWithStatus = new(@"new\s+ObjectResult\s*\([^)]*\)\s*\{[^}]*StatusCode\s*=", RegexOptions.CultureInvariant);
+        Regex objectResultWithStatus = new(@"new\s+ObjectResult\s*\([^)]*\)\s*\{[^}]*StatusCode\s*=",
+            RegexOptions.CultureInvariant);
         List<string> violations = [];
 
         foreach (string file in files)
@@ -75,7 +78,8 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
 
             if (bareStatusCode.IsMatch(text))
             {
-                violations.Add($"{file}: bare StatusCode(nnn) — use Problem/IActionResult factory per docs/API_ERROR_CONTRACT.md");
+                violations.Add(
+                    $"{file}: bare StatusCode(nnn) — use Problem/IActionResult factory per docs/API_ERROR_CONTRACT.md");
             }
 
             if (statusCodeNamed404.IsMatch(text))

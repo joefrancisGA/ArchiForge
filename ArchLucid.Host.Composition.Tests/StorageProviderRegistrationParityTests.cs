@@ -13,11 +13,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
+using SqlConnectionFactory = ArchLucid.Persistence.Connections.SqlConnectionFactory;
+
 namespace ArchLucid.Host.Composition.Tests;
 
 /// <summary>
-/// Ensures <see cref="ArchLucidStorageServiceCollectionExtensions.AddArchLucidStorage"/> registers the same
-/// <see cref="ServiceDescriptor.ServiceType"/> surface for InMemory and Sql except for known provider-specific types.
+///     Ensures <see cref="ArchLucidStorageServiceCollectionExtensions.AddArchLucidStorage" /> registers the same
+///     <see cref="ServiceDescriptor.ServiceType" /> surface for InMemory and Sql except for known provider-specific types.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -25,7 +27,7 @@ public sealed class StorageProviderRegistrationParityTests
 {
     private static readonly HashSet<Type> SqlOnlyServiceTypes =
     [
-        typeof(Persistence.Connections.SqlConnectionFactory),
+        typeof(SqlConnectionFactory),
         typeof(ResilientSqlConnectionFactory),
         typeof(IRlsSessionContextApplicator),
         typeof(ISqlConnectionFactory),
@@ -36,12 +38,12 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IDbConnectionFactory),
         typeof(IOptionsChangeTokenSource<SqlServerOptions>),
         typeof(IConfigureOptions<SqlServerOptions>),
-        typeof(ITenantOnboardingStateRepository),
+        typeof(ITenantOnboardingStateRepository)
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
     [
-        typeof(IOutboxOperationalMetricsReader),
+        typeof(IOutboxOperationalMetricsReader)
     ];
 
     [Fact]
@@ -57,10 +59,10 @@ public sealed class StorageProviderRegistrationParityTests
         IEnumerable<Type> unexpectedSql = onlyInSql.Where(t => !SqlOnlyServiceTypes.Contains(t));
 
         unexpectedInMemory.Should().BeEmpty(
-            because: "every service type registered only for InMemory should be allowlisted (or added to both paths)");
+            "every service type registered only for InMemory should be allowlisted (or added to both paths)");
 
         unexpectedSql.Should().BeEmpty(
-            because: "every service type registered only for Sql should be allowlisted (or added to both paths)");
+            "every service type registered only for Sql should be allowlisted (or added to both paths)");
     }
 
     [Fact]
@@ -124,7 +126,7 @@ public sealed class StorageProviderRegistrationParityTests
                     ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
                     ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
                     ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                    ["RateLimiting:Expensive:WindowMinutes"] = "1"
                 })
             .Build();
     }
@@ -150,7 +152,7 @@ public sealed class StorageProviderRegistrationParityTests
                     ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
                     ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
                     ["RateLimiting:Expensive:PermitLimit"] = "100000",
-                    ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                    ["RateLimiting:Expensive:WindowMinutes"] = "1"
                 })
             .Build();
     }

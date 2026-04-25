@@ -11,11 +11,14 @@ public sealed class InMemoryValueReportMetricsReader : IValueReportMetricsReader
         0,
         0,
         0,
-        TenantBaselineReviewCycleHours: null,
-        TenantBaselineReviewCycleSource: null,
-        TenantBaselineReviewCycleCapturedUtc: null,
-        MeasuredAverageReviewCycleHoursForWindow: null,
-        MeasuredReviewCycleSampleSize: 0);
+        null,
+        null,
+        null,
+        null,
+        0,
+        null,
+        null,
+        null);
 
     public Task<ValueReportRawMetrics> ReadAsync(
         Guid tenantId,

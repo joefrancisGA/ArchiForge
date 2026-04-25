@@ -6,14 +6,17 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Advisory.Analysis;
 
 /// <summary>
-/// Default <see cref="IImprovementSignalAnalyzer"/> implementation driven by manifest gaps and <see cref="ComparisonResult"/> deltas.
+///     Default <see cref="IImprovementSignalAnalyzer" /> implementation driven by manifest gaps and
+///     <see cref="ComparisonResult" /> deltas.
 /// </summary>
 public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 {
     private const string ChangeTypeRemoved = "Removed";
+
     /// <inheritdoc />
     /// <remarks>
-    /// Currently does not read individual findings from <paramref name="findingsSnapshot"/>; extension points use manifest and comparison only.
+    ///     Currently does not read individual findings from <paramref name="findingsSnapshot" />; extension points use
+    ///     manifest and comparison only.
     /// </remarks>
     public IReadOnlyList<ImprovementSignal> Analyze(
         GoldenManifest manifest,
@@ -54,7 +57,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                 Severity = ImprovementSignalSeverities.High,
                 FindingIds = uncovered.SupportingFindingIds.ToList()
             });
-
     }
 
     private static void AnalyzeSecuritySignals(GoldenManifest manifest, List<ImprovementSignal> signals)
@@ -69,7 +71,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                 Description = gap,
                 Severity = ImprovementSignalSeverities.High
             });
-
     }
 
     private static void AnalyzeComplianceSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
@@ -84,7 +85,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                 Description = gap,
                 Severity = ImprovementSignalSeverities.High
             });
-
     }
 
     private static void AnalyzePolicyViolationSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
@@ -115,7 +115,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                 Description = gap,
                 Severity = ImprovementSignalSeverities.Medium
             });
-
     }
 
     private static void AnalyzeCostSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
@@ -130,7 +129,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                 Description = risk,
                 Severity = ImprovementSignalSeverities.Medium
             });
-
     }
 
     private static void AnalyzeUnresolvedIssueSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
@@ -170,7 +168,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                 });
 
 
-
         foreach (CostDelta delta in comparison.CostChanges)
 
             if (delta is { BaseCost: not null, TargetCost: not null } && delta.TargetCost > delta.BaseCost)
@@ -185,7 +182,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                 });
 
 
-
         foreach (DecisionDelta d in comparison.DecisionChanges)
 
             if (string.Equals(d.ChangeType, ChangeTypeRemoved, StringComparison.OrdinalIgnoreCase))
@@ -198,7 +194,5 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                     Description = $"Previously: {d.BaseValue ?? "—"}",
                     Severity = ImprovementSignalSeverities.Medium
                 });
-
-
     }
 }

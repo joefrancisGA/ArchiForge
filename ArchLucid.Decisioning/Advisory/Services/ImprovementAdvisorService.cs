@@ -25,7 +25,7 @@ public sealed class ImprovementAdvisorService(
         ArgumentNullException.ThrowIfNull(findingsSnapshot);
 
         RecommendationLearningProfile? profile = await learningService
-            .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
+                .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
             ;
 
         IReadOnlyList<ImprovementSignal> signals = signalAnalyzer.Analyze(manifest, findingsSnapshot);
@@ -51,7 +51,7 @@ public sealed class ImprovementAdvisorService(
         ArgumentNullException.ThrowIfNull(comparison);
 
         RecommendationLearningProfile? profile = await learningService
-            .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
+                .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
             ;
 
         IReadOnlyList<ImprovementSignal> signals = signalAnalyzer.Analyze(manifest, findingsSnapshot, comparison);

@@ -4,8 +4,8 @@ using ArchLucid.Persistence.Connections;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="AlertRuleRepositoryContractTests"/> against <see cref="DapperAlertRuleRepository"/>
-/// backed by a real SQL Server instance (<see cref="SqlServerPersistenceFixture"/>).
+///     Runs <see cref="AlertRuleRepositoryContractTests" /> against <see cref="DapperAlertRuleRepository" />
+///     backed by a real SQL Server instance (<see cref="SqlServerPersistenceFixture" />).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

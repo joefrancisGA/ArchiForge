@@ -17,9 +17,7 @@ public sealed class ArtifactBlobTenantPathsTests
         mock.Setup(static m => m.GetCurrentScope()).Returns(
             new ScopeContext
             {
-                TenantId = tenantId,
-                WorkspaceId = ScopeIds.DefaultWorkspace,
-                ProjectId = ScopeIds.DefaultProject,
+                TenantId = tenantId, WorkspaceId = ScopeIds.DefaultWorkspace, ProjectId = ScopeIds.DefaultProject
             });
 
         return mock.Object;

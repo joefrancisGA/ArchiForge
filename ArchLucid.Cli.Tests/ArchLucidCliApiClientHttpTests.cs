@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Requests;
@@ -8,7 +9,7 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Unit tests for ArchLucidApiClient using mocked HTTP (no real API).
+///     Unit tests for ArchLucidApiClient using mocked HTTP (no real API).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ArchLucidApiClientHttpTests
@@ -21,42 +22,40 @@ public sealed class ArchLucidApiClientHttpTests
     private static ArchLucidApiClient CreateClient(HttpResponseMessage response)
     {
         MockHttpMessageHandler handler = new(response);
-        HttpClient http = new(handler)
-        {
-            BaseAddress = new Uri("http://localhost")
-        };
+        HttpClient http = new(handler) { BaseAddress = new Uri("http://localhost") };
         return new ArchLucidApiClient(http);
     }
 
-    private static ArchitectureRequest CreateValidRequest() => new()
+    private static ArchitectureRequest CreateValidRequest()
     {
-        RequestId = Guid.NewGuid().ToString("N"),
-        Description = "A test architecture request with enough length",
-        SystemName = "TestSystem",
-        Environment = "prod"
-    };
+        return new ArchitectureRequest
+        {
+            RequestId = Guid.NewGuid().ToString("N"),
+            Description = "A test architecture request with enough length",
+            SystemName = "TestSystem",
+            Environment = "prod"
+        };
+    }
 
     [Fact]
     public async Task CreateRunAsync_On201_ReturnsSuccessAndRunId()
     {
         string runId = "run-abc-123";
-        string json = JsonSerializer.Serialize(new
-        {
-            run = new
+        string json = JsonSerializer.Serialize(
+            new
             {
-                runId,
-                requestId = "req-1",
-                status = 0,
-                createdUtc = DateTime.UtcNow,
-                currentManifestVersion = (string?)null
-            },
-            tasks = Array.Empty<object>()
-        }, SJsonCamelCase);
-        HttpResponseMessage response = new(HttpStatusCode.Created)
-        {
-            Content = new StringContent(json)
-        };
-        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                run = new
+                {
+                    runId,
+                    requestId = "req-1",
+                    status = 0,
+                    createdUtc = DateTime.UtcNow,
+                    currentManifestVersion = (string?)null
+                },
+                tasks = Array.Empty<object>()
+            }, SJsonCamelCase);
+        HttpResponseMessage response = new(HttpStatusCode.Created) { Content = new StringContent(json) };
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
         ArchLucidApiClient.CreateRunResult result = await client.CreateRunAsync(CreateValidRequest());
@@ -70,15 +69,9 @@ public sealed class ArchLucidApiClientHttpTests
     [Fact]
     public async Task CreateRunAsync_On400_ReturnsFailureWithParsedError()
     {
-        string json = JsonSerializer.Serialize(new
-        {
-            detail = "Validation failed"
-        });
-        HttpResponseMessage response = new(HttpStatusCode.BadRequest)
-        {
-            Content = new StringContent(json)
-        };
-        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+        string json = JsonSerializer.Serialize(new { detail = "Validation failed" });
+        HttpResponseMessage response = new(HttpStatusCode.BadRequest) { Content = new StringContent(json) };
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
         ArchLucidApiClient.CreateRunResult result = await client.CreateRunAsync(CreateValidRequest());
@@ -92,24 +85,22 @@ public sealed class ArchLucidApiClientHttpTests
     public async Task GetRunAsync_On200_ReturnsGetRunResult()
     {
         string runId = "run-x";
-        string json = JsonSerializer.Serialize(new
-        {
-            run = new
+        string json = JsonSerializer.Serialize(
+            new
             {
-                runId,
-                requestId = "req-1",
-                status = 0,
-                createdUtc = DateTime.UtcNow,
-                currentManifestVersion = (string?)null
-            },
-            tasks = Array.Empty<object>(),
-            results = Array.Empty<object>()
-        }, SJsonCamelCase);
-        HttpResponseMessage response = new(HttpStatusCode.OK)
-        {
-            Content = new StringContent(json)
-        };
-        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                run = new
+                {
+                    runId,
+                    requestId = "req-1",
+                    status = 0,
+                    createdUtc = DateTime.UtcNow,
+                    currentManifestVersion = (string?)null
+                },
+                tasks = Array.Empty<object>(),
+                results = Array.Empty<object>()
+            }, SJsonCamelCase);
+        HttpResponseMessage response = new(HttpStatusCode.OK) { Content = new StringContent(json) };
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
         ArchLucidApiClient.GetRunResult? result = await client.GetRunAsync(runId);
@@ -135,24 +126,17 @@ public sealed class ArchLucidApiClientHttpTests
     public async Task CommitRunAsync_On200_ReturnsSuccessAndManifestVersion()
     {
         string version = "v2";
-        string json = JsonSerializer.Serialize(new
-        {
-            manifest = new
+        string json = JsonSerializer.Serialize(
+            new
             {
-                runId = "run-1",
-                systemName = "Test",
-                metadata = new
+                manifest = new
                 {
-                    manifestVersion = version
-                }
-            },
-            warnings = Array.Empty<string>()
-        }, SJsonCamelCase);
-        HttpResponseMessage response = new(HttpStatusCode.OK)
-        {
-            Content = new StringContent(json)
-        };
-        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                    runId = "run-1", systemName = "Test", metadata = new { manifestVersion = version }
+                },
+                warnings = Array.Empty<string>()
+            }, SJsonCamelCase);
+        HttpResponseMessage response = new(HttpStatusCode.OK) { Content = new StringContent(json) };
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
         ArchLucidApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
@@ -166,15 +150,9 @@ public sealed class ArchLucidApiClientHttpTests
     [Fact]
     public async Task CommitRunAsync_On409_ReturnsFailureWithHttpStatusCode()
     {
-        string json = JsonSerializer.Serialize(new
-        {
-            detail = "Conflict with current state."
-        });
-        HttpResponseMessage response = new(HttpStatusCode.Conflict)
-        {
-            Content = new StringContent(json)
-        };
-        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+        string json = JsonSerializer.Serialize(new { detail = "Conflict with current state." });
+        HttpResponseMessage response = new(HttpStatusCode.Conflict) { Content = new StringContent(json) };
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         ArchLucidApiClient client = CreateClient(response);
         ArchLucidApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
@@ -209,7 +187,8 @@ public sealed class ArchLucidApiClientHttpTests
 
     private sealed class MockHttpMessageHandler(HttpResponseMessage response) : HttpMessageHandler
     {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             return Task.FromResult(response);
         }

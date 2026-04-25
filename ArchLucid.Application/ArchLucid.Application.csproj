@@ -13,12 +13,52 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Konscious.Security.Cryptography.Argon2" />
     <PackageReference Include="DocumentFormat.OpenXml" />
+    <PackageReference Include="OpenTelemetry.Api" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="QuestPDF" />
     <PackageReference Include="RazorLight" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Notifications\Email\Templates\*.cshtml" />
+  </ItemGroup>
+
+  <!--
+    Trust Center evidence-pack source files.
+    Embedded so the ZIP endpoint works in WebApplicationFactory integration tests
+    and in published Docker images without depending on ContentRootPath layout.
+    LogicalName controls the manifest resource name; the entry name inside the
+    ZIP is derived from the trailing segment after `EvidencePack.`.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\docs\go-to-market\DPA_TEMPLATE.md">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.DPA-template.md</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\docs\go-to-market\SUBPROCESSORS.md">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.SUBPROCESSORS.md</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\docs\go-to-market\SLA_SUMMARY.md">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.SLA-summary.md</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\archlucid-ui\public\.well-known\security.txt">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.security.txt</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\docs\security\CAIQ_LITE_2026.md">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.CAIQ-Lite.md</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\docs\security\SIG_CORE_2026.md">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.SIG-Core.md</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\docs\security\OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\docs\security\pen-test-summaries\2026-Q2-SOW.md">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.PEN_TEST_SOW_2026_Q2.md</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\docs\library\AUDIT_COVERAGE_MATRIX.md">
+      <LogicalName>ArchLucid.Application.Marketing.EvidencePack.AUDIT_COVERAGE_MATRIX.md</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />

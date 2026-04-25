@@ -27,39 +27,39 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         await EnsureThemeScopeMatchesAsync(connection, plan.ThemeId, plan, cancellationToken);
 
         const string sql = """
-            INSERT INTO dbo.ProductLearningImprovementPlans
-            (
-                PlanId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                ThemeId,
-                Title,
-                Summary,
-                BoundedActionsJson,
-                PriorityScore,
-                PriorityExplanation,
-                Status,
-                CreatedUtc,
-                CreatedByUserId
-            )
-            VALUES
-            (
-                @PlanId,
-                @TenantId,
-                @WorkspaceId,
-                @ProjectId,
-                @ThemeId,
-                @Title,
-                @Summary,
-                @BoundedActionsJson,
-                @PriorityScore,
-                @PriorityExplanation,
-                @Status,
-                @CreatedUtc,
-                @CreatedByUserId
-            );
-            """;
+                           INSERT INTO dbo.ProductLearningImprovementPlans
+                           (
+                               PlanId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               ThemeId,
+                               Title,
+                               Summary,
+                               BoundedActionsJson,
+                               PriorityScore,
+                               PriorityExplanation,
+                               Status,
+                               CreatedUtc,
+                               CreatedByUserId
+                           )
+                           VALUES
+                           (
+                               @PlanId,
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId,
+                               @ThemeId,
+                               @Title,
+                               @Summary,
+                               @BoundedActionsJson,
+                               @PriorityScore,
+                               @PriorityExplanation,
+                               @Status,
+                               @CreatedUtc,
+                               @CreatedByUserId
+                           );
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -75,10 +75,10 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
                     plan.Summary,
                     BoundedActionsJson = actionsJson,
                     plan.PriorityScore,
-                    PriorityExplanation = plan.PriorityExplanation,
+                    plan.PriorityExplanation,
                     Status = status,
                     CreatedUtc = createdUtc,
-                    CreatedByUserId = plan.CreatedByUserId
+                    plan.CreatedByUserId
                 },
                 cancellationToken: cancellationToken));
     }
@@ -91,39 +91,34 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         const string sql = """
-            SELECT
-                PlanId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                ThemeId,
-                Title,
-                Summary,
-                BoundedActionsJson,
-                PriorityScore,
-                PriorityExplanation,
-                Status,
-                CreatedUtc,
-                CreatedByUserId
-            FROM dbo.ProductLearningImprovementPlans
-            WHERE PlanId = @PlanId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId;
-            """;
+                           SELECT
+                               PlanId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               ThemeId,
+                               Title,
+                               Summary,
+                               BoundedActionsJson,
+                               PriorityScore,
+                               PriorityExplanation,
+                               Status,
+                               CreatedUtc,
+                               CreatedByUserId
+                           FROM dbo.ProductLearningImprovementPlans
+                           WHERE PlanId = @PlanId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        ProductLearningImprovementPlanSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningImprovementPlanSqlRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    PlanId = planId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
-                },
-                cancellationToken: cancellationToken));
+        ProductLearningImprovementPlanSqlRow? row =
+            await connection.QuerySingleOrDefaultAsync<ProductLearningImprovementPlanSqlRow>(
+                new CommandDefinition(
+                    sql,
+                    new { PlanId = planId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                    cancellationToken: cancellationToken));
 
         return row is null ? null : MapPlan(row);
     }
@@ -137,39 +132,34 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         ProductLearningPlanningRepositoryValidation.EnsureTake(take);
 
         const string sql = """
-            SELECT TOP (@Take)
-                PlanId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                ThemeId,
-                Title,
-                Summary,
-                BoundedActionsJson,
-                PriorityScore,
-                PriorityExplanation,
-                Status,
-                CreatedUtc,
-                CreatedByUserId
-            FROM dbo.ProductLearningImprovementPlans
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-            ORDER BY CreatedUtc DESC, PlanId ASC;
-            """;
+                           SELECT TOP (@Take)
+                               PlanId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               ThemeId,
+                               Title,
+                               Summary,
+                               BoundedActionsJson,
+                               PriorityScore,
+                               PriorityExplanation,
+                               Status,
+                               CreatedUtc,
+                               CreatedByUserId
+                           FROM dbo.ProductLearningImprovementPlans
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC, PlanId ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        IEnumerable<ProductLearningImprovementPlanSqlRow> rows = await connection.QueryAsync<ProductLearningImprovementPlanSqlRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    Take = take,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
-                },
-                cancellationToken: cancellationToken));
+        IEnumerable<ProductLearningImprovementPlanSqlRow> rows =
+            await connection.QueryAsync<ProductLearningImprovementPlanSqlRow>(
+                new CommandDefinition(
+                    sql,
+                    new { Take = take, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                    cancellationToken: cancellationToken));
 
         return rows.Select(static r => MapPlan(r)).ToList();
     }
@@ -184,41 +174,42 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         ProductLearningPlanningRepositoryValidation.EnsureTake(take);
 
         const string sql = """
-            SELECT TOP (@Take)
-                PlanId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                ThemeId,
-                Title,
-                Summary,
-                BoundedActionsJson,
-                PriorityScore,
-                PriorityExplanation,
-                Status,
-                CreatedUtc,
-                CreatedByUserId
-            FROM dbo.ProductLearningImprovementPlans
-            WHERE ThemeId = @ThemeId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-            ORDER BY CreatedUtc DESC, PlanId ASC;
-            """;
+                           SELECT TOP (@Take)
+                               PlanId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               ThemeId,
+                               Title,
+                               Summary,
+                               BoundedActionsJson,
+                               PriorityScore,
+                               PriorityExplanation,
+                               Status,
+                               CreatedUtc,
+                               CreatedByUserId
+                           FROM dbo.ProductLearningImprovementPlans
+                           WHERE ThemeId = @ThemeId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC, PlanId ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        IEnumerable<ProductLearningImprovementPlanSqlRow> rows = await connection.QueryAsync<ProductLearningImprovementPlanSqlRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    ThemeId = themeId,
-                    Take = take,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
-                },
-                cancellationToken: cancellationToken));
+        IEnumerable<ProductLearningImprovementPlanSqlRow> rows =
+            await connection.QueryAsync<ProductLearningImprovementPlanSqlRow>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        ThemeId = themeId,
+                        Take = take,
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId
+                    },
+                    cancellationToken: cancellationToken));
 
         return rows.Select(static r => MapPlan(r)).ToList();
     }
@@ -253,16 +244,13 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT TenantId, WorkspaceId, ProjectId
-            FROM dbo.ProductLearningImprovementThemes
-            WHERE ThemeId = @ThemeId;
-            """;
+                           SELECT TenantId, WorkspaceId, ProjectId
+                           FROM dbo.ProductLearningImprovementThemes
+                           WHERE ThemeId = @ThemeId;
+                           """;
 
         ProductLearningScopeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningScopeSqlRow>(
-            new CommandDefinition(sql, new
-            {
-                ThemeId = themeId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { ThemeId = themeId }, cancellationToken: cancellationToken));
 
         if (row is null)
             throw new InvalidOperationException("Theme not found for ThemeId=" + themeId + ".");
@@ -271,6 +259,5 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         if (row.TenantId != plan.TenantId || row.WorkspaceId != plan.WorkspaceId || row.ProjectId != plan.ProjectId)
 
             throw new InvalidOperationException("Plan scope must match the parent theme scope.");
-
     }
 }

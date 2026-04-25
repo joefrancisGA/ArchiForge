@@ -46,6 +46,7 @@
 | **`archlucid_explanation_aggregate_faithfulness_fallback_total`** | Counter | — | Aggregate **`GET …/explain/runs/{runId}/aggregate`** replaced LLM narrative with deterministic manifest text after low faithfulness vs findings. |
 | **`archlucid_data_consistency_orphans_detected_total`** | Counter | **`table`**, **`column`** | Rows counted by **`DataConsistencyOrphanProbeHostedService`** when **`dbo.ComparisonRecords`** (**`LeftRunId`** / **`RightRunId`**), **`dbo.GoldenManifests`**, or **`dbo.FindingsSnapshots`** reference a **`RunId`** missing from **`dbo.Runs`** (detection-only). |
 | **`archlucid_data_consistency_alerts_total`** | Counter | **`table`**, **`column`** | Incremented when **`DataConsistency:Enforcement:Mode`** is **`Alert`** or **`Quarantine`** and orphan counts meet **`AlertThreshold`** for that slice. |
+| **`archlucid_data_consistency_orphans_quarantined_total`** | Counter | **`table`**, **`column`** | Rows inserted into **`dbo.DataConsistencyQuarantine`** from the orphan probe when **`DataConsistency:Enforcement:Mode`** is **`Quarantine`** or **`AutoQuarantine`** is **true** (golden-manifest orphans only; labels mirror detection). |
 | **`archlucid_explanation_citations_emitted_total`** | Counter | **`kind`** (`CitationKind` string) | Citation references attached to **`GET /v1/explain/runs/{runId}/aggregate`** for UI chips. |
 
 For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**.

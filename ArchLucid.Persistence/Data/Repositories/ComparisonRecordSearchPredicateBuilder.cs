@@ -3,7 +3,7 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Shared WHERE clauses and parameters for comparison record search (skip vs cursor paging).
+///     Shared WHERE clauses and parameters for comparison record search (skip vs cursor paging).
 /// </summary>
 internal static class ComparisonRecordSearchPredicateBuilder
 {

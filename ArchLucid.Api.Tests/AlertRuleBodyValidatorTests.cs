@@ -3,12 +3,13 @@ using ArchLucid.Decisioning.Alerts;
 
 using FluentAssertions;
 
+using FluentValidation.Results;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Alert Rule Body Validator.
+///     Tests for Alert Rule Body Validator.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class AlertRuleBodyValidatorTests
 {
@@ -17,14 +18,9 @@ public sealed class AlertRuleBodyValidatorTests
     [Fact]
     public void Validate_Fails_WhenNameEmpty()
     {
-        AlertRule rule = new()
-        {
-            Name = "",
-            RuleType = "FindingCount",
-            Severity = "Warning"
-        };
+        AlertRule rule = new() { Name = "", RuleType = "FindingCount", Severity = "Warning" };
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(rule);
+        ValidationResult result = _validator.Validate(rule);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(AlertRule.Name));
@@ -33,14 +29,9 @@ public sealed class AlertRuleBodyValidatorTests
     [Fact]
     public void Validate_Succeeds_WhenRequiredFieldsPresent()
     {
-        AlertRule rule = new()
-        {
-            Name = "n",
-            RuleType = "FindingCount",
-            Severity = "Warning"
-        };
+        AlertRule rule = new() { Name = "n", RuleType = "FindingCount", Severity = "Warning" };
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(rule);
+        ValidationResult result = _validator.Validate(rule);
 
         result.IsValid.Should().BeTrue();
     }

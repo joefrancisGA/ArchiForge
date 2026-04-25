@@ -14,7 +14,7 @@ public sealed class BillingPlanMutationPolicyTests
         BillingOptions billing = new()
         {
             Provider = BillingProviderNames.Stripe,
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false }
         };
 
         BillingPlanMutationPolicy.WebhookPlanMutationsEnabled(billing).Should().BeTrue();
@@ -26,7 +26,7 @@ public sealed class BillingPlanMutationPolicyTests
         BillingOptions billing = new()
         {
             Provider = BillingProviderNames.AzureMarketplace,
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false }
         };
 
         BillingPlanMutationPolicy.WebhookPlanMutationsEnabled(billing).Should().BeFalse();

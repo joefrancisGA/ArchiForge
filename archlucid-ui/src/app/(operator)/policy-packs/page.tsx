@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -308,7 +310,12 @@ export default function PolicyPacksPage() {
   return (
     <main style={{ maxWidth: 960 }}>
       <LayerHeader pageKey="policy-packs" />
-      <h2 style={{ marginTop: 0 }}>Policy packs</h2>
+      <div className="m-0 flex flex-wrap items-center gap-2">
+        <h2 className="m-0">
+          <GlossaryTooltip termKey="policy_pack">Policy packs</GlossaryTooltip>
+        </h2>
+        <ContextualHelp helpKey="policy-packs" />
+      </div>
       <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
         {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">

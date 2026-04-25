@@ -35,6 +35,8 @@ vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
 });
 
 vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/alerts",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));
 
@@ -77,8 +79,8 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-import AlertRoutingPage from "./alert-routing/page";
-import AlertsPage from "./alerts/page";
+import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
+import { AlertsInboxContent } from "@/components/alerts/AlertsInboxContent";
 import GovernanceWorkflowPage from "./governance/page";
 import PolicyPacksPage from "./policy-packs/page";
 
@@ -163,7 +165,7 @@ describe("authority-shaped layout regression", () => {
    */
   it("Alerts inbox: triage section deemphasized when mutation capability is false", async () => {
     mutateCapability.current = false;
-    render(<AlertsPage />);
+    render(<AlertsInboxContent />);
 
     await waitFor(() => {
       expect(screen.getByRole("article")).toBeInTheDocument();
@@ -180,7 +182,7 @@ describe("authority-shaped layout regression", () => {
    */
   it("Alert routing: delivery inspect button precedes enable/disable on a subscription row", async () => {
     mutateCapability.current = true;
-    render(<AlertRoutingPage />);
+    render(<AlertRoutingContent />);
 
     await waitFor(() => {
       expect(screen.getByText("Layout fixture subscription")).toBeInTheDocument();

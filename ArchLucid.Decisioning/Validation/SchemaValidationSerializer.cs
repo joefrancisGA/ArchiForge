@@ -17,4 +17,3 @@ public static class SchemaValidationSerializer
         return JsonSerializer.Serialize(value, JsonOptions);
     }
 }
-

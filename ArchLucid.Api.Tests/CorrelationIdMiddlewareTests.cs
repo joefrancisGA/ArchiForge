@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="CorrelationIdMiddleware"/>.
+///     Unit tests for <see cref="CorrelationIdMiddleware" />.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

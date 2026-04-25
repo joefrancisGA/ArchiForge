@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
@@ -10,7 +12,7 @@ public sealed class Migration101_BaselineReviewCycleColumnsTests
     [Fact]
     public void Embedded_101_migration_adds_baseline_columns_and_positive_check()
     {
-        Assembly asm = typeof(ArchLucid.Persistence.Data.Infrastructure.DatabaseMigrator).Assembly;
+        Assembly asm = typeof(DatabaseMigrator).Assembly;
 
         string? resourceName = asm.GetManifestResourceNames()
             .SingleOrDefault(static n => n.EndsWith("101_Tenants_BaselineReviewCycle.sql", StringComparison.Ordinal));

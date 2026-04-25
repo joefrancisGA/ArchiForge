@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -18,6 +19,11 @@ namespace ArchLucid.Application.Tests;
 /// <summary>
 /// <see cref="RunDetailQueryService"/> coverage in the Application test assembly (broken manifest flag, trace load guard).
 /// </summary>
+/// <remarks>
+/// ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> dependency was
+/// removed; decision traces are now read from <see cref="IDecisionTraceRepository"/> using
+/// <see cref="RunRecord.DecisionTraceId"/>.
+/// </remarks>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class RunDetailQueryServiceApplicationTests
@@ -42,7 +48,6 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IAgentTaskRepository> taskRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
         Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
-        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         Mock<IDecisionTraceRepository> authorityTraceRepo = new();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -73,23 +78,25 @@ public sealed class RunDetailQueryServiceApplicationTests
             taskRepo.Object,
             resultRepo.Object,
             unifiedReader.Object,
-            traceRepo.Object,
             authorityTraceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
 
         detail.Should().NotBeNull();
-        detail.Manifest.Should().BeNull();
+        detail!.Manifest.Should().BeNull();
         detail.HasBrokenManifestReference.Should().BeTrue();
-        traceRepo.Verify(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        authorityTraceRepo.Verify(
+            t => t.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
-    public async Task GetRunDetailAsync_when_manifest_resolved_HasBrokenManifestReference_is_false()
+    public async Task GetRunDetailAsync_when_manifest_resolved_and_authority_trace_present_loads_trace()
     {
         ScopeContext scope = NewScope();
         Guid runGuid = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        Guid traceId = Guid.Parse("66666666-6666-6666-6666-66666666aaaa");
         string runN = runGuid.ToString("N");
 
         Mock<IRunRepository> runRepo = new();
@@ -97,7 +104,6 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IAgentTaskRepository> taskRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
         Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
-        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         Mock<IDecisionTraceRepository> authorityTraceRepo = new();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -113,6 +119,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             CreatedUtc = DateTime.UtcNow,
             CurrentManifestVersion = "v1",
+            DecisionTraceId = traceId,
         };
 
         GoldenManifest manifest = new()
@@ -126,13 +133,23 @@ public sealed class RunDetailQueryServiceApplicationTests
             Metadata = new ManifestMetadata { ManifestVersion = "v1" },
         };
 
+        DecisionTrace authorityTrace = RunEventTrace.From(new RunEventTracePayload
+        {
+            TraceId = traceId.ToString("N"),
+            RunId = runN,
+            EventType = "Commit",
+            EventDescription = "authority commit",
+        });
+
         runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
         taskRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         resultRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         unifiedReader
             .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(manifest);
-        traceRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        authorityTraceRepo
+            .Setup(r => r.GetByIdAsync(scope, traceId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityTrace);
 
         RunDetailQueryService sut = new(
             runRepo.Object,
@@ -140,14 +157,13 @@ public sealed class RunDetailQueryServiceApplicationTests
             taskRepo.Object,
             resultRepo.Object,
             unifiedReader.Object,
-            traceRepo.Object,
             authorityTraceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
 
         detail.Should().NotBeNull();
-        detail.HasBrokenManifestReference.Should().BeFalse();
-        traceRepo.Verify(t => t.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()), Times.Once);
+        detail!.HasBrokenManifestReference.Should().BeFalse();
+        detail.DecisionTraces.Should().HaveCount(1);
     }
 }

@@ -25,10 +25,7 @@ public sealed class HostingRoleResolverTests
     [InlineData("bogus", ArchLucidHostingRole.Combined)]
     public void Resolve_WhenSet_returns_expected_role(string raw, ArchLucidHostingRole expected)
     {
-        Dictionary<string, string?> data = new()
-        {
-            ["Hosting:Role"] = raw
-        };
+        Dictionary<string, string?> data = new() { ["Hosting:Role"] = raw };
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
 
         HostingRoleResolver.Resolve(configuration).Should().Be(expected);

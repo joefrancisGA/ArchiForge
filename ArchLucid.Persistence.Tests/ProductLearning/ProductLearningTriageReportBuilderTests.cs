@@ -35,8 +35,8 @@ public sealed class ProductLearningTriageReportBuilderTests
                     RevisionCount = 3,
                     RejectionCount = 1,
                     NeedsFollowUpCount = 0,
-                    DistinctRunCount = 2,
-                },
+                    DistinctRunCount = 2
+                }
             ],
             Opportunities =
             [
@@ -47,8 +47,8 @@ public sealed class ProductLearningTriageReportBuilderTests
                     Summary = "Pilots asked for clearer boundaries.",
                     Severity = "Medium",
                     PriorityRank = 1,
-                    AffectedArtifactTypeOrWorkflowArea = "Diagrams",
-                },
+                    AffectedArtifactTypeOrWorkflowArea = "Diagrams"
+                }
             ],
             TriageQueue =
             [
@@ -63,21 +63,18 @@ public sealed class ProductLearningTriageReportBuilderTests
                     TriageStatus = "Open",
                     FirstSeenUtc = utc,
                     LastSeenUtc = utc,
-                    SuggestedNextAction = "Discuss in triage",
-                },
-            ],
+                    SuggestedNextAction = "Discuss in triage"
+                }
+            ]
         };
 
         ProductLearningTriageReportLimits limits = new()
         {
-            MaxArtifactRows = 5,
-            MaxImprovements = 5,
-            MaxTriagePreview = 5,
-            MaxProblemAreaLines = 4,
+            MaxArtifactRows = 5, MaxImprovements = 5, MaxTriagePreview = 5, MaxProblemAreaLines = 4
         };
 
         ProductLearningTriageReportDocument doc =
-            ProductLearningTriageReportBuilder.Build(summary, limits, sinceUtc: utc);
+            ProductLearningTriageReportBuilder.Build(summary, limits, utc);
 
         doc.TotalSignalsInScope.Should().Be(5);
         doc.DistinctRunsReviewed.Should().Be(2);
@@ -114,7 +111,7 @@ public sealed class ProductLearningTriageReportBuilderTests
                     ArtifactTypeOrHint = "Low pain",
                     RevisionCount = 0,
                     RejectionCount = 0,
-                    NeedsFollowUpCount = 0,
+                    NeedsFollowUpCount = 0
                 },
                 new ArtifactOutcomeTrend
                 {
@@ -122,15 +119,15 @@ public sealed class ProductLearningTriageReportBuilderTests
                     ArtifactTypeOrHint = "High pain",
                     RevisionCount = 2,
                     RejectionCount = 1,
-                    NeedsFollowUpCount = 1,
-                },
-            ],
+                    NeedsFollowUpCount = 1
+                }
+            ]
         };
 
         ProductLearningTriageReportDocument doc = ProductLearningTriageReportBuilder.Build(
             summary,
             new ProductLearningTriageReportLimits { MaxArtifactRows = 10 },
-            sinceUtc: null);
+            null);
 
         doc.ArtifactOutcomes[0].ArtifactLabel.Should().Be("High pain");
         doc.ArtifactOutcomes[1].ArtifactLabel.Should().Be("Low pain");
@@ -143,14 +140,11 @@ public sealed class ProductLearningTriageReportBuilderTests
 
         LearningDashboardSummary summary = new()
         {
-            GeneratedUtc = utc,
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            GeneratedUtc = utc, TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         ProductLearningTriageReportDocument doc =
-            ProductLearningTriageReportBuilder.Build(summary, new ProductLearningTriageReportLimits(), sinceUtc: null);
+            ProductLearningTriageReportBuilder.Build(summary, new ProductLearningTriageReportLimits(), null);
 
         string md = ProductLearningTriageReportMarkdownFormatter.Format(doc);
 

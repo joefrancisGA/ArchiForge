@@ -5,7 +5,8 @@ using ArchLucid.Persistence.Governance;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="PolicyPackAssignmentRepositoryContractTests"/> against <see cref="DapperPolicyPackAssignmentRepository"/>.
+///     Runs <see cref="PolicyPackAssignmentRepositoryContractTests" /> against
+///     <see cref="DapperPolicyPackAssignmentRepository" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

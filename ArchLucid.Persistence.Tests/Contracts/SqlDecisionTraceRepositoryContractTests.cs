@@ -9,7 +9,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="DecisionTraceRepositoryContractTests"/> against <see cref="SqlDecisionTraceRepository"/>.
+///     Runs <see cref="DecisionTraceRepositoryContractTests" /> against <see cref="SqlDecisionTraceRepository" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

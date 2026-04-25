@@ -4,18 +4,25 @@ public class ProvenanceEdge
 {
     public Guid Id
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid FromNodeId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid ToNodeId
     {
-        get; set;
+        get;
+        set;
     }
+
     public ProvenanceEdgeType Type
     {
-        get; set;
+        get;
+        set;
     }
 }

@@ -1,0 +1,48 @@
+{
+  "requestId": "contoso-lift-shift-001",
+  "systemName": "ContosoBillingMonolith",
+  "description": "Lift-and-shift Contoso's on-premises .NET Framework billing monolith to Azure Container Apps with Azure SQL Managed Instance compatibility tier. Preserve batch windows, file-based integrations, and existing SOAP partner endpoints until partners migrate to REST.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No breaking change to nightly batch cutoff (02:00 UTC)",
+    "Maintain ISO-style audit logs for 7 years in immutable storage",
+    "Network path from Container Apps to partner VPN must stay under 80 ms p95"
+  ],
+  "requiredCapabilities": [
+    "Container Apps jobs for scheduled batch",
+    "Private connectivity to partner VPN",
+    "Read replicas for reporting queries"
+  ],
+  "assumptions": [
+    "Database size under 2 TB at cutover",
+    "Partner SOAP endpoints remain reachable from Azure egress IPs allow-listed today"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document rollback: revert DNS to on-prem if migration weekend fails health checks"
+  ],
+  "documents": [
+    {
+      "name": "migration-cutover-checklist.txt",
+      "contentType": "text/plain",
+      "content": "Fictional cutover checklist: freeze schema T-7d, snapshot DB T-1d, dual-write validation T-12h."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Keep message-driven batch separate from synchronous API revision",
+    "Prefer Azure Files premium for legacy flat-file drops during transition"
+  ],
+  "securityBaselineHints": [
+    "Encrypt backups with customer-managed keys in Key Vault",
+    "Disable public blob access for integration file shares"
+  ],
+  "infrastructureDeclarations": [
+    {
+      "name": "legacy-service-map.json",
+      "format": "json",
+      "content": "{\"services\":[{\"name\":\"BillingApi\",\"tier\":\"monolith\"}],\"note\":\"fictional\"}"
+    }
+  ]
+}

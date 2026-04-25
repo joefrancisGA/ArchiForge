@@ -5,7 +5,8 @@ using ArchLucid.Core.Notifications.Teams;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
-public sealed class InMemoryTenantTeamsIncomingWebhookConnectionRepository : ITenantTeamsIncomingWebhookConnectionRepository
+public sealed class
+    InMemoryTenantTeamsIncomingWebhookConnectionRepository : ITenantTeamsIncomingWebhookConnectionRepository
 {
     private readonly ConcurrentDictionary<Guid, TeamsIncomingWebhookConnectionResponse> _store = new();
 
@@ -33,7 +34,7 @@ public sealed class InMemoryTenantTeamsIncomingWebhookConnectionRepository : ITe
             Label = label,
             KeyVaultSecretName = keyVaultSecretName,
             EnabledTriggers = nextTriggers,
-            UpdatedUtc = DateTimeOffset.UtcNow,
+            UpdatedUtc = DateTimeOffset.UtcNow
         };
 
         _store[tenantId] = row;
@@ -41,8 +42,10 @@ public sealed class InMemoryTenantTeamsIncomingWebhookConnectionRepository : ITe
         return Task.FromResult<TeamsIncomingWebhookConnectionResponse?>(row);
     }
 
-    public Task<bool> DeleteAsync(Guid tenantId, CancellationToken cancellationToken) =>
-        Task.FromResult(_store.TryRemove(tenantId, out _));
+    public Task<bool> DeleteAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(_store.TryRemove(tenantId, out _));
+    }
 
     // null = "no change" semantic, matching the Dapper repository's MERGE COALESCE behaviour:
     // brand-new rows fall back to the catalog default; existing rows keep what was already stored.

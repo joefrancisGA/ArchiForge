@@ -15,7 +15,8 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Covers <see cref="AuditService.LogAsync"/> correlation enrichment (activity tag, HTTP trace id, explicit override).
+///     Covers <see cref="AuditService.LogAsync" /> correlation enrichment (activity tag, HTTP trace id, explicit
+///     override).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -28,7 +29,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         ActivityListener listener = new()
         {
             ShouldListenTo = s => s.Name == TestSource.Name,
-            Sample = (ref _) => ActivitySamplingResult.AllData,
+            Sample = (ref _) => ActivitySamplingResult.AllData
         };
 
         ActivitySource.AddActivityListener(listener);
@@ -48,16 +49,21 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider
             .Setup(s => s.GetCurrentScope())
-            .Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+            .Returns(new ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid()
+            });
 
         DefaultHttpContext httpContext = new()
         {
             User = new ClaimsPrincipal(
-            new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.NameIdentifier, "u1"),
-                new Claim(ClaimTypes.Name, "User One"),
-            ]))
+                new ClaimsIdentity(
+                [
+                    new Claim(ClaimTypes.NameIdentifier, "u1"),
+                    new Claim(ClaimTypes.Name, "User One")
+                ]))
         };
 
         httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
@@ -93,7 +99,12 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider
             .Setup(s => s.GetCurrentScope())
-            .Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+            .Returns(new ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid()
+            });
 
         DefaultHttpContext httpContext = new()
         {
@@ -102,7 +113,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
                 new ClaimsIdentity(
                 [
                     new Claim(ClaimTypes.NameIdentifier, "u2"),
-                    new Claim(ClaimTypes.Name, "User Two"),
+                    new Claim(ClaimTypes.Name, "User Two")
                 ]))
         };
 
@@ -134,16 +145,21 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider
             .Setup(s => s.GetCurrentScope())
-            .Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+            .Returns(new ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid()
+            });
 
         DefaultHttpContext httpContext = new()
         {
             User = new ClaimsPrincipal(
-            new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.NameIdentifier, "u3"),
-                new Claim(ClaimTypes.Name, "User Three"),
-            ]))
+                new ClaimsIdentity(
+                [
+                    new Claim(ClaimTypes.NameIdentifier, "u3"),
+                    new Claim(ClaimTypes.Name, "User Three")
+                ]))
         };
 
         httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
@@ -184,7 +200,7 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         {
             EventType = AuditEventTypes.CircuitBreakerStateTransition,
             ActorUserId = "system",
-            ActorUserName = "CircuitBreakerGate",
+            ActorUserName = "CircuitBreakerGate"
         };
 
         using (Activity? activity = TestSource.StartActivity("breaker"))

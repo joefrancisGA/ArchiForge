@@ -1,4 +1,5 @@
 using System.Data;
+using System.Globalization;
 
 using ArchLucid.Core.Scoping;
 
@@ -80,6 +81,6 @@ internal static class BillingMarketplaceWebhookTestSeed
 
         object? scalar = await command.ExecuteScalarAsync();
 
-        return scalar is int i ? i : Convert.ToInt32(scalar, System.Globalization.CultureInfo.InvariantCulture);
+        return scalar is int i ? i : Convert.ToInt32(scalar, CultureInfo.InvariantCulture);
     }
 }

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures every MVC controller declares explicit API versioning metadata (URL <c>v1</c> routing depends on it).
+///     Ensures every MVC controller declares explicit API versioning metadata (URL <c>v1</c> routing depends on it).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -27,8 +27,8 @@ public sealed class ApiControllerApiVersionMetadataTests
 
         foreach (Type controller in controllers)
         {
-            bool hasNeutral = controller.GetCustomAttributes(inherit: true).OfType<ApiVersionNeutralAttribute>().Any();
-            bool hasVersion = controller.GetCustomAttributes(inherit: true).OfType<ApiVersionAttribute>().Any();
+            bool hasNeutral = controller.GetCustomAttributes(true).OfType<ApiVersionNeutralAttribute>().Any();
+            bool hasVersion = controller.GetCustomAttributes(true).OfType<ApiVersionAttribute>().Any();
 
             (hasNeutral || hasVersion).Should().BeTrue(
                 "controller {0} must declare [ApiVersion(\"1.0\")] or [ApiVersionNeutral] so Asp.Versioning can route OpenAPI and clients consistently",

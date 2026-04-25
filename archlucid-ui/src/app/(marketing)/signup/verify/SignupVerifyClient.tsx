@@ -22,7 +22,7 @@ export function SignupVerifyClient() {
       </p>
       <div className="flex flex-wrap gap-3 pt-2">
         <Link
-          href="/onboarding/start"
+          href="/getting-started?source=registration"
           className="inline-flex h-10 items-center justify-center rounded-md bg-teal-700 px-4 text-sm font-medium text-white hover:bg-teal-800"
           data-testid="signup-verify-continue-onboarding"
         >

@@ -46,8 +46,7 @@ public sealed class AuthSafetyGuardTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-                ["ARCHLUCID_ENVIRONMENT"] = "Production",
+                ["ArchLucidAuth:Mode"] = "DevelopmentBypass", ["ARCHLUCID_ENVIRONMENT"] = "Production"
             })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
@@ -63,8 +62,7 @@ public sealed class AuthSafetyGuardTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-                ["ARCHLUCID_ENVIRONMENT"] = "production",
+                ["ArchLucidAuth:Mode"] = "DevelopmentBypass", ["ARCHLUCID_ENVIRONMENT"] = "production"
             })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
@@ -80,8 +78,7 @@ public sealed class AuthSafetyGuardTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-                ["ARCHLUCID_ENVIRONMENT"] = "staging-prod",
+                ["ArchLucidAuth:Mode"] = "DevelopmentBypass", ["ARCHLUCID_ENVIRONMENT"] = "staging-prod"
             })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
@@ -123,8 +120,7 @@ public sealed class AuthSafetyGuardTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-                ["ARCHLUCID_ENVIRONMENT"] = "Staging",
+                ["ArchLucidAuth:Mode"] = "DevelopmentBypass", ["ARCHLUCID_ENVIRONMENT"] = "Staging"
             })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
@@ -166,8 +162,7 @@ public sealed class AuthSafetyGuardTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucidAuth:Mode"] = "JwtBearer",
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["ArchLucidAuth:Mode"] = "JwtBearer", ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
             })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment(Environments.Production);
@@ -184,8 +179,7 @@ public sealed class AuthSafetyGuardTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucidAuth:Mode"] = "JwtBearer",
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["ArchLucidAuth:Mode"] = "JwtBearer", ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
             })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
@@ -203,7 +197,7 @@ public sealed class AuthSafetyGuardTests
             {
                 ["ArchLucidAuth:Mode"] = "ApiKey",
                 ["ARCHLUCID_ENVIRONMENT"] = "Production",
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
             })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
@@ -220,8 +214,7 @@ public sealed class AuthSafetyGuardTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucidAuth:Mode"] = "ApiKey",
-                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+                ["ArchLucidAuth:Mode"] = "ApiKey", ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
             })
             .Build();
         IHostEnvironment environment = new StubHostEnvironment(Environments.Production);
@@ -239,12 +232,28 @@ public sealed class AuthSafetyGuardTests
             EnvironmentName = environmentName;
         }
 
-        public string EnvironmentName { get; set; } = Environments.Development;
+        public string EnvironmentName
+        {
+            get;
+            set;
+        } = Environments.Development;
 
-        public string ApplicationName { get; set; } = "ArchLucid.Host.Composition.Tests";
+        public string ApplicationName
+        {
+            get;
+            set;
+        } = "ArchLucid.Host.Composition.Tests";
 
-        public string ContentRootPath { get; set; } = "/";
+        public string ContentRootPath
+        {
+            get;
+            set;
+        } = "/";
 
-        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
+        public IFileProvider ContentRootFileProvider
+        {
+            get;
+            set;
+        } = new NullFileProvider();
     }
 }

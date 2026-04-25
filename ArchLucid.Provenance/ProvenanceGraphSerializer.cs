@@ -12,8 +12,10 @@ public static class ProvenanceGraphSerializer
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public static string Serialize(DecisionProvenanceGraph graph) =>
-        JsonSerializer.Serialize(graph, Options);
+    public static string Serialize(DecisionProvenanceGraph graph)
+    {
+        return JsonSerializer.Serialize(graph, Options);
+    }
 
     public static DecisionProvenanceGraph? Deserialize(string json)
     {

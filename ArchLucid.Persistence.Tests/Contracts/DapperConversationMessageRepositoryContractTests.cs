@@ -4,7 +4,8 @@ using ArchLucid.Persistence.Conversation;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="ConversationMessageRepositoryContractTests"/> against <see cref="DapperConversationMessageRepository"/>.
+///     Runs <see cref="ConversationMessageRepositoryContractTests" /> against
+///     <see cref="DapperConversationMessageRepository" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

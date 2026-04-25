@@ -7,7 +7,7 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IEvidenceBundleRepository"/> for tests (JSON clone-on-read).
+///     Thread-safe in-memory <see cref="IEvidenceBundleRepository" /> for tests (JSON clone-on-read).
 /// </summary>
 public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
 {
@@ -39,7 +39,6 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
         lock (_gate)
 
             return Task.FromResult(_byId.TryGetValue(evidenceBundleId, out EvidenceBundle? b) ? Clone(b) : null);
-
     }
 
     private static EvidenceBundle Clone(EvidenceBundle source)

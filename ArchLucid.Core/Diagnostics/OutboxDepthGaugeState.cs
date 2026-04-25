@@ -13,7 +13,6 @@ public sealed class OutboxDepthGaugeState
             lock (_gate)
 
                 return _current;
-
         }
     }
 
@@ -22,6 +21,5 @@ public sealed class OutboxDepthGaugeState
         lock (_gate)
 
             _current = values;
-
     }
 }

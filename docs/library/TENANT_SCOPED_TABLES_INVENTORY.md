@@ -36,6 +36,10 @@ flowchart LR
     OB[dbo.IntegrationEventOutbox]
   end
 
+  subgraph telemetry [Telemetry / owner-gated]
+    FTF[dbo.FirstTenantFunnelEvents]
+  end
+
   T --> R
   W --> R
   P --> R
@@ -46,6 +50,7 @@ flowchart LR
   W --> AE
   T --> OB
   W --> OB
+  T --> FTF
 ```
 
 ## Component breakdown
@@ -58,6 +63,7 @@ flowchart LR
 | `dbo.IntegrationEventOutbox` | NOT NULL | NOT NULL | `ProjectId` (UNIQUEIDENTIFIER) | Durable integration fan-out. |
 | `dbo.BillingSubscriptions` | NOT NULL | NOT NULL | `ProjectId` (UNIQUEIDENTIFIER) | Commercial subscription state for trial conversion; RLS + stored-procedure-only DML for `ArchLucidApp`. |
 | `dbo.ContextSnapshots` | nullable (brownfield) | nullable | `ScopeProjectId` nullable | Backfilled scope columns; see brownfield blocks in `ArchLucid.sql`. |
+| `dbo.FirstTenantFunnelEvents` | NOT NULL | — | — | Optional per-tenant onboarding funnel rows when `Telemetry:FirstTenantFunnel:PerTenantEmission` is `true`; tenant grain only (no `WorkspaceId` / `ProjectId`); see `docs/security/PRIVACY_NOTE.md` and pending question 40 in `docs/PENDING_QUESTIONS.md`. |
 
 **Run-scoped without tenant triple on row** (examples): `dbo.GraphSnapshots` — scope is implied via `RunId` → `dbo.Runs`.
 
@@ -67,14 +73,14 @@ Writes on authority tables should set the **same** tenant/workspace/project tupl
 
 ## Security model
 
-- **RLS** predicates filter on the denormalized scope where present; see `MULTI_TENANT_RLS.md`.
+- **RLS** predicates filter on the denormalized scope where present; see [`MULTI_TENANT_RLS.md`](../security/MULTI_TENANT_RLS.md).
 - **Operational probes** (`DataConsistencyOrphanProbeHostedService`, admin remediation) should use this inventory when classifying “missing scope” vs “expected run-only” tables.
 
 ## Operational considerations
 
 - When adding a new table that stores customer data, decide explicitly: **denormalized triple** vs **strict `RunId` FK only**; document the choice here.
 - `ArchLucid.Architecture.Tests` `TenantScopedTableDdlTests` guards a subset of critical tables; expand `TheoryData` when new authority tables ship.
-- CI **`scripts/ci/assert_tenant_inventory_tables_in_archlucid_sql.py`** asserts every **`dbo.*`** row in the table above has a matching **`CREATE TABLE`** in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.
+- CI **`scripts/ci/assert_tenant_inventory_tables_in_archlucid_sql.py`** asserts every **`dbo.*`** row in the table above has a matching **`CREATE TABLE`** in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**. A backward-compat copy lives at **`docs/TENANT_SCOPED_TABLES_INVENTORY.md`** — when this table changes, mirror the **Component breakdown** (and overview diagram if it changes) there.
 
 ## Reliability / cost / scalability
 

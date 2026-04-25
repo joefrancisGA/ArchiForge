@@ -4,12 +4,25 @@ public class DecisionProvenanceGraph
 {
     public Guid Id
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid RunId
     {
-        get; set;
+        get;
+        set;
     }
-    public List<ProvenanceNode> Nodes { get; set; } = [];
-    public List<ProvenanceEdge> Edges { get; set; } = [];
+
+    public List<ProvenanceNode> Nodes
+    {
+        get;
+        set;
+    } = [];
+
+    public List<ProvenanceEdge> Edges
+    {
+        get;
+        set;
+    } = [];
 }

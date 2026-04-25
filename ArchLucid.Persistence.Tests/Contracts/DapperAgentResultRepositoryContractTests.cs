@@ -1,7 +1,5 @@
 using ArchLucid.Contracts.Agents;
-
 using ArchLucid.Persistence.Data.Repositories;
-
 using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;
@@ -23,7 +21,8 @@ public sealed class DapperAgentResultRepositoryContractTests(SqlServerPersistenc
         return new AgentResultRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
     }
 
-    protected override async Task PrepareRunTaskChainAsync(string requestId, string runId, AgentTask task, CancellationToken ct)
+    protected override async Task PrepareRunTaskChainAsync(string requestId, string runId, AgentTask task,
+        CancellationToken ct)
     {
         await using SqlConnection connection = new(fixture.ConnectionString);
         await connection.OpenAsync(ct);

@@ -32,8 +32,9 @@ public sealed class ValueReportBuilder(
             toUtcExclusive,
             cancellationToken);
 
-        decimal manifestHours = raw.ManifestsCommittedCount * o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest
-            * o.ArchitectHoursSavedFractionVsBaseline;
+        decimal perManifestHours = raw.TenantBaselineManualPrepHoursPerReview
+            ?? o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest;
+        decimal manifestHours = raw.ManifestsCommittedCount * perManifestHours * o.ArchitectHoursSavedFractionVsBaseline;
 
         decimal governanceHours = raw.GovernanceEventCount * o.GovernanceReviewHoursPerGovernanceEvent;
 
@@ -45,7 +46,17 @@ public sealed class ValueReportBuilder(
 
         decimal periodDays = (decimal)Math.Max(1d, (toUtcExclusive - fromUtcInclusive).TotalDays);
         decimal annualize = 365m / periodDays;
-        decimal hourly = o.FullyLoadedArchitectHourlyUsd;
+        decimal teamCostScale = 1m;
+        if (raw.TenantBaselinePeoplePerReview is { } ppl)
+        {
+            decimal denom = raw.TenantArchitectureTeamSize is int ats && ats > 0
+                ? ats
+                : o.DefaultTeamSizeForHourlyCostScaling;
+            if (denom > 0m)
+                teamCostScale = ppl / denom;
+        }
+
+        decimal hourly = o.FullyLoadedArchitectHourlyUsd * teamCostScale;
 
         decimal hoursValuePeriodUsd = totalHours * hourly;
         decimal annualizedHoursValueUsd = hoursValuePeriodUsd * annualize;
@@ -72,7 +83,12 @@ public sealed class ValueReportBuilder(
             decimal baselineReviewHours = raw.TenantBaselineReviewCycleHours ?? o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest;
 
             reviewProvenance = raw.TenantBaselineReviewCycleHours is not null
-                ? ReviewCycleBaselineProvenance.TenantSuppliedAtSignup
+                ? (string.Equals(
+                    raw.TenantBaselineReviewCycleSource,
+                    "baseline_settings",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? ReviewCycleBaselineProvenance.TenantSuppliedViaSettings
+                    : ReviewCycleBaselineProvenance.TenantSuppliedAtSignup)
                 : ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions;
 
             reviewDeltaHours = baselineReviewHours - measuredHours;
@@ -112,6 +128,8 @@ public sealed class ValueReportBuilder(
             reviewDeltaHours,
             reviewDeltaPercent,
             raw.FindingFeedbackNetScore,
-            raw.FindingFeedbackVoteCount);
+            raw.FindingFeedbackVoteCount,
+            raw.TenantBaselineManualPrepHoursPerReview,
+            raw.TenantBaselinePeoplePerReview);
     }
 }

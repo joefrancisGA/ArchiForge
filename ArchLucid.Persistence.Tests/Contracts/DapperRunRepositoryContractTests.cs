@@ -5,7 +5,7 @@ using ArchLucid.Persistence.Tests.Support;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="RunRepositoryContractTests"/> against <see cref="SqlRunRepository"/>.
+///     Runs <see cref="RunRepositoryContractTests" /> against <see cref="SqlRunRepository" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

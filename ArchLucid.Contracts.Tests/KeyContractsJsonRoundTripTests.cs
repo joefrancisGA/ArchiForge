@@ -11,7 +11,7 @@ using FluentAssertions;
 namespace ArchLucid.Contracts.Tests;
 
 /// <summary>
-/// Ensures core API/DTO shapes round-trip through System.Text.Json the same way HTTP payloads do.
+///     Ensures core API/DTO shapes round-trip through System.Text.Json the same way HTTP payloads do.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -20,7 +20,7 @@ public sealed class KeyContractsJsonRoundTripTests
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
     [Fact]
@@ -33,7 +33,7 @@ public sealed class KeyContractsJsonRoundTripTests
             SystemName = "BillingSvc",
             Environment = "staging",
             CloudProvider = CloudProvider.Azure,
-            Constraints = ["c1", "c2"],
+            Constraints = ["c1", "c2"]
         };
 
         string json = JsonSerializer.Serialize(original, JsonOptions);
@@ -58,7 +58,7 @@ public sealed class KeyContractsJsonRoundTripTests
             AgentType = AgentType.Topology,
             Objective = "Evaluate topology proposal.",
             Status = AgentTaskStatus.Completed,
-            CreatedUtc = new DateTime(2026, 4, 5, 12, 0, 0, DateTimeKind.Utc),
+            CreatedUtc = new DateTime(2026, 4, 5, 12, 0, 0, DateTimeKind.Utc)
         };
 
         string json = JsonSerializer.Serialize(original, JsonOptions);
@@ -82,15 +82,12 @@ public sealed class KeyContractsJsonRoundTripTests
             BaseConfidence = 0.7,
             SupportScore = 0.1,
             OppositionScore = 0.05,
-            EvidenceRefs = ["e1"],
+            EvidenceRefs = ["e1"]
         };
 
         DecisionOption optB = new()
         {
-            Description = "Reject",
-            BaseConfidence = 0.2,
-            SupportScore = 0,
-            OppositionScore = 0,
+            Description = "Reject", BaseConfidence = 0.2, SupportScore = 0, OppositionScore = 0
         };
 
         DecisionNode original = new()
@@ -103,7 +100,7 @@ public sealed class KeyContractsJsonRoundTripTests
             Rationale = "Kept topology.",
             SupportingEvaluationIds = ["ev1"],
             OpposingEvaluationIds = [],
-            CreatedUtc = new DateTime(2026, 4, 5, 13, 0, 0, DateTimeKind.Utc),
+            CreatedUtc = new DateTime(2026, 4, 5, 13, 0, 0, DateTimeKind.Utc)
         };
 
         string json = JsonSerializer.Serialize(original, JsonOptions);

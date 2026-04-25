@@ -36,8 +36,6 @@ public sealed class ReplayRunService(
     IRunRepository authorityRunRepository,
     IScopeContextProvider scopeContextProvider,
     IAuthorityCommittedManifestChainWriter authorityCommittedManifestChainWriter,
-    ICoordinatorGoldenManifestRepository manifestRepository,
-    ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IAuditService auditService,
@@ -199,8 +197,11 @@ public sealed class ReplayRunService(
         {
             AuthorityManifestPersistResult chainPersisted;
 
+            // ADR 0030 PR A3 (2026-04-24): the legacy ICoordinatorDecisionTraceRepository second write to
+            // dbo.DecisionTraces was removed along with the interface itself. The Authority FK chain writer
+            // already persists the committed decision trace (chainKeying.DecisionTraceId → dbo.AuthorityDecisionTraces);
+            // RunDetailQueryService now reads decision traces from the authority table only.
             if (uow.SupportsExternalTransaction)
-            {
                 chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
                     scope,
                     replayGuid,
@@ -212,12 +213,7 @@ public sealed class ReplayRunService(
                     cancellationToken,
                     uow.Connection,
                     uow.Transaction);
-
-                await manifestRepository.CreateAsync(manifest, cancellationToken, uow.Connection, uow.Transaction);
-                await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken, uow.Connection, uow.Transaction);
-            }
             else
-            {
                 chainPersisted = await _authorityCommittedManifestChainWriter.PersistCommittedChainAsync(
                     scope,
                     replayGuid,
@@ -229,10 +225,6 @@ public sealed class ReplayRunService(
                     cancellationToken,
                     connection: null,
                     transaction: null);
-
-                await manifestRepository.CreateAsync(manifest, cancellationToken);
-                await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
-            }
 
             await uow.CommitAsync(cancellationToken);
 

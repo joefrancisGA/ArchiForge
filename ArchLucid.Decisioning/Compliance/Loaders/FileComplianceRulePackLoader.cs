@@ -7,15 +7,12 @@ using ArchLucid.Decisioning.Compliance.Models;
 namespace ArchLucid.Decisioning.Compliance.Loaders;
 
 /// <summary>
-/// Loads a <see cref="ComplianceRulePack"/> from a JSON file at the path provided at construction.
-/// Computes an SHA-256 hash of the raw JSON for pack identity and cache-busting.
+///     Loads a <see cref="ComplianceRulePack" /> from a JSON file at the path provided at construction.
+///     Computes an SHA-256 hash of the raw JSON for pack identity and cache-busting.
 /// </summary>
 public sealed class FileComplianceRulePackLoader(string filePath) : IComplianceRulePackLoader
 {
-    private static readonly JsonSerializerOptions DeserializeOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
+    private static readonly JsonSerializerOptions DeserializeOptions = new() { PropertyNameCaseInsensitive = true };
 
     public async Task<ComplianceRulePack> LoadAsync(CancellationToken ct)
     {

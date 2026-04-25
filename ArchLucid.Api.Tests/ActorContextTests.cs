@@ -11,9 +11,8 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Actor Context.
+///     Tests for Actor Context.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class ActorContextTests
 {
@@ -24,9 +23,9 @@ public sealed class ActorContextTests
         DefaultHttpContext httpContext = new()
         {
             User = new ClaimsPrincipal(
-            new ClaimsIdentity(
-                [new Claim(ClaimTypes.Name, "  domain\\alice  ")],
-                authenticationType: "test"))
+                new ClaimsIdentity(
+                    [new Claim(ClaimTypes.Name, "  domain\\alice  ")],
+                    "test"))
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
@@ -53,7 +52,7 @@ public sealed class ActorContextTests
         DefaultHttpContext httpContext = new()
         {
             User = new ClaimsPrincipal(
-            new ClaimsIdentity(authenticationType: "test"))
+                new ClaimsIdentity("test"))
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
@@ -74,7 +73,7 @@ public sealed class ActorContextTests
             User = new ClaimsPrincipal(
                 new ClaimsIdentity(
                     [new Claim("name", "  JwtE2eAdmin  ")],
-                    authenticationType: "test")),
+                    "test"))
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 

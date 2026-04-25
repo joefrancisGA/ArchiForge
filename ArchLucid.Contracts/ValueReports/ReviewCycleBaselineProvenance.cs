@@ -8,6 +8,9 @@ public enum ReviewCycleBaselineProvenance
 {
     TenantSuppliedAtSignup,
 
+    /// <summary>When <c>dbo.Tenants.BaselineReviewCycleSource</c> is set to the reserved token <c>baseline_settings</c>.</summary>
+    TenantSuppliedViaSettings,
+
     DefaultedFromRoiModelOptions,
 
     NoMeasurementYet

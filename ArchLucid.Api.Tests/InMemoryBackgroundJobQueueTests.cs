@@ -11,15 +11,21 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for in-memory background job queue (payload executor + channel semantics).
+///     Tests for in-memory background job queue (payload executor + channel semantics).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class InMemoryBackgroundJobQueueTests
 {
-    private static BackgroundJobFile OkFile() => new("out.bin", "application/octet-stream", []);
+    private static BackgroundJobFile OkFile()
+    {
+        return new BackgroundJobFile("out.bin", "application/octet-stream", []);
+    }
 
-    private static AnalysisReportDocxWorkUnit Work(string label) =>
-        new(new AnalysisReportDocxJobPayload { RunId = label }, $"{label}.bin", "application/octet-stream");
+    private static AnalysisReportDocxWorkUnit Work(string label)
+    {
+        return new AnalysisReportDocxWorkUnit(new AnalysisReportDocxJobPayload { RunId = label }, $"{label}.bin",
+            "application/octet-stream");
+    }
 
     private static (InMemoryBackgroundJobQueue Queue, Mock<IBackgroundJobWorkUnitExecutor> Executor) CreateSystem(
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger,
@@ -48,13 +54,12 @@ public sealed class InMemoryBackgroundJobQueueTests
         (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
-                .Returns<BackgroundJobWorkUnit, CancellationToken>(
-                    async (_, ct) =>
-                    {
-                        await barrier.Task.WaitAsync(ct);
+                .Returns<BackgroundJobWorkUnit, CancellationToken>(async (_, ct) =>
+                {
+                    await barrier.Task.WaitAsync(ct);
 
-                        return OkFile();
-                    }));
+                    return OkFile();
+                }));
 
         await queue.StartAsync(CancellationToken.None);
 
@@ -107,13 +112,12 @@ public sealed class InMemoryBackgroundJobQueueTests
         (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
-                .Returns(
-                    async (BackgroundJobWorkUnit _, CancellationToken ct) =>
-                    {
-                        await Task.Delay(15, ct);
+                .Returns(async (BackgroundJobWorkUnit _, CancellationToken ct) =>
+                {
+                    await Task.Delay(15, ct);
 
-                        return OkFile();
-                    }));
+                    return OkFile();
+                }));
 
         await queue.StartAsync(CancellationToken.None);
 
@@ -141,19 +145,19 @@ public sealed class InMemoryBackgroundJobQueueTests
         (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
-                .Returns(
-                    () =>
-                    {
-                        attempt++;
+                .Returns(() =>
+                {
+                    attempt++;
 
-                        return attempt < 3
-                            ? Task.FromException<BackgroundJobFile>(new InvalidOperationException($"Transient failure #{attempt}"))
-                            : Task.FromResult(OkFile());
-                    }));
+                    return attempt < 3
+                        ? Task.FromException<BackgroundJobFile>(
+                            new InvalidOperationException($"Transient failure #{attempt}"))
+                        : Task.FromResult(OkFile());
+                }));
 
         await queue.StartAsync(CancellationToken.None);
 
-        string jobId = await queue.EnqueueAsync(Work("retry-ok"), maxRetries: 3);
+        string jobId = await queue.EnqueueAsync(Work("retry-ok"), 3);
 
         await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(30));
 
@@ -177,7 +181,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         await queue.StartAsync(CancellationToken.None);
 
-        string jobId = await queue.EnqueueAsync(Work("retry-fail"), maxRetries: 2);
+        string jobId = await queue.EnqueueAsync(Work("retry-fail"), 2);
 
         await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(30));
 
@@ -202,7 +206,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         await queue.StartAsync(CancellationToken.None);
 
-        string jobId = await queue.EnqueueAsync(Work("no-retry"), maxRetries: 0);
+        string jobId = await queue.EnqueueAsync(Work("no-retry"), 0);
 
         await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(5));
 
@@ -214,7 +218,8 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StopAsync(CancellationToken.None);
     }
 
-    private static async Task WaitForTerminalStateAsync(InMemoryBackgroundJobQueue queue, string jobId, TimeSpan timeout)
+    private static async Task WaitForTerminalStateAsync(InMemoryBackgroundJobQueue queue, string jobId,
+        TimeSpan timeout)
     {
         DateTime deadline = DateTime.UtcNow + timeout;
         while (DateTime.UtcNow < deadline)

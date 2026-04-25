@@ -1,15 +1,17 @@
 namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
-/// Builds and retrieves <see cref="RecommendationLearningProfile"/> snapshots from historical recommendation rows in a scope.
+///     Builds and retrieves <see cref="RecommendationLearningProfile" /> snapshots from historical recommendation rows in
+///     a scope.
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchLucid.Persistence.Advisory.RecommendationLearningService</c>. HTTP: <c>RecommendationLearningController</c>.
+///     Implemented by <c>ArchLucid.Persistence.Advisory.RecommendationLearningService</c>. HTTP:
+///     <c>RecommendationLearningController</c>.
 /// </remarks>
 public interface IRecommendationLearningService
 {
     /// <summary>
-    /// Loads recent recommendations, runs <c>IRecommendationLearningAnalyzer</c>, persists the profile, and returns it.
+    ///     Loads recent recommendations, runs <c>IRecommendationLearningAnalyzer</c>, persists the profile, and returns it.
     /// </summary>
     Task<RecommendationLearningProfile> RebuildProfileAsync(
         Guid tenantId,

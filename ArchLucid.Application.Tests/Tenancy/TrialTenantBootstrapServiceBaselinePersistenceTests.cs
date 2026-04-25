@@ -26,6 +26,10 @@ public sealed class TrialTenantBootstrapServiceBaselinePersistenceTests
             baselineReviewCycleHours: 24m,
             baselineReviewCycleSource: "ops estimate",
             baselineReviewCycleCapturedUtc: cap,
+            null,
+            null,
+            null,
+            null,
             CancellationToken.None);
 
         TenantRecord? row = await repo.GetByIdAsync(tenantId, CancellationToken.None);

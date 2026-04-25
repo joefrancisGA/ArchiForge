@@ -25,7 +25,8 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        LearningThemesListResponse? body = await response.Content.ReadFromJsonAsync<LearningThemesListResponse>(JsonOptions);
+        LearningThemesListResponse? body =
+            await response.Content.ReadFromJsonAsync<LearningThemesListResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.Themes.Should().NotBeNull();
@@ -52,7 +53,8 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        LearningPlansListResponse? body = await response.Content.ReadFromJsonAsync<LearningPlansListResponse>(JsonOptions);
+        LearningPlansListResponse? body =
+            await response.Content.ReadFromJsonAsync<LearningPlansListResponse>(JsonOptions);
 
         body.Should().NotBeNull();
         body.Plans.Should().NotBeNull();

@@ -5,16 +5,19 @@ public sealed class BillingCheckoutResult
 {
     public required string CheckoutUrl
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ProviderSessionId
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? ExpiresUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

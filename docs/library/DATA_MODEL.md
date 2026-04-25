@@ -49,11 +49,10 @@ This document summarizes the persisted data model used by ArchLucid. It is based
 - **Fields**: `TaskId`, `RunId`, `AgentType`, `Confidence`, `ResultJson`
 - **Why it matters**: the proposals/evidence that feed the decision engine to produce manifests.
 
-#### `GoldenManifestVersions`
+#### `GoldenManifestVersions` *(removed)*
 
-- **Key**: `ManifestVersion`
-- **Fields**: `RunId`, `SystemName`, `ManifestJson`, `ParentManifestVersion`, `CreatedUtc`
-- **Why it matters**: immutable, versioned architecture output.
+- **Status:** Dropped in **migration 111** (`111_DropGoldenManifestVersions_Legacy.sql`) per **ADR 0030 PR A4** (owner decision **35d** — hard drop). Fresh **`ArchLucid.sql`** no longer creates this table.
+- **Replacement:** Coordinator-shaped committed manifests are represented on the Authority path as **`dbo.GoldenManifests`** (+ relational satellite tables). See **`GoldenManifests`** under the authority chain section below.
 
 #### `EvidenceBundles`
 

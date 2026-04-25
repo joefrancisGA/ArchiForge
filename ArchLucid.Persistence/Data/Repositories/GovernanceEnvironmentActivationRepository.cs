@@ -21,25 +21,25 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         ArgumentNullException.ThrowIfNull(item);
 
         const string sql = """
-            INSERT INTO GovernanceEnvironmentActivations
-            (
-                ActivationId,
-                RunId,
-                ManifestVersion,
-                Environment,
-                IsActive,
-                ActivatedUtc
-            )
-            VALUES
-            (
-                @ActivationId,
-                @RunId,
-                @ManifestVersion,
-                @Environment,
-                @IsActive,
-                @ActivatedUtc
-            );
-            """;
+                           INSERT INTO GovernanceEnvironmentActivations
+                           (
+                               ActivationId,
+                               RunId,
+                               ManifestVersion,
+                               Environment,
+                               IsActive,
+                               ActivatedUtc
+                           )
+                           VALUES
+                           (
+                               @ActivationId,
+                               @RunId,
+                               @ManifestVersion,
+                               @Environment,
+                               @IsActive,
+                               @ActivatedUtc
+                           );
+                           """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
@@ -57,7 +57,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
                     item.IsActive,
                     item.ActivatedUtc
                 },
-                transaction: transaction,
+                transaction,
                 cancellationToken: cancellationToken));
         }
         finally
@@ -75,10 +75,10 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         ArgumentNullException.ThrowIfNull(item);
 
         const string sql = """
-            UPDATE GovernanceEnvironmentActivations
-            SET IsActive = @IsActive
-            WHERE ActivationId = @ActivationId;
-            """;
+                           UPDATE GovernanceEnvironmentActivations
+                           SET IsActive = @IsActive
+                           WHERE ActivationId = @ActivationId;
+                           """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
@@ -87,12 +87,8 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         {
             await conn.ExecuteAsync(new CommandDefinition(
                 sql,
-                new
-                {
-                    item.ActivationId,
-                    item.IsActive
-                },
-                transaction: transaction,
+                new { item.ActivationId, item.IsActive },
+                transaction,
                 cancellationToken: cancellationToken));
         }
         finally
@@ -108,26 +104,24 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-            SELECT
-                ActivationId,
-                RunId,
-                ManifestVersion,
-                Environment,
-                IsActive,
-                ActivatedUtc
-            FROM GovernanceEnvironmentActivations
-            WHERE Environment = @Environment
-            ORDER BY ActivatedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(200)};
-            """;
+                      SELECT
+                          ActivationId,
+                          RunId,
+                          ManifestVersion,
+                          Environment,
+                          IsActive,
+                          ActivatedUtc
+                      FROM GovernanceEnvironmentActivations
+                      WHERE Environment = @Environment
+                      ORDER BY ActivatedUtc DESC
+                      {SqlPagingSyntax.FirstRowsOnly(200)};
+                      """;
 
-        IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
-            sql,
-            new
-            {
-                Environment = environment
-            },
-            cancellationToken: cancellationToken));
+        IEnumerable<GovernanceEnvironmentActivation> rows =
+            await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
+                sql,
+                new { Environment = environment },
+                cancellationToken: cancellationToken));
 
         return [.. rows];
     }
@@ -139,26 +133,24 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-            SELECT
-                ActivationId,
-                RunId,
-                ManifestVersion,
-                Environment,
-                IsActive,
-                ActivatedUtc
-            FROM GovernanceEnvironmentActivations
-            WHERE RunId = @RunId
-            ORDER BY ActivatedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(200)};
-            """;
+                      SELECT
+                          ActivationId,
+                          RunId,
+                          ManifestVersion,
+                          Environment,
+                          IsActive,
+                          ActivatedUtc
+                      FROM GovernanceEnvironmentActivations
+                      WHERE RunId = @RunId
+                      ORDER BY ActivatedUtc DESC
+                      {SqlPagingSyntax.FirstRowsOnly(200)};
+                      """;
 
-        IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
-            sql,
-            new
-            {
-                RunId = runId
-            },
-            cancellationToken: cancellationToken));
+        IEnumerable<GovernanceEnvironmentActivation> rows =
+            await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
+                sql,
+                new { RunId = runId },
+                cancellationToken: cancellationToken));
 
         return [.. rows];
     }

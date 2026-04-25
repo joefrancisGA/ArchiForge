@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Core.Billing;
 using ArchLucid.Persistence.Connections;
 
@@ -30,10 +32,7 @@ public sealed class SqlBillingLedger(
                            """;
 
         bool? row = await connection.ExecuteScalarAsync<bool?>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         return row == true;
     }
@@ -65,9 +64,9 @@ public sealed class SqlBillingLedger(
                     ProviderSubscriptionId = providerSessionId,
                     Tier = tierCode,
                     SeatsPurchased = seats,
-                    WorkspacesPurchased = workspaces,
+                    WorkspacesPurchased = workspaces
                 },
-                commandType: System.Data.CommandType.StoredProcedure,
+                commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
 
@@ -88,13 +87,7 @@ public sealed class SqlBillingLedger(
                     INSERT INTO dbo.BillingWebhookEvents (EventId, Provider, EventType, PayloadJson, ReceivedUtc, ProcessedUtc, ResultStatus)
                     VALUES (@EventId, @Provider, @EventType, @PayloadJson, SYSUTCDATETIME(), NULL, N'Received');
                     """,
-                    new
-                    {
-                        EventId = dedupeKey,
-                        Provider = provider,
-                        EventType = eventType,
-                        PayloadJson = payloadJson,
-                    },
+                    new { EventId = dedupeKey, Provider = provider, EventType = eventType, PayloadJson = payloadJson },
                     cancellationToken: cancellationToken));
 
             return true;
@@ -105,7 +98,8 @@ public sealed class SqlBillingLedger(
         }
     }
 
-    public async Task MarkWebhookProcessedAsync(string dedupeKey, string resultStatus, CancellationToken cancellationToken)
+    public async Task MarkWebhookProcessedAsync(string dedupeKey, string resultStatus,
+        CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -116,11 +110,7 @@ public sealed class SqlBillingLedger(
                 SET ProcessedUtc = SYSUTCDATETIME(), ResultStatus = @ResultStatus
                 WHERE EventId = @EventId;
                 """,
-                new
-                {
-                    EventId = dedupeKey,
-                    ResultStatus = resultStatus
-                },
+                new { EventId = dedupeKey, ResultStatus = resultStatus },
                 cancellationToken: cancellationToken));
     }
 
@@ -135,10 +125,7 @@ public sealed class SqlBillingLedger(
                 FROM dbo.BillingWebhookEvents
                 WHERE EventId = @EventId;
                 """,
-                new
-                {
-                    EventId = dedupeKey
-                },
+                new { EventId = dedupeKey },
                 cancellationToken: cancellationToken));
     }
 
@@ -169,9 +156,9 @@ public sealed class SqlBillingLedger(
                     Tier = tierCode,
                     SeatsPurchased = seats,
                     WorkspacesPurchased = workspaces,
-                    RawWebhookJson = rawWebhookJson,
+                    RawWebhookJson = rawWebhookJson
                 },
-                commandType: System.Data.CommandType.StoredProcedure,
+                commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
 
@@ -182,11 +169,8 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Suspend",
-                new
-                {
-                    TenantId = tenantId
-                },
-                commandType: System.Data.CommandType.StoredProcedure,
+                new { TenantId = tenantId },
+                commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
 
@@ -197,11 +181,8 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Reinstate",
-                new
-                {
-                    TenantId = tenantId
-                },
-                commandType: System.Data.CommandType.StoredProcedure,
+                new { TenantId = tenantId },
+                commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
 
@@ -212,15 +193,13 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_Cancel",
-                new
-                {
-                    TenantId = tenantId
-                },
-                commandType: System.Data.CommandType.StoredProcedure,
+                new { TenantId = tenantId },
+                commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
 
-    public async Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson, CancellationToken cancellationToken)
+    public async Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson,
+        CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -229,17 +208,13 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_ChangePlan",
-                new
-                {
-                    TenantId = tenantId,
-                    Tier = tierCode,
-                    RawWebhookJson = rawWebhookJson
-                },
-                commandType: System.Data.CommandType.StoredProcedure,
+                new { TenantId = tenantId, Tier = tierCode, RawWebhookJson = rawWebhookJson },
+                commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
 
-    public async Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson, CancellationToken cancellationToken)
+    public async Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson,
+        CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -248,13 +223,8 @@ public sealed class SqlBillingLedger(
         await connection.ExecuteAsync(
             new CommandDefinition(
                 "dbo.sp_Billing_ChangeQuantity",
-                new
-                {
-                    TenantId = tenantId,
-                    SeatsPurchased = seatsPurchased,
-                    RawWebhookJson = rawWebhookJson
-                },
-                commandType: System.Data.CommandType.StoredProcedure,
+                new { TenantId = tenantId, SeatsPurchased = seatsPurchased, RawWebhookJson = rawWebhookJson },
+                commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
 }

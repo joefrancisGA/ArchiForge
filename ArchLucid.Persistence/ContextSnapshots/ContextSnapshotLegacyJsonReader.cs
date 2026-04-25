@@ -8,18 +8,12 @@ internal static class ContextSnapshotLegacyJsonReader
 {
     internal static List<CanonicalObject> DeserializeCanonicalObjects(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return [];
-
-        return JsonEntitySerializer.Deserialize<List<CanonicalObject>>(json);
+        return string.IsNullOrWhiteSpace(json) ? [] : JsonEntitySerializer.Deserialize<List<CanonicalObject>>(json);
     }
 
     internal static List<string> DeserializeStringList(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return [];
-
-        return JsonEntitySerializer.Deserialize<List<string>>(json);
+        return string.IsNullOrWhiteSpace(json) ? [] : JsonEntitySerializer.Deserialize<List<string>>(json);
     }
 
     internal static Dictionary<string, string> DeserializeSourceHashes(string? json)

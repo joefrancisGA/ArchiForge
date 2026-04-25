@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
-/// Opens an optional read-scale-out SQL connection with the same RLS session context as primary repositories.
+///     Opens an optional read-scale-out SQL connection with the same RLS session context as primary repositories.
 /// </summary>
 public interface IReadReplicaQueryConnectionFactory
 {

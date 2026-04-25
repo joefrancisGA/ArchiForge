@@ -5,11 +5,11 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
-/// Append-only persistence for <see cref="PolicyPackChangeLogEntry"/> (<c>dbo.PolicyPackChangeLog</c>).
+///     Append-only persistence for <see cref="PolicyPackChangeLogEntry" /> (<c>dbo.PolicyPackChangeLog</c>).
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchLucid.Persistence.Governance.DapperPolicyPackChangeLogRepository</c> and
-/// <c>InMemoryPolicyPackChangeLogRepository</c>.
+///     Implemented by <c>ArchLucid.Persistence.Governance.DapperPolicyPackChangeLogRepository</c> and
+///     <c>InMemoryPolicyPackChangeLogRepository</c>.
 /// </remarks>
 public interface IPolicyPackChangeLogRepository
 {
@@ -31,7 +31,7 @@ public interface IPolicyPackChangeLogRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Returns change log rows for a tenant with <c>ChangedUtc</c> in <c>[fromUtc, toUtc)</c>, ascending by time.
+    ///     Returns change log rows for a tenant with <c>ChangedUtc</c> in <c>[fromUtc, toUtc)</c>, ascending by time.
     /// </summary>
     Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantInRangeAsync(
         Guid tenantId,

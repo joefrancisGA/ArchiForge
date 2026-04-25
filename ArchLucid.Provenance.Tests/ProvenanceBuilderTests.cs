@@ -8,7 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.Provenance.Tests;
 
 /// <summary>
-/// Covers <see cref="ProvenanceBuilder"/> graph construction (high line count; drives package coverage gate).
+///     Covers <see cref="ProvenanceBuilder" /> graph construction (high line count; drives package coverage gate).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -26,17 +26,9 @@ public sealed class ProvenanceBuilderTests
             RunId,
             new FindingsSnapshot { Findings = [] },
             new GraphSnapshot { Nodes = [] },
-            new GoldenManifest
-            {
-                ManifestId = ManifestId,
-                ManifestHash = "hash-min",
-                Decisions = [],
-            },
+            new GoldenManifest { ManifestId = ManifestId, ManifestHash = "hash-min", Decisions = [] },
             RuleAuditTrace.From(
-                new RuleAuditTracePayload
-                {
-                    AppliedRuleIds = [],
-                }),
+                new RuleAuditTracePayload { AppliedRuleIds = [] }),
             []);
 
         graph.RunId.Should().Be(RunId);
@@ -56,28 +48,13 @@ public sealed class ProvenanceBuilderTests
         {
             Nodes =
             [
+                new GraphNode { NodeId = graphNodeId, NodeType = "Service", Label = "Labeled node", Category = "cat" },
                 new GraphNode
                 {
-                    NodeId = graphNodeId,
-                    NodeType = "Service",
-                    Label = "Labeled node",
-                    Category = "cat",
+                    NodeId = graphNodeId, NodeType = "Service", Label = "duplicate id same key", Category = "cat"
                 },
-                new GraphNode
-                {
-                    NodeId = graphNodeId,
-                    NodeType = "Service",
-                    Label = "duplicate id same key",
-                    Category = "cat",
-                },
-                new GraphNode
-                {
-                    NodeId = "bare",
-                    NodeType = "Resource",
-                    Label = "   ",
-                    Category = null,
-                },
-            ],
+                new GraphNode { NodeId = "bare", NodeType = "Resource", Label = "   ", Category = null }
+            ]
         };
 
         FindingsSnapshot findings = new()
@@ -93,9 +70,9 @@ public sealed class ProvenanceBuilderTests
                     Severity = FindingSeverity.Warning,
                     Title = "Finding title",
                     Rationale = "r",
-                    RelatedNodeIds = [graphNodeId, "not-in-graph"],
-                },
-            ],
+                    RelatedNodeIds = [graphNodeId, "not-in-graph"]
+                }
+            ]
         };
 
         ResolvedArchitectureDecision decision = new()
@@ -105,20 +82,12 @@ public sealed class ProvenanceBuilderTests
             Title = "Decide",
             SelectedOption = "opt",
             Rationale = "why",
-            SupportingFindingIds = [findingId],
+            SupportingFindingIds = [findingId]
         };
 
-        GoldenManifest manifest = new()
-        {
-            ManifestId = ManifestId,
-            ManifestHash = "mh",
-            Decisions = [decision],
-        };
+        GoldenManifest manifest = new() { ManifestId = ManifestId, ManifestHash = "mh", Decisions = [decision] };
 
-        RuleAuditTracePayload audit = new()
-        {
-            AppliedRuleIds = [ruleId, ruleId, ruleId.ToUpperInvariant()],
-        };
+        RuleAuditTracePayload audit = new() { AppliedRuleIds = [ruleId, ruleId, ruleId.ToUpperInvariant()] };
 
         SynthesizedArtifact artifact = new()
         {
@@ -128,7 +97,7 @@ public sealed class ProvenanceBuilderTests
             Format = "md",
             Content = "x",
             ContentHash = "h",
-            ContributingDecisionIds = [decisionId, "missing-decision"],
+            ContributingDecisionIds = [decisionId, "missing-decision"]
         };
 
         ProvenanceBuilder sut = new();
@@ -142,7 +111,8 @@ public sealed class ProvenanceBuilderTests
 
         graph.Nodes.Should().HaveCount(7);
         graph.Nodes.Should().Contain(n => n.Type == ProvenanceNodeType.GraphNode && n.ReferenceId == graphNodeId);
-        graph.Nodes.Should().Contain(n => n.Type == ProvenanceNodeType.GraphNode && n.ReferenceId == "bare" && n.Name == "bare");
+        graph.Nodes.Should().Contain(n =>
+            n.Type == ProvenanceNodeType.GraphNode && n.ReferenceId == "bare" && n.Name == "bare");
         graph.Nodes.Should().Contain(n => n.Type == ProvenanceNodeType.Finding && n.ReferenceId == findingId);
         graph.Nodes.Should().Contain(n => n.Type == ProvenanceNodeType.Rule && n.ReferenceId == ruleId);
         graph.Nodes.Should().Contain(n => n.Type == ProvenanceNodeType.Decision && n.ReferenceId == decisionId);
@@ -167,7 +137,7 @@ public sealed class ProvenanceBuilderTests
             Title = "T",
             SelectedOption = "o",
             Rationale = "r",
-            SupportingFindingIds = ["no-such-finding"],
+            SupportingFindingIds = ["no-such-finding"]
         };
 
         ProvenanceBuilder sut = new();
@@ -175,12 +145,7 @@ public sealed class ProvenanceBuilderTests
             RunId,
             new FindingsSnapshot { Findings = [] },
             new GraphSnapshot { Nodes = [] },
-            new GoldenManifest
-            {
-                ManifestId = ManifestId,
-                ManifestHash = "h",
-                Decisions = [decision],
-            },
+            new GoldenManifest { ManifestId = ManifestId, ManifestHash = "h", Decisions = [decision] },
             RuleAuditTrace.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
             []);
 
@@ -199,7 +164,7 @@ public sealed class ProvenanceBuilderTests
             EngineType = "e",
             Severity = FindingSeverity.Info,
             Title = "a",
-            Rationale = "r",
+            Rationale = "r"
         };
 
         ProvenanceBuilder sut = new();
@@ -207,16 +172,10 @@ public sealed class ProvenanceBuilderTests
             RunId,
             new FindingsSnapshot { Findings = [f, f] },
             new GraphSnapshot { Nodes = [] },
-            new GoldenManifest
-            {
-                ManifestId = ManifestId,
-                ManifestHash = "h",
-                Decisions = [],
-            },
+            new GoldenManifest { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
             RuleAuditTrace.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
             []);
 
         graph.Nodes.Count(n => n.Type == ProvenanceNodeType.Finding).Should().Be(1);
     }
 }
-

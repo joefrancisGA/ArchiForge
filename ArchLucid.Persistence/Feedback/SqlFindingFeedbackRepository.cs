@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Feedback;
-using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -52,7 +51,7 @@ public sealed class SqlFindingFeedbackRepository(
                     submission.ProjectId,
                     submission.RunId,
                     submission.FindingId,
-                    submission.Score,
+                    submission.Score
                 },
                 cancellationToken: cancellationToken));
     }

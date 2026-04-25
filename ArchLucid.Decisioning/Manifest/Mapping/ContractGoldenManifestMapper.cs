@@ -1,15 +1,19 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Manifest.Mapping;
 
-/// <summary>Maps a coordinator-shaped <see cref="Cm.GoldenManifest"/> into an authority <see cref="Models.GoldenManifest"/> for persistence.</summary>
+/// <summary>
+///     Maps a coordinator-shaped <see cref="Cm.GoldenManifest" /> into an authority
+///     <see cref="Models.GoldenManifest" /> for persistence.
+/// </summary>
 public static class ContractGoldenManifestMapper
 {
-    public static ArchLucid.Decisioning.Models.GoldenManifest ToAuthorityModel(
+    public static GoldenManifest ToAuthorityModel(
         Cm.GoldenManifest contract,
         ScopeContext scope,
         SaveContractsManifestOptions keying)
@@ -23,7 +27,7 @@ public static class ContractGoldenManifestMapper
         if (keying is null)
             throw new ArgumentNullException(nameof(keying));
 
-        ArchLucid.Decisioning.Models.GoldenManifest model = new()
+        GoldenManifest model = new()
         {
             SchemaVersion = 1,
             TenantId = scope.TenantId,
@@ -45,33 +49,40 @@ public static class ContractGoldenManifestMapper
                 Name = contract.SystemName,
                 Version = contract.Metadata.ManifestVersion,
                 Status = "Draft",
-                Summary = contract.Metadata.ChangeDescription,
+                Summary = contract.Metadata.ChangeDescription
             },
-            Topology = { Services = [.. contract.Services], Datastores = [.. contract.Datastores], Resources =
-                [.. contract.Services.Select(s => s.ServiceName)
-                    .Concat(contract.Datastores.Select(d => d.DatastoreName))]
+            Topology =
+            {
+                Services = [.. contract.Services],
+                Datastores = [.. contract.Datastores],
+                Relationships = [.. contract.Relationships],
+                Resources =
+                [
+                    .. contract.Services.Select(s => s.ServiceName)
+                        .Concat(contract.Datastores.Select(d => d.DatastoreName))
+                ]
             },
-            Security = { Controls =
-                [.. contract.Services.SelectMany(
-                    s => s.RequiredControls.Select(
-                        c => new SecurityPostureItem
+            Security =
+            {
+                Controls =
+                [
+                    .. contract.Services.SelectMany(s => s.RequiredControls.Select(c =>
+                        new SecurityPostureItem
                         {
-                            ControlName = c,
-                            Status = "stated",
-                            ControlId = c,
-                            Impact = string.Empty,
-                        }))]
+                            ControlName = c, Status = "stated", ControlId = c, Impact = string.Empty
+                        }))
+                ]
             },
-            Compliance = { Controls =
-                [.. contract.Governance.ComplianceTags
-                    .Select(
-                        t => new CompliancePostureItem
+            Compliance =
+            {
+                Controls =
+                [
+                    .. contract.Governance.ComplianceTags
+                        .Select(t => new CompliancePostureItem
                         {
-                            ControlName = t,
-                            ControlId = t,
-                            AppliesToCategory = "governance",
-                            Status = "Tagged",
-                        })]
+                            ControlName = t, ControlId = t, AppliesToCategory = "governance", Status = "Tagged"
+                        })
+                ]
             },
             Policy = { Notes = [.. contract.Governance.PolicyConstraints] }
         };

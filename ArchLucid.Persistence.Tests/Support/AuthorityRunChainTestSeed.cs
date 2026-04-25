@@ -1,7 +1,6 @@
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
-
 using ArchLucid.Persistence.Serialization;
 
 using Dapper;
@@ -11,8 +10,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Support;
 
 /// <summary>
-/// Seeds the minimal Runs / ContextSnapshots / GraphSnapshots / FindingsSnapshots / DecisioningTraces chain
-/// required before persisting a <see cref="ArchLucid.Decisioning.Models.GoldenManifest"/> under FK constraints.
+///     Seeds the minimal Runs / ContextSnapshots / GraphSnapshots / FindingsSnapshots / DecisioningTraces chain
+///     required before persisting a <see cref="ArchLucid.Decisioning.Models.GoldenManifest" /> under FK constraints.
 /// </summary>
 public static class AuthorityRunChainTestSeed
 {
@@ -27,9 +26,9 @@ public static class AuthorityRunChainTestSeed
         CancellationToken ct)
     {
         const string insertRun = """
-            INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
-            VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
-            """;
+                                 INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+                                 VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
+                                 """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -41,12 +40,15 @@ public static class AuthorityRunChainTestSeed
                     CreatedUtc = DateTime.UtcNow,
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    ScopeProjectId = projectId,
+                    ScopeProjectId = projectId
                 },
                 cancellationToken: ct));
     }
 
-    /// <summary>Inserts <c>dbo.Runs</c> and <c>dbo.ContextSnapshots</c> only (for tests that insert <c>dbo.GraphSnapshots</c> headers directly).</summary>
+    /// <summary>
+    ///     Inserts <c>dbo.Runs</c> and <c>dbo.ContextSnapshots</c> only (for tests that insert <c>dbo.GraphSnapshots</c>
+    ///     headers directly).
+    /// </summary>
     public static async Task SeedRunAndContextOnlyAsync(
         SqlConnection connection,
         Guid tenantId,
@@ -63,17 +65,17 @@ public static class AuthorityRunChainTestSeed
         string emptyList = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertContext = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
+                                     INSERT INTO dbo.ContextSnapshots
+                                     (
+                                         SnapshotId, RunId, ProjectId, CreatedUtc,
+                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                                     )
+                                     VALUES
+                                     (
+                                         @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+                                     );
+                                     """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -88,12 +90,12 @@ public static class AuthorityRunChainTestSeed
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,
                     ErrorsJson = emptyList,
-                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>())
                 },
                 cancellationToken: ct));
     }
 
-    /// <inheritdoc cref="AuthorityRunChainTestSeed"/>
+    /// <inheritdoc cref="AuthorityRunChainTestSeed" />
     public static async Task SeedFullChainAsync(
         SqlConnection connection,
         Guid tenantId,
@@ -124,9 +126,9 @@ public static class AuthorityRunChainTestSeed
     }
 
     /// <summary>
-    /// Inserts <c>dbo.ContextSnapshots</c>, <c>dbo.GraphSnapshots</c>, <c>dbo.FindingsSnapshots</c>, and
-    /// <c>dbo.DecisioningTraces</c> for a <paramref name="runId"/> that already exists in <c>dbo.Runs</c>
-    /// (e.g. after <see cref="ArchitectureCommitTestSeed.InsertRequestAndRunAsync"/>).
+    ///     Inserts <c>dbo.ContextSnapshots</c>, <c>dbo.GraphSnapshots</c>, <c>dbo.FindingsSnapshots</c>, and
+    ///     <c>dbo.DecisioningTraces</c> for a <paramref name="runId" /> that already exists in <c>dbo.Runs</c>
+    ///     (e.g. after <see cref="ArchitectureCommitTestSeed.InsertRequestAndRunAsync" />).
     /// </summary>
     public static async Task SeedSnapshotChainForExistingRunAsync(
         SqlConnection connection,
@@ -145,17 +147,17 @@ public static class AuthorityRunChainTestSeed
         string emptyList = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertContext = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
+                                     INSERT INTO dbo.ContextSnapshots
+                                     (
+                                         SnapshotId, RunId, ProjectId, CreatedUtc,
+                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                                     )
+                                     VALUES
+                                     (
+                                         @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+                                     );
+                                     """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -170,7 +172,7 @@ public static class AuthorityRunChainTestSeed
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyList,
                     ErrorsJson = emptyList,
-                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>())
                 },
                 cancellationToken: ct));
 
@@ -179,17 +181,17 @@ public static class AuthorityRunChainTestSeed
         string emptyGraphWarnings = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertGraph = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                   INSERT INTO dbo.GraphSnapshots
+                                   (
+                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                       NodesJson, EdgesJson, WarningsJson
+                                   )
+                                   VALUES
+                                   (
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                       @NodesJson, @EdgesJson, @WarningsJson
+                                   );
+                                   """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -202,22 +204,22 @@ public static class AuthorityRunChainTestSeed
                     CreatedUtc = DateTime.UtcNow,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
-                    WarningsJson = emptyGraphWarnings,
+                    WarningsJson = emptyGraphWarnings
                 },
                 cancellationToken: ct));
 
         const string insertFindings = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, TenantId, WorkspaceId, ProjectId,
-                CreatedUtc, SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @TenantId, @WorkspaceId, @ScopeProjectId,
-                @CreatedUtc, @SchemaVersion, @FindingsJson
-            );
-            """;
+                                      INSERT INTO dbo.FindingsSnapshots
+                                      (
+                                          FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, TenantId, WorkspaceId, ProjectId,
+                                          CreatedUtc, SchemaVersion, FindingsJson
+                                      )
+                                      VALUES
+                                      (
+                                          @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @TenantId, @WorkspaceId, @ScopeProjectId,
+                                          @CreatedUtc, @SchemaVersion, @FindingsJson
+                                      );
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -240,27 +242,27 @@ public static class AuthorityRunChainTestSeed
                         ContextSnapshotId = contextSnapshotId,
                         GraphSnapshotId = graphSnapshotId,
                         CreatedUtc = DateTime.UtcNow,
-                        Findings = [],
-                    }),
+                        Findings = []
+                    })
                 },
                 cancellationToken: ct));
 
         const string insertTrace = """
-            INSERT INTO dbo.DecisioningTraces
-            (
-                DecisionTraceId, RunId, CreatedUtc,
-                RuleSetId, RuleSetVersion, RuleSetHash,
-                AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
-                TenantId, WorkspaceId, ProjectId
-            )
-            VALUES
-            (
-                @DecisionTraceId, @RunId, @CreatedUtc,
-                @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson,
-                @TenantId, @WorkspaceId, @ProjectId
-            );
-            """;
+                                   INSERT INTO dbo.DecisioningTraces
+                                   (
+                                       DecisionTraceId, RunId, CreatedUtc,
+                                       RuleSetId, RuleSetVersion, RuleSetHash,
+                                       AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
+                                       TenantId, WorkspaceId, ProjectId
+                                   )
+                                   VALUES
+                                   (
+                                       @DecisionTraceId, @RunId, @CreatedUtc,
+                                       @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                       @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson,
+                                       @TenantId, @WorkspaceId, @ProjectId
+                                   );
+                                   """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -279,7 +281,7 @@ public static class AuthorityRunChainTestSeed
                     NotesJson = emptyList,
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    ProjectId = scopeProjectId,
+                    ProjectId = scopeProjectId
                 },
                 cancellationToken: ct));
     }

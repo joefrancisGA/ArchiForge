@@ -4,13 +4,13 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Rules;
 
 /// <summary>
-/// A hard-coded, in-memory <see cref="IDecisionRuleProvider"/> used for local development,
-/// integration tests, and demo environments.
+///     A hard-coded, in-memory <see cref="IDecisionRuleProvider" /> used for local development,
+///     integration tests, and demo environments.
 /// </summary>
 /// <remarks>
-/// This provider always returns the same static rule set and is not suitable for production
-/// environments that require dynamic or tenant-specific rule configuration.
-/// Replace it with a database-backed provider via DI when persistent rule management is needed.
+///     This provider always returns the same static rule set and is not suitable for production
+///     environments that require dynamic or tenant-specific rule configuration.
+///     Replace it with a database-backed provider via DI when persistent rule management is needed.
 /// </remarks>
 public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
 {

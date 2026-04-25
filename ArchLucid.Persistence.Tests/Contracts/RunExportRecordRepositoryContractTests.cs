@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IRunExportRecordRepository"/>.
+///     Shared contract assertions for <see cref="IRunExportRecordRepository" />.
 /// </summary>
 public abstract class RunExportRecordRepositoryContractTests
 {
@@ -76,7 +76,7 @@ public abstract class RunExportRecordRepositoryContractTests
             ExportType = "analysis",
             Format = "markdown",
             FileName = "out.md",
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
     }
 }

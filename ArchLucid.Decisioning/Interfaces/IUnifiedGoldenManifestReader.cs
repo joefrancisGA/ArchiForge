@@ -4,7 +4,7 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Decisioning.Interfaces;
 
 /// <summary>
-/// Read-only façade over coordinator and authority golden-manifest persistence (ADR 0021 Phase 1).
+///     Read-only façade over coordinator and authority golden-manifest persistence (ADR 0021 Phase 1).
 /// </summary>
 public interface IUnifiedGoldenManifestReader
 {
@@ -12,8 +12,9 @@ public interface IUnifiedGoldenManifestReader
     Task<GoldenManifest?> GetByVersionAsync(string manifestVersion, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Resolves the best committed manifest for a run: prefers authority <see cref="IGoldenManifestRepository"/> when
-    /// <c>GoldenManifestId</c> is set; otherwise falls back to coordinator <c>CurrentManifestVersion</c>.
+    ///     Resolves the best committed manifest for a run: prefers authority <see cref="IGoldenManifestRepository" /> when
+    ///     <c>GoldenManifestId</c> is set; otherwise falls back to coordinator <c>CurrentManifestVersion</c>.
     /// </summary>
-    Task<GoldenManifest?> ReadByRunIdAsync(ScopeContext scope, Guid runId, CancellationToken cancellationToken = default);
+    Task<GoldenManifest?> ReadByRunIdAsync(ScopeContext scope, Guid runId,
+        CancellationToken cancellationToken = default);
 }

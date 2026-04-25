@@ -6,21 +6,12 @@ import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescr
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-function DescriptionErrorProbe() {
-  const {
-    formState: { errors },
-    trigger,
-  } = useFormContext();
-
+function ValidateDescriptionButton() {
+  const { trigger } = useFormContext();
   return (
-    <div>
-      <button type="button" onClick={() => void trigger("description")}>
-        validate-description
-      </button>
-      {errors.description?.message ? (
-        <span role="alert">{String(errors.description.message)}</span>
-      ) : null}
-    </div>
+    <button type="button" onClick={() => void trigger("description")}>
+      validate-description
+    </button>
   );
 }
 
@@ -70,7 +61,7 @@ describe("WizardStepDescription", () => {
       <TooltipProvider delayDuration={0}>
         <WizardFormTestHarness>
           <WizardStepDescription />
-          <DescriptionErrorProbe />
+          <ValidateDescriptionButton />
         </WizardFormTestHarness>
       </TooltipProvider>,
     );
@@ -82,5 +73,6 @@ describe("WizardStepDescription", () => {
     fireEvent.click(screen.getByRole("button", { name: "validate-description" }));
 
     expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(screen.getByText(/at least 10 characters/)).toBeInTheDocument();
   });
 });

@@ -26,18 +26,14 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         await RequireArchitectureRunExistsAsync(connection, link.ArchitectureRunId, cancellationToken);
 
         const string sql = """
-            INSERT INTO dbo.ProductLearningImprovementPlanArchitectureRuns (PlanId, ArchitectureRunId)
-            VALUES (@PlanId, @ArchitectureRunId);
-            """;
+                           INSERT INTO dbo.ProductLearningImprovementPlanArchitectureRuns (PlanId, ArchitectureRunId)
+                           VALUES (@PlanId, @ArchitectureRunId);
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    link.PlanId,
-                    link.ArchitectureRunId
-                },
+                new { link.PlanId, link.ArchitectureRunId },
                 cancellationToken: cancellationToken));
     }
 
@@ -54,19 +50,14 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         await RequirePilotSignalInScopeAsync(connection, link.SignalId, scope, cancellationToken);
 
         const string sql = """
-            INSERT INTO dbo.ProductLearningImprovementPlanSignalLinks (PlanId, SignalId, TriageStatusSnapshot)
-            VALUES (@PlanId, @SignalId, @TriageStatusSnapshot);
-            """;
+                           INSERT INTO dbo.ProductLearningImprovementPlanSignalLinks (PlanId, SignalId, TriageStatusSnapshot)
+                           VALUES (@PlanId, @SignalId, @TriageStatusSnapshot);
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    link.PlanId,
-                    link.SignalId,
-                    TriageStatusSnapshot = link.TriageStatusSnapshot
-                },
+                new { link.PlanId, link.SignalId, link.TriageStatusSnapshot },
                 cancellationToken: cancellationToken));
     }
 
@@ -93,23 +84,23 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
 
 
         const string sql = """
-            INSERT INTO dbo.ProductLearningImprovementPlanArtifactLinks
-            (
-                LinkId,
-                PlanId,
-                AuthorityBundleId,
-                AuthorityArtifactSortOrder,
-                PilotArtifactHint
-            )
-            VALUES
-            (
-                @LinkId,
-                @PlanId,
-                @AuthorityBundleId,
-                @AuthorityArtifactSortOrder,
-                @PilotArtifactHint
-            );
-            """;
+                           INSERT INTO dbo.ProductLearningImprovementPlanArtifactLinks
+                           (
+                               LinkId,
+                               PlanId,
+                               AuthorityBundleId,
+                               AuthorityArtifactSortOrder,
+                               PilotArtifactHint
+                           )
+                           VALUES
+                           (
+                               @LinkId,
+                               @PlanId,
+                               @AuthorityBundleId,
+                               @AuthorityArtifactSortOrder,
+                               @PilotArtifactHint
+                           );
+                           """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -118,9 +109,9 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
                 {
                     LinkId = linkId,
                     link.PlanId,
-                    AuthorityBundleId = link.AuthorityBundleId,
-                    AuthorityArtifactSortOrder = link.AuthorityArtifactSortOrder,
-                    PilotArtifactHint = link.PilotArtifactHint
+                    link.AuthorityBundleId,
+                    link.AuthorityArtifactSortOrder,
+                    link.PilotArtifactHint
                 },
                 cancellationToken: cancellationToken));
     }
@@ -133,27 +124,21 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         const string sql = """
-            SELECT r.ArchitectureRunId
-            FROM dbo.ProductLearningImprovementPlanArchitectureRuns r
-            INNER JOIN dbo.ProductLearningImprovementPlans p ON p.PlanId = r.PlanId
-            WHERE r.PlanId = @PlanId
-              AND p.TenantId = @TenantId
-              AND p.WorkspaceId = @WorkspaceId
-              AND p.ProjectId = @ProjectId
-            ORDER BY r.ArchitectureRunId ASC;
-            """;
+                           SELECT r.ArchitectureRunId
+                           FROM dbo.ProductLearningImprovementPlanArchitectureRuns r
+                           INNER JOIN dbo.ProductLearningImprovementPlans p ON p.PlanId = r.PlanId
+                           WHERE r.PlanId = @PlanId
+                             AND p.TenantId = @TenantId
+                             AND p.WorkspaceId = @WorkspaceId
+                             AND p.ProjectId = @ProjectId
+                           ORDER BY r.ArchitectureRunId ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<string> ids = await connection.QueryAsync<string>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    PlanId = planId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
-                },
+                new { PlanId = planId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                 cancellationToken: cancellationToken));
 
         return ids.ToList();
@@ -167,36 +152,28 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         const string sql = """
-            SELECT s.PlanId, s.SignalId, s.TriageStatusSnapshot
-            FROM dbo.ProductLearningImprovementPlanSignalLinks s
-            INNER JOIN dbo.ProductLearningImprovementPlans p ON p.PlanId = s.PlanId
-            WHERE s.PlanId = @PlanId
-              AND p.TenantId = @TenantId
-              AND p.WorkspaceId = @WorkspaceId
-              AND p.ProjectId = @ProjectId
-            ORDER BY s.SignalId ASC;
-            """;
+                           SELECT s.PlanId, s.SignalId, s.TriageStatusSnapshot
+                           FROM dbo.ProductLearningImprovementPlanSignalLinks s
+                           INNER JOIN dbo.ProductLearningImprovementPlans p ON p.PlanId = s.PlanId
+                           WHERE s.PlanId = @PlanId
+                             AND p.TenantId = @TenantId
+                             AND p.WorkspaceId = @WorkspaceId
+                             AND p.ProjectId = @ProjectId
+                           ORDER BY s.SignalId ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<ProductLearningImprovementPlanSignalLinkSqlRow> rows =
             await connection.QueryAsync<ProductLearningImprovementPlanSignalLinkSqlRow>(
                 new CommandDefinition(
                     sql,
-                    new
-                    {
-                        PlanId = planId,
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        scope.ProjectId
-                    },
+                    new { PlanId = planId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                     cancellationToken: cancellationToken));
 
         return rows
             .Select(static r => new ProductLearningImprovementPlanSignalLinkRecord
             {
-                PlanId = r.PlanId,
-                SignalId = r.SignalId,
-                TriageStatusSnapshot = r.TriageStatusSnapshot
+                PlanId = r.PlanId, SignalId = r.SignalId, TriageStatusSnapshot = r.TriageStatusSnapshot
             })
             .ToList();
     }
@@ -209,28 +186,22 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         const string sql = """
-            SELECT a.LinkId, a.PlanId, a.AuthorityBundleId, a.AuthorityArtifactSortOrder, a.PilotArtifactHint
-            FROM dbo.ProductLearningImprovementPlanArtifactLinks a
-            INNER JOIN dbo.ProductLearningImprovementPlans p ON p.PlanId = a.PlanId
-            WHERE a.PlanId = @PlanId
-              AND p.TenantId = @TenantId
-              AND p.WorkspaceId = @WorkspaceId
-              AND p.ProjectId = @ProjectId
-            ORDER BY a.LinkId ASC;
-            """;
+                           SELECT a.LinkId, a.PlanId, a.AuthorityBundleId, a.AuthorityArtifactSortOrder, a.PilotArtifactHint
+                           FROM dbo.ProductLearningImprovementPlanArtifactLinks a
+                           INNER JOIN dbo.ProductLearningImprovementPlans p ON p.PlanId = a.PlanId
+                           WHERE a.PlanId = @PlanId
+                             AND p.TenantId = @TenantId
+                             AND p.WorkspaceId = @WorkspaceId
+                             AND p.ProjectId = @ProjectId
+                           ORDER BY a.LinkId ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         IEnumerable<ProductLearningImprovementPlanArtifactLinkSqlRow> rows =
             await connection.QueryAsync<ProductLearningImprovementPlanArtifactLinkSqlRow>(
                 new CommandDefinition(
                     sql,
-                    new
-                    {
-                        PlanId = planId,
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        scope.ProjectId
-                    },
+                    new { PlanId = planId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                     cancellationToken: cancellationToken));
 
         return rows
@@ -251,16 +222,13 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT TenantId, WorkspaceId, ProjectId
-            FROM dbo.ProductLearningImprovementPlans
-            WHERE PlanId = @PlanId;
-            """;
+                           SELECT TenantId, WorkspaceId, ProjectId
+                           FROM dbo.ProductLearningImprovementPlans
+                           WHERE PlanId = @PlanId;
+                           """;
 
         ProductLearningScopeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningScopeSqlRow>(
-            new CommandDefinition(sql, new
-            {
-                PlanId = planId
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { PlanId = planId }, cancellationToken: cancellationToken));
 
         if (row is null)
             throw new InvalidOperationException("Plan not found for PlanId=" + planId + ".");
@@ -268,9 +236,7 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
 
         return new ProductLearningScope
         {
-            TenantId = row.TenantId,
-            WorkspaceId = row.WorkspaceId,
-            ProjectId = row.ProjectId
+            TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ProjectId
         };
     }
 
@@ -286,18 +252,14 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
 
 
         const string sql = """
-            SELECT CASE WHEN EXISTS(SELECT 1 FROM dbo.Runs WHERE RunId = @RunId) THEN 1 ELSE 0 END;
-            """;
+                           SELECT CASE WHEN EXISTS(SELECT 1 FROM dbo.Runs WHERE RunId = @RunId) THEN 1 ELSE 0 END;
+                           """;
 
         int ok = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(sql, new
-            {
-                RunId = runGuid
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { RunId = runGuid }, cancellationToken: cancellationToken));
 
         if (ok == 0)
             throw new InvalidOperationException("dbo.Runs.RunId was not found: " + architectureRunId);
-
     }
 
     private static async Task RequirePilotSignalInScopeAsync(
@@ -307,31 +269,24 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT CASE WHEN EXISTS(
-                SELECT 1 FROM dbo.ProductLearningPilotSignals
-                WHERE SignalId = @SignalId
-                  AND TenantId = @TenantId
-                  AND WorkspaceId = @WorkspaceId
-                  AND ProjectId = @ProjectId) THEN 1 ELSE 0 END;
-            """;
+                           SELECT CASE WHEN EXISTS(
+                               SELECT 1 FROM dbo.ProductLearningPilotSignals
+                               WHERE SignalId = @SignalId
+                                 AND TenantId = @TenantId
+                                 AND WorkspaceId = @WorkspaceId
+                                 AND ProjectId = @ProjectId) THEN 1 ELSE 0 END;
+                           """;
 
         int ok = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    SignalId = signalId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
-                },
+                new { SignalId = signalId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                 cancellationToken: cancellationToken));
 
         if (ok == 0)
 
             throw new InvalidOperationException(
                 "ProductLearningPilotSignals row was not found in the plan's scope for SignalId=" + signalId + ".");
-
     }
 
     private static async Task RequireAuthorityArtifactInScopeAsync(
@@ -352,16 +307,16 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
 
 
         const string sql = """
-            SELECT CASE WHEN EXISTS(
-                SELECT 1
-                FROM dbo.ArtifactBundleArtifacts aba
-                INNER JOIN dbo.ArtifactBundles b ON b.BundleId = aba.BundleId
-                WHERE aba.BundleId = @BundleId
-                  AND aba.SortOrder = @SortOrder
-                  AND b.TenantId = @TenantId
-                  AND b.WorkspaceId = @WorkspaceId
-                  AND b.ProjectId = @ProjectId) THEN 1 ELSE 0 END;
-            """;
+                           SELECT CASE WHEN EXISTS(
+                               SELECT 1
+                               FROM dbo.ArtifactBundleArtifacts aba
+                               INNER JOIN dbo.ArtifactBundles b ON b.BundleId = aba.BundleId
+                               WHERE aba.BundleId = @BundleId
+                                 AND aba.SortOrder = @SortOrder
+                                 AND b.TenantId = @TenantId
+                                 AND b.WorkspaceId = @WorkspaceId
+                                 AND b.ProjectId = @ProjectId) THEN 1 ELSE 0 END;
+                           """;
 
         int ok = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
@@ -380,6 +335,5 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
 
             throw new InvalidOperationException(
                 "Authority artifact coordinates were not found in the plan's scope (BundleId/SortOrder).");
-
     }
 }

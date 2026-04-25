@@ -1,3 +1,5 @@
+import { DEFAULT_GITHUB_BLOB_BASE } from "./docs-public-base";
+
 /**
  * Static contextual help index for the operator shell. Doc paths are relative to the repository root.
  */
@@ -6,7 +8,7 @@ export type HelpTopic = {
   title: string;
   keywords: string[];
   summary: string;
-  /** Relative path under repo root (for copy/paste; optional web URL via getDocHref). */
+  /** Relative path under repo root (for copy/paste; web URL via getDocHref). */
   docPath: string;
   /** App routes where this topic is most relevant (pathname prefix or exact). */
   routes: string[];
@@ -19,7 +21,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["wizard", "create", "pipeline", "run"],
     summary: "Use New run to submit a request, then track the authority pipeline until the golden manifest is ready.",
     docPath: "docs/FIRST_RUN_WIZARD.md",
-    routes: ["/runs/new", "/"],
+    routes: ["/runs/new", "/", "/getting-started"],
   },
   {
     id: "artifacts",
@@ -57,9 +59,10 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "alerts",
     title: "Alerts",
     keywords: ["inbox", "ack", "noise"],
-    summary: "Alerts surface governance and evaluation signals; tune rules from Alert rules and Alert tuning.",
+    summary:
+      "Alerts hub: inbox, rules, routing, composite, and simulation & tuning on one page (`/alerts?tab=`).",
     docPath: "docs/ALERTS.md",
-    routes: ["/alerts", "/alert-rules", "/alert-tuning"],
+    routes: ["/alerts", "/alerts?tab=rules", "/alerts?tab=simulation"],
   },
   {
     id: "policy-packs",
@@ -68,6 +71,14 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary: "Policy packs bundle rules and defaults; assign scope and inspect effective governance.",
     docPath: "docs/API_CONTRACTS.md",
     routes: ["/policy-packs", "/governance-resolution"],
+  },
+  {
+    id: "system-health",
+    title: "System health dashboard",
+    keywords: ["ready", "health", "circuit", "diagnostics", "metrics"],
+    summary: "In-app readiness checks, circuit breaker gates, and onboarding funnel counters — same signals as CLI doctor without leaving the shell.",
+    docPath: "docs/library/OBSERVABILITY.md",
+    routes: ["/admin/health"],
   },
   {
     id: "troubleshooting",
@@ -119,17 +130,23 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
 ];
 
-/** Optional public docs site or raw GitHub base; when unset, doc links show path only. */
+/**
+ * Full URL to the doc on the web. Uses NEXT_PUBLIC_DOCS_BASE_URL when set; otherwise the public
+ * ArchiForge GitHub blob URL for `main`.
+ */
 export function getDocHref(docPath: string): string | null {
-  const base = process.env.NEXT_PUBLIC_DOCS_BASE_URL?.trim();
+  const relative = docPath?.trim() ?? "";
 
-  if (!base || base.length === 0) {
+  if (relative.length === 0) {
     return null;
   }
 
+  const custom = process.env.NEXT_PUBLIC_DOCS_BASE_URL?.trim();
+  const base = custom && custom.length > 0 ? custom : DEFAULT_GITHUB_BLOB_BASE;
   const normalized = base.replace(/\/$/, "");
+  const path = relative.replace(/^\//, "");
 
-  return `${normalized}/${docPath.replace(/^\//, "")}`;
+  return `${normalized}/${path}`;
 }
 
 export function filterHelpTopics(query: string, pathname: string): HelpTopic[] {

@@ -4,7 +4,7 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.KnowledgeGraph.Inference;
 
 /// <summary>
-/// Infers edges between graph nodes for a given context snapshot (e.g. CONTAINS, PROTECTS, APPLIES_TO).
+///     Infers edges between graph nodes for a given context snapshot (e.g. CONTAINS, PROTECTS, APPLIES_TO).
 /// </summary>
 public interface IGraphEdgeInferer
 {

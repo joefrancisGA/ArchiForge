@@ -2,15 +2,44 @@
 
 import { useEffect, useState } from "react";
 
+import { BeforeAfterDeltaInlinePanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaInlinePanel";
+import { BeforeAfterDeltaSidebarPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaSidebarPanel";
+import { BeforeAfterDeltaTopPanel } from "@/components/BeforeAfterDelta/BeforeAfterDeltaTopPanel";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+
+/**
+ * Render variant for the BeforeAfterDeltaPanel:
+ * - `cycle` (default): the original trial-onboarding "review-cycle delta" card —
+ *   baseline (from `/v1/tenant/trial-status`) vs measured (from per-run pilot-run-deltas).
+ *   This is the legacy callsite-compatible behaviour; existing callers that omit
+ *   `variant` keep working unchanged.
+ * - `top`: aggregated median across the most recent N committed runs, rendered
+ *   above the runs index list. Calls the new `/v1/pilots/runs/recent-deltas`
+ *   aggregated endpoint (one HTTP call, server-computed medians).
+ * - `sidebar`: same data as `top`, compact rendering for the sidebar widget slot.
+ * - `inline`: single-run delta vs the prior committed run for the same architecture
+ *   request (uses `runId` from props), rendered above the artifacts table on
+ *   `/runs/{runId}`.
+ */
+export type BeforeAfterDeltaPanelVariant = "cycle" | "top" | "sidebar" | "inline";
 
 export type BeforeAfterDeltaPanelProps = {
   /**
    * When provided, the panel uses this run for the measured delta. When omitted, it uses
    * `trialWelcomeRunId` from `GET /v1/tenant/trial-status` so the operator dashboard can render the panel
-   * without knowing the seeded run id at build time.
+   * without knowing the seeded run id at build time. Required for the `inline` variant.
    */
   runId?: string;
+
+  /**
+   * Render variant. Defaults to `cycle` (the original trial-onboarding behaviour) so that
+   * pre-existing callsites — `<BeforeAfterDeltaPanel />` and `<BeforeAfterDeltaPanel runId="..." />`
+   * — keep their pixel-stable behaviour without code changes.
+   */
+  variant?: BeforeAfterDeltaPanelVariant;
+
+  /** Top / sidebar variants only — number of recent committed runs to aggregate (default 5; server clamps to [1, 25]). */
+  count?: number;
 };
 
 type TrialStatusPayload = {
@@ -54,7 +83,20 @@ function computeDelta(baseline: number | null, measured: number | null): { hours
   return { hours: delta, percent };
 }
 
-export function BeforeAfterDeltaPanel({ runId }: BeforeAfterDeltaPanelProps) {
+export function BeforeAfterDeltaPanel({ runId, variant, count }: BeforeAfterDeltaPanelProps) {
+  if (variant === "top") return <BeforeAfterDeltaTopPanel count={count} />;
+  if (variant === "sidebar") return <BeforeAfterDeltaSidebarPanel count={count} />;
+
+  if (variant === "inline") {
+    if (runId === undefined || runId === "") return null;
+
+    return <BeforeAfterDeltaInlinePanel runId={runId} />;
+  }
+
+  return <BeforeAfterDeltaCyclePanel runId={runId} />;
+}
+
+function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
   const [state, setState] = useState<{ status: "loading" | "ready" | "error" | "skipped"; data: PanelData | null }>({
     status: "loading",
     data: null,

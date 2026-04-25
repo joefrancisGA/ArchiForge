@@ -12,30 +12,47 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     [JsonPropertyName("schemaVersion")]
-    public int SchemaVersion { get; init; } = CurrentSchemaVersion;
+    public int SchemaVersion
+    {
+        get;
+        init;
+    } = CurrentSchemaVersion;
 
     [JsonPropertyName("artifactsJson")]
-    public string ArtifactsJson { get; init; } = "";
+    public string ArtifactsJson
+    {
+        get;
+        init;
+    } = "";
 
     [JsonPropertyName("traceJson")]
-    public string TraceJson { get; init; } = "";
+    public string TraceJson
+    {
+        get;
+        init;
+    } = "";
 
-    public static ArtifactBundlePayloadBlobEnvelope FromJsonPair(string artifactsJson, string traceJson) =>
-        new()
+    public static ArtifactBundlePayloadBlobEnvelope FromJsonPair(string artifactsJson, string traceJson)
+    {
+        return new ArtifactBundlePayloadBlobEnvelope
         {
-            SchemaVersion = CurrentSchemaVersion,
-            ArtifactsJson = artifactsJson,
-            TraceJson = traceJson,
+            SchemaVersion = CurrentSchemaVersion, ArtifactsJson = artifactsJson, TraceJson = traceJson
         };
+    }
 
-    public static int SumUtf16Length(string artifactsJson, string traceJson) =>
-        artifactsJson.Length + traceJson.Length;
+    public static int SumUtf16Length(string artifactsJson, string traceJson)
+    {
+        return artifactsJson.Length + traceJson.Length;
+    }
 
-    public string ToJson() => JsonSerializer.Serialize(this, SerializerOptions);
+    public string ToJson()
+    {
+        return JsonSerializer.Serialize(this, SerializerOptions);
+    }
 
     public static ArtifactBundlePayloadBlobEnvelope? TryDeserialize(string json)
     {
@@ -52,7 +69,8 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
         }
     }
 
-    internal static ArtifactBundleStorageRow MergeIntoRow(ArtifactBundleStorageRow row, ArtifactBundlePayloadBlobEnvelope envelope)
+    internal static ArtifactBundleStorageRow MergeIntoRow(ArtifactBundleStorageRow row,
+        ArtifactBundlePayloadBlobEnvelope envelope)
     {
         ArgumentNullException.ThrowIfNull(row);
         ArgumentNullException.ThrowIfNull(envelope);
@@ -68,7 +86,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelope
             CreatedUtc = row.CreatedUtc,
             ArtifactsJson = envelope.ArtifactsJson,
             TraceJson = envelope.TraceJson,
-            BundlePayloadBlobUri = row.BundlePayloadBlobUri,
+            BundlePayloadBlobUri = row.BundlePayloadBlobUri
         };
     }
 }

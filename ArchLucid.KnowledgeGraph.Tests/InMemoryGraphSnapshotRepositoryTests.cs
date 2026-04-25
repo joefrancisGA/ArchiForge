@@ -6,9 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Tests for In Memory Graph Snapshot Repository.
+///     Tests for In Memory Graph Snapshot Repository.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class InMemoryGraphSnapshotRepositoryTests
 {
@@ -46,7 +45,8 @@ public sealed class InMemoryGraphSnapshotRepositoryTests
     {
         InMemoryGraphSnapshotRepository sut = new();
 
-        IReadOnlyList<GraphSnapshotIndexedEdge> edges = await sut.ListIndexedEdgesAsync(Guid.NewGuid(), CancellationToken.None);
+        IReadOnlyList<GraphSnapshotIndexedEdge> edges =
+            await sut.ListIndexedEdgesAsync(Guid.NewGuid(), CancellationToken.None);
 
         edges.Should().BeEmpty();
     }
@@ -83,7 +83,8 @@ public sealed class InMemoryGraphSnapshotRepositoryTests
         };
         await sut.SaveAsync(snap, CancellationToken.None);
 
-        IReadOnlyList<GraphSnapshotIndexedEdge> edges = await sut.ListIndexedEdgesAsync(snap.GraphSnapshotId, CancellationToken.None);
+        IReadOnlyList<GraphSnapshotIndexedEdge> edges =
+            await sut.ListIndexedEdgesAsync(snap.GraphSnapshotId, CancellationToken.None);
 
         edges.Should().HaveCount(2);
         edges[0].EdgeId.Should().Be("a");

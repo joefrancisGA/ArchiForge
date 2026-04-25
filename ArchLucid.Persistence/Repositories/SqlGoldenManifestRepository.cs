@@ -3,26 +3,27 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Manifest.Mapping;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GoldenManifests;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
-using Cm = ArchLucid.Contracts.Manifest;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
+using Cm = ArchLucid.Contracts.Manifest;
+
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// SQL Server-backed <see cref="IGoldenManifestRepository"/> with dual-write to legacy JSON columns and
-/// phase-1 relational tables for assumptions, warnings, decisions (+ evidence/node links + RawDecisionJson),
-/// and provenance reference lists. Reads prefer relational slices per collection when rows exist.
+///     SQL Server-backed <see cref="IGoldenManifestRepository" /> with dual-write to legacy JSON columns and
+///     phase-1 relational tables for assumptions, warnings, decisions (+ evidence/node links + RawDecisionJson),
+///     and provenance reference lists. Reads prefer relational slices per collection when rows exist.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlGoldenManifestRepository(
@@ -88,6 +89,82 @@ public sealed class SqlGoldenManifestRepository(
         return model;
     }
 
+    public async Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT
+                               TenantId, WorkspaceId, ProjectId,
+                               ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                               CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                               MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                               ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                           FROM dbo.GoldenManifests
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND ManifestId = @ManifestId;
+                           """;
+
+        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
+        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, ManifestId = manifestId },
+                cancellationToken: ct));
+
+        if (row is null)
+            return null;
+
+        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
+
+        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
+    }
+
+    /// <inheritdoc />
+    public async Task<GoldenManifest?> GetByContractManifestVersionAsync(
+        ScopeContext scope,
+        string manifestVersion,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+            throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));
+
+        const string sql = """
+                           SELECT TOP (1)
+                               TenantId, WorkspaceId, ProjectId,
+                               ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                               CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                               MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                               ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                           FROM dbo.GoldenManifests
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND JSON_VALUE(MetadataJson, '$.Version') = @ManifestVersion
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
+        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, ManifestVersion = manifestVersion },
+                cancellationToken: ct));
+
+        if (row is null)
+            return null;
+
+        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
+
+        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
+    }
+
     private async Task SaveCoreAsync(
         GoldenManifest manifest,
         IDbConnection connection,
@@ -95,25 +172,25 @@ public sealed class SqlGoldenManifestRepository(
         CancellationToken ct)
     {
         const string sql = """
-            INSERT INTO dbo.GoldenManifests
-            (
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
-                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson, @ManifestPayloadBlobUri
-            );
-            """;
+                           INSERT INTO dbo.GoldenManifests
+                           (
+                               TenantId, WorkspaceId, ProjectId,
+                               ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                               CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                               MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                               ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                               WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                           )
+                           VALUES
+                           (
+                               @TenantId, @WorkspaceId, @ProjectId,
+                               @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                               @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                               @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                               @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                               @WarningsJson, @ProvenanceJson, @ManifestPayloadBlobUri
+                           );
+                           """;
 
         string metadataJson = JsonEntitySerializer.Serialize(manifest.Metadata);
         string requirementsJson = JsonEntitySerializer.Serialize(manifest.Requirements);
@@ -195,7 +272,7 @@ public sealed class SqlGoldenManifestRepository(
             AssumptionsJson = assumptionsJson,
             WarningsJson = warningsJson,
             ProvenanceJson = provenanceJson,
-            ManifestPayloadBlobUri = manifestBlobUri,
+            ManifestPayloadBlobUri = manifestBlobUri
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
@@ -226,13 +303,13 @@ public sealed class SqlGoldenManifestRepository(
         Guid manifestId = manifest.ManifestId;
 
         const string insertAssumptionSql = """
-            INSERT INTO dbo.GoldenManifestAssumptions (
-                ManifestId, SortOrder, AssumptionText,
-                TenantId, WorkspaceId, ProjectId)
-            VALUES (
-                @ManifestId, @SortOrder, @AssumptionText,
-                @TenantId, @WorkspaceId, @ProjectId);
-            """;
+                                           INSERT INTO dbo.GoldenManifestAssumptions (
+                                               ManifestId, SortOrder, AssumptionText,
+                                               TenantId, WorkspaceId, ProjectId)
+                                           VALUES (
+                                               @ManifestId, @SortOrder, @AssumptionText,
+                                               @TenantId, @WorkspaceId, @ProjectId);
+                                           """;
 
         for (int i = 0; i < manifest.Assumptions.Count; i++)
 
@@ -246,11 +323,10 @@ public sealed class SqlGoldenManifestRepository(
                         AssumptionText = manifest.Assumptions[i],
                         manifest.TenantId,
                         manifest.WorkspaceId,
-                        manifest.ProjectId,
+                        manifest.ProjectId
                     },
                     transaction,
                     cancellationToken: ct));
-
     }
 
     private static async Task InsertGoldenManifestWarningsRelationalAsync(
@@ -262,24 +338,18 @@ public sealed class SqlGoldenManifestRepository(
         Guid manifestId = manifest.ManifestId;
 
         const string insertWarningSql = """
-            INSERT INTO dbo.GoldenManifestWarnings (ManifestId, SortOrder, WarningText)
-            VALUES (@ManifestId, @SortOrder, @WarningText);
-            """;
+                                        INSERT INTO dbo.GoldenManifestWarnings (ManifestId, SortOrder, WarningText)
+                                        VALUES (@ManifestId, @SortOrder, @WarningText);
+                                        """;
 
         for (int w = 0; w < manifest.Warnings.Count; w++)
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertWarningSql,
-                    new
-                    {
-                        ManifestId = manifestId,
-                        SortOrder = w,
-                        WarningText = manifest.Warnings[w],
-                    },
+                    new { ManifestId = manifestId, SortOrder = w, WarningText = manifest.Warnings[w] },
                     transaction,
                     cancellationToken: ct));
-
     }
 
     private static async Task InsertGoldenManifestProvSourceFindingsRelationalAsync(
@@ -292,24 +362,18 @@ public sealed class SqlGoldenManifestRepository(
         List<string> provFindingIds = manifest.Provenance.SourceFindingIds;
 
         const string insertProvFindingSql = """
-            INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, SortOrder, FindingId)
-            VALUES (@ManifestId, @SortOrder, @FindingId);
-            """;
+                                            INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, SortOrder, FindingId)
+                                            VALUES (@ManifestId, @SortOrder, @FindingId);
+                                            """;
 
         for (int p = 0; p < provFindingIds.Count; p++)
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvFindingSql,
-                    new
-                    {
-                        ManifestId = manifestId,
-                        SortOrder = p,
-                        FindingId = provFindingIds[p],
-                    },
+                    new { ManifestId = manifestId, SortOrder = p, FindingId = provFindingIds[p] },
                     transaction,
                     cancellationToken: ct));
-
     }
 
     private static async Task InsertGoldenManifestProvSourceGraphNodesRelationalAsync(
@@ -322,24 +386,18 @@ public sealed class SqlGoldenManifestRepository(
         List<string> provNodeIds = manifest.Provenance.SourceGraphNodeIds;
 
         const string insertProvNodeSql = """
-            INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (ManifestId, SortOrder, NodeId)
-            VALUES (@ManifestId, @SortOrder, @NodeId);
-            """;
+                                         INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (ManifestId, SortOrder, NodeId)
+                                         VALUES (@ManifestId, @SortOrder, @NodeId);
+                                         """;
 
         for (int p = 0; p < provNodeIds.Count; p++)
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvNodeSql,
-                    new
-                    {
-                        ManifestId = manifestId,
-                        SortOrder = p,
-                        NodeId = provNodeIds[p],
-                    },
+                    new { ManifestId = manifestId, SortOrder = p, NodeId = provNodeIds[p] },
                     transaction,
                     cancellationToken: ct));
-
     }
 
     private static async Task InsertGoldenManifestProvAppliedRulesRelationalAsync(
@@ -352,24 +410,18 @@ public sealed class SqlGoldenManifestRepository(
         List<string> provRuleIds = manifest.Provenance.AppliedRuleIds;
 
         const string insertProvRuleSql = """
-            INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
-            VALUES (@ManifestId, @SortOrder, @RuleId);
-            """;
+                                         INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
+                                         VALUES (@ManifestId, @SortOrder, @RuleId);
+                                         """;
 
         for (int p = 0; p < provRuleIds.Count; p++)
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvRuleSql,
-                    new
-                    {
-                        ManifestId = manifestId,
-                        SortOrder = p,
-                        RuleId = provRuleIds[p],
-                    },
+                    new { ManifestId = manifestId, SortOrder = p, RuleId = provRuleIds[p] },
                     transaction,
                     cancellationToken: ct));
-
     }
 
     private static async Task InsertGoldenManifestDecisionsRelationalAsync(
@@ -381,25 +433,25 @@ public sealed class SqlGoldenManifestRepository(
         Guid manifestId = manifest.ManifestId;
 
         const string insertDecisionSql = """
-            INSERT INTO dbo.GoldenManifestDecisions
-            (
-                ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson
-            )
-            VALUES
-            (
-                @ManifestId, @SortOrder, @DecisionId, @Category, @Title, @SelectedOption, @Rationale, @RawDecisionJson
-            );
-            """;
+                                         INSERT INTO dbo.GoldenManifestDecisions
+                                         (
+                                             ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson
+                                         )
+                                         VALUES
+                                         (
+                                             @ManifestId, @SortOrder, @DecisionId, @Category, @Title, @SelectedOption, @Rationale, @RawDecisionJson
+                                         );
+                                         """;
 
         const string insertEvidenceSql = """
-            INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
-            VALUES (@ManifestId, @DecisionId, @SortOrder, @FindingId);
-            """;
+                                         INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
+                                         VALUES (@ManifestId, @DecisionId, @SortOrder, @FindingId);
+                                         """;
 
         const string insertNodeLinkSql = """
-            INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
-            VALUES (@ManifestId, @DecisionId, @SortOrder, @NodeId);
-            """;
+                                         INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
+                                         VALUES (@ManifestId, @DecisionId, @SortOrder, @NodeId);
+                                         """;
 
         for (int d = 0; d < manifest.Decisions.Count; d++)
         {
@@ -417,7 +469,7 @@ public sealed class SqlGoldenManifestRepository(
                         decision.Title,
                         decision.SelectedOption,
                         decision.Rationale,
-                        decision.RawDecisionJson,
+                        decision.RawDecisionJson
                     },
                     transaction,
                     cancellationToken: ct));
@@ -432,7 +484,7 @@ public sealed class SqlGoldenManifestRepository(
                             ManifestId = manifestId,
                             decision.DecisionId,
                             SortOrder = e,
-                            FindingId = decision.SupportingFindingIds[e],
+                            FindingId = decision.SupportingFindingIds[e]
                         },
                         transaction,
                         cancellationToken: ct));
@@ -448,100 +500,11 @@ public sealed class SqlGoldenManifestRepository(
                             ManifestId = manifestId,
                             decision.DecisionId,
                             SortOrder = n,
-                            NodeId = decision.RelatedNodeIds[n],
+                            NodeId = decision.RelatedNodeIds[n]
                         },
                         transaction,
                         cancellationToken: ct));
-
         }
-    }
-
-    public async Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        const string sql = """
-            SELECT
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
-            FROM dbo.GoldenManifests
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND ManifestId = @ManifestId;
-            """;
-
-        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
-        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    ManifestId = manifestId,
-                },
-                cancellationToken: ct));
-
-        if (row is null)
-            return null;
-
-        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
-
-        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
-    }
-
-    /// <inheritdoc />
-    public async Task<GoldenManifest?> GetByContractManifestVersionAsync(
-        ScopeContext scope,
-        string manifestVersion,
-        CancellationToken ct)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        if (string.IsNullOrWhiteSpace(manifestVersion))
-            throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));
-
-        const string sql = """
-            SELECT TOP (1)
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
-            FROM dbo.GoldenManifests
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND JSON_VALUE(MetadataJson, '$.Version') = @ManifestVersion
-            ORDER BY CreatedUtc DESC;
-            """;
-
-        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
-        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    ManifestVersion = manifestVersion,
-                },
-                cancellationToken: ct));
-
-        if (row is null)
-            return null;
-
-        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
-
-        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
     }
 
     private async Task<GoldenManifestStorageRow> ApplyManifestBlobOverlayIfPresentAsync(
@@ -565,7 +528,7 @@ public sealed class SqlGoldenManifestRepository(
     }
 
     /// <summary>
-    /// Inserts phase-1 relational slices that are still empty while JSON columns contain data (idempotent per slice).
+    ///     Inserts phase-1 relational slices that are still empty while JSON columns contain data (idempotent per slice).
     /// </summary>
     internal static async Task BackfillPhase1RelationalSlicesAsync(
         GoldenManifest manifest,
@@ -582,60 +545,42 @@ public sealed class SqlGoldenManifestRepository(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provFindingCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provNodeCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provRuleCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int decisionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         if (assumptionsCount == 0 && manifest.Assumptions.Count > 0)

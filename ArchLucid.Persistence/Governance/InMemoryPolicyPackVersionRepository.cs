@@ -5,15 +5,15 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
-/// In-memory implementation of <see cref="IPolicyPackVersionRepository"/> for testing and storage-off mode.
-/// Size-bounded at <see cref="MaxEntries"/>; oldest entries are trimmed from the front when the cap is exceeded.
-/// All operations are thread-safe via an exclusive lock.
+///     In-memory implementation of <see cref="IPolicyPackVersionRepository" /> for testing and storage-off mode.
+///     Size-bounded at <see cref="MaxEntries" />; oldest entries are trimmed from the front when the cap is exceeded.
+///     All operations are thread-safe via an exclusive lock.
 /// </summary>
 public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepository
 {
     private const int MaxEntries = 500;
-    private readonly List<PolicyPackVersion> _items = [];
     private readonly Lock _gate = new();
+    private readonly List<PolicyPackVersion> _items = [];
 
     public Task CreateAsync(
         PolicyPackVersion version,
@@ -29,6 +29,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
             if (_items.Count > MaxEntries)
                 _items.RemoveRange(0, _items.Count - MaxEntries);
         }
+
         return Task.CompletedTask;
     }
 
@@ -54,9 +55,9 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            PolicyPackVersion? row = _items.FirstOrDefault(
-                x => x.PolicyPackId == policyPackId &&
-                     string.Equals(x.Version, version, StringComparison.Ordinal));
+            PolicyPackVersion? row = _items.FirstOrDefault(x => x.PolicyPackId == policyPackId &&
+                                                                string.Equals(x.Version, version,
+                                                                    StringComparison.Ordinal));
             return Task.FromResult(row);
         }
     }
@@ -72,9 +73,8 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
 
         lock (_gate)
         {
-            int idx = _items.FindIndex(
-                x => x.PolicyPackId == policyPackId &&
-                     string.Equals(x.Version, version, StringComparison.Ordinal));
+            int idx = _items.FindIndex(x => x.PolicyPackId == policyPackId &&
+                                            string.Equals(x.Version, version, StringComparison.Ordinal));
 
             if (idx >= 0)
             {
@@ -94,7 +94,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
                 Version = version,
                 ContentJson = contentJson,
                 CreatedUtc = DateTime.UtcNow,
-                IsPublished = true,
+                IsPublished = true
             };
 
             _items.Add(inserted);

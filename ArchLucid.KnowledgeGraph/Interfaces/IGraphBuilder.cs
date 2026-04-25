@@ -4,7 +4,8 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.KnowledgeGraph.Interfaces;
 
 /// <summary>
-/// Builds a <see cref="Models.GraphBuildResult"/> from an ingested <see cref="ContextIngestion.Models.ContextSnapshot"/>.
+///     Builds a <see cref="Models.GraphBuildResult" /> from an ingested
+///     <see cref="ContextIngestion.Models.ContextSnapshot" />.
 /// </summary>
 public interface IGraphBuilder
 {
@@ -12,4 +13,3 @@ public interface IGraphBuilder
         ContextSnapshot contextSnapshot,
         CancellationToken ct);
 }
-

@@ -5,7 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// OWASP ZAP baseline (and common spiders) request <c>/</c>, <c>/robots.txt</c>, and <c>/sitemap.xml</c> and expect HTTP 200.
+///     OWASP ZAP baseline (and common spiders) request <c>/</c>, <c>/robots.txt</c>, and <c>/sitemap.xml</c> and expect
+///     HTTP 200.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class PublicCrawlerHintsIntegrationTests(OpenApiContractWebAppFactory factory)

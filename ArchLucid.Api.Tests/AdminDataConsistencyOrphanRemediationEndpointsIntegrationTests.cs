@@ -6,7 +6,11 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Smoke tests for admin data-consistency orphan remediation endpoints (InMemory storage returns empty sets).
+///     Smoke tests for admin data-consistency orphan remediation endpoints. With default <c>InMemory</c> authority
+///     storage, orphan lists are empty without hitting SQL. When <c>ArchLucid:StorageProvider=Sql</c>, soft-archived runs
+///     still exist on <c>dbo.Runs</c> and cascade <c>ArchivedUtc</c> to findings snapshots so they do not appear as
+///     orphans — integration coverage: <c>DataArchivalOrphanProbeSqlIntegrationTests.After_archival_child_rows_remain_consistent_with_probe_queries</c>
+///     and the admin-style findings snapshot select in that test.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -17,7 +21,8 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
     public async Task Post_orphan_golden_manifests_dry_run_returns_ok_with_zero_rows()
     {
         HttpResponseMessage response =
-            await Client.PostAsync("/v1/admin/diagnostics/data-consistency/orphan-golden-manifests?dryRun=true&maxRows=10", null);
+            await Client.PostAsync(
+                "/v1/admin/diagnostics/data-consistency/orphan-golden-manifests?dryRun=true&maxRows=10", null);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         OrphanGoldenManifestRemediationResultDto? body =
@@ -34,7 +39,8 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
     public async Task Post_orphan_findings_snapshots_dry_run_returns_ok_with_zero_rows()
     {
         HttpResponseMessage response =
-            await Client.PostAsync("/v1/admin/diagnostics/data-consistency/orphan-findings-snapshots?dryRun=true&maxRows=10", null);
+            await Client.PostAsync(
+                "/v1/admin/diagnostics/data-consistency/orphan-findings-snapshots?dryRun=true&maxRows=10", null);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         OrphanFindingsSnapshotRemediationResultDto? body =

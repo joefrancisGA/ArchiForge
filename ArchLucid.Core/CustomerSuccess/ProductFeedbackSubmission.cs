@@ -5,37 +5,44 @@ public sealed class ProductFeedbackSubmission
 {
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? FindingRef
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid? RunId
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>-1 = thumbs down, 0 = neutral, 1 = thumbs up.</summary>
     public short Score
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? Comment
     {
-        get; init;
+        get;
+        init;
     }
 }

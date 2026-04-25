@@ -1,12 +1,13 @@
 namespace ArchLucid.Provenance.Services;
 
-/// <summary>Subgraph and neighborhood extraction over <see cref="DecisionProvenanceGraph"/>.</summary>
+/// <summary>Subgraph and neighborhood extraction over <see cref="DecisionProvenanceGraph" />.</summary>
 public static class ProvenanceGraphAlgorithms
 {
     /// <summary>
-    /// Resolves a route/query key to the internal provenance node id of a <see cref="ProvenanceNodeType.Decision"/> node.
+    ///     Resolves a route/query key to the internal provenance node id of a <see cref="ProvenanceNodeType.Decision" /> node.
     /// </summary>
-    public static bool TryResolveDecisionNodeId(DecisionProvenanceGraph graph, string? decisionKey, out Guid decisionInternalNodeId)
+    public static bool TryResolveDecisionNodeId(DecisionProvenanceGraph graph, string? decisionKey,
+        out Guid decisionInternalNodeId)
     {
         decisionInternalNodeId = Guid.Empty;
         string key = decisionKey?.Trim() ?? string.Empty;
@@ -15,7 +16,8 @@ public static class ProvenanceGraphAlgorithms
 
         if (Guid.TryParse(key, out Guid parsedGuid))
         {
-            ProvenanceNode? byId = graph.Nodes.FirstOrDefault(n => n.Type == ProvenanceNodeType.Decision && n.Id == parsedGuid);
+            ProvenanceNode? byId =
+                graph.Nodes.FirstOrDefault(n => n.Type == ProvenanceNodeType.Decision && n.Id == parsedGuid);
             if (byId is not null)
             {
                 decisionInternalNodeId = byId.Id;
@@ -32,7 +34,6 @@ public static class ProvenanceGraphAlgorithms
                 return false;
             decisionInternalNodeId = byRefFromGuid.Id;
             return true;
-
         }
 
         ProvenanceNode? byRef = graph.Nodes.FirstOrDefault(n =>
@@ -45,23 +46,19 @@ public static class ProvenanceGraphAlgorithms
         return true;
     }
 
-    public static DecisionProvenanceGraph ExtractDecisionSubgraph(DecisionProvenanceGraph full, Guid decisionInternalNodeId)
+    public static DecisionProvenanceGraph ExtractDecisionSubgraph(DecisionProvenanceGraph full,
+        Guid decisionInternalNodeId)
     {
         if (full.Nodes.All(n => n.Id != decisionInternalNodeId))
 
-            return new DecisionProvenanceGraph
-            {
-                Id = full.Id,
-                RunId = full.RunId,
-                Nodes = [],
-                Edges = []
-            };
+            return new DecisionProvenanceGraph { Id = full.Id, RunId = full.RunId, Nodes = [], Edges = [] };
 
 
         HashSet<Guid> includedNodes = [decisionInternalNodeId];
         List<ProvenanceEdge> includedEdges = [];
 
-        foreach (ProvenanceEdge edge in full.Edges.Where(edge => edge.FromNodeId == decisionInternalNodeId || edge.ToNodeId == decisionInternalNodeId))
+        foreach (ProvenanceEdge edge in full.Edges.Where(edge =>
+                     edge.FromNodeId == decisionInternalNodeId || edge.ToNodeId == decisionInternalNodeId))
         {
             includedEdges.Add(edge);
             includedNodes.Add(edge.FromNodeId);
@@ -78,7 +75,8 @@ public static class ProvenanceGraphAlgorithms
     }
 
     /// <summary>
-    /// Undirected BFS: <paramref name="depth"/> expansion rounds from <paramref name="startNodeId"/> (0 = start node only).
+    ///     Undirected BFS: <paramref name="depth" /> expansion rounds from <paramref name="startNodeId" /> (0 = start node
+    ///     only).
     /// </summary>
     public static DecisionProvenanceGraph ExtractNeighborhood(DecisionProvenanceGraph full, Guid startNodeId, int depth)
     {
@@ -86,13 +84,7 @@ public static class ProvenanceGraphAlgorithms
 
         if (full.Nodes.All(n => n.Id != startNodeId))
 
-            return new DecisionProvenanceGraph
-            {
-                Id = full.Id,
-                RunId = full.RunId,
-                Nodes = [],
-                Edges = []
-            };
+            return new DecisionProvenanceGraph { Id = full.Id, RunId = full.RunId, Nodes = [], Edges = [] };
 
 
         HashSet<Guid> visited = [startNodeId];

@@ -6,16 +6,21 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
-/// Stateless evaluator: maps each enabled <see cref="AlertRule"/> to zero or one <see cref="AlertRecord"/> using metrics from <see cref="AlertEvaluationContext"/>.
+///     Stateless evaluator: maps each enabled <see cref="AlertRule" /> to zero or one <see cref="AlertRecord" /> using
+///     metrics from <see cref="AlertEvaluationContext" />.
 /// </summary>
 /// <remarks>
-/// Invoked from <c>ArchLucid.Persistence.Alerts.AlertService</c> after rules are filtered by <see cref="PolicyPackGovernanceFilter"/>.
-/// Does not persist or deduplicate; callers own repository and delivery.
+///     Invoked from <c>ArchLucid.Persistence.Alerts.AlertService</c> after rules are filtered by
+///     <see cref="PolicyPackGovernanceFilter" />.
+///     Does not persist or deduplicate; callers own repository and delivery.
 /// </remarks>
 public sealed class AlertEvaluator : IAlertEvaluator
 {
     /// <inheritdoc />
-    /// <remarks>Only rules with <see cref="AlertRule.IsEnabled"/> are considered. Unknown <see cref="AlertRuleType"/> values are skipped.</remarks>
+    /// <remarks>
+    ///     Only rules with <see cref="AlertRule.IsEnabled" /> are considered. Unknown <see cref="AlertRuleType" /> values
+    ///     are skipped.
+    /// </remarks>
     public IReadOnlyList<AlertRecord> Evaluate(
         IReadOnlyList<AlertRule> rules,
         AlertEvaluationContext context)
@@ -71,13 +76,12 @@ public sealed class AlertEvaluator : IAlertEvaluator
             alerts.Add(BuildAlert(
                 rule,
                 context,
-                title: "High number of critical/high-priority recommendations detected",
-                category: AlertCategories.Advisory,
-                triggerValue: count.ToString(),
-                description: $"The current improvement plan contains {count} critical or high-priority recommendations.",
-                recommendationId: null,
-                dedupeSuffix: $"critical-rec-count:{count}"));
-
+                "High number of critical/high-priority recommendations detected",
+                AlertCategories.Advisory,
+                count.ToString(),
+                $"The current improvement plan contains {count} critical or high-priority recommendations.",
+                null,
+                $"critical-rec-count:{count}"));
     }
 
     private static void EvaluateNewComplianceGapCount(
@@ -92,13 +96,12 @@ public sealed class AlertEvaluator : IAlertEvaluator
             alerts.Add(BuildAlert(
                 rule,
                 context,
-                title: "New compliance or security delta threshold exceeded",
-                category: AlertCategories.Compliance,
-                triggerValue: count.ToString(),
-                description: $"The latest comparison produced {count} relevant compliance/security deltas.",
-                recommendationId: null,
-                dedupeSuffix: $"comp-gap-count:{count}"));
-
+                "New compliance or security delta threshold exceeded",
+                AlertCategories.Compliance,
+                count.ToString(),
+                $"The latest comparison produced {count} relevant compliance/security deltas.",
+                null,
+                $"comp-gap-count:{count}"));
     }
 
     private static void EvaluateCostIncreasePercent(
@@ -118,13 +121,12 @@ public sealed class AlertEvaluator : IAlertEvaluator
             alerts.Add(BuildAlert(
                 rule,
                 context,
-                title: "Projected cost increase exceeded threshold",
-                category: AlertCategories.Cost,
-                triggerValue: $"{increasePct:0.##}%",
-                description: $"Projected cost increased by {increasePct:0.##}% compared to the baseline run.",
-                recommendationId: null,
-                dedupeSuffix: $"cost-increase:{Math.Round(increasePct, 0)}"));
-
+                "Projected cost increase exceeded threshold",
+                AlertCategories.Cost,
+                $"{increasePct:0.##}%",
+                $"Projected cost increased by {increasePct:0.##}% compared to the baseline run.",
+                null,
+                $"cost-increase:{Math.Round(increasePct, 0)}"));
     }
 
     private static void EvaluateDeferredHighPriorityAge(
@@ -143,12 +145,12 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 .Select(item => BuildAlert(
                     rule,
                     context,
-                    title: "Deferred high-priority recommendation is aging",
-                    category: AlertCategories.Recommendation,
-                    triggerValue: item.LastUpdatedUtc.ToString("u"),
-                    description: $"Recommendation '{item.Title}' has remained deferred beyond the configured threshold.",
-                    recommendationId: item.RecommendationId,
-                    dedupeSuffix: $"deferred-aging:{item.RecommendationId}")));
+                    "Deferred high-priority recommendation is aging",
+                    AlertCategories.Recommendation,
+                    item.LastUpdatedUtc.ToString("u"),
+                    $"Recommendation '{item.Title}' has remained deferred beyond the configured threshold.",
+                    item.RecommendationId,
+                    $"deferred-aging:{item.RecommendationId}")));
     }
 
     private static void EvaluateRejectedSecurityRecommendation(
@@ -164,12 +166,12 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 .Select(item => BuildAlert(
                     rule,
                     context,
-                    title: "Security recommendation was rejected",
-                    category: AlertCategories.Security,
-                    triggerValue: item.RecommendationId.ToString(),
-                    description: $"Security recommendation '{item.Title}' was rejected.",
-                    recommendationId: item.RecommendationId,
-                    dedupeSuffix: $"rejected-security:{item.RecommendationId}")));
+                    "Security recommendation was rejected",
+                    AlertCategories.Security,
+                    item.RecommendationId.ToString(),
+                    $"Security recommendation '{item.Title}' was rejected.",
+                    item.RecommendationId,
+                    $"rejected-security:{item.RecommendationId}")));
     }
 
     private static void EvaluateAcceptanceRateDrop(
@@ -194,13 +196,12 @@ public sealed class AlertEvaluator : IAlertEvaluator
             alerts.Add(BuildAlert(
                 rule,
                 context,
-                title: "Recommendation acceptance rate is below threshold",
-                category: AlertCategories.Learning,
-                triggerValue: $"{pct:0.##}%",
-                description: $"Overall recommendation acceptance rate is {pct:0.##}%, below the configured threshold.",
-                recommendationId: null,
-                dedupeSuffix: $"accept-rate:{Math.Round(pct, 0)}"));
-
+                "Recommendation acceptance rate is below threshold",
+                AlertCategories.Learning,
+                $"{pct:0.##}%",
+                $"Overall recommendation acceptance rate is {pct:0.##}%, below the configured threshold.",
+                null,
+                $"accept-rate:{Math.Round(pct, 0)}"));
     }
 
     private static AlertRecord BuildAlert(

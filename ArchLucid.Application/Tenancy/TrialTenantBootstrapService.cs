@@ -38,6 +38,7 @@ public sealed class TrialTenantBootstrapService(
         TenantProvisioningResult result,
         string auditActorEmail,
         TrialSignupBaselineReviewCycleCapture? baselineReviewCycle,
+        TrialSignupCompanyProfileCapture? companyProfile,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -105,6 +106,10 @@ public sealed class TrialTenantBootstrapService(
                     baselineReviewCycle is null ? null : baselineReviewCycle.Hours,
                     baselineReviewCycle?.SourceNote,
                     baselineReviewCycle?.CapturedUtc,
+                    companyProfile?.CompanySize,
+                    companyProfile?.ArchitectureTeamSize,
+                    companyProfile?.IndustryVertical,
+                    companyProfile?.IndustryVerticalOther,
                     cancellationToken);
 
                 string actor = auditActorEmail.Trim();

@@ -11,7 +11,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Tests;
 
-/// <summary>Ensures <see cref="ArchLucidAuthorizationPoliciesExtensions.AddArchLucidAuthorizationPolicies"/> registers expected policies.</summary>
+/// <summary>
+///     Ensures <see cref="ArchLucidAuthorizationPoliciesExtensions.AddArchLucidAuthorizationPolicies" /> registers
+///     expected policies.
+/// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
@@ -50,6 +53,7 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
         authorizationOptions.GetPolicy(ArchLucidPolicies.CanReplayComparisons).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.CanViewReplayDiagnostics).Should().NotBeNull();
         authorizationOptions.GetPolicy("CanSeedResults").Should().NotBeNull();
+        authorizationOptions.GetPolicy(ArchLucidPolicies.ScimWrite).Should().NotBeNull();
     }
 
     [Fact]

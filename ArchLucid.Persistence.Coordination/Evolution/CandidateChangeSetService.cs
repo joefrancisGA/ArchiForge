@@ -7,7 +7,8 @@ using ArchLucid.Contracts.ProductLearning.Planning;
 namespace ArchLucid.Persistence.Coordination.Evolution;
 
 /// <summary>
-/// Deterministic projection from 59R <see cref="ProductLearningImprovementPlanRecord"/> to 60R <see cref="CandidateChangeSet"/> instances (no side effects).
+///     Deterministic projection from 59R <see cref="ProductLearningImprovementPlanRecord" /> to 60R
+///     <see cref="CandidateChangeSet" /> instances (no side effects).
 /// </summary>
 public sealed class CandidateChangeSetService : ICandidateChangeSetService
 {
@@ -29,29 +30,19 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
 
         List<CandidateChangeSet> results =
         [
-
             BuildAggregateChangeSet(
                 plan,
                 orderedSteps,
                 components,
                 impact,
                 createdUtc)
-
         ];
 
-        if (orderedSteps.Count > 1)
+        if (orderedSteps.Count <= 1)
+            return results;
 
-            foreach (CandidateChangeSetStep step in orderedSteps)
-
-                results.Add(
-                    BuildStepSliceChangeSet(
-                        plan,
-                        step,
-                        components,
-                        impact,
-                        createdUtc));
-
-
+        results.AddRange(orderedSteps.Select(step =>
+            BuildStepSliceChangeSet(plan, step, components, impact, createdUtc)));
 
         return results;
     }
@@ -78,7 +69,7 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
             Ordinal = step.Ordinal,
             ActionType = step.ActionType,
             Description = step.Description,
-            AcceptanceCriteria = step.AcceptanceCriteria,
+            AcceptanceCriteria = step.AcceptanceCriteria
         };
     }
 
@@ -86,43 +77,41 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
         ProductLearningImprovementPlanRecord plan,
         ProductLearningImprovementThemeRecord? theme)
     {
-        if (theme is not null)
-        {
-            List<ChangeSetAffectedComponent> list =
+        if (theme is null)
+            return
             [
-                new()
+                new ChangeSetAffectedComponent
                 {
-                    ComponentKey = theme.ThemeKey,
-                    DisplayName = theme.Title,
-                    WorkflowArea = theme.AffectedArtifactTypeOrWorkflowArea,
-                },
+                    ComponentKey = plan.PlanId.ToString("N"),
+                    DisplayName = plan.Title,
+                    WorkflowArea = "ImprovementPlan"
+                }
             ];
 
-            if (!string.IsNullOrWhiteSpace(theme.PatternKey))
-            {
-                string patternKey = theme.PatternKey.Trim();
-
-                list.Add(
-                    new ChangeSetAffectedComponent
-                    {
-                        ComponentKey = patternKey,
-                        DisplayName = patternKey,
-                        WorkflowArea = theme.AffectedArtifactTypeOrWorkflowArea,
-                    });
-            }
-
-            return list;
-        }
-
-        return
+        List<ChangeSetAffectedComponent> list =
         [
+            new()
+            {
+                ComponentKey = theme.ThemeKey,
+                DisplayName = theme.Title,
+                WorkflowArea = theme.AffectedArtifactTypeOrWorkflowArea
+            }
+        ];
+
+        if (string.IsNullOrWhiteSpace(theme.PatternKey))
+            return list;
+
+        string patternKey = theme.PatternKey.Trim();
+
+        list.Add(
             new ChangeSetAffectedComponent
             {
-                ComponentKey = plan.PlanId.ToString("N"),
-                DisplayName = plan.Title,
-                WorkflowArea = "ImprovementPlan",
-            },
-        ];
+                ComponentKey = patternKey,
+                DisplayName = patternKey,
+                WorkflowArea = theme.AffectedArtifactTypeOrWorkflowArea
+            });
+
+        return list;
     }
 
     private static ExpectedImpact BuildExpectedImpact(
@@ -135,11 +124,7 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
 
         string rationale = BuildImpactRationale(plan, theme);
 
-        return new ExpectedImpact
-        {
-            Summary = summary,
-            Rationale = string.IsNullOrEmpty(rationale) ? null : rationale,
-        };
+        return new ExpectedImpact { Summary = summary, Rationale = string.IsNullOrEmpty(rationale) ? null : rationale };
     }
 
     private static string BuildImpactRationale(
@@ -186,7 +171,7 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
             DeterminismScore = null,
             RegressionRiskScore = null,
             ApprovalStatus = ApprovalStatus.PendingReview,
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
     }
 
@@ -211,17 +196,13 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
             DeterminismScore = null,
             RegressionRiskScore = null,
             ApprovalStatus = ApprovalStatus.PendingReview,
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
     }
 
     private static string BuildAggregateDescription(ProductLearningImprovementPlanRecord plan)
     {
-        if (!string.IsNullOrWhiteSpace(plan.Summary))
-            return plan.Summary.Trim();
-
-
-        return plan.Title.Trim();
+        return !string.IsNullOrWhiteSpace(plan.Summary) ? plan.Summary.Trim() : plan.Title.Trim();
     }
 
     private static string BuildStepSliceDescription(

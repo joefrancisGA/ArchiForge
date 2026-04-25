@@ -10,7 +10,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Builds <see cref="HostLeaderElectionCoordinator"/> with leader election disabled for hosted-service unit tests.
+///     Builds <see cref="HostLeaderElectionCoordinator" /> with leader election disabled for hosted-service unit tests.
 /// </summary>
 internal static class HostLeaderElectionTestDoubles
 {

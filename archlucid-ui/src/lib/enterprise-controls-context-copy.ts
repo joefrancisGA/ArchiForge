@@ -220,14 +220,14 @@ export const alertToolingListRefreshButtonTitleReader =
   "Reload list (GET). Creates, toggles, and edits below need Execute+ on the API.";
 
 /**
- * Alert tuning — lead under page title (`alert-tuning/page.tsx`). **POST** recommendation is **ReadAuthority** on the
+ * Alert tuning — lead under page title (`alert-tuning/page.tsx`). **POST** recommendation is **read access** on the
  * API; persisting thresholds to production remains **Execute+** on Alert / composite rule routes.
  */
 export const alertTuningPageLead =
   "Scoring ranks candidate thresholds (Read on the API). Applying a winning threshold to production uses Alert rules or composite rules (Execute+).";
 
 /**
- * Alert simulation — lead under page title (`alert-simulation/page.tsx`). Simulation **POST**s are **ReadAuthority**;
+ * Alert simulation — lead under page title (`alert-simulation/page.tsx`). Simulation **POST**s use **read access**;
  * live subscriptions and persisted rules are changed elsewhere (**Execute+**).
  */
 export const alertSimulationPageLead =
@@ -235,7 +235,7 @@ export const alertSimulationPageLead =
 
 /** Alert tuning — primary **Recommend threshold** control (`alert-tuning/page.tsx`). */
 export const alertTuningRecommendButtonTitle =
-  "Run threshold recommendation (ReadAuthority on API; does not change live rules).";
+  "Run threshold recommendation (Read access on the API; does not change live rules).";
 
 /** Alert tuning — results section **`h3`** (`alert-tuning/page.tsx`); recommend stays available at Read on the API. */
 export const alertTuningCurrentTuningHeadingOperator = "Current tuning";
@@ -244,9 +244,9 @@ export const alertTuningCurrentTuningHeadingReader = "Current tuning (inspect)";
 
 /** Alert simulation — **Simulate** / **Compare candidates** controls (`alert-simulation/page.tsx`). */
 export const alertSimulationRunControlTitle =
-  "Run what-if (ReadAuthority on API; no live rule or subscription changes from this page).";
+  "Run what-if (Read access on the API; no live rule or subscription changes from this page).";
 
-/** Alert simulation — outcome column **`h3`** (`alert-simulation/page.tsx`); inputs stay neutral (ReadAuthority POST). */
+/** Alert simulation — outcome column **`h3`** (`alert-simulation/page.tsx`); inputs stay neutral (read access POSTs). */
 export const alertSimulationCurrentBehaviorHeadingOperator = "Current behavior";
 
 export const alertSimulationCurrentBehaviorHeadingReader = "Current behavior (inspect)";
@@ -503,7 +503,7 @@ export const digestsListRefreshButtonTitleOperator = "Reload digest list from th
 export const digestsListRefreshButtonTitleReader =
   "Reload digest list (GET). Email subscriptions are configured under Subscriptions (Execute+).";
 
-/** Digest subscriptions — subscription list **`h3`** (`digest-subscriptions/page.tsx`). */
+/** Digest subscriptions — subscription list **`h3`** (`components/digests/DigestSubscriptionsContent.tsx`). */
 export const digestSubscriptionsYourSubscriptionsHeadingOperator = "Your subscriptions";
 
 export const digestSubscriptionsYourSubscriptionsHeadingReader = "Your subscriptions (inspect)";
@@ -530,7 +530,7 @@ export const digestSubscriptionsEmptyListOperatorLine = "None yet.";
 export const digestSubscriptionsEmptyListReaderLine =
   "None yet. Inspect when rows exist; create and toggle need operator on the API.";
 
-/** Advisory schedules — schedules list **`h3`** (`advisory-scheduling/page.tsx`). */
+/** Advisory schedules — schedules list **`h3`** (`components/advisory/AdvisorySchedulesContent.tsx`). */
 export const advisorySchedulesListHeadingOperator = "Schedules";
 
 export const advisorySchedulesListHeadingReader = "Schedules (inspect)";
@@ -555,7 +555,7 @@ export const advisorySchedulesLoadExecutionsButtonTitleOperator =
 export const advisorySchedulesLoadExecutionsButtonTitleReader =
   "Load executions (GET). Run now and create schedule need Execute+ on the API.";
 
-/** Advisory schedules — empty list (`advisory-scheduling/page.tsx`). */
+/** Advisory schedules — empty list (`components/advisory/AdvisorySchedulesContent.tsx`). */
 export const advisorySchedulesEmptyListOperatorLine = "No schedules yet.";
 
 export const advisorySchedulesEmptyListReaderLine =

@@ -9,8 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController.ListRecommendations"/>
-/// (<c>GET /v1/advisory/runs/{runId}/recommendations</c>).
+///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController.ListRecommendations" />
+///     (<c>GET /v1/advisory/runs/{runId}/recommendations</c>).
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -41,7 +41,8 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ADV-REC-LIST-001")));
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);

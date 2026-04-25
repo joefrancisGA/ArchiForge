@@ -1,0 +1,42 @@
+[
+  {
+    "name": "azurerm_virtual_network.core",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/azurerm",
+      "terraformType": "azurerm_virtual_network",
+      "tf.address_space": "10.0.0.0/16",
+      "tf.location": "eastus",
+      "tf.name": "vnet-core"
+    },
+    "sourceId": "ingestion-case-02",
+    "sourceType": "InfrastructureDeclaration"
+  },
+  {
+    "name": "azurerm_subnet.app",
+    "objectType": "TopologyResource",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/azurerm",
+      "terraformType": "azurerm_subnet",
+      "tf.address_prefixes": "10.0.1.0/24",
+      "tf.name": "subnet-app"
+    },
+    "sourceId": "ingestion-case-02",
+    "sourceType": "InfrastructureDeclaration"
+  },
+  {
+    "name": "azurerm_network_security_group.app",
+    "objectType": "SecurityBaseline",
+    "properties": {
+      "mode": "managed",
+      "providerName": "registry.terraform.io/hashicorp/azurerm",
+      "terraformType": "azurerm_network_security_group",
+      "tf.location": "eastus",
+      "tf.name": "nsg-app"
+    },
+    "sourceId": "ingestion-case-02",
+    "sourceType": "InfrastructureDeclaration"
+  }
+]

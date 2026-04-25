@@ -13,7 +13,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// SQL integration tests for trial run counter increments co-located with <see cref="SqlRunRepository.SaveAsync"/>.
+///     SQL integration tests for trial run counter increments co-located with <see cref="SqlRunRepository.SaveAsync" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -49,17 +49,12 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
                         Name = "Trial Tenant",
                         Slug = slug,
                         RunLimit = 5,
-                        Active = TrialLifecycleStatus.Active,
+                        TrialLifecycleStatus.Active
                     },
                     cancellationToken: CancellationToken.None));
         }
 
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         int successes = 0;
         int trialFailures = 0;
@@ -78,7 +73,7 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
                     ScopeProjectId = scope.ProjectId,
                     ProjectId = "p_" + idx,
                     Description = "trial cap",
-                    CreatedUtc = DateTime.UtcNow,
+                    CreatedUtc = DateTime.UtcNow
                 };
 
                 try
@@ -104,10 +99,7 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
         int used = await verify.QuerySingleAsync<int>(
             new CommandDefinition(
                 "SELECT TrialRunsUsed FROM dbo.Tenants WHERE Id = @Id;",
-                new
-                {
-                    Id = tenantId
-                },
+                new { Id = tenantId },
                 cancellationToken: CancellationToken.None));
 
         used.Should().Be(5);
@@ -135,21 +127,11 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
                     INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, TrialRunsUsed, TrialSeatsUsed)
                     VALUES (@Id, @Name, @Slug, N'Standard', 0, 1);
                     """,
-                    new
-                    {
-                        Id = tenantId,
-                        Name = "No Trial",
-                        Slug = slug
-                    },
+                    new { Id = tenantId, Name = "No Trial", Slug = slug },
                     cancellationToken: CancellationToken.None));
         }
 
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         RunRecord run = new()
         {
@@ -159,7 +141,7 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
             ScopeProjectId = scope.ProjectId,
             ProjectId = "p",
             Description = "no trial",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         await repo.SaveAsync(run, CancellationToken.None);
@@ -170,10 +152,7 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
         int used = await verify.QuerySingleAsync<int>(
             new CommandDefinition(
                 "SELECT TrialRunsUsed FROM dbo.Tenants WHERE Id = @Id;",
-                new
-                {
-                    Id = tenantId
-                },
+                new { Id = tenantId },
                 cancellationToken: CancellationToken.None));
 
         used.Should().Be(0);

@@ -17,9 +17,8 @@ using Microsoft.AspNetCore.Routing;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Api Problem Details Exception Filter.
+///     Tests for Api Problem Details Exception Filter.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class ApiProblemDetailsExceptionFilterTests
 {
@@ -40,7 +39,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         context.ExceptionHandled.Should().BeTrue();
         ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(422);
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         problem.Extensions.Should().ContainKey("driftDetected");
         problem.Extensions["driftDetected"].Should().Be(true);
         problem.Extensions["driftSummary"].Should().Be("payload mismatch");
@@ -60,7 +60,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         context.ExceptionHandled.Should().BeTrue();
         ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(StatusCodes.Status409Conflict);
-        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should()
+            .BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.Conflict);
         p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.Conflict);
         p.Extensions.Should().ContainKey("supportHint");
@@ -77,7 +78,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         context.ExceptionHandled.Should().BeTrue();
         ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should()
+            .BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.RunNotFound);
         p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.RunNotFound);
         p.Extensions.Should().ContainKey("supportHint");
@@ -94,7 +96,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         context.ExceptionHandled.Should().BeTrue();
         ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should()
+            .BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.BadRequest);
         p.Extensions.Should().ContainKey("supportHint");
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("swagger");
@@ -109,7 +112,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
 
         context.ExceptionHandled.Should().BeTrue();
         ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
-        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should()
+            .BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.ValidationFailed);
         p.Extensions.Should().ContainKey("supportHint");
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("validation");
@@ -137,7 +141,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         context.ExceptionHandled.Should().BeTrue();
         ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
-        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should()
+            .BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.DatabaseTimeout);
         p.Title.Should().Be("Request Timeout");
         p.Extensions.Should().ContainKey("supportHint");
@@ -158,7 +163,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
         result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
-        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should()
+            .BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("db-timeout-cid");
     }
 
@@ -173,7 +179,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
         result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
-        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should()
+            .BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.DatabaseUnavailable);
         p.Extensions.Should().ContainKey("supportHint");
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("health/ready");
@@ -204,7 +211,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         DefaultHttpContext http = CreateHttpContextForMapper("/v1/commit", "deadlock-wrap-cid");
         Exception ex = new InvalidOperationException("persist failed", SqlExceptionTestFactory.Create(1205));
 
-        bool mapped = ApplicationProblemMapper.TryMapDatabaseException(ex, "/v1/commit", http, out ObjectResult? result);
+        bool mapped =
+            ApplicationProblemMapper.TryMapDatabaseException(ex, "/v1/commit", http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);
@@ -248,9 +256,6 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         result.Should().BeNull();
     }
 
-    /// <summary>Concrete <see cref="DbException"/> for test purposes (abstract class cannot be instantiated).</summary>
-    private sealed class TestDbException(string message) : DbException(message);
-
     private static ExceptionContext CreateExceptionContext(Exception ex, string path)
     {
         DefaultHttpContext httpContext = new()
@@ -263,20 +268,13 @@ public sealed class ApiProblemDetailsExceptionFilterTests
             new RouteData(),
             new ControllerActionDescriptor());
 #pragma warning disable IDE0028 // Simplify collection initialization
-        return new ExceptionContext(actionContext, new List<IFilterMetadata>())
-        {
-            Exception = ex
-        };
+        return new ExceptionContext(actionContext, new List<IFilterMetadata>()) { Exception = ex };
 #pragma warning restore IDE0028 // Simplify collection initialization
     }
 
     private static DefaultHttpContext CreateHttpContextForMapper(string path, string traceIdentifier)
     {
-        return new DefaultHttpContext
-        {
-            TraceIdentifier = traceIdentifier,
-            Request = { Path = path }
-        };
+        return new DefaultHttpContext { TraceIdentifier = traceIdentifier, Request = { Path = path } };
     }
 
     private static void RunFilter(ExceptionContext context)
@@ -284,4 +282,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ApiProblemDetailsExceptionFilter filter = new();
         filter.OnException(context);
     }
+
+    /// <summary>Concrete <see cref="DbException" /> for test purposes (abstract class cannot be instantiated).</summary>
+    private sealed class TestDbException(string message) : DbException(message);
 }

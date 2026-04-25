@@ -9,9 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Comparison Tagging.
+///     Tests for Architecture Comparison Tagging.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureComparisonTaggingTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -42,15 +41,12 @@ public sealed class ArchitectureComparisonTaggingTests(ArchLucidApiFactory facto
 
         HttpResponseMessage patch = await Client.PatchAsJsonAsync(
             $"/v1/architecture/comparisons/{id}",
-            new
-            {
-                label = "incident-99",
-                tags = new[] { "incident", "urgent" }
-            });
+            new { label = "incident-99", tags = new[] { "incident", "urgent" } });
 
         patch.EnsureSuccessStatusCode();
 
-        ComparisonRecordResponseDto? updated = await patch.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
+        ComparisonRecordResponseDto? updated =
+            await patch.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
         updated!.Record.Label.Should().Be("incident-99");
         updated.Record.Tags.Should().Contain(["incident", "urgent"]);
 
@@ -61,4 +57,3 @@ public sealed class ArchitectureComparisonTaggingTests(ArchLucidApiFactory facto
         byTag!.Records.Should().Contain(r => r.ComparisonRecordId == id);
     }
 }
-

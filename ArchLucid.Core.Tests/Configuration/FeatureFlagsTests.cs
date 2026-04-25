@@ -11,7 +11,10 @@ using Moq;
 
 namespace ArchLucid.Core.Tests.Configuration;
 
-/// <summary>Tests for <see cref="IFeatureFlags"/> adapter and <see cref="FeatureManagementAuthorityPipelineModeResolver"/>.</summary>
+/// <summary>
+///     Tests for <see cref="IFeatureFlags" /> adapter and
+///     <see cref="FeatureManagementAuthorityPipelineModeResolver" />.
+/// </summary>
 [Trait("Category", "Unit")]
 public sealed class FeatureFlagsTests
 {
@@ -22,13 +25,12 @@ public sealed class FeatureFlagsTests
         CancellationToken capturedToken = CancellationToken.None;
         featureManager
             .Setup(m => m.IsEnabledAsync("MyFeature", It.IsAny<CancellationToken>()))
-            .Returns(
-                (string _, CancellationToken ct) =>
-                {
-                    capturedToken = ct;
+            .Returns((string _, CancellationToken ct) =>
+            {
+                capturedToken = ct;
 
-                    return Task.FromResult(true);
-                });
+                return Task.FromResult(true);
+            });
 
         IFeatureFlags sut = new FeatureManagementFeatureFlags(featureManager.Object);
         CancellationTokenSource cts = new();
@@ -81,7 +83,8 @@ public sealed class FeatureFlagsTests
     {
         Mock<IFeatureFlags> featureFlags = new();
         featureFlags
-            .Setup(f => f.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, It.IsAny<CancellationToken>()))
+            .Setup(f => f.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         IConfiguration configuration = new ConfigurationBuilder()
@@ -104,7 +107,8 @@ public sealed class FeatureFlagsTests
     {
         Mock<IFeatureFlags> featureFlags = new();
         featureFlags
-            .Setup(f => f.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, It.IsAny<CancellationToken>()))
+            .Setup(f => f.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         IConfiguration configuration = new ConfigurationBuilder()

@@ -34,4 +34,6 @@ public sealed record ValueReportSnapshot(
     decimal? ReviewCycleHoursDelta,
     decimal? ReviewCycleHoursDeltaPercent,
     int FindingFeedbackNetScore,
-    int FindingFeedbackVoteCount);
+    int FindingFeedbackVoteCount,
+    decimal? TenantBaselineManualPrepHoursPerReview,
+    int? TenantBaselinePeoplePerReview);

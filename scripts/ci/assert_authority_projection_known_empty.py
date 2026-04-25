@@ -36,9 +36,15 @@ def main() -> int:
                 return 2
 
     names = {str(r["name"]) for r in fields}
-    if "Relationships" not in names:
+
+    # ADR 0030 PR A3 (2026-04-24) — Relationships now round-trips through the Authority FK chain
+    # via TopologySection.Relationships. The allow-list must NOT re-introduce it (drift guard).
+    if "Relationships" in names:
         print(
-            "ERROR: allow-list must include Relationships until the Relationships-graph PR lands",
+            "ERROR: allow-list must NOT include Relationships — ADR 0030 PR A3 (2026-04-24) wired "
+            "TopologySection.Relationships through the Authority FK chain. "
+            "If you genuinely need to suppress Relationships projection again, ship an ADR "
+            "amendment first.",
             file=sys.stderr,
         )
         return 2

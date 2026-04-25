@@ -1,42 +1,53 @@
 namespace ArchLucid.Decisioning.Findings;
 
-/// <summary>Aggregated trace completeness for one <see cref="Models.Finding.EngineType"/>.</summary>
+/// <summary>Aggregated trace completeness for one <see cref="Models.Finding.EngineType" />.</summary>
 public sealed class EngineTraceCompleteness
 {
-    public string EngineType { get; init; } = null!;
+    public string EngineType
+    {
+        get;
+        init;
+    } = null!;
 
     public int FindingCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public double CompletenessRatio
     {
-        get; init;
+        get;
+        init;
     }
 
     public int GraphNodeIdsPopulatedCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int RulesAppliedPopulatedCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int DecisionsTakenPopulatedCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int AlternativePathsPopulatedCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int NotesPopulatedCount
     {
-        get; init;
+        get;
+        init;
     }
 }

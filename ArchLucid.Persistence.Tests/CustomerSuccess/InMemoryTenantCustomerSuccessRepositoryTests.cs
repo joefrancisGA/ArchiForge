@@ -31,10 +31,7 @@ public sealed class InMemoryTenantCustomerSuccessRepositoryTests
         Func<Task> act = async () => await sut.InsertProductFeedbackAsync(
             new ProductFeedbackSubmission
             {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid(),
-                Score = -1,
+                TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(), Score = -1
             },
             CancellationToken.None);
 

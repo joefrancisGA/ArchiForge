@@ -18,23 +18,23 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures analysis export uses the canonical <see cref="ArchitectureRunDetail"/> when the API
-/// preloads it, avoiding redundant <see cref="IRunDetailQueryService"/> and manifest repository calls.
+///     Ensures analysis export uses the canonical <see cref="ArchitectureRunDetail" /> when the API
+///     preloads it, avoiding redundant <see cref="IRunDetailQueryService" /> and manifest repository calls.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
 {
-    private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader = new();
-    private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
-    private readonly Mock<IAgentExecutionTraceRepository> _traceRepository = new();
-    private readonly Mock<IAgentResultRepository> _resultRepository = new();
-    private readonly Mock<IDiagramGenerator> _diagramGenerator = new();
-    private readonly Mock<IManifestSummaryGenerator> _summaryGenerator = new();
-    private readonly Mock<IDeterminismCheckService> _determinismCheckService = new();
-    private readonly Mock<IManifestDiffService> _manifestDiffService = new();
     private readonly Mock<IAgentResultDiffService> _agentResultDiffService = new();
+    private readonly Mock<IDeterminismCheckService> _determinismCheckService = new();
+    private readonly Mock<IDiagramGenerator> _diagramGenerator = new();
+    private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
+    private readonly Mock<IManifestDiffService> _manifestDiffService = new();
+    private readonly Mock<IAgentResultRepository> _resultRepository = new();
+    private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
+    private readonly Mock<IManifestSummaryGenerator> _summaryGenerator = new();
     private readonly ArchitectureAnalysisService _sut;
+    private readonly Mock<IAgentExecutionTraceRepository> _traceRepository = new();
+    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader = new();
 
     public ArchitectureAnalysisServiceCanonicalPreloadTests()
     {
@@ -60,9 +60,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     {
         GoldenManifest manifest = new()
         {
-            RunId = "run-1",
-            SystemName = "Sys",
-            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
+            RunId = "run-1", SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
         ArchitectureRunDetail detail = new()
         {
@@ -106,9 +104,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     {
         GoldenManifest manifest = new()
         {
-            RunId = "run-1",
-            SystemName = "Sys",
-            Metadata = new ManifestMetadata { ManifestVersion = "v1-run-1" }
+            RunId = "run-1", SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = "v1-run-1" }
         };
         ArchitectureRunDetail detail = new()
         {

@@ -1,0 +1,31 @@
+# Copy to dev.tfvars (gitignored). Used by CD when workflow target is `dev` and this file exists in TF_WORKING_DIRECTORY.
+# ArchLucid DEV subscription: see docs/library/AZURE_SUBSCRIPTIONS.md. Align region with your existing RG/ACR (eastus2 below matches rg-ArchLucid-dev + acrarchluciddev).
+
+enable_container_apps = true
+create_resource_group   = false
+resource_group_name     = "rg-ArchLucid-dev"
+location                = "eastus2"
+
+# After first CD image push: use your ACR login server and the tag CD produced (or :latest-dev).
+api_container_image = "acrarchluciddev.azurecr.io/archlucid-api:latest-dev"
+ui_container_image  = "acrarchluciddev.azurecr.io/archlucid-ui:latest-dev"
+
+# Pilot-friendly replica floor for cost (duplicate advisory acceptable in personal dev).
+api_min_replicas = 1
+api_max_replicas = 3
+ui_min_replicas  = 1
+ui_max_replicas  = 2
+worker_min_replicas = 1
+worker_max_replicas = 3
+
+api_scale_concurrent_requests = 10
+ui_scale_concurrent_requests  = 20
+
+# Required when enable_container_apps = true — apply infra/terraform-storage in this subscription first, then substitute outputs.
+artifact_blob_service_uri     = "https://<storage-account>.blob.core.windows.net/"
+artifact_storage_account_id   = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
+
+tags = {
+  workload = "archlucid"
+  tier     = "dev"
+}

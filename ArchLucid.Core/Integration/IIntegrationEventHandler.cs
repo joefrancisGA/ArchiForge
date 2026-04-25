@@ -4,7 +4,8 @@ namespace ArchLucid.Core.Integration;
 public interface IIntegrationEventHandler
 {
     /// <summary>
-    /// Logical event type this handler serves (canonical <c>com.archlucid.*</c>), or <see cref="IntegrationEventTypes.WildcardEventType"/> for catch-all.
+    ///     Logical event type this handler serves (canonical <c>com.archlucid.*</c>), or
+    ///     <see cref="IntegrationEventTypes.WildcardEventType" /> for catch-all.
     /// </summary>
     string EventType
     {

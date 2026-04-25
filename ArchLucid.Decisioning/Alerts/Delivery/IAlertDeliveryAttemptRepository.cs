@@ -1,15 +1,16 @@
 namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
-/// Persistence for <see cref="AlertDeliveryAttempt"/> rows (one row per subscription per dispatch try).
+///     Persistence for <see cref="AlertDeliveryAttempt" /> rows (one row per subscription per dispatch try).
 /// </summary>
 /// <remarks>
-/// SQL: <c>DapperAlertDeliveryAttemptRepository</c> on <c>dbo.AlertDeliveryAttempts</c>. Written by <c>AlertDeliveryDispatcher</c>;
-/// listed from the alert routing API for operator visibility.
+///     SQL: <c>DapperAlertDeliveryAttemptRepository</c> on <c>dbo.AlertDeliveryAttempts</c>. Written by
+///     <c>AlertDeliveryDispatcher</c>;
+///     listed from the alert routing API for operator visibility.
 /// </remarks>
 public interface IAlertDeliveryAttemptRepository
 {
-    /// <summary>Creates a row in <see cref="AlertDeliveryAttemptStatus.Started"/> before the channel send.</summary>
+    /// <summary>Creates a row in <see cref="AlertDeliveryAttemptStatus.Started" /> before the channel send.</summary>
     Task CreateAsync(AlertDeliveryAttempt attempt, CancellationToken ct);
 
     /// <summary>Updates status, error message, and retry count after send completes or fails.</summary>

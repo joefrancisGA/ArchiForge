@@ -6,14 +6,14 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
-/// Thread-safe in-memory append-only log for <see cref="PolicyPackChangeLogEntry"/>.
+///     Thread-safe in-memory append-only log for <see cref="PolicyPackChangeLogEntry" />.
 /// </summary>
 public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLogRepository
 {
     private const int MaxEntries = 10_000;
+    private readonly Lock _gate = new();
 
     private readonly List<PolicyPackChangeLogEntry> _items = [];
-    private readonly Lock _gate = new();
 
     /// <inheritdoc />
     public Task AppendAsync(
@@ -42,7 +42,7 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
             ChangedUtc = changedUtc,
             PreviousValue = entry.PreviousValue,
             NewValue = entry.NewValue,
-            SummaryText = entry.SummaryText,
+            SummaryText = entry.SummaryText
         };
 
         lock (_gate)

@@ -122,7 +122,14 @@ public sealed class DataConsistencyOrphanProbeExecutor(
             TryRecordAlert(findingsCount, threshold, "FindingsSnapshots", "RunId");
         }
 
-        if (enf.Mode != DataConsistencyEnforcementMode.Quarantine || goldenCount <= 0)
+        if (goldenCount <= 0)
+            return;
+
+
+        bool quarantineGoldenManifests =
+            enf.Mode == DataConsistencyEnforcementMode.Quarantine || enf.AutoQuarantine;
+
+        if (!quarantineGoldenManifests)
             return;
 
 
@@ -138,8 +145,14 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         int inserted = await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
 
         if (inserted > 0)
+        {
+            ArchLucidInstrumentation.DataConsistencyOrphansQuarantined.Add(
+                inserted,
+                new KeyValuePair<string, object?>("table", "GoldenManifests"),
+                new KeyValuePair<string, object?>("column", "RunId"));
 
             _logger.LogWarning("Data consistency quarantine inserted {Inserted} orphan GoldenManifests row(s).", inserted);
+        }
     }
 
     private static void TryRecordAlert(long count, int threshold, string table, string column)

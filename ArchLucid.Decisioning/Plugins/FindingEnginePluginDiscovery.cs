@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Decisioning.Plugins;
 
 /// <summary>
-/// Discovers <see cref="IFindingEngine"/> implementations in a plugin directory (parameterless constructors only).
+///     Discovers <see cref="IFindingEngine" /> implementations in a plugin directory (parameterless constructors only).
 /// </summary>
 public static class FindingEnginePluginDiscovery
 {
-    /// <summary>Built-in engine <see cref="IFindingEngine.EngineType"/> values — plugins with the same id are skipped.</summary>
+    /// <summary>Built-in engine <see cref="IFindingEngine.EngineType" /> values — plugins with the same id are skipped.</summary>
     public static HashSet<string> BuiltInEngineTypeIds
     {
         get;
@@ -25,11 +25,11 @@ public static class FindingEnginePluginDiscovery
         "policy-coverage",
         "requirement-coverage",
         "compliance",
-        "cost-constraint",
+        "cost-constraint"
     ];
 
     /// <summary>
-    /// Returns concrete <see cref="IFindingEngine"/> types that can be registered as scoped services.
+    ///     Returns concrete <see cref="IFindingEngine" /> types that can be registered as scoped services.
     /// </summary>
     /// <param name="pluginDirectory">Absolute or relative path; empty or missing directory yields no results.</param>
     public static IReadOnlyList<Type> Discover(string? pluginDirectory, ILogger logger)
@@ -161,7 +161,6 @@ public static class FindingEnginePluginDiscovery
                         probe.Category,
                         candidate.FullName,
                         fileName);
-
             }
         }
 

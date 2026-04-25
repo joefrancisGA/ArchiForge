@@ -1,7 +1,7 @@
 namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
-/// String values for <see cref="AlertRule.RuleType"/>; each maps to a branch in <see cref="AlertEvaluator"/>.
+///     String values for <see cref="AlertRule.RuleType" />; each maps to a branch in <see cref="AlertEvaluator" />.
 /// </summary>
 public static class AlertRuleType
 {

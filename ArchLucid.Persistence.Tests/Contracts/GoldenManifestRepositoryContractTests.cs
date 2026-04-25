@@ -8,7 +8,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for authority <see cref="IGoldenManifestRepository"/> (SQL + in-memory).
+///     Shared contract assertions for authority <see cref="IGoldenManifestRepository" /> (SQL + in-memory).
 /// </summary>
 public abstract class GoldenManifestRepositoryContractTests
 {
@@ -54,7 +54,7 @@ public abstract class GoldenManifestRepositoryContractTests
             Assumptions = ["a1"],
             Warnings = ["w1"],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
     }
 
@@ -67,7 +67,7 @@ public abstract class GoldenManifestRepositoryContractTests
         {
             TenantId = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"),
             WorkspaceId = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2"),
-            ProjectId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3"),
+            ProjectId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3")
         };
 
         Guid runId = Guid.NewGuid();
@@ -106,7 +106,7 @@ public abstract class GoldenManifestRepositoryContractTests
         {
             TenantId = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1"),
             WorkspaceId = Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2"),
-            ProjectId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3"),
+            ProjectId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3")
         };
 
         Guid runId = Guid.NewGuid();
@@ -130,9 +130,7 @@ public abstract class GoldenManifestRepositoryContractTests
 
         ScopeContext otherTenant = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
+            TenantId = Guid.NewGuid(), WorkspaceId = scope.WorkspaceId, ProjectId = scope.ProjectId
         };
 
         GoldenManifest? loaded = await repo.GetByIdAsync(otherTenant, manifestId, CancellationToken.None);
@@ -148,7 +146,7 @@ public abstract class GoldenManifestRepositoryContractTests
         {
             TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1"),
             WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2"),
-            ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3"),
+            ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3")
         };
 
         Guid runId = Guid.NewGuid();
@@ -179,7 +177,7 @@ public abstract class GoldenManifestRepositoryContractTests
     }
 
     /// <summary>
-    /// SQL subclasses seed FK chain; in-memory is a no-op.
+    ///     SQL subclasses seed FK chain; in-memory is a no-op.
     /// </summary>
     protected virtual Task PrepareAuthorityChainForManifestAsync(
         ScopeContext scope,

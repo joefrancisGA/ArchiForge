@@ -13,8 +13,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Concurrent <see cref="IRunRepository.ArchiveRunsByIdsAsync"/> calls: exactly one batch should archive an unarchived run;
-/// overlapping calls may classify duplicates as failures without corrupting state.
+///     Concurrent <see cref="IRunRepository.ArchiveRunsByIdsAsync" /> calls: exactly one batch should archive an
+///     unarchived run;
+///     overlapping calls may classify duplicates as failures without corrupting state.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -33,9 +34,7 @@ public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersis
 
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Guid runId = Guid.NewGuid();
@@ -49,7 +48,7 @@ public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersis
             ScopeProjectId = scope.ProjectId,
             ProjectId = slug,
             Description = "concurrency archive",
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         await repo.SaveAsync(run, CancellationToken.None);
@@ -74,10 +73,7 @@ public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersis
         DateTime? archivedUtc = await verify.QuerySingleOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.Runs WHERE RunId = @RunId;",
-                new
-                {
-                    RunId = runId
-                },
+                new { RunId = runId },
                 cancellationToken: CancellationToken.None));
 
         archivedUtc.Should().NotBeNull("dbo.Runs should carry ArchivedUtc after exactly one winning archive");

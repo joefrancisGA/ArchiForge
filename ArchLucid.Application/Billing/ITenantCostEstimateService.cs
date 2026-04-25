@@ -1,5 +1,3 @@
-using ArchLucid.Core.Tenancy;
-
 namespace ArchLucid.Application.Billing;
 
 /// <summary>Produces non-authoritative spend guidance for the active tenant.</summary>

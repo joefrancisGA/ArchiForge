@@ -17,31 +17,31 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
         ArgumentNullException.ThrowIfNull(item);
 
         const string sql = """
-            INSERT INTO GovernancePromotionRecords
-            (
-                PromotionRecordId,
-                RunId,
-                ManifestVersion,
-                SourceEnvironment,
-                TargetEnvironment,
-                PromotedBy,
-                PromotedUtc,
-                ApprovalRequestId,
-                Notes
-            )
-            VALUES
-            (
-                @PromotionRecordId,
-                @RunId,
-                @ManifestVersion,
-                @SourceEnvironment,
-                @TargetEnvironment,
-                @PromotedBy,
-                @PromotedUtc,
-                @ApprovalRequestId,
-                @Notes
-            );
-            """;
+                           INSERT INTO GovernancePromotionRecords
+                           (
+                               PromotionRecordId,
+                               RunId,
+                               ManifestVersion,
+                               SourceEnvironment,
+                               TargetEnvironment,
+                               PromotedBy,
+                               PromotedUtc,
+                               ApprovalRequestId,
+                               Notes
+                           )
+                           VALUES
+                           (
+                               @PromotionRecordId,
+                               @RunId,
+                               @ManifestVersion,
+                               @SourceEnvironment,
+                               @TargetEnvironment,
+                               @PromotedBy,
+                               @PromotedUtc,
+                               @ApprovalRequestId,
+                               @Notes
+                           );
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -69,29 +69,27 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-            SELECT
-                PromotionRecordId,
-                RunId,
-                ManifestVersion,
-                SourceEnvironment,
-                TargetEnvironment,
-                PromotedBy,
-                PromotedUtc,
-                ApprovalRequestId,
-                Notes
-            FROM GovernancePromotionRecords
-            WHERE RunId = @RunId
-            ORDER BY PromotedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(200)};
-            """;
+                      SELECT
+                          PromotionRecordId,
+                          RunId,
+                          ManifestVersion,
+                          SourceEnvironment,
+                          TargetEnvironment,
+                          PromotedBy,
+                          PromotedUtc,
+                          ApprovalRequestId,
+                          Notes
+                      FROM GovernancePromotionRecords
+                      WHERE RunId = @RunId
+                      ORDER BY PromotedUtc DESC
+                      {SqlPagingSyntax.FirstRowsOnly(200)};
+                      """;
 
-        IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(new CommandDefinition(
-            sql,
-            new
-            {
-                RunId = runId
-            },
-            cancellationToken: cancellationToken));
+        IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(
+            new CommandDefinition(
+                sql,
+                new { RunId = runId },
+                cancellationToken: cancellationToken));
 
         return [.. rows];
     }

@@ -34,7 +34,9 @@ public static class RunRecordToArchitectureRunMapper
             DecisionTraceId = record.DecisionTraceId,
             ArtifactBundleId = record.ArtifactBundleId,
             OtelTraceId = record.OtelTraceId,
-            TaskIds = [.. taskIds]
+            TaskIds = [.. taskIds],
+            RealModeFellBackToSimulator = record.RealModeFellBackToSimulator,
+            PilotAoaiDeploymentSnapshot = record.PilotAoaiDeploymentSnapshot
         };
     }
 

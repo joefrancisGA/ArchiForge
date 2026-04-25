@@ -12,7 +12,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace ArchLucid.Persistence.Cosmos;
 
-/// <summary>Cosmos-backed <see cref="IGraphSnapshotRepository"/> (single document per snapshot).</summary>
+/// <summary>Cosmos-backed <see cref="IGraphSnapshotRepository" /> (single document per snapshot).</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]
 public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFactory) : IGraphSnapshotRepository
 {
@@ -89,7 +89,8 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId, CancellationToken ct)
+    public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId,
+        CancellationToken ct)
     {
         GraphSnapshot? snapshot = await GetByIdAsync(graphSnapshotId, ct);
 
@@ -116,7 +117,7 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
             CreatedUtc = snapshot.CreatedUtc.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture),
             NodesJson = JsonEntitySerializer.Serialize(snapshot.Nodes),
             EdgesJson = JsonEntitySerializer.Serialize(snapshot.Edges),
-            WarningsJson = JsonEntitySerializer.Serialize(snapshot.Warnings),
+            WarningsJson = JsonEntitySerializer.Serialize(snapshot.Warnings)
         };
     }
 
@@ -135,7 +136,7 @@ public sealed class CosmosGraphSnapshotRepository(CosmosClientFactory clientFact
             CreatedUtc = DateTime.Parse(d.CreatedUtc, null, DateTimeStyles.RoundtripKind).ToUniversalTime(),
             Nodes = nodes,
             Edges = edges,
-            Warnings = warnings,
+            Warnings = warnings
         };
     }
 }

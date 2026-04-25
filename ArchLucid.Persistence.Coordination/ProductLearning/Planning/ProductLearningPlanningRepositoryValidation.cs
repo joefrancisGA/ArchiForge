@@ -26,7 +26,6 @@ internal static class ProductLearningPlanningRepositoryValidation
     {
         if (take < 1 || take > MaxTake)
             throw new ArgumentOutOfRangeException(nameof(take), take, "take must be between 1 and " + MaxTake + ".");
-
     }
 
     internal static string NormalizeThemeStatus(string? status)
@@ -105,7 +104,6 @@ internal static class ProductLearningPlanningRepositoryValidation
         if (!string.IsNullOrWhiteSpace(theme.Status))
 
             ValidateThemeStatus(theme.Status);
-
     }
 
     internal static void EnsurePlan(ProductLearningImprovementPlanRecord plan)
@@ -173,7 +171,6 @@ internal static class ProductLearningPlanningRepositoryValidation
 
             if (string.IsNullOrWhiteSpace(step.Description))
                 throw new ArgumentException("Each step requires Description.", nameof(steps));
-
         }
     }
 
@@ -187,7 +184,6 @@ internal static class ProductLearningPlanningRepositoryValidation
 
         if (string.IsNullOrWhiteSpace(link.ArchitectureRunId))
             throw new ArgumentException("ArchitectureRunId is required.", nameof(link));
-
     }
 
     internal static void EnsureSignalLink(ProductLearningImprovementPlanSignalLinkRecord link)
@@ -205,7 +201,6 @@ internal static class ProductLearningPlanningRepositoryValidation
         if (link.TriageStatusSnapshot is not null)
 
             ValidateTriageSnapshot(link.TriageStatusSnapshot);
-
     }
 
     internal static void EnsureArtifactLink(ProductLearningImprovementPlanArtifactLinkRecord link)
@@ -237,7 +232,6 @@ internal static class ProductLearningPlanningRepositoryValidation
         if (link.PilotArtifactHint is not null && link.PilotArtifactHint.Length > MaxArtifactHintLength)
 
             throw new ArgumentException("PilotArtifactHint exceeds max length.", nameof(link));
-
     }
 
     private static void ValidateThemeStatus(string status)
@@ -248,7 +242,6 @@ internal static class ProductLearningPlanningRepositoryValidation
             status != ProductLearningImprovementThemeStatusValues.Archived)
 
             throw new ArgumentException("Unknown theme status: " + status, nameof(status));
-
     }
 
     private static void ValidatePlanStatus(string status)
@@ -260,7 +253,6 @@ internal static class ProductLearningPlanningRepositoryValidation
             status != ProductLearningImprovementPlanStatusValues.Completed)
 
             throw new ArgumentException("Unknown plan status: " + status, nameof(status));
-
     }
 
     private static void ValidateTriageSnapshot(string snapshot)
@@ -272,6 +264,5 @@ internal static class ProductLearningPlanningRepositoryValidation
             snapshot != ProductLearningTriageStatusValues.WontFix)
 
             throw new ArgumentException("Unknown triage snapshot: " + snapshot, nameof(snapshot));
-
     }
 }

@@ -14,7 +14,8 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
-/// <see cref="IAuthorityQueryService"/> backed by the same repository abstractions as <see cref="DapperAuthorityQueryService"/> (in-memory stores in test / storage-off mode).
+///     <see cref="IAuthorityQueryService" /> backed by the same repository abstractions as
+///     <see cref="DapperAuthorityQueryService" /> (in-memory stores in test / storage-off mode).
 /// </summary>
 public sealed class InMemoryAuthorityQueryService(
     IRunRepository runRepository,
@@ -98,11 +99,15 @@ public sealed class InMemoryAuthorityQueryService(
     }
 
     /// <inheritdoc />
-    public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId,
+        CancellationToken ct)
     {
         GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
         return manifest is null ? null : AuthorityRunMapper.MapManifestSummary(manifest);
     }
 
-    private static RunSummaryDto MapSummary(RunRecord run) => AuthorityRunMapper.MapSummary(run);
+    private static RunSummaryDto MapSummary(RunRecord run)
+    {
+        return AuthorityRunMapper.MapSummary(run);
+    }
 }

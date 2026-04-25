@@ -2,83 +2,96 @@ using System.Diagnostics;
 
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Models;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Core.Transactions;
 
 namespace ArchLucid.Persistence.Orchestration.Pipeline;
 
 /// <summary>
-/// Mutable state passed through ordered <see cref="IAuthorityPipelineStage"/> executions inside one unit of work.
+///     Mutable state passed through ordered <see cref="IAuthorityPipelineStage" /> executions inside one unit of work.
 /// </summary>
 public sealed class AuthorityPipelineContext
 {
     public required RunRecord Run
     {
-        get; init;
+        get;
+        init;
     }
 
     public required ContextIngestionRequest Request
     {
-        get; set;
+        get;
+        set;
     }
 
     public required IArchLucidUnitOfWork UnitOfWork
     {
-        get; init;
+        get;
+        init;
     }
 
     public required ScopeContext Scope
     {
-        get; init;
+        get;
+        init;
     }
 
     public Activity? RunActivity
     {
-        get; init;
+        get;
+        init;
     }
 
     public ContextSnapshot? PriorCommittedContext
     {
-        get; set;
+        get;
+        set;
     }
 
     public ContextSnapshot? ContextSnapshot
     {
-        get; set;
+        get;
+        set;
     }
 
     public GraphSnapshotResolutionResult? GraphResolution
     {
-        get; set;
+        get;
+        set;
     }
 
     public GraphSnapshot? GraphSnapshot
     {
-        get; set;
+        get;
+        set;
     }
 
     public FindingsSnapshot? FindingsSnapshot
     {
-        get; set;
+        get;
+        set;
     }
 
     public GoldenManifest? Manifest
     {
-        get; set;
+        get;
+        set;
     }
 
     public DecisionTrace? Trace
     {
-        get; set;
+        get;
+        set;
     }
 
     public ArtifactBundle? ArtifactBundle
     {
-        get; set;
+        get;
+        set;
     }
 }

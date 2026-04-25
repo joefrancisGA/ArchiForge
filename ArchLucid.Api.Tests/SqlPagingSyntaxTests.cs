@@ -5,9 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Sql Paging Syntax.
+///     Tests for Sql Paging Syntax.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class SqlPagingSyntaxTests
 {

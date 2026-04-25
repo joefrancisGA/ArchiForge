@@ -5,10 +5,10 @@
 
 # ADR 0022: Coordinator interface family retirement — **blocked** (exit gates not met)
 
-- **Status:** Proposed — **do not merge deletion PRs until gates pass**
-- **Date:** 2026-04-21
+- **Status:** **Superseded by [ADR 0030 — Coordinator → Authority pipeline unification](0030-coordinator-authority-pipeline-unification.md) on 2026-04-24** (PR A3 merge — coordinator interface family deletion shipped, the per-sub-PR gate-evidence framing this ADR introduced is now history). The historical record below is preserved verbatim for context; do not merge new deletion PRs against this ADR.
+- **Date:** 2026-04-21 (superseded 2026-04-24)
 - **Supersedes:** *(none — this ADR does not retire ADR 0010 / 0021 until Phase 3 actually ships)*
-- **Superseded by:** *(none yet — flips to `Superseded by [ADR 0030](0030-coordinator-authority-pipeline-unification.md) inside PR A3` per ADR 0030 § Lifecycle, not by the original "single PR A merges" event)*
+- **Superseded by:** [ADR 0030 — Coordinator → Authority pipeline unification](0030-coordinator-authority-pipeline-unification.md) (PR A3 deletion shipped 2026-04-24).
 - **Amended by:** [ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)](0030-coordinator-authority-pipeline-unification.md) — the gate-evidence framing in this ADR's § Operational considerations now applies **per-sub-PR** (PR A0 → PR A4), not to a single PR A. The "PR A may merge once gates (ii) and (iii) clear" wording in the `IRunCommitOrchestrator` row of § Component breakdown carries over to each sub-PR independently.
 
 ## Objective

@@ -120,6 +120,8 @@ test.describe("live-api-trial-end-to-end", () => {
         organizationName: orgName,
         adminEmail,
         adminDisplayName: "E2E B8 Admin",
+        baselineReviewCycleHours: 18.5,
+        baselineReviewCycleSource: "e2e live self-serve trial estimate",
       },
     });
 
@@ -181,6 +183,24 @@ test.describe("live-api-trial-end-to-end", () => {
     expect(trialJson.trialSeatsUsed).toBe(1);
     expect(trialJson.trialSeatsLimit).toBe(3);
     expect(trialJson.trialSampleRunId).toBeTruthy();
+    expect(trialJson.baselineReviewCycleHours).toBe(18.5);
+    expect(trialJson.baselineReviewCycleSource).toBe("e2e live self-serve trial estimate");
+    expect(trialJson.baselineReviewCycleCapturedUtc).toBeTruthy();
+
+    const commercialPackagingProbe = await request.get(`${liveApiBase}/v1/policy-packs`, {
+      headers: { Accept: "application/json", ...liveTenantScopeHeaders(scope) },
+    });
+    expect(commercialPackagingProbe.status(), await commercialPackagingProbe.text()).toBe(402);
+    expect((commercialPackagingProbe.headers()["content-type"] ?? "").toLowerCase()).toContain("application/problem");
+    const packagingProblem = (await commercialPackagingProbe.json()) as {
+      type?: string;
+      upgradeUrl?: string;
+      pricingUrl?: string;
+    };
+    const upgrade = packagingProblem.upgradeUrl ?? packagingProblem.pricingUrl;
+    expect(upgrade?.length, "402 commercial tier should include pricing/upgrade link").toBeGreaterThan(0);
+    expect(String(upgrade), "upgrade CTA should point at public pricing").toMatch(/\/pricing$/);
+    expect(packagingProblem.type ?? "", "packaging 402 should use problem type").toMatch(/packaging-tier/i);
 
     await page.addInitScript(
       (payload) => {
@@ -271,9 +291,13 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await expect(page.getByText(/This run is already committed/i)).toBeVisible({ timeout: 120_000 });
 
+    await expect(page.getByTestId("email-run-to-sponsor-first-commit-badge")).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByText(/Day \d+ since first commit/i)).toBeVisible({ timeout: 10_000 });
+
     const afterFirstCommit = await getTenantTrialStatus(request, scope);
 
     expect(afterFirstCommit.trialRunsUsed).toBe(1);
+    expect(afterFirstCommit.firstCommitUtc, "first commit should anchor sponsor day badge (trial-status)").toBeTruthy();
 
     const burnBody = {
       requestId: `B8-BURN-${suffix}`,

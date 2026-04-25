@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
@@ -20,6 +21,7 @@ import {
   coerceGoldenManifestComparison,
   coerceRunComparison,
 } from "@/lib/operator-response-guards";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
@@ -219,10 +221,13 @@ function CompareForm() {
   return (
     <main>
       <LayerHeader pageKey="compare" />
-      <h2 className="flex flex-wrap items-baseline gap-2">
-        Compare runs
-        <ShortcutHint shortcut="Alt+C" className="align-middle text-[0.75rem] text-neutral-500" />
-      </h2>
+      <div className="mb-0 flex flex-wrap items-center gap-2">
+        <h2 className="m-0 flex flex-wrap items-baseline gap-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+          <span>Compare runs</span>
+          <ShortcutHint shortcut="Alt+C" className="align-middle text-[0.75rem] text-neutral-500" />
+        </h2>
+        <ContextualHelp helpKey="compare-runs" />
+      </div>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>
         {" · "}
@@ -235,6 +240,11 @@ function CompareForm() {
         evaluating. The page <strong>loads</strong> legacy compare then structured compare; <strong>below</strong>,
         read <strong>structured first</strong>, then the legacy flat diff. AI explanation is optional and separate—
         use it after the tables.
+      </p>
+      <p className="mb-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        The structured table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over
+        committed manifests; the API can persist a <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip> for replay
+        and verification.
       </p>
 
       <div className="grid max-w-3xl gap-3">

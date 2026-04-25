@@ -20,10 +20,7 @@ public sealed class AspNetCoreHostingUrlsTests
     public void ShouldUseHttpsRedirection_WhenHttpOnlyUrls_ReturnsFalse()
     {
         IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["ASPNETCORE_URLS"] = "http://+:8080",
-            })
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ASPNETCORE_URLS"] = "http://+:8080" })
             .Build();
 
         bool result = AspNetCoreHostingUrls.ShouldUseHttpsRedirection(configuration);
@@ -37,7 +34,7 @@ public sealed class AspNetCoreHostingUrlsTests
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ASPNETCORE_URLS"] = "http://localhost:5000;https://localhost:5001",
+                ["ASPNETCORE_URLS"] = "http://localhost:5000;https://localhost:5001"
             })
             .Build();
 

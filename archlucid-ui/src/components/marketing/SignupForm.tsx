@@ -17,9 +17,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import {
   BASELINE_REVIEW_CYCLE_HOURS_MAX,
   companySizeOptions,
+  industryVerticalOptions,
   signupFormSchema,
   type BaselineSignupChoice,
   type SignupFormValues,
@@ -44,6 +46,9 @@ export function SignupForm() {
       adminDisplayName: "",
       organizationName: "",
       companySize: undefined,
+      architectureTeamSize: "",
+      industryVertical: undefined,
+      industryVerticalOther: "",
       baselineChoice: "model_default",
       baselineReviewCycleHours: "",
       baselineReviewCycleSource: "",
@@ -53,6 +58,7 @@ export function SignupForm() {
 
   const { register, handleSubmit, setValue, watch, formState } = form;
   const companySize = watch("companySize");
+  const industryVertical = watch("industryVertical");
   const baselineChoice = watch("baselineChoice");
 
   function setBaselineChoice(next: BaselineSignupChoice): void {
@@ -86,6 +92,28 @@ export function SignupForm() {
         const sourceTrim = values.baselineReviewCycleSource?.trim() ?? "";
 
         if (sourceTrim.length > 0) payload.baselineReviewCycleSource = sourceTrim;
+      }
+
+      if (values.companySize) {
+        payload.companySize = values.companySize;
+      }
+
+      const teamTrim = values.architectureTeamSize?.trim() ?? "";
+      if (teamTrim.length > 0) {
+        const t = Number(teamTrim);
+        if (Number.isFinite(t)) {
+          payload.architectureTeamSize = t;
+        }
+      }
+
+      if (values.industryVertical) {
+        payload.industryVertical = values.industryVertical;
+      }
+      if (values.industryVertical === "Other") {
+        const o = values.industryVerticalOther?.trim() ?? "";
+        if (o.length > 0) {
+          payload.industryVerticalOther = o;
+        }
       }
 
       const res = await fetch("/api/proxy/v1/register", {
@@ -140,6 +168,7 @@ export function SignupForm() {
         /* ignore */
       }
 
+      recordFirstTenantFunnelEvent("signup");
       showSuccess("Organization created — check your email if verification is required.");
       router.push(`/signup/verify?email=${encodeURIComponent(values.adminEmail)}`);
     } catch (e: unknown) {
@@ -206,6 +235,67 @@ export function SignupForm() {
             </SelectContent>
           </Select>
         </div>
+
+        <div>
+          <Label htmlFor="signup-team-size">Architecture team size (optional)</Label>
+          <Input
+            id="signup-team-size"
+            type="number"
+            min={1}
+            max={10_000}
+            data-testid="signup-architecture-team-size"
+            {...register("architectureTeamSize")}
+            className="mt-1"
+          />
+          {formState.errors.architectureTeamSize ? (
+            <p className="mt-1 text-sm text-red-600" role="alert">
+              {formState.errors.architectureTeamSize.message}
+            </p>
+          ) : null}
+        </div>
+
+        <div>
+          <Label htmlFor="signup-industry">Industry (optional)</Label>
+          <Select
+            value={industryVertical ?? "__ind_none__"}
+            onValueChange={(v) => {
+              setValue(
+                "industryVertical",
+                v === "__ind_none__" ? undefined : (v as SignupFormValues["industryVertical"]),
+                { shouldValidate: true }
+              );
+            }}
+          >
+            <SelectTrigger id="signup-industry" className="mt-1" data-testid="signup-industry">
+              <SelectValue placeholder="Select industry" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__ind_none__">Prefer not to say</SelectItem>
+              {industryVerticalOptions.map((opt) => (
+                <SelectItem key={opt} value={opt} data-testid={`signup-industry-${opt}`}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {industryVertical === "Other" ? (
+          <div>
+            <Label htmlFor="signup-industry-specify">Industry (specify)</Label>
+            <Input
+              id="signup-industry-specify"
+              data-testid="signup-industry-specify"
+              {...register("industryVerticalOther")}
+              className="mt-1"
+            />
+            {formState.errors.industryVerticalOther ? (
+              <p className="mt-1 text-sm text-red-600" role="alert">
+                {formState.errors.industryVerticalOther.message}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
           <p id="signup-baseline-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">

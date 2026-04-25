@@ -3,15 +3,15 @@ using ArchLucid.Contracts.Metadata;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory implementation of <see cref="IComparisonRecordRepository"/> for tests and in-memory hosts.
+///     Thread-safe in-memory implementation of <see cref="IComparisonRecordRepository" /> for tests and in-memory hosts.
 /// </summary>
-/// <remarks>Filter and sort semantics mirror <see cref="ComparisonRecordRepository"/> for contract tests.</remarks>
+/// <remarks>Filter and sort semantics mirror <see cref="ComparisonRecordRepository" /> for contract tests.</remarks>
 public sealed class InMemoryComparisonRecordRepository : IComparisonRecordRepository
 {
     private const int MaxEntries = 5_000;
+    private readonly Lock _gate = new();
 
     private readonly List<ComparisonRecord> _items = [];
-    private readonly Lock _gate = new();
 
     /// <inheritdoc />
     public Task CreateAsync(ComparisonRecord record, CancellationToken cancellationToken = default)
@@ -31,7 +31,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
     }
 
     /// <inheritdoc />
-    public Task<ComparisonRecord?> GetByIdAsync(string comparisonRecordId, CancellationToken cancellationToken = default)
+    public Task<ComparisonRecord?> GetByIdAsync(string comparisonRecordId,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -45,7 +46,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<ComparisonRecord>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ComparisonRecord>> GetByRunIdAsync(string runId,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -181,7 +183,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                            string.Compare(r.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) < 0)
                         : r.CreatedUtc > cursorCreatedUtc.Value ||
                           (r.CreatedUtc == cursorCreatedUtc.Value &&
-                           string.Compare(r.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) > 0));
+                           string.Compare(r.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) >
+                           0));
 
 
             query = ApplyOrdering(query, sortBy, sortDir);
@@ -319,7 +322,8 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
     }
 
     /// <summary>
-    /// Integration test support: overwrites <see cref="ComparisonRecord.PayloadJson"/> for an existing record in this in-memory store.
+    ///     Integration test support: overwrites <see cref="ComparisonRecord.PayloadJson" /> for an existing record in this
+    ///     in-memory store.
     /// </summary>
     internal void ReplacePayloadJsonForIntegrationTest(string comparisonRecordId, string payloadJson)
     {

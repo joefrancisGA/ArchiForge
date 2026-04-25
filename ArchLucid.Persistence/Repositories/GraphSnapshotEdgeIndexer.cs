@@ -3,7 +3,7 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// Builds denormalized edge rows for <c>dbo.GraphSnapshotEdges</c> from a <see cref="GraphSnapshot"/>.
+///     Builds denormalized edge rows for <c>dbo.GraphSnapshotEdges</c> from a <see cref="GraphSnapshot" />.
 /// </summary>
 public static class GraphSnapshotEdgeIndexer
 {
@@ -27,7 +27,7 @@ public static class GraphSnapshotEdgeIndexer
     }
 }
 
-/// <summary>One row for indexed edge queries (mirrors <see cref="GraphEdge"/> + snapshot scope).</summary>
+/// <summary>One row for indexed edge queries (mirrors <see cref="GraphEdge" /> + snapshot scope).</summary>
 public sealed record GraphSnapshotEdgeRow(
     Guid GraphSnapshotId,
     string EdgeId,

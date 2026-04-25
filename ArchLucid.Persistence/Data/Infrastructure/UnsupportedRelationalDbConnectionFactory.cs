@@ -3,9 +3,11 @@ using System.Data;
 namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>
-/// Placeholder <see cref="IDbConnectionFactory"/> for in-memory storage composition so types that
-/// short-circuit on <see cref="ArchLucid.Core.Configuration.ArchLucidOptions.EffectiveIsInMemory"/> can still be constructed.
-/// When the host registers a real factory later (for example <see cref="SqlConnectionFactory"/>), that registration should win for resolution.
+///     Placeholder <see cref="IDbConnectionFactory" /> for in-memory storage composition so types that
+///     short-circuit on <see cref="ArchLucid.Core.Configuration.ArchLucidOptions.EffectiveIsInMemory" /> can still be
+///     constructed.
+///     When the host registers a real factory later (for example <see cref="SqlConnectionFactory" />), that registration
+///     should win for resolution.
 /// </summary>
 public sealed class UnsupportedRelationalDbConnectionFactory : IDbConnectionFactory
 {

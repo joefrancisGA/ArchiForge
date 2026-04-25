@@ -3,15 +3,15 @@ using System.Diagnostics.Metrics;
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-/// Subscribes to the <c>ArchLucid</c> <see cref="Meter"/> at construction and accumulates measurements for the
-/// counters used by the <c>/why-archlucid</c> proof page and operator diagnostics
-/// (<c>archlucid_runs_created_total</c>, <c>archlucid_findings_produced_total</c> by <c>severity</c>,
-/// <c>archlucid_operator_task_success_total</c> by <c>task</c>).
+///     Subscribes to the <c>ArchLucid</c> <see cref="Meter" /> at construction and accumulates measurements for the
+///     counters used by the <c>/why-archlucid</c> proof page and operator diagnostics
+///     (<c>archlucid_runs_created_total</c>, <c>archlucid_findings_produced_total</c> by <c>severity</c>,
+///     <c>archlucid_operator_task_success_total</c> by <c>task</c>).
 /// </summary>
 /// <remarks>
-/// Designed to be registered as a <c>Singleton</c> so the listener stays alive for the host's lifetime; counts are
-/// process-life cumulative and reset when the API host restarts. Lightweight by design — the snapshot endpoint
-/// must remain safe for unauthenticated load on a Core Pilot demo route.
+///     Designed to be registered as a <c>Singleton</c> so the listener stays alive for the host's lifetime; counts are
+///     process-life cumulative and reset when the API host restarts. Lightweight by design — the snapshot endpoint
+///     must remain safe for unauthenticated load on a Core Pilot demo route.
 /// </remarks>
 public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCounterSnapshotProvider, IDisposable
 {
@@ -22,21 +22,23 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
     private const string TaskTag = "task";
     private const string UnknownSeverity = "unknown";
     private const string UnknownTask = "unknown";
+    private readonly Dictionary<string, long> _findingsBySeverity = new(StringComparer.Ordinal);
 
     private readonly Lock _gate = new();
-    private readonly Dictionary<string, long> _findingsBySeverity = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, long> _operatorTaskSuccess = new(StringComparer.Ordinal);
     private readonly MeterListener _listener;
+    private readonly Dictionary<string, long> _operatorTaskSuccess = new(StringComparer.Ordinal);
     private long _runsCreated;
 
     public MeterListenerCounterSnapshotProvider()
     {
-        _listener = new MeterListener
-        {
-            InstrumentPublished = OnInstrumentPublished,
-        };
+        _listener = new MeterListener { InstrumentPublished = OnInstrumentPublished };
         _listener.SetMeasurementEventCallback<long>(OnLongMeasurement);
         _listener.Start();
+    }
+
+    public void Dispose()
+    {
+        _listener.Dispose();
     }
 
     /// <inheritdoc />
@@ -47,12 +49,12 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
             return new InstrumentationCounterSnapshot
             {
                 RunsCreatedTotal = _runsCreated,
-                FindingsProducedBySeverity = new Dictionary<string, long>(_findingsBySeverity, StringComparer.Ordinal),
-                OperatorTaskSuccessByTask = new Dictionary<string, long>(_operatorTaskSuccess, StringComparer.Ordinal),
+                FindingsProducedBySeverity =
+                    new Dictionary<string, long>(_findingsBySeverity, StringComparer.Ordinal),
+                OperatorTaskSuccessByTask =
+                    new Dictionary<string, long>(_operatorTaskSuccess, StringComparer.Ordinal)
             };
     }
-
-    public void Dispose() => _listener.Dispose();
 
     private static bool IsTrackedInstrument(Instrument instrument)
     {
@@ -61,8 +63,8 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
         if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName) return false;
 
         return instrument.Name == RunsCreatedInstrumentName
-            || instrument.Name == FindingsProducedInstrumentName
-            || instrument.Name == OperatorTaskSuccessInstrumentName;
+               || instrument.Name == FindingsProducedInstrumentName
+               || instrument.Name == OperatorTaskSuccessInstrumentName;
     }
 
     private void OnInstrumentPublished(Instrument instrument, MeterListener listener)

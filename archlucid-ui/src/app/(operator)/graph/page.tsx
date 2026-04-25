@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -107,7 +108,10 @@ export default function GraphPage() {
   return (
     <main>
       <LayerHeader pageKey="graph" />
-      <h2>Graph</h2>
+      <div className="mb-0 flex flex-wrap items-center gap-2">
+        <h2 className="m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Graph</h2>
+        <ContextualHelp helpKey="architecture-graph" />
+      </div>
       <p style={{ marginTop: 4, fontSize: 14 }}>
         <Link href="/">Home</Link>
         {" · "}

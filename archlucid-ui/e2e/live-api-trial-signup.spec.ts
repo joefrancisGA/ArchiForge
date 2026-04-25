@@ -144,7 +144,7 @@ test.describe("live-api-trial-signup", () => {
     });
 
     await page.getByTestId("signup-verify-continue-onboarding").click();
-    await page.waitForURL(/\/onboarding\/start/i, { timeout: 60_000 });
+    await page.waitForURL(/\/getting-started/i, { timeout: 60_000 });
 
     const sampleLink = page.getByTestId("onboarding-open-sample-run");
     await expect(sampleLink).toBeVisible({ timeout: 120_000 });

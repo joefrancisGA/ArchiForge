@@ -81,6 +81,9 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
                         View trace
                       </Button>
                       <Button type="button" size="sm" variant="ghost" asChild>
+                        <Link href={`/runs/${runId}/findings/${encodeURIComponent(row.findingId)}/inspect`}>Why?</Link>
+                      </Button>
+                      <Button type="button" size="sm" variant="ghost" asChild>
                         <Link href={`/runs/${runId}/findings/${encodeURIComponent(row.findingId)}`}>Explain page</Link>
                       </Button>
                     </div>

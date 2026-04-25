@@ -1,10 +1,10 @@
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
-/// Canonical <see cref="Models.Finding.FindingType"/> string constants used throughout
-/// <see cref="Models.FindingsSnapshot.GetByType"/> calls and finding engines.
-/// Using these constants rather than bare string literals gives compile-time safety
-/// and prevents silent empty-result bugs from typos.
+///     Canonical <see cref="Models.Finding.FindingType" /> string constants used throughout
+///     <see cref="Models.FindingsSnapshot.GetByType" /> calls and finding engines.
+///     Using these constants rather than bare string literals gives compile-time safety
+///     and prevents silent empty-result bugs from typos.
 /// </summary>
 public static class FindingTypes
 {

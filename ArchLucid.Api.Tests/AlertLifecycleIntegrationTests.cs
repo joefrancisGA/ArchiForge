@@ -11,7 +11,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// End-to-end: create simple alert rule → run advisory scan (evaluates rules) → list persisted <see cref="AlertRecord"/> rows via HTTP.
+///     End-to-end: create simple alert rule → run advisory scan (evaluates rules) → list persisted
+///     <see cref="AlertRecord" /> rows via HTTP.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class AlertLifecycleIntegrationTests
@@ -26,7 +27,7 @@ public sealed class AlertLifecycleIntegrationTests
     {
         await using AlertLifecycleWebAppFactory factory = new();
         await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(factory.Services, CancellationToken.None)
-;
+            ;
 
         HttpClient client = factory.CreateClient();
 
@@ -45,8 +46,9 @@ public sealed class AlertLifecycleIntegrationTests
             CancellationToken.None);
 
         createRuleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        AlertRule? createdRule = await createRuleResponse.Content.ReadFromJsonAsync<AlertRule>(JsonOptions, CancellationToken.None)
-;
+        AlertRule? createdRule =
+                await createRuleResponse.Content.ReadFromJsonAsync<AlertRule>(JsonOptions, CancellationToken.None)
+            ;
         createdRule.Should().NotBeNull();
         Guid ruleId = createdRule.RuleId;
         ruleId.Should().NotBeEmpty();
@@ -65,26 +67,28 @@ public sealed class AlertLifecycleIntegrationTests
 
         createScheduleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         AdvisoryScanSchedule? schedule = await createScheduleResponse.Content
-            .ReadFromJsonAsync<AdvisoryScanSchedule>(JsonOptions, CancellationToken.None)
-;
+                .ReadFromJsonAsync<AdvisoryScanSchedule>(JsonOptions, CancellationToken.None)
+            ;
         schedule.Should().NotBeNull();
 
         HttpResponseMessage runResponse = await client
-            .PostAsync($"v1/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", content: null, CancellationToken.None)
-;
+                .PostAsync($"v1/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", null,
+                    CancellationToken.None)
+            ;
 
         runResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         HttpResponseMessage listAlertsResponse = await client
-            .GetAsync(new Uri($"/{ApiV1Routes.Alerts}?take=50", UriKind.Relative), CancellationToken.None)
-;
+                .GetAsync(new Uri($"/{ApiV1Routes.Alerts}?take=50", UriKind.Relative), CancellationToken.None)
+            ;
 
         listAlertsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         List<AlertRecord>? alerts = await listAlertsResponse.Content
-            .ReadFromJsonAsync<List<AlertRecord>>(JsonOptions, CancellationToken.None)
-;
+                .ReadFromJsonAsync<List<AlertRecord>>(JsonOptions, CancellationToken.None)
+            ;
 
         alerts.Should().NotBeNull();
-        alerts.Should().Contain(a => a.RuleId == ruleId && string.Equals(a.Status, AlertStatus.Open, StringComparison.OrdinalIgnoreCase));
+        alerts.Should().Contain(a =>
+            a.RuleId == ruleId && string.Equals(a.Status, AlertStatus.Open, StringComparison.OrdinalIgnoreCase));
     }
 }

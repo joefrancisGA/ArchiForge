@@ -7,7 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP coverage for <c>POST /v1/pilots/board-pack.pdf</c> — quarterly board pack (<see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority"/>, Standard+ tier).
+///     HTTP coverage for <c>POST /v1/pilots/board-pack.pdf</c> — quarterly board pack (
+///     <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.ExecuteAuthority" />, Standard+ tier).
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -28,7 +29,7 @@ public sealed class BoardPackPdfEndpointTests(ArchLucidApiFactory factory) : Int
     {
         HttpRequestMessage request = new(HttpMethod.Post, "/v1/pilots/board-pack.pdf")
         {
-            Content = JsonContent(new { year = 2026, quarter = 1 }),
+            Content = JsonContent(new { year = 2026, quarter = 1 })
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/pdf"));
 

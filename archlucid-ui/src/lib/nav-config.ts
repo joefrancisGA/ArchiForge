@@ -4,16 +4,18 @@ import {
   BarChart3,
   Bell,
   BookOpen,
+  Building2,
   ClipboardList,
   FileSearch,
   FileText,
   GitBranch,
   GitCompare,
   GitGraph,
+  HeartPulse,
   Home,
+  LifeBuoy,
   LayoutDashboard,
   ListOrdered,
-  Mail,
   MessageSquare,
   Play,
   Rocket,
@@ -23,9 +25,8 @@ import {
   ShieldCheck,
   Sparkles,
   Stars,
-  Tags,
+  Users,
   Wallet,
-  Wrench,
 } from "lucide-react";
 
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
@@ -117,12 +118,12 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *
- * - **Omit** on Pilot *essentials* (home, onboarding, new run, runs) so Reader-signed-in pilots keep the default path.
+ * - **Omit** on Pilot *essentials* (home, getting-started, new run, runs) so Reader-signed-in pilots keep the default path.
  * - **Pilot · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`,
  *   `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`**
  *   (`AuthorityReplayController`).
  * - **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the
- *   API primary workflow is Execute-class (planning, evolution candidates, advisory **schedules**, digest **subscriptions** → **`ExecuteAuthority`**).
+ *   API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/advisory`** and **`/digests`** with in-page Execute gating).
  *   Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
  * - **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers
  *   are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
@@ -159,19 +160,11 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "essential",
       },
       {
-        href: "/onboarding",
-        label: "Onboarding",
-        title: "Guided operator onboarding checklist",
+        href: "/getting-started",
+        label: "Getting started",
+        title: "Same Core Pilot checklist as Home — plus trial handoff and anchors",
         icon: BookOpen,
         tier: "essential",
-      },
-      {
-        href: "/onboard",
-        label: "First session",
-        title: "Pilot four-step wizard (request → seed → commit → hand-off)",
-        icon: ClipboardList,
-        tier: "essential",
-        requiredAuthority: "ExecuteAuthority",
       },
       {
         href: "/runs/new",
@@ -199,7 +192,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+y",
         icon: GitGraph,
         // Graph is a useful inspection tool but is not part of the Core Pilot path
-        // (create → run → commit → review). It surfaces under "Show more links".
+        // (create → run → commit → review). It surfaces under extended disclosure (see NAV_DISCLOSURE.extended).
         tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
@@ -215,7 +208,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/replay",
         label: "Replay a run",
-        title: navTitleWithShortcut("Re-validate authority chain for one run", "alt+p"),
+        title: navTitleWithShortcut("Re-validate the provenance chain for one run", "alt+p"),
         keyShortcut: "alt+p",
         icon: Play,
         tier: "extended",
@@ -259,7 +252,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/advisory",
         label: "Advisory",
-        title: "Advisory — scans and architecture digests",
+        title: "Advisory — architecture scans and scan schedules",
         icon: Activity,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
@@ -297,35 +290,11 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         requiredAuthority: "ExecuteAuthority",
       },
       {
-        href: "/advisory-scheduling",
-        label: "Schedules",
-        title: "Schedules — advisory scan windows",
-        icon: Wrench,
-        tier: "advanced",
-        requiredAuthority: "ExecuteAuthority",
-      },
-      {
         href: "/digests",
         label: "Digests",
-        title: "Digests — generated architecture digests",
+        title: "Digests — generated digests, subscriptions, and sponsor schedule",
         icon: FileSearch,
         tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/digest-subscriptions",
-        label: "Subscriptions",
-        title: "Subscriptions — digest email delivery",
-        icon: Mail,
-        tier: "advanced",
-        requiredAuthority: "ExecuteAuthority",
-      },
-      {
-        href: "/settings/exec-digest",
-        label: "Exec digest",
-        title: "Exec digest — weekly sponsor email schedule",
-        icon: Mail,
-        tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
       {
@@ -335,6 +304,22 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         icon: Wallet,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/settings/baseline",
+        label: "Baseline settings",
+        title: "Baseline settings — ROI measurement inputs",
+        icon: BarChart3,
+        tier: "extended",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/settings/tenant",
+        label: "Tenant settings",
+        title: "Tenant settings — trial, digest email, and request scope",
+        icon: Building2,
+        tier: "extended",
+        requiredAuthority: "ExecuteAuthority",
       },
     ],
   },
@@ -346,52 +331,20 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       "Governance, audit, policy packs, alerts, and trust. Operator-heavy; Execute+ for writes where the API requires it — not required for first Pilot proof.",
     links: [
       {
-        href: "/alerts",
-        label: "Alerts",
-        title: navTitleWithShortcut("Alerts — open and acknowledged operational inbox", "alt+l"),
-        keyShortcut: "alt+l",
-        icon: Bell,
+        href: "/admin/health",
+        label: "System health",
+        title: "System health — readiness, circuit breakers, onboarding funnel metrics",
+        icon: HeartPulse,
         tier: "essential",
         requiredAuthority: "ReadAuthority",
       },
       {
-        href: "/alert-rules",
-        label: "Alert rules",
-        title: "Alert rules — metric thresholds evaluated on advisory scans",
-        icon: Tags,
-        tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/alert-routing",
-        label: "Alert routing",
-        title: "Alert routing — delivery subscriptions when new alerts fire",
-        icon: Mail,
-        tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/composite-alert-rules",
-        label: "Composite rules",
-        title: "Composite rules — multi-metric AND/OR alert conditions",
-        icon: Tags,
-        tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/alert-simulation",
-        label: "Alert simulation",
-        title: "Alert simulation — evaluate rules against recent runs (what-if)",
-        icon: Activity,
-        tier: "advanced",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/alert-tuning",
-        label: "Alert tuning",
-        title: "Alert tuning — threshold recommendations from simulation",
-        icon: Wrench,
-        tier: "advanced",
+        href: "/alerts",
+        label: "Alerts",
+        title: navTitleWithShortcut("Alerts — inbox, rules, routing, simulation, and tuning", "alt+l"),
+        keyShortcut: "alt+l",
+        icon: Bell,
+        tier: "essential",
         requiredAuthority: "ReadAuthority",
       },
       {
@@ -461,6 +414,29 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         icon: FileText,
         tier: "advanced",
         requiredAuthority: "ExecuteAuthority",
+      },
+    ],
+  },
+  {
+    id: "operator-admin",
+    label: "Admin",
+    caption: "Support bundles and tenant user administration.",
+    links: [
+      {
+        href: "/admin/support",
+        label: "Support",
+        title: "Support — download a redacted support bundle for tickets",
+        icon: LifeBuoy,
+        tier: "extended",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/admin/users",
+        label: "Users & roles",
+        title: "Users & roles — directory and authority rank (administration UI; API policies still enforce writes)",
+        icon: Users,
+        tier: "extended",
+        requiredAuthority: "AdminAuthority",
       },
     ],
   },

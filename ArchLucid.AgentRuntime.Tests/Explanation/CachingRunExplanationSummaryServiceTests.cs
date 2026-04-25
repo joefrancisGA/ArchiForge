@@ -14,7 +14,7 @@ using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests.Explanation;
 
-/// <summary>Unit tests for <see cref="CachingRunExplanationSummaryService"/> hot-path caching.</summary>
+/// <summary>Unit tests for <see cref="CachingRunExplanationSummaryService" /> hot-path caching.</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class CachingRunExplanationSummaryServiceTests
@@ -164,30 +164,18 @@ public sealed class CachingRunExplanationSummaryServiceTests
 
     private static ScopeContext CreateScope()
     {
-        return new ScopeContext
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
+        return new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
     }
 
     private static RunDetailDto CreateDetail(Guid runId, byte[] rowVersion)
     {
         return new RunDetailDto
         {
-            Run = new RunRecord
-            {
-                RunId = runId,
-                RowVersion = rowVersion,
-            },
+            Run = new RunRecord { RunId = runId, RowVersion = rowVersion },
             GoldenManifest = new GoldenManifest
             {
-                ManifestHash = "h",
-                RuleSetId = "r",
-                RuleSetVersion = "v",
-                RuleSetHash = "rh",
-            },
+                ManifestHash = "h", RuleSetId = "r", RuleSetVersion = "v", RuleSetHash = "rh"
+            }
         };
     }
 
@@ -199,11 +187,11 @@ public sealed class CachingRunExplanationSummaryServiceTests
             ThemeSummaries = [],
             OverallAssessment = "assessment",
             RiskPosture = "Low",
-            Citations = [],
+            Citations = []
         };
     }
 
-    /// <summary>Mimics <see cref="IHotPathReadCache"/> no-null-cache semantics for tests.</summary>
+    /// <summary>Mimics <see cref="IHotPathReadCache" /> no-null-cache semantics for tests.</summary>
     private sealed class DictionaryHotPathReadCache : IHotPathReadCache
     {
         private readonly Dictionary<string, object> _store = new(StringComparer.Ordinal);

@@ -9,14 +9,17 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Cosmos;
 
-/// <summary>Runs the Cosmos change feed processor for <c>audit-events</c> when <see cref="CosmosDbOptions.AuditEventsEnabled"/> is on.</summary>
+/// <summary>
+///     Runs the Cosmos change feed processor for <c>audit-events</c> when
+///     <see cref="CosmosDbOptions.AuditEventsEnabled" /> is on.
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]
 public sealed class AuditEventChangeFeedHostedService : BackgroundService
 {
     private readonly CosmosClientFactory _clientFactory;
-    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor;
     private readonly IAuditEventChangeFeedHandler _handler;
     private readonly ILogger<AuditEventChangeFeedHostedService> _logger;
+    private readonly IOptionsMonitor<CosmosDbOptions> _optionsMonitor;
 
     public AuditEventChangeFeedHostedService(
         CosmosClientFactory clientFactory,

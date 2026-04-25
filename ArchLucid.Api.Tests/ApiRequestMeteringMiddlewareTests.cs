@@ -27,11 +27,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
 
     private static DefaultHttpContext CreateContext(string path)
     {
-        DefaultHttpContext context = new()
-        {
-            Request = { Path = path },
-            TraceIdentifier = "trace-1"
-        };
+        DefaultHttpContext context = new() { Request = { Path = path }, TraceIdentifier = "trace-1" };
 
         return context;
     }
@@ -44,7 +40,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
             meter.Object,
-            CreateMeteringOptions(enabled: false).Object,
+            CreateMeteringOptions(false).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
         DefaultHttpContext context = CreateContext("/v1/runs");
@@ -54,7 +50,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
                 {
                     TenantId = NonEmptyTenant,
                     WorkspaceId = ScopeIds.DefaultWorkspace,
-                    ProjectId = ScopeIds.DefaultProject,
+                    ProjectId = ScopeIds.DefaultProject
                 });
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
@@ -76,7 +72,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
             meter.Object,
-            CreateMeteringOptions(enabled: true).Object,
+            CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
         DefaultHttpContext context = CreateContext(path);
@@ -86,7 +82,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
                 {
                     TenantId = NonEmptyTenant,
                     WorkspaceId = ScopeIds.DefaultWorkspace,
-                    ProjectId = ScopeIds.DefaultProject,
+                    ProjectId = ScopeIds.DefaultProject
                 });
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
@@ -107,7 +103,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
             meter.Object,
-            CreateMeteringOptions(enabled: true).Object,
+            CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
         DefaultHttpContext context = CreateContext(path);
@@ -117,7 +113,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
                 {
                     TenantId = NonEmptyTenant,
                     WorkspaceId = ScopeIds.DefaultWorkspace,
-                    ProjectId = ScopeIds.DefaultProject,
+                    ProjectId = ScopeIds.DefaultProject
                 });
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
@@ -136,7 +132,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
             meter.Object,
-            CreateMeteringOptions(enabled: true).Object,
+            CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
         DefaultHttpContext context = CreateContext("/v1/runs");
@@ -146,7 +142,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
                 {
                     TenantId = Guid.Empty,
                     WorkspaceId = ScopeIds.DefaultWorkspace,
-                    ProjectId = ScopeIds.DefaultProject,
+                    ProjectId = ScopeIds.DefaultProject
                 });
 
         await middleware.InvokeAsync(context, _ => Task.CompletedTask);
@@ -169,15 +165,13 @@ public sealed class ApiRequestMeteringMiddlewareTests
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
             meter.Object,
-            CreateMeteringOptions(enabled: true).Object,
+            CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
         DefaultHttpContext context = CreateContext("/v1/architecture/runs");
         ScopeContext scope = new()
         {
-            TenantId = NonEmptyTenant,
-            WorkspaceId = ScopeIds.DefaultWorkspace,
-            ProjectId = ScopeIds.DefaultProject,
+            TenantId = NonEmptyTenant, WorkspaceId = ScopeIds.DefaultWorkspace, ProjectId = ScopeIds.DefaultProject
         };
         scopes.Setup(scopeProvider => scopeProvider.GetCurrentScope()).Returns(scope);
 
@@ -186,14 +180,13 @@ public sealed class ApiRequestMeteringMiddlewareTests
         meter.Verify(
             usage =>
                 usage.RecordAsync(
-                    It.Is<UsageEvent>(
-                        evt =>
-                            evt.Kind == UsageMeterKind.ApiRequest
-                            && evt.TenantId == NonEmptyTenant
-                            && evt.WorkspaceId == ScopeIds.DefaultWorkspace
-                            && evt.ProjectId == ScopeIds.DefaultProject
-                            && evt.Quantity == 1L
-                            && evt.CorrelationId == "trace-1"),
+                    It.Is<UsageEvent>(evt =>
+                        evt.Kind == UsageMeterKind.ApiRequest
+                        && evt.TenantId == NonEmptyTenant
+                        && evt.WorkspaceId == ScopeIds.DefaultWorkspace
+                        && evt.ProjectId == ScopeIds.DefaultProject
+                        && evt.Quantity == 1L
+                        && evt.CorrelationId == "trace-1"),
                     It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -210,7 +203,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
         ApiRequestMeteringMiddleware middleware = new(
             scopes.Object,
             meter.Object,
-            CreateMeteringOptions(enabled: true).Object,
+            CreateMeteringOptions(true).Object,
             NullLogger<ApiRequestMeteringMiddleware>.Instance);
 
         DefaultHttpContext context = CreateContext("/v1/runs");
@@ -220,7 +213,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
                 {
                     TenantId = NonEmptyTenant,
                     WorkspaceId = ScopeIds.DefaultWorkspace,
-                    ProjectId = ScopeIds.DefaultProject,
+                    ProjectId = ScopeIds.DefaultProject
                 });
 
         Func<Task> act = async () =>

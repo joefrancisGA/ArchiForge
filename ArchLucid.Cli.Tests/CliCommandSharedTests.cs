@@ -35,8 +35,8 @@ public sealed class CliCommandSharedTests
                 Constraints = ["c1"],
                 RequiredCapabilities = ["cap"],
                 Assumptions = ["a1"],
-                PriorManifestVersion = "v9",
-            },
+                PriorManifestVersion = "v9"
+            }
         };
 
         ArchitectureRequest request = CliCommandShared.BuildArchitectureRequest(config, "brief body");
@@ -53,10 +53,7 @@ public sealed class CliCommandSharedTests
     [Fact]
     public void BuildArchitectureRequest_without_architecture_uses_prod_defaults()
     {
-        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
-        {
-            ProjectName = "P"
-        };
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new() { ProjectName = "P" };
 
         ArchitectureRequest request = CliCommandShared.BuildArchitectureRequest(config, "x");
 
@@ -83,8 +80,8 @@ public sealed class CliCommandSharedTests
                     RunId = "run-1",
                     Objective = "obj",
                     AgentType = AgentType.Topology,
-                    Status = AgentTaskStatus.Created,
-                },
+                    Status = AgentTaskStatus.Created
+                }
             ];
 
             DateTime created = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
@@ -96,7 +93,7 @@ public sealed class CliCommandSharedTests
                 ArchitectureRunStatus.TasksGenerated,
                 created,
                 tasks,
-                manifestVersion: "mv1");
+                "mv1");
 
             File.Exists(path).Should().BeTrue();
             string json = File.ReadAllText(path);
@@ -134,17 +131,21 @@ public sealed class CliCommandSharedTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path
-        {
-            get;
-        } =
-            System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
-
         public TempDirectory()
         {
             Directory.CreateDirectory(Path);
         }
 
-        public void Dispose() => Directory.Delete(Path, recursive: true);
+        public string Path
+        {
+            get;
+        } =
+            System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+                "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
+
+        public void Dispose()
+        {
+            Directory.Delete(Path, true);
+        }
     }
 }

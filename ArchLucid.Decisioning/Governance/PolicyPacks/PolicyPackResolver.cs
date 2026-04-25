@@ -3,12 +3,14 @@ using ArchLucid.Decisioning.Governance.Resolution;
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
-/// Default <see cref="IPolicyPackResolver"/>: loads hierarchical assignments, filters <see cref="PolicyPackAssignment.IsEnabled"/>,
-/// and attaches each pack’s <see cref="PolicyPackVersion.ContentJson"/>.
+///     Default <see cref="IPolicyPackResolver" />: loads hierarchical assignments, filters
+///     <see cref="PolicyPackAssignment.IsEnabled" />,
+///     and attaches each pack’s <see cref="PolicyPackVersion.ContentJson" />.
 /// </summary>
 /// <remarks>
-/// Differs from <see cref="IEffectiveGovernanceResolver"/> in that it does not merge IDs/dictionaries or emit decisions/conflicts.
-/// Used for operator visibility of “which packs are attached” (see HTTP effective-set endpoint).
+///     Differs from <see cref="IEffectiveGovernanceResolver" /> in that it does not merge IDs/dictionaries or emit
+///     decisions/conflicts.
+///     Used for operator visibility of “which packs are attached” (see HTTP effective-set endpoint).
 /// </remarks>
 public sealed class PolicyPackResolver(
     IPolicyPackAssignmentRepository assignmentRepository,
@@ -17,8 +19,9 @@ public sealed class PolicyPackResolver(
 {
     /// <inheritdoc />
     /// <remarks>
-    /// Iterates assignments in repository order (typically <see cref="PolicyPackAssignment.AssignedUtc"/> descending).
-    /// Missing <see cref="PolicyPack"/> or <see cref="PolicyPackVersion"/> causes that assignment to be skipped (orphan-safe).
+    ///     Iterates assignments in repository order (typically <see cref="PolicyPackAssignment.AssignedUtc" /> descending).
+    ///     Missing <see cref="PolicyPack" /> or <see cref="PolicyPackVersion" /> causes that assignment to be skipped
+    ///     (orphan-safe).
     /// </remarks>
     public async Task<EffectivePolicyPackSet> ResolveAsync(
         Guid tenantId,
@@ -27,15 +30,10 @@ public sealed class PolicyPackResolver(
         CancellationToken ct)
     {
         IReadOnlyList<PolicyPackAssignment> assignments = await assignmentRepository
-            .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
+                .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
             ;
 
-        EffectivePolicyPackSet result = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-        };
+        EffectivePolicyPackSet result = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
 
         foreach (PolicyPackAssignment assignment in assignments.Where(x => x.IsEnabled))
         {
@@ -44,7 +42,7 @@ public sealed class PolicyPackResolver(
                 continue;
 
             PolicyPackVersion? version = await versionRepository
-                .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, ct)
+                    .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, ct)
                 ;
 
             if (version is null)
@@ -57,7 +55,7 @@ public sealed class PolicyPackResolver(
                     Name = pack.Name,
                     Version = version.Version,
                     PackType = pack.PackType,
-                    ContentJson = version.ContentJson,
+                    ContentJson = version.ContentJson
                 });
         }
 

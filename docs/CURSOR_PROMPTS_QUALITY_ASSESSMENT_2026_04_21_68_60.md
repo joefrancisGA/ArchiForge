@@ -11,58 +11,136 @@
 
 **DEFERRED markers.** A prompt is marked `[DEFERRED]` in the heading when the assistant cannot complete **at least part** of it without owner input that has not yet been received. None of the eight below are fully `DEFERRED` — every prompt has substantive work the assistant can land today.
 
+> **Update 2026-04-23.** **Prompt 1** ("Reference customer publication scaffolding (PLG row)") was **removed** because the underlying improvement was deferred to V1.1 by owner decision (see [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §0.2). Its slot is now filled by **Prompt 1 (replacement) — Quarterly board-pack PDF endpoint + monthly digest preset**, sourced from §1.10's standing recommendation.
+
+> **Update 2026-04-23 (second deferral, same day).** **Prompt 4** ("Marketplace + Stripe live readiness — production-safety guards") was **removed** because the underlying improvement was deferred to V1.1 by owner decision (see [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §0.3 — commerce un-hold). Its slot is now filled by **Prompt 4 (replacement) — Governance dry-run / what-if mode for policy threshold changes**, sourced from §1.22's standing recommendation. **Prompt 2** (trial signup funnel TEST-mode) is unchanged and stays a live V1 obligation — only its "flip TEST → live" gate is V1.1-deferred. Prompts 3, 5, 6, 7, 8 are unchanged. The actionable count remains 8.
+
 > **SaaS audience guard (read before running any prompt below).** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform.** They only ever interact with the public website (`archlucid.com`), the in-product operator UI (after sign-in), and the Azure portal for their own subscription identity / billing. When any prompt below produces customer-facing copy (signup flow, marketing routes, pricing, trust center, sponsor brief, value report, reference case study, evidence pack, ROI bulletin, board pack, operator UI text), it **must not** assume the customer runs Docker, opens a terminal, runs `archlucid try`, or applies Terraform. Tooling like `apply-saas.ps1`, `archlucid try`, `dev up`, `docker compose`, the `.devcontainer/`, and `INSTALL_ORDER.md` is **internal ArchLucid contributor / operator** tooling — fine to reference in **engineer-facing** docs, never on a buyer surface. If a prompt seems to require a customer-side install step, **stop and ask the user** rather than inventing one. See `docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` §0.1 for the full SaaS-framing addendum.
 
 ---
 
-## Prompt 1 — Reference customer publication scaffolding (PLG row)
+## Prompt 1 (replacement, added 2026-04-23) — Quarterly board-pack PDF endpoint + monthly exec-digest cadence
 
-**Owner gate.** Filling `<<CUSTOMER_NAME>>` and setting `Status: Published` are owner-only.
+**Why this replaced the original Prompt 1.** The original Prompt 1 (Reference customer publication scaffolding) was deferred to V1.1 on 2026-04-23. This replacement delivers the same single-slot exec-visibility leverage without depending on owner-only events. Sources: assessment §1.10 standing recommendation; assessment §3 Improvement 9.
+
+**Owner-decided 2026-04-23.** Cover narrative ships as the literal placeholder `<<sponsor cover narrative — owner approval before external use>>` (owner approves before any external use). Monthly cadence is **opt-out** for NEW tenants — every newly provisioned tenant defaults to Monthly; existing tenants stay 'Weekly' via the three-step migration shape in step 1 (no retroactive cadence change without owner consent).
 
 ```
-Goal: harden the publication runbook so the day a real PLG customer
-approves copy is a small mechanical change, not a doc-and-pricing
-scramble. Do NOT invent a customer name or flip Published.
+Goal: stitch the existing exec-digest, value-report, and
+PilotRunDeltaComputer machinery into ONE PDF a sponsor can take
+into a quarterly budget review. Add a parallel monthly cadence
+preset for the existing exec-digest. Do NOT invent customer names,
+do NOT publish anything externally, and do NOT retroactively change
+the cadence of any EXISTING tenant (they all stay 'Weekly' until
+they actively change it). NEW tenants default to 'Monthly' per
+owner decision 2026-04-23 q36.
 
 Read first:
-- docs/go-to-market/reference-customers/README.md
-- docs/go-to-market/reference-customers/TRIAL_FIRST_REFERENCE_CASE_STUDY.md
-- docs/go-to-market/reference-customers/REFERENCE_PUBLICATION_RUNBOOK.md
-- docs/go-to-market/reference-customers/REFERENCE_EVIDENCE_PACK_TEMPLATE.md
-- docs/go-to-market/PRICING_PHILOSOPHY.md  (sections 5.1, 5.3, 5.4)
-- scripts/ci/check_reference_customer_status.py
-- .github/workflows/ci.yml  (auto-flip block for the reference-customer guard)
+- docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md  (sections 1.10 and 3 Improvement 9)
+- docs/EXECUTIVE_SPONSOR_BRIEF.md  (placeholder source for cover narrative)
+- docs/library/PILOT_ROI_MODEL.md
+- docs/go-to-market/ROI_MODEL.md
+- ArchLucid.Application/Notifications/ExecDigestComposer.cs
+- ArchLucid.Application/Notifications/ExecDigestWeeklyHostedService.cs
+- ArchLucid.Application/Pilots/PilotRunDeltaComputer.cs
+- ArchLucid.Persistence/Migrations/103_TenantExecDigestPreferences.sql  (look at the schema, then build migration 104 alongside it)
+- ArchLucid.Api/Controllers/PilotsController.cs  (host the new POST endpoint here, alongside the existing first-value-report endpoint)
+- archlucid-ui/src/app/(operator)/settings/exec-digest/page.tsx
+- docs/library/AUDIT_COVERAGE_MATRIX.md  (add the new audit constant if state-changing)
+- docs/library/OPERATOR_ATLAS.md  (add the new endpoint to the atlas)
 
 Do this:
-1. Audit every <<...>> placeholder in TRIAL_FIRST_REFERENCE_CASE_STUDY.md.
-   Produce a single table at the top of the file titled
-   "Owner substitution checklist — fill before customer review" listing
-   each placeholder, what real value is needed, and which interview /
-   contract / metric source it comes from. Do NOT invent values.
-2. Build a one-page evidence-pack scaffold using
-   REFERENCE_EVIDENCE_PACK_TEMPLATE.md tied to a real pilot-run-deltas.json
-   sample committed by the existing demo-seed tenant. Mark every value
-   with the literal text "demo tenant — replace before publishing".
-3. Add CHANGELOG entry recording the row state-transition convention
-   (Drafting -> Customer review is in-band assistant work; Customer
-   review -> Published is owner-only). Use the existing 2026-04-21
-   CHANGELOG style.
-4. Verify scripts/ci/check_reference_customer_status.py still passes
-   locally (no rows currently Published, advisory mode). Confirm the
-   .github/workflows/ci.yml auto-flip block becomes merge-blocking
-   the moment any row reaches Published with no further file edits.
-5. Append a new pending-question item to docs/PENDING_QUESTIONS.md
-   asking "who graduates the first PLG row from Customer review to
-   Published?" if it isn't already there (item 19 covers this).
+1. Add SQL migration 104 alongside 103. Per owner decision 2026-04-23
+   the NEW-tenant default is 'Monthly' (opt-out), but existing tenants
+   MUST stay 'Weekly' — they did not consent to a cadence change. Use
+   this three-step shape so SQL Server does NOT silently flip existing
+   rows to 'Monthly' via the ADD-NOT-NULL-DEFAULT backfill behaviour:
+     -- Step A: add column with backfill default 'Weekly'
+     ALTER TABLE dbo.TenantExecDigestPreferences
+       ADD CadenceCode NVARCHAR(16) NOT NULL
+         CONSTRAINT DF_TenantExecDigestPreferences_CadenceCode_Backfill DEFAULT N'Weekly';
+     -- Step B: drop the backfill constraint
+     ALTER TABLE dbo.TenantExecDigestPreferences
+       DROP CONSTRAINT DF_TenantExecDigestPreferences_CadenceCode_Backfill;
+     -- Step C: add the forward-looking new-row default 'Monthly'
+     ALTER TABLE dbo.TenantExecDigestPreferences
+       ADD CONSTRAINT DF_TenantExecDigestPreferences_CadenceCode DEFAULT N'Monthly' FOR CadenceCode;
+   Plus the matching Rollback/R104_*.sql script (drops the new
+   constraint, then drops the column). Add a unit test that:
+     (a) inserts a synthetic existing tenant row PRIOR to migration
+         and asserts CadenceCode == 'Weekly' AFTER migration,
+     (b) inserts a NEW tenant AFTER migration with no CadenceCode
+         specified and asserts CadenceCode == 'Monthly'.
+2. Extend ExecDigestComposer to honour CadenceCode in {Weekly, Monthly}.
+   Idempotency key for monthly: 'exec-digest:{tenantId}:{iso-year}-{iso-month}'.
+   Add a second hosted service ExecDigestMonthlyHostedService that
+   wakes once per day at 06:05 UTC and emits for tenants whose
+   tenant-local date is the 1st of the month. Reuse the existing
+   IANA-tz preference resolution helper.
+3. Add a new endpoint:
+     POST /v1/pilots/board-pack.pdf?quarter=Q3-2026
+   gated [Authorize(Policy = "ExecuteAuthority")]. Body produces a
+   single PDF binding (a) the four most recent weekly exec-digest
+   snapshots within the quarter, (b) the highest-impact committed
+   manifest's value-report rendered to PDF, (c) the per-tenant
+   PilotRunDeltaComputer summary across the quarter, (d) a one-page
+   sponsor cover narrative driven by EXECUTIVE_SPONSOR_BRIEF.md
+   placeholders. Cover narrative ships as the literal text:
+     "<<sponsor cover narrative — owner approval before external use>>"
+   Do NOT invent customer-shareable cover prose.
+4. Add CLI command: `archlucid board-pack --tenant <id> --quarter Q3-2026 --out board-pack-Q3-2026.pdf`
+   that calls the new endpoint with an API key and writes the PDF to disk.
+5. Add a "Generate board pack" button to /settings/exec-digest that
+   opens a quarter-picker modal, calls the endpoint, and downloads
+   the result. Do NOT promote board-pack to a primary nav slot.
+6. Add a new audit constant AuditEventTypes.BoardPackGenerated (if
+   adding state-changing audit) plus the AUDIT_COVERAGE_MATRIX row;
+   bump the audit-core-const-count snapshot accordingly.
+7. Tests:
+   - Application unit tests for ExecDigestComposer monthly cadence and
+     CadenceCode resolution.
+   - Application unit tests for the board-pack composer (synthetic
+     committed manifest + delta + cover placeholder).
+   - Api integration test (Suite=Core, GreenfieldSqlApiFactory) calling
+     POST /v1/pilots/board-pack.pdf and asserting (a) ExecuteAuthority
+     gate, (b) PDF MIME type, (c) cover placeholder string is present
+     in the PDF text layer.
+   - Vitest spec for the /settings/exec-digest button that mocks the
+     endpoint and asserts the download trigger.
+   - Schemathesis contract test for the new endpoint.
+8. Docs:
+   - New docs/library/BOARD_PACK.md (audience: operators with ExecuteAuthority).
+   - One-line pointer in EXECUTIVE_SPONSOR_BRIEF.md and
+     OPERATOR_ATLAS.md.
+   - New CHANGELOG entry under 2026-04-23 with the standard format.
+   - Update docs/library/V1_RELEASE_CHECKLIST.md with a single new row
+     for the board-pack endpoint smoke.
+9. Pending-question items 35 and 36 in docs/PENDING_QUESTIONS.md were
+   resolved 2026-04-23: cover narrative is the literal placeholder
+   string (owner approves before external use); monthly cadence is
+   the opt-out default for NEW tenants only. Reference the resolution
+   in the new docs/library/BOARD_PACK.md page so future readers see
+   why the migration uses the three-step backfill shape.
 
 Stop and ask the user before:
-- Filling any <<CUSTOMER_NAME>> with a real value
-- Setting Status: Published
-- Triggering the discount re-rate review per PRICING_PHILOSOPHY § 5.3
+- Replacing the cover narrative placeholder with any non-placeholder copy.
+- Skipping the three-step migration shape (Steps A/B/C above) — using
+  a single ADD … NOT NULL DEFAULT 'Monthly' would silently flip every
+  existing tenant to Monthly, which violates the owner-confirmed
+  "existing tenants stay Weekly" boundary.
+- Sending the board-pack to any external email address (out of scope for
+  this prompt — the endpoint produces the PDF and returns it; delivery
+  is a separate workflow).
 
-Exit criteria: PR opens with the substitution checklist populated,
-the evidence-pack scaffold present, a CHANGELOG entry, and CI green.
-No row is Published.
+Exit criteria: PR opens with migration 104 + rollback, monthly hosted
+service wired and unit-tested, POST /v1/pilots/board-pack.pdf returning
+a valid PDF behind ExecuteAuthority, CLI command working in dev,
+operator-UI button visible only to ExecuteAuthority and downloading
+the PDF on click, all tests green, new audit constant if appropriate,
+docs landed including CHANGELOG entry. Default cadence for NEW tenants
+is 'Monthly' (opt-out, owner decision 2026-04-23 q36); existing
+tenants stay 'Weekly' via the three-step migration above. Cover
+narrative is the literal placeholder string per owner decision q35.
 ```
 
 ---
@@ -202,72 +280,137 @@ PENDING_QUESTIONS items 27/28 enriched with owner-needed inputs.
 
 ---
 
-## Prompt 4 — Marketplace + Stripe live readiness (production-safety guards)
+## Prompt 4 (replacement, added 2026-04-23) — Governance dry-run (what-if) mode for policy threshold changes
 
-**Owner gate.** Setting any live Stripe key, Marketplace publisher ID, or production webhook secret. Pressing "Go live" in Partner Center.
+**Why this replaced the original Prompt 4.** The original Prompt 4 (Marketplace + Stripe live readiness) was deferred to V1.1 on 2026-04-23 (see assessment §0.3). This replacement delivers the same single-slot enterprise-governance leverage without depending on owner-only events (Partner Center seller verification, Stripe live keys, etc.). Sources: assessment §1.22 standing recommendation; assessment §3 Improvement 10. The `BillingProductionSafetyRules` startup gate, `archlucid marketplace preflight` CLI, and `assert_marketplace_pricing_alignment.py` from the original Prompt 4 are **already shipped in V1** and stay in V1 — they do not need re-shipping.
+
+**Owner-decided 2026-04-23.** Audit marker captures override count **and** the proposed-override payload (full forensic visibility — owner accepted the trade-off that anyone with audit-log read access in the same tenant can see proposed policy intent). Pagination cap stays at the assistant default of 20-default / 100-max.
 
 ```
-Goal: get the commercial rails out of "designed" and into
-"transactable", without the assistant ever holding a live key.
+Goal: ship a governance dry-run / what-if mode so operators can
+score a candidate manifest against a proposed policy-threshold
+change WITHOUT writing the audit trail, blocking commit, or
+mutating any persisted policy. This is the missing "what would
+happen if I tightened this threshold?" workflow.
 
 Read first:
-- docs/go-to-market/MARKETPLACE_PUBLICATION.md
-- docs/AZURE_MARKETPLACE_SAAS_OFFER.md
-- docs/BILLING.md
-- docs/go-to-market/STRIPE_CHECKOUT.md
-- docs/go-to-market/PRICING_PHILOSOPHY.md
-- docs/runbooks/MARKETING_STRIPE_GA.md
-- docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md
-- docs/PENDING_QUESTIONS.md  (items 8, 9, 22)
-- ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs
-- ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs
-- ArchLucid.Api/Controllers/Billing/BillingCheckoutController.cs
-- ArchLucid.Host.Composition/Startup/  (find ArchLucidConfigurationRules
-  for the existing CollectProductionSafetyErrors pattern to mirror)
+- docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md  (sections 1.22 and 3 Improvement 10)
+- docs/library/AUDIT_COVERAGE_MATRIX.md
+- docs/library/PRODUCT_PACKAGING.md  (governance / Operate tier)
+- docs/library/OPERATOR_ATLAS.md
+- ArchLucid.Application-Governance/  (find GovernanceWorkflowService and the policy-pack evaluation path)
+- ArchLucid.Application-Governance/Policies/  (look for the pack-evaluation entry point)
+- ArchLucid.Domain-Governance/Policies/  (look for the threshold abstraction)
+- ArchLucid.Persistence-Coordination/Governance/  (look for the policy-pack repository to confirm the dry-run path does NOT need a write)
+- ArchLucid.Api/Controllers/Governance/  (host the new POST endpoint here)
+- archlucid-ui/src/app/(operator)/governance/policy-packs/[packId]/page.tsx
+- archlucid-ui/src/lib/nav/nav-config.ts
+- ArchLucid.Tests.Authorization/  (mirror existing seam tests for the new endpoint)
+- scripts/ci/audit_core_const_count_snapshot.txt  (will need a +1 bump)
 
 Do this:
-1. Verify alignment between PRICING_PHILOSOPHY tiers (Team /
-   Professional / Enterprise) and the Marketplace plan SKUs called
-   out in MARKETPLACE_PUBLICATION.md and AZURE_MARKETPLACE_SAAS_OFFER.md.
-   If any drift, reconcile in PRICING_PHILOSOPHY.md (single source
-   of truth) and add scripts/ci/assert_marketplace_pricing_alignment.py
-   plus paired tests under scripts/ci/test_assert_marketplace_pricing_alignment.py.
-2. Add BillingProductionSafetyRules in
-   ArchLucid.Host.Composition/Startup/Validation/ that fails
-   ASPNETCORE_ENVIRONMENT=Production startup when:
-   - Stripe live key prefix `sk_live_` is configured WITHOUT a Stripe
-     webhook secret, OR
-   - Marketplace landing page URL is empty or contains a localhost
-     host, OR
-   - Billing:AzureMarketplace:GaEnabled=true but no MarketplaceOffer ID
-     is configured.
-   Pattern: same shape as ArchLucidConfigurationRules.CollectProductionSafetyErrors.
-   Unit test under ArchLucid.Host.Composition.Tests/.
-3. Add a Marketplace publication preflight CLI command
-   `archlucid marketplace preflight` (ArchLucid.Cli/Commands/
-   MarketplacePreflightCommand.cs) that runs the Partner Center
-   checklist from MARKETPLACE_PUBLICATION.md and prints PASS/FAIL
-   per item, with non-zero exit code on any FAIL. Tests under
-   ArchLucid.Cli.Tests/.
-4. Document the Stripe TEST staging path end-to-end in
-   docs/go-to-market/STRIPE_CHECKOUT.md so staging.archlucid.com/signup
-   can transact in Stripe TEST mode before live keys arrive. Include
-   curl examples showing the test webhook event flow.
-5. Update PENDING_QUESTIONS items 8, 9, 22 with explicit
-   "needed inputs" sub-bullets enumerating exactly what you need
-   from the owner (publisher ID, tax profile, payout account, live
-   webhook secret) so the next session knows the unblocking shape.
+1. Add a domain marker DryRunPolicyOverrideContext in
+   ArchLucid.Domain-Governance/Policies/. Carries an immutable
+   IReadOnlyDictionary<string, decimal> of proposed threshold
+   overrides (e.g., "findings.severity.criticalThreshold" -> 80m)
+   plus a strongly-typed [NotForCommit] marker attribute. The
+   persistence layer policy-pack repository MUST reject any
+   write call where the context is in scope (assert this in a
+   unit test).
+2. Extend the policy-pack evaluation path to honour the dry-run
+   context: when present, the threshold dictionary takes precedence
+   over the persisted policy values for the duration of the call.
+   Do NOT mutate the persisted policy. Add an Application-layer
+   service GovernanceDryRunService that takes a manifest reference
+   plus an override dictionary and returns:
+     - current evaluation (findings allowed / warned / blocked)
+     - proposed evaluation
+     - delta of would-be-blocked findings
+     - delta of would-be-warned findings
+     - one-line sponsor summary string
+3. Add a new endpoint:
+     POST /v1/governance/dry-run
+   gated [Authorize(Policy = "ExecuteAuthority")]. Body:
+     { manifestRef: { runId, manifestSha256 } | { committedManifestId },
+       proposedOverrides: { "findings.severity.criticalThreshold": 80, ... } }
+   Returns the GovernanceDryRunService result. Do NOT write
+   anything to dbo.AuditEvents for the *evaluation itself* - only
+   write a single GovernanceDryRunRequested marker capturing
+   { tenantId, requesterId, requestedUtc, manifestRef, overrideCount,
+     overridePayloadJson }.
+   Per owner decision 2026-04-23 the payload IS persisted (full
+   forensic visibility). Acknowledge this in the marker's audit-matrix
+   row: anyone with ReadAuditAuthority in the same tenant can see the
+   proposed policy values. Apply the standard PII redaction pipeline
+   (LlmPromptRedaction-style) before serialising overridePayloadJson
+   so customer secrets accidentally pasted into a threshold field
+   never land in the audit log.
+4. Add a new audit constant
+   AuditEventTypes.GovernanceDryRunRequested in
+   ArchLucid.Domain/Auditing/AuditEventTypes.cs and a row in
+   docs/library/AUDIT_COVERAGE_MATRIX.md. Bump
+   scripts/ci/audit_core_const_count_snapshot.txt by 1.
+5. Add the CLI command:
+     archlucid governance dry-run --manifest <id> --overrides overrides.json --out report.md
+   in ArchLucid.Cli/Commands/GovernanceDryRunCommand.cs. The
+   Markdown report must include all five sections from step 2.
+6. Operator UI: add a "Dry-run threshold change" button to
+   /governance/policy-packs/<packId> that opens a modal:
+     - left pane: editable threshold list seeded from the live pack
+     - right pane: live preview of the affected committed manifests
+       (most recent 20 by default; "Load more" up to 100)
+     - footer: "Run dry-run" button calling the endpoint and
+       rendering the result inline; no commit affordance in this modal
+   Shape on Operate (governance and trust) tier: ExecuteAuthority
+   for write (the dry-run call), ReadAuthority for view. Update
+   nav-config.ts and add the seam test alongside existing
+   authority-* regression specs.
+7. Tests:
+   - Application unit tests for GovernanceDryRunService coverage of
+     the evaluation delta calculator (single-threshold change,
+     multi-threshold change, no-op change, no-affected-findings).
+   - Unit test asserting the persistence-layer rejection of any
+     write attempted while DryRunPolicyOverrideContext is in scope.
+   - Api integration test (Suite=Core, GreenfieldSqlApiFactory)
+     calling POST /v1/governance/dry-run and asserting:
+     (a) ExecuteAuthority gate
+     (b) zero new rows in dbo.AuditEvents for the evaluation itself
+     (c) exactly one new row of type GovernanceDryRunRequested
+         carrying both overrideCount AND overridePayloadJson, with
+         overridePayloadJson confirmed to have passed through the
+         redaction pipeline (assert via the existing redaction-marker
+         test pattern)
+     (d) zero new rows in the policy-pack mutation tables.
+   - Schemathesis contract test for the new endpoint.
+   - Vitest spec for the modal mocking the endpoint (assert
+     ExecuteAuthority gating, asserts default pagination = 20).
+8. Docs:
+   - New docs/library/GOVERNANCE_DRY_RUN.md (audience: operators
+     with ExecuteAuthority, governance/audit reviewers).
+   - One-line pointer in OPERATOR_ATLAS.md, library/PRODUCT_PACKAGING.md,
+     and the EXECUTIVE_SPONSOR_BRIEF.md.
+   - New CHANGELOG entry under 2026-04-23 with the standard format.
+9. Pending-question items 37 and 38 in docs/PENDING_QUESTIONS.md were
+   resolved 2026-04-23: capture count + redacted payload, pagination
+   20-default / 100-max. Reference the resolution in the new
+   docs/library/GOVERNANCE_DRY_RUN.md page so future readers see why.
 
 Stop and ask the user before:
-- Setting any live Stripe key, Marketplace publisher ID, or production
-  webhook secret
-- Pressing "Go live" in Partner Center
-- Flipping Billing:AzureMarketplace:GaEnabled in any environment
-  beyond what 2026-04-20 already shipped
+- Skipping the redaction pipeline on overridePayloadJson (the payload-
+  capture decision is conditional on redaction being in place).
+- Raising the pagination cap above 100 (assistant ships 20-default /
+  100-max as the owner-confirmed default).
+- Adding a "Commit this threshold change" affordance inside the
+  dry-run modal (out of scope for this prompt - the modal is
+  read-only for policy state).
 
-Exit criteria: pricing alignment guard in CI; production-safety guard
-in startup; preflight CLI implemented + unit-tested; staging Stripe
-TEST flow documented end-to-end; PENDING_QUESTIONS enriched.
+Exit criteria: PR opens with the new domain marker + Application
+service, POST /v1/governance/dry-run behind ExecuteAuthority writing
+exactly one GovernanceDryRunRequested marker per call (count + redacted
+payload, zero evaluation audit rows), CLI command working in dev,
+operator-UI modal visible only to ExecuteAuthority and rendering the
+dry-run result inline, all tests green, audit constant + matrix row +
+count-snapshot bumped, docs landed including CHANGELOG entry.
 ```
 
 ---

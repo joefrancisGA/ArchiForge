@@ -36,13 +36,16 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 <Link href="/why">Why ArchLucid</Link>
               </Button>
               <Button asChild variant="ghost" size="sm">
-                <Link href="/demo/preview">See a real commit</Link>
+                <Link href="/see-it">See it (30s)</Link>
               </Button>
               <Button asChild variant="ghost" size="sm">
                 <Link href="/live-demo">Live demo</Link>
               </Button>
               <Button asChild variant="ghost" size="sm">
                 <Link href="/compliance-journey">Compliance journey</Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/trust">Trust Center</Link>
               </Button>
             </nav>
           </div>

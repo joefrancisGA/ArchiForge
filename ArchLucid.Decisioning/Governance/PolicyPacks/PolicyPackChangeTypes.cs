@@ -1,6 +1,6 @@
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
-/// <summary>Values for <see cref="ArchLucid.Contracts.Governance.PolicyPackChangeLogEntry.ChangeType"/>.</summary>
+/// <summary>Values for <see cref="ArchLucid.Contracts.Governance.PolicyPackChangeLogEntry.ChangeType" />.</summary>
 public static class PolicyPackChangeTypes
 {
     public const string Created = "Created";

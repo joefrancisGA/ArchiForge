@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import type { WizardFormValues } from "@/lib/wizard-schema";
@@ -19,9 +20,11 @@ function ChipListBlock(props: {
   hint: string;
   inputId: string;
 }) {
-  const { watch, setValue } = useFormContext<WizardFormValues>();
+  const { watch, setValue, formState, clearErrors } = useFormContext<WizardFormValues>();
+  const { errors } = formState;
   const items: string[] = watch(props.fieldName) ?? [];
   const [draft, setDraft] = useState("");
+  const fieldError = errors[props.fieldName]?.message;
 
   const addItem = () => {
     const trimmed = draft.trim();
@@ -30,11 +33,13 @@ function ChipListBlock(props: {
       return;
     }
 
+    clearErrors(props.fieldName);
     setValue(props.fieldName, [...items, trimmed], { shouldValidate: true, shouldDirty: true });
     setDraft("");
   };
 
   const removeItem = (index: number) => {
+    clearErrors(props.fieldName);
     setValue(
       props.fieldName,
       items.filter((_, idx) => idx !== index),
@@ -49,7 +54,10 @@ function ChipListBlock(props: {
         <Input
           id={props.inputId}
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            clearErrors(props.fieldName);
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -63,6 +71,10 @@ function ChipListBlock(props: {
           Add
         </Button>
       </div>
+      <WizardFieldError
+        id={`err-wizard-${props.fieldName}`}
+        message={fieldError != null ? String(fieldError) : undefined}
+      />
       {items.length > 0 ? (
         <ul className="flex flex-wrap gap-2 p-0 list-none">
           {items.map((item, index) => (

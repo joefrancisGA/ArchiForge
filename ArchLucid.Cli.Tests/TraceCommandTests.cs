@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
 
-/// <summary>Unit tests for <see cref="TraceCommand"/> output and URL building (no live API).</summary>
+/// <summary>Unit tests for <see cref="TraceCommand" /> output and URL building (no live API).</summary>
 [Trait("Category", "Unit")]
 public sealed class TraceCommandTests
 {
@@ -21,12 +21,12 @@ public sealed class TraceCommandTests
             _ => Task.FromResult<ArchLucidApiClient.GetRunResult?>(
                 new ArchLucidApiClient.GetRunResult
                 {
-                    Run = new ArchLucidApiClient.RunInfo { RunId = runId, OtelTraceId = traceId },
+                    Run = new ArchLucidApiClient.RunInfo { RunId = runId, OtelTraceId = traceId }
                 }),
             () => template,
             () => false,
             output,
-            openBrowser: null);
+            null);
 
         exitCode.Should().Be(0);
         string expected = TraceCommand.BuildTraceViewerUrl(template, traceId);
@@ -44,12 +44,12 @@ public sealed class TraceCommandTests
             _ => Task.FromResult<ArchLucidApiClient.GetRunResult?>(
                 new ArchLucidApiClient.GetRunResult
                 {
-                    Run = new ArchLucidApiClient.RunInfo { RunId = runId, OtelTraceId = null },
+                    Run = new ArchLucidApiClient.RunInfo { RunId = runId, OtelTraceId = null }
                 }),
             () => "https://x/{traceId}",
             () => false,
             output,
-            openBrowser: null);
+            null);
 
         exitCode.Should().Be(0);
         string text = output.ToString();
@@ -69,12 +69,12 @@ public sealed class TraceCommandTests
             _ => Task.FromResult<ArchLucidApiClient.GetRunResult?>(
                 new ArchLucidApiClient.GetRunResult
                 {
-                    Run = new ArchLucidApiClient.RunInfo { RunId = runId, OtelTraceId = traceId },
+                    Run = new ArchLucidApiClient.RunInfo { RunId = runId, OtelTraceId = traceId }
                 }),
             () => null,
             () => false,
             output,
-            openBrowser: null);
+            null);
 
         exitCode.Should().Be(0);
         string text = output.ToString();

@@ -5,13 +5,19 @@ public sealed class TraceCompletenessSummary
 {
     public int TotalFindings
     {
-        get; init;
+        get;
+        init;
     }
 
     public double OverallCompletenessRatio
     {
-        get; init;
+        get;
+        init;
     }
 
-    public List<EngineTraceCompleteness> ByEngine { get; init; } = [];
+    public List<EngineTraceCompleteness> ByEngine
+    {
+        get;
+        init;
+    } = [];
 }

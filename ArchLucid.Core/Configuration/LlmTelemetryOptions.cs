@@ -6,9 +6,13 @@ public sealed class LlmTelemetryOptions
     /// <summary>Configuration section name.</summary>
     public const string SectionName = "LlmTelemetry";
 
-    /// <summary>When true, prompt/completion counters also emit with <c>tenant_id</c> tag (in addition to aggregate series without tenant).</summary>
+    /// <summary>
+    ///     When true, prompt/completion counters also emit with <c>tenant_id</c> tag (in addition to aggregate series
+    ///     without tenant).
+    /// </summary>
     public bool RecordPerTenantTokens
     {
-        get; set;
+        get;
+        set;
     }
 }

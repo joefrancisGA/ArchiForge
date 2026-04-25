@@ -29,7 +29,10 @@ public sealed class ValueReportBuilderTests
             TenantBaselineReviewCycleSource: null,
             TenantBaselineReviewCycleCapturedUtc: null,
             MeasuredAverageReviewCycleHoursForWindow: null,
-            MeasuredReviewCycleSampleSize: 0);
+            MeasuredReviewCycleSampleSize: 0,
+            TenantBaselineManualPrepHoursPerReview: null,
+            TenantBaselinePeoplePerReview: null,
+            TenantArchitectureTeamSize: null);
 
         Mock<IValueReportMetricsReader> reader = new();
         reader

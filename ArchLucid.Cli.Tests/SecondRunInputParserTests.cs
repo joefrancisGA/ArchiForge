@@ -36,8 +36,8 @@ public sealed class SecondRunInputParserTests
     public void ParseFromUtf8_json_positive_case_insensitive_keys()
     {
         const string json = """
-            {"name":"Svc","description":"1234567890ab","components":["worker"]}
-            """;
+                            {"name":"Svc","description":"1234567890ab","components":["worker"]}
+                            """;
         SecondRunParseOutcome outcome = SecondRunInputParser.ParseFromUtf8(Encoding.UTF8.GetBytes(json), "json");
 
         outcome.IsSuccess.Should().BeTrue();
@@ -49,8 +49,8 @@ public sealed class SecondRunInputParserTests
     public void ParseFromUtf8_missing_required_name_returns_400()
     {
         const string toml = """
-            description = "1234567890ab"
-            """;
+                            description = "1234567890ab"
+                            """;
         SecondRunParseOutcome outcome = SecondRunInputParser.ParseFromUtf8(Encoding.UTF8.GetBytes(toml), "x");
 
         outcome.IsSuccess.Should().BeFalse();

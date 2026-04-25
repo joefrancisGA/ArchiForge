@@ -4,7 +4,8 @@ using ArchLucid.Persistence.Serialization;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// Maps persisted graph snapshot rows to domain <see cref="GraphSnapshot"/> (shared by SQL repository and unit tests).
+///     Maps persisted graph snapshot rows to domain <see cref="GraphSnapshot" /> (shared by SQL repository and unit
+///     tests).
 /// </summary>
 public static class GraphSnapshotStorageMapper
 {
@@ -23,7 +24,7 @@ public static class GraphSnapshotStorageMapper
                 CreatedUtc = row.CreatedUtc,
                 Nodes = JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson),
                 Edges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson),
-                Warnings = JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson),
+                Warnings = JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson)
             };
         }
         catch (InvalidOperationException ex)
@@ -36,8 +37,9 @@ public static class GraphSnapshotStorageMapper
     }
 
     /// <summary>
-    /// Builds a <see cref="GraphSnapshot"/> from the header row. When an override list is non-null, that collection
-    /// is taken from relational tables; when null, the collection is empty (JSON columns are not read — relational read path).
+    ///     Builds a <see cref="GraphSnapshot" /> from the header row. When an override list is non-null, that collection
+    ///     is taken from relational tables; when null, the collection is empty (JSON columns are not read — relational read
+    ///     path).
     /// </summary>
     public static GraphSnapshot ToSnapshot(
         GraphSnapshotStorageRow row,
@@ -55,7 +57,7 @@ public static class GraphSnapshotStorageMapper
             CreatedUtc = row.CreatedUtc,
             Nodes = nodesOverride is not null ? nodesOverride.ToList() : [],
             Edges = edgesOverride is not null ? edgesOverride.ToList() : [],
-            Warnings = warningsOverride is not null ? warningsOverride.ToList() : [],
+            Warnings = warningsOverride is not null ? warningsOverride.ToList() : []
         };
     }
 }

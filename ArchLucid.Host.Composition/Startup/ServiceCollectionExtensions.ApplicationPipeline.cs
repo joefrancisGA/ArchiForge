@@ -11,12 +11,14 @@ using ArchLucid.Application.Evolution;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Pilots;
-using ArchLucid.Application.Value;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Summaries;
+using ArchLucid.Application.Support;
 using ArchLucid.Application.Traceability;
+using ArchLucid.Application.Value;
 using ArchLucid.ContextIngestion.Canonicalization;
 using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.Contracts;
@@ -128,11 +130,11 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
-        services.Configure<LegacyRunCommitPathOptions>(
-            configuration.GetSection(LegacyRunCommitPathOptions.SectionPath));
-        services.AddScoped<ArchitectureRunCommitOrchestrator>();
-        services.AddScoped<AuthorityDrivenArchitectureRunCommitOrchestrator>();
-        services.AddScoped<IArchitectureRunCommitOrchestrator, RunCommitPathSelector>();
+        // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
+        // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is now the single
+        // implementation behind IArchitectureRunCommitOrchestrator; RunCommitOrchestratorFacade keeps the
+        // public application-layer surface stable for callers that depend on IRunCommitOrchestrator.
+        services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<IRunCommitOrchestrator, RunCommitOrchestratorFacade>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
@@ -140,7 +142,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();
         services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
+        services.AddScoped<IRecentPilotRunDeltasService, RecentPilotRunDeltasService>();
+        services.AddScoped<IPolicyPackDryRunService, PolicyPackDryRunService>();
+        services.AddSingleton<IEvidencePackSourceProvider, EmbeddedResourceEvidencePackSourceProvider>();
+        services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();
+        services.AddSingleton<ISupportBundleAssembler, SupportBundleAssembler>();
         services.AddScoped<IReferenceEvidenceAdminExportService, ReferenceEvidenceAdminExportService>();
+        services.AddSingleton<IExecutionProvenanceFooterRenderer,
+            ExecutionProvenanceFooterRenderer>();
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();

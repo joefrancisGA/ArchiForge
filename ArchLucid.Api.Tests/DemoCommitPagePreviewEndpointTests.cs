@@ -21,7 +21,10 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
 {
     private readonly ArchLucidApiFactory _factory;
 
-    public DemoCommitPagePreviewEndpointTests(ArchLucidApiFactory factory) => _factory = factory;
+    public DemoCommitPagePreviewEndpointTests(ArchLucidApiFactory factory)
+    {
+        _factory = factory;
+    }
 
     [Fact]
     public async Task GetDemoPreview_returns_404_when_demo_not_enabled()
@@ -73,7 +76,8 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
 
         HttpResponseMessage first = await client.GetAsync("/v1/demo/preview");
         first.StatusCode.Should().Be(HttpStatusCode.OK);
-        first.Headers.CacheControl!.ToString().Should().Be("public, max-age=300, s-maxage=300, stale-while-revalidate=60");
+        first.Headers.CacheControl!.ToString().Should()
+            .Be("public, max-age=300, s-maxage=300, stale-while-revalidate=60");
         first.Headers.ETag.Should().NotBeNull();
 
         byte[] firstBytes = await first.Content.ReadAsByteArrayAsync();
@@ -133,9 +137,11 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
     {
         private static readonly DateTimeOffset FixedGeneratedUtc = DateTimeOffset.Parse("2026-04-01T12:00:00Z");
 
-        private static readonly DateTime FixedRowUtc = DateTime.SpecifyKind(new DateTime(2026, 3, 15, 8, 0, 0), DateTimeKind.Utc);
+        private static readonly DateTime FixedRowUtc =
+            DateTime.SpecifyKind(new DateTime(2026, 3, 15, 8, 0, 0), DateTimeKind.Utc);
 
-        public Task<DemoCommitPagePreviewResponse?> GetLatestCommittedDemoCommitPageAsync(CancellationToken cancellationToken = default)
+        public Task<DemoCommitPagePreviewResponse?> GetLatestCommittedDemoCommitPageAsync(
+            CancellationToken cancellationToken = default)
         {
             Guid manifestId = Guid.Parse("11111111-1111-1111-1111-111111111111");
             Guid runId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
@@ -145,22 +151,24 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
                 GeneratedUtc = FixedGeneratedUtc,
                 IsDemoData = true,
                 DemoStatusMessage = "demo tenant — replace before publishing",
-                Run = new DemoPreviewRun
-                {
-                    RunId = runId.ToString("N"),
-                    ProjectId = "default",
-                    Description = "stub",
-                    CreatedUtc = FixedRowUtc,
-                },
-                AuthorityChain = new DemoPreviewAuthorityChain
-                {
-                    ContextSnapshotId = null,
-                    GraphSnapshotId = null,
-                    FindingsSnapshotId = null,
-                    GoldenManifestId = manifestId.ToString("N"),
-                    DecisionTraceId = null,
-                    ArtifactBundleId = null,
-                },
+                Run =
+                    new DemoPreviewRun
+                    {
+                        RunId = runId.ToString("N"),
+                        ProjectId = "default",
+                        Description = "stub",
+                        CreatedUtc = FixedRowUtc
+                    },
+                AuthorityChain =
+                    new DemoPreviewAuthorityChain
+                    {
+                        ContextSnapshotId = null,
+                        GraphSnapshotId = null,
+                        FindingsSnapshotId = null,
+                        GoldenManifestId = manifestId.ToString("N"),
+                        DecisionTraceId = null,
+                        ArtifactBundleId = null
+                    },
                 Manifest = new DemoPreviewManifestSummary
                 {
                     ManifestId = manifestId.ToString("N"),
@@ -175,7 +183,7 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
                     Status = "ok",
                     HasWarnings = false,
                     HasUnresolvedIssues = false,
-                    OperatorSummary = "1 decisions, 0 warnings, 0 unresolved issues, status ok",
+                    OperatorSummary = "1 decisions, 0 warnings, 0 unresolved issues, status ok"
                 },
                 Artifacts = [],
                 PipelineTimeline = [],
@@ -184,8 +192,8 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
                     Explanation = new ExplanationResult { Summary = "stub" },
                     ThemeSummaries = ["t1"],
                     OverallAssessment = "a",
-                    RiskPosture = "Low",
-                },
+                    RiskPosture = "Low"
+                }
             };
 
             return Task.FromResult<DemoCommitPagePreviewResponse?>(response);

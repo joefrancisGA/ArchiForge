@@ -3,22 +3,22 @@ using System.Diagnostics.CodeAnalysis;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Data.SqlClient;
-
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Connections;
 
 /// <inheritdoc cref="IRlsSessionContextApplicator" />
-[ExcludeFromCodeCoverage(Justification = "Executes sp_set_session_context via SqlCommand; requires live SQL Server connection.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Executes sp_set_session_context via SqlCommand; requires live SQL Server connection.")]
 public sealed class RlsSessionContextApplicator(
     IScopeContextProvider scopeContextProvider,
     IOptionsMonitor<SqlServerOptions> optionsMonitor) : IRlsSessionContextApplicator
 {
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
     private readonly IOptionsMonitor<SqlServerOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc />
     public async Task ApplyAsync(SqlConnection connection, CancellationToken ct)
@@ -54,7 +54,8 @@ public sealed class RlsSessionContextApplicator(
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
-    private static async Task SetGuidContextAsync(SqlConnection connection, string key, Guid value, CancellationToken ct)
+    private static async Task SetGuidContextAsync(SqlConnection connection, string key, Guid value,
+        CancellationToken ct)
     {
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";

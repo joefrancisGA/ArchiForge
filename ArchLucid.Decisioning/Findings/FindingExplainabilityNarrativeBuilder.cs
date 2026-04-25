@@ -7,29 +7,31 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
-/// Builds a deterministic, human-readable narrative from <see cref="ExplainabilityTrace"/> fields (no LLM).
+///     Builds a deterministic, human-readable narrative from <see cref="ExplainabilityTrace" /> fields (no LLM).
 /// </summary>
 public static class FindingExplainabilityNarrativeBuilder
 {
     /// <summary>
-    /// Builds the structured factual explainability record from persisted <see cref="Finding"/> + <see cref="ExplainabilityTrace"/> (no LLM).
+    ///     Builds the structured factual explainability record from persisted <see cref="Finding" /> +
+    ///     <see cref="ExplainabilityTrace" /> (no LLM).
     /// </summary>
     public static FindingExplainabilityEvidence BuildEvidence(Finding finding)
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        ExplainabilityTrace trace = finding.Trace ?? new ExplainabilityTrace();
+        ExplainabilityTrace trace = finding.Trace;
 
         List<string> evidenceRefs = CollectEvidenceRefs(finding, trace);
         List<string> alternativePaths = CollectNonEmptyTrimmed(trace.AlternativePathsConsidered);
         string ruleId = ResolveRuleId(trace);
-        string conclusion = finding.Rationale ?? string.Empty;
+        string conclusion = finding.Rationale;
 
         return new FindingExplainabilityEvidence(evidenceRefs, conclusion, alternativePaths, ruleId);
     }
 
     /// <summary>
-    /// Composes plain text suitable for UI or API consumers; never returns <see langword="null"/> (empty string when nothing to say).
+    ///     Composes plain text suitable for UI or API consumers; never returns <see langword="null" /> (empty string when
+    ///     nothing to say).
     /// </summary>
     public static string Build(
         string findingId,
@@ -38,12 +40,12 @@ public static class FindingExplainabilityNarrativeBuilder
         ExplainabilityTrace trace,
         double traceCompletenessRatio)
     {
-        return Build(findingId, title, engineType, trace, traceCompletenessRatio, graphNodeLabels: null);
+        return Build(findingId, title, engineType, trace, traceCompletenessRatio, null);
     }
 
     /// <summary>
-    /// Same as <see cref="Build(string,string,string,ExplainabilityTrace,double)"/>, but resolves graph node ids to
-    /// <c>Label (id)</c> when <paramref name="graphNodeLabels"/> contains a non-empty entry for the id.
+    ///     Same as <see cref="Build(string,string,string,ExplainabilityTrace,double)" />, but resolves graph node ids to
+    ///     <c>Label (id)</c> when <paramref name="graphNodeLabels" /> contains a non-empty entry for the id.
     /// </summary>
     public static string Build(
         string findingId,
@@ -77,13 +79,13 @@ public static class FindingExplainabilityNarrativeBuilder
 
         string? agentTraceId = trace.SourceAgentExecutionTraceId;
 
-        if (!string.IsNullOrWhiteSpace(agentTraceId))
-        {
-            string agentRef = $"agentExecutionTrace:{agentTraceId.Trim()}";
+        if (string.IsNullOrWhiteSpace(agentTraceId))
+            return refs;
 
-            if (!refs.Contains(agentRef, StringComparer.Ordinal))
-                refs.Add(agentRef);
-        }
+        string agentRef = $"agentExecutionTrace:{agentTraceId.Trim()}";
+
+        if (!refs.Contains(agentRef, StringComparer.Ordinal))
+            refs.Add(agentRef);
 
         return refs;
     }
@@ -126,10 +128,7 @@ public static class FindingExplainabilityNarrativeBuilder
         if (rules.Count == 0)
             return "unspecified";
 
-        if (rules.Count == 1)
-            return rules[0];
-
-        return string.Join(";", rules);
+        return rules.Count == 1 ? rules[0] : string.Join(";", rules);
     }
 
     private static void AppendHeader(

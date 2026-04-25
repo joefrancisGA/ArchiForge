@@ -61,7 +61,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   replay: {
     layerBadge: "Operate",
-    headline: "Answers: does the stored authority chain still validate for this run?",
+    headline: "Answers: does the stored provenance chain still validate for this run?",
     useWhen: "Use when you need drift or integrity checks on a single run, not a visual diff.",
     firstPilotNote: "Optional until you need to prove or debug chain validation.",
   },
@@ -81,7 +81,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   alerts: {
     layerBadge: "Operate",
     headline: "Risk and compliance signals that need triage.",
-    useWhen: "Work the inbox; thresholds and routing live under Alert tooling.",
+    useWhen: "Work the inbox; rules, routing, composite, and simulation & tuning are tabs on the same Alerts page.",
     firstPilotNote: "Defer rule tuning until volume justifies it.",
     enterpriseFootnote: "Inbox first; tooling for config.",
   },

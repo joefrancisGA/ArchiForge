@@ -4,7 +4,7 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
-/// Copies trace identifiers from merge output into <see cref="ManifestMetadata.DecisionTraceIds"/>.
+///     Copies trace identifiers from merge output into <see cref="ManifestMetadata.DecisionTraceIds" />.
 /// </summary>
 public static class DecisionTraceManifestAttachment
 {

@@ -11,14 +11,18 @@ public sealed class RoiBulletinAdminControllerIntegrationTests : IClassFixture<G
 {
     private readonly GreenfieldSqlApiFactory _fixture;
 
-    public RoiBulletinAdminControllerIntegrationTests(GreenfieldSqlApiFactory fixture) => _fixture = fixture;
+    public RoiBulletinAdminControllerIntegrationTests(GreenfieldSqlApiFactory fixture)
+    {
+        _fixture = fixture;
+    }
 
     [Fact]
     public async Task Preview_invalid_quarter_returns_400()
     {
         using HttpClient client = _fixture.CreateClient();
 
-        using HttpResponseMessage res = await client.GetAsync("/v1/admin/roi-bulletin-preview?quarter=bad&minTenants=1");
+        using HttpResponseMessage
+            res = await client.GetAsync("/v1/admin/roi-bulletin-preview?quarter=bad&minTenants=1");
 
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -28,7 +32,8 @@ public sealed class RoiBulletinAdminControllerIntegrationTests : IClassFixture<G
     {
         using HttpClient client = _fixture.CreateClient();
 
-        using HttpResponseMessage res = await client.GetAsync("/v1/admin/roi-bulletin-preview?quarter=Q1-2099&minTenants=99999");
+        using HttpResponseMessage res =
+            await client.GetAsync("/v1/admin/roi-bulletin-preview?quarter=Q1-2099&minTenants=99999");
 
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         string body = await res.Content.ReadAsStringAsync();

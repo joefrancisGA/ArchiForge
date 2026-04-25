@@ -9,7 +9,7 @@ using Moq;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>Shutdown and loop behavior tests for <see cref="AuthorityPipelineWorkHostedService"/>.</summary>
+/// <summary>Shutdown and loop behavior tests for <see cref="AuthorityPipelineWorkHostedService" />.</summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class AuthorityPipelineWorkHostedServiceTests

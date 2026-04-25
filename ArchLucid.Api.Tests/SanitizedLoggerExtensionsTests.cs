@@ -9,7 +9,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="SanitizedLoggerExtensions"/> (CWE-117 helper used by API controllers).
+///     Unit tests for <see cref="SanitizedLoggerExtensions" /> (CWE-117 helper used by API controllers).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

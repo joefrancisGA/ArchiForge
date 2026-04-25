@@ -1,3 +1,5 @@
+using System.Linq;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
@@ -6,6 +8,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -21,7 +24,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -42,7 +45,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -63,7 +66,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = "/tmp/archlucid-ci-public.pem",
             ["ArchLucidAuth:JwtLocalIssuer"] = "",
-            ["ArchLucidAuth:JwtLocalAudience"] = "api://x",
+            ["ArchLucidAuth:JwtLocalAudience"] = "api://x"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -87,7 +90,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:JwtLocalAudience"] = "api://x",
             ["ArchLucidAuth:Authority"] = "",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -109,7 +112,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:Enabled"] = "false",
             ["Authentication:ApiKey:AdminKey"] = "k",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -131,7 +134,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
             ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -140,7 +143,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:DevelopmentBypassAll", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("Authentication:ApiKey:DevelopmentBypassAll", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -155,7 +159,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:AdminKey"] = "changeme",
             ["Authentication:ApiKey:ReadOnlyKey"] = "",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -179,7 +183,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:AdminKey"] = "abcdefghijklmnopqrstuvwxyz123456",
             ["Authentication:ApiKey:ReadOnlyKey"] = "password",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -188,7 +192,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:ReadOnlyKey", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("Authentication:ApiKey:ReadOnlyKey", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -203,7 +208,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:Enabled"] = "true",
             ["Authentication:ApiKey:AdminKey"] = "your-api-key",
             ["Authentication:ApiKey:ReadOnlyKey"] = "",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -224,7 +229,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Authentication:ApiKey:Enabled"] = "true",
             ["Authentication:ApiKey:AdminKey"] = "changeme",
-            ["Authentication:ApiKey:ReadOnlyKey"] = "",
+            ["Authentication:ApiKey:ReadOnlyKey"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -233,7 +238,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().NotContain(e => e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
+        errors.Should().NotContain(e =>
+            e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -251,7 +257,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:AdminKey"] = strongAdmin,
             ["Authentication:ApiKey:ReadOnlyKey"] = strongReader,
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -260,7 +266,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().NotContain(e => e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
+        errors.Should().NotContain(e =>
+            e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -275,7 +282,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:AdminKey"] = "aB3$xK9mN2pQ7wR5vZ1y",
             ["Authentication:ApiKey:ReadOnlyKey"] = "",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -284,7 +291,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().NotContain(e => e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
+        errors.Should().NotContain(e =>
+            e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -299,7 +307,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:AdminKey"] = "aB3$xK9mN2pQ7wR5vZ1yabcdefghijklmnopqrst",
             ["Authentication:ApiKey:ReadOnlyKey"] = "test",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -308,7 +316,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:ReadOnlyKey", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("Authentication:ApiKey:ReadOnlyKey", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -322,7 +331,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:Enabled"] = "false",
             ["Authentication:ApiKey:AdminKey"] = "test",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -331,7 +340,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().NotContain(e => e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
+        errors.Should().NotContain(e =>
+            e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -339,8 +349,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "InMemory",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -357,8 +366,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "Sql", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -376,8 +384,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "InMemory",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -394,8 +401,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "Blob",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "Blob", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -405,7 +411,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("StorageProvider", StringComparison.OrdinalIgnoreCase)
-            && e.Contains("InMemory", StringComparison.OrdinalIgnoreCase));
+                                     && e.Contains("InMemory", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -415,7 +421,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["AgentExecution:Mode"] = "Banana",
+            ["AgentExecution:Mode"] = "Banana"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -434,7 +440,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["AgentExecution:Mode"] = "Real",
+            ["AgentExecution:Mode"] = "Real"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -444,6 +450,50 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("AzureOpenAI", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenAgentExecutionModeRealWithoutAzureOpenAi_error_namesShellEnvVars()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["AgentExecution:Mode"] = "Real"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        string? msg = errors.FirstOrDefault(e => e.Contains("AZURE_OPENAI_ENDPOINT", StringComparison.Ordinal));
+        msg.Should().NotBeNull();
+        msg.Should().Contain("AZURE_OPENAI_API_KEY");
+        msg.Should().Contain("AZURE_OPENAI_DEPLOYMENT_NAME");
+    }
+
+    [Fact]
+    public void LogAgentExecutionRealModeInformation_WhenRealWithAzureOpenAiConfigured_doesNotThrow()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["AgentExecution:Mode"] = "Real",
+            ["AzureOpenAI:Endpoint"] = "https://example.openai.azure.com/",
+            ["AzureOpenAI:ApiKey"] = "key",
+            ["AzureOpenAI:DeploymentName"] = "dep"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+
+        Action act = () => ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation(
+            configuration,
+            NullLogger.Instance);
+
+        act.Should().NotThrow();
     }
 
     [Fact]
@@ -457,7 +507,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["AgentExecution:CompletionClient"] = "Echo",
             ["LlmCompletionCache:Enabled"] = "false",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -479,7 +529,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["IntegrationEvents:TransactionalOutboxEnabled"] = "true",
             ["LlmCompletionCache:Enabled"] = "false",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -505,7 +555,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["AzureOpenAI:MaxCompletionTokens"] = "-1",
             ["LlmCompletionCache:Enabled"] = "false",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -527,7 +577,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["LlmCompletionCache:Enabled"] = "true",
             ["LlmCompletionCache:MaxEntries"] = "0",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -549,7 +599,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["LlmCompletionCache:Enabled"] = "true",
             ["LlmCompletionCache:Provider"] = "Distributed",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -559,27 +609,28 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should()
-            .Contain(
-                e => e.Contains(
-                    "LlmCompletionCache:Provider Distributed requires",
-                    StringComparison.OrdinalIgnoreCase));
+            .Contain(e => e.Contains(
+                "LlmCompletionCache:Provider Distributed requires",
+                StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
-    public void CollectErrors_WhenLlmCompletionCacheDistributedAndHotPathRedisConfigured_has_no_distributed_redis_error()
+    public void
+        CollectErrors_WhenLlmCompletionCacheDistributedAndHotPathRedisConfigured_has_no_distributed_redis_error()
     {
         Dictionary<string, string?> data = new()
         {
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["LlmCompletionCache:Enabled"] = "true",
             ["LlmCompletionCache:Provider"] = "Distributed",
             ["HotPathCache:Enabled"] = "true",
             ["HotPathCache:Provider"] = "Redis",
             ["HotPathCache:RedisConnectionString"] = "localhost:6379",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -589,10 +640,9 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should()
-            .NotContain(
-                e => e.Contains(
-                    "LlmCompletionCache:Provider Distributed requires",
-                    StringComparison.OrdinalIgnoreCase));
+            .NotContain(e => e.Contains(
+                "LlmCompletionCache:Provider Distributed requires",
+                StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -602,14 +652,15 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["BackgroundJobs:Mode"] = "Durable",
             ["BackgroundJobs:ResultsContainerName"] = "background-job-results",
             ["BackgroundJobs:ProcessorReceiveBatchSize"] = "99",
             ["ArtifactLargePayload:BlobProvider"] = "AzureBlob",
             ["ArtifactLargePayload:AzureBlobServiceUri"] = "https://st.blob.core.windows.net",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -628,7 +679,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["SchemaValidation:AgentResultSchemaPath"] = "/abs/not-allowed-rooted.schema.json",
+            ["SchemaValidation:AgentResultSchemaPath"] = "/abs/not-allowed-rooted.schema.json"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -638,7 +689,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("relative", StringComparison.OrdinalIgnoreCase)
-            && e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase));
+                                     && e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -648,7 +699,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["SchemaValidation:AgentResultSchemaPath"] = "../outside/agent.schema.json",
+            ["SchemaValidation:AgentResultSchemaPath"] = "../outside/agent.schema.json"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -658,7 +709,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("escapes", StringComparison.OrdinalIgnoreCase)
-            && e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase));
+                                     && e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -668,7 +719,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["ComparisonReplay:Batch:MaxComparisonRecordIds"] = "0",
+            ["ComparisonReplay:Batch:MaxComparisonRecordIds"] = "0"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -677,7 +728,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("ComparisonReplay:Batch:MaxComparisonRecordIds", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("ComparisonReplay:Batch:MaxComparisonRecordIds", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -688,7 +740,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["ApiDeprecation:Enabled"] = "true",
-            ["ApiDeprecation:SunsetHttpDate"] = "not-a-date",
+            ["ApiDeprecation:SunsetHttpDate"] = "not-a-date"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -707,7 +759,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["DataArchival:IntervalHours"] = "0",
+            ["DataArchival:IntervalHours"] = "0"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -726,7 +778,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["RateLimiting:FixedWindow:PermitLimit"] = "-1",
+            ["RateLimiting:FixedWindow:PermitLimit"] = "-1"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -736,7 +788,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("RateLimiting:FixedWindow", StringComparison.OrdinalIgnoreCase)
-            && e.Contains("PermitLimit", StringComparison.OrdinalIgnoreCase));
+                                     && e.Contains("PermitLimit", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -746,7 +798,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["RateLimiting:Expensive:WindowMinutes"] = "0",
+            ["RateLimiting:Expensive:WindowMinutes"] = "0"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -756,7 +808,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("RateLimiting:Expensive", StringComparison.OrdinalIgnoreCase)
-            && e.Contains("WindowMinutes", StringComparison.OrdinalIgnoreCase));
+                                     && e.Contains("WindowMinutes", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -767,7 +819,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -788,7 +840,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -809,7 +861,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "*",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -831,7 +883,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "true",
-            ["WebhookDelivery:HmacSha256SharedSecret"] = "",
+            ["WebhookDelivery:HmacSha256SharedSecret"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -840,7 +892,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("WebhookDelivery:HmacSha256SharedSecret", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("WebhookDelivery:HmacSha256SharedSecret", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -850,7 +903,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["Retrieval:VectorIndex"] = "Elastic",
+            ["Retrieval:VectorIndex"] = "Elastic"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -872,7 +925,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "true",
-            ["WebhookDelivery:HmacSha256SharedSecret"] = "short-secret-not-32-chars",
+            ["WebhookDelivery:HmacSha256SharedSecret"] = "short-secret-not-32-chars"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -895,7 +948,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["RateLimiting:Replay:Light:PermitLimit"] = "10",
             ["RateLimiting:Replay:Light:WindowMinutes"] = "1",
-            ["RateLimiting:Replay:Light:QueueLimit"] = "-1",
+            ["RateLimiting:Replay:Light:QueueLimit"] = "-1"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -905,7 +958,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("RateLimiting:Replay:Light", StringComparison.OrdinalIgnoreCase)
-            && e.Contains("QueueLimit", StringComparison.OrdinalIgnoreCase));
+                                     && e.Contains("QueueLimit", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -917,7 +970,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Authentication:ApiKey:Enabled"] = "true",
             ["Authentication:ApiKey:AdminKey"] = "",
-            ["Authentication:ApiKey:ReadOnlyKey"] = "",
+            ["Authentication:ApiKey:ReadOnlyKey"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -926,7 +979,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:Enabled is true", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("Authentication:ApiKey:Enabled is true", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -937,7 +991,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest"] = "0",
-            ["Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation"] = "2000000",
+            ["Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation"] = "2000000"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -946,8 +1000,10 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest", StringComparison.OrdinalIgnoreCase));
-        errors.Should().Contain(e => e.Contains("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -957,7 +1013,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["DataArchival:RunsRetentionDays"] = "-5",
+            ["DataArchival:RunsRetentionDays"] = "-5"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -976,7 +1032,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["ComparisonReplay:Batch:MaxComparisonRecordIds"] = "501",
+            ["ComparisonReplay:Batch:MaxComparisonRecordIds"] = "501"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -985,7 +1041,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("ComparisonReplay:Batch:MaxComparisonRecordIds", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("ComparisonReplay:Batch:MaxComparisonRecordIds", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -995,7 +1052,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["SchemaValidation:AgentResultSchemaPath"] = "   ",
+            ["SchemaValidation:AgentResultSchemaPath"] = "   "
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1005,7 +1062,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase)
-            && e.Contains("missing", StringComparison.OrdinalIgnoreCase));
+                                     && e.Contains("missing", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1019,7 +1076,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:AdminKey"] = "",
             ["Authentication:ApiKey:ReadOnlyKey"] = "",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1039,7 +1096,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HotPathCache:Enabled"] = "true",
-            ["HotPathCache:Provider"] = "CosmosDb",
+            ["HotPathCache:Provider"] = "CosmosDb"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1060,7 +1117,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HotPathCache:Enabled"] = "true",
             ["HotPathCache:Provider"] = "Redis",
-            ["HotPathCache:RedisConnectionString"] = "",
+            ["HotPathCache:RedisConnectionString"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1069,7 +1126,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1080,7 +1138,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HotPathCache:Enabled"] = "true",
-            ["HotPathCache:AbsoluteExpirationSeconds"] = "4000",
+            ["HotPathCache:AbsoluteExpirationSeconds"] = "4000"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1089,7 +1147,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("HotPathCache:AbsoluteExpirationSeconds", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("HotPathCache:AbsoluteExpirationSeconds", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1105,7 +1164,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["HotPathCache:Enabled"] = "true",
             ["HotPathCache:Provider"] = "Auto",
             ["HotPathCache:ExpectedApiReplicaCount"] = "2",
-            ["HotPathCache:RedisConnectionString"] = "",
+            ["HotPathCache:RedisConnectionString"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1114,12 +1173,14 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase)
+        errors.Should().Contain(e =>
+            e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase)
             && e.Contains("ExpectedApiReplicaCount", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
-    public void CollectErrors_WhenHotPathCacheAutoMultiReplicaWithoutRedisInDevelopment_does_not_add_replica_redis_error()
+    public void
+        CollectErrors_WhenHotPathCacheAutoMultiReplicaWithoutRedisInDevelopment_does_not_add_replica_redis_error()
     {
         Dictionary<string, string?> data = new()
         {
@@ -1128,7 +1189,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["HotPathCache:Enabled"] = "true",
             ["HotPathCache:Provider"] = "Auto",
             ["HotPathCache:ExpectedApiReplicaCount"] = "5",
-            ["HotPathCache:RedisConnectionString"] = "",
+            ["HotPathCache:RedisConnectionString"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1137,7 +1198,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().NotContain(e => e.Contains("greater than 1 outside Development", StringComparison.OrdinalIgnoreCase));
+        errors.Should().NotContain(e =>
+            e.Contains("greater than 1 outside Development", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1149,7 +1211,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HostLeaderElection:Enabled"] = "true",
             ["HostLeaderElection:LeaseDurationSeconds"] = "30",
-            ["HostLeaderElection:RenewIntervalSeconds"] = "30",
+            ["HostLeaderElection:RenewIntervalSeconds"] = "30"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1158,7 +1220,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("HostLeaderElection:RenewIntervalSeconds", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("HostLeaderElection:RenewIntervalSeconds", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1170,7 +1233,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HostLeaderElection:Enabled"] = "false",
             ["HostLeaderElection:LeaseDurationSeconds"] = "30",
-            ["HostLeaderElection:RenewIntervalSeconds"] = "30",
+            ["HostLeaderElection:RenewIntervalSeconds"] = "30"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1189,7 +1252,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["Observability:Otlp:Enabled"] = "true",
+            ["Observability:Otlp:Enabled"] = "true"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1210,7 +1273,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Observability:Otlp:Enabled"] = "true",
             ["Observability:Otlp:Endpoint"] = "http://localhost:4317",
-            ["Observability:Otlp:Protocol"] = "Udp",
+            ["Observability:Otlp:Protocol"] = "Udp"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1229,7 +1292,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["Observability:Prometheus:Enabled"] = "true",
+            ["Observability:Prometheus:Enabled"] = "true"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1250,7 +1313,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Observability:Prometheus:Enabled"] = "true",
             ["Observability:Prometheus:ScrapeUsername"] = "prom",
-            ["Observability:Prometheus:ScrapePassword"] = "secret",
+            ["Observability:Prometheus:ScrapePassword"] = "secret"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1270,7 +1333,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "InMemory",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Observability:Prometheus:Enabled"] = "true",
-            ["Observability:Prometheus:RequireScrapeAuthentication"] = "false",
+            ["Observability:Prometheus:RequireScrapeAuthentication"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1289,9 +1352,10 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1302,7 +1366,7 @@ public sealed class ArchLucidConfigurationRulesTests
 
         errors.Should()
             .NotContain(e => e.Contains("ApplySessionContext", StringComparison.OrdinalIgnoreCase)
-                && e.Contains("RowLevelSecurity", StringComparison.OrdinalIgnoreCase));
+                             && e.Contains("RowLevelSecurity", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1313,10 +1377,11 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1325,7 +1390,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1336,10 +1402,11 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1349,7 +1416,8 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should()
-            .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+            .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true",
+                StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1361,9 +1429,10 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1372,7 +1441,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1382,9 +1452,10 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1393,7 +1464,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1406,7 +1478,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["LlmTokenQuota:Enabled"] = "true",
             ["LlmTokenQuota:MaxPromptTokensPerTenantPerWindow"] = "0",
             ["LlmTokenQuota:MaxCompletionTokensPerTenantPerWindow"] = "0",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1415,7 +1487,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("LlmTokenQuota:MaxPromptTokensPerTenantPerWindow", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("LlmTokenQuota:MaxPromptTokensPerTenantPerWindow", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1428,7 +1501,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["LlmTokenQuota:Enabled"] = "true",
             ["LlmTokenQuota:WindowMinutes"] = "0",
             ["LlmTokenQuota:MaxPromptTokensPerTenantPerWindow"] = "100",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1449,7 +1522,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmTokenQuota:Enabled"] = "false",
             ["LlmTokenQuota:WindowMinutes"] = "0",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1470,7 +1543,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmDailyTenantBudget:Enabled"] = "true",
             ["LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay"] = "0",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1479,7 +1552,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1491,7 +1565,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmDailyTenantBudget:Enabled"] = "false",
             ["LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay"] = "0",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1512,7 +1586,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["CosmosDb:GraphSnapshotsEnabled"] = "true",
             ["CosmosDb:ConnectionString"] = "",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1532,12 +1606,13 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucid:StorageProvider"] = "Sql",
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["CosmosDb:AgentTracesEnabled"] = "true",
-            ["CosmosDb:ConnectionString"] = "AccountEndpoint=https://localhost:8081/;AccountKey=dummy",
+            ["CosmosDb:ConnectionString"] = "AccountEndpoint=https://localhost:8081/;AccountKey=dummy"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1560,7 +1635,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Authentication:ApiKey:Enabled"] = "true",
             ["Authentication:ApiKey:AdminKey"] = "abcdefghijklmnopqrstuvwxyz1234567890abcd",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1573,7 +1648,8 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [Fact]
-    public void CollectErrors_WhenProductionAndRequireJwtBearerInProductionWithJwtBearer_allows_when_authority_configured()
+    public void
+        CollectErrors_WhenProductionAndRequireJwtBearerInProductionWithJwtBearer_allows_when_authority_configured()
     {
         Dictionary<string, string?> data = new()
         {
@@ -1582,7 +1658,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:RequireJwtBearerInProduction"] = "true",
             ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
-            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1605,7 +1681,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Auth:Trial:Modes:0"] = "MsaExternalId",
-            ["Auth:Trial:ExternalIdTenantId"] = "",
+            ["Auth:Trial:ExternalIdTenantId"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1628,7 +1704,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Auth:Trial:Modes:0"] = "MsaExternalId",
-            ["Auth:Trial:ExternalIdTenantId"] = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            ["Auth:Trial:ExternalIdTenantId"] = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1650,7 +1726,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
-            ["Email:Provider"] = EmailProviderNames.AzureCommunicationServices,
+            ["Email:Provider"] = EmailProviderNames.AzureCommunicationServices
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1673,7 +1749,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
-            ["Email:Provider"] = EmailProviderNames.AzureCommunicationServices,
+            ["Email:Provider"] = EmailProviderNames.AzureCommunicationServices
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1697,7 +1773,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Email:Provider"] = EmailProviderNames.AzureCommunicationServices,
-            ["Email:AzureCommunicationServicesEndpoint"] = "https://contoso.communication.azure.com/",
+            ["Email:AzureCommunicationServicesEndpoint"] = "https://contoso.communication.azure.com/"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1720,7 +1796,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
-            ["Billing:Provider"] = BillingProviderNames.Stripe,
+            ["Billing:Provider"] = BillingProviderNames.Stripe
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1742,7 +1818,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchLucidAuth:Mode"] = "JwtBearer",
             ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
-            ["Billing:Provider"] = BillingProviderNames.Stripe,
+            ["Billing:Provider"] = BillingProviderNames.Stripe
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1766,7 +1842,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Billing:Provider"] = BillingProviderNames.Stripe,
             // Intentionally not sk_test_/sk_live_ shaped — gitleaks flags those as real Stripe tokens.
-            ["Billing:Stripe:SecretKey"] = "unit-test-keyvault-ref-stripe-secret-not-a-real-key",
+            ["Billing:Stripe:SecretKey"] = "unit-test-keyvault-ref-stripe-secret-not-a-real-key"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1790,7 +1866,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Billing:Provider"] = BillingProviderNames.Stripe,
             ["Billing:Stripe:SecretKey"] = "sk_live_unit_test_placeholder_not_a_real_key",
-            ["Billing:Stripe:WebhookSigningSecret"] = "",
+            ["Billing:Stripe:WebhookSigningSecret"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1815,7 +1891,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
             ["Billing:AzureMarketplace:LandingPageUrl"] = "https://app.example.com/marketplace/landing",
             ["Billing:AzureMarketplace:GaEnabled"] = "true",
-            ["Billing:AzureMarketplace:MarketplaceOfferId"] = "",
+            ["Billing:AzureMarketplace:MarketplaceOfferId"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1840,7 +1916,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
             ["Billing:AzureMarketplace:LandingPageUrl"] = "http://127.0.0.1:3000/marketplace/landing",
             ["Billing:AzureMarketplace:GaEnabled"] = "false",
-            ["Billing:AzureMarketplace:MarketplaceOfferId"] = "ignored-when-ga-off",
+            ["Billing:AzureMarketplace:MarketplaceOfferId"] = "ignored-when-ga-off"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -1850,6 +1926,6 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("loopback", StringComparison.OrdinalIgnoreCase)
-                                      || e.Contains("localhost", StringComparison.OrdinalIgnoreCase));
+                                     || e.Contains("localhost", StringComparison.OrdinalIgnoreCase));
     }
 }

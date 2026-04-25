@@ -7,7 +7,7 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
-/// Merges validated <see cref="AgentResult"/> proposals (deltas, findings) into a <see cref="GoldenManifest"/>.
+///     Merges validated <see cref="AgentResult" /> proposals (deltas, findings) into a <see cref="GoldenManifest" />.
 /// </summary>
 public sealed class AgentProposalManifestMerger
 {
@@ -32,7 +32,7 @@ public sealed class AgentProposalManifestMerger
                 {
                     ["resultId"] = result.ResultId,
                     ["taskId"] = result.TaskId,
-                    ["agentType"] = result.AgentType.ToString(),
+                    ["agentType"] = result.AgentType.ToString()
                 });
 
             if (result.ProposedChanges is not null)
@@ -42,15 +42,17 @@ public sealed class AgentProposalManifestMerger
         }
     }
 
-    private static int GetMergeOrder(AgentType agentType) =>
-        agentType switch
+    private static int GetMergeOrder(AgentType agentType)
+    {
+        return agentType switch
         {
             AgentType.Topology => 10,
             AgentType.Cost => 20,
             AgentType.Compliance => 30,
             AgentType.Critic => 40,
-            _ => 100,
+            _ => 100
         };
+    }
 
     private static void ApplyProposal(
         GoldenManifest manifest,
@@ -93,8 +95,7 @@ public sealed class AgentProposalManifestMerger
                     $"Added service '{service.ServiceName}' from {agentType}.",
                     new Dictionary<string, string>
                     {
-                        ["serviceName"] = service.ServiceName,
-                        ["agentType"] = agentType.ToString(),
+                        ["serviceName"] = service.ServiceName, ["agentType"] = agentType.ToString()
                     });
 
                 continue;
@@ -118,7 +119,8 @@ public sealed class AgentProposalManifestMerger
             .Union(incoming.Tags, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        existing.RequiredControls = existing.RequiredControls.Union(incoming.RequiredControls, StringComparer.OrdinalIgnoreCase).ToList();
+        existing.RequiredControls = existing.RequiredControls
+            .Union(incoming.RequiredControls, StringComparer.OrdinalIgnoreCase).ToList();
 
         DecisionMergeTraceRecorder.AddTrace(
             output,
@@ -127,8 +129,7 @@ public sealed class AgentProposalManifestMerger
             $"Merged service '{existing.ServiceName}' from {agentType}.",
             new Dictionary<string, string>
             {
-                ["serviceName"] = existing.ServiceName,
-                ["agentType"] = agentType.ToString(),
+                ["serviceName"] = existing.ServiceName, ["agentType"] = agentType.ToString()
             });
     }
 
@@ -160,8 +161,7 @@ public sealed class AgentProposalManifestMerger
                     $"Added datastore '{datastore.DatastoreName}' from {agentType}.",
                     new Dictionary<string, string>
                     {
-                        ["datastoreName"] = datastore.DatastoreName,
-                        ["agentType"] = agentType.ToString(),
+                        ["datastoreName"] = datastore.DatastoreName, ["agentType"] = agentType.ToString()
                     });
 
                 continue;
@@ -180,8 +180,7 @@ public sealed class AgentProposalManifestMerger
                 $"Merged datastore '{existing.DatastoreName}' from {agentType}.",
                 new Dictionary<string, string>
                 {
-                    ["datastoreName"] = existing.DatastoreName,
-                    ["agentType"] = agentType.ToString(),
+                    ["datastoreName"] = existing.DatastoreName, ["agentType"] = agentType.ToString()
                 });
         }
     }
@@ -220,7 +219,7 @@ public sealed class AgentProposalManifestMerger
                     ["sourceId"] = relationship.SourceId,
                     ["targetId"] = relationship.TargetId,
                     ["relationshipType"] = relationship.RelationshipType.ToString(),
-                    ["agentType"] = agentType.ToString(),
+                    ["agentType"] = agentType.ToString()
                 });
         }
     }
@@ -247,11 +246,7 @@ public sealed class AgentProposalManifestMerger
                 manifest.RunId,
                 "RequiredControlAdded",
                 $"Added required control '{control}' from {agentType}.",
-                new Dictionary<string, string>
-                {
-                    ["control"] = control,
-                    ["agentType"] = agentType.ToString(),
-                });
+                new Dictionary<string, string> { ["control"] = control, ["agentType"] = agentType.ToString() });
         }
     }
 
@@ -293,42 +288,53 @@ public sealed class AgentProposalManifestMerger
                     ["findingId"] = finding.FindingId,
                     ["agentType"] = result.AgentType.ToString(),
                     ["severity"] = finding.Severity,
-                    ["category"] = finding.Category,
+                    ["category"] = finding.Category
                 });
         }
     }
 
-    private static ManifestService CloneService(ManifestService source) =>
-        new()
+    private static ManifestService CloneService(ManifestService source)
+    {
+        return new ManifestService
         {
-            ServiceId = string.IsNullOrWhiteSpace(source.ServiceId) ? Guid.NewGuid().ToString("N") : source.ServiceId,
+            ServiceId =
+                string.IsNullOrWhiteSpace(source.ServiceId) ? Guid.NewGuid().ToString("N") : source.ServiceId,
             ServiceName = source.ServiceName,
             ServiceType = source.ServiceType,
             RuntimePlatform = source.RuntimePlatform,
             Purpose = source.Purpose,
             Tags = source.Tags.ToList(),
-            RequiredControls = source.RequiredControls.ToList(),
+            RequiredControls = source.RequiredControls.ToList()
         };
+    }
 
-    private static ManifestDatastore CloneDatastore(ManifestDatastore source) =>
-        new()
+    private static ManifestDatastore CloneDatastore(ManifestDatastore source)
+    {
+        return new ManifestDatastore
         {
-            DatastoreId = string.IsNullOrWhiteSpace(source.DatastoreId) ? Guid.NewGuid().ToString("N") : source.DatastoreId,
+            DatastoreId =
+                string.IsNullOrWhiteSpace(source.DatastoreId) ? Guid.NewGuid().ToString("N") : source.DatastoreId,
             DatastoreName = source.DatastoreName,
             DatastoreType = source.DatastoreType,
             RuntimePlatform = source.RuntimePlatform,
             Purpose = source.Purpose,
             PrivateEndpointRequired = source.PrivateEndpointRequired,
-            EncryptionAtRestRequired = source.EncryptionAtRestRequired,
+            EncryptionAtRestRequired = source.EncryptionAtRestRequired
         };
+    }
 
-    private static ManifestRelationship CloneRelationship(ManifestRelationship source) =>
-        new()
+    private static ManifestRelationship CloneRelationship(ManifestRelationship source)
+    {
+        return new ManifestRelationship
         {
-            RelationshipId = string.IsNullOrWhiteSpace(source.RelationshipId) ? Guid.NewGuid().ToString("N") : source.RelationshipId,
+            RelationshipId =
+                string.IsNullOrWhiteSpace(source.RelationshipId)
+                    ? Guid.NewGuid().ToString("N")
+                    : source.RelationshipId,
             SourceId = source.SourceId,
             TargetId = source.TargetId,
             RelationshipType = source.RelationshipType,
-            Description = source.Description,
+            Description = source.Description
         };
+    }
 }

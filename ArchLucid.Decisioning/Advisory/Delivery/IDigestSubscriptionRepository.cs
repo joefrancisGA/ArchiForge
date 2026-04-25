@@ -1,17 +1,18 @@
 namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
-/// CRUD and scoped listing for <see cref="DigestSubscription"/> (where architecture digests are sent after scans).
+///     CRUD and scoped listing for <see cref="DigestSubscription" /> (where architecture digests are sent after scans).
 /// </summary>
 /// <remarks>
-/// SQL: <c>DapperDigestSubscriptionRepository</c> on <c>dbo.DigestSubscriptions</c>. Consumed by <c>DigestDeliveryDispatcher</c> and <c>DigestSubscriptionsController</c>.
+///     SQL: <c>DapperDigestSubscriptionRepository</c> on <c>dbo.DigestSubscriptions</c>. Consumed by
+///     <c>DigestDeliveryDispatcher</c> and <c>DigestSubscriptionsController</c>.
 /// </remarks>
 public interface IDigestSubscriptionRepository
 {
     /// <summary>Inserts a new subscription row.</summary>
     Task CreateAsync(DigestSubscription subscription, CancellationToken ct);
 
-    /// <summary>Updates mutable fields including <see cref="DigestSubscription.LastDeliveredUtc"/> after successful delivery.</summary>
+    /// <summary>Updates mutable fields including <see cref="DigestSubscription.LastDeliveredUtc" /> after successful delivery.</summary>
     Task UpdateAsync(DigestSubscription subscription, CancellationToken ct);
 
     /// <summary>Loads by id (scope checks often done at API layer).</summary>

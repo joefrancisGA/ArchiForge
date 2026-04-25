@@ -10,6 +10,7 @@ import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { getScopeHeaders } from "@/lib/scope";
 import type { GoldenManifestComparison } from "@/types/comparison";
@@ -22,6 +23,7 @@ import type {
   RunExplanation,
   RunExplanationSummary,
 } from "@/types/explanation";
+import type { FindingInspectPayload } from "@/types/finding-inspect";
 import type {
   ArtifactDescriptor,
   DecisionProvenanceGraph,
@@ -75,6 +77,12 @@ import type {
   PolicyPackContentDocument,
   PolicyPackVersion,
 } from "@/types/policy-packs";
+import {
+  POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE,
+  POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE,
+  type PolicyPackDryRunRequest,
+  type PolicyPackDryRunResponse,
+} from "@/types/policy-pack-dry-run";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 import type {
   ComplianceDriftTrendPoint,
@@ -145,6 +153,7 @@ function resolveBinaryGetRequest(path: string): { url: string; headers: HeadersI
     const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
     const headers: Record<string, string> = {
       Accept: "*/*",
+      ...getEffectiveBrowserProxyScopeHeaders(),
     };
     const bearer = getBearerToken();
 
@@ -176,6 +185,7 @@ function resolveRequest(path: string): { url: string; headers: HeadersInit } {
     const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
     const headers: Record<string, string> = {
       Accept: "application/json",
+      ...getEffectiveBrowserProxyScopeHeaders(),
     };
     const bearer = getBearerToken();
     if (bearer) headers.Authorization = `Bearer ${bearer}`;
@@ -581,6 +591,11 @@ export async function getDemoExplain(): Promise<DemoExplainResponse | null> {
   return JSON.parse(text) as DemoExplainResponse;
 }
 
+/** Read-model inspector: typed payload, rules, evidence citations, audit correlation (ReadAuthority). */
+export async function getFindingInspect(findingId: string): Promise<FindingInspectPayload> {
+  return apiGet<FindingInspectPayload>(`/v1/findings/${encodeURIComponent(findingId)}/inspect`);
+}
+
 /** Persisted explainability trace + narrative for a single finding (no LLM). */
 export async function getFindingExplainability(runId: string, findingId: string): Promise<FindingExplainability> {
   const encodedFinding = encodeURIComponent(findingId);
@@ -798,7 +813,7 @@ export async function fetchEvolutionResults(candidateId: string): Promise<Evolut
 }
 
 /**
- * Re-runs simulation for the candidate (replaces prior rows). Requires execute authority; may return 403.
+ * Re-runs simulation for the candidate (replaces prior rows). Requires operator access; may return 403.
  */
 export async function postEvolutionSimulate(candidateId: string): Promise<EvolutionSimulateResponse> {
   const id = candidateId.trim();
@@ -1359,6 +1374,49 @@ export async function publishPolicyPackVersion(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/publish`,
     body,
   );
+}
+
+/**
+ * Dry-runs proposed threshold changes for a policy pack against a list of historic runs without
+ * committing anything (POST `/v1/governance/policy-packs/{id}/dry-run`). The default page size is
+ * fixed by `POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE` and clamped client-side to
+ * `POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE` per owner Q38 (the API will also clamp). The response always
+ * carries a `proposedThresholdsRedactedJson` value that has been through the LLM-prompt redaction
+ * pipeline (PENDING_QUESTIONS Q37) before persistence in the audit log.
+ */
+export async function dryRunPolicyPack(
+  policyPackId: string,
+  body: PolicyPackDryRunRequest,
+  options?: { page?: number; pageSize?: number },
+): Promise<PolicyPackDryRunResponse> {
+  const pageSize = clampDryRunPageSize(options?.pageSize);
+  const page = clampDryRunPage(options?.page);
+  const query = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+
+  return apiPostJson<PolicyPackDryRunResponse>(
+    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/dry-run?${query.toString()}`,
+    body,
+  );
+}
+
+function clampDryRunPageSize(input: number | undefined): number {
+  if (input === undefined || !Number.isFinite(input)) {
+    return POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE;
+  }
+
+  if (input < 1) {
+    return POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE;
+  }
+
+  return Math.min(Math.floor(input), POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE);
+}
+
+function clampDryRunPage(input: number | undefined): number {
+  if (input === undefined || !Number.isFinite(input) || input < 1) {
+    return 1;
+  }
+
+  return Math.floor(input);
 }
 
 /** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */

@@ -17,11 +17,12 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// SQL Server-backed <see cref="IFindingsSnapshotRepository"/> with dual-write to <c>FindingsJson</c> and relational
-/// finding tables; reads prefer <c>dbo.FindingRecords</c> and fall back to <c>FindingsJson</c> when no rows exist.
-/// Typed <see cref="Finding.Payload"/> is stored only in <c>FindingRecords.PayloadJson</c> (sidecar). All other finding
-/// fields and trace lists are relational with stable <c>SortOrder</c>. <see cref="FindingsSnapshotMigrator"/> runs on
-/// save and after load so schema versioning stays consistent.
+///     SQL Server-backed <see cref="IFindingsSnapshotRepository" /> with dual-write to <c>FindingsJson</c> and relational
+///     finding tables; reads prefer <c>dbo.FindingRecords</c> and fall back to <c>FindingsJson</c> when no rows exist.
+///     Typed <see cref="Finding.Payload" /> is stored only in <c>FindingRecords.PayloadJson</c> (sidecar). All other
+///     finding
+///     fields and trace lists are relational with stable <c>SortOrder</c>. <see cref="FindingsSnapshotMigrator" /> runs on
+///     save and after load so schema versioning stays consistent.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlFindingsSnapshotRepository(
@@ -60,6 +61,67 @@ public sealed class SqlFindingsSnapshotRepository(
         }
     }
 
+    public async Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)
+    {
+        const string sql = """
+                           SELECT
+                               FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                               SchemaVersion, FindingsJson
+                           FROM dbo.FindingsSnapshots
+                           WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        FindingsSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
+            new CommandDefinition(
+                sql,
+                new { FindingsSnapshotId = findingsSnapshotId },
+                cancellationToken: ct));
+
+        if (row is null)
+            return null;
+
+        int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
+            connection,
+            null,
+            "SELECT COUNT(1) FROM dbo.FindingRecords WHERE FindingsSnapshotId = @FindingsSnapshotId",
+            new { FindingsSnapshotId = findingsSnapshotId },
+            ct);
+
+        if (recordCount == 0)
+        {
+            if (string.IsNullOrWhiteSpace(row.FindingsJson))
+
+                return new FindingsSnapshot
+                {
+                    FindingsSnapshotId = row.FindingsSnapshotId,
+                    RunId = row.RunId,
+                    ContextSnapshotId = row.ContextSnapshotId,
+                    GraphSnapshotId = row.GraphSnapshotId,
+                    CreatedUtc = row.CreatedUtc,
+                    SchemaVersion = row.SchemaVersion,
+                    Findings = []
+                };
+
+
+            FindingsSnapshot fromJson = JsonEntitySerializer.Deserialize<FindingsSnapshot>(row.FindingsJson);
+            fromJson.FindingsSnapshotId = row.FindingsSnapshotId;
+            fromJson.RunId = row.RunId;
+            fromJson.ContextSnapshotId = row.ContextSnapshotId;
+            fromJson.GraphSnapshotId = row.GraphSnapshotId;
+            fromJson.CreatedUtc = row.CreatedUtc;
+            fromJson.SchemaVersion = row.SchemaVersion;
+            FindingsSnapshotMigrator.Apply(fromJson);
+            FindingPayloadJsonCodec.HydrateJsonElementPayloads(fromJson.Findings);
+            return fromJson;
+        }
+
+        FindingsSnapshot snapshot =
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
+        FindingsSnapshotMigrator.Apply(snapshot);
+        return snapshot;
+    }
+
     private async Task SaveCoreAsync(
         FindingsSnapshot snapshot,
         IDbConnection connection,
@@ -71,19 +133,19 @@ public sealed class SqlFindingsSnapshotRepository(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         const string headerSql = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
-                TenantId, WorkspaceId, ProjectId,
-                CreatedUtc, SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
-                @TenantId, @WorkspaceId, @ProjectId,
-                @CreatedUtc, @SchemaVersion, @FindingsJson
-            );
-            """;
+                                 INSERT INTO dbo.FindingsSnapshots
+                                 (
+                                     FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
+                                     TenantId, WorkspaceId, ProjectId,
+                                     CreatedUtc, SchemaVersion, FindingsJson
+                                 )
+                                 VALUES
+                                 (
+                                     @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
+                                     @TenantId, @WorkspaceId, @ProjectId,
+                                     @CreatedUtc, @SchemaVersion, @FindingsJson
+                                 );
+                                 """;
 
         object headerArgs = new
         {
@@ -91,12 +153,12 @@ public sealed class SqlFindingsSnapshotRepository(
             snapshot.RunId,
             snapshot.ContextSnapshotId,
             snapshot.GraphSnapshotId,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
             snapshot.CreatedUtc,
             snapshot.SchemaVersion,
-            FindingsJson = JsonEntitySerializer.Serialize(snapshot),
+            FindingsJson = JsonEntitySerializer.Serialize(snapshot)
         };
 
         await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))
@@ -121,7 +183,7 @@ public sealed class SqlFindingsSnapshotRepository(
                 transaction,
                 snapshot.FindingsSnapshotId,
                 recordId,
-                sortOrder: i,
+                i,
                 finding,
                 ct);
 
@@ -139,19 +201,19 @@ public sealed class SqlFindingsSnapshotRepository(
         CancellationToken ct)
     {
         const string sql = """
-            INSERT INTO dbo.FindingRecords
-            (
-                FindingRecordId, FindingsSnapshotId, SortOrder,
-                FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                Severity, Title, Rationale, PayloadType, PayloadJson
-            )
-            VALUES
-            (
-                @FindingRecordId, @FindingsSnapshotId, @SortOrder,
-                @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
-                @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
-            );
-            """;
+                           INSERT INTO dbo.FindingRecords
+                           (
+                               FindingRecordId, FindingsSnapshotId, SortOrder,
+                               FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
+                               Severity, Title, Rationale, PayloadType, PayloadJson
+                           )
+                           VALUES
+                           (
+                               @FindingRecordId, @FindingsSnapshotId, @SortOrder,
+                               @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
+                               @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
+                           );
+                           """;
 
         object args = new
         {
@@ -167,7 +229,7 @@ public sealed class SqlFindingsSnapshotRepository(
             finding.Title,
             finding.Rationale,
             finding.PayloadType,
-            PayloadJson = FindingPayloadJsonCodec.SerializePayload(finding.Payload),
+            PayloadJson = FindingPayloadJsonCodec.SerializePayload(finding.Payload)
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
@@ -181,29 +243,24 @@ public sealed class SqlFindingsSnapshotRepository(
         CancellationToken ct)
     {
         const string insertRelatedSql = """
-            INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
-            VALUES (@FindingRecordId, @SortOrder, @NodeId);
-            """;
+                                        INSERT INTO dbo.FindingRelatedNodes (FindingRecordId, SortOrder, NodeId)
+                                        VALUES (@FindingRecordId, @SortOrder, @NodeId);
+                                        """;
 
         for (int r = 0; r < finding.RelatedNodeIds.Count; r++)
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertRelatedSql,
-                    new
-                    {
-                        FindingRecordId = findingRecordId,
-                        SortOrder = r,
-                        NodeId = finding.RelatedNodeIds[r],
-                    },
+                    new { FindingRecordId = findingRecordId, SortOrder = r, NodeId = finding.RelatedNodeIds[r] },
                     transaction,
                     cancellationToken: ct));
 
 
         const string insertActionSql = """
-            INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
-            VALUES (@FindingRecordId, @SortOrder, @ActionText);
-            """;
+                                       INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
+                                       VALUES (@FindingRecordId, @SortOrder, @ActionText);
+                                       """;
 
         for (int a = 0; a < finding.RecommendedActions.Count; a++)
 
@@ -212,18 +269,16 @@ public sealed class SqlFindingsSnapshotRepository(
                     insertActionSql,
                     new
                     {
-                        FindingRecordId = findingRecordId,
-                        SortOrder = a,
-                        ActionText = finding.RecommendedActions[a],
+                        FindingRecordId = findingRecordId, SortOrder = a, ActionText = finding.RecommendedActions[a]
                     },
                     transaction,
                     cancellationToken: ct));
 
 
         const string insertPropSql = """
-            INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
-            VALUES (@FindingRecordId, @PropertySortOrder, @PropertyKey, @PropertyValue);
-            """;
+                                     INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
+                                     VALUES (@FindingRecordId, @PropertySortOrder, @PropertyKey, @PropertyValue);
+                                     """;
 
         List<KeyValuePair<string, string>> orderedProps = finding.Properties
             .OrderBy(kv => kv.Key, StringComparer.Ordinal)
@@ -241,7 +296,7 @@ public sealed class SqlFindingsSnapshotRepository(
                         FindingRecordId = findingRecordId,
                         PropertySortOrder = p,
                         PropertyKey = kv.Key,
-                        PropertyValue = kv.Value,
+                        PropertyValue = kv.Value
                     },
                     transaction,
                     cancellationToken: ct));
@@ -316,85 +371,13 @@ public sealed class SqlFindingsSnapshotRepository(
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
-                    new
-                    {
-                        FindingRecordId = findingRecordId,
-                        SortOrder = i,
-                        Text = items[i],
-                    },
+                    new { FindingRecordId = findingRecordId, SortOrder = i, Text = items[i] },
                     transaction,
                     cancellationToken: ct));
-
-    }
-
-    public async Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)
-    {
-        const string sql = """
-            SELECT
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            FROM dbo.FindingsSnapshots
-            WHERE FindingsSnapshotId = @FindingsSnapshotId;
-            """;
-
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        FindingsSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    FindingsSnapshotId = findingsSnapshotId,
-                },
-                cancellationToken: ct));
-
-        if (row is null)
-            return null;
-
-        int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction: null,
-            "SELECT COUNT(1) FROM dbo.FindingRecords WHERE FindingsSnapshotId = @FindingsSnapshotId",
-            new
-            {
-                FindingsSnapshotId = findingsSnapshotId,
-            },
-            ct);
-
-        if (recordCount == 0)
-        {
-            if (string.IsNullOrWhiteSpace(row.FindingsJson))
-
-                return new FindingsSnapshot
-                {
-                    FindingsSnapshotId = row.FindingsSnapshotId,
-                    RunId = row.RunId,
-                    ContextSnapshotId = row.ContextSnapshotId,
-                    GraphSnapshotId = row.GraphSnapshotId,
-                    CreatedUtc = row.CreatedUtc,
-                    SchemaVersion = row.SchemaVersion,
-                    Findings = [],
-                };
-
-
-            FindingsSnapshot fromJson = JsonEntitySerializer.Deserialize<FindingsSnapshot>(row.FindingsJson);
-            fromJson.FindingsSnapshotId = row.FindingsSnapshotId;
-            fromJson.RunId = row.RunId;
-            fromJson.ContextSnapshotId = row.ContextSnapshotId;
-            fromJson.GraphSnapshotId = row.GraphSnapshotId;
-            fromJson.CreatedUtc = row.CreatedUtc;
-            fromJson.SchemaVersion = row.SchemaVersion;
-            FindingsSnapshotMigrator.Apply(fromJson);
-            FindingPayloadJsonCodec.HydrateJsonElementPayloads(fromJson.Findings);
-            return fromJson;
-        }
-
-        FindingsSnapshot snapshot = await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
-        FindingsSnapshotMigrator.Apply(snapshot);
-        return snapshot;
     }
 
     /// <summary>
-    /// Inserts relational finding rows when <c>FindingRecords</c> is still empty (idempotent).
+    ///     Inserts relational finding rows when <c>FindingRecords</c> is still empty (idempotent).
     /// </summary>
     internal static async Task BackfillRelationalSlicesAsync(
         FindingsSnapshot snapshot,
@@ -409,10 +392,7 @@ public sealed class SqlFindingsSnapshotRepository(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.FindingRecords WHERE FindingsSnapshotId = @FindingsSnapshotId",
-            new
-            {
-                snapshot.FindingsSnapshotId,
-            },
+            new { snapshot.FindingsSnapshotId },
             ct);
 
         if (recordCount > 0 || snapshot.Findings.Count == 0)

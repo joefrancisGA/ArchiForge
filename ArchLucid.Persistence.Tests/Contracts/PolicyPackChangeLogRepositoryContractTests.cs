@@ -6,23 +6,22 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IPolicyPackChangeLogRepository"/>.
+///     Shared contract assertions for <see cref="IPolicyPackChangeLogRepository" />.
 /// </summary>
 public abstract class PolicyPackChangeLogRepositoryContractTests
 {
+    private const int SeededChangeLogRowsForMaxRowsContractTest = 5;
+
+    private static readonly Guid TenantA = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
+    private static readonly Guid WorkspaceW = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
+    private static readonly Guid ProjectP = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
+    private static readonly Guid TenantB = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
     protected abstract IPolicyPackChangeLogRepository CreateRepository();
 
     /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
     protected virtual void SkipIfSqlServerUnavailable()
     {
     }
-
-    private static readonly Guid TenantA = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
-    private static readonly Guid WorkspaceW = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
-    private static readonly Guid ProjectP = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
-    private static readonly Guid TenantB = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
-
-    private const int SeededChangeLogRowsForMaxRowsContractTest = 5;
 
     private static PolicyPackChangeLogEntry CreateEntry(
         Guid policyPackId,
@@ -41,7 +40,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
             ChangedUtc = changedUtc ?? DateTime.UtcNow,
             PreviousValue = null,
             NewValue = null,
-            SummaryText = summary,
+            SummaryText = summary
         };
     }
 
@@ -52,10 +51,10 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         IPolicyPackChangeLogRepository repo = CreateRepository();
         Guid packId = Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1");
 
-        await repo.AppendAsync(CreateEntry(packId, TenantA, summary: "first"), CancellationToken.None);
+        await repo.AppendAsync(CreateEntry(packId, TenantA, "first"), CancellationToken.None);
 
         IReadOnlyList<PolicyPackChangeLogEntry> list =
-            await repo.GetByPolicyPackIdAsync(packId, maxRows: 50, CancellationToken.None);
+            await repo.GetByPolicyPackIdAsync(packId, 50, CancellationToken.None);
 
         list.Should().ContainSingle(e => e.PolicyPackId == packId && e.SummaryText == "first");
     }
@@ -70,12 +69,12 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         DateTime t1 = t0.AddHours(1);
         DateTime t2 = t0.AddHours(2);
 
-        await repo.AppendAsync(CreateEntry(packId, TenantA, summary: "old", changedUtc: t0), CancellationToken.None);
-        await repo.AppendAsync(CreateEntry(packId, TenantA, summary: "mid", changedUtc: t1), CancellationToken.None);
-        await repo.AppendAsync(CreateEntry(packId, TenantA, summary: "new", changedUtc: t2), CancellationToken.None);
+        await repo.AppendAsync(CreateEntry(packId, TenantA, "old", t0), CancellationToken.None);
+        await repo.AppendAsync(CreateEntry(packId, TenantA, "mid", t1), CancellationToken.None);
+        await repo.AppendAsync(CreateEntry(packId, TenantA, "new", t2), CancellationToken.None);
 
         IReadOnlyList<PolicyPackChangeLogEntry> list =
-            await repo.GetByPolicyPackIdAsync(packId, maxRows: 50, CancellationToken.None);
+            await repo.GetByPolicyPackIdAsync(packId, 50, CancellationToken.None);
 
         list.Should().HaveCount(3);
         list[0].SummaryText.Should().Be("new");
@@ -91,11 +90,11 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         Guid packA = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid packB = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
-        await repo.AppendAsync(CreateEntry(packA, TenantA, summary: "tenant-a"), CancellationToken.None);
-        await repo.AppendAsync(CreateEntry(packB, TenantB, summary: "tenant-b"), CancellationToken.None);
+        await repo.AppendAsync(CreateEntry(packA, TenantA, "tenant-a"), CancellationToken.None);
+        await repo.AppendAsync(CreateEntry(packB, TenantB, "tenant-b"), CancellationToken.None);
 
         IReadOnlyList<PolicyPackChangeLogEntry> forA =
-            await repo.GetByTenantAsync(TenantA, maxRows: 100, CancellationToken.None);
+            await repo.GetByTenantAsync(TenantA, 100, CancellationToken.None);
 
         forA.Should().ContainSingle(e => e.SummaryText == "tenant-a");
         forA.Should().NotContain(e => e.SummaryText == "tenant-b");
@@ -112,12 +111,12 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         for (int i = 0; i < SeededChangeLogRowsForMaxRowsContractTest; i++)
         {
             await repo.AppendAsync(
-                CreateEntry(packId, TenantA, summary: $"row-{i}", changedUtc: t0.AddMinutes(i)),
+                CreateEntry(packId, TenantA, $"row-{i}", t0.AddMinutes(i)),
                 CancellationToken.None);
         }
 
         IReadOnlyList<PolicyPackChangeLogEntry> list =
-            await repo.GetByPolicyPackIdAsync(packId, maxRows: 2, CancellationToken.None);
+            await repo.GetByPolicyPackIdAsync(packId, 2, CancellationToken.None);
 
         list.Should().HaveCount(2);
         list[0].SummaryText.Should().Be("row-4");
@@ -134,16 +133,16 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         DateTime to = new(2026, 6, 2, 0, 0, 0, DateTimeKind.Utc);
 
         await repo.AppendAsync(
-            CreateEntry(packId, TenantA, summary: "before", changedUtc: from.AddHours(-1)),
+            CreateEntry(packId, TenantA, "before", from.AddHours(-1)),
             CancellationToken.None);
         await repo.AppendAsync(
-            CreateEntry(packId, TenantA, summary: "in1", changedUtc: from.AddHours(1)),
+            CreateEntry(packId, TenantA, "in1", from.AddHours(1)),
             CancellationToken.None);
         await repo.AppendAsync(
-            CreateEntry(packId, TenantA, summary: "in2", changedUtc: from.AddHours(2)),
+            CreateEntry(packId, TenantA, "in2", from.AddHours(2)),
             CancellationToken.None);
         await repo.AppendAsync(
-            CreateEntry(packId, TenantA, summary: "after", changedUtc: to),
+            CreateEntry(packId, TenantA, "after", to),
             CancellationToken.None);
 
         IReadOnlyList<PolicyPackChangeLogEntry> list =

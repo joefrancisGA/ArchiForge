@@ -7,9 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Manifest Diff Service.
+///     Tests for Manifest Diff Service.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class ManifestDiffServiceTests
 {
@@ -32,14 +31,8 @@ public sealed class ManifestDiffServiceTests
             ],
             Datastores = [],
             Relationships = [],
-            Governance = new ManifestGovernance
-            {
-                RequiredControls = ["Managed Identity"]
-            },
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = "v1"
-            }
+            Governance = new ManifestGovernance { RequiredControls = ["Managed Identity"] },
+            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
 
         GoldenManifest right = new()
@@ -65,14 +58,8 @@ public sealed class ManifestDiffServiceTests
             ],
             Datastores = [],
             Relationships = [],
-            Governance = new ManifestGovernance
-            {
-                RequiredControls = ["Managed Identity", "Private Endpoints"]
-            },
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = "v2"
-            }
+            Governance = new ManifestGovernance { RequiredControls = ["Managed Identity", "Private Endpoints"] },
+            Metadata = new ManifestMetadata { ManifestVersion = "v2" }
         };
 
         ManifestDiffService service = new();
@@ -105,10 +92,7 @@ public sealed class ManifestDiffServiceTests
             ],
             Relationships = [],
             Governance = new ManifestGovernance(),
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = "v1"
-            }
+            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
 
         GoldenManifest right = new()
@@ -119,10 +103,7 @@ public sealed class ManifestDiffServiceTests
             Datastores = [],
             Relationships = [],
             Governance = new ManifestGovernance(),
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = "v2"
-            }
+            Metadata = new ManifestMetadata { ManifestVersion = "v2" }
         };
 
         ManifestDiffService service = new();

@@ -26,6 +26,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="dbup-sqlserver" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
+    <PackageReference Include="OpenTelemetry.Api" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="Stripe.net" />
   </ItemGroup>
 

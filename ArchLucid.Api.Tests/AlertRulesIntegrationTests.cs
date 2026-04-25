@@ -7,9 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Integration tests: Alert Rules (HTTP host, database, or cross-component).
+///     Integration tests: Alert Rules (HTTP host, database, or cross-component).
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class AlertRulesIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

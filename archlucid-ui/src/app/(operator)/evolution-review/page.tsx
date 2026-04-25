@@ -156,7 +156,7 @@ export default function EvolutionReviewPage() {
         <Link href="/planning" style={{ color: "#1d4ed8" }}>
           Planning
         </Link>{" "}
-        via the API; use <strong>Run simulation</strong> when your token has execute authority to refresh outcomes and
+        via the API; use <strong>Run simulation</strong> when your token has operator access to refresh outcomes and
         scores.
       </p>
 

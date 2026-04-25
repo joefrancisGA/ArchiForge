@@ -23,7 +23,7 @@ public sealed class ProductLearningOpportunityScoringTests
             NeedsFollowUpCount = 1,
             RevisedCount = 1,
             FirstSignalRecordedUtc = DateTime.UtcNow,
-            LastSignalRecordedUtc = DateTime.UtcNow,
+            LastSignalRecordedUtc = DateTime.UtcNow
         };
 
         int score = ProductLearningOpportunityScoring.ComputeAggregateBadScore(agg);
@@ -53,7 +53,7 @@ public sealed class ProductLearningOpportunityScoringTests
             NeedsFollowUpCount = 1,
             DistinctRunCount = 2,
             FirstSeenUtc = DateTime.UtcNow,
-            LastSeenUtc = DateTime.UtcNow,
+            LastSeenUtc = DateTime.UtcNow
         };
 
         ProductLearningOpportunityScoring.ComputeTrendNegativeMass(trend).Should().Be(4);

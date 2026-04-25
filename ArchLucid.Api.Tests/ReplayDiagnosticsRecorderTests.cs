@@ -9,7 +9,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ReplayDiagnosticsRecorder"/> capacity and retention trimming.
+///     Unit tests for <see cref="ReplayDiagnosticsRecorder" /> capacity and retention trimming.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ReplayDiagnosticsRecorderTests
@@ -34,19 +34,15 @@ public sealed class ReplayDiagnosticsRecorderTests
     public void Record_evicts_entries_older_than_retention_minutes()
     {
         Mock<IOptionsMonitor<ReplayDiagnosticsOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new ReplayDiagnosticsOptions { Capacity = 100, RetentionMinutes = 60 });
+        options.Setup(o => o.CurrentValue)
+            .Returns(new ReplayDiagnosticsOptions { Capacity = 100, RetentionMinutes = 60 });
         ReplayDiagnosticsRecorder sut = new(options.Object);
 
         sut.Record(new ReplayDiagnosticsEntry
         {
-            TimestampUtc = DateTime.UtcNow.AddHours(-2),
-            ComparisonRecordId = "old"
+            TimestampUtc = DateTime.UtcNow.AddHours(-2), ComparisonRecordId = "old"
         });
-        sut.Record(new ReplayDiagnosticsEntry
-        {
-            TimestampUtc = DateTime.UtcNow,
-            ComparisonRecordId = "new"
-        });
+        sut.Record(new ReplayDiagnosticsEntry { TimestampUtc = DateTime.UtcNow, ComparisonRecordId = "new" });
 
         IReadOnlyList<ReplayDiagnosticsEntry> recent = sut.GetRecent(10);
         recent.Should().ContainSingle(e => e.ComparisonRecordId == "new");
@@ -55,10 +51,6 @@ public sealed class ReplayDiagnosticsRecorderTests
 
     private static ReplayDiagnosticsEntry NewEntry(string id)
     {
-        return new ReplayDiagnosticsEntry
-        {
-            TimestampUtc = DateTime.UtcNow,
-            ComparisonRecordId = id
-        };
+        return new ReplayDiagnosticsEntry { TimestampUtc = DateTime.UtcNow, ComparisonRecordId = id };
     }
 }

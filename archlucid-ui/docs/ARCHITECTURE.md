@@ -159,16 +159,9 @@ The shell **does** shape navigation (and light Enterprise copy) using the authen
 | `/replay` | `ReplayPage` | Client | Run ID input, mode selector, replay submission, validation display |
 | `/ask` | `AskPage` | Client | Conversational AI interface for architecture questions |
 | `/search` | `SearchPage` | Client | Semantic search across run content |
-| `/advisory` | `AdvisoryPage` | Client | Improvement plans, recommendation governance |
-| `/alerts` | `AlertsPage` | Client | Alert list with lifecycle actions |
-| `/alert-rules` | `AlertRulesPage` | Client | Simple alert rule CRUD |
-| `/composite-alert-rules` | `CompositeRulesPage` | Client | Multi-condition rule CRUD |
-| `/alert-simulation` | `AlertSimulationPage` | Client | Rule simulation and candidate comparison |
-| `/alert-tuning` | `AlertTuningPage` | Client | Threshold recommendation with noise scoring |
-| `/alert-routing` | `AlertRoutingPage` | Client | Routing subscription CRUD + delivery attempts |
-| `/digests` | `DigestsPage` | Client | Architecture digest browsing |
-| `/digest-subscriptions` | `DigestSubscriptionsPage` | Client | Subscription CRUD + delivery attempts |
-| `/advisory-scheduling` | `AdvisorySchedulingPage` | Client | Scan schedule CRUD + execution history |
+| `/advisory` | `AdvisoryPage` (hub) | Server shell + `AdvisoryHubClient` | `?tab=` — **scans** (default; improvement advisor), **schedules** (scan windows; legacy `/advisory-scheduling` redirects). |
+| `/alerts` | `AlertsPage` (hub) | Client | `?tab=` — **inbox** (default), **rules**, **routing**, **composite**, **simulation** (simulation + tuning). Legacy `/alert-*` paths redirect here. |
+| `/digests` | `DigestsPage` (hub) | Server shell + `DigestsHubClient` | `?tab=` — **browse** (default; digest list), **subscriptions** (email delivery), **schedule** (exec digest prefs; legacy `/digest-subscriptions` and `/settings/exec-digest` redirect). |
 | `/recommendation-learning` | `LearningPage` | Client | Learning profile display + rebuild |
 | `/policy-packs` | `PolicyPacksPage` | Client | Pack creation, publishing, assignment |
 | `/governance-resolution` | `GovernanceResolutionPage` | Client | Effective resolution display |

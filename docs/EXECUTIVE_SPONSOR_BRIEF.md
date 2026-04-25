@@ -12,13 +12,14 @@ This file is the outward **sponsor story of record**: why a pilot matters, what 
 
 ## Related
 
+- **[READ_THIS_FIRST.md](READ_THIS_FIRST.md)** — forced decision-tree entry (buyer vs contributor vs security vs architecture)
 - **[README.md](../README.md)** — repo entry and deeper operator material
 - **[PILOT_ROI_MODEL.md](library/PILOT_ROI_MODEL.md)** — pilot measurement companion
 - **[PRODUCT_PACKAGING.md](library/PRODUCT_PACKAGING.md)** — capability layers and UI seams
 - **[CORE_PILOT.md](CORE_PILOT.md)** — operator first-pilot motion
 - **[go-to-market/POSITIONING.md](go-to-market/POSITIONING.md)** — positioning aligned to this brief
 
-**One-shot sponsor PDF:** the operator-shell run-detail page (`/runs/[runId]`) shows a non-modal **"Email this run to your sponsor"** banner after a successful commit. The banner downloads a PDF projection of the canonical first-value-report for that run via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known, the banner can show a small **“Day N since first commit”** badge (UTC day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](library/API_CONTRACTS.md#pilots-v1pilots).
+**One-shot sponsor PDF:** the operator-shell run-detail page (`/runs/[runId]`) shows a non-modal **"Email this run to your sponsor"** banner after a successful commit. The banner downloads a PDF projection of the canonical first-value-report for that run via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known (pinned for **all** tiers on first authority commit; optional SQL backfill for legacy rows), the banner can show a small **“Day N since first commit”** badge (UTC full-day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](library/SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](library/API_CONTRACTS.md#pilots-v1pilots).
 
 ---
 
@@ -42,6 +43,8 @@ At a practical level, ArchLucid is an AI-assisted architecture workflow system t
 ## 2. What problem it solves
 
 In many organizations, architecture work slows down because teams must manually assemble review packages, explain design reasoning, reconcile revisions, and prepare governance evidence.
+
+**Security and procurement reviewers** should start from the consolidated Trust Center index — **[`docs/trust-center.md`](trust-center.md)** (public marketing route **`/trust`**) — which links the same self-assessment, questionnaire, and deferral evidence the repository ships to CI.
 
 That creates four common problems:
 

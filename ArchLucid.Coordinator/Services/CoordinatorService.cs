@@ -14,7 +14,9 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Coordinator.Services;
 
 /// <summary>
-/// Validates <see cref="ArchitectureRequest"/> input, delegates persistence to <see cref="IAuthorityRunOrchestrator"/>, and assembles <see cref="CoordinationResult"/> (run, evidence bundle, starter tasks, graph shell).
+///     Validates <see cref="ArchitectureRequest" /> input, delegates persistence to
+///     <see cref="IAuthorityRunOrchestrator" />, and assembles <see cref="CoordinationResult" /> (run, evidence bundle,
+///     starter tasks, graph shell).
 /// </summary>
 public sealed class CoordinatorService(
     IAuthorityRunOrchestrator authorityRunOrchestrator,
@@ -25,14 +27,14 @@ public sealed class CoordinatorService(
     private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
         authorityRunOrchestrator ?? throw new ArgumentNullException(nameof(authorityRunOrchestrator));
 
+    private readonly ILogger<CoordinatorService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly ILogger<CoordinatorService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public async Task<CoordinationResult> CreateRunAsync(
@@ -148,7 +150,8 @@ public sealed class CoordinatorService(
         return errors;
     }
 
-    private static ArchitectureRun BuildRunFromAuthority(RunRecord authorityRun, ArchitectureRequest request, bool deferred)
+    private static ArchitectureRun BuildRunFromAuthority(RunRecord authorityRun, ArchitectureRequest request,
+        bool deferred)
     {
         return new ArchitectureRun
         {

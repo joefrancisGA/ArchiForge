@@ -1,10 +1,11 @@
 using ArchLucid.Contracts.Notifications;
+using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
 internal static class ExecDigestPreferencesMapper
 {
-    internal static ExecDigestPreferencesResponse ToResponse(Models.TenantExecDigestPreferencesRow row)
+    internal static ExecDigestPreferencesResponse ToResponse(TenantExecDigestPreferencesRow row)
     {
         if (row is null)
             throw new ArgumentNullException(nameof(row));
@@ -19,7 +20,7 @@ internal static class ExecDigestPreferencesMapper
             IanaTimeZoneId = string.IsNullOrWhiteSpace(row.IanaTimeZoneId) ? "UTC" : row.IanaTimeZoneId.Trim(),
             DayOfWeek = row.DayOfWeek,
             HourOfDay = row.HourOfDay,
-            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero),
+            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero)
         };
     }
 

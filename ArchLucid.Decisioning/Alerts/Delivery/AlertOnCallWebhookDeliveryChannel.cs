@@ -3,7 +3,8 @@ using ArchLucid.Decisioning.Advisory.Delivery;
 namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
-/// Posts a structured JSON payload suitable for generic on-call or paging endpoints (<see cref="AlertRoutingChannelType.OnCallWebhook"/>).
+///     Posts a structured JSON payload suitable for generic on-call or paging endpoints (
+///     <see cref="AlertRoutingChannelType.OnCallWebhook" />).
 /// </summary>
 /// <param name="webhookPoster">HTTP JSON POST helper.</param>
 public sealed class AlertOnCallWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IAlertDeliveryChannel
@@ -22,7 +23,7 @@ public sealed class AlertOnCallWebhookDeliveryChannel(IWebhookPoster webhookPost
             triggerValue = payload.Alert.TriggerValue,
             description = payload.Alert.Description,
             alertId = payload.Alert.AlertId,
-            runId = payload.Alert.RunId,
+            runId = payload.Alert.RunId
         };
 
         return webhookPoster.PostJsonAsync(

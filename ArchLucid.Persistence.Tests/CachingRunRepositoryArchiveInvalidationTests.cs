@@ -13,7 +13,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Ensures bulk archival evicts hot-path run cache entries so run lookups do not return archived rows until TTL expiry.
+///     Ensures bulk archival evicts hot-path run cache entries so run lookups do not return archived rows until TTL
+///     expiry.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class CachingRunRepositoryArchiveInvalidationTests
@@ -21,10 +22,7 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
     [Fact]
     public async Task ArchiveRunsCreatedBeforeAsync_removes_cached_GetById_row()
     {
-        HotPathCacheOptions options = new()
-        {
-            AbsoluteExpirationSeconds = 3600
-        };
+        HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };
         IOptionsMonitor<HotPathCacheOptions> monitor = new FixedOptionsMonitor<HotPathCacheOptions>(options);
         MemoryHotPathReadCache hotPath = new(new MemoryCache(new MemoryCacheOptions()), monitor);
         InMemoryRunRepository inner = new();
@@ -32,9 +30,7 @@ public sealed class CachingRunRepositoryArchiveInvalidationTests
 
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         RunRecord run = new()

@@ -52,7 +52,7 @@ jobs:
           config-path: .gitleaks.toml
 
   docs-root-size:
-    name: "Docs: root markdown count guard (≤30)"
+    name: "Docs: root markdown count guard (≤32)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -63,6 +63,22 @@ jobs:
 
       - name: Assert docs root .md count
         run: python scripts/ci/assert_docs_root_size.py
+
+  docs-navigator-links:
+    name: "Docs: NAVIGATOR.md link targets exist"
+    needs:
+      - gitleaks
+      - docs-root-size
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Assert docs/NAVIGATOR.md links resolve
+        run: python scripts/ci/assert_navigator_links_valid.py
 
   two-layer-naming-lint:
     name: "Docs: Pilot/Operate buyer naming lint"
@@ -106,6 +122,7 @@ jobs:
     needs:
       - gitleaks
       - docs-root-size
+      - docs-navigator-links
       - two-layer-naming-lint
     runs-on: ubuntu-latest
     steps:
@@ -124,8 +141,64 @@ jobs:
       - name: Check relative markdown links
         run: python scripts/ci/check_md_links.py
 
+      - name: Contributor one-page doc line budget (≤80 lines)
+        run: python scripts/ci/assert_contributor_on_one_page_size.py
+
+      - name: Contributor one-page line budget unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_contributor_on_one_page_size.py"
+
+      - name: Pen test remediation tracker hygiene
+        run: python scripts/ci/assert_pen_test_remediation_no_stale.py
+
+      - name: Audit coverage matrix vs AuditEventTypes (names + count marker)
+        run: python scripts/ci/assert_audit_const_count.py
+
+      - name: Audit matrix guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_audit_const_count.py"
+
+      - name: Integration recipe CloudEvent types vs catalog
+        run: python scripts/ci/check_integration_recipes_link_alignment.py
+
+      - name: Integration recipe alignment guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_integration_recipes_link_alignment.py"
+
+      - name: READ_THIS_FIRST.md — relative targets exist
+        run: python scripts/ci/check_read_this_first_links.py
+
+      - name: Check trust center doc links
+        run: python scripts/ci/check_trust_center_links.py
+
       - name: Marketing accessibility page vs ACCESSIBILITY.md (TS parser parity)
         run: python scripts/ci/assert_marketing_accessibility_in_sync.py
+
+      - name: Buyer first-30-minutes path — vertical picker + q35 prose guard
+        run: python scripts/ci/assert_buyer_first_30_minutes_in_sync.py
+
+      - name: Buyer first-30-minutes guard self-test
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_buyer_first_30_minutes_in_sync.py"
+
+      - name: BillingProductionSafetyRules — sk_live_ + Marketplace landing + GA offer-id checks shipped
+        run: python scripts/ci/assert_billing_safety_rules_shipped.py
+
+      - name: BillingProductionSafetyRules guard self-test
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_billing_safety_rules_shipped.py"
+
+      - name: Golden cohort kill-switch shipped (Q15-conditional rule — warn 80% / kill 95%)
+        run: python scripts/ci/assert_golden_cohort_kill_switch_present.py
+
+      - name: Golden cohort kill-switch guard self-test
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_golden_cohort_kill_switch_present.py"
+
+      - name: Golden cohort budget-probe threshold-parsing unit tests (Improvement 11)
+        run: |
+          cd scripts/ci
+          python -m unittest test_golden_cohort_budget_probe
+
+      - name: "Brand-category seam — rebrand workstream guard (WARN mode through PR-6, flips to FAIL in PR-7)"
+        run: python scripts/ci/assert_brand_category_seam.py
+
+      - name: Brand-category seam guard self-test
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_brand_category_seam.py"
 
       - name: "Advisory — PR B tracker vs ADR 0029 checklist (warn-only; strict via ARCHLUCID_PR_B_TRACKER_STRICT)"
         continue-on-error: true
@@ -209,6 +282,9 @@ jobs:
       - name: Pricing single-source-of-truth guard
         run: python scripts/ci/check_pricing_single_source.py
 
+      - name: Worked-example ROI PDF freshness (warn-only; set WORKED_EXAMPLE_ROI_FRESHNESS_FAIL=1 to enforce)
+        run: python scripts/ci/check_worked_example_roi_freshness.py
+
       - name: README opener link density (max 12 links above first <details>)
         run: python scripts/ci/check_readme_density.py
 
@@ -226,6 +302,9 @@ jobs:
         # and ArchLucid.Application/Pilots/WhyArchLucidPackBuilder.cs diverge on any of the
         # five differentiation-row fields (claim, evidence, baseline, citation, narrative).
         run: python scripts/ci/check_why_archlucid_comparison_sync.py
+
+      - name: "/why front-door hard table — markdown vs why-comparison.ts row order"
+        run: python scripts/ci/check_why_table_alignment.py
 
       - name: "/why differentiation rows — non-empty evidence fields"
         run: python scripts/ci/assert_why_rows_have_evidence.py
@@ -419,20 +498,8 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
-      - name: Guard — audit matrix Core constant count
-        run: |
-          set -e
-          CONST_COUNT=$(grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs)
-          MARKER=$(grep -oP 'audit-core-const-count:\K[0-9]+' docs/library/AUDIT_COVERAGE_MATRIX.md | head -1)
-          if [ -z "$MARKER" ]; then
-            echo "::error::docs/library/AUDIT_COVERAGE_MATRIX.md missing audit-core-const-count marker"
-            exit 1
-          fi
-          if [ "$CONST_COUNT" != "$MARKER" ]; then
-            echo "::error::AuditEventTypes const count ($CONST_COUNT) != matrix marker ($MARKER). Update docs/library/AUDIT_COVERAGE_MATRIX.md."
-            exit 1
-          fi
-          echo "Audit Core constants: $CONST_COUNT (matrix marker OK)."
+      - name: Guard — audit coverage matrix vs AuditEventTypes (names + marker)
+        run: python scripts/ci/assert_audit_const_count.py
 
       - name: coordinator parity probe (Python unit tests)
         run: python3 scripts/ci/test_coordinator_parity_probe.py
@@ -582,8 +649,9 @@ jobs:
       # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
       # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
+      # GoldenCorpusMaterializerTests is Category=GoldenCorpusRecord (local corpus refresh only; no LLM/SQL).
       - name: Test — fast core
-        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
+        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
 
       - name: Merge coverage (HTML + GitHub job summary)
         if: success()
@@ -631,6 +699,37 @@ jobs:
 
       - name: Test — finding-engine template (not in main solution)
         run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
+
+  # All infra/terraform* + infra/modules: init (no backend) + validate; apply-saas.ps1 consistency. No Azure creds.
+  # continue-on-error: remove after every root is known clean in CI (see docs/engineering/SAAS_INFRA_VALIDATION.md).
+  saas-terraform-roots-validate:
+    name: "SaaS: Terraform roots validate (script suite)"
+    needs: dotnet-fast-core
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install PowerShell
+        run: |
+          set -euo pipefail
+          PWSH_VER=7.4.6
+          curl -sSL -o /tmp/pwsh.tgz "https://github.com/PowerShell/PowerShell/releases/download/v${PWSH_VER}/powershell-${PWSH_VER}-linux-x64.tar.gz"
+          sudo mkdir -p /opt/microsoft/powershell7
+          sudo tar zxf /tmp/pwsh.tgz -C /opt/microsoft/powershell7
+          sudo chmod a+x /opt/microsoft/powershell7/pwsh
+          sudo ln -sf /opt/microsoft/powershell7/pwsh /usr/local/bin/pwsh
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: assert_terraform_roots_valid (PowerShell + Terraform, no cloud auth)
+        run: python3 scripts/ci/assert_terraform_roots_valid.py
 
   # Empty catalog + API process: catches DbUp vs SqlSchemaBootstrapper ordering and greenfield migration gaps (see GreenfieldSqlBootIntegrationTests).
   api-greenfield-boot:

@@ -1,8 +1,9 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { RunSummary } from "@/types/authority";
 
 vi.mock("next/link", () => ({
@@ -29,6 +30,10 @@ import { getRunSummary } from "@/lib/api";
 
 const mockGetRunSummary = vi.mocked(getRunSummary);
 
+function renderWithTooltips(node: ReactElement) {
+  return render(<TooltipProvider delayDuration={0}>{node}</TooltipProvider>);
+}
+
 const baseSummary: RunSummary = {
   runId: "run-track-1",
   projectId: "default",
@@ -50,7 +55,11 @@ function TrackPollingHarness({ runId }: { runId: string }) {
     return () => window.clearInterval(intervalId);
   }, [runId]);
 
-  return <WizardStepTrack runId={runId} pollSummary={pollSummary} />;
+  return (
+    <TooltipProvider delayDuration={0}>
+      <WizardStepTrack runId={runId} pollSummary={pollSummary} />
+    </TooltipProvider>
+  );
 }
 
 describe("WizardStepTrack", () => {
@@ -59,13 +68,13 @@ describe("WizardStepTrack", () => {
   });
 
   it("shows Pending badges when pipeline flags are false or summary is null", () => {
-    render(<WizardStepTrack runId="r1" pollSummary={{ ...baseSummary, runId: "r1" }} />);
+    renderWithTooltips(<WizardStepTrack runId="r1" pollSummary={{ ...baseSummary, runId: "r1" }} />);
 
     expect(screen.getAllByText("Pending").length).toBeGreaterThanOrEqual(4);
   });
 
   it("marks stages Ready as flags flip true", () => {
-    const { rerender } = render(
+    const { rerender } = renderWithTooltips(
       <WizardStepTrack
         runId="r1"
         pollSummary={{
@@ -81,24 +90,26 @@ describe("WizardStepTrack", () => {
     expect(screen.getAllByText("Pending").length).toBe(2);
 
     rerender(
-      <WizardStepTrack
-        runId="r1"
-        pollSummary={{
-          ...baseSummary,
-          runId: "r1",
-          hasContextSnapshot: true,
-          hasGraphSnapshot: true,
-          hasFindingsSnapshot: true,
-          hasGoldenManifest: true,
-        }}
-      />,
+      <TooltipProvider delayDuration={0}>
+        <WizardStepTrack
+          runId="r1"
+          pollSummary={{
+            ...baseSummary,
+            runId: "r1",
+            hasContextSnapshot: true,
+            hasGraphSnapshot: true,
+            hasFindingsSnapshot: true,
+            hasGoldenManifest: true,
+          }}
+        />
+      </TooltipProvider>,
     );
 
     expect(screen.getAllByText("Ready").length).toBe(4);
   });
 
   it("renders Open run detail when hasGoldenManifest is true", () => {
-    render(
+    renderWithTooltips(
       <WizardStepTrack
         runId="golden-1"
         pollSummary={{
@@ -184,7 +195,7 @@ describe("WizardStepTrack", () => {
   });
 
   it("encodes run id on Compare runs when the golden manifest is ready", () => {
-    render(
+    renderWithTooltips(
       <WizardStepTrack
         runId="run-encode-9"
         pollSummary={{

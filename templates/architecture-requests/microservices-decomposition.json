@@ -1,0 +1,42 @@
+{
+  "requestId": "contoso-microservices-001",
+  "systemName": "ContosoOrderPlatform",
+  "description": "Decompose Contoso's order monolith into four bounded contexts (Orders, Inventory, Payments, Notifications) with Azure Service Bus for async workflows. Preserve existing mobile clients and public REST contracts during strangler migration.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No double-charging: payment idempotency keys must survive retries",
+    "Inventory reservations must be strongly consistent within the inventory service",
+    "Notification fan-out must tolerate downstream rate limits"
+  ],
+  "requiredCapabilities": [
+    "Outbox pattern for cross-service events",
+    "Distributed tracing across services",
+    "Blue/green deployment for Orders API"
+  ],
+  "assumptions": [
+    "Current monolith database can be split by schema with minimal cross-schema joins",
+    "Mobile clients can add correlation headers within one release train"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document saga compensation paths for cancel-order and payment reversal"
+  ],
+  "documents": [
+    {
+      "name": "bounded-contexts.txt",
+      "contentType": "text/plain",
+      "content": "Fictional contexts: Orders (commands), Inventory (stock), Payments (stripe adapter), Notifications (email/push)."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Avoid synchronous chain longer than two network hops on checkout hot path",
+    "Prefer topics with subscriptions per downstream consumer"
+  ],
+  "securityBaselineHints": [
+    "mTLS between internal services where supported",
+    "Rotate Service Bus keys via Key Vault references only"
+  ],
+  "infrastructureDeclarations": []
+}

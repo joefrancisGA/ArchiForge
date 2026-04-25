@@ -68,8 +68,6 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 throw new ArgumentException(
                     "scopedSignals must match snapshot.Scope tenant/workspace/project for every row.",
                     nameof(scopedSignals));
-
-
     }
 
     private static void AddRollupThemes(
@@ -104,7 +102,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 EvidenceCount = aggregate.TotalSignalCount,
                 AffectedArtifactTypes = CollectAffectedFromAggregate(aggregate),
                 FirstSeenUtc = aggregate.FirstSignalRecordedUtc,
-                LastSeenUtc = aggregate.LastSignalRecordedUtc,
+                LastSeenUtc = aggregate.LastSignalRecordedUtc
             };
         }
     }
@@ -143,7 +141,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 EvidenceCount = total,
                 AffectedArtifactTypes = [trend.ArtifactTypeOrHint],
                 FirstSeenUtc = trend.FirstSeenUtc,
-                LastSeenUtc = trend.LastSeenUtc,
+                LastSeenUtc = trend.LastSeenUtc
             };
         }
     }
@@ -181,7 +179,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 EvidenceCount = theme.OccurrenceCount,
                 AffectedArtifactTypes = ["Feedback comments"],
                 FirstSeenUtc = theme.FirstSeenUtc,
-                LastSeenUtc = theme.LastSeenUtc,
+                LastSeenUtc = theme.LastSeenUtc
             };
         }
     }
@@ -193,7 +191,8 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     {
         int minTag = options.MinTagOccurrences < 1 ? 1 : options.MinTagOccurrences;
 
-        Dictionary<string, List<(string Original, ProductLearningPilotSignalRecord Row)>> groups = new(StringComparer.Ordinal);
+        Dictionary<string, List<(string Original, ProductLearningPilotSignalRecord Row)>> groups =
+            new(StringComparer.Ordinal);
 
         foreach (ProductLearningPilotSignalRecord row in orderedSignals)
         {
@@ -251,7 +250,6 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 if (!string.IsNullOrWhiteSpace(facet))
 
                     facets.Add(facet);
-
             }
 
             buckets[canonicalKey] = new ThemeAccumulator
@@ -265,9 +263,10 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     "Normalized token key=" + pair.Key + "; matchingSignalRows=" + rows.Count + "; distinctSignals="
                     + distinctSignals + ".",
                 EvidenceCount = distinctSignals,
-                AffectedArtifactTypes = facets.Count == 0 ? [] : facets.OrderBy(static s => s, StringComparer.Ordinal).ToArray(),
+                AffectedArtifactTypes =
+                    facets.Count == 0 ? [] : facets.OrderBy(static s => s, StringComparer.Ordinal).ToArray(),
                 FirstSeenUtc = first,
-                LastSeenUtc = last,
+                LastSeenUtc = last
             };
         }
     }
@@ -280,7 +279,8 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     {
         List<ImprovementThemeWithEvidence> list = new(buckets.Count);
 
-        foreach (KeyValuePair<string, ThemeAccumulator> pair in buckets.OrderBy(static p => p.Key, StringComparer.Ordinal))
+        foreach (KeyValuePair<string, ThemeAccumulator> pair in buckets.OrderBy(static p => p.Key,
+                     StringComparer.Ordinal))
         {
             ThemeAccumulator acc = pair.Value;
             Guid themeId = ImprovementThemeExtractionDeterministicIds.ThemeId(scope, acc.CanonicalKey);
@@ -293,7 +293,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 EvidenceCount = acc.EvidenceCount,
                 AffectedArtifactTypes = acc.AffectedArtifactTypes,
                 FirstSeenUtc = acc.FirstSeenUtc,
-                LastSeenUtc = acc.LastSeenUtc,
+                LastSeenUtc = acc.LastSeenUtc
             };
 
             IReadOnlyList<ImprovementThemeEvidence> examples = BuildExampleEvidence(
@@ -308,7 +308,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     Theme = theme,
                     ExampleEvidence = examples,
                     CanonicalKey = acc.CanonicalKey,
-                    GroupingExplanation = acc.GroupingExplanation,
+                    GroupingExplanation = acc.GroupingExplanation
                 });
         }
 
@@ -370,7 +370,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     ThemeId = theme.Theme.ThemeId,
                     ArchitectureRunId = row.ArchitectureRunId,
                     PilotArtifactHint = row.ArtifactHint,
-                    SignalId = row.SignalId,
+                    SignalId = row.SignalId
                 };
 
                 List<ImprovementThemeEvidence> merged = theme.ExampleEvidence.Concat([extra]).ToList();
@@ -381,7 +381,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     ExampleEvidence = merged,
                     CanonicalKey = theme.CanonicalKey,
                     GroupingExplanation = theme.GroupingExplanation
-                        + " Triage queue referenced this signal as RelatedSignalId.",
+                                          + " Triage queue referenced this signal as RelatedSignalId."
                 };
 
                 break;
@@ -417,12 +417,11 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     ThemeId = themeId,
                     ArchitectureRunId = row.ArchitectureRunId,
                     PilotArtifactHint = row.ArtifactHint,
-                    SignalId = row.SignalId,
+                    SignalId = row.SignalId
                 });
 
             if (list.Count >= cap)
                 break;
-
         }
 
         return list;
@@ -473,7 +472,6 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
 
                 if (string.Equals(n, tagKey, StringComparison.Ordinal))
                     return true;
-
             }
 
             return false;
@@ -482,7 +480,8 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         return false;
     }
 
-    private static bool PassesAggregateOutcomeGate(FeedbackAggregate aggregate, ImprovementThemeExtractionOptions options)
+    private static bool PassesAggregateOutcomeGate(FeedbackAggregate aggregate,
+        ImprovementThemeExtractionOptions options)
     {
         int minSignals = options.MinSignalsPerAggregateTheme < 1 ? 1 : options.MinSignalsPerAggregateTheme;
 
@@ -490,7 +489,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
             return false;
 
 
-        int minBad = options.MinRejectedOrFollowUpForOutcomePattern < 0 ? 0 : options.MinRejectedOrFollowUpForOutcomePattern;
+        int minBad = options.MinRejectedOrFollowUpForOutcomePattern < 0
+            ? 0
+            : options.MinRejectedOrFollowUpForOutcomePattern;
         int minRev = options.MinRevisedForRevisionPattern < 0 ? 0 : options.MinRevisedForRevisionPattern;
 
         int rejectOrFollowUp = aggregate.RejectedCount + aggregate.NeedsFollowUpCount;
@@ -517,8 +518,10 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         return total >= minSignals && negative >= minNeg;
     }
 
-    private static int TotalTrendSignals(ArtifactOutcomeTrend trend) =>
-        trend.AcceptedOrTrustedCount + trend.RejectionCount + trend.RevisionCount + trend.NeedsFollowUpCount;
+    private static int TotalTrendSignals(ArtifactOutcomeTrend trend)
+    {
+        return trend.AcceptedOrTrustedCount + trend.RejectionCount + trend.RevisionCount + trend.NeedsFollowUpCount;
+    }
 
     private static string BuildRollupName(FeedbackAggregate aggregate)
     {
@@ -567,35 +570,50 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     {
         public required string CanonicalKey
         {
-            get; init;
+            get;
+            init;
         }
+
         public required string GroupingExplanation
         {
-            get; init;
+            get;
+            init;
         }
+
         public required string Name
         {
-            get; init;
+            get;
+            init;
         }
+
         public required string Description
         {
-            get; init;
+            get;
+            init;
         }
+
         public required int EvidenceCount
         {
-            get; init;
+            get;
+            init;
         }
+
         public required IReadOnlyList<string> AffectedArtifactTypes
         {
-            get; init;
+            get;
+            init;
         }
+
         public required DateTime FirstSeenUtc
         {
-            get; init;
+            get;
+            init;
         }
+
         public required DateTime LastSeenUtc
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

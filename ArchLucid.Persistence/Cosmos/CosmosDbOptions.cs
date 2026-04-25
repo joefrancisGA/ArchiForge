@@ -11,40 +11,63 @@ public sealed class CosmosDbOptions
     /// <summary>Cosmos account connection string or emulator connection string.</summary>
     public string? ConnectionString
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Database id (logical database within the account).</summary>
-    public string DatabaseName { get; set; } = "ArchLucid";
+    public string DatabaseName
+    {
+        get;
+        set;
+    } = "ArchLucid";
 
-    /// <summary>When true, <see cref="ArchLucid.KnowledgeGraph.Interfaces.IGraphSnapshotRepository"/> uses Cosmos instead of SQL.</summary>
+    /// <summary>
+    ///     When true, <see cref="ArchLucid.KnowledgeGraph.Interfaces.IGraphSnapshotRepository" /> uses Cosmos instead of
+    ///     SQL.
+    /// </summary>
     public bool GraphSnapshotsEnabled
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>When true, <see cref="ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository"/> uses Cosmos instead of SQL.</summary>
+    /// <summary>
+    ///     When true, <see cref="ArchLucid.Persistence.Data.Repositories.IAgentExecutionTraceRepository" /> uses Cosmos
+    ///     instead of SQL.
+    /// </summary>
     public bool AgentTracesEnabled
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>When true, <see cref="ArchLucid.Persistence.Audit.IAuditRepository"/> uses Cosmos instead of SQL.</summary>
+    /// <summary>When true, <see cref="ArchLucid.Persistence.Audit.IAuditRepository" /> uses Cosmos instead of SQL.</summary>
     public bool AuditEventsEnabled
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Default TTL in seconds for agent trace documents (Cosmos <c>ttl</c>); default 90 days.</summary>
-    public int AgentTraceTtlSeconds { get; set; } = 90 * 24 * 60 * 60;
+    public int AgentTraceTtlSeconds
+    {
+        get;
+        set;
+    } = 90 * 24 * 60 * 60;
 
     /// <summary>Cosmos consistency level name: Session, BoundedStaleness, Strong, ConsistentPrefix, Eventual.</summary>
-    public string DefaultConsistencyLevel { get; set; } = "Session";
+    public string DefaultConsistencyLevel
+    {
+        get;
+        set;
+    } = "Session";
 
     /// <summary>Processor instance name for change feed lease distribution (defaults to machine name).</summary>
     public string? ChangeFeedInstanceName
     {
-        get; set;
+        get;
+        set;
     }
 
     public bool AnyCosmosFeatureEnabled =>

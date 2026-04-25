@@ -148,9 +148,9 @@ describe("authority seam regression", () => {
 
   /**
    * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` must still emit Enterprise Controls
-   * with only the inbox (not an empty group after tier + authority).
+   * with system health + inbox (not an empty group after tier + authority).
    */
-  it("Reader default shell lists Pilot and Operate governance with only the Alerts inbox href", () => {
+  it("Reader default shell lists Pilot and Operate governance with system health and Alerts inbox (essential tier)", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       false,
@@ -165,7 +165,7 @@ describe("authority seam regression", () => {
 
     const enterprise = rows.find((r) => r.group.id === "operate-governance");
 
-    expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual(["/alerts"]);
+    expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
   });
 
   /**

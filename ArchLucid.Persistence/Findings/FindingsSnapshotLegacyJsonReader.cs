@@ -3,7 +3,10 @@ using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Persistence.Findings;
 
-/// <summary>Deserializes <c>FindingsJson</c> (full <see cref="FindingsSnapshot"/> blob) when relational <c>FindingRecords</c> are absent.</summary>
+/// <summary>
+///     Deserializes <c>FindingsJson</c> (full <see cref="FindingsSnapshot" /> blob) when relational
+///     <c>FindingRecords</c> are absent.
+/// </summary>
 internal static class FindingsSnapshotLegacyJsonReader
 {
     internal static List<Finding> DeserializeFindings(string? findingsJson)

@@ -10,10 +10,11 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Persistence.Coordination.Backfill;
 
 /// <summary>
-/// Runs aggregate read-only SQL queries to determine per-slice relational coverage.
-/// Uses set-based <c>COUNT / WHERE EXISTS</c> correlated subqueries — no row-by-row iteration.
+///     Runs aggregate read-only SQL queries to determine per-slice relational coverage.
+///     Uses set-based <c>COUNT / WHERE EXISTS</c> correlated subqueries — no row-by-row iteration.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "Entirely SQL-dependent; every method runs Dapper queries against live SQL Server.")]
+[ExcludeFromCodeCoverage(Justification =
+    "Entirely SQL-dependent; every method runs Dapper queries against live SQL Server.")]
 public sealed class SqlCutoverReadinessService(
     ISqlConnectionFactory connectionFactory,
     ILogger<SqlCutoverReadinessService> logger) : ICutoverReadinessService
@@ -30,13 +31,10 @@ public sealed class SqlCutoverReadinessService(
             .. await AssessGraphSnapshotsAsync(connection, ct),
             .. await AssessFindingsSnapshotsAsync(connection, ct),
             .. await AssessGoldenManifestsAsync(connection, ct),
-            .. await AssessArtifactBundlesAsync(connection, ct),
+            .. await AssessArtifactBundlesAsync(connection, ct)
         ];
 
-        CutoverReadinessReport report = new()
-        {
-            Slices = slices
-        };
+        CutoverReadinessReport report = new() { Slices = slices };
 
         logger.LogInformation(
             "Cutover readiness assessment complete. TotalSlices={SliceCount}, Ready={ReadyCount}, NotReady={NotReadyCount}",
@@ -56,16 +54,20 @@ public sealed class SqlCutoverReadinessService(
         return
         [
             await AssessSliceAsync(connection, "ContextSnapshot.CanonicalObjects", totalHeaders,
-                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotCanonicalObjects", "SnapshotId"), ct),
+                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotCanonicalObjects",
+                    "SnapshotId"), ct),
 
             await AssessSliceAsync(connection, "ContextSnapshot.Warnings", totalHeaders,
-                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotWarnings", "SnapshotId"), ct),
+                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotWarnings", "SnapshotId"),
+                ct),
 
             await AssessSliceAsync(connection, "ContextSnapshot.Errors", totalHeaders,
-                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotErrors", "SnapshotId"), ct),
+                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotErrors", "SnapshotId"),
+                ct),
 
             await AssessSliceAsync(connection, "ContextSnapshot.SourceHashes", totalHeaders,
-                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotSourceHashes", "SnapshotId"), ct),
+                CountHeadersWithChildrenSql("ContextSnapshots", "SnapshotId", "ContextSnapshotSourceHashes",
+                    "SnapshotId"), ct)
         ];
     }
 
@@ -78,16 +80,20 @@ public sealed class SqlCutoverReadinessService(
         return
         [
             await AssessSliceAsync(connection, "GraphSnapshot.Nodes", totalHeaders,
-                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotNodes", "GraphSnapshotId"), ct),
+                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotNodes",
+                    "GraphSnapshotId"), ct),
 
             await AssessSliceAsync(connection, "GraphSnapshot.Edges", totalHeaders,
-                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotEdges", "GraphSnapshotId"), ct),
+                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotEdges",
+                    "GraphSnapshotId"), ct),
 
             await AssessSliceAsync(connection, "GraphSnapshot.Warnings", totalHeaders,
-                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotWarnings", "GraphSnapshotId"), ct),
+                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotWarnings",
+                    "GraphSnapshotId"), ct),
 
             await AssessSliceAsync(connection, "GraphSnapshot.EdgeProperties", totalHeaders,
-                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotEdgeProperties", "GraphSnapshotId"), ct),
+                CountHeadersWithChildrenSql("GraphSnapshots", "GraphSnapshotId", "GraphSnapshotEdgeProperties",
+                    "GraphSnapshotId"), ct)
         ];
     }
 
@@ -100,7 +106,8 @@ public sealed class SqlCutoverReadinessService(
         return
         [
             await AssessSliceAsync(connection, "FindingsSnapshot.Findings", totalHeaders,
-                CountHeadersWithChildrenSql("FindingsSnapshots", "FindingsSnapshotId", "FindingRecords", "FindingsSnapshotId"), ct),
+                CountHeadersWithChildrenSql("FindingsSnapshots", "FindingsSnapshotId", "FindingRecords",
+                    "FindingsSnapshotId"), ct)
         ];
     }
 
@@ -113,16 +120,19 @@ public sealed class SqlCutoverReadinessService(
         return
         [
             await AssessSliceAsync(connection, "GoldenManifest.Assumptions", totalHeaders,
-                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestAssumptions", "ManifestId"), ct),
+                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestAssumptions", "ManifestId"),
+                ct),
 
             await AssessSliceAsync(connection, "GoldenManifest.Warnings", totalHeaders,
-                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestWarnings", "ManifestId"), ct),
+                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestWarnings", "ManifestId"),
+                ct),
 
             await AssessSliceAsync(connection, "GoldenManifest.Decisions", totalHeaders,
-                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestDecisions", "ManifestId"), ct),
+                CountHeadersWithChildrenSql("GoldenManifests", "ManifestId", "GoldenManifestDecisions", "ManifestId"),
+                ct),
 
             await AssessSliceAsync(connection, "GoldenManifest.Provenance", totalHeaders,
-                CountHeadersWithAnyProvenanceChildSql(), ct),
+                CountHeadersWithAnyProvenanceChildSql(), ct)
         ];
     }
 
@@ -135,45 +145,45 @@ public sealed class SqlCutoverReadinessService(
         return
         [
             await AssessSliceAsync(connection, "ArtifactBundle.Artifacts", totalHeaders,
-                CountHeadersWithChildrenSql("ArtifactBundles", "BundleId", "ArtifactBundleArtifacts", "BundleId"), ct),
+                CountHeadersWithChildrenSql("ArtifactBundles", "BundleId", "ArtifactBundleArtifacts", "BundleId"), ct)
         ];
     }
 
     /// <summary>
-    /// Builds a SQL statement that counts how many header rows have at least one child row
-    /// in the specified child table, using a <c>WHERE EXISTS</c> correlated subquery.
+    ///     Builds a SQL statement that counts how many header rows have at least one child row
+    ///     in the specified child table, using a <c>WHERE EXISTS</c> correlated subquery.
     /// </summary>
     private static string CountHeadersWithChildrenSql(
         string headerTable, string headerKey, string childTable, string childKey)
     {
         return $"""
-            SELECT COUNT(1)
-            FROM dbo.{headerTable} h
-            WHERE EXISTS (
-                SELECT 1 FROM dbo.{childTable} c WHERE c.{childKey} = h.{headerKey}
-            );
-            """;
+                SELECT COUNT(1)
+                FROM dbo.{headerTable} h
+                WHERE EXISTS (
+                    SELECT 1 FROM dbo.{childTable} c WHERE c.{childKey} = h.{headerKey}
+                );
+                """;
     }
 
     /// <summary>
-    /// Provenance is spread across three child tables; a header is "covered" when it has
-    /// at least one row in <em>any</em> of the three.
+    ///     Provenance is spread across three child tables; a header is "covered" when it has
+    ///     at least one row in <em>any</em> of the three.
     /// </summary>
     private static string CountHeadersWithAnyProvenanceChildSql()
     {
         return """
-            SELECT COUNT(1)
-            FROM dbo.GoldenManifests h
-            WHERE EXISTS (
-                SELECT 1 FROM dbo.GoldenManifestProvenanceSourceFindings c WHERE c.ManifestId = h.ManifestId
-            )
-            OR EXISTS (
-                SELECT 1 FROM dbo.GoldenManifestProvenanceSourceGraphNodes c WHERE c.ManifestId = h.ManifestId
-            )
-            OR EXISTS (
-                SELECT 1 FROM dbo.GoldenManifestProvenanceAppliedRules c WHERE c.ManifestId = h.ManifestId
-            );
-            """;
+               SELECT COUNT(1)
+               FROM dbo.GoldenManifests h
+               WHERE EXISTS (
+                   SELECT 1 FROM dbo.GoldenManifestProvenanceSourceFindings c WHERE c.ManifestId = h.ManifestId
+               )
+               OR EXISTS (
+                   SELECT 1 FROM dbo.GoldenManifestProvenanceSourceGraphNodes c WHERE c.ManifestId = h.ManifestId
+               )
+               OR EXISTS (
+                   SELECT 1 FROM dbo.GoldenManifestProvenanceAppliedRules c WHERE c.ManifestId = h.ManifestId
+               );
+               """;
     }
 
     private static async Task<CutoverSliceReadiness> AssessSliceAsync(
@@ -183,9 +193,7 @@ public sealed class SqlCutoverReadinessService(
 
         return new CutoverSliceReadiness
         {
-            SliceName = sliceName,
-            TotalHeaderRows = totalHeaders,
-            HeadersWithRelationalRows = headersWithChildren,
+            SliceName = sliceName, TotalHeaderRows = totalHeaders, HeadersWithRelationalRows = headersWithChildren
         };
     }
 

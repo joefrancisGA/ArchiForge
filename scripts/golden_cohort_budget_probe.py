@@ -5,10 +5,16 @@ Month-to-date Azure spend probe for the dedicated golden-cohort Azure OpenAI res
 Reads ``tests/golden-cohort/budget.config.json``, queries **Azure Cost Management** (management plane REST,
 no Azure SDK) using ``requests``, and exits:
 
-* **0** — month-to-date cost is **below** the kill threshold (default 90% of ``monthlyTokenBudgetUsd``).
-* **1** — at or above the kill threshold but **below** 100% of the monthly cap (real-LLM cohort must not run).
-* **2** — at or above **100%** of the cap (hard stop).
+* **0** — month-to-date cost is **below** the warn threshold (default **80%** of ``monthlyTokenBudgetUsd``).
+* **1** — at or above the warn threshold but **below** the kill threshold (default **95%**) — the workflow
+  surfaces a yellow warning and posts an issue, but real-LLM cohort still runs (exit 1 is **not** a hard skip).
+* **2** — at or above the kill threshold (default **95%**) — real-LLM cohort is **skipped** for the rest of
+  the month, an issue is posted, but the workflow does **not** count as failure.
 * **3** — probe could not run (missing credentials, missing resource id, HTTP/API error).
+
+Threshold ratios 0.80 / 0.95 are the **Q15-conditional rule** (PENDING_QUESTIONS Q15) — the budget approval
+is conditional on the kill-switch staying in place at these ratios, enforced by
+``scripts/ci/assert_golden_cohort_kill_switch_present.py``.
 
 Credentials (in order):
 
@@ -194,12 +200,38 @@ def _parse_cost_usd_from_query_result(data: dict[str, Any]) -> float:
     return total
 
 
-def _compute_exit_code(mtd_usd: float, monthly_budget_usd: float, kill_switch_percent: float) -> int:
-    if mtd_usd >= monthly_budget_usd:
+def _compute_exit_code(
+    mtd_usd: float,
+    monthly_budget_usd: float,
+    kill_switch_percent: float,
+    warn_percent: float | None = None,
+) -> int:
+    """Compute the kill-switch exit code given month-to-date spend and threshold ratios.
+
+    Q15-conditional rule (PENDING_QUESTIONS Q15) — the workflow gates real-LLM execution
+    on these exit codes:
+
+      * 0 → below ``warn_percent`` of ``monthly_budget_usd``: continue normally.
+      * 1 → at-or-above ``warn_percent`` and below ``kill_switch_percent``: warn + post issue,
+            but the cohort run still proceeds (this is the "yellow" state the prompt explicitly
+            asked for at the 80% mark).
+      * 2 → at-or-above ``kill_switch_percent``: SKIP cohort run, post issue, do NOT count
+            as workflow failure (this is the "red" state at the 95% mark).
+
+    If ``warn_percent`` is ``None``, falls back to legacy single-threshold behavior so older
+    callers (and the stand-alone ``ARCHLUCID_GOLDEN_COHORT_BUDGET_PROBE_SIMULATE_MTD_USD`` smoke
+    path) keep working in environments that haven't migrated their config yet.
+    """
+
+    kill_threshold_usd = monthly_budget_usd * (kill_switch_percent / 100.0)
+    if mtd_usd >= kill_threshold_usd:
         return 2
 
-    threshold_usd = monthly_budget_usd * (kill_switch_percent / 100.0)
-    if mtd_usd >= threshold_usd:
+    if warn_percent is None:
+        return 0
+
+    warn_threshold_usd = monthly_budget_usd * (warn_percent / 100.0)
+    if mtd_usd >= warn_threshold_usd:
         return 1
 
     return 0
@@ -247,16 +279,30 @@ def _append_usage_ledger(path: Path, entry: dict[str, Any]) -> None:
         handle.write("\n")
 
 
-def _emit_exports(mtd: float, budget: float, kill_pct: float, exit_code: int) -> None:
-    threshold = budget * (kill_pct / 100.0)
+def _emit_exports(
+    mtd: float,
+    budget: float,
+    kill_pct: float,
+    exit_code: int,
+    warn_pct: float | None = None,
+) -> None:
+    kill_threshold = budget * (kill_pct / 100.0)
     remaining = max(budget - mtd, 0.0)
     print(f"Month-to-date cost (USD): {mtd:.2f}")
     print(f"Monthly budget (USD): {budget:.2f}")
-    print(f"Kill threshold at {kill_pct:g}%: {threshold:.2f}")
+    print(f"Kill threshold at {kill_pct:g}%: {kill_threshold:.2f}")
+
+    if warn_pct is not None:
+        warn_threshold = budget * (warn_pct / 100.0)
+        print(f"Warn threshold at {warn_pct:g}%: {warn_threshold:.2f}")
+        print(f"EXPORT_WARN_THRESHOLD_USD={warn_threshold:.4f}")
+        print(f"EXPORT_WARN_THRESHOLD_PCT={warn_pct:.4f}")
+
     print(f"Remaining to cap: {remaining:.2f}")
     print(f"EXPORT_MTD_USD={mtd:.4f}")
     print(f"EXPORT_BUDGET_USD={budget:.4f}")
-    print(f"EXPORT_KILL_THRESHOLD_USD={threshold:.4f}")
+    print(f"EXPORT_KILL_THRESHOLD_USD={kill_threshold:.4f}")
+    print(f"EXPORT_KILL_THRESHOLD_PCT={kill_pct:.4f}")
     print(f"EXPORT_EXIT_CODE={exit_code}")
 
 
@@ -279,12 +325,14 @@ def main() -> int:
     cfg = _load_config(args.config)
     monthly_budget = float(cfg["monthlyTokenBudgetUsd"])
     kill_pct = float(cfg["killSwitchThresholdPercent"])
+    warn_pct_raw = cfg.get("warnThresholdPercent")
+    warn_pct = float(warn_pct_raw) if warn_pct_raw is not None else None
 
     simulate = os.environ.get("ARCHLUCID_GOLDEN_COHORT_BUDGET_PROBE_SIMULATE_MTD_USD", "").strip()
     if simulate:
         mtd = float(simulate)
-        code = _compute_exit_code(mtd, monthly_budget, kill_pct)
-        _emit_exports(mtd, monthly_budget, kill_pct, code)
+        code = _compute_exit_code(mtd, monthly_budget, kill_pct, warn_pct)
+        _emit_exports(mtd, monthly_budget, kill_pct, code, warn_pct)
         if args.usage_ledger is not None:
             _append_usage_ledger(
                 args.usage_ledger,
@@ -317,8 +365,8 @@ def main() -> int:
 
     token = _get_management_token()
     mtd = _query_mtd_actual_cost_usd(subscription_id, resource_id, token)
-    code = _compute_exit_code(mtd, monthly_budget, kill_pct)
-    _emit_exports(mtd, monthly_budget, kill_pct, code)
+    code = _compute_exit_code(mtd, monthly_budget, kill_pct, warn_pct)
+    _emit_exports(mtd, monthly_budget, kill_pct, code, warn_pct)
     if args.usage_ledger is not None:
         _append_usage_ledger(
             args.usage_ledger,

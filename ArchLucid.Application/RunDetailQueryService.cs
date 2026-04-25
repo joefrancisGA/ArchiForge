@@ -10,8 +10,6 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
-using DecisioningTraceRepository = ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository;
-
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application;
@@ -22,14 +20,21 @@ namespace ArchLucid.Application;
 /// services, analysis/export/compare, governance, and <see cref="ReplayRunService"/> should use this
 /// instead of assembling run metadata, tasks, results, manifest, and traces from repositories separately.
 /// </summary>
+/// <remarks>
+/// ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> read path was
+/// removed along with the interface itself. Decision traces are now read from
+/// <see cref="IDecisionTraceRepository">Decisioning.Interfaces.IDecisionTraceRepository</see> via
+/// <see cref="Persistence.Models.RunRecord.DecisionTraceId"/> on the run header — the authority FK
+/// chain populates that pointer at commit time (<see cref="ReplayRunService"/> + demo seed both go
+/// through <c>IAuthorityCommittedManifestChainWriter.PersistCommittedChainAsync</c>).
+/// </remarks>
 public sealed class RunDetailQueryService(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
-    ICoordinatorDecisionTraceRepository decisionTraceRepository,
-    DecisioningTraceRepository authorityDecisionTraceRepository,
+    IDecisionTraceRepository authorityDecisionTraceRepository,
     ILogger<RunDetailQueryService> logger)
     : IRunDetailQueryService
 {
@@ -88,21 +93,13 @@ public sealed class RunDetailQueryService(
                     LogSanitizer.Sanitize(runId),
                     LogSanitizer.Sanitize(run.CurrentManifestVersion));
         }
-        else
+        else if (record.DecisionTraceId is { } authorityTraceId)
         {
-            IReadOnlyList<DecisionTrace>? traces =
-                await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+            DecisionTrace? authorityTrace =
+                await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken);
 
-            decisionTraces = traces is null ? [] : traces.ToList();
-
-            if (decisionTraces.Count == 0 && record.DecisionTraceId is { } authorityTraceId)
-            {
-                DecisionTrace? authorityTrace =
-                    await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken);
-
-                if (authorityTrace is not null)
-                    decisionTraces = [authorityTrace];
-            }
+            if (authorityTrace is not null)
+                decisionTraces = [authorityTrace];
         }
 
         return new ArchitectureRunDetail

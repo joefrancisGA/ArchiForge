@@ -83,11 +83,7 @@ public sealed class DemoSeedServiceTests
 
         IGovernancePreviewService preview = scope.ServiceProvider.GetRequiredService<IGovernancePreviewService>();
         GovernanceEnvironmentComparisonResult result = await preview.CompareEnvironmentsAsync(
-            new GovernanceEnvironmentComparisonRequest
-            {
-                SourceEnvironment = "dev",
-                TargetEnvironment = "test"
-            });
+            new GovernanceEnvironmentComparisonRequest { SourceEnvironment = "dev", TargetEnvironment = "test" });
 
         result.Differences.Should().NotBeEmpty("baseline vs hardened governance should differ");
     }
@@ -105,10 +101,10 @@ public sealed class DemoSeedServiceTests
         IReadOnlyList<RunSummary> summaries = await detail.ListRunSummariesAsync();
 
         summaries.Select(s => s.RunId).Should().Contain(
-            [
-                demo.RunBaseline,
-                demo.RunHardened
-            ]);
+        [
+            demo.RunBaseline,
+            demo.RunHardened
+        ]);
     }
 
     [Fact]

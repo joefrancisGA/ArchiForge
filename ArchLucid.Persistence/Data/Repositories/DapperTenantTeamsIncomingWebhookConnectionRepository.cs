@@ -11,7 +11,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <inheritdoc cref="ITenantTeamsIncomingWebhookConnectionRepository" />
-[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; exercised via ArchLucid.sql / DbUp and integration tests.")]
+[ExcludeFromCodeCoverage(Justification =
+    "SQL-dependent repository; exercised via ArchLucid.sql / DbUp and integration tests.")]
 public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlConnectionFactory connectionFactory)
     : ITenantTeamsIncomingWebhookConnectionRepository
 {
@@ -19,18 +20,19 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     /// <inheritdoc />
-    public async Task<TeamsIncomingWebhookConnectionResponse?> GetAsync(Guid tenantId, CancellationToken cancellationToken)
+    public async Task<TeamsIncomingWebhookConnectionResponse?> GetAsync(Guid tenantId,
+        CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT
-                TenantId,
-                KeyVaultSecretName,
-                Label,
-                EnabledTriggersJson,
-                UpdatedUtc
-            FROM dbo.TenantTeamsIncomingWebhookConnections
-            WHERE TenantId = @TenantId;
-            """;
+                           SELECT
+                               TenantId,
+                               KeyVaultSecretName,
+                               Label,
+                               EnabledTriggersJson,
+                               UpdatedUtc
+                           FROM dbo.TenantTeamsIncomingWebhookConnections
+                           WHERE TenantId = @TenantId;
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         TeamsIncomingWebhookRow? row = await connection.QueryFirstOrDefaultAsync<TeamsIncomingWebhookRow>(
@@ -40,7 +42,7 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
             return null;
 
 
-        return ToResponse(row, isConfigured: true);
+        return ToResponse(row, true);
     }
 
     /// <inheritdoc />
@@ -52,10 +54,10 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
         CancellationToken cancellationToken)
     {
         const string tenantExistsSql = """
-            SELECT COUNT(1)
-            FROM dbo.Tenants
-            WHERE Id = @TenantId;
-            """;
+                                       SELECT COUNT(1)
+                                       FROM dbo.Tenants
+                                       WHERE Id = @TenantId;
+                                       """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         int tenantCount = await connection.ExecuteScalarAsync<int>(
@@ -75,23 +77,23 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
             : TeamsNotificationTriggerCatalog.Serialize(enabledTriggers.Count == 0 ? [] : enabledTriggers);
 
         const string mergeSql = """
-            MERGE dbo.TenantTeamsIncomingWebhookConnections AS t
-            USING (
-                SELECT
-                    @TenantId AS TenantId,
-                    @KeyVaultSecretName AS KeyVaultSecretName,
-                    @Label AS Label,
-                    @EnabledTriggersJson AS EnabledTriggersJson
-            ) AS s
-            ON t.TenantId = s.TenantId
-            WHEN MATCHED THEN UPDATE SET
-                KeyVaultSecretName = s.KeyVaultSecretName,
-                Label = s.Label,
-                EnabledTriggersJson = COALESCE(s.EnabledTriggersJson, t.EnabledTriggersJson),
-                UpdatedUtc = SYSUTCDATETIME()
-            WHEN NOT MATCHED THEN INSERT (TenantId, KeyVaultSecretName, Label, EnabledTriggersJson, UpdatedUtc)
-            VALUES (s.TenantId, s.KeyVaultSecretName, s.Label, COALESCE(s.EnabledTriggersJson, @CatalogDefaultJson), SYSUTCDATETIME());
-            """;
+                                MERGE dbo.TenantTeamsIncomingWebhookConnections AS t
+                                USING (
+                                    SELECT
+                                        @TenantId AS TenantId,
+                                        @KeyVaultSecretName AS KeyVaultSecretName,
+                                        @Label AS Label,
+                                        @EnabledTriggersJson AS EnabledTriggersJson
+                                ) AS s
+                                ON t.TenantId = s.TenantId
+                                WHEN MATCHED THEN UPDATE SET
+                                    KeyVaultSecretName = s.KeyVaultSecretName,
+                                    Label = s.Label,
+                                    EnabledTriggersJson = COALESCE(s.EnabledTriggersJson, t.EnabledTriggersJson),
+                                    UpdatedUtc = SYSUTCDATETIME()
+                                WHEN NOT MATCHED THEN INSERT (TenantId, KeyVaultSecretName, Label, EnabledTriggersJson, UpdatedUtc)
+                                VALUES (s.TenantId, s.KeyVaultSecretName, s.Label, COALESCE(s.EnabledTriggersJson, @CatalogDefaultJson), SYSUTCDATETIME());
+                                """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -102,7 +104,7 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
                     KeyVaultSecretName = keyVaultSecretName,
                     Label = label,
                     EnabledTriggersJson = enabledTriggersJson,
-                    CatalogDefaultJson = TeamsNotificationTriggerCatalog.DefaultEnabledTriggersJson,
+                    CatalogDefaultJson = TeamsNotificationTriggerCatalog.DefaultEnabledTriggersJson
                 },
                 cancellationToken: cancellationToken));
 
@@ -113,9 +115,9 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
     public async Task<bool> DeleteAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         const string sql = """
-            DELETE FROM dbo.TenantTeamsIncomingWebhookConnections
-            WHERE TenantId = @TenantId;
-            """;
+                           DELETE FROM dbo.TenantTeamsIncomingWebhookConnections
+                           WHERE TenantId = @TenantId;
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         int affected = await connection.ExecuteAsync(
@@ -124,27 +126,49 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
         return affected > 0;
     }
 
-    private static TeamsIncomingWebhookConnectionResponse ToResponse(TeamsIncomingWebhookRow row, bool isConfigured) =>
-        new()
+    private static TeamsIncomingWebhookConnectionResponse ToResponse(TeamsIncomingWebhookRow row, bool isConfigured)
+    {
+        return new TeamsIncomingWebhookConnectionResponse
         {
             TenantId = row.TenantId,
             IsConfigured = isConfigured,
             Label = row.Label,
             KeyVaultSecretName = row.KeyVaultSecretName,
             EnabledTriggers = TeamsNotificationTriggerCatalog.ParseOrDefault(row.EnabledTriggersJson),
-            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero),
+            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero)
         };
+    }
 
     private sealed class TeamsIncomingWebhookRow
     {
-        public Guid TenantId { get; init; }
+        public Guid TenantId
+        {
+            get;
+            init;
+        }
 
-        public string KeyVaultSecretName { get; init; } = "";
+        public string KeyVaultSecretName
+        {
+            get;
+            init;
+        } = "";
 
-        public string? Label { get; init; }
+        public string? Label
+        {
+            get;
+            init;
+        }
 
-        public string? EnabledTriggersJson { get; init; }
+        public string? EnabledTriggersJson
+        {
+            get;
+            init;
+        }
 
-        public DateTime UpdatedUtc { get; init; }
+        public DateTime UpdatedUtc
+        {
+            get;
+            init;
+        }
     }
 }

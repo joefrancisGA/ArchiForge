@@ -10,7 +10,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ApiDeprecationHeadersMiddleware"/>.
+///     Unit tests for <see cref="ApiDeprecationHeadersMiddleware" />.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

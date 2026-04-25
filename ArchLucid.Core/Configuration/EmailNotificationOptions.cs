@@ -6,60 +6,77 @@ public sealed class EmailNotificationOptions
     public const string SectionName = "Email";
 
     /// <summary>Noop (default), Smtp, AzureCommunicationServices.</summary>
-    public string Provider { get; init; } = EmailProviderNames.Noop;
+    public string Provider
+    {
+        get;
+        init;
+    } = EmailProviderNames.Noop;
 
     public string? AzureCommunicationServicesEndpoint
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Optional user-assigned managed identity client id for ACS token acquisition.</summary>
     public string? AzureManagedIdentityClientId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? SmtpHost
     {
-        get; init;
+        get;
+        init;
     }
 
-    public int SmtpPort { get; init; } = 25;
+    public int SmtpPort
+    {
+        get;
+        init;
+    } = 25;
 
     public string? SmtpUser
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? SmtpPassword
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? FromAddress
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? FromDisplayName
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>HTTPS base for operator links in templates (e.g. https://app.example.com).</summary>
     public string? OperatorBaseUrl
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Product label used in templates (defaults to ArchLucid when unset).</summary>
     public string? ProductDisplayName
     {
-        get; init;
+        get;
+        init;
     }
 }
 
-/// <summary>Stable <see cref="EmailNotificationOptions.Provider"/> literals.</summary>
+/// <summary>Stable <see cref="EmailNotificationOptions.Provider" /> literals.</summary>
 public static class EmailProviderNames
 {
     public const string Noop = "Noop";

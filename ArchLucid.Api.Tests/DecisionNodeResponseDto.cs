@@ -4,6 +4,9 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class DecisionNodeResponseDto
 {
-    public List<DecisionNode> Decisions { get; set; } = [];
+    public List<DecisionNode> Decisions
+    {
+        get;
+        set;
+    } = [];
 }
-

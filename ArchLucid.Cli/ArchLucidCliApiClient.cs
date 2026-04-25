@@ -45,7 +45,7 @@ public sealed class ArchLucidApiClient
         Converters = { new JsonStringEnumConverter() }
     };
 
-    private readonly Gen.ArchLucidApiClient _api;
+    private readonly Api.Client.ArchLucidApiClient _api;
     private readonly HttpClient _http;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -67,7 +67,7 @@ public sealed class ArchLucidApiClient
             cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
         CliResilienceOptions httpResilience = CliResilienceOptions.FromCliConfig(effectiveConfig);
         _http = CreateHttpClient(normalized, true, httpResilience);
-        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = normalized + "/", ReadResponseAsString = true };
+        _api = new Api.Client.ArchLucidApiClient(_http) { BaseUrl = normalized + "/", ReadResponseAsString = true };
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public sealed class ArchLucidApiClient
         ArgumentNullException.ThrowIfNull(httpClient);
         _http = httpClient;
         string baseUrl = httpClient.BaseAddress?.ToString().Trim().TrimEnd('/') ?? "http://localhost";
-        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/", ReadResponseAsString = true };
+        _api = new Api.Client.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/", ReadResponseAsString = true };
     }
 
     private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry,
@@ -462,11 +462,14 @@ public sealed class ArchLucidApiClient
     /// <summary>
     ///     Seed fake results for a run (Development only).
     /// </summary>
-    public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(string runId, CancellationToken ct = default)
+    public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(
+        string runId,
+        bool pilotTryRealModeFellBack = false,
+        CancellationToken ct = default)
     {
         try
         {
-            Gen.SeedFakeResultsResponse result = await _api.SeedFakeResultsAsync(runId, ct);
+            Gen.SeedFakeResultsResponse result = await _api.SeedFakeResultsAsync(runId, pilotTryRealModeFellBack, ct);
             SeedFakeResultsResponse? mapped = DeserializeRoundTrip<SeedFakeResultsResponse>(result);
 
             return new SeedFakeResultsResult(true, mapped?.ResultCount ?? 0, null);
@@ -1202,6 +1205,13 @@ public sealed class ArchLucidApiClient
 
         /// <summary>Persisted OpenTelemetry W3C trace id from run creation; null for older runs.</summary>
         public string? OtelTraceId
+        {
+            get;
+            set;
+        }
+
+        /// <summary>When <see langword="true" />, real-mode execution used deterministic simulator output instead of the LLM.</summary>
+        public bool? RealModeFellBackToSimulator
         {
             get;
             set;

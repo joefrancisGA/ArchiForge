@@ -1,6 +1,5 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -10,7 +9,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tenancy;
 
 /// <summary>
-/// Hard-deletes tenant-scoped <c>dbo</c> rows in dependency-safe order. <c>dbo.AuditEvents</c> is intentionally skipped.
+///     Hard-deletes tenant-scoped <c>dbo</c> rows in dependency-safe order. <c>dbo.AuditEvents</c> is intentionally
+///     skipped.
 /// </summary>
 public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFactory) : ITenantHardPurgeService
 {
@@ -30,7 +30,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
 
         using (SqlRowLevelSecurityBypassAmbient.Enter())
         {
-            await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+            await using SqlConnection connection =
+                await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
             await ApplyBypassSessionAsync(connection, cancellationToken);
 
@@ -212,10 +213,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                   SELECT TaskId FROM dbo.AgentTasks WHERE TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (
                     SELECT RunId FROM dbo.Runs WHERE TenantId = @TenantId));
                 """,
-                new
-                {
-                    TenantId = tenantId
-                },
+                new { TenantId = tenantId },
                 cancellationToken: cancellationToken));
 
         counts["AgentExecutionTraces"] = traces;
@@ -223,10 +221,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
         int tenants = await connection.QuerySingleAsync<int>(
             new CommandDefinition(
                 "SELECT COUNT(*) FROM dbo.Tenants WHERE Id = @TenantId;",
-                new
-                {
-                    TenantId = tenantId
-                },
+                new { TenantId = tenantId },
                 cancellationToken: cancellationToken));
 
         counts["Tenants"] = tenants;
@@ -310,7 +305,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
             "dbo.PolicyPackChangeLog",
             "dbo.ProductLearningPilotSignals",
             "dbo.ProductLearningImprovementPlans",
-            "dbo.ProductLearningImprovementThemes",
+            "dbo.ProductLearningImprovementThemes"
         ];
 
         foreach (string table in tenantTables)
@@ -327,7 +322,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
         return total;
     }
 
-    private static async Task<bool> TableExistsAsync(SqlConnection connection, string qualifiedName, CancellationToken cancellationToken)
+    private static async Task<bool> TableExistsAsync(SqlConnection connection, string qualifiedName,
+        CancellationToken cancellationToken)
     {
         string name = qualifiedName.Split('.', 2)[1];
 
@@ -337,10 +333,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                            """;
 
         int c = await connection.QuerySingleAsync<int>(
-            new CommandDefinition(sql, new
-            {
-                Name = name
-            }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { Name = name }, cancellationToken: cancellationToken));
 
         return c > 0;
     }
@@ -361,11 +354,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
             int affected = await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
-                    new
-                    {
-                        TenantId = tenantId,
-                        Cap = cap
-                    },
+                    new { TenantId = tenantId, Cap = cap },
                     cancellationToken: cancellationToken));
 
             if (affected == 0)

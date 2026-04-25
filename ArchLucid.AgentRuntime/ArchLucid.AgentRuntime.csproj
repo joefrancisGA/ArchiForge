@@ -13,6 +13,8 @@
   <ItemGroup>
     <PackageReference Include="Azure.AI.ContentSafety" />
     <PackageReference Include="Azure.AI.OpenAI" />
+    <PackageReference Include="OpenTelemetry.Api" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />

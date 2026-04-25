@@ -58,7 +58,8 @@ public sealed class TenantProvisioningServiceTests
                 It.IsAny<string>(),
                 It.IsAny<TenantTier>(),
                 It.IsAny<Guid?>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<CancellationToken>(),
+                It.IsAny<int?>()))
             .Returns(Task.CompletedTask);
         repo.Setup(r => r.InsertWorkspaceAsync(
                 It.IsAny<Guid>(),
@@ -108,7 +109,8 @@ public sealed class TenantProvisioningServiceTests
                 It.IsAny<string>(),
                 It.IsAny<TenantTier>(),
                 It.Is<Guid?>(g => g == entraTenantId),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<CancellationToken>(),
+                It.IsAny<int?>()))
             .Returns(Task.CompletedTask)
             .Verifiable();
         repo.Setup(r => r.InsertWorkspaceAsync(

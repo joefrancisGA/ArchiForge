@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Data.SqlClient;
-
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
-/// Decorates <see cref="ResilientSqlConnectionFactory"/> by applying RLS <c>SESSION_CONTEXT</c> after the connection opens.
+///     Decorates <see cref="ResilientSqlConnectionFactory" /> by applying RLS <c>SESSION_CONTEXT</c> after the connection
+///     opens.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Decorator over live SQL connection factory; tested via integration tests.")]
 public sealed class SessionContextSqlConnectionFactory(
@@ -15,11 +15,11 @@ public sealed class SessionContextSqlConnectionFactory(
     IRlsSessionContextApplicator applicator,
     ILogger<SessionContextSqlConnectionFactory> logger) : ISqlConnectionFactory
 {
-    private readonly ResilientSqlConnectionFactory _inner =
-        inner ?? throw new ArgumentNullException(nameof(inner));
-
     private readonly IRlsSessionContextApplicator _applicator =
         applicator ?? throw new ArgumentNullException(nameof(applicator));
+
+    private readonly ResilientSqlConnectionFactory _inner =
+        inner ?? throw new ArgumentNullException(nameof(inner));
 
     private readonly ILogger<SessionContextSqlConnectionFactory> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));

@@ -53,7 +53,7 @@ public sealed class MarketplacePreflightRunnerTests
         }
         finally
         {
-            Directory.Delete(temp, recursive: true);
+            Directory.Delete(temp, true);
         }
     }
 

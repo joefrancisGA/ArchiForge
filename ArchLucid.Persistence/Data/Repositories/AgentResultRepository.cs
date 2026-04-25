@@ -26,27 +26,27 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId AND TaskId = @TaskId;";
 
         const string insertSql = """
-            INSERT INTO AgentResults
-            (
-                ResultId,
-                TaskId,
-                RunId,
-                AgentType,
-                Confidence,
-                ResultJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @ResultId,
-                @TaskId,
-                @RunId,
-                @AgentType,
-                @Confidence,
-                @ResultJson,
-                @CreatedUtc
-            );
-            """;
+                                 INSERT INTO AgentResults
+                                 (
+                                     ResultId,
+                                     TaskId,
+                                     RunId,
+                                     AgentType,
+                                     Confidence,
+                                     ResultJson,
+                                     CreatedUtc
+                                 )
+                                 VALUES
+                                 (
+                                     @ResultId,
+                                     @TaskId,
+                                     @RunId,
+                                     @AgentType,
+                                     @Confidence,
+                                     @ResultJson,
+                                     @CreatedUtc
+                                 );
+                                 """;
 
         string json = JsonSerializer.Serialize(result, ContractJson.Default);
         object parameters = new
@@ -69,18 +69,14 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             {
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new
-                    {
-                        result.RunId,
-                        result.TaskId
-                    },
-                    transaction: transaction,
+                    new { result.RunId, result.TaskId },
+                    transaction,
                     cancellationToken: cancellationToken));
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     insertSql,
                     parameters,
-                    transaction: transaction,
+                    transaction,
                     cancellationToken: cancellationToken));
             }
             else
@@ -89,18 +85,14 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new
-                    {
-                        result.RunId,
-                        result.TaskId
-                    },
-                    transaction: tx,
+                    new { result.RunId, result.TaskId },
+                    tx,
                     cancellationToken: cancellationToken));
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     insertSql,
                     parameters,
-                    transaction: tx,
+                    tx,
                     cancellationToken: cancellationToken));
 
                 tx.Commit();
@@ -137,27 +129,27 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId;";
 
         const string insertSql = """
-            INSERT INTO AgentResults
-            (
-                ResultId,
-                TaskId,
-                RunId,
-                AgentType,
-                Confidence,
-                ResultJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @ResultId,
-                @TaskId,
-                @RunId,
-                @AgentType,
-                @Confidence,
-                @ResultJson,
-                @CreatedUtc
-            );
-            """;
+                                 INSERT INTO AgentResults
+                                 (
+                                     ResultId,
+                                     TaskId,
+                                     RunId,
+                                     AgentType,
+                                     Confidence,
+                                     ResultJson,
+                                     CreatedUtc
+                                 )
+                                 VALUES
+                                 (
+                                     @ResultId,
+                                     @TaskId,
+                                     @RunId,
+                                     @AgentType,
+                                     @Confidence,
+                                     @ResultJson,
+                                     @CreatedUtc
+                                 );
+                                 """;
 
         IEnumerable<object> args = results.Select(result => (object)new
         {
@@ -179,14 +171,12 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             {
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new
-                    {
-                        results[0].RunId
-                    },
-                    transaction: transaction,
+                    new { results[0].RunId },
+                    transaction,
                     cancellationToken: cancellationToken));
 
-                await conn.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: transaction, cancellationToken: cancellationToken));
+                await conn.ExecuteAsync(new CommandDefinition(insertSql, args, transaction,
+                    cancellationToken: cancellationToken));
             }
             else
             {
@@ -194,14 +184,12 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new
-                    {
-                        results[0].RunId
-                    },
-                    transaction: tx,
+                    new { results[0].RunId },
+                    tx,
                     cancellationToken: cancellationToken));
 
-                await conn.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: tx, cancellationToken: cancellationToken));
+                await conn.ExecuteAsync(
+                    new CommandDefinition(insertSql, args, tx, cancellationToken: cancellationToken));
 
                 tx.Commit();
             }
@@ -219,12 +207,12 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         IDbTransaction? transaction = null)
     {
         string sql = $"""
-            SELECT ResultJson
-            FROM AgentResults
-            WHERE RunId = @RunId
-            ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(1000)};
-            """;
+                      SELECT ResultJson
+                      FROM AgentResults
+                      WHERE RunId = @RunId
+                      ORDER BY CreatedUtc
+                      {SqlPagingSyntax.FirstRowsOnly(1000)};
+                      """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
@@ -234,11 +222,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         {
             rows = await conn.QueryAsync<string>(new CommandDefinition(
                 sql,
-                new
-                {
-                    RunId = runId
-                },
-                transaction: transaction,
+                new { RunId = runId },
+                transaction,
                 cancellationToken: cancellationToken));
         }
         finally

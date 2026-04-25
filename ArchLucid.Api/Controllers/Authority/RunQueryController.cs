@@ -137,13 +137,8 @@ public sealed class RunQueryController(
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-
         AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
-        if (evidence is null)
-            return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
-
-
-        return Ok(new AgentEvidencePackageResponse { Evidence = evidence });
+        return evidence is null ? this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(new AgentEvidencePackageResponse { Evidence = evidence });
     }
 
     /// <summary>

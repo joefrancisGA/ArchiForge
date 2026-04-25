@@ -9,6 +9,7 @@ public interface IFindingEngine
     {
         get;
     }
+
     string Category
     {
         get;
@@ -18,4 +19,3 @@ public interface IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct);
 }
-

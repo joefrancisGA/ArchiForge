@@ -18,25 +18,28 @@ namespace ArchLucid.AgentRuntime.Tests.Explanation;
 [Trait("Category", "Unit")]
 public sealed class ExplanationServiceRunTests
 {
-    private static GoldenManifest MinimalManifest() => new()
+    private static GoldenManifest MinimalManifest()
     {
-        RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-        ManifestId = Guid.NewGuid(),
-        TenantId = Guid.NewGuid(),
-        WorkspaceId = Guid.NewGuid(),
-        ProjectId = Guid.NewGuid(),
-        ContextSnapshotId = Guid.NewGuid(),
-        GraphSnapshotId = Guid.NewGuid(),
-        FindingsSnapshotId = Guid.NewGuid(),
-        DecisionTraceId = Guid.NewGuid(),
-        CreatedUtc = DateTime.UtcNow,
-        ManifestHash = "h",
-        RuleSetId = "rs",
-        RuleSetVersion = "1",
-        RuleSetHash = "rsh",
-        Metadata = new ManifestMetadata(),
-        UnresolvedIssues = new UnresolvedIssuesSection(),
-    };
+        return new GoldenManifest
+        {
+            RunId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            ManifestId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "h",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            Metadata = new ManifestMetadata(),
+            UnresolvedIssues = new UnresolvedIssuesSection()
+        };
+    }
 
     [Fact]
     public async Task ExplainRunAsync_valid_structured_json_populates_structured_and_raw_text()
@@ -52,7 +55,7 @@ public sealed class ExplanationServiceRunTests
                 AgentType = "unit-test-explanation",
                 PromptTemplateId = "explain-run-json",
                 PromptTemplateVersion = "v2026-04",
-                PromptContentHash = "abc123",
+                PromptContentHash = "abc123"
             });
         IAgentCompletionClient client = new FakeAgentCompletionClient(
             (_, _) => llmJson,
@@ -140,7 +143,7 @@ public sealed class ExplanationServiceRunTests
             AgentResultSchemaPath = "schemas/agentresult.schema.json",
             GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
             ExplanationRunSchemaPath = "schemas/explanation-run.schema.json",
-            ComparisonExplanationSchemaPath = "schemas/comparison-explanation.schema.json",
+            ComparisonExplanationSchemaPath = "schemas/comparison-explanation.schema.json"
         };
         SchemaValidationService schemaSvc = new(schemaLog.Object, Options.Create(schemaOpts));
 

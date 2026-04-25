@@ -1,6 +1,8 @@
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Configuration.Summary;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence;
@@ -22,14 +24,32 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 public sealed class AdminController(
+    IConfiguration configuration,
     IAdminDiagnosticsService diagnostics,
     IFeatureManager featureManager) : ControllerBase
 {
+    private readonly IConfiguration _configuration =
+      configuration ?? throw new ArgumentNullException(nameof(configuration));
     private readonly IAdminDiagnosticsService _diagnostics =
         diagnostics ?? throw new ArgumentNullException(nameof(diagnostics));
 
     private readonly IFeatureManager _featureManager =
-        featureManager ?? throw new ArgumentNullException(nameof(featureManager));
+      featureManager ?? throw new ArgumentNullException(nameof(featureManager));
+
+    /// <summary>Non-secret <c>IsSet</c> snapshot of catalog keys for <c>archlucid config check</c> and operators.</summary>
+    [HttpGet("config-summary")]
+    [ProducesResponseType(typeof(AdminConfigSummaryResponse), StatusCodes.Status200OK)]
+    public ActionResult<AdminConfigSummaryResponse> GetConfigSummary()
+    {
+        List<ConfigSummaryKeyRow> keys = new(ConfigurationKeyCatalog.All.Count);
+        keys.AddRange(ConfigurationKeyCatalog.All.Select(e => new ConfigSummaryKeyRow { ConfigPath = e.ConfigPath, IsSet = ConfigurationKeyPresence.IsValuePresent(_configuration, e.ConfigPath) }));
+
+        return Ok(
+          new AdminConfigSummaryResponse
+          {
+              Keys = keys
+          });
+    }
 
     /// <summary>Pending asynchronous authority and retrieval indexing work.</summary>
     [HttpGet("diagnostics/outboxes")]

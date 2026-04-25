@@ -64,9 +64,7 @@ public sealed class JobsControllerTests
             DateTimeOffset.UtcNow,
             null,
             "out.docx",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            0,
-            0);
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         Mock<IBackgroundJobQueue> jobs = new();
         jobs.Setup(j => j.GetInfoAsync("j1", It.IsAny<CancellationToken>())).ReturnsAsync(info);
         JobsController sut = CreateSut(jobs);
@@ -116,9 +114,7 @@ public sealed class JobsControllerTests
             null,
             null,
             null,
-            null,
-            0,
-            0);
+            null);
         Mock<IBackgroundJobQueue> jobs = new();
         jobs.Setup(j => j.GetInfoAsync("j1", It.IsAny<CancellationToken>())).ReturnsAsync(info);
         JobsController sut = CreateSut(jobs);
@@ -141,9 +137,7 @@ public sealed class JobsControllerTests
             DateTimeOffset.UtcNow,
             null,
             null,
-            null,
-            0,
-            0);
+            null);
         Mock<IBackgroundJobQueue> jobs = new();
         jobs.Setup(j => j.GetInfoAsync("j1", It.IsAny<CancellationToken>())).ReturnsAsync(info);
         jobs
@@ -168,9 +162,7 @@ public sealed class JobsControllerTests
             DateTimeOffset.UtcNow,
             null,
             "r.docx",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            0,
-            0);
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         BackgroundJobFile file = new("r.docx", "application/octet-stream", [0x01, 0x02]);
         Mock<IBackgroundJobQueue> jobs = new();
         jobs.Setup(j => j.GetInfoAsync("j1", It.IsAny<CancellationToken>())).ReturnsAsync(info);

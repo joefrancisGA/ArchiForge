@@ -1,0 +1,100 @@
+{
+  "schema": "archlucid.k6-baseline.v1",
+  "capturedAtUtc": "2026-04-24T00:00:00Z",
+  "baseUrl": "http://127.0.0.1:5001",
+  "compress": true,
+  "regenerationNote": "This file is a layout + example metrics. Replace with output from tests/load/record-baseline.ps1 (k6 + ArchLucid.Api, Development, InMemory, AgentExecution:Mode=Simulator). p50/p95/p99 are in milliseconds; rates are per k6 handleSummary (http_reqs rate ≈ rps for the test window).",
+  "profiles": {
+    "core": {
+      "schema": "archlucid.k6-baseline-fragment.v1",
+      "path": "tests/load/results/baseline-2026-04-24.json",
+      "baseUrl": "http://127.0.0.1:5001",
+      "loadProfile": "core",
+      "compress": true,
+      "k6": {
+        "root_group": {
+          "name": "root",
+          "path": "",
+          "id": "0"
+        },
+        "metrics": {
+          "http_reqs": {
+            "type": "counter",
+            "values": { "count": 120, "rate": 0.85 }
+          },
+          "http_req_failed": {
+            "type": "rate",
+            "values": { "rate": 0, "passes": 120, "fails": 0 }
+          },
+          "http_req_duration{endpoint:pilot_request}": {
+            "type": "trend",
+            "values": { "p(50)": 10.0, "p(95)": 45.0, "p(99)": 90.0 }
+          },
+          "http_req_duration{endpoint:pilot_execute}": {
+            "type": "trend",
+            "values": { "p(50)": 25.0, "p(95)": 120.0, "p(99)": 200.0 }
+          },
+          "http_req_duration{endpoint:pilot_commit}": {
+            "type": "trend",
+            "values": { "p(50)": 15.0, "p(95)": 60.0, "p(99)": 120.0 }
+          },
+          "http_req_duration{endpoint:pilot_manifest_summary}": {
+            "type": "trend",
+            "values": { "p(50)": 5.0, "p(95)": 20.0, "p(99)": 40.0 }
+          },
+          "http_req_duration{endpoint:pilot_artifacts_list}": {
+            "type": "trend",
+            "values": { "p(50)": 4.0, "p(95)": 18.0, "p(99)": 35.0 }
+          }
+        },
+        "state": { "isStdOutTTY": false, "isStdErrTTY": false, "testRunDurationMs": 20000.0 }
+      }
+    },
+    "read": {
+      "schema": "archlucid.k6-baseline-fragment.v1",
+      "path": "tests/load/results/baseline-2026-04-24.json",
+      "baseUrl": "http://127.0.0.1:5001",
+      "loadProfile": "read",
+      "compress": true,
+      "k6": {
+        "root_group": { "name": "root", "path": "", "id": "0" },
+        "metrics": {
+          "http_reqs": { "type": "counter", "values": { "count": 900, "rate": 4.2 } },
+          "http_req_failed": { "type": "rate", "values": { "rate": 0, "passes": 900, "fails": 0 } },
+          "http_req_duration{endpoint:read_list_runs}": {
+            "type": "trend",
+            "values": { "p(50)": 3.0, "p(95)": 15.0, "p(99)": 30.0 }
+          },
+          "http_req_duration{endpoint:read_run_detail}": {
+            "type": "trend",
+            "values": { "p(50)": 6.0, "p(95)": 25.0, "p(99)": 50.0 }
+          }
+        },
+        "state": { "isStdOutTTY": false, "isStdErrTTY": false, "testRunDurationMs": 20000.0 }
+      }
+    },
+    "mixed": {
+      "schema": "archlucid.k6-baseline-fragment.v1",
+      "path": "tests/load/results/baseline-2026-04-24.json",
+      "baseUrl": "http://127.0.0.1:5001",
+      "loadProfile": "mixed",
+      "compress": true,
+      "k6": {
+        "root_group": { "name": "root", "path": "", "id": "0" },
+        "metrics": {
+          "http_reqs": { "type": "counter", "values": { "count": 2000, "rate": 6.5 } },
+          "http_req_failed": { "type": "rate", "values": { "rate": 0, "passes": 2000, "fails": 0 } },
+          "http_req_duration{endpoint:pilot_request}": {
+            "type": "trend",
+            "values": { "p(50)": 9.0, "p(95)": 40.0, "p(99)": 80.0 }
+          },
+          "http_req_duration{endpoint:read_list_runs}": {
+            "type": "trend",
+            "values": { "p(50)": 4.0, "p(95)": 16.0, "p(99)": 32.0 }
+          }
+        },
+        "state": { "isStdOutTTY": false, "isStdErrTTY": false, "testRunDurationMs": 30000.0 }
+      }
+    }
+  }
+}

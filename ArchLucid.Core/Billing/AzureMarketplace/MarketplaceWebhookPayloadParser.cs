@@ -4,10 +4,16 @@ using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Core.Billing.AzureMarketplace;
 
-/// <summary>Extracts Marketplace SaaS webhook fields used for <c>ChangePlan</c> / <c>ChangeQuantity</c> (payload shape varies slightly by action).</summary>
+/// <summary>
+///     Extracts Marketplace SaaS webhook fields used for <c>ChangePlan</c> / <c>ChangeQuantity</c> (payload shape
+///     varies slightly by action).
+/// </summary>
 public static class MarketplaceWebhookPayloadParser
 {
-    /// <summary>Maps Azure Marketplace <c>planId</c> text to persisted <see cref="TenantTier"/> storage codes (<c>Standard</c> vs <c>Enterprise</c>).</summary>
+    /// <summary>
+    ///     Maps Azure Marketplace <c>planId</c> text to persisted <see cref="TenantTier" /> storage codes (
+    ///     <c>Standard</c> vs <c>Enterprise</c>).
+    /// </summary>
     public static string TierStorageCodeFromPlanId(string? planId)
     {
         if (string.IsNullOrWhiteSpace(planId))
@@ -40,7 +46,10 @@ public static class MarketplaceWebhookPayloadParser
         return true;
     }
 
-    /// <summary>Reads seat <c>quantity</c> from the webhook root (number or numeric string); defaults to <paramref name="fallback"/> when absent.</summary>
+    /// <summary>
+    ///     Reads seat <c>quantity</c> from the webhook root (number or numeric string); defaults to
+    ///     <paramref name="fallback" /> when absent.
+    /// </summary>
     public static int ReadQuantity(JsonElement root, int fallback = 1)
     {
         if (!root.TryGetProperty("quantity", out JsonElement q))

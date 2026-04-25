@@ -7,7 +7,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
-/// Resolves a SQL connection for policy-pack writes: reuse UoW connection or open a dedicated <see cref="SqlConnection"/>.
+///     Resolves a SQL connection for policy-pack writes: reuse UoW connection or open a dedicated
+///     <see cref="SqlConnection" />.
 /// </summary>
 internal static class SqlExternalConnection
 {
@@ -22,7 +23,9 @@ internal static class SqlExternalConnection
             return (sqlConnection, false);
 
         if (connection is not null)
-            throw new ArgumentException("Policy pack SQL repositories require a SqlConnection when an external connection is supplied.", nameof(connection));
+            throw new ArgumentException(
+                "Policy pack SQL repositories require a SqlConnection when an external connection is supplied.",
+                nameof(connection));
 
         SqlConnection opened = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

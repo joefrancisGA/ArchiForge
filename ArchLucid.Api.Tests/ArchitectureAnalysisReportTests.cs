@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Analysis Report.
+///     Tests for Architecture Analysis Report.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureAnalysisReportTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -23,7 +22,8 @@ public sealed class ArchitectureAnalysisReportTests(ArchLucidApiFactory factory)
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -53,7 +53,8 @@ public sealed class ArchitectureAnalysisReportTests(ArchLucidApiFactory factory)
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ArchitectureAnalysisReportResponse? payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
+        ArchitectureAnalysisReportResponse? payload =
+            await response.Content.ReadFromJsonAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Report.Run.RunId.Should().Be(runId);
         payload.Report.Evidence.Should().NotBeNull();

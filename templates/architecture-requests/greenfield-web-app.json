@@ -1,0 +1,42 @@
+{
+  "requestId": "contoso-greenfield-web-001",
+  "systemName": "ContosoRetailWeb",
+  "description": "Contoso Retail needs a secure three-tier web application on Azure: browser clients, App Service API tier, Azure SQL for transactional data, Azure CDN for static assets, and Entra ID–backed authentication. Non-functional goals include private endpoints for data plane, encryption at rest, and cost visibility per environment.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Public HTTPS only at CDN edge; origin App Service not directly internet-exposed",
+    "Use managed identity for SQL and Key Vault access",
+    "Deploy to two regions with Front Door routing for DR drill readiness"
+  ],
+  "requiredCapabilities": [
+    "Horizontal scale for peak retail traffic",
+    "PII handling for customer profiles",
+    "Operational dashboards and alerting"
+  ],
+  "assumptions": [
+    "Team ships weekly; architecture review must fit a two-week sprint",
+    "Existing CI/CD is GitHub Actions targeting Azure Container Registry"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Support staged rollout (canary) without dual-write to legacy on-prem SQL"
+  ],
+  "documents": [
+    {
+      "name": "contoso-retail-context.txt",
+      "contentType": "text/plain",
+      "content": "Fictional Contoso Retail sells outdoor goods online. Peak traffic follows seasonal campaigns."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Prefer stateless web tier behind Front Door",
+    "Cache product catalog reads at CDN edge"
+  ],
+  "securityBaselineHints": [
+    "OWASP ASVS L2 for public web",
+    "Secrets only in Key Vault; no connection strings in repo"
+  ],
+  "infrastructureDeclarations": []
+}

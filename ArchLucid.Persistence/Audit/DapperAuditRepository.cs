@@ -11,9 +11,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Audit;
 
 /// <summary>
-/// SQL Server-backed implementation of <see cref="IAuditRepository"/>.
-/// Appends <see cref="AuditEvent"/> rows to <c>dbo.AuditEvents</c> and retrieves them
-/// scoped to tenant/workspace/project with a configurable paged cap.
+///     SQL Server-backed implementation of <see cref="IAuditRepository" />.
+///     Appends <see cref="AuditEvent" /> rows to <c>dbo.AuditEvents</c> and retrieves them
+///     scoped to tenant/workspace/project with a configurable paged cap.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactory) : IAuditRepository
@@ -23,21 +23,21 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         ArgumentNullException.ThrowIfNull(auditEvent);
 
         const string sql = """
-            INSERT INTO dbo.AuditEvents (
-                EventId, OccurredUtc, EventType,
-                ActorUserId, ActorUserName,
-                TenantId, WorkspaceId, ProjectId,
-                RunId, ManifestId, ArtifactId,
-                DataJson, CorrelationId
-            )
-            VALUES (
-                @EventId, @OccurredUtc, @EventType,
-                @ActorUserId, @ActorUserName,
-                @TenantId, @WorkspaceId, @ProjectId,
-                @RunId, @ManifestId, @ArtifactId,
-                @DataJson, @CorrelationId
-            );
-            """;
+                           INSERT INTO dbo.AuditEvents (
+                               EventId, OccurredUtc, EventType,
+                               ActorUserId, ActorUserName,
+                               TenantId, WorkspaceId, ProjectId,
+                               RunId, ManifestId, ArtifactId,
+                               DataJson, CorrelationId
+                           )
+                           VALUES (
+                               @EventId, @OccurredUtc, @EventType,
+                               @ActorUserId, @ActorUserName,
+                               @TenantId, @WorkspaceId, @ProjectId,
+                               @RunId, @ManifestId, @ArtifactId,
+                               @DataJson, @CorrelationId
+                           );
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
@@ -52,18 +52,18 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
     {
         // Read-committed + row-versioning (RCSI): consistent committed reads without dirty-read hints; enable via migration 091.
         const string sql = """
-            SELECT TOP (@Take)
-                EventId, OccurredUtc, EventType,
-                ActorUserId, ActorUserName,
-                TenantId, WorkspaceId, ProjectId,
-                RunId, ManifestId, ArtifactId,
-                DataJson, CorrelationId
-            FROM dbo.AuditEvents
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-            ORDER BY OccurredUtc DESC, EventId DESC;
-            """;
+                           SELECT TOP (@Take)
+                               EventId, OccurredUtc, EventType,
+                               ActorUserId, ActorUserName,
+                               TenantId, WorkspaceId, ProjectId,
+                               RunId, ManifestId, ArtifactId,
+                               DataJson, CorrelationId
+                           FROM dbo.AuditEvents
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY OccurredUtc DESC, EventId DESC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
@@ -94,17 +94,17 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         // RCSI-backed read committed: no dirty reads on audit listing (see migration 091).
         StringBuilder sql = new("""
-            SELECT TOP (@Take)
-                EventId, OccurredUtc, EventType,
-                ActorUserId, ActorUserName,
-                TenantId, WorkspaceId, ProjectId,
-                RunId, ManifestId, ArtifactId,
-                DataJson, CorrelationId
-            FROM dbo.AuditEvents
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-            """);
+                                SELECT TOP (@Take)
+                                    EventId, OccurredUtc, EventType,
+                                    ActorUserId, ActorUserName,
+                                    TenantId, WorkspaceId, ProjectId,
+                                    RunId, ManifestId, ArtifactId,
+                                    DataJson, CorrelationId
+                                FROM dbo.AuditEvents
+                                WHERE TenantId = @TenantId
+                                  AND WorkspaceId = @WorkspaceId
+                                  AND ProjectId = @ProjectId
+                                """);
 
         DynamicParameters parameters = new();
         parameters.Add("TenantId", tenantId);
@@ -191,20 +191,20 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         // Export uses the same committed-read semantics as list/filter (RCSI when enabled).
         const string sql = """
-            SELECT TOP (@MaxRows)
-                EventId, OccurredUtc, EventType,
-                ActorUserId, ActorUserName,
-                TenantId, WorkspaceId, ProjectId,
-                RunId, ManifestId, ArtifactId,
-                DataJson, CorrelationId
-            FROM dbo.AuditEvents
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND OccurredUtc >= @FromUtc
-              AND OccurredUtc < @ToUtc
-            ORDER BY OccurredUtc ASC;
-            """;
+                           SELECT TOP (@MaxRows)
+                               EventId, OccurredUtc, EventType,
+                               ActorUserId, ActorUserName,
+                               TenantId, WorkspaceId, ProjectId,
+                               RunId, ManifestId, ArtifactId,
+                               DataJson, CorrelationId
+                           FROM dbo.AuditEvents
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND OccurredUtc >= @FromUtc
+                             AND OccurredUtc < @ToUtc
+                           ORDER BY OccurredUtc ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
@@ -217,7 +217,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                     ProjectId = projectId,
                     FromUtc = fromUtc,
                     ToUtc = toUtc,
-                    MaxRows = take,
+                    MaxRows = take
                 },
                 cancellationToken: ct));
 

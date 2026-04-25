@@ -10,11 +10,11 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
-/// <see cref="IFindingEngine"/> that evaluates a <see cref="GraphSnapshot"/> against a
-/// <see cref="ComplianceRulePack"/> and emits <c>ComplianceFinding</c> findings for each
-/// detected <see cref="ComplianceViolation"/>.
-/// Severity is mapped from the violation's string value to <see cref="FindingSeverity"/>;
-/// unrecognised values default to <see cref="FindingSeverity.Info"/>.
+///     <see cref="IFindingEngine" /> that evaluates a <see cref="GraphSnapshot" /> against a
+///     <see cref="ComplianceRulePack" /> and emits <c>ComplianceFinding</c> findings for each
+///     detected <see cref="ComplianceViolation" />.
+///     Severity is mapped from the violation's string value to <see cref="FindingSeverity" />;
+///     unrecognised values default to <see cref="FindingSeverity.Info" />.
 /// </summary>
 public class ComplianceFindingEngine(
     IComplianceRulePackProvider rulePackProvider,

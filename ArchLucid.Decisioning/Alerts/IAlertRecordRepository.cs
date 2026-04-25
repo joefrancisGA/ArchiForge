@@ -1,11 +1,12 @@
 namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
-/// Persistence for fired <see cref="AlertRecord"/> rows: insert/update, deduplication lookup, and scoped listing for the alerts API.
+///     Persistence for fired <see cref="AlertRecord" /> rows: insert/update, deduplication lookup, and scoped listing for
+///     the alerts API.
 /// </summary>
 /// <remarks>
-/// SQL implementation: <c>ArchLucid.Persistence.Alerts.DapperAlertRecordRepository</c> (<c>dbo.AlertRecords</c>).
-/// Used by <c>ArchLucid.Persistence.Alerts.AlertService</c>, composite suppression, and <c>AlertsController</c>.
+///     SQL implementation: <c>ArchLucid.Persistence.Alerts.DapperAlertRecordRepository</c> (<c>dbo.AlertRecords</c>).
+///     Used by <c>ArchLucid.Persistence.Alerts.AlertService</c>, composite suppression, and <c>AlertsController</c>.
 /// </remarks>
 public interface IAlertRecordRepository
 {
@@ -19,7 +20,8 @@ public interface IAlertRecordRepository
     Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct);
 
     /// <summary>
-    /// Finds the newest open or acknowledged alert for the deduplication key within the scope (used to suppress duplicate fires).
+    ///     Finds the newest open or acknowledged alert for the deduplication key within the scope (used to suppress duplicate
+    ///     fires).
     /// </summary>
     Task<AlertRecord?> GetOpenByDeduplicationKeyAsync(
         Guid tenantId,
@@ -28,7 +30,7 @@ public interface IAlertRecordRepository
         string deduplicationKey,
         CancellationToken ct);
 
-    /// <summary>Lists recent alerts for the scope, optionally filtered by <paramref name="status"/>.</summary>
+    /// <summary>Lists recent alerts for the scope, optionally filtered by <paramref name="status" />.</summary>
     Task<IReadOnlyList<AlertRecord>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -38,7 +40,8 @@ public interface IAlertRecordRepository
         CancellationToken ct);
 
     /// <summary>
-    /// Paged listing with total count (SQL OFFSET/FETCH or in-memory skip); avoids loading the full list for HTTP pagination.
+    ///     Paged listing with total count (SQL OFFSET/FETCH or in-memory skip); avoids loading the full list for HTTP
+    ///     pagination.
     /// </summary>
     Task<(IReadOnlyList<AlertRecord> Items, int TotalCount)> ListByScopePagedAsync(
         Guid tenantId,

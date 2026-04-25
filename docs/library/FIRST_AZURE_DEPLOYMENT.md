@@ -28,7 +28,7 @@ Provide a **preflight checklist**, **backend configuration** for Terraform remot
 
 | Item | Purpose |
 |------|---------|
-| **Subscription ID** | `az account show --query id -o tsv` — for the canonical `staging` / `production` IDs and how they map to the CD pipeline's GitHub Environment secrets, see [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md). |
+| **Subscription ID** | `az account show --query id -o tsv` — for the canonical optional **`dev`**, `staging`, and `production` IDs and how they map to the CD pipeline's GitHub Environment secrets, see [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md). |
 | **Tenant ID** | Same account / Entra tenant |
 | **Service principal** (recommended) | App registration + client secret or federated credential for CI/CD |
 | **Remote state backend** | Typically **Azure Storage** account + container for `.tfstate` blobs (create once; separate container or key per root is common) |

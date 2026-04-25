@@ -21,62 +21,44 @@ internal static class GoldenManifestPhase1RelationalRead
 
         int assumptionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int decisionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provFindingCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provNodeCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         int provRuleCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
+            new { ManifestId = manifestId },
             ct);
 
         List<string> assumptions = assumptionsCount > 0
@@ -151,9 +133,7 @@ internal static class GoldenManifestPhase1RelationalRead
 
             provenance = new ManifestProvenance
             {
-                SourceFindingIds = sourceFindings,
-                SourceGraphNodeIds = sourceNodes,
-                AppliedRuleIds = appliedRules,
+                SourceFindingIds = sourceFindings, SourceGraphNodeIds = sourceNodes, AppliedRuleIds = appliedRules
             };
         }
         else
@@ -181,12 +161,15 @@ internal static class GoldenManifestPhase1RelationalRead
             RuleSetId = row.RuleSetId,
             RuleSetVersion = row.RuleSetVersion,
             RuleSetHash = row.RuleSetHash,
-            Metadata = DeserializeOrNew(row.MetadataJson, static j => JsonEntitySerializer.Deserialize<ManifestMetadata>(j)),
+            Metadata = DeserializeOrNew(row.MetadataJson,
+                static j => JsonEntitySerializer.Deserialize<ManifestMetadata>(j)),
             Requirements = DeserializeOrNew(
                 row.RequirementsJson,
                 static j => JsonEntitySerializer.Deserialize<RequirementsCoverageSection>(j)),
-            Topology = DeserializeOrNew(row.TopologyJson, static j => JsonEntitySerializer.Deserialize<TopologySection>(j)),
-            Security = DeserializeOrNew(row.SecurityJson, static j => JsonEntitySerializer.Deserialize<SecuritySection>(j)),
+            Topology =
+                DeserializeOrNew(row.TopologyJson, static j => JsonEntitySerializer.Deserialize<TopologySection>(j)),
+            Security =
+                DeserializeOrNew(row.SecurityJson, static j => JsonEntitySerializer.Deserialize<SecuritySection>(j)),
             Compliance = DeserializeCompliance(row.ComplianceJson),
             Cost = DeserializeOrNew(row.CostJson, static j => JsonEntitySerializer.Deserialize<CostSection>(j)),
             Constraints = DeserializeOrNew(
@@ -198,7 +181,7 @@ internal static class GoldenManifestPhase1RelationalRead
             Decisions = decisions,
             Assumptions = assumptions,
             Warnings = warnings,
-            Provenance = provenance,
+            Provenance = provenance
         };
     }
 
@@ -208,54 +191,45 @@ internal static class GoldenManifestPhase1RelationalRead
         CancellationToken ct)
     {
         const string decisionsSql = """
-            SELECT SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson
-            FROM dbo.GoldenManifestDecisions
-            WHERE ManifestId = @ManifestId
-            ORDER BY SortOrder;
-            """;
+                                    SELECT SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson
+                                    FROM dbo.GoldenManifestDecisions
+                                    WHERE ManifestId = @ManifestId
+                                    ORDER BY SortOrder;
+                                    """;
 
         List<ManifestDecisionRow> decisionRows = (await connection.QueryAsync<ManifestDecisionRow>(
             new CommandDefinition(
                 decisionsSql,
-                new
-                {
-                    ManifestId = manifestId,
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: ct))).ToList();
 
         if (decisionRows.Count == 0)
             return [];
 
         const string evidenceSql = """
-            SELECT DecisionId, SortOrder, FindingId
-            FROM dbo.GoldenManifestDecisionEvidenceLinks
-            WHERE ManifestId = @ManifestId
-            ORDER BY DecisionId, SortOrder;
-            """;
+                                   SELECT DecisionId, SortOrder, FindingId
+                                   FROM dbo.GoldenManifestDecisionEvidenceLinks
+                                   WHERE ManifestId = @ManifestId
+                                   ORDER BY DecisionId, SortOrder;
+                                   """;
 
         List<DecisionEvidenceRow> evidenceRows = (await connection.QueryAsync<DecisionEvidenceRow>(
             new CommandDefinition(
                 evidenceSql,
-                new
-                {
-                    ManifestId = manifestId,
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: ct))).ToList();
 
         const string nodeSql = """
-            SELECT DecisionId, SortOrder, NodeId
-            FROM dbo.GoldenManifestDecisionNodeLinks
-            WHERE ManifestId = @ManifestId
-            ORDER BY DecisionId, SortOrder;
-            """;
+                               SELECT DecisionId, SortOrder, NodeId
+                               FROM dbo.GoldenManifestDecisionNodeLinks
+                               WHERE ManifestId = @ManifestId
+                               ORDER BY DecisionId, SortOrder;
+                               """;
 
         List<DecisionNodeRow> nodeRows = (await connection.QueryAsync<DecisionNodeRow>(
             new CommandDefinition(
                 nodeSql,
-                new
-                {
-                    ManifestId = manifestId,
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: ct))).ToList();
 
         Dictionary<string, List<string>> evidenceByDecision = new(StringComparer.Ordinal);
@@ -301,7 +275,7 @@ internal static class GoldenManifestPhase1RelationalRead
                     Rationale = dr.Rationale,
                     SupportingFindingIds = ev,
                     RelatedNodeIds = nodes,
-                    RawDecisionJson = dr.RawDecisionJson,
+                    RawDecisionJson = dr.RawDecisionJson
                 });
         }
 
@@ -317,10 +291,7 @@ internal static class GoldenManifestPhase1RelationalRead
         IEnumerable<string> rows = await connection.QueryAsync<string>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    ManifestId = manifestId,
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: ct));
 
         return rows.ToList();
@@ -355,7 +326,9 @@ internal static class GoldenManifestPhase1RelationalRead
 
     private static ComplianceSection DeserializeCompliance(string? json)
     {
-        return string.IsNullOrWhiteSpace(json) ? new ComplianceSection() : JsonEntitySerializer.Deserialize<ComplianceSection>(json);
+        return string.IsNullOrWhiteSpace(json)
+            ? new ComplianceSection()
+            : JsonEntitySerializer.Deserialize<ComplianceSection>(json);
     }
 
     private static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
@@ -371,36 +344,86 @@ internal static class GoldenManifestPhase1RelationalRead
     {
         public int SortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string DecisionId { get; init; } = null!;
-        public string Category { get; init; } = null!;
-        public string Title { get; init; } = null!;
-        public string SelectedOption { get; init; } = null!;
-        public string Rationale { get; init; } = null!;
+
+        public string DecisionId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Category
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Title
+        {
+            get;
+            init;
+        } = null!;
+
+        public string SelectedOption
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Rationale
+        {
+            get;
+            init;
+        } = null!;
+
         public string? RawDecisionJson
         {
-            get; init;
+            get;
+            init;
         }
     }
 
     private sealed class DecisionEvidenceRow
     {
-        public string DecisionId { get; init; } = null!;
+        public string DecisionId
+        {
+            get;
+            init;
+        } = null!;
+
         public int SortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string FindingId { get; init; } = null!;
+
+        public string FindingId
+        {
+            get;
+            init;
+        } = null!;
     }
 
     private sealed class DecisionNodeRow
     {
-        public string DecisionId { get; init; } = null!;
+        public string DecisionId
+        {
+            get;
+            init;
+        } = null!;
+
         public int SortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string NodeId { get; init; } = null!;
+
+        public string NodeId
+        {
+            get;
+            init;
+        } = null!;
     }
 }

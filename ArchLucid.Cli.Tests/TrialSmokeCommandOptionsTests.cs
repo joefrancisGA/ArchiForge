@@ -53,7 +53,7 @@ public sealed class TrialSmokeCommandOptionsTests
                 "--baseline-hours", "16.5",
                 "--baseline-source", "team estimate",
                 "--display-name", "Ops User",
-                "--api-base-url", "https://staging.archlucid.com",
+                "--api-base-url", "https://staging.archlucid.com"
             ],
             out string? error);
 
@@ -117,5 +117,64 @@ public sealed class TrialSmokeCommandOptionsTests
 
         error.Should().BeNull();
         opts!.SkipPilotRunDeltas.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Parse_StagingFlag_AutoSetsApiBaseUrlAndOneLineOutput()
+    {
+        TrialSmokeCommandOptions? opts = TrialSmokeCommandOptions.Parse(
+            ["--staging", "--org", "Acme", "--email", "ops@example.com"],
+            out string? error);
+
+        error.Should().BeNull();
+        opts!.TargetStaging.Should().BeTrue();
+        opts.OneLineOutput.Should().BeTrue();
+        opts.ApiBaseUrl.Should().Be(TrialSmokeCommandOptions.StagingApiBaseUrl);
+    }
+
+    [Fact]
+    public void Parse_StagingFlag_RejectsConflictingApiBaseUrl()
+    {
+        TrialSmokeCommandOptions? opts = TrialSmokeCommandOptions.Parse(
+            [
+                "--staging",
+                "--api-base-url", "http://localhost:5128",
+                "--org", "Acme",
+                "--email", "ops@example.com"
+            ],
+            out string? error);
+
+        opts.Should().BeNull();
+        error.Should().Contain("--staging").And.Contain("--api-base-url");
+    }
+
+    [Fact]
+    public void Parse_StagingFlag_AcceptsRedundantStagingApiBaseUrl()
+    {
+        TrialSmokeCommandOptions? opts = TrialSmokeCommandOptions.Parse(
+            [
+                "--staging",
+                "--api-base-url", TrialSmokeCommandOptions.StagingApiBaseUrl,
+                "--org", "Acme",
+                "--email", "ops@example.com"
+            ],
+            out string? error);
+
+        error.Should().BeNull();
+        opts!.TargetStaging.Should().BeTrue();
+        opts.ApiBaseUrl.Should().Be(TrialSmokeCommandOptions.StagingApiBaseUrl);
+    }
+
+    [Fact]
+    public void Parse_OneLineFlag_StandsAloneWithoutStaging()
+    {
+        TrialSmokeCommandOptions? opts = TrialSmokeCommandOptions.Parse(
+            ["--one-line", "--org", "Acme", "--email", "ops@example.com"],
+            out string? error);
+
+        error.Should().BeNull();
+        opts!.OneLineOutput.Should().BeTrue();
+        opts.TargetStaging.Should().BeFalse();
+        opts.ApiBaseUrl.Should().BeNull();
     }
 }

@@ -2,6 +2,7 @@
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
+**Buyer posture table (single index):** [`docs/trust-center.md`](../trust-center.md) — same evidence links; rendered in-product at **`/trust`**.
 
 # ArchLucid Trust Center
 

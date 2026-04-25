@@ -1,0 +1,17 @@
+{
+  "authority": [
+    {
+      "category": "Requirement",
+      "selectedOption": "Accepted",
+      "title": "Auth-0",
+      "rationale": "Authenticate users"
+    }
+  ],
+  "merge": {
+    "success": true,
+    "errors": [],
+    "serviceIds": [
+      "svc-golden-1"
+    ]
+  }
+}

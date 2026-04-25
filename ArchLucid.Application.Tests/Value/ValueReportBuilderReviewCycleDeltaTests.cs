@@ -28,7 +28,10 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
             null,
             null,
             MeasuredAverageReviewCycleHoursForWindow: null,
-            MeasuredReviewCycleSampleSize: 0);
+            MeasuredReviewCycleSampleSize: 0,
+            null,
+            null,
+            null);
 
         ValueReportSnapshot snap = await BuildSnapshotAsync(raw);
 
@@ -52,7 +55,10 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
             TenantBaselineReviewCycleSource: "estimate",
             TenantBaselineReviewCycleCapturedUtc: DateTimeOffset.Parse("2026-04-01T00:00:00Z"),
             MeasuredAverageReviewCycleHoursForWindow: 12m,
-            MeasuredReviewCycleSampleSize: 3);
+            MeasuredReviewCycleSampleSize: 3,
+            null,
+            null,
+            null);
 
         ValueReportSnapshot snap = await BuildSnapshotAsync(raw);
 
@@ -76,7 +82,10 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
             null,
             null,
             MeasuredAverageReviewCycleHoursForWindow: 4m,
-            MeasuredReviewCycleSampleSize: 2);
+            MeasuredReviewCycleSampleSize: 2,
+            null,
+            null,
+            null);
 
         ValueReportSnapshot snap = await BuildSnapshotAsync(raw);
 
@@ -100,7 +109,10 @@ public sealed class ValueReportBuilderReviewCycleDeltaTests
             null,
             null,
             MeasuredAverageReviewCycleHoursForWindow: 1m,
-            MeasuredReviewCycleSampleSize: 1);
+            MeasuredReviewCycleSampleSize: 1,
+            null,
+            null,
+            null);
 
         Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
         opt.Setup(o => o.CurrentValue).Returns(

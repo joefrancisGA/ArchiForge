@@ -5,7 +5,8 @@ using ArchLucid.Core.Transactions;
 namespace ArchLucid.Persistence.Transactions;
 
 /// <summary>
-/// No-op unit of work for in-memory repositories: <see cref="CommitAsync"/> and <see cref="RollbackAsync"/> complete immediately; <see cref="Connection"/> and <see cref="Transaction"/> throw <see cref="NotSupportedException"/>.
+///     No-op unit of work for in-memory repositories: <see cref="CommitAsync" /> and <see cref="RollbackAsync" /> complete
+///     immediately; <see cref="Connection" /> and <see cref="Transaction" /> throw <see cref="NotSupportedException" />.
 /// </summary>
 public sealed class InMemoryArchLucidUnitOfWork : IArchLucidUnitOfWork
 {
@@ -37,5 +38,8 @@ public sealed class InMemoryArchLucidUnitOfWork : IArchLucidUnitOfWork
     }
 
     /// <inheritdoc />
-    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+    public ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
+    }
 }

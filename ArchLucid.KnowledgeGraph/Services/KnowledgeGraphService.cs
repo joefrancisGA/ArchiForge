@@ -5,8 +5,8 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.KnowledgeGraph.Services;
 
 /// <summary>
-/// Builds and validates a knowledge graph snapshot from a <see cref="ContextSnapshot"/>.
-/// Delegates graph construction to <see cref="IGraphBuilder"/> and validation to <see cref="IGraphValidator"/>.
+///     Builds and validates a knowledge graph snapshot from a <see cref="ContextSnapshot" />.
+///     Delegates graph construction to <see cref="IGraphBuilder" /> and validation to <see cref="IGraphValidator" />.
 /// </summary>
 public class KnowledgeGraphService(
     IGraphBuilder graphBuilder,

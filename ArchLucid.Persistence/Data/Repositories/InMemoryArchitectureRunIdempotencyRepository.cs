@@ -3,17 +3,12 @@ using System.Data;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IArchitectureRunIdempotencyRepository"/> for tests and local scenarios.
+///     Thread-safe in-memory <see cref="IArchitectureRunIdempotencyRepository" /> for tests and local scenarios.
 /// </summary>
 public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitectureRunIdempotencyRepository
 {
-    private readonly Dictionary<string, ArchitectureRunIdempotencyLookup> _rows = new();
     private readonly Lock _gate = new();
-
-    private static string Key(Guid tenantId, Guid workspaceId, Guid projectId, byte[] idempotencyKeyHash)
-    {
-        return $"{tenantId:N}|{workspaceId:N}|{projectId:N}|{Convert.ToHexString(idempotencyKeyHash)}";
-    }
+    private readonly Dictionary<string, ArchitectureRunIdempotencyLookup> _rows = new();
 
     /// <inheritdoc />
     public Task<ArchitectureRunIdempotencyLookup?> TryGetAsync(
@@ -29,7 +24,6 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         lock (_gate)
 
             return Task.FromResult(_rows.TryGetValue(k, out ArchitectureRunIdempotencyLookup? v) ? v : null);
-
     }
 
     /// <inheritdoc />
@@ -57,11 +51,15 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
 
             _rows[k] = new ArchitectureRunIdempotencyLookup
             {
-                RunId = runId,
-                RequestFingerprint = (byte[])requestFingerprint.Clone(),
+                RunId = runId, RequestFingerprint = (byte[])requestFingerprint.Clone()
             };
 
             return Task.FromResult(true);
         }
+    }
+
+    private static string Key(Guid tenantId, Guid workspaceId, Guid projectId, byte[] idempotencyKeyHash)
+    {
+        return $"{tenantId:N}|{workspaceId:N}|{projectId:N}|{Convert.ToHexString(idempotencyKeyHash)}";
     }
 }

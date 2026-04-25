@@ -30,10 +30,7 @@ public sealed class ProvenanceGraphSerializerTests
             [
                 new ProvenanceNode
                 {
-                    Id = nodeId,
-                    Type = ProvenanceNodeType.Decision,
-                    ReferenceId = "dec-1",
-                    Name = "D1"
+                    Id = nodeId, Type = ProvenanceNodeType.Decision, ReferenceId = "dec-1", Name = "D1"
                 }
             ],
             Edges = []

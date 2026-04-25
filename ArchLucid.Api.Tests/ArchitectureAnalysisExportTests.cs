@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Analysis Export.
+///     Tests for Architecture Analysis Export.
 /// </summary>
-
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
@@ -24,7 +23,8 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -53,7 +53,8 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        ArchitectureAnalysisExportResponse? payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
+        ArchitectureAnalysisExportResponse? payload =
+            await response.Content.ReadFromJsonAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.RunId.Should().Be(runId);
         payload.Format.Should().Be("markdown");

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 

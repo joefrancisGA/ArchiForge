@@ -2,20 +2,33 @@ using System.Text.Json;
 
 namespace ArchLucid.Core.Integration;
 
-/// <summary>Derives Service Bus user application properties for subscription SQL filters (message body is not filterable in Service Bus rules).</summary>
+/// <summary>
+///     Derives Service Bus user application properties for subscription SQL filters (message body is not filterable
+///     in Service Bus rules).
+/// </summary>
 public static class IntegrationEventServiceBusApplicationProperties
 {
-    /// <summary>User property name for governance promotion environment (lowercase), used with Logic App / SQL subscription filters.</summary>
+    /// <summary>
+    ///     User property name for governance promotion environment (lowercase), used with Logic App / SQL subscription
+    ///     filters.
+    /// </summary>
     public const string PromotionEnvironmentPropertyName = "promotion_environment";
 
-    /// <summary>User property for <see cref="IntegrationEventTypes.AlertFiredV1"/> / resolved correlation (normalized lowercase for SQL filters).</summary>
+    /// <summary>
+    ///     User property for <see cref="IntegrationEventTypes.AlertFiredV1" /> / resolved correlation (normalized
+    ///     lowercase for SQL filters).
+    /// </summary>
     public const string SeverityPropertyName = "severity";
 
-    /// <summary>User property carrying <c>deduplicationKey</c> from alert payloads (snake_case for SQL / Logic App parity with <see cref="PromotionEnvironmentPropertyName"/>).</summary>
+    /// <summary>
+    ///     User property carrying <c>deduplicationKey</c> from alert payloads (snake_case for SQL / Logic App parity with
+    ///     <see cref="PromotionEnvironmentPropertyName" />).
+    /// </summary>
     public const string DeduplicationKeyPropertyName = "deduplication_key";
 
     /// <summary>Resolves optional application properties from the UTF-8 JSON payload for outbox drain or direct publish.</summary>
-    public static IReadOnlyDictionary<string, object>? TryResolveForPublish(string eventType, ReadOnlyMemory<byte> payloadUtf8)
+    public static IReadOnlyDictionary<string, object>? TryResolveForPublish(string eventType,
+        ReadOnlyMemory<byte> payloadUtf8)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
 
@@ -29,10 +42,13 @@ public static class IntegrationEventServiceBusApplicationProperties
         if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertFiredV1))
             return TryResolveAlertFired(payloadUtf8);
 
-        return IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertResolvedV1) ? TryResolveAlertResolved(payloadUtf8) : null;
+        return IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertResolvedV1)
+            ? TryResolveAlertResolved(payloadUtf8)
+            : null;
     }
 
-    private static IReadOnlyDictionary<string, object>? TryResolveGovernancePromotionActivated(ReadOnlyMemory<byte> payloadUtf8)
+    private static IReadOnlyDictionary<string, object>? TryResolveGovernancePromotionActivated(
+        ReadOnlyMemory<byte> payloadUtf8)
     {
         try
         {
@@ -49,7 +65,7 @@ public static class IntegrationEventServiceBusApplicationProperties
 
             Dictionary<string, object> map = new(StringComparer.Ordinal)
             {
-                [PromotionEnvironmentPropertyName] = env.Trim().ToLowerInvariant(),
+                [PromotionEnvironmentPropertyName] = env.Trim().ToLowerInvariant()
             };
 
             return map;
@@ -109,7 +125,7 @@ public static class IntegrationEventServiceBusApplicationProperties
 
             Dictionary<string, object> map = new(StringComparer.Ordinal)
             {
-                [DeduplicationKeyPropertyName] = dedupe.Trim(),
+                [DeduplicationKeyPropertyName] = dedupe.Trim()
             };
 
             return map;

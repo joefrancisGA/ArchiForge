@@ -7,7 +7,8 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
-/// Applies evaluation signals, request-derived governance defaults, and propagates required controls to manifest components.
+///     Applies evaluation signals, request-derived governance defaults, and propagates required controls to manifest
+///     components.
 /// </summary>
 public sealed class ManifestGovernanceMerger
 {
@@ -16,9 +17,9 @@ public sealed class ManifestGovernanceMerger
     private const string ControlManagedIdentity = "Managed Identity";
 
     /// <summary>
-    /// Surfaces evaluation signals in the merge output: adds a trace entry per result
-    /// that received at least one evaluation, and promotes a warning when net opposition
-    /// is significant (net delta below -0.30).
+    ///     Surfaces evaluation signals in the merge output: adds a trace entry per result
+    ///     that received at least one evaluation, and promotes a warning when net opposition
+    ///     is significant (net delta below -0.30).
     /// </summary>
     public void ApplyEvaluationSignals(
         string runId,
@@ -54,7 +55,7 @@ public sealed class ManifestGovernanceMerger
                     ["resultId"] = result.ResultId,
                     ["agentType"] = result.AgentType.ToString(),
                     ["evaluationCount"] = taskEvals.Count.ToString(),
-                    ["netConfidenceDelta"] = netDelta.ToString("F3"),
+                    ["netConfidenceDelta"] = netDelta.ToString("F3")
                 });
 
             if (netDelta < -0.30)
@@ -62,7 +63,6 @@ public sealed class ManifestGovernanceMerger
                 output.Warnings.Add(
                     $"{result.AgentType} result '{result.ResultId}' received net opposition " +
                     $"signal ({netDelta:F3}); review decision traces for details.");
-
         }
     }
 
@@ -91,7 +91,6 @@ public sealed class ManifestGovernanceMerger
                 manifest.Governance.ComplianceTags
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
-
     }
 
     public void EnsureRequiredControlsAreAppliedToRelevantComponents(
@@ -138,9 +137,6 @@ public sealed class ManifestGovernanceMerger
             manifest.RunId,
             "RequiredControlDefaulted",
             $"Added default required control '{control}'.",
-            new Dictionary<string, string>
-            {
-                ["control"] = control,
-            });
+            new Dictionary<string, string> { ["control"] = control });
     }
 }

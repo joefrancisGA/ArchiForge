@@ -5,10 +5,12 @@ using ArchLucid.Decisioning.Advisory.Workflow;
 namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
-/// Default <see cref="IAlertMetricSnapshotBuilder"/>: derives six metrics from plan, comparison, recommendations, and learning profile.
+///     Default <see cref="IAlertMetricSnapshotBuilder" />: derives six metrics from plan, comparison, recommendations, and
+///     learning profile.
 /// </summary>
 /// <remarks>
-/// Registered in DI for <c>ArchLucid.Persistence.Alerts.CompositeAlertService</c> (via interface). Threshold semantics for each metric are defined on stored <see cref="CompositeAlertRule"/> conditions.
+///     Registered in DI for <c>ArchLucid.Persistence.Alerts.CompositeAlertService</c> (via interface). Threshold semantics
+///     for each metric are defined on stored <see cref="CompositeAlertRule" /> conditions.
 /// </remarks>
 public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
 {
@@ -21,20 +23,16 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
                 context.ImprovementPlan?.Recommendations.Count(x =>
                     string.Equals(x.Urgency, AlertUrgencies.Critical, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(x.Urgency, AlertUrgencies.High, StringComparison.OrdinalIgnoreCase)) ?? 0,
-
             NewComplianceGapCount =
                 context.ComparisonResult?.SecurityChanges.Count ?? 0,
-
             DeferredHighPriorityRecommendationCount =
                 context.RecommendationRecords.Count(x =>
                     string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) &&
                     x.PriorityScore >= 80),
-
             RejectedSecurityRecommendationCount =
                 context.RecommendationRecords.Count(x =>
                     string.Equals(x.Status, RecommendationStatus.Rejected, StringComparison.OrdinalIgnoreCase) &&
                     x.Category.Equals(AlertCategories.Security, StringComparison.OrdinalIgnoreCase)),
-
             AcceptanceRatePercent = BuildAcceptanceRatePercent(context),
             CostIncreasePercent = BuildCostIncreasePercent(context)
         };

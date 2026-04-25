@@ -10,13 +10,11 @@ using ArchLucid.Contracts.Manifest;
 
 using FluentAssertions;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// End-to-end simulator path vs locked <c>cohort.json</c> expectations. Skips unless
-/// <c>ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED=true</c> and SHAs in the cohort file are non-placeholder.
+///     End-to-end simulator path vs locked <c>cohort.json</c> expectations. Skips unless
+///     <c>ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED=true</c> and SHAs in the cohort file are non-placeholder.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
@@ -33,7 +31,8 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 StringComparison.OrdinalIgnoreCase));
 
         string cohortPath = Path.Combine(AppContext.BaseDirectory, "golden-cohort", "cohort.json");
-        Assert.True(File.Exists(cohortPath), $"Missing {cohortPath} (link tests/golden-cohort/cohort.json in project).");
+        Assert.True(File.Exists(cohortPath),
+            $"Missing {cohortPath} (link tests/golden-cohort/cohort.json in project).");
 
         GoldenCohortDocument document = GoldenCohortDocument.Load(cohortPath);
         bool hasPlaceholder = document.Items.Any(static item =>
@@ -68,15 +67,16 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
-            CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+            CreateRunResponseDto? created =
+                await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             created.Should().NotBeNull();
 
             string runId = created!.Run.RunId;
 
-            HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", content: null);
+            HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
             executeResponse.EnsureSuccessStatusCode();
 
-            HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", content: null);
+            HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
             commitResponse.EnsureSuccessStatusCode();
 
             string commitJson = await commitResponse.Content.ReadAsStringAsync();
@@ -93,7 +93,8 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
             HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
             getRunResponse.EnsureSuccessStatusCode();
 
-            GetRunResponseDto? runPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+            GetRunResponseDto? runPayload =
+                await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             runPayload.Should().NotBeNull();
 
             string resultsJson = JsonSerializer.Serialize(runPayload!.Results, JsonOptions);
@@ -101,7 +102,8 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             typedResults.Should().NotBeNull();
 
-            SortedSet<string> actualCategories = GoldenCohortFindingCategoryAggregator.DistinctCategories(typedResults!);
+            SortedSet<string> actualCategories =
+                GoldenCohortFindingCategoryAggregator.DistinctCategories(typedResults!);
             SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
 
             foreach (string c in item.ExpectedFindingCategories)

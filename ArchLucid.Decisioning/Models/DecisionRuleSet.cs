@@ -6,10 +6,29 @@ namespace ArchLucid.Decisioning.Models;
 
 public sealed class DecisionRuleSet
 {
-    public string RuleSetId { get; set; } = "in-memory";
-    public string Version { get; set; } = "1";
-    public string RuleSetHash { get; set; } = string.Empty;
-    public List<DecisionRule> Rules { get; set; } = [];
+    public string RuleSetId
+    {
+        get;
+        set;
+    } = "in-memory";
+
+    public string Version
+    {
+        get;
+        set;
+    } = "1";
+
+    public string RuleSetHash
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    public List<DecisionRule> Rules
+    {
+        get;
+        set;
+    } = [];
 
     public void ComputeHash()
     {
@@ -38,4 +57,3 @@ public sealed class DecisionRuleSet
         RuleSetHash = Convert.ToHexString(sha.ComputeHash(bytes));
     }
 }
-

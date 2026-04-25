@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchLucid.Api.Client.Generated;
+namespace ArchLucid.Api.Client;
 
 /// <summary>
 ///     NSwag-generated <see cref="ArchLucidApiClient" /> defaults omit a global enum converter; the live API serializes

@@ -10,8 +10,8 @@ using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController"/> improvements path
-/// (<c>GET /v1/advisory/runs/{runId}/improvements</c>) — lowest-covered API surface per coverage gap analysis.
+///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController" /> improvements path
+///     (<c>GET /v1/advisory/runs/{runId}/improvements</c>) — lowest-covered API surface per coverage gap analysis.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -38,7 +38,8 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ADV-IMPROVE-001")));
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);

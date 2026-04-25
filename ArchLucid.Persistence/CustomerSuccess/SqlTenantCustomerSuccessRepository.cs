@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.CustomerSuccess;
@@ -12,8 +13,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.CustomerSuccess;
 
 /// <summary>
-/// SQL-backed health scores and feedback. Maintenance path uses <see cref="SqlRowLevelSecurityBypassAmbient"/>
-/// together with <see cref="dbo.sp_TenantHealthScores_Upsert"/>.
+///     SQL-backed health scores and feedback. Maintenance path uses <see cref="SqlRowLevelSecurityBypassAmbient" />
+///     together with <see cref="dbo.sp_TenantHealthScores_Upsert" />.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL Server–dependent repository.")]
 public sealed class SqlTenantCustomerSuccessRepository(
@@ -59,12 +60,7 @@ public sealed class SqlTenantCustomerSuccessRepository(
         TenantHealthScoreSqlRow? row = await connection.QuerySingleOrDefaultAsync<TenantHealthScoreSqlRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId
-                },
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
                 cancellationToken: ct));
 
         if (row is null)
@@ -162,7 +158,7 @@ public sealed class SqlTenantCustomerSuccessRepository(
                     new
                     {
                         TenantId = tenant.Id,
-                        WorkspaceId = link.WorkspaceId,
+                        link.WorkspaceId,
                         ProjectId = link.DefaultProjectId,
                         EngagementScore = engagement,
                         BreadthScore = breadth,
@@ -171,7 +167,7 @@ public sealed class SqlTenantCustomerSuccessRepository(
                         SupportScore = support,
                         CompositeScore = composite
                     },
-                    commandType: System.Data.CommandType.StoredProcedure,
+                    commandType: CommandType.StoredProcedure,
                     cancellationToken: ct));
         }
     }
@@ -196,12 +192,7 @@ public sealed class SqlTenantCustomerSuccessRepository(
         long count = await connection.ExecuteScalarAsync<long>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = workspaceId,
-                    ProjectId = projectId
-                },
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
                 cancellationToken: ct));
 
         return (int)Math.Min(int.MaxValue, count);

@@ -13,7 +13,10 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Repositories;
 
-/// <summary>Persists authority <see cref="DecisionTrace"/> (rule audit) from decisioning (not coordinator <c>DecisionTraces</c> table).</summary>
+/// <summary>
+///     Persists authority <see cref="DecisionTrace" /> (rule audit) from decisioning (not coordinator
+///     <c>DecisionTraces</c> table).
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory) : IDecisionTraceRepository
 {
@@ -27,21 +30,21 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         RuleAuditTracePayload audit = trace.RequireRuleAudit();
 
         const string sql = """
-            INSERT INTO dbo.DecisioningTraces
-            (
-                TenantId, WorkspaceId, ProjectId,
-                DecisionTraceId, RunId, CreatedUtc,
-                RuleSetId, RuleSetVersion, RuleSetHash,
-                AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @DecisionTraceId, @RunId, @CreatedUtc,
-                @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson
-            );
-            """;
+                           INSERT INTO dbo.DecisioningTraces
+                           (
+                               TenantId, WorkspaceId, ProjectId,
+                               DecisionTraceId, RunId, CreatedUtc,
+                               RuleSetId, RuleSetVersion, RuleSetHash,
+                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson
+                           )
+                           VALUES
+                           (
+                               @TenantId, @WorkspaceId, @ProjectId,
+                               @DecisionTraceId, @RunId, @CreatedUtc,
+                               @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                               @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson
+                           );
+                           """;
 
         object args = new
         {
@@ -75,17 +78,17 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         ArgumentNullException.ThrowIfNull(scope);
 
         const string sql = """
-            SELECT
-                TenantId, WorkspaceId, ProjectId,
-                DecisionTraceId, RunId, CreatedUtc,
-                RuleSetId, RuleSetVersion, RuleSetHash,
-                AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson
-            FROM dbo.DecisioningTraces
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ScopeProjectId
-              AND DecisionTraceId = @DecisionTraceId;
-            """;
+                           SELECT
+                               TenantId, WorkspaceId, ProjectId,
+                               DecisionTraceId, RunId, CreatedUtc,
+                               RuleSetId, RuleSetVersion, RuleSetHash,
+                               AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson
+                           FROM dbo.DecisioningTraces
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ScopeProjectId
+                             AND DecisionTraceId = @DecisionTraceId;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         DecisionTraceRow? row = await connection.QuerySingleOrDefaultAsync<DecisionTraceRow>(
@@ -125,34 +128,80 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
     {
         public Guid TenantId
         {
-            get; init;
+            get;
+            init;
         }
+
         public Guid WorkspaceId
         {
-            get; init;
+            get;
+            init;
         }
+
         public Guid ProjectId
         {
-            get; init;
+            get;
+            init;
         }
+
         public Guid DecisionTraceId
         {
-            get; init;
+            get;
+            init;
         }
+
         public Guid RunId
         {
-            get; init;
+            get;
+            init;
         }
+
         public DateTime CreatedUtc
         {
-            get; init;
+            get;
+            init;
         }
-        public string RuleSetId { get; init; } = null!;
-        public string RuleSetVersion { get; init; } = null!;
-        public string RuleSetHash { get; init; } = null!;
-        public string AppliedRuleIdsJson { get; init; } = null!;
-        public string AcceptedFindingIdsJson { get; init; } = null!;
-        public string RejectedFindingIdsJson { get; init; } = null!;
-        public string NotesJson { get; init; } = null!;
+
+        public string RuleSetId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string RuleSetVersion
+        {
+            get;
+            init;
+        } = null!;
+
+        public string RuleSetHash
+        {
+            get;
+            init;
+        } = null!;
+
+        public string AppliedRuleIdsJson
+        {
+            get;
+            init;
+        } = null!;
+
+        public string AcceptedFindingIdsJson
+        {
+            get;
+            init;
+        } = null!;
+
+        public string RejectedFindingIdsJson
+        {
+            get;
+            init;
+        } = null!;
+
+        public string NotesJson
+        {
+            get;
+            init;
+        } = null!;
     }
 }

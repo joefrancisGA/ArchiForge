@@ -1,7 +1,7 @@
 namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
-/// String constants for <see cref="RecommendationRecord.Status"/> in the advisory workflow.
+///     String constants for <see cref="RecommendationRecord.Status" /> in the advisory workflow.
 /// </summary>
 public static class RecommendationStatus
 {

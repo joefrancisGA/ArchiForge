@@ -16,7 +16,7 @@ public sealed class AzureContentSafetyGuardMapResultTests
     {
         AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult([], []);
 
-        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, blockSeverityThreshold: 4);
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
 
         mapped.IsAllowed.Should().BeTrue();
     }
@@ -28,7 +28,7 @@ public sealed class AzureContentSafetyGuardMapResultTests
             [],
             [ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Hate, 6)]);
 
-        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, blockSeverityThreshold: 4);
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
 
         mapped.IsAllowed.Should().BeFalse();
         mapped.Category.Should().Be(TextCategory.Hate.ToString());
@@ -42,7 +42,7 @@ public sealed class AzureContentSafetyGuardMapResultTests
             [],
             [ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Violence, 2)]);
 
-        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, blockSeverityThreshold: 4);
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
 
         mapped.IsAllowed.Should().BeTrue();
     }

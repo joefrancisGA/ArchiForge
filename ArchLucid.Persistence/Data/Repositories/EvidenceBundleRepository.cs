@@ -11,7 +11,8 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Dapper-backed persistence for <see cref="IEvidenceBundleRepository"/>; writes and reads evidence bundle records from the <c>EvidenceBundles</c> table.
+///     Dapper-backed persistence for <see cref="IEvidenceBundleRepository" />; writes and reads evidence bundle records
+///     from the <c>EvidenceBundles</c> table.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFactory) : IEvidenceBundleRepository
@@ -24,21 +25,21 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
     {
         ArgumentNullException.ThrowIfNull(evidenceBundle);
         const string sql = """
-            INSERT INTO EvidenceBundles
-            (
-                EvidenceBundleId,
-                RequestDescription,
-                EvidenceJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @EvidenceBundleId,
-                @RequestDescription,
-                @EvidenceJson,
-                @CreatedUtc
-            );
-            """;
+                           INSERT INTO EvidenceBundles
+                           (
+                               EvidenceBundleId,
+                               RequestDescription,
+                               EvidenceJson,
+                               CreatedUtc
+                           )
+                           VALUES
+                           (
+                               @EvidenceBundleId,
+                               @RequestDescription,
+                               @EvidenceJson,
+                               @CreatedUtc
+                           );
+                           """;
 
         string json = JsonSerializer.Serialize(evidenceBundle, ContractJson.Default);
 
@@ -56,7 +57,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
                     EvidenceJson = json,
                     CreatedUtc = DateTime.UtcNow
                 },
-                transaction: transaction,
+                transaction,
                 cancellationToken: cancellationToken));
         }
         finally
@@ -65,22 +66,20 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
         }
     }
 
-    public async Task<EvidenceBundle?> GetByIdAsync(string evidenceBundleId, CancellationToken cancellationToken = default)
+    public async Task<EvidenceBundle?> GetByIdAsync(string evidenceBundleId,
+        CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT EvidenceJson
-            FROM EvidenceBundles
-            WHERE EvidenceBundleId = @EvidenceBundleId;
-            """;
+                           SELECT EvidenceJson
+                           FROM EvidenceBundles
+                           WHERE EvidenceBundleId = @EvidenceBundleId;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                EvidenceBundleId = evidenceBundleId
-            },
+            new { EvidenceBundleId = evidenceBundleId },
             cancellationToken: cancellationToken));
 
         if (json is null)
@@ -99,8 +98,8 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
         }
 
         return bundle
-            ?? throw new InvalidOperationException(
-                $"Evidence bundle JSON for '{evidenceBundleId}' deserialized to null. " +
-                "The stored JSON may be empty or corrupt.");
+               ?? throw new InvalidOperationException(
+                   $"Evidence bundle JSON for '{evidenceBundleId}' deserialized to null. " +
+                   "The stored JSON may be empty or corrupt.");
     }
 }

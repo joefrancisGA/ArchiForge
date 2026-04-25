@@ -1,14 +1,13 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
-using System.Data;
-
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IArchitectureRequestRepository"/> for tests (JSON clone-on-read).
+///     Thread-safe in-memory <see cref="IArchitectureRequestRepository" /> for tests (JSON clone-on-read).
 /// </summary>
 public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequestRepository
 {
@@ -42,7 +41,6 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
         lock (_gate)
 
             return Task.FromResult(_byId.TryGetValue(requestId, out ArchitectureRequest? r) ? Clone(r) : null);
-
     }
 
     private static ArchitectureRequest Clone(ArchitectureRequest source)

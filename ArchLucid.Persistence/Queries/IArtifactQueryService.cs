@@ -5,11 +5,11 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
-/// Read-only access to synthesized artifacts for a manifest via the artifact bundle repository.
+///     Read-only access to synthesized artifacts for a manifest via the artifact bundle repository.
 /// </summary>
 /// <remarks>
-/// SQL: <see cref="DapperArtifactQueryService"/>; in-memory: <see cref="InMemoryArtifactQueryService"/>.
-/// Callers: <c>ArchLucid.Api.Controllers.DocxExportController</c>, <c>ArtifactExportController</c>.
+///     SQL: <see cref="DapperArtifactQueryService" />; in-memory: <see cref="InMemoryArtifactQueryService" />.
+///     Callers: <c>ArchLucid.Api.Controllers.DocxExportController</c>, <c>ArtifactExportController</c>.
 /// </remarks>
 public interface IArtifactQueryService
 {
@@ -23,12 +23,12 @@ public interface IArtifactQueryService
         Guid manifestId,
         CancellationToken ct);
 
-    /// <summary>Single artifact body when present in the bundle for <paramref name="manifestId"/>.</summary>
+    /// <summary>Single artifact body when present in the bundle for <paramref name="manifestId" />.</summary>
     /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
     /// <param name="manifestId">Golden manifest id.</param>
     /// <param name="artifactId">Artifact id within the bundle.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Full artifact, or <see langword="null"/> when not found in the bundle.</returns>
+    /// <returns>Full artifact, or <see langword="null" /> when not found in the bundle.</returns>
     Task<SynthesizedArtifact?> GetArtifactByIdAsync(
         ScopeContext scope,
         Guid manifestId,

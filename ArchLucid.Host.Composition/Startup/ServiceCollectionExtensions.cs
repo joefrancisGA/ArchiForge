@@ -64,6 +64,8 @@ public static partial class ServiceCollectionExtensions
         RegisterArchLucidHealthChecks(services, configuration, hostingRole);
         RegisterCosmosPolyglotPersistence(services, configuration);
         RegisterArchLucidJobRunners(services, configuration);
+        services.AddFirstTenantFunnelTelemetry(configuration);
+        RegisterScimProvisioning(services, configuration);
 
         return services;
     }

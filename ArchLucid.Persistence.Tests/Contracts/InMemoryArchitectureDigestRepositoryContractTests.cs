@@ -1,7 +1,8 @@
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="ArchitectureDigestRepositoryContractTests"/> against <see cref="InMemoryArchitectureDigestRepository"/>.
+///     Runs <see cref="ArchitectureDigestRepositoryContractTests" /> against
+///     <see cref="InMemoryArchitectureDigestRepository" />.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class InMemoryArchitectureDigestRepositoryContractTests : ArchitectureDigestRepositoryContractTests

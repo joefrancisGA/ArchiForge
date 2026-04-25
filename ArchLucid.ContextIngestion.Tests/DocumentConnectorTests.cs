@@ -9,7 +9,7 @@ using Moq;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Document Connector.
+///     Tests for Document Connector.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class DocumentConnectorTests
@@ -27,9 +27,7 @@ public sealed class DocumentConnectorTests
             [
                 new ContextDocumentReference
                 {
-                    Name = "unknown.bin",
-                    ContentType = "application/octet-stream",
-                    Content = "x"
+                    Name = "unknown.bin", ContentType = "application/octet-stream", Content = "x"
                 }
             ]
         };
@@ -39,8 +37,8 @@ public sealed class DocumentConnectorTests
         batch.CanonicalObjects.Should().BeEmpty();
         batch.Warnings.Should().ContainSingle();
         string warning = batch.Warnings[0];
-        warning.Should().Contain("unknown.bin", because: "warning must name the skipped document");
-        warning.Should().Contain("application/octet-stream", because: "warning must include the content type");
+        warning.Should().Contain("unknown.bin", "warning must name the skipped document");
+        warning.Should().Contain("application/octet-stream", "warning must include the content type");
         warning.Should().Contain("ContextDocumentParserPipeline");
         warning.Should().Contain("SupportedContextDocumentContentTypes");
     }
@@ -71,12 +69,7 @@ public sealed class DocumentConnectorTests
         {
             Documents =
             [
-                new ContextDocumentReference
-                {
-                    Name = "doc.txt",
-                    ContentType = "text/plain",
-                    Content = "REQ: x"
-                }
+                new ContextDocumentReference { Name = "doc.txt", ContentType = "text/plain", Content = "REQ: x" }
             ]
         };
 

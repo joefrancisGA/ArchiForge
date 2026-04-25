@@ -5,36 +5,43 @@ public sealed class OutboxOperationalMetricsSnapshot
 {
     public long AuthorityPipelineWorkPending
     {
-        get; init;
+        get;
+        init;
     }
 
     public double AuthorityPipelineWorkOldestPendingAgeSeconds
     {
-        get; init;
+        get;
+        init;
     }
 
     public long RetrievalIndexingOutboxPending
     {
-        get; init;
+        get;
+        init;
     }
 
     public double RetrievalIndexingOutboxOldestPendingAgeSeconds
     {
-        get; init;
+        get;
+        init;
     }
 
     public long IntegrationEventOutboxPublishPending
     {
-        get; init;
+        get;
+        init;
     }
 
     public long IntegrationEventOutboxDeadLetter
     {
-        get; init;
+        get;
+        init;
     }
 
     public double IntegrationEventOutboxOldestActionablePendingAgeSeconds
     {
-        get; init;
+        get;
+        init;
     }
 }

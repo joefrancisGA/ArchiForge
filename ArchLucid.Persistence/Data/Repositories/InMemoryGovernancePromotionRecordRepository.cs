@@ -6,7 +6,7 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IGovernancePromotionRecordRepository"/> (JSON clone-on-read).
+///     Thread-safe in-memory <see cref="IGovernancePromotionRecordRepository" /> (JSON clone-on-read).
 /// </summary>
 public sealed class InMemoryGovernancePromotionRecordRepository : IGovernancePromotionRecordRepository
 {
@@ -57,7 +57,8 @@ public sealed class InMemoryGovernancePromotionRecordRepository : IGovernancePro
     private static GovernancePromotionRecord Clone(GovernancePromotionRecord source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);
-        GovernancePromotionRecord? copy = JsonSerializer.Deserialize<GovernancePromotionRecord>(json, ContractJson.Default);
+        GovernancePromotionRecord? copy =
+            JsonSerializer.Deserialize<GovernancePromotionRecord>(json, ContractJson.Default);
 
         return copy ?? throw new InvalidOperationException("Clone produced null GovernancePromotionRecord.");
     }

@@ -4,6 +4,8 @@ namespace ArchLucid.Core.Authority;
 public sealed class DisabledAsyncAuthorityPipelineModeResolver : IAsyncAuthorityPipelineModeResolver
 {
     /// <inheritdoc />
-    public Task<bool> ShouldQueueContextAndGraphStagesAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult(false);
+    public Task<bool> ShouldQueueContextAndGraphStagesAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(false);
+    }
 }

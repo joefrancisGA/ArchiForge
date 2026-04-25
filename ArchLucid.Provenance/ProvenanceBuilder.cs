@@ -17,11 +17,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
     {
         RuleAuditTracePayload trace = decisionTrace.RequireRuleAudit();
 
-        DecisionProvenanceGraph result = new()
-        {
-            Id = Guid.NewGuid(),
-            RunId = runId
-        };
+        DecisionProvenanceGraph result = new() { Id = Guid.NewGuid(), RunId = runId };
 
         Dictionary<string, Guid> nodeMap = new(StringComparer.Ordinal);
 
@@ -38,8 +34,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                     Name = string.IsNullOrWhiteSpace(n.Label) ? n.NodeId : n.Label,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["nodeType"] = n.NodeType,
-                        ["category"] = n.Category ?? ""
+                        ["nodeType"] = n.NodeType, ["category"] = n.Category ?? ""
                     }
                 });
 
@@ -55,8 +50,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                     Name = f.Title,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["findingType"] = f.FindingType,
-                        ["category"] = f.Category
+                        ["findingType"] = f.FindingType, ["category"] = f.Category
                     }
                 });
 
@@ -65,12 +59,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
             AddNode(
                 $"rule:{ruleId}",
-                new ProvenanceNode
-                {
-                    Type = ProvenanceNodeType.Rule,
-                    ReferenceId = ruleId,
-                    Name = ruleId
-                });
+                new ProvenanceNode { Type = ProvenanceNodeType.Rule, ReferenceId = ruleId, Name = ruleId });
 
 
         foreach (ResolvedArchitectureDecision d in manifest.Decisions)
@@ -100,8 +89,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                     Name = a.Name,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["artifactType"] = a.ArtifactType,
-                        ["format"] = a.Format
+                        ["artifactType"] = a.ArtifactType, ["format"] = a.Format
                     }
                 });
 
@@ -205,18 +193,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             result.Nodes.Add(node);
             nodeMap[key] = node.Id;
             return node.Id;
-
         }
 
         void AddEdge(Guid from, Guid to, ProvenanceEdgeType type)
         {
-            result.Edges.Add(new ProvenanceEdge
-            {
-                Id = Guid.NewGuid(),
-                FromNodeId = from,
-                ToNodeId = to,
-                Type = type
-            });
+            result.Edges.Add(new ProvenanceEdge { Id = Guid.NewGuid(), FromNodeId = from, ToNodeId = to, Type = type });
         }
     }
 }

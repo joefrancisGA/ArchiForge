@@ -1,11 +1,11 @@
 namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
-/// Persistence for <see cref="CompositeAlertRule"/> headers and their <see cref="AlertRuleCondition"/> rows.
+///     Persistence for <see cref="CompositeAlertRule" /> headers and their <see cref="AlertRuleCondition" /> rows.
 /// </summary>
 /// <remarks>
-/// Implementations should load conditions with the rule graph. SQL: <c>DapperCompositeAlertRuleRepository</c> with
-/// <c>dbo.CompositeAlertRules</c> and <c>dbo.CompositeAlertRuleConditions</c>.
+///     Implementations should load conditions with the rule graph. SQL: <c>DapperCompositeAlertRuleRepository</c> with
+///     <c>dbo.CompositeAlertRules</c> and <c>dbo.CompositeAlertRuleConditions</c>.
 /// </remarks>
 public interface ICompositeAlertRuleRepository
 {
@@ -25,7 +25,7 @@ public interface ICompositeAlertRuleRepository
         Guid projectId,
         CancellationToken ct);
 
-    /// <summary>Enabled rules in scope; used by <see cref="ICompositeAlertService"/> after governance filtering.</summary>
+    /// <summary>Enabled rules in scope; used by <see cref="ICompositeAlertService" /> after governance filtering.</summary>
     Task<IReadOnlyList<CompositeAlertRule>> ListEnabledByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

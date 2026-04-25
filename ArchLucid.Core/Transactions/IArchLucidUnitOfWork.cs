@@ -3,16 +3,27 @@ using System.Data;
 namespace ArchLucid.Core.Transactions;
 
 /// <summary>
-/// Connection and transaction scope for repository writes within one logical commit (orchestrators and Dapper repositories).
+///     Connection and transaction scope for repository writes within one logical commit (orchestrators and Dapper
+///     repositories).
 /// </summary>
 /// <remarks>
-/// <para>Dapper-backed implementations wrap a real <see cref="IDbConnection"/> and <see cref="IDbTransaction"/>.</para>
-/// <para>In-memory implementations are no-ops for SQL; <see cref="Connection"/> and <see cref="Transaction"/> may throw <see cref="NotSupportedException"/>.</para>
-/// <para>When <see cref="SupportsExternalTransaction"/> is <see langword="false"/>, orchestrators still call <see cref="CommitAsync"/> / <see cref="RollbackAsync"/> but repositories persist without a shared SQL transaction.</para>
+///     <para>Dapper-backed implementations wrap a real <see cref="IDbConnection" /> and <see cref="IDbTransaction" />.</para>
+///     <para>
+///         In-memory implementations are no-ops for SQL; <see cref="Connection" /> and <see cref="Transaction" /> may
+///         throw <see cref="NotSupportedException" />.
+///     </para>
+///     <para>
+///         When <see cref="SupportsExternalTransaction" /> is <see langword="false" />, orchestrators still call
+///         <see cref="CommitAsync" /> / <see cref="RollbackAsync" /> but repositories persist without a shared SQL
+///         transaction.
+///     </para>
 /// </remarks>
 public interface IArchLucidUnitOfWork : IAsyncDisposable
 {
-    /// <summary>When <see langword="false"/>, callers must use repository defaults (in-memory mode); when <see langword="true"/>, repositories may use <see cref="Connection"/> and <see cref="Transaction"/>.</summary>
+    /// <summary>
+    ///     When <see langword="false" />, callers must use repository defaults (in-memory mode); when
+    ///     <see langword="true" />, repositories may use <see cref="Connection" /> and <see cref="Transaction" />.
+    /// </summary>
     bool SupportsExternalTransaction
     {
         get;

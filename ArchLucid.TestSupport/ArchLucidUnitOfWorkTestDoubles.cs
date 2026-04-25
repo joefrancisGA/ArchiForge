@@ -5,7 +5,8 @@ using Moq;
 namespace ArchLucid.TestSupport;
 
 /// <summary>
-/// Shared <see cref="IArchLucidUnitOfWorkFactory"/> test double: in-memory persistence path (<see cref="IArchLucidUnitOfWork.SupportsExternalTransaction"/> is false).
+///     Shared <see cref="IArchLucidUnitOfWorkFactory" /> test double: in-memory persistence path (
+///     <see cref="IArchLucidUnitOfWork.SupportsExternalTransaction" /> is false).
 /// </summary>
 public static class ArchLucidUnitOfWorkTestDoubles
 {

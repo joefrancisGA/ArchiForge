@@ -14,7 +14,7 @@ public sealed class CandidateChangeSetServiceTests
     [Fact]
     public void MapFromImprovementPlan_NullPlan_Throws()
     {
-        Action act = () => _sut.MapFromImprovementPlan(null!, theme: null);
+        Action act = () => _sut.MapFromImprovementPlan(null!, null);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("plan");
     }
@@ -36,20 +36,15 @@ public sealed class CandidateChangeSetServiceTests
             Summary = "S",
             ActionSteps =
             [
-                new ProductLearningImprovementPlanActionStep
-                {
-                    Ordinal = 1,
-                    ActionType = "A",
-                    Description = "only",
-                },
+                new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "A", Description = "only" }
             ],
             PriorityScore = 5,
             PriorityExplanation = "Because",
-            CreatedUtc = created,
+            CreatedUtc = created
         };
 
-        IReadOnlyList<CandidateChangeSet> first = _sut.MapFromImprovementPlan(plan, theme: null);
-        IReadOnlyList<CandidateChangeSet> second = _sut.MapFromImprovementPlan(plan, theme: null);
+        IReadOnlyList<CandidateChangeSet> first = _sut.MapFromImprovementPlan(plan, null);
+        IReadOnlyList<CandidateChangeSet> second = _sut.MapFromImprovementPlan(plan, null);
 
         first.Should().HaveCount(1);
         first.Zip(second, static (a, b) => ChangeSetsEqual(a, b)).Should().OnlyContain(static x => x);
@@ -88,7 +83,7 @@ public sealed class CandidateChangeSetServiceTests
             EvidenceSignalCount = 3,
             DistinctRunCount = 2,
             DerivationRuleVersion = "59R-test",
-            PatternKey = "pattern-p",
+            PatternKey = "pattern-p"
         };
 
         ProductLearningImprovementPlanRecord plan = new()
@@ -103,10 +98,10 @@ public sealed class CandidateChangeSetServiceTests
             ActionSteps =
             [
                 new ProductLearningImprovementPlanActionStep { Ordinal = 2, ActionType = "X", Description = "d2" },
-                new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "Y", Description = "d1" },
+                new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "Y", Description = "d1" }
             ],
             PriorityScore = 9,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         IReadOnlyList<CandidateChangeSet> results = _sut.MapFromImprovementPlan(plan, theme);
@@ -145,10 +140,10 @@ public sealed class CandidateChangeSetServiceTests
             ActionSteps =
             [
                 new ProductLearningImprovementPlanActionStep { Ordinal = 2, ActionType = "A", Description = "b" },
-                new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "A", Description = "a" },
+                new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "A", Description = "a" }
             ],
             PriorityScore = 1,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         ProductLearningImprovementPlanRecord sorted = new()
@@ -163,10 +158,10 @@ public sealed class CandidateChangeSetServiceTests
             ActionSteps =
             [
                 shuffled.ActionSteps[1],
-                shuffled.ActionSteps[0],
+                shuffled.ActionSteps[0]
             ],
             PriorityScore = shuffled.PriorityScore,
-            CreatedUtc = shuffled.CreatedUtc,
+            CreatedUtc = shuffled.CreatedUtc
         };
 
         IReadOnlyList<CandidateChangeSet> a = _sut.MapFromImprovementPlan(shuffled, null);

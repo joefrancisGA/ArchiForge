@@ -1,3 +1,3 @@
-> **Scope:** Redirect — linear first-run checklist moved under ``docs/library/``.
+> **Scope:** Legacy filename stub for the former first-run walkthrough; preserved only so existing bookmarks keep working. The live operator checklist lives at `docs/library/FIRST_RUN_WALKTHROUGH.md` — this file is not the walkthrough itself.
 
-Canonical entry: [docs/START_HERE.md](START_HERE.md). Full checklist: [FIRST_RUN_WALKTHROUGH.md](library/FIRST_RUN_WALKTHROUGH.md).
+> **Redirect:** **[READ_THIS_FIRST.md](READ_THIS_FIRST.md)** — single forced entry tree; full checklist: [docs/library/FIRST_RUN_WALKTHROUGH.md](library/FIRST_RUN_WALKTHROUGH.md).

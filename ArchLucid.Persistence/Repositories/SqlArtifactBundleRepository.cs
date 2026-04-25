@@ -18,10 +18,10 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// SQL Server-backed <see cref="IArtifactBundleRepository"/> with dual-write to legacy JSON columns and
-/// relational tables for artifacts (content as plain NVARCHAR(MAX)), metadata, artifact–decision links,
-/// and trace lists. Reads prefer relational slices when rows exist; trace scalars (TraceId, etc.) remain
-/// sourced from <c>TraceJson</c> when present.
+///     SQL Server-backed <see cref="IArtifactBundleRepository" /> with dual-write to legacy JSON columns and
+///     relational tables for artifacts (content as plain NVARCHAR(MAX)), metadata, artifact–decision links,
+///     and trace lists. Reads prefer relational slices when rows exist; trace scalars (TraceId, etc.) remain
+///     sourced from <c>TraceJson</c> when present.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlArtifactBundleRepository(
@@ -58,6 +58,46 @@ public sealed class SqlArtifactBundleRepository(
         }
     }
 
+    public async Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+                           SELECT TOP 1
+                               TenantId, WorkspaceId, ProjectId,
+                               BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson, BundlePayloadBlobUri
+                           FROM dbo.ArtifactBundles
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ScopeProjectId
+                             AND ManifestId = @ManifestId
+                           ORDER BY CreatedUtc DESC;
+                           """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
+            new CommandDefinition(
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId, ManifestId = manifestId },
+                cancellationToken: ct));
+
+        if (row is null)
+            return null;
+
+        row = await ApplyBundleBlobOverlayIfPresentAsync(row, ct);
+
+        try
+        {
+            return await ArtifactBundleRelationalRead.HydrateBundleAsync(connection, row, blobStore, ct);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to deserialize ArtifactBundle '{row.BundleId}' for manifest '{row.ManifestId}'. " +
+                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
+        }
+    }
+
     private async Task SaveCoreAsync(
         ArtifactBundle bundle,
         IDbConnection connection,
@@ -65,17 +105,17 @@ public sealed class SqlArtifactBundleRepository(
         CancellationToken ct)
     {
         const string sql = """
-            INSERT INTO dbo.ArtifactBundles
-            (
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
-                TenantId, WorkspaceId, ProjectId, BundlePayloadBlobUri
-            )
-            VALUES
-            (
-                @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
-                @TenantId, @WorkspaceId, @ProjectId, @BundlePayloadBlobUri
-            );
-            """;
+                           INSERT INTO dbo.ArtifactBundles
+                           (
+                               BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                               TenantId, WorkspaceId, ProjectId, BundlePayloadBlobUri
+                           )
+                           VALUES
+                           (
+                               @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                               @TenantId, @WorkspaceId, @ProjectId, @BundlePayloadBlobUri
+                           );
+                           """;
 
         string artifactsJson = JsonEntitySerializer.Serialize(bundle.Artifacts);
         string traceJson = JsonEntitySerializer.Serialize(bundle.Trace);
@@ -87,7 +127,8 @@ public sealed class SqlArtifactBundleRepository(
                 payloadOpts,
                 ArtifactBundlePayloadBlobEnvelope.SumUtf16Length(artifactsJson, traceJson)))
         {
-            ArtifactBundlePayloadBlobEnvelope envelope = ArtifactBundlePayloadBlobEnvelope.FromJsonPair(artifactsJson, traceJson);
+            ArtifactBundlePayloadBlobEnvelope envelope =
+                ArtifactBundlePayloadBlobEnvelope.FromJsonPair(artifactsJson, traceJson);
             bundlePayloadBlobUri = await blobStore.WriteAsync(
                 "artifact-bundles",
                 $"{bundle.BundleId:D}.json",
@@ -106,7 +147,7 @@ public sealed class SqlArtifactBundleRepository(
             bundle.TenantId,
             bundle.WorkspaceId,
             bundle.ProjectId,
-            BundlePayloadBlobUri = bundlePayloadBlobUri,
+            BundlePayloadBlobUri = bundlePayloadBlobUri
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
@@ -127,17 +168,17 @@ public sealed class SqlArtifactBundleRepository(
         Guid bundleId = bundle.BundleId;
 
         const string insertArtifactSql = """
-            INSERT INTO dbo.ArtifactBundleArtifacts
-            (
-                BundleId, SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
-                ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
-            )
-            VALUES
-            (
-                @BundleId, @SortOrder, @ArtifactId, @RunId, @ManifestId, @CreatedUtc,
-                @ArtifactType, @Name, @Format, @Content, @ContentHash, @ContentBlobUri
-            );
-            """;
+                                         INSERT INTO dbo.ArtifactBundleArtifacts
+                                         (
+                                             BundleId, SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
+                                             ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
+                                         )
+                                         VALUES
+                                         (
+                                             @BundleId, @SortOrder, @ArtifactId, @RunId, @ManifestId, @CreatedUtc,
+                                             @ArtifactType, @Name, @Format, @Content, @ContentHash, @ContentBlobUri
+                                         );
+                                         """;
 
         for (int i = 0; i < bundle.Artifacts.Count; i++)
         {
@@ -173,7 +214,7 @@ public sealed class SqlArtifactBundleRepository(
                         a.Format,
                         Content = content,
                         a.ContentHash,
-                        ContentBlobUri = contentBlobUri,
+                        ContentBlobUri = contentBlobUri
                     },
                     transaction,
                     cancellationToken: ct));
@@ -183,10 +224,10 @@ public sealed class SqlArtifactBundleRepository(
             foreach (KeyValuePair<string, string> meta in a.Metadata)
             {
                 const string insertMetaSql = """
-                    INSERT INTO dbo.ArtifactBundleArtifactMetadata
-                    (BundleId, ArtifactSortOrder, MetaSortOrder, MetaKey, MetaValue)
-                    VALUES (@BundleId, @ArtifactSortOrder, @MetaSortOrder, @MetaKey, @MetaValue);
-                    """;
+                                             INSERT INTO dbo.ArtifactBundleArtifactMetadata
+                                             (BundleId, ArtifactSortOrder, MetaSortOrder, MetaKey, MetaValue)
+                                             VALUES (@BundleId, @ArtifactSortOrder, @MetaSortOrder, @MetaKey, @MetaValue);
+                                             """;
 
                 await connection.ExecuteAsync(
                     new CommandDefinition(
@@ -197,7 +238,7 @@ public sealed class SqlArtifactBundleRepository(
                             ArtifactSortOrder = i,
                             MetaSortOrder = metaOrder,
                             MetaKey = meta.Key,
-                            MetaValue = meta.Value,
+                            MetaValue = meta.Value
                         },
                         transaction,
                         cancellationToken: ct));
@@ -208,10 +249,10 @@ public sealed class SqlArtifactBundleRepository(
             for (int d = 0; d < a.ContributingDecisionIds.Count; d++)
             {
                 const string insertDecSql = """
-                    INSERT INTO dbo.ArtifactBundleArtifactDecisionLinks
-                    (BundleId, ArtifactSortOrder, LinkSortOrder, DecisionId)
-                    VALUES (@BundleId, @ArtifactSortOrder, @LinkSortOrder, @DecisionId);
-                    """;
+                                            INSERT INTO dbo.ArtifactBundleArtifactDecisionLinks
+                                            (BundleId, ArtifactSortOrder, LinkSortOrder, DecisionId)
+                                            VALUES (@BundleId, @ArtifactSortOrder, @LinkSortOrder, @DecisionId);
+                                            """;
 
                 await connection.ExecuteAsync(
                     new CommandDefinition(
@@ -221,7 +262,7 @@ public sealed class SqlArtifactBundleRepository(
                             BundleId = bundleId,
                             ArtifactSortOrder = i,
                             LinkSortOrder = d,
-                            DecisionId = a.ContributingDecisionIds[d],
+                            DecisionId = a.ContributingDecisionIds[d]
                         },
                         transaction,
                         cancellationToken: ct));
@@ -252,19 +293,14 @@ public sealed class SqlArtifactBundleRepository(
         for (int g = 0; g < trace.GeneratorsUsed.Count; g++)
         {
             const string insertGenSql = """
-                INSERT INTO dbo.ArtifactBundleTraceGenerators (BundleId, SortOrder, GeneratorName)
-                VALUES (@BundleId, @SortOrder, @GeneratorName);
-                """;
+                                        INSERT INTO dbo.ArtifactBundleTraceGenerators (BundleId, SortOrder, GeneratorName)
+                                        VALUES (@BundleId, @SortOrder, @GeneratorName);
+                                        """;
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertGenSql,
-                    new
-                    {
-                        BundleId = bundleId,
-                        SortOrder = g,
-                        GeneratorName = trace.GeneratorsUsed[g],
-                    },
+                    new { BundleId = bundleId, SortOrder = g, GeneratorName = trace.GeneratorsUsed[g] },
                     transaction,
                     cancellationToken: ct));
         }
@@ -282,19 +318,14 @@ public sealed class SqlArtifactBundleRepository(
         for (int s = 0; s < trace.SourceDecisionIds.Count; s++)
         {
             const string insertTraceDecSql = """
-                INSERT INTO dbo.ArtifactBundleTraceDecisionLinks (BundleId, SortOrder, DecisionId)
-                VALUES (@BundleId, @SortOrder, @DecisionId);
-                """;
+                                             INSERT INTO dbo.ArtifactBundleTraceDecisionLinks (BundleId, SortOrder, DecisionId)
+                                             VALUES (@BundleId, @SortOrder, @DecisionId);
+                                             """;
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertTraceDecSql,
-                    new
-                    {
-                        BundleId = bundleId,
-                        SortOrder = s,
-                        DecisionId = trace.SourceDecisionIds[s],
-                    },
+                    new { BundleId = bundleId, SortOrder = s, DecisionId = trace.SourceDecisionIds[s] },
                     transaction,
                     cancellationToken: ct));
         }
@@ -312,26 +343,21 @@ public sealed class SqlArtifactBundleRepository(
         for (int n = 0; n < trace.Notes.Count; n++)
         {
             const string insertNoteSql = """
-                INSERT INTO dbo.ArtifactBundleTraceNotes (BundleId, SortOrder, NoteText)
-                VALUES (@BundleId, @SortOrder, @NoteText);
-                """;
+                                         INSERT INTO dbo.ArtifactBundleTraceNotes (BundleId, SortOrder, NoteText)
+                                         VALUES (@BundleId, @SortOrder, @NoteText);
+                                         """;
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertNoteSql,
-                    new
-                    {
-                        BundleId = bundleId,
-                        SortOrder = n,
-                        NoteText = trace.Notes[n],
-                    },
+                    new { BundleId = bundleId, SortOrder = n, NoteText = trace.Notes[n] },
                     transaction,
                     cancellationToken: ct));
         }
     }
 
     /// <summary>
-    /// Loads a bundle by primary key (admin/backfill scenarios).
+    ///     Loads a bundle by primary key (admin/backfill scenarios).
     /// </summary>
     public async Task<ArtifactBundle?> GetByBundleIdAsync(Guid bundleId, CancellationToken ct)
     {
@@ -339,7 +365,7 @@ public sealed class SqlArtifactBundleRepository(
         return await GetByBundleIdAsync(bundleId, connection, null, ct);
     }
 
-    /// <inheritdoc cref="GetByBundleIdAsync(System.Guid,System.Threading.CancellationToken)"/>
+    /// <inheritdoc cref="GetByBundleIdAsync(System.Guid,System.Threading.CancellationToken)" />
     public async Task<ArtifactBundle?> GetByBundleIdAsync(
         Guid bundleId,
         IDbConnection connection,
@@ -347,20 +373,17 @@ public sealed class SqlArtifactBundleRepository(
         CancellationToken ct)
     {
         const string sql = """
-            SELECT
-                TenantId, WorkspaceId, ProjectId,
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson, BundlePayloadBlobUri
-            FROM dbo.ArtifactBundles
-            WHERE BundleId = @BundleId;
-            """;
+                           SELECT
+                               TenantId, WorkspaceId, ProjectId,
+                               BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson, BundlePayloadBlobUri
+                           FROM dbo.ArtifactBundles
+                           WHERE BundleId = @BundleId;
+                           """;
 
         ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    BundleId = bundleId,
-                },
+                new { BundleId = bundleId },
                 transaction,
                 cancellationToken: ct));
 
@@ -368,61 +391,17 @@ public sealed class SqlArtifactBundleRepository(
             return null;
 
         SqlConnection sqlConnection = connection as SqlConnection
-            ?? throw new InvalidOperationException("SQL Server backfill requires SqlConnection.");
+                                      ?? throw new InvalidOperationException(
+                                          "SQL Server backfill requires SqlConnection.");
 
         row = await ApplyBundleBlobOverlayIfPresentAsync(row, ct);
 
         return await ArtifactBundleRelationalRead.HydrateBundleAsync(sqlConnection, row, blobStore, ct);
     }
 
-    public async Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
-    {
-        ArgumentNullException.ThrowIfNull(scope);
-
-        const string sql = """
-            SELECT TOP 1
-                TenantId, WorkspaceId, ProjectId,
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson, BundlePayloadBlobUri
-            FROM dbo.ArtifactBundles
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ScopeProjectId
-              AND ManifestId = @ManifestId
-            ORDER BY CreatedUtc DESC;
-            """;
-
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        ArtifactBundleStorageRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleStorageRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    ManifestId = manifestId,
-                },
-                cancellationToken: ct));
-
-        if (row is null)
-            return null;
-
-        row = await ApplyBundleBlobOverlayIfPresentAsync(row, ct);
-
-        try
-        {
-            return await ArtifactBundleRelationalRead.HydrateBundleAsync(connection, row, blobStore, ct);
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new InvalidOperationException(
-                $"Failed to deserialize ArtifactBundle '{row.BundleId}' for manifest '{row.ManifestId}'. " +
-                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
-        }
-    }
-
     /// <summary>
-    /// Inserts relational artifact/trace slices that are still empty while JSON columns contain data (idempotent per slice).
+    ///     Inserts relational artifact/trace slices that are still empty while JSON columns contain data (idempotent per
+    ///     slice).
     /// </summary>
     internal static async Task BackfillRelationalSlicesAsync(
         ArtifactBundle bundle,
@@ -439,45 +418,33 @@ public sealed class SqlArtifactBundleRepository(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleArtifacts WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId,
-            },
+            new { BundleId = bundleId },
             ct);
 
         int genCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceGenerators WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId,
-            },
+            new { BundleId = bundleId },
             ct);
 
         int traceDecCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceDecisionLinks WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId,
-            },
+            new { BundleId = bundleId },
             ct);
 
         int notesCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceNotes WHERE BundleId = @BundleId",
-            new
-            {
-                BundleId = bundleId,
-            },
+            new { BundleId = bundleId },
             ct);
 
         if (artifactRowCount == 0 && bundle.Artifacts.Count > 0)
         {
-            await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct, persistContext: null);
+            await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct, null);
             await InsertArtifactBundleTraceRelationalAsync(bundle, connection, transaction, ct);
             return;
         }

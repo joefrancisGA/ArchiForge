@@ -38,6 +38,8 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<AgentExecutionOptions>(configuration.GetSection(AgentExecutionOptions.SectionName));
+        services.Configure<AzureOpenAiOptions>(configuration.GetSection(AzureOpenAiOptions.SectionName));
         services.Configure<ArchLucidPersistenceOptions>(
             configuration.GetSection(ArchLucidPersistenceOptions.SectionPath));
         services.Configure<ContentSafetyOptions>(configuration.GetSection(ContentSafetyOptions.SectionPath));

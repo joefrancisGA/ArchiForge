@@ -228,4 +228,200 @@ public sealed class RecommendationGeneratorTests
 
         result.Single().ExpectedImpact.Should().Contain("security");
     }
+
+    [Fact]
+    public void Generate_ComplianceGapSignal_MapsTitleAndScorerReceivesMediumUrgency()
+    {
+        _scorerMock
+            .Setup(s => s.Score(It.Is<AdaptiveScoringInput>(i => i.Urgency == "Medium"), It.IsAny<RecommendationLearningProfile?>()))
+            .Returns(new AdaptiveScoringResult
+            {
+                BasePriorityScore = 90,
+                AdaptedPriorityScore = 90,
+                CategoryWeight = 1.0,
+                UrgencyWeight = 1.0,
+                SignalTypeWeight = 1.0
+            });
+
+        RecommendationGenerator sut = BuildSut();
+
+        ImprovementSignal signal = new()
+        {
+            SignalType = ImprovementSignalTypes.ComplianceGap,
+            Category = ImprovementSignalCategories.Compliance,
+            Title = "Control gap",
+            Description = "d",
+            Severity = ImprovementSignalSeverities.Medium
+        };
+
+        IReadOnlyList<ImprovementRecommendation> result = sut.Generate([signal]);
+
+        result.Should().ContainSingle();
+        result[0].Title.Should().Be("Address a compliance control gap");
+        result[0].Urgency.Should().Be("Medium");
+    }
+
+    [Fact]
+    public void Generate_CostTopologyAndRegressionSignals_MapKnownTitles()
+    {
+        SetupScorerPassThrough();
+        RecommendationGenerator sut = BuildSut();
+
+        IReadOnlyList<ImprovementRecommendation> result = sut.Generate(
+        [
+            new()
+            {
+                SignalType = ImprovementSignalTypes.TopologyGap,
+                Category = ImprovementSignalCategories.Topology,
+                Title = "T",
+                Description = "d",
+                Severity = "Low"
+            },
+            new()
+            {
+                SignalType = ImprovementSignalTypes.CostRisk,
+                Category = ImprovementSignalCategories.Cost,
+                Title = "C",
+                Description = "d",
+                Severity = ImprovementSignalSeverities.Medium
+            },
+            new()
+            {
+                SignalType = ImprovementSignalTypes.SecurityRegression,
+                Category = ImprovementSignalCategories.Security,
+                Title = "R",
+                Description = "d",
+                Severity = ImprovementSignalSeverities.Critical
+            }
+        ]);
+
+        result.Select(r => r.Title).Should()
+            .Equal("Reverse a security regression", "Improve topology completeness", "Reduce a cost risk");
+    }
+
+    [Fact]
+    public void Generate_UnresolvedIssueAndDecisionRemoved_MapTitles()
+    {
+        SetupScorerPassThrough();
+        RecommendationGenerator sut = BuildSut();
+
+        IReadOnlyList<ImprovementRecommendation> result = sut.Generate(
+        [
+            new()
+            {
+                SignalType = ImprovementSignalTypes.UnresolvedIssue,
+                Category = ImprovementSignalCategories.Risk,
+                Title = "ISS-1",
+                Description = "d",
+                Severity = ImprovementSignalSeverities.High
+            },
+            new()
+            {
+                SignalType = ImprovementSignalTypes.DecisionRemoved,
+                Category = ImprovementSignalCategories.Requirement,
+                Title = "Removed",
+                Description = "d",
+                Severity = ImprovementSignalSeverities.High
+            },
+            new()
+            {
+                SignalType = ImprovementSignalTypes.CostIncrease,
+                Category = ImprovementSignalCategories.Cost,
+                Title = "x",
+                Description = "d",
+                Severity = ImprovementSignalSeverities.Medium
+            }
+        ]);
+
+        string[] titles = result.Select(r => r.Title).ToArray();
+        titles.Should().Contain("Resolve: ISS-1");
+        titles.Should().Contain("Restore or replace removed architecture decision");
+        titles.Should().Contain("Reduce increased projected cost");
+    }
+
+    [Fact]
+    public void Generate_UnknownCategory_UsesGenericImpact()
+    {
+        SetupScorerPassThrough();
+        RecommendationGenerator sut = BuildSut();
+
+        ImprovementSignal signal = new()
+        {
+            SignalType = "Custom",
+            Category = "Sustainability",
+            Title = "T",
+            Description = "d",
+            Severity = "Low"
+        };
+
+        IReadOnlyList<ImprovementRecommendation> result = sut.Generate([signal]);
+
+        result.Single().ExpectedImpact.Should().Be("Improves architecture quality.");
+    }
+
+    [Fact]
+    public void Generate_SameScore_OrdersByTitleCaseInsensitively()
+    {
+        SetupScorerPassThrough();
+        RecommendationGenerator sut = BuildSut();
+
+        // Use two unknown signal types so recommendation titles come from the signal and differ; score is identical.
+        IReadOnlyList<ImprovementRecommendation> result = sut.Generate(
+        [
+            new()
+            {
+                SignalType = "Zeta",
+                Category = "Sustainability",
+                Title = "Bravo",
+                Description = "d1",
+                Severity = ImprovementSignalSeverities.Critical
+            },
+            new()
+            {
+                SignalType = "Zeta",
+                Category = "Sustainability",
+                Title = "alpha",
+                Description = "d2",
+                Severity = ImprovementSignalSeverities.Critical
+            }
+        ]);
+
+        result[0].Title.Should().Be("alpha");
+        result[0].Rationale.Should().Be("d2");
+        result[1].Title.Should().Be("Bravo");
+        result[1].Rationale.Should().Be("d1");
+    }
+
+    [Fact]
+    public void Generate_Passes_learning_profile_to_scorer()
+    {
+        RecommendationLearningProfile profile = new();
+        _scorerMock
+            .Setup(s => s.Score(It.IsAny<AdaptiveScoringInput>(), profile))
+            .Returns(
+                new AdaptiveScoringResult
+                {
+                    BasePriorityScore = 1,
+                    AdaptedPriorityScore = 42,
+                    CategoryWeight = 1.0,
+                    UrgencyWeight = 1.0,
+                    SignalTypeWeight = 1.0
+                });
+
+        RecommendationGenerator sut = BuildSut();
+        IReadOnlyList<ImprovementRecommendation> result = sut.Generate(
+        [
+            new()
+            {
+                SignalType = ImprovementSignalTypes.CostRisk,
+                Category = ImprovementSignalCategories.Cost,
+                Title = "t",
+                Description = "d",
+                Severity = ImprovementSignalSeverities.Medium
+            }
+        ],
+            profile);
+
+        result.Single().PriorityScore.Should().Be(42);
+    }
 }

@@ -9,7 +9,27 @@ public sealed class TrialSmokeCommandOptions
 {
     public const string DefaultDisplayName = "Trial Smoke User";
 
+    /// <summary>
+    ///     Canonical staging API host targeted by <c>--staging</c>. Must stay in sync with
+    ///     <c>docs/runbooks/TRIAL_FUNNEL_END_TO_END.md</c> § 9 quick-start ("ARCHLUCID_API_URL=https://staging.archlucid.com").
+    /// </summary>
+    public const string StagingApiBaseUrl = "https://staging.archlucid.com";
+
     public string? ApiBaseUrl
+    {
+        get;
+        init;
+    }
+
+    /// <summary>True when the caller passed <c>--staging</c> (auto-targets the staging API + one-line output).</summary>
+    public bool TargetStaging
+    {
+        get;
+        init;
+    }
+
+    /// <summary>True when the caller wants a single PASS|FAIL line (auto-on with <c>--staging</c>).</summary>
+    public bool OneLineOutput
     {
         get;
         init;
@@ -66,6 +86,8 @@ public sealed class TrialSmokeCommandOptions
         decimal? baselineHours = null;
         string? baselineSource = null;
         bool skipDeltas = false;
+        bool targetStaging = false;
+        bool oneLine = false;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -76,6 +98,14 @@ public sealed class TrialSmokeCommandOptions
                 case "--api-base-url":
                     if (!TryReadValue(args, ref i, arg, out string? apiVal, out error)) return null;
                     apiBaseUrl = apiVal;
+                    break;
+
+                case "--staging":
+                    targetStaging = true;
+                    break;
+
+                case "--one-line":
+                    oneLine = true;
                     break;
 
                 case "--org":
@@ -139,11 +169,25 @@ public sealed class TrialSmokeCommandOptions
             return null;
         }
 
+        if (targetStaging && !string.IsNullOrWhiteSpace(apiBaseUrl) &&
+            !string.Equals(apiBaseUrl!.Trim().TrimEnd('/'), StagingApiBaseUrl, StringComparison.OrdinalIgnoreCase))
+        {
+            error = $"--staging cannot be combined with a different --api-base-url ('{apiBaseUrl}'). Drop one.";
+            return null;
+        }
+
+        if (targetStaging && string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            apiBaseUrl = StagingApiBaseUrl;
+        }
+
         error = null;
 
         return new TrialSmokeCommandOptions
         {
             ApiBaseUrl = apiBaseUrl,
+            TargetStaging = targetStaging,
+            OneLineOutput = oneLine || targetStaging,
             OrganizationName = org!.Trim(),
             AdminEmail = email!.Trim(),
             AdminDisplayName = string.IsNullOrWhiteSpace(displayName) ? DefaultDisplayName : displayName.Trim(),

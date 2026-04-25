@@ -10,7 +10,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Conversation;
 
 /// <summary>
-/// SQL Server <see cref="IConversationMessageRepository"/> for <c>dbo.ConversationMessages</c>.
+///     SQL Server <see cref="IConversationMessageRepository" /> for <c>dbo.ConversationMessages</c>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperConversationMessageRepository(ISqlConnectionFactory connectionFactory)
@@ -21,15 +21,15 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
     {
         ArgumentNullException.ThrowIfNull(message);
         const string sql = """
-            INSERT INTO dbo.ConversationMessages
-            (
-                MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
-            )
-            VALUES
-            (
-                @MessageId, @ThreadId, @Role, @Content, @CreatedUtc, @MetadataJson
-            );
-            """;
+                           INSERT INTO dbo.ConversationMessages
+                           (
+                               MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
+                           )
+                           VALUES
+                           (
+                               @MessageId, @ThreadId, @Role, @Content, @CreatedUtc, @MetadataJson
+                           );
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, message, cancellationToken: ct));
@@ -43,24 +43,20 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
     {
         take = Math.Clamp(take, 1, 500);
         const string sql = """
-            SELECT MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
-            FROM (
-                SELECT TOP (@Take)
-                    MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
-                FROM dbo.ConversationMessages
-                WHERE ThreadId = @ThreadId
-                ORDER BY CreatedUtc DESC
-            ) AS recent
-            ORDER BY CreatedUtc ASC;
-            """;
+                           SELECT MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
+                           FROM (
+                               SELECT TOP (@Take)
+                                   MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
+                               FROM dbo.ConversationMessages
+                               WHERE ThreadId = @ThreadId
+                               ORDER BY CreatedUtc DESC
+                           ) AS recent
+                           ORDER BY CreatedUtc ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<ConversationMessage> rows = await connection.QueryAsync<ConversationMessage>(
-            new CommandDefinition(sql, new
-            {
-                ThreadId = threadId,
-                Take = take
-            }, cancellationToken: ct));
+            new CommandDefinition(sql, new { ThreadId = threadId, Take = take }, cancellationToken: ct));
         return rows.ToList();
     }
 }

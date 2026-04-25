@@ -6,9 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Policy Reference Connector Topology.
+///     Tests for Policy Reference Connector Topology.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class PolicyReferenceConnectorTopologyTests
 {
@@ -18,8 +17,7 @@ public sealed class PolicyReferenceConnectorTopologyTests
         PolicyReferenceConnector sut = new();
         RawContextPayload raw = new()
         {
-            PolicyReferences = ["prod-vnet-policy"],
-            TopologyHints = ["prod-vnet-policy-subnet"]
+            PolicyReferences = ["prod-vnet-policy"], TopologyHints = ["prod-vnet-policy-subnet"]
         };
 
         NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
@@ -35,11 +33,7 @@ public sealed class PolicyReferenceConnectorTopologyTests
     public async Task NormalizeAsync_WhenNoOverlap_OmitsApplicableTopologyNodeIds()
     {
         PolicyReferenceConnector sut = new();
-        RawContextPayload raw = new()
-        {
-            PolicyReferences = ["SOC2"],
-            TopologyHints = ["unrelated-vnet"]
-        };
+        RawContextPayload raw = new() { PolicyReferences = ["SOC2"], TopologyHints = ["unrelated-vnet"] };
 
         NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
 

@@ -19,26 +19,26 @@ public sealed class DapperSentEmailLedger(ISqlConnectionFactory connectionFactor
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
-                             INSERT INTO dbo.SentEmails (IdempotencyKey, TenantId, TemplateId, Provider, ProviderMessageId)
-                             SELECT @IdempotencyKey, @TenantId, @TemplateId, @Provider, @ProviderMessageId
-                             WHERE NOT EXISTS (
-                                 SELECT 1
-                                 FROM dbo.SentEmails e WITH (UPDLOCK, HOLDLOCK)
-                                 WHERE e.IdempotencyKey = @IdempotencyKey);
+                           INSERT INTO dbo.SentEmails (IdempotencyKey, TenantId, TemplateId, Provider, ProviderMessageId)
+                           SELECT @IdempotencyKey, @TenantId, @TemplateId, @Provider, @ProviderMessageId
+                           WHERE NOT EXISTS (
+                               SELECT 1
+                               FROM dbo.SentEmails e WITH (UPDLOCK, HOLDLOCK)
+                               WHERE e.IdempotencyKey = @IdempotencyKey);
 
-                             SELECT @@ROWCOUNT;
-                             """;
+                           SELECT @@ROWCOUNT;
+                           """;
 
         int inserted = await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
                 new
                 {
-                    IdempotencyKey = entry.IdempotencyKey,
-                    TenantId = entry.TenantId,
-                    TemplateId = entry.TemplateId,
-                    Provider = entry.Provider,
-                    ProviderMessageId = entry.ProviderMessageId,
+                    entry.IdempotencyKey,
+                    entry.TenantId,
+                    entry.TemplateId,
+                    entry.Provider,
+                    entry.ProviderMessageId
                 },
                 cancellationToken: cancellationToken));
 

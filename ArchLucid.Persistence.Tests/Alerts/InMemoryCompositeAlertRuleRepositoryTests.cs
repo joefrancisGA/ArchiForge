@@ -21,7 +21,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
     {
         InMemoryCompositeAlertRuleRepository repo = new();
         Guid ruleId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        CompositeAlertRule rule = BuildRule(ruleId, name: "v1", BaseUtc, enabled: true);
+        CompositeAlertRule rule = BuildRule(ruleId, "v1", BaseUtc, true);
 
         await repo.CreateAsync(rule, CancellationToken.None);
         rule.Name = "mutated";
@@ -36,7 +36,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
     {
         InMemoryCompositeAlertRuleRepository repo = new();
         Guid ruleId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-        await repo.CreateAsync(BuildRule(ruleId, name: "stable", BaseUtc, enabled: true), CancellationToken.None);
+        await repo.CreateAsync(BuildRule(ruleId, "stable", BaseUtc, true), CancellationToken.None);
 
         CompositeAlertRule? first = await repo.GetByIdAsync(ruleId, CancellationToken.None);
         first.Should().NotBeNull();
@@ -53,14 +53,14 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         InMemoryCompositeAlertRuleRepository repo = new();
         Guid ruleId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
         Guid conditionId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
-        CompositeAlertRule rule = BuildRule(ruleId, name: "r", BaseUtc, enabled: true);
+        CompositeAlertRule rule = BuildRule(ruleId, "r", BaseUtc, true);
         rule.Conditions.Add(
             new AlertRuleCondition
             {
                 ConditionId = conditionId,
                 MetricType = AlertMetricType.CostIncreasePercent,
                 Operator = AlertConditionOperator.GreaterThanOrEqual,
-                ThresholdValue = 10m,
+                ThresholdValue = 10m
             });
 
         await repo.CreateAsync(rule, CancellationToken.None);
@@ -77,9 +77,9 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
     {
         InMemoryCompositeAlertRuleRepository repo = new();
         Guid ruleId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
-        await repo.CreateAsync(BuildRule(ruleId, name: "old", BaseUtc, enabled: true), CancellationToken.None);
+        await repo.CreateAsync(BuildRule(ruleId, "old", BaseUtc, true), CancellationToken.None);
 
-        CompositeAlertRule next = BuildRule(ruleId, name: "new", BaseUtc.AddHours(1), enabled: false);
+        CompositeAlertRule next = BuildRule(ruleId, "new", BaseUtc.AddHours(1), false);
         await repo.UpdateAsync(next, CancellationToken.None);
 
         CompositeAlertRule? loaded = await repo.GetByIdAsync(ruleId, CancellationToken.None);
@@ -93,7 +93,8 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
     {
         InMemoryCompositeAlertRuleRepository repo = new();
 
-        CompositeAlertRule? loaded = await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
+        CompositeAlertRule? loaded =
+            await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
 
         loaded.Should().BeNull();
     }
@@ -103,11 +104,11 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
     {
         InMemoryCompositeAlertRuleRepository repo = new();
         await repo.CreateAsync(
-            BuildRule(Guid.Parse("50000000-0000-0000-0000-000000000001"), "a", BaseUtc, enabled: true),
+            BuildRule(Guid.Parse("50000000-0000-0000-0000-000000000001"), "a", BaseUtc, true),
             CancellationToken.None);
 
         await repo.CreateAsync(
-            BuildRule(Guid.Parse("50000000-0000-0000-0000-000000000002"), "b", BaseUtc.AddHours(2), enabled: true),
+            BuildRule(Guid.Parse("50000000-0000-0000-0000-000000000002"), "b", BaseUtc.AddHours(2), true),
             CancellationToken.None);
 
         await repo.CreateAsync(
@@ -115,8 +116,8 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
                 Guid.Parse("50000000-0000-0000-0000-000000000003"),
                 "other-tenant",
                 BaseUtc.AddHours(5),
-                enabled: true,
-                tenantId: Guid.Parse("99999999-9999-9999-9999-999999999999")),
+                true,
+                Guid.Parse("99999999-9999-9999-9999-999999999999")),
             CancellationToken.None);
 
         IReadOnlyList<CompositeAlertRule> list =
@@ -127,7 +128,8 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         list[1].Name.Should().Be("a");
 
         list[0].Name = "mutate-list";
-        CompositeAlertRule? again = await repo.GetByIdAsync(Guid.Parse("50000000-0000-0000-0000-000000000002"), CancellationToken.None);
+        CompositeAlertRule? again =
+            await repo.GetByIdAsync(Guid.Parse("50000000-0000-0000-0000-000000000002"), CancellationToken.None);
         again.Should().NotBeNull();
         again.Name.Should().Be("b");
     }
@@ -137,11 +139,11 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
     {
         InMemoryCompositeAlertRuleRepository repo = new();
         await repo.CreateAsync(
-            BuildRule(Guid.Parse("51000000-0000-0000-0000-000000000001"), "on", BaseUtc, enabled: true),
+            BuildRule(Guid.Parse("51000000-0000-0000-0000-000000000001"), "on", BaseUtc, true),
             CancellationToken.None);
 
         await repo.CreateAsync(
-            BuildRule(Guid.Parse("51000000-0000-0000-0000-000000000002"), "off", BaseUtc.AddHours(1), enabled: false),
+            BuildRule(Guid.Parse("51000000-0000-0000-0000-000000000002"), "off", BaseUtc.AddHours(1), false),
             CancellationToken.None);
 
         IReadOnlyList<CompositeAlertRule> enabled =
@@ -187,7 +189,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
             Name = name,
             IsEnabled = enabled,
             CreatedUtc = createdUtc,
-            Conditions = [],
+            Conditions = []
         };
     }
 }

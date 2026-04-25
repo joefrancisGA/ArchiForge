@@ -3,7 +3,8 @@ using System.Data;
 namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>
-/// Resolves an open <see cref="IDbConnection"/> for Dapper: reuse a caller-supplied connection (unit of work) or open and own a new one.
+///     Resolves an open <see cref="IDbConnection" /> for Dapper: reuse a caller-supplied connection (unit of work) or open
+///     and own a new one.
 /// </summary>
 internal static class ExternalDbConnection
 {

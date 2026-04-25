@@ -7,9 +7,9 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IGovernanceEnvironmentActivationRepository"/>.
-/// <see cref="UpdateAsync"/> mutates only <see cref="GovernanceEnvironmentActivation.IsActive"/> on the stored row,
-/// matching the Dapper repository's SQL update surface.
+///     Thread-safe in-memory <see cref="IGovernanceEnvironmentActivationRepository" />.
+///     <see cref="UpdateAsync" /> mutates only <see cref="GovernanceEnvironmentActivation.IsActive" /> on the stored row,
+///     matching the Dapper repository's SQL update surface.
 /// </summary>
 public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGovernanceEnvironmentActivationRepository
 {
@@ -56,7 +56,6 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
             if (_byActivationId.TryGetValue(item.ActivationId, out GovernanceEnvironmentActivation? existing))
 
                 existing.IsActive = item.IsActive;
-
 
 
         return Task.CompletedTask;

@@ -5,12 +5,12 @@ using ArchLucid.Contracts.Agents;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IAgentTaskRepository"/> for tests.
+///     Thread-safe in-memory <see cref="IAgentTaskRepository" /> for tests.
 /// </summary>
 public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
 {
-    private readonly List<AgentTask> _tasks = [];
     private readonly Lock _gate = new();
+    private readonly List<AgentTask> _tasks = [];
 
     /// <inheritdoc />
     public Task CreateManyAsync(
@@ -26,7 +26,6 @@ public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
             foreach (AgentTask task in tasks)
 
                 _tasks.Add(task);
-
 
 
         return Task.CompletedTask;

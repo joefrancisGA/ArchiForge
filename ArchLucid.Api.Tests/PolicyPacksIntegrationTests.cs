@@ -12,9 +12,9 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Integration tests: Policy Packs (HTTP host, database, or cross-component).
-/// Each test uses a dedicated <see cref="ArchLucidApiFactory"/> (ephemeral SQL database) so assignments and
-/// effective-content merges do not leak across tests (see <c>ArchitectureControllerTests</c>).
+///     Integration tests: Policy Packs (HTTP host, database, or cross-component).
+///     Each test uses a dedicated <see cref="ArchLucidApiFactory" /> (ephemeral SQL database) so assignments and
+///     effective-content merges do not leak across tests (see <c>ArchitectureControllerTests</c>).
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
@@ -22,8 +22,7 @@ public sealed class PolicyPacksIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     private static StringContent JsonContent(object value)
@@ -63,26 +62,25 @@ public sealed class PolicyPacksIntegrationTests
                         name = "Integration test pack",
                         description = "lifecycle",
                         packType = "ProjectCustom",
-                        initialContentJson = contentJson,
+                        initialContentJson = contentJson
                     }));
 
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             created.Should().NotBeNull();
             Guid packId = created.PolicyPackId;
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "1.0.0"
-                }));
+                JsonContent(new { version = "1.0.0" }));
 
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage effectiveResponse = await client.GetAsync("/v1/policy-packs/effective");
             effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            EffectivePolicyPackSet? effective = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
+            EffectivePolicyPackSet? effective =
+                await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
             effective.Should().NotBeNull();
             ResolvedPolicyPack? resolved = effective.Packs.SingleOrDefault(p => p.PolicyPackId == packId);
             resolved.Should().NotBeNull("created pack should appear in effective set for current scope");
@@ -90,7 +88,8 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
             mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackContentResponse? merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+            PolicyPackContentResponse? merged =
+                await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
             merged.Should().NotBeNull();
             merged.AdvisoryDefaults.Should().ContainKey("scanDepth");
             merged.AdvisoryDefaults["scanDepth"].Should().Be("standard");
@@ -122,22 +121,21 @@ public sealed class PolicyPacksIntegrationTests
                         name = "Archive probe pack",
                         description = "",
                         packType = "ProjectCustom",
-                        initialContentJson = contentJson,
+                        initialContentJson = contentJson
                     }));
 
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "1.0.0"
-                }));
+                JsonContent(new { version = "1.0.0" }));
 
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackAssignment? assignment = await assignResponse.Content.ReadFromJsonAsync<PolicyPackAssignment>(JsonOptions);
+            PolicyPackAssignment? assignment =
+                await assignResponse.Content.ReadFromJsonAsync<PolicyPackAssignment>(JsonOptions);
             assignment.Should().NotBeNull();
 
             HttpResponseMessage archiveResponse =
@@ -147,7 +145,8 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage effectiveResponse = await client.GetAsync("/v1/policy-packs/effective");
             effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            EffectivePolicyPackSet? effective = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
+            EffectivePolicyPackSet? effective =
+                await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
             effective.Should().NotBeNull();
             effective.Packs.Should().NotContain(p => p.PolicyPackId == packId);
         });
@@ -177,23 +176,22 @@ public sealed class PolicyPacksIntegrationTests
                         name = "Compliance keys pack",
                         description = "",
                         packType = "ProjectCustom",
-                        initialContentJson = contentJson,
+                        initialContentJson = contentJson
                     }));
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "1.0.0"
-                }));
+                JsonContent(new { version = "1.0.0" }));
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
             mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackContentResponse? merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+            PolicyPackContentResponse? merged =
+                await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
             merged.Should().NotBeNull();
             merged.ComplianceRuleKeys.Should().BeEquivalentTo("rule-alpha", "rule-beta");
         });
@@ -225,23 +223,22 @@ public sealed class PolicyPacksIntegrationTests
                         name = "Alert ids pack",
                         description = "",
                         packType = "ProjectCustom",
-                        initialContentJson = contentJson,
+                        initialContentJson = contentJson
                     }));
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "1.0.0"
-                }));
+                JsonContent(new { version = "1.0.0" }));
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
             mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackContentResponse? merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+            PolicyPackContentResponse? merged =
+                await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
             merged.Should().NotBeNull();
             merged.AlertRuleIds.Should().BeEquivalentTo([idA, idB]);
         });
@@ -260,17 +257,14 @@ public sealed class PolicyPacksIntegrationTests
                         name = "Parallel publish pack",
                         description = "",
                         packType = "ProjectCustom",
-                        initialContentJson = "{}",
+                        initialContentJson = "{}"
                     }));
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
-            object body = new
-            {
-                version = "2.0.0",
-                contentJson = """{"metadata":{"k":"parallel"}}""",
-            };
+            object body = new { version = "2.0.0", contentJson = """{"metadata":{"k":"parallel"}}""" };
 
             const int parallel = 8;
             Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
@@ -287,7 +281,8 @@ public sealed class PolicyPacksIntegrationTests
             foreach (HttpResponseMessage response in responses)
             {
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
-                PolicyPackVersionResponse? row = await response.Content.ReadFromJsonAsync<PolicyPackVersionResponse>(JsonOptions);
+                PolicyPackVersionResponse? row =
+                    await response.Content.ReadFromJsonAsync<PolicyPackVersionResponse>(JsonOptions);
                 row.Should().NotBeNull();
 
                 if (versionId is null)
@@ -302,7 +297,8 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage list = await client.GetAsync($"/v1/policy-packs/{packId}/versions");
             list.StatusCode.Should().Be(HttpStatusCode.OK);
-            List<PolicyPackVersionResponse>? versions = await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
+            List<PolicyPackVersionResponse>? versions =
+                await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
             versions.Should().NotBeNull();
             versions.Count(v => v.Version == "2.0.0").Should().Be(1);
         });
@@ -321,22 +317,15 @@ public sealed class PolicyPacksIntegrationTests
                         name = "Idempotent publish pack",
                         description = "",
                         packType = "ProjectCustom",
-                        initialContentJson = "{}",
+                        initialContentJson = "{}"
                     }));
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
-            var bodyA = new
-            {
-                version = "1.0.0",
-                contentJson = """{"metadata":{"k":"a"}}"""
-            };
-            var bodyB = new
-            {
-                version = "1.0.0",
-                contentJson = """{"metadata":{"k":"b"}}"""
-            };
+            var bodyA = new { version = "1.0.0", contentJson = """{"metadata":{"k":"a"}}""" };
+            var bodyB = new { version = "1.0.0", contentJson = """{"metadata":{"k":"b"}}""" };
 
             HttpResponseMessage p1 = await client.PostAsync($"/v1/policy-packs/{packId}/publish", JsonContent(bodyA));
             p1.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -350,7 +339,8 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage list = await client.GetAsync($"/v1/policy-packs/{packId}/versions");
             list.StatusCode.Should().Be(HttpStatusCode.OK);
-            List<PolicyPackVersionResponse>? versions = await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
+            List<PolicyPackVersionResponse>? versions =
+                await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
             versions.Should().NotBeNull();
             versions.Count(x => x.Version == "1.0.0").Should().Be(1);
             versions.Single(x => x.Version == "1.0.0").ContentJson.Should().Contain("\"k\":\"b\"");
@@ -370,14 +360,16 @@ public sealed class PolicyPacksIntegrationTests
                         name = "Versions list pack",
                         description = "",
                         packType = "ProjectCustom",
-                        initialContentJson = "{}",
+                        initialContentJson = "{}"
                     }));
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
             HttpResponseMessage list = await client.GetAsync($"/v1/policy-packs/{packId}/versions");
             list.StatusCode.Should().Be(HttpStatusCode.OK);
-            List<PolicyPackVersionResponse>? versions = await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
+            List<PolicyPackVersionResponse>? versions =
+                await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
             versions.Should().ContainSingle(v => v.Version == "1.0.0" && v.IsPublished == false);
         });
     }
@@ -407,17 +399,15 @@ public sealed class PolicyPacksIntegrationTests
                         name = "Assign 404 pack",
                         description = "",
                         packType = "ProjectCustom",
-                        initialContentJson = "{}",
+                        initialContentJson = "{}"
                     }));
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
             HttpResponseMessage assign = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "99.0.0"
-                }));
+                JsonContent(new { version = "99.0.0" }));
 
             assign.StatusCode.Should().Be(HttpStatusCode.NotFound);
             string text = await assign.Content.ReadAsStringAsync();
@@ -444,28 +434,24 @@ public sealed class PolicyPacksIntegrationTests
                         description = "",
                         packType = "ProjectCustom",
                         initialContentJson = """
-                            {
-                              "complianceRuleIds": [],
-                              "complianceRuleKeys": [],
-                              "alertRuleIds": [],
-                              "compositeAlertRuleIds": [],
-                              "advisoryDefaults": {},
-                              "metadata": { "k": "v" }
-                            }
-                            """,
+                                             {
+                                               "complianceRuleIds": [],
+                                               "complianceRuleKeys": [],
+                                               "alertRuleIds": [],
+                                               "compositeAlertRuleIds": [],
+                                               "advisoryDefaults": {},
+                                               "metadata": { "k": "v" }
+                                             }
+                                             """
                     }));
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
             (await client.PostAsync(
                     $"/v1/policy-packs/{packId}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0",
-                        scopeLevel = "Project",
-                        isPinned = false
-                    })))
+                    JsonContent(new { version = "1.0.0", scopeLevel = "Project", isPinned = false })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage res = await client.GetAsync($"/{ApiV1Routes.GovernanceResolution}");
@@ -512,7 +498,7 @@ public sealed class PolicyPacksIntegrationTests
                     name = "Two-pack merge A",
                     description = "",
                     packType = "ProjectCustom",
-                    initialContentJson = contentA,
+                    initialContentJson = contentA
                 }));
             createA.StatusCode.Should().Be(HttpStatusCode.OK);
             PolicyPackResponse? packA = await createA.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
@@ -524,29 +510,24 @@ public sealed class PolicyPacksIntegrationTests
                     name = "Two-pack merge B",
                     description = "",
                     packType = "ProjectCustom",
-                    initialContentJson = contentB,
+                    initialContentJson = contentB
                 }));
             createB.StatusCode.Should().Be(HttpStatusCode.OK);
             PolicyPackResponse? packB = await createB.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
 
             (await client.PostAsync(
                     $"/v1/policy-packs/{packA!.PolicyPackId}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0"
-                    })))
+                    JsonContent(new { version = "1.0.0" })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
             (await client.PostAsync(
                     $"/v1/policy-packs/{packB!.PolicyPackId}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0"
-                    })))
+                    JsonContent(new { version = "1.0.0" })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
             mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackContentResponse? merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+            PolicyPackContentResponse? merged =
+                await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
             merged.Should().NotBeNull();
             merged.AdvisoryDefaults.Should().ContainKeys("scanDepth", "notifyChannel");
             merged.AdvisoryDefaults["scanDepth"].Should().Be("deep");
@@ -568,29 +549,25 @@ public sealed class PolicyPacksIntegrationTests
 
             (await client.PostAsync(
                     $"/v1/policy-packs/{packA}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0"
-                    })))
+                    JsonContent(new { version = "1.0.0" })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
             (await client.PostAsync(
                     $"/v1/policy-packs/{packB}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0"
-                    })))
+                    JsonContent(new { version = "1.0.0" })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage effectiveResponse = await client.GetAsync("/v1/policy-packs/effective");
             effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            EffectivePolicyPackSet? effectiveSet = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
+            EffectivePolicyPackSet? effectiveSet =
+                await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
             effectiveSet.Should().NotBeNull();
             Guid[] createdPackIds = [packA, packB];
             effectiveSet.Packs.Where(p => createdPackIds.Contains(p.PolicyPackId)).Should().HaveCount(2);
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
             mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackContentResponse? merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+            PolicyPackContentResponse? merged =
+                await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
             merged!.ComplianceRuleKeys.Should().Contain("merge-key-a", "merge-key-b");
         });
 
@@ -610,15 +587,10 @@ public sealed class PolicyPacksIntegrationTests
             HttpResponseMessage createResponse = await http.PostAsync(
                 "/v1/policy-packs",
                 JsonContent(
-                    new
-                    {
-                        name,
-                        description = "",
-                        packType = "ProjectCustom",
-                        initialContentJson = contentJson,
-                    }));
+                    new { name, description = "", packType = "ProjectCustom", initialContentJson = contentJson }));
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             return created!.PolicyPackId;
         }
     }
@@ -627,30 +599,68 @@ public sealed class PolicyPacksIntegrationTests
     {
         public Guid PolicyPackId
         {
-            get; init;
+            get;
+            init;
         }
-        public string Name { get; init; } = "";
+
+        public string Name
+        {
+            get;
+            init;
+        } = "";
     }
 
     private sealed class PolicyPackVersionResponse
     {
         public Guid PolicyPackVersionId
         {
-            get; init;
+            get;
+            init;
         }
-        public string Version { get; init; } = "";
-        public string ContentJson { get; init; } = "";
+
+        public string Version
+        {
+            get;
+            init;
+        } = "";
+
+        public string ContentJson
+        {
+            get;
+            init;
+        } = "";
+
         public bool IsPublished
         {
-            get; init;
+            get;
+            init;
         }
     }
 
     private sealed class PolicyPackContentResponse
     {
-        public List<string> ComplianceRuleKeys { get; init; } = [];
-        public List<Guid> AlertRuleIds { get; init; } = [];
-        public Dictionary<string, string> AdvisoryDefaults { get; init; } = [];
-        public Dictionary<string, string> Metadata { get; init; } = [];
+        public List<string> ComplianceRuleKeys
+        {
+            get;
+            init;
+        } = [];
+
+        public List<Guid> AlertRuleIds
+        {
+            get;
+            init;
+        } = [];
+
+        public Dictionary<string, string> AdvisoryDefaults
+        {
+            get;
+            init;
+        } = [];
+
+        public Dictionary<string, string> Metadata
+        {
+            get;
+            init;
+        } = [];
     }
 }

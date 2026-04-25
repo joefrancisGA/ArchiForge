@@ -17,7 +17,7 @@ internal static class ArchLucidApiJsonSerializerOptions
         {
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
         };
-        options.Converters.Add(new JsonStringEnumConverter(null, true));
+        options.Converters.Add(new JsonStringEnumConverter(null));
 
         return options;
     }

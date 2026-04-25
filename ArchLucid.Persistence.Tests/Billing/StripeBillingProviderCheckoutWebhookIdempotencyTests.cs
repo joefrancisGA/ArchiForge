@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
@@ -21,7 +22,10 @@ namespace ArchLucid.Persistence.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
 {
-    /// <summary>Must match the API version baked into the pinned <c>Stripe.net</c> package (see <c>Directory.Packages.props</c>).</summary>
+    /// <summary>
+    ///     Must match the API version baked into the pinned <c>Stripe.net</c> package (see
+    ///     <c>Directory.Packages.props</c>).
+    /// </summary>
     private const string StripeNetWebhookApiVersion = "2025-08-27.basil";
 
     [Fact]
@@ -34,13 +38,14 @@ public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
         BillingOptions billing = new()
         {
             Provider = BillingProviderNames.Stripe,
-            Stripe = new StripeBillingOptions { WebhookSigningSecret = signingSecret },
+            Stripe = new StripeBillingOptions { WebhookSigningSecret = signingSecret }
         };
 
         TestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();
         ledger
-            .SetupSequence(l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .SetupSequence(l => l.TryInsertWebhookEventAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         ledger
             .Setup(l => l.GetWebhookEventResultStatusAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -54,9 +59,7 @@ public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
 
         Event stripeEvent = new()
         {
-            Id = "evt_dup_test_ping_1",
-            Type = "ping",
-            ApiVersion = StripeNetWebhookApiVersion,
+            Id = "evt_dup_test_ping_1", Type = "ping", ApiVersion = StripeNetWebhookApiVersion
         };
 
         string json = stripeEvent.ToJson();
@@ -69,7 +72,8 @@ public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
         result.Succeeded.Should().BeTrue();
         result.DuplicateIgnored.Should().BeTrue();
         changePlan.Verify(
-            h => h.HandleAsync(It.IsAny<Guid>(), It.IsAny<System.Text.Json.JsonElement>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            h => h.HandleAsync(It.IsAny<Guid>(), It.IsAny<JsonElement>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -93,10 +97,19 @@ public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
     private sealed class TestMonitor<T>(T value) : IOptionsMonitor<T>
         where T : class
     {
-        public T CurrentValue { get; } = value;
+        public T CurrentValue
+        {
+            get;
+        } = value;
 
-        public T Get(string? name) => CurrentValue;
+        public T Get(string? name)
+        {
+            return CurrentValue;
+        }
 
-        public IDisposable? OnChange(Action<T, string?> listener) => null;
+        public IDisposable? OnChange(Action<T, string?> listener)
+        {
+            return null;
+        }
     }
 }

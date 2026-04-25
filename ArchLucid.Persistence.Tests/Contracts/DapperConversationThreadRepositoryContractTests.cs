@@ -3,7 +3,8 @@ using ArchLucid.Persistence.Conversation;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="ConversationThreadRepositoryContractTests"/> against <see cref="DapperConversationThreadRepository"/>.
+///     Runs <see cref="ConversationThreadRepositoryContractTests" /> against
+///     <see cref="DapperConversationThreadRepository" />.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

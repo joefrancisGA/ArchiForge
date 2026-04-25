@@ -2,7 +2,10 @@ using ArchLucid.Decisioning.Alerts.Simulation;
 
 namespace ArchLucid.Decisioning.Alerts.Tuning;
 
-/// <summary>Default <see cref="IAlertNoiseScorer"/> using coverage, target-band, suppression ratio, and alert density heuristics.</summary>
+/// <summary>
+///     Default <see cref="IAlertNoiseScorer" /> using coverage, target-band, suppression ratio, and alert density
+///     heuristics.
+/// </summary>
 public sealed class AlertNoiseScorer : IAlertNoiseScorer
 {
     /// <inheritdoc />
@@ -38,7 +41,8 @@ public sealed class AlertNoiseScorer : IAlertNoiseScorer
 
         if (suppressionRatio > 0.5)
 
-            result.Notes.Add("A large share of matched outcomes would be suppressed, which suggests redundant triggering.");
+            result.Notes.Add(
+                "A large share of matched outcomes would be suppressed, which suggests redundant triggering.");
 
 
         double density = (double)created / evaluated;

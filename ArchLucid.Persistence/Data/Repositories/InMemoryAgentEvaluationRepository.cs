@@ -7,8 +7,8 @@ using ArchLucid.Contracts.Decisions;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IAgentEvaluationRepository"/> (JSON clone-on-read).
-/// Matches Dapper semantics: <see cref="CreateManyAsync"/> replaces all evaluations for the batch run id.
+///     Thread-safe in-memory <see cref="IAgentEvaluationRepository" /> (JSON clone-on-read).
+///     Matches Dapper semantics: <see cref="CreateManyAsync" /> replaces all evaluations for the batch run id.
 /// </summary>
 public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationRepository
 {

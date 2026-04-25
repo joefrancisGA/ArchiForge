@@ -6,26 +6,27 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IConversationThreadRepository"/>.
+///     Shared contract assertions for <see cref="IConversationThreadRepository" />.
 /// </summary>
 public abstract class ConversationThreadRepositoryContractTests
 {
-    protected abstract IConversationThreadRepository CreateRepository();
-
-    protected virtual void SkipIfSqlServerUnavailable()
-    {
-    }
-
-    /// <summary>
-    /// <see cref="IConversationThreadRepository.ArchiveThreadsLastUpdatedBeforeAsync"/> touches all rows in SQL; shared fixture is not isolated.
-    /// </summary>
-    protected virtual bool IncludeArchiveContractTest => true;
-
     private const int SeededThreadsForPagedScopeContract = 3;
 
     private static readonly Guid TenantId = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
     private static readonly Guid WorkspaceId = Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2");
     private static readonly Guid ProjectId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3");
+
+    /// <summary>
+    ///     <see cref="IConversationThreadRepository.ArchiveThreadsLastUpdatedBeforeAsync" /> touches all rows in SQL; shared
+    ///     fixture is not isolated.
+    /// </summary>
+    protected virtual bool IncludeArchiveContractTest => true;
+
+    protected abstract IConversationThreadRepository CreateRepository();
+
+    protected virtual void SkipIfSqlServerUnavailable()
+    {
+    }
 
     private static ConversationThread NewThread(
         DateTime? lastUpdatedUtc = null,
@@ -88,7 +89,7 @@ public abstract class ConversationThreadRepositoryContractTests
             TenantId,
             WorkspaceId,
             ProjectId,
-            take: 50,
+            50,
             CancellationToken.None);
 
         list.Should().Contain(t => t.ThreadId == matching.ThreadId);
@@ -112,7 +113,7 @@ public abstract class ConversationThreadRepositoryContractTests
             TenantId,
             WorkspaceId,
             ProjectId,
-            take: 10,
+            10,
             CancellationToken.None);
 
         int i1 = list.ToList().FindIndex(t => t.ThreadId == first.ThreadId);
@@ -135,8 +136,8 @@ public abstract class ConversationThreadRepositoryContractTests
             TenantId,
             WorkspaceId,
             ProjectId,
-            skip: 1,
-            take: 1,
+            1,
+            1,
             CancellationToken.None);
 
         total.Should().BeGreaterThanOrEqualTo(SeededThreadsForPagedScopeContract);

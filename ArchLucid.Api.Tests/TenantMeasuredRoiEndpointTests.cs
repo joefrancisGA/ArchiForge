@@ -7,8 +7,6 @@ using ArchLucid.Application.Bootstrap;
 
 using FluentAssertions;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Integration")]

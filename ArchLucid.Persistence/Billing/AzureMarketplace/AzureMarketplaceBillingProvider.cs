@@ -1,9 +1,11 @@
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 
 using Azure.Core;
 using Azure.Identity;
@@ -24,22 +26,23 @@ public sealed class AzureMarketplaceBillingProvider(
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
 
-    private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
-
-    private readonly BillingWebhookTrialActivator _trialActivator =
-        trialActivator ?? throw new ArgumentNullException(nameof(trialActivator));
-
-    private readonly IMarketplaceWebhookTokenVerifier _tokenVerifier =
-        tokenVerifier ?? throw new ArgumentNullException(nameof(tokenVerifier));
-
-    private readonly IHttpClientFactory _httpClientFactory =
-        httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-
     private readonly IMarketplaceChangePlanWebhookMutationHandler _changePlanWebhookMutationHandler =
         changePlanWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changePlanWebhookMutationHandler));
 
     private readonly IMarketplaceChangeQuantityWebhookMutationHandler _changeQuantityWebhookMutationHandler =
-        changeQuantityWebhookMutationHandler ?? throw new ArgumentNullException(nameof(changeQuantityWebhookMutationHandler));
+        changeQuantityWebhookMutationHandler ??
+        throw new ArgumentNullException(nameof(changeQuantityWebhookMutationHandler));
+
+    private readonly IHttpClientFactory _httpClientFactory =
+        httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+
+    private readonly IBillingLedger _ledger = ledger ?? throw new ArgumentNullException(nameof(ledger));
+
+    private readonly IMarketplaceWebhookTokenVerifier _tokenVerifier =
+        tokenVerifier ?? throw new ArgumentNullException(nameof(tokenVerifier));
+
+    private readonly BillingWebhookTrialActivator _trialActivator =
+        trialActivator ?? throw new ArgumentNullException(nameof(trialActivator));
 
     public string ProviderName => BillingProviderNames.AzureMarketplace;
 
@@ -80,7 +83,7 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             CheckoutUrl = url,
             ProviderSessionId = sessionId,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7),
+            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
         };
     }
 
@@ -92,7 +95,7 @@ public sealed class AzureMarketplaceBillingProvider(
             return BillingWebhookHandleResult.Rejected("Missing Marketplace bearer token.");
 
 
-        System.Security.Claims.ClaimsPrincipal? principal =
+        ClaimsPrincipal? principal =
             await _tokenVerifier.ValidateAsync(inbound.MarketplaceAuthorizationBearer, cancellationToken);
 
         if (principal is null)
@@ -125,7 +128,6 @@ public sealed class AzureMarketplaceBillingProvider(
 
             if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
                 return BillingWebhookHandleResult.Duplicate();
-
         }
 
         try
@@ -139,8 +141,8 @@ public sealed class AzureMarketplaceBillingProvider(
                 return BillingWebhookHandleResult.Ok();
             }
 
-            Guid workspaceId = ReadGuid(root, "workspaceId", Core.Scoping.ScopeIds.DefaultWorkspace);
-            Guid projectId = ReadGuid(root, "projectId", Core.Scoping.ScopeIds.DefaultProject);
+            Guid workspaceId = ReadGuid(root, "workspaceId", ScopeIds.DefaultWorkspace);
+            Guid projectId = ReadGuid(root, "projectId", ScopeIds.DefaultProject);
 
             MarketplaceDispatchCompletion completion = await DispatchMarketplaceActionAsync(
                 root,
@@ -170,7 +172,7 @@ public sealed class AzureMarketplaceBillingProvider(
                 ProviderDedupeKey = dedupeKey,
                 Action = action,
                 SubscriptionId = subscriptionId,
-                BillingProvider = ProviderName,
+                BillingProvider = ProviderName
             };
 
             return BillingWebhookHandleResult.Ok(integrationPayload);
@@ -181,12 +183,6 @@ public sealed class AzureMarketplaceBillingProvider(
 
             throw;
         }
-    }
-
-    private enum MarketplaceDispatchCompletion
-    {
-        PublishIntegrationEnvelope,
-        DeferredNoIntegration,
     }
 
     private async Task<MarketplaceDispatchCompletion> DispatchMarketplaceActionAsync(
@@ -255,7 +251,6 @@ public sealed class AzureMarketplaceBillingProvider(
             cancellationToken);
 
         return MarketplaceDispatchCompletion.PublishIntegrationEnvelope;
-
     }
 
     private async Task ActivateIfRequestedAsync(
@@ -321,7 +316,7 @@ public sealed class AzureMarketplaceBillingProvider(
         return Guid.TryParse(s, out Guid g) ? g : fallback;
     }
 
-    private Guid ResolveTenantId(JsonElement root, System.Security.Claims.ClaimsPrincipal principal)
+    private Guid ResolveTenantId(JsonElement root, ClaimsPrincipal principal)
     {
         BillingOptions billing = _billingOptions.CurrentValue;
         string? claimType = billing.AzureMarketplace.TenantIdClaimType?.Trim();
@@ -340,5 +335,11 @@ public sealed class AzureMarketplaceBillingProvider(
         string? s = tenantEl.GetString();
 
         return Guid.TryParse(s, out Guid g) ? g : Guid.Empty;
+    }
+
+    private enum MarketplaceDispatchCompletion
+    {
+        PublishIntegrationEnvelope,
+        DeferredNoIntegration
     }
 }

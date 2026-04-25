@@ -9,7 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Admin publication of <see cref="ArchLucid.Core.Audit.AuditEventTypes.SecurityAssessmentPublished"/> (trust UI + SIEM signal).
+///     Admin publication of <see cref="ArchLucid.Core.Audit.AuditEventTypes.SecurityAssessmentPublished" /> (trust UI +
+///     SIEM signal).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -24,7 +25,7 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
             AssessmentCode = "2026-Q2",
             SummaryReference = "docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md",
             AssessorDisplayName = "Aeronova Red Team LLC",
-            PublishedOn = "2026-07-29",
+            PublishedOn = "2026-07-29"
         };
 
         HttpResponseMessage post =
@@ -55,7 +56,7 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
         {
             AssessmentCode = "2026-Q2",
             SummaryReference = "docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md",
-            PublishedOn = "not-a-date",
+            PublishedOn = "not-a-date"
         };
 
         HttpResponseMessage post =

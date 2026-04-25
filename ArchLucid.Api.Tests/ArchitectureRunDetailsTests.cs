@@ -7,9 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Run Details.
+///     Tests for Architecture Run Details.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -22,7 +21,8 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -34,7 +34,8 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
         runResponse.EnsureSuccessStatusCode();
 
-        RunDetailsResponseDto? payload = await runResponse.Content.ReadFromJsonAsync<RunDetailsResponseDto>(JsonOptions);
+        RunDetailsResponseDto? payload =
+            await runResponse.Content.ReadFromJsonAsync<RunDetailsResponseDto>(JsonOptions);
 
         payload.Should().NotBeNull();
         payload.Run.RunId.Should().Be(runId);
@@ -45,4 +46,3 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         payload.DecisionTraces.Should().NotBeEmpty();
     }
 }
-

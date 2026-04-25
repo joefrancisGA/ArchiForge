@@ -8,7 +8,7 @@ using EvalTypes = ArchLucid.Contracts.Decisions.EvaluationTypes;
 namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
-/// Decision Engine v2: weighted argument resolution (deterministic, v1 scoring model).
+///     Decision Engine v2: weighted argument resolution (deterministic, v1 scoring model).
 /// </summary>
 public sealed class DecisionEngineV2(TimeProvider? timeProvider = null) : IDecisionEngineV2
 {
@@ -72,7 +72,8 @@ public sealed class DecisionEngineV2(TimeProvider? timeProvider = null) : IDecis
             BaseConfidence = baseConfidence,
             SupportScore = support,
             OppositionScore = opposition,
-            EvidenceRefs = relevant.SelectMany(e => e.EvidenceRefs).Distinct(StringComparer.OrdinalIgnoreCase).ToList()
+            EvidenceRefs = relevant.SelectMany(e => e.EvidenceRefs).Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList()
         };
 
         DecisionOption reject = new()
@@ -143,7 +144,8 @@ public sealed class DecisionEngineV2(TimeProvider? timeProvider = null) : IDecis
                 ? "No control promotion"
                 : $"Promote controls: {string.Join(", ", controls)}",
             BaseConfidence = controls.Count == 0 ? 0.30 : 0.80,
-            SupportScore = relevant.Where(e => e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
+            SupportScore = relevant.Where(e =>
+                    e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
                 .Sum(e => Math.Max(0, e.ConfidenceDelta)),
             OppositionScore = 0
         };
@@ -184,7 +186,8 @@ public sealed class DecisionEngineV2(TimeProvider? timeProvider = null) : IDecis
         {
             Description = "Keep current solution complexity",
             BaseConfidence = 0.60,
-            SupportScore = relevant.Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase))
+            SupportScore = relevant.Where(e =>
+                    e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase))
                 .Sum(e => Math.Max(0, e.ConfidenceDelta)),
             OppositionScore = cautions.Sum(e => Math.Abs(e.ConfidenceDelta))
         };

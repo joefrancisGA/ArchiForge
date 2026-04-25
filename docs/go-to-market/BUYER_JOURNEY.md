@@ -54,7 +54,7 @@ Fail-closed API auth (`ArchLucidAuth`), **scope policies** (`ReadAuthority` / `E
 
 | Metric | What “good” looks like | Proof in the system |
 |--------|------------------------|---------------------|
-| **Time-to-first committed manifest** | Median **&lt; X days** for pilot team (set X in charter) | `dbo.Runs` + `dbo.GoldenManifestVersions` / manifest commit timestamps vs `ArchitectureRequests.CreatedUtc` |
+| **Time-to-first committed manifest** | Median **&lt; X days** for pilot team (set X in charter) | `dbo.Runs` + **`dbo.GoldenManifests`** (Authority path; legacy **`dbo.GoldenManifestVersions`** dropped migration **111**) / manifest commit timestamps vs `ArchitectureRequests.CreatedUtc` |
 | **Traceable review package** | **100%** of pilot runs have **Otel + manifest + findings** for sponsor demo | `Runs.OtelTraceId`, `GoldenManifests`, `FindingsSnapshots` ([../DATA_MODEL.md](../library/DATA_MODEL.md)) |
 | **Governance-ready evidence (if Enterprise layer)** | At least **one** approval or policy outcome **exportable** for audit | `GovernanceApprovalRequests`, `AuditEvents` / operator audit UI |
 

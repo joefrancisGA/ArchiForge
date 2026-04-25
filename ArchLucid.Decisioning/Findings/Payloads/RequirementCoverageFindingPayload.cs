@@ -4,15 +4,25 @@ public class RequirementCoverageFindingPayload
 {
     public int RequirementNodeCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int CoveredRequirementCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int UncoveredRequirementCount
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> UncoveredRequirements { get; set; } = [];
+
+    public List<string> UncoveredRequirements
+    {
+        get;
+        set;
+    } = [];
 }

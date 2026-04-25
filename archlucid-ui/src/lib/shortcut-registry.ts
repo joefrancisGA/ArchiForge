@@ -35,7 +35,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
     key: "alt+p",
     label: "Replay",
     route: "/replay",
-    description: "Replay authority chain",
+    description: "Re-validate the provenance chain (replay)",
   },
   {
     key: "alt+a",

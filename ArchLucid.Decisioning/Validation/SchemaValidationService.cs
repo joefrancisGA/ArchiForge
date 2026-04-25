@@ -25,18 +25,19 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
     /// <summary>Records validation duration in milliseconds by schema name.</summary>
     private static readonly Histogram<double> SValidationDurationMs =
-        SMeter.CreateHistogram<double>("schema_validation_duration_ms", unit: "ms", description: "Schema validation duration.");
+        SMeter.CreateHistogram<double>("schema_validation_duration_ms", "ms", "Schema validation duration.");
+
+    private readonly Lazy<JsonSchema> _agentResultSchema;
+    private readonly Lazy<JsonSchema> _comparisonExplanationSchema;
+    private readonly Lazy<JsonSchema> _explanationRunSchema;
+    private readonly Lazy<JsonSchema> _goldenManifestSchema;
 
     private readonly ILogger<SchemaValidationService> _logger;
     private readonly SchemaValidationOptions _options;
-    private readonly Lazy<JsonSchema> _agentResultSchema;
-    private readonly Lazy<JsonSchema> _goldenManifestSchema;
-    private readonly Lazy<JsonSchema> _explanationRunSchema;
-    private readonly Lazy<JsonSchema> _comparisonExplanationSchema;
 
     /// <summary>
-    /// Optional LRU-style result cache keyed by SHA-256(json).
-    /// Cleared when it reaches <see cref="SchemaValidationOptions.ResultCacheMaxSize"/> to bound memory.
+    ///     Optional LRU-style result cache keyed by SHA-256(json).
+    ///     Cleared when it reaches <see cref="SchemaValidationOptions.ResultCacheMaxSize" /> to bound memory.
     /// </summary>
     private readonly ConcurrentDictionary<string, SchemaValidationResult>? _resultCache;
 
@@ -59,7 +60,6 @@ public sealed class SchemaValidationService : ISchemaValidationService
         if (_options.EnableResultCaching)
 
             _resultCache = new ConcurrentDictionary<string, SchemaValidationResult>(StringComparer.Ordinal);
-
     }
 
     public SchemaValidationResult ValidateAgentResultJson(string json)
@@ -128,7 +128,8 @@ public sealed class SchemaValidationService : ISchemaValidationService
         {
             if (_logger.IsEnabled(LogLevel.Error))
 
-                _logger.LogError(ex, "Failed to load or parse schema {SchemaName} from {RelativePath}", schemaName, relativePath);
+                _logger.LogError(ex, "Failed to load or parse schema {SchemaName} from {RelativePath}", schemaName,
+                    relativePath);
 
             throw;
         }
@@ -151,7 +152,6 @@ public sealed class SchemaValidationService : ISchemaValidationService
         SchemaValidationResult fresh = ValidateCore(json, schema, objectName);
         AddToCache(cacheKey, fresh);
         return fresh;
-
     }
 
     private SchemaValidationResult ValidateCore(
@@ -172,7 +172,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
                 _logger.LogWarning("Validation failed for {ObjectName}: Empty payload", objectName);
 
 
-            EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
+            EmitMetrics(objectName, false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
 
@@ -191,7 +191,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
                 _logger.LogWarning(ex, "Validation failed for {ObjectName}: Invalid JSON", objectName);
 
 
-            EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
+            EmitMetrics(objectName, false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
 
@@ -199,10 +199,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
         {
             EvaluationResults evaluation = schema.Evaluate(
                 doc.RootElement,
-                new EvaluationOptions
-                {
-                    OutputFormat = OutputFormat.List
-                });
+                new EvaluationOptions { OutputFormat = OutputFormat.List });
 
             if (evaluation.IsValid)
             {
@@ -211,7 +208,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
                     _logger.LogDebug("Validation succeeded for {ObjectName}", objectName);
 
 
-                EmitMetrics(objectName, valid: true, sw.Elapsed.TotalMilliseconds);
+                EmitMetrics(objectName, true, sw.Elapsed.TotalMilliseconds);
                 return result;
             }
 
@@ -225,7 +222,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
                     result.Errors.Count);
 
 
-            EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
+            EmitMetrics(objectName, false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
     }
@@ -253,11 +250,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
     private static void EmitMetrics(string objectName, bool valid, double elapsedMs)
     {
-        TagList tags = new()
-        {
-            { "schema", objectName },
-            { "outcome", valid ? "valid" : "invalid" }
-        };
+        TagList tags = new() { { "schema", objectName }, { "outcome", valid ? "valid" : "invalid" } };
 
         SValidationCounter.Add(1, tags);
         SValidationDurationMs.Record(elapsedMs, new KeyValuePair<string, object?>("schema", objectName));
@@ -299,12 +292,8 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
                     result.DetailedErrors.Add(new SchemaValidationError
                     {
-                        Message = message,
-                        Location = location,
-                        SchemaPath = schemaPath,
-                        Keyword = keyword
+                        Message = message, Location = location, SchemaPath = schemaPath, Keyword = keyword
                     });
-
             }
 
 
@@ -315,7 +304,5 @@ public sealed class SchemaValidationService : ISchemaValidationService
         foreach (EvaluationResults detail in evaluation.Details)
 
             CollectErrors(detail, result, objectName);
-
     }
 }
-

@@ -5,9 +5,10 @@ using ArchLucid.Contracts.Notifications;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// In-memory host: stores preferences per tenant so JWT integration tests can exercise GET/PUT without SQL.
+///     In-memory host: stores preferences per tenant so JWT integration tests can exercise GET/PUT without SQL.
 /// </summary>
-public sealed class InMemoryTenantNotificationChannelPreferencesRepository : ITenantNotificationChannelPreferencesRepository
+public sealed class
+    InMemoryTenantNotificationChannelPreferencesRepository : ITenantNotificationChannelPreferencesRepository
 {
     private readonly ConcurrentDictionary<Guid, TenantNotificationChannelPreferencesResponse?> _store = new();
 
@@ -39,7 +40,7 @@ public sealed class InMemoryTenantNotificationChannelPreferencesRepository : ITe
             EmailCustomerNotificationsEnabled = emailCustomerNotificationsEnabled,
             TeamsCustomerNotificationsEnabled = teamsCustomerNotificationsEnabled,
             OutboundWebhookCustomerNotificationsEnabled = outboundWebhookCustomerNotificationsEnabled,
-            UpdatedUtc = DateTimeOffset.UtcNow,
+            UpdatedUtc = DateTimeOffset.UtcNow
         };
 
         _store[tenantId] = row;

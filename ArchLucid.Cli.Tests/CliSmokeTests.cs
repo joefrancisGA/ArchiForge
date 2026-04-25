@@ -5,9 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Tests for Cli Smoke.
+///     Tests for Cli Smoke.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class CliSmokeTests
 {
@@ -37,4 +36,3 @@ public sealed class CliSmokeTests
         sb.ToString().Should().Contain("Usage: archlucid comparisons");
     }
 }
-

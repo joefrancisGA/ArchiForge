@@ -5,5 +5,5 @@ public enum SecretProviderKind
 {
     EnvironmentVariable = 0,
 
-    KeyVault = 1,
+    KeyVault = 1
 }

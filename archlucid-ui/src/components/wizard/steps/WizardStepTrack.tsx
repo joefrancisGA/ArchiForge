@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
@@ -32,7 +33,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
   return (
     <WizardStepPanel
       title="Track pipeline"
-      description="The authority chain runs asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
+      description="Snapshot stages run asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
     >
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         <strong>Run ID:</strong>{" "}
@@ -51,19 +52,27 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
 
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">Context</span>
+          <span className="w-28 text-sm font-medium">
+            <GlossaryTooltip termKey="context_snapshot">Context</GlossaryTooltip>
+          </span>
           <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Ready" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">Graph</span>
+          <span className="w-28 text-sm font-medium">
+            <GlossaryTooltip termKey="knowledge_graph">Graph</GlossaryTooltip>
+          </span>
           <Badge variant={graph ? "default" : "secondary"}>{graph ? "Ready" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">Findings</span>
+          <span className="w-28 text-sm font-medium">
+            <GlossaryTooltip termKey="findings">Findings</GlossaryTooltip>
+          </span>
           <Badge variant={findings ? "default" : "secondary"}>{findings ? "Ready" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">Manifest</span>
+          <span className="w-28 text-sm font-medium">
+            <GlossaryTooltip termKey="golden_manifest">Manifest</GlossaryTooltip>
+          </span>
           <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Ready" : "Pending"}</Badge>
         </li>
       </ul>

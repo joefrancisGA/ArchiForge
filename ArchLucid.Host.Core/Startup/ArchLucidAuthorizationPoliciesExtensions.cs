@@ -58,7 +58,12 @@ public static class ArchLucidAuthorizationPoliciesExtensions
             .AddPolicy(ArchLucidPolicies.CanReplayComparisons, policy =>
                 policy.RequireClaim("permission", "replay:comparisons"))
             .AddPolicy(ArchLucidPolicies.CanViewReplayDiagnostics, policy =>
-                policy.RequireClaim("permission", "replay:diagnostics"));
+                policy.RequireClaim("permission", "replay:diagnostics"))
+            .AddPolicy(ArchLucidPolicies.ScimWrite, policy =>
+            {
+                policy.AddAuthenticationSchemes(ScimBearerDefaults.AuthenticationScheme);
+                policy.RequireAuthenticatedUser();
+            });
 
         return services;
     }

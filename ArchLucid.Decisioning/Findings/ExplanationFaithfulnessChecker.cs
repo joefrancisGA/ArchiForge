@@ -7,8 +7,9 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
-/// Token-overlap heuristic: explanation word-like tokens are checked for substring presence in a flattened trace corpus.
-/// False negatives are common (paraphrases); false positives possible on short tokens shared with trace text.
+///     Token-overlap heuristic: explanation word-like tokens are checked for substring presence in a flattened trace
+///     corpus.
+///     False negatives are common (paraphrases); false positives possible on short tokens shared with trace text.
 /// </summary>
 public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChecker
 {
@@ -18,15 +19,107 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
     private static readonly HashSet<string> Stopwords = new(StringComparer.OrdinalIgnoreCase)
     {
-        "that", "this", "with", "from", "have", "has", "had", "were", "been", "will", "would", "could",
-        "should", "must", "may", "might", "not", "are", "was", "and", "for", "the", "but", "any", "all",
-        "each", "both", "such", "than", "then", "them", "their", "there", "these", "those", "into", "also",
-        "only", "just", "more", "most", "some", "very", "when", "what", "which", "while", "where", "who",
-        "how", "why", "your", "our", "its", "can", "did", "does", "done", "being", "over", "under", "after",
-        "before", "between", "through", "during", "about", "against", "within", "without", "using", "based",
-        "including", "included", "related", "overall", "several", "another", "other", "same", "well", "high",
-        "low", "risk", "cost", "security", "compliance", "system", "design", "architecture", "manifest",
-        "decision", "finding", "findings", "issue", "issues", "need", "needs", "must", "recommend", "summary",
+        "that",
+        "this",
+        "with",
+        "from",
+        "have",
+        "has",
+        "had",
+        "were",
+        "been",
+        "will",
+        "would",
+        "could",
+        "should",
+        "must",
+        "may",
+        "might",
+        "not",
+        "are",
+        "was",
+        "and",
+        "for",
+        "the",
+        "but",
+        "any",
+        "all",
+        "each",
+        "both",
+        "such",
+        "than",
+        "then",
+        "them",
+        "their",
+        "there",
+        "these",
+        "those",
+        "into",
+        "also",
+        "only",
+        "just",
+        "more",
+        "most",
+        "some",
+        "very",
+        "when",
+        "what",
+        "which",
+        "while",
+        "where",
+        "who",
+        "how",
+        "why",
+        "your",
+        "our",
+        "its",
+        "can",
+        "did",
+        "does",
+        "done",
+        "being",
+        "over",
+        "under",
+        "after",
+        "before",
+        "between",
+        "through",
+        "during",
+        "about",
+        "against",
+        "within",
+        "without",
+        "using",
+        "based",
+        "including",
+        "included",
+        "related",
+        "overall",
+        "several",
+        "another",
+        "other",
+        "same",
+        "well",
+        "high",
+        "low",
+        "risk",
+        "cost",
+        "security",
+        "compliance",
+        "system",
+        "design",
+        "architecture",
+        "manifest",
+        "decision",
+        "finding",
+        "findings",
+        "issue",
+        "issues",
+        "need",
+        "needs",
+        "must",
+        "recommend",
+        "summary"
     };
 
     /// <inheritdoc />
@@ -60,13 +153,9 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
                 supported++;
 
-            else
+            else if (unsupported.Count < MaxUnsupportedListed)
 
-                if (unsupported.Count < MaxUnsupportedListed)
-
-                    unsupported.Add(token);
-
-
+                unsupported.Add(token);
 
 
         int checkedCount = distinctTokens.Count;
@@ -171,7 +260,6 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
             foreach (string s in t.Notes)
 
                 Append(sb, s);
-
         }
 
         return sb.ToString().ToLowerInvariant();

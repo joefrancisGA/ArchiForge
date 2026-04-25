@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
@@ -9,6 +16,7 @@ import {
   getConversationMessages,
   listConversationThreads,
 } from "@/lib/conversation-api";
+import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 
 export default function AskPage() {
@@ -98,15 +106,18 @@ export default function AskPage() {
   }
 
   return (
-    <main style={{ maxWidth: 1100 }}>
-      <h2 style={{ marginTop: 0 }}>Ask ArchLucid</h2>
-      <p style={{ color: "#444", fontSize: 14 }}>
+    <main className="max-w-5xl">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Ask ArchLucid</h2>
+        <ContextualHelp helpKey="ask-archlucid" />
+      </div>
+      <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         Multi-turn conversations are scoped to your workspace. First message needs a <strong>run ID</strong>;
         follow-ups can use the same thread without resending it.
       </p>
 
       {listFailure !== null ? (
-        <div role="alert">
+        <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={listFailure.problem}
             fallbackMessage={listFailure.message}
@@ -115,119 +126,149 @@ export default function AskPage() {
         </div>
       ) : null}
 
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16 }}>
-        <aside style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, background: "#fff" }}>
-          <h3 style={{ marginTop: 0 }}>Threads</h3>
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedThreadId("");
-              setMessages([]);
-            }}
-            style={{ marginBottom: 12, fontSize: 13 }}
-          >
-            New conversation
-          </button>
-          <ul style={{ paddingLeft: 16, margin: 0, listStyle: "disc" }}>
-            {threads.map((thread) => (
-              <li key={thread.threadId} style={{ marginBottom: 8 }}>
-                <button
-                  type="button"
-                  onClick={() => onSelectThread(thread.threadId)}
-                  style={{
-                    textAlign: "left",
-                    fontWeight: selectedThreadId === thread.threadId ? "bold" : "normal",
-                  }}
-                >
-                  {thread.title}
-                  <div style={{ fontSize: 11, color: "#666", fontWeight: "normal" }}>
-                    {new Date(thread.lastUpdatedUtc).toLocaleString()}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(220px,280px)_1fr]">
+        <Card className="h-fit border-neutral-200 dark:border-neutral-700">
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Threads</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 p-4 pt-0">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-neutral-300 text-neutral-800 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-800"
+              onClick={() => {
+                setSelectedThreadId("");
+                setMessages([]);
+              }}
+            >
+              New conversation
+            </Button>
+            <ul className="m-0 list-none space-y-1 p-0">
+              {threads.map((thread) => (
+                <li key={thread.threadId}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className={cn(
+                      "h-auto w-full justify-start whitespace-normal py-2 text-left text-sm",
+                      selectedThreadId === thread.threadId ? "font-semibold" : "font-normal",
+                    )}
+                    onClick={() => void onSelectThread(thread.threadId)}
+                  >
+                    <span>
+                      {thread.title}
+                      <div className="text-xs font-normal text-neutral-500 dark:text-neutral-500">
+                        {new Date(thread.lastUpdatedUtc).toLocaleString()}
+                      </div>
+                    </span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-neutral-200 dark:border-neutral-700">
+          <CardContent className="space-y-4 p-4">
+            <div className="grid gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="ask-run-id">
+                  Run ID {selectedThreadId ? "(optional if thread already anchored)" : "(required for new thread)"}
+                </Label>
+                <Input
+                  id="ask-run-id"
+                  className="font-mono text-sm"
+                  value={runId}
+                  onChange={(e) => setRunId(e.target.value)}
+                  placeholder="00000000-0000-0000-0000-000000000000"
+                  autoComplete="off"
+                />
+              </div>
+              <details className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm text-neutral-800 open:border-teal-600/40 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
+                <summary className="cursor-pointer font-medium text-neutral-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 dark:text-neutral-100">
+                  Optional: compare two runs
+                </summary>
+                <div className="mt-3 grid gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="ask-base-run">Base run ID</Label>
+                    <Input
+                      id="ask-base-run"
+                      className="font-mono text-sm"
+                      value={baseRunId}
+                      onChange={(e) => setBaseRunId(e.target.value)}
+                      autoComplete="off"
+                    />
                   </div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </aside>
-
-        <section style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, background: "#fff" }}>
-          <div style={{ display: "grid", gap: 12, marginBottom: 16 }}>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 14 }}>
-              Run ID {selectedThreadId ? "(optional if thread already anchored)" : "(required for new thread)"}
-              <input
-                value={runId}
-                onChange={(e) => setRunId(e.target.value)}
-                placeholder="00000000-0000-0000-0000-000000000000"
-                style={{ padding: 8, fontFamily: "monospace" }}
-              />
-            </label>
-            <details style={{ fontSize: 14 }}>
-              <summary style={{ cursor: "pointer" }}>Optional: compare two runs</summary>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 12 }}>
-                <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  Base run ID
-                  <input
-                    value={baseRunId}
-                    onChange={(e) => setBaseRunId(e.target.value)}
-                    style={{ padding: 8, fontFamily: "monospace" }}
-                  />
-                </label>
-                <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  Target run ID
-                  <input
-                    value={targetRunId}
-                    onChange={(e) => setTargetRunId(e.target.value)}
-                    style={{ padding: 8, fontFamily: "monospace" }}
-                  />
-                </label>
+                  <div className="space-y-2">
+                    <Label htmlFor="ask-target-run">Target run ID</Label>
+                    <Input
+                      id="ask-target-run"
+                      className="font-mono text-sm"
+                      value={targetRunId}
+                      onChange={(e) => setTargetRunId(e.target.value)}
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
+              </details>
+              <div className="space-y-2">
+                <Label htmlFor="ask-question">Question</Label>
+                <Textarea
+                  id="ask-question"
+                  className="min-h-[5rem] font-sans"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Ask about your architecture..."
+                  rows={4}
+                />
               </div>
-            </details>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 14 }}>
-              Question
-              <textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ask about your architecture..."
-                rows={4}
-                style={{ padding: 8, fontFamily: "inherit" }}
-              />
-            </label>
 
-            <button type="button" onClick={() => void onAsk()} disabled={loading || !question.trim()}>
-              {loading ? "Thinking…" : "Ask"}
-            </button>
-          </div>
-
-          {actionFailure !== null ? (
-            <div style={{ marginBottom: 16 }} role="alert">
-              <OperatorApiProblem
-                problem={actionFailure.problem}
-                fallbackMessage={actionFailure.message}
-                correlationId={actionFailure.correlationId}
-              />
-            </div>
-          ) : null}
-
-          <h3 style={{ marginTop: 0 }}>Conversation</h3>
-          <div style={{ display: "grid", gap: 12 }}>
-            {messages.length === 0 ? (
-              <p style={{ color: "#666", fontSize: 14 }}>No messages yet. Ask a question to start.</p>
-            ) : null}
-            {messages.map((message) => (
-              <div
-                key={message.messageId}
-                style={{
-                  border: "1px solid #eee",
-                  borderRadius: 8,
-                  padding: 12,
-                  background: message.role === "User" ? "#eef6ff" : "#f8f8f8",
-                }}
+              <Button
+                type="button"
+                className="w-fit bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+                onClick={() => void onAsk()}
+                disabled={loading || !question.trim()}
               >
-                <strong>{message.role}</strong>
-                <p style={{ whiteSpace: "pre-wrap", marginBottom: 0 }}>{message.content}</p>
+                {loading ? "Thinking…" : "Ask"}
+              </Button>
+            </div>
+
+            {actionFailure !== null ? (
+              <div role="alert" className="pt-0">
+                <OperatorApiProblem
+                  problem={actionFailure.problem}
+                  fallbackMessage={actionFailure.message}
+                  correlationId={actionFailure.correlationId}
+                />
               </div>
-            ))}
-          </div>
-        </section>
+            ) : null}
+
+            <div>
+              <h3 className="mb-3 m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Conversation</h3>
+              <div className="grid gap-3">
+                {messages.length === 0 ? (
+                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-500">No messages yet. Ask a question to start.</p>
+                ) : null}
+                {messages.map((message) => (
+                  <Card
+                    key={message.messageId}
+                    className={cn(
+                      "border",
+                      message.role === "User"
+                        ? "border-sky-200/90 bg-sky-50/90 dark:border-sky-800/80 dark:bg-sky-950/35"
+                        : "border-neutral-200 bg-neutral-50/90 dark:border-neutral-700 dark:bg-neutral-800/50",
+                    )}
+                  >
+                    <CardContent className="space-y-1 p-3">
+                      <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{message.role}</div>
+                      <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">{message.content}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

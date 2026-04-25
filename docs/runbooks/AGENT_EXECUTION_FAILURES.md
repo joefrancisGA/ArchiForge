@@ -5,7 +5,7 @@
 
 # Agent execution failures
 
-**Last reviewed:** 2026-04-16
+**Last reviewed:** 2026-04-24
 
 **Audience:** Operators and on-call engineers triaging failed or stuck architecture runs after `POST .../runs/{runId}/execute` (or internal `ExecuteRunAsync`).
 
@@ -29,6 +29,12 @@
 2. **Check `AgentExecution:Mode`**  
    - **Simulator:** failures are usually deterministic (missing handler, validation).  
    - **Real:** verify `AzureOpenAI:*` (endpoint, key, deployment), quotas, and network egress (private endpoints, firewall).
+
+2a. **Local `archlucid try --real` (first real value)**  
+   - Preconditions: shell **`ARCHLUCID_REAL_AOAI=1`**, **`AZURE_OPENAI_ENDPOINT`**, **`AZURE_OPENAI_API_KEY`**, **`AZURE_OPENAI_DEPLOYMENT_NAME`** (CLI preflight).  
+   - If execute returns **4xx/5xx** or the run reaches **Failed** while the CLI is in real mode without **`--strict-real`**, the operator loop **falls back** to **`seed-fake-results`** with **`pilotTryRealModeFellBack=true`**, sets **`Runs.RealModeFellBackToSimulator`**, emits **`FirstRealValueRunFellBackToSimulator`**, and prepends a **warning callout** to the first-value Markdown.  
+   - **`--strict-real`:** same path but **no fallback** — the command fails so CI or smoke cannot mask a broken AOAI configuration.  
+   - Full operator narrative: **[`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)**.
 
 3. **Inspect traces**  
    When SQL storage is enabled, `dbo.AgentExecutionTraces` (and logs) show parse success/failure and redacted prompts. Correlation: **RunId** + **TaskId**.

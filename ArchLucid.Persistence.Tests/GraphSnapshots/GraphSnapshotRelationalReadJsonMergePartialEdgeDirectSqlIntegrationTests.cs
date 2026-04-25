@@ -14,14 +14,15 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 
 /// <summary>
-/// Branch coverage for <see cref="GraphSnapshotRelationalRead.LoadEdgesRelationalAsync"/> when
-/// <c>mergeMetadataFromJson</c> is <see langword="true"/> but <c>EdgesJson</c> omits an edge id present
-/// relationally — <c>jsonById.TryGetValue</c> is <see langword="false"/> for that row.
+///     Branch coverage for <see cref="GraphSnapshotRelationalRead.LoadEdgesRelationalAsync" /> when
+///     <c>mergeMetadataFromJson</c> is <see langword="true" /> but <c>EdgesJson</c> omits an edge id present
+///     relationally — <c>jsonById.TryGetValue</c> is <see langword="false" /> for that row.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "Core")]
-public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlIntegrationTests(
+    SqlServerPersistenceFixture fixture)
 {
     [SkippableFact]
     public async Task HydrateAsync_skips_EdgesJson_merge_for_relational_edges_missing_from_JSON_dictionary()
@@ -58,8 +59,8 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
                 EdgeType = "REL",
                 Weight = 3d,
                 Label = "label-only-for-e-in-both",
-                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["jk"] = "jv" },
-            },
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["jk"] = "jv" }
+            }
         ];
 
         string edgesJson = JsonEntitySerializer.Serialize(jsonEdges);
@@ -67,17 +68,17 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
         string emptyWarnings = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertHeader = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                    INSERT INTO dbo.GraphSnapshots
+                                    (
+                                        GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                        NodesJson, EdgesJson, WarningsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                        @NodesJson, @EdgesJson, @WarningsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -90,14 +91,14 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
                     CreatedUtc = createdUtc,
                     NodesJson = emptyNodes,
                     EdgesJson = edgesJson,
-                    WarningsJson = emptyWarnings,
+                    WarningsJson = emptyWarnings
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertEdge = """
-            INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
-            VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
-            """;
+                                  INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
+                                  VALUES (@GraphSnapshotId, @EdgeId, @FromNodeId, @ToNodeId, @EdgeType, @Weight);
+                                  """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -109,7 +110,7 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
                     FromNodeId = "a",
                     ToNodeId = "b",
                     EdgeType = "REL",
-                    Weight = 3d,
+                    Weight = 3d
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -123,23 +124,21 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
                     FromNodeId = "x",
                     ToNodeId = "y",
                     EdgeType = "LINK",
-                    Weight = 0.5d,
+                    Weight = 0.5d
                 },
                 cancellationToken: CancellationToken.None));
 
         const string selectRow = """
-            SELECT
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            FROM dbo.GraphSnapshots
-            WHERE GraphSnapshotId = @GraphSnapshotId;
-            """;
+                                 SELECT
+                                     GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                     NodesJson, EdgesJson, WarningsJson
+                                 FROM dbo.GraphSnapshots
+                                 WHERE GraphSnapshotId = @GraphSnapshotId;
+                                 """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new
-            {
-                GraphSnapshotId = graphId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId },
+                cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 

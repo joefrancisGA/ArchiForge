@@ -16,7 +16,8 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
 
         if (!_byId.TryAdd(record.CandidateChangeSetId, record))
 
-            throw new InvalidOperationException($"Candidate change set '{record.CandidateChangeSetId}' already exists.");
+            throw new InvalidOperationException(
+                $"Candidate change set '{record.CandidateChangeSetId}' already exists.");
 
 
         return Task.CompletedTask;
@@ -97,7 +98,7 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
             PlanSnapshotJson = row.PlanSnapshotJson,
             DerivationRuleVersion = row.DerivationRuleVersion,
             CreatedUtc = row.CreatedUtc,
-            CreatedByUserId = row.CreatedByUserId,
+            CreatedByUserId = row.CreatedByUserId
         };
 
         _byId[candidateChangeSetId] = updated;

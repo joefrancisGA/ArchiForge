@@ -1,5 +1,6 @@
 # Copy to terraform.tfvars (gitignored). Leave enable_container_apps = false until you target Azure.
 # For production guardrails (budgets, log cap), see production.tfvars.example in this directory.
+# For GitHub CD target `dev` (ArchLucid DEV subscription), see dev.tfvars.example and docs/library/AZURE_SUBSCRIPTIONS.md §5.1.1.
 
 enable_container_apps = true
 create_resource_group   = true

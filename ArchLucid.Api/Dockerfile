@@ -8,8 +8,9 @@
 # ────────────────────────────────────────────────────────────────────
 
 # ── Stage 1: restore (layer-cached independently of source changes) ─
-# SDK image tags use the SDK band (e.g. 10.0.201-alpine3.23). The aspnet *runtime* image uses the ASP.NET Core
-# runtime patch (e.g. 10.0.5-alpine3.23) — never reuse the SDK patch on mcr.microsoft.com/dotnet/aspnet.
+# SDK image tags use the SDK band (e.g. 10.0.201-alpine3.23). The aspnet *runtime* image must use an ASP.NET Core
+# runtime tag (e.g. 10.0-alpine) — never reuse the SDK patch on mcr.microsoft.com/dotnet/aspnet.
+# Prefer 10.0-alpine over 10.0-alpine3.xx: it is the primary MCR tag; some CI networks return 403 on narrow alpine patch tags.
 # Pin SDK patch + Alpine; bump SDK tag when you change global.json / CI SDK.
 FROM mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23 AS restore
 
@@ -102,7 +103,7 @@ RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 /p:Publi
         /p:PublishReadyToRun=true
 
 # ── Stage 3: runtime ───────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime
 
 # ICU for globalisation; wget for HEALTHCHECK (already present in Alpine aspnet image).
 # apk upgrade + explicit OpenSSL floor (CVE-2026-28390) so cached layers cannot keep 3.5.5-r0.

@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Core.Integration;
 
-/// <summary>Best-effort publishing helpers for <see cref="IIntegrationEventPublisher"/>.</summary>
+/// <summary>Best-effort publishing helpers for <see cref="IIntegrationEventPublisher" />.</summary>
 /// <remarks>Failures are logged and swallowed so domain commits are not rolled back.</remarks>
 public static class IntegrationEventPublishing
 {
-    /// <summary>Publishes <paramref name="payload"/> as UTF-8 JSON when <paramref name="publisher"/> is non-null.</summary>
+    /// <summary>Publishes <paramref name="payload" /> as UTF-8 JSON when <paramref name="publisher" /> is non-null.</summary>
     public static async Task TryPublishAsync(
         IIntegrationEventPublisher publisher,
         ILogger logger,
@@ -38,7 +38,6 @@ public static class IntegrationEventPublishing
             if (logger.IsEnabled(LogLevel.Warning))
 
                 logger.LogWarning(ex, "Integration event publish failed for {EventType}", eventType);
-
         }
     }
 }

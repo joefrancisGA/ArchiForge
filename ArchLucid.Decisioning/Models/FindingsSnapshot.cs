@@ -3,41 +3,66 @@ namespace ArchLucid.Decisioning.Models;
 public class FindingsSnapshot
 {
     /// <summary>Snapshot container schema version.</summary>
-    public int SchemaVersion { get; set; } = FindingsSchema.CurrentSnapshotVersion;
+    public int SchemaVersion
+    {
+        get;
+        set;
+    } = FindingsSchema.CurrentSnapshotVersion;
+
     public Guid FindingsSnapshotId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid RunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid ContextSnapshotId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid GraphSnapshotId
     {
-        get; set;
+        get;
+        set;
     }
+
     public DateTime CreatedUtc
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Engines that threw during this snapshot build (empty when all engines succeeded).</summary>
-    public List<FindingEngineFailure> EngineFailures { get; set; } = [];
+    public List<FindingEngineFailure> EngineFailures
+    {
+        get;
+        set;
+    } = [];
 
-    public List<Finding> Findings { get; set; } = [];
+    public List<Finding> Findings
+    {
+        get;
+        set;
+    } = [];
 
     public IReadOnlyList<Finding> GetByCategory(string category)
-        => Findings
+    {
+        return Findings
             .Where(f => string.Equals(f.Category, category, StringComparison.OrdinalIgnoreCase))
             .ToList();
+    }
 
     public IReadOnlyList<Finding> GetByType(string findingType)
-        => Findings
+    {
+        return Findings
             .Where(f => string.Equals(f.FindingType, findingType, StringComparison.OrdinalIgnoreCase))
             .ToList();
+    }
 }
-

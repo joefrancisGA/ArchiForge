@@ -27,7 +27,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
     {
         HttpResponseMessage response = await Client.PostAsync(
             "/v1/evolution/candidates/00000000-0000-0000-0000-000000000003/shadow-evaluate",
-            content: null);
+            null);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
@@ -42,7 +42,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
 
         HttpResponseMessage createResponse =
-            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", content: null);
+            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", null);
 
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -57,7 +57,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
         HttpResponseMessage shadowResponse =
             await Client.PostAsync(
                 $"/v1/evolution/candidates/{created.CandidateChangeSetId}/shadow-evaluate",
-                content: null);
+                null);
 
         shadowResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -89,7 +89,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
 
         HttpResponseMessage createResponse =
-            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", content: null);
+            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", null);
 
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -100,7 +100,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
 
         HttpResponseMessage simulateResponse = await Client.PostAsync(
             $"/v1/evolution/simulate/{created.CandidateChangeSetId}",
-            content: null);
+            null);
 
         simulateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -131,7 +131,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
 
         HttpResponseMessage createResponse =
-            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", content: null);
+            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", null);
 
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -142,7 +142,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
 
         HttpResponseMessage simulateResponse = await Client.PostAsync(
             $"/v1/evolution/simulate/{created.CandidateChangeSetId}",
-            content: null);
+            null);
 
         simulateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -176,7 +176,8 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
     private async Task<Guid> SeedMinimalPlanInDefaultScopeAsync()
     {
         using IServiceScope scope = Factory.Services.CreateScope();
-        IProductLearningPlanningRepository planning = scope.ServiceProvider.GetRequiredService<IProductLearningPlanningRepository>();
+        IProductLearningPlanningRepository planning =
+            scope.ServiceProvider.GetRequiredService<IProductLearningPlanningRepository>();
 
         Guid themeId = Guid.NewGuid();
         string themeKey = "evolution-test-" + themeId.ToString("N");
@@ -193,7 +194,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
                 Summary = "Seeded for 60R API tests.",
                 AffectedArtifactTypeOrWorkflowArea = "Test",
                 SeverityBand = "Low",
-                DerivationRuleVersion = "test",
+                DerivationRuleVersion = "test"
             },
             CancellationToken.None);
 
@@ -213,11 +214,9 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
                 [
                     new ProductLearningImprovementPlanActionStep
                     {
-                        Ordinal = 1,
-                        ActionType = "Observe",
-                        Description = "Observe only.",
-                    },
-                ],
+                        Ordinal = 1, ActionType = "Observe", Description = "Observe only."
+                    }
+                ]
             },
             CancellationToken.None);
 

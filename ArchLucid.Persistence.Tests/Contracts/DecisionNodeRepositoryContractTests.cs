@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IDecisionNodeRepository"/>.
+///     Shared contract assertions for <see cref="IDecisionNodeRepository" />.
 /// </summary>
 public abstract class DecisionNodeRepositoryContractTests
 {
@@ -60,7 +60,7 @@ public abstract class DecisionNodeRepositoryContractTests
             Topic = topic,
             Rationale = "r",
             Confidence = 0.5,
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
     }
 }

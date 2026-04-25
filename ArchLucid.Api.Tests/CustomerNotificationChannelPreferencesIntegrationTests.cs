@@ -15,12 +15,15 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>JWT + in-memory storage: <see cref="CustomerNotificationChannelPreferencesController"/> returns defaults when no SQL row.</summary>
+/// <summary>
+///     JWT + in-memory storage: <see cref="CustomerNotificationChannelPreferencesController" /> returns defaults when
+///     no SQL row.
+/// </summary>
 public sealed class CustomerNotificationChannelPreferencesIntegrationTests : IClassFixture<JwtLocalSigningWebAppFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
+        PropertyNameCaseInsensitive = true
     };
 
     private readonly JwtLocalSigningWebAppFactory _factory;
@@ -35,15 +38,16 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests : ICl
     {
         string token = MintJwt(
             _factory.PrivatePemForTests,
-            issuer: "https://test.archlucid.local",
-            audience: "api://archlucid-jwt-local-test",
-            name: "ReaderUser",
-            roles: [ArchLucidRoles.Reader]);
+            "https://test.archlucid.local",
+            "api://archlucid-jwt-local-test",
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
 
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        HttpResponseMessage res = await client.GetAsync(new Uri("/v1/notifications/customer-channel-preferences", UriKind.Relative));
+        HttpResponseMessage res =
+            await client.GetAsync(new Uri("/v1/notifications/customer-channel-preferences", UriKind.Relative));
 
         res.StatusCode.Should().Be(HttpStatusCode.OK);
         TenantNotificationChannelPreferencesResponse? body =
@@ -66,7 +70,7 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests : ICl
     {
         using RSA rsa = RSA.Create();
         rsa.ImportFromPem(privatePkcs8Pem);
-        RSAParameters keyMaterial = rsa.ExportParameters(includePrivateParameters: true);
+        RSAParameters keyMaterial = rsa.ExportParameters(true);
         RsaSecurityKey signingKey = new(keyMaterial);
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
@@ -79,12 +83,12 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests : ICl
 
         JwtSecurityTokenHandler handler = new();
         JwtSecurityToken token = new(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            notBefore: DateTime.UtcNow.AddMinutes(-1),
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);
+            issuer,
+            audience,
+            claims,
+            DateTime.UtcNow.AddMinutes(-1),
+            DateTime.UtcNow.AddHours(1),
+            creds);
 
         return handler.WriteToken(token);
     }

@@ -135,8 +135,8 @@ public sealed class SanitizedLoggerWarningExtensionsTests
         mock.Object.LogWarningComparisonReplayFailed(
             ex,
             "rec\tid",
-            notFound: false,
-            metadataOnly: true,
+            false,
+            true,
             ex.Message);
 
         rendered.Should().NotBeNull();

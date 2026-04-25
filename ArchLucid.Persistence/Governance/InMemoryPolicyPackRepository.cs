@@ -5,17 +5,17 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
-/// In-memory implementation of <see cref="IPolicyPackRepository"/> for testing and storage-off mode.
-/// Capped at <see cref="MaxEntries"/> packs; oldest entry is evicted on each insert when the cap is reached.
-/// All operations are thread-safe via an exclusive lock.
+///     In-memory implementation of <see cref="IPolicyPackRepository" /> for testing and storage-off mode.
+///     Capped at <see cref="MaxEntries" /> packs; oldest entry is evicted on each insert when the cap is reached.
+///     All operations are thread-safe via an exclusive lock.
 /// </summary>
 public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
 {
     private const int MaxEntries = 2_000;
     private const int ListScopeCap = 500;
+    private readonly Lock _gate = new();
 
     private readonly List<PolicyPack> _items = [];
-    private readonly Lock _gate = new();
 
     public Task CreateAsync(
         PolicyPack pack,

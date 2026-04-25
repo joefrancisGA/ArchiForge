@@ -7,27 +7,23 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IProvenanceSnapshotRepository"/>.
+///     Shared contract assertions for <see cref="IProvenanceSnapshotRepository" />.
 /// </summary>
 public abstract class ProvenanceSnapshotRepositoryContractTests
 {
+    private static readonly Guid TenantId = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
+    private static readonly Guid WorkspaceId = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
+    private static readonly Guid ScopeProjectId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3");
     protected abstract IProvenanceSnapshotRepository CreateRepository();
 
     protected virtual void SkipIfSqlServerUnavailable()
     {
     }
 
-    private static readonly Guid TenantId = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
-    private static readonly Guid WorkspaceId = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
-    private static readonly Guid ScopeProjectId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3");
-
-    private static ScopeContext NewScope() =>
-        new()
-        {
-            TenantId = TenantId,
-            WorkspaceId = WorkspaceId,
-            ProjectId = ScopeProjectId
-        };
+    private static ScopeContext NewScope()
+    {
+        return new ScopeContext { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ScopeProjectId };
+    }
 
     private static DecisionProvenanceSnapshot NewSnapshot(Guid runId, string graphJson, DateTime createdUtc)
     {
@@ -73,12 +69,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
 
         await repo.SaveAsync(NewSnapshot(runId, "{}", DateTime.UtcNow), CancellationToken.None);
 
-        ScopeContext other = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = WorkspaceId,
-            ProjectId = ScopeProjectId
-        };
+        ScopeContext other = new() { TenantId = Guid.NewGuid(), WorkspaceId = WorkspaceId, ProjectId = ScopeProjectId };
 
         DecisionProvenanceSnapshot? loaded = await repo.GetByRunIdAsync(other, runId, CancellationToken.None);
 

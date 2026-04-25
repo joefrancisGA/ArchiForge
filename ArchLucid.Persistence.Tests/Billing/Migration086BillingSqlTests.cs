@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Billing;
@@ -10,10 +12,11 @@ public sealed class Migration086BillingSqlTests
     [Fact]
     public void Embedded_086_migration_contains_change_procs()
     {
-        Assembly asm = typeof(ArchLucid.Persistence.Data.Infrastructure.DatabaseMigrator).Assembly;
+        Assembly asm = typeof(DatabaseMigrator).Assembly;
 
         string? resourceName = asm.GetManifestResourceNames()
-            .SingleOrDefault(static n => n.EndsWith("086_Billing_MarketplaceChangePlanQuantity.sql", StringComparison.Ordinal));
+            .SingleOrDefault(static n =>
+                n.EndsWith("086_Billing_MarketplaceChangePlanQuantity.sql", StringComparison.Ordinal));
 
         resourceName.Should().NotBeNull();
 

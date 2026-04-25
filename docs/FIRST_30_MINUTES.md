@@ -1,5 +1,7 @@
 > **Scope:** Redirect — moved 2026-04-23 to **`docs/engineering/FIRST_30_MINUTES.md`** as part of the SaaS-framing reconciliation (customers never run Docker; this is contributor / internal-engineer first-run path).
 
+> **Read this first (forced tree):** **[`READ_THIS_FIRST.md`](READ_THIS_FIRST.md)** — pick your lane before opening long guides.
+
 # First 30 minutes — moved
 
 The contributor / internal-engineer first-run walkthrough now lives at:

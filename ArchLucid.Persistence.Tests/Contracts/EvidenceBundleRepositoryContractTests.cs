@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IEvidenceBundleRepository"/>.
+///     Shared contract assertions for <see cref="IEvidenceBundleRepository" />.
 /// </summary>
 public abstract class EvidenceBundleRepositoryContractTests
 {
@@ -23,8 +23,7 @@ public abstract class EvidenceBundleRepositoryContractTests
         IEvidenceBundleRepository repo = CreateRepository();
         EvidenceBundle bundle = new()
         {
-            EvidenceBundleId = "eb-" + Guid.NewGuid().ToString("N"),
-            RequestDescription = "rd",
+            EvidenceBundleId = "eb-" + Guid.NewGuid().ToString("N"), RequestDescription = "rd"
         };
 
         await repo.CreateAsync(bundle, CancellationToken.None);

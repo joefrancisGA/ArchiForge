@@ -11,20 +11,22 @@ using Moq;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Tests for Default Graph Builder.
+///     Tests for Default Graph Builder.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class DefaultGraphBuilderTests
 {
-    private static ContextSnapshot BasicSnapshot(params CanonicalObject[] objects) => new()
+    private static ContextSnapshot BasicSnapshot(params CanonicalObject[] objects)
     {
-        SnapshotId = new Guid("aaaaaaaa-0000-0000-0000-000000000001"),
-        RunId = Guid.NewGuid(),
-        ProjectId = "test-project",
-        CanonicalObjects = [.. objects]
-    };
+        return new ContextSnapshot
+        {
+            SnapshotId = new Guid("aaaaaaaa-0000-0000-0000-000000000001"),
+            RunId = Guid.NewGuid(),
+            ProjectId = "test-project",
+            CanonicalObjects = [.. objects]
+        };
+    }
 
     [Fact]
     public async Task BuildAsync_NullSnapshot_Throws()
@@ -69,12 +71,7 @@ public sealed class DefaultGraphBuilderTests
 
         DefaultGraphBuilder sut = BuildSut(new Mock<IGraphNodeFactory>(), edgeInferer);
 
-        ContextSnapshot snapshot = new()
-        {
-            SnapshotId = snapshotId,
-            RunId = Guid.NewGuid(),
-            ProjectId = "proj-x"
-        };
+        ContextSnapshot snapshot = new() { SnapshotId = snapshotId, RunId = Guid.NewGuid(), ProjectId = "proj-x" };
 
         GraphBuildResult result = await sut.BuildAsync(snapshot, CancellationToken.None);
 
@@ -97,18 +94,8 @@ public sealed class DefaultGraphBuilderTests
             Name = "Encryption Policy"
         };
 
-        GraphNode node1 = new()
-        {
-            NodeId = $"obj-{obj1.ObjectId}",
-            NodeType = obj1.ObjectType,
-            Label = obj1.Name
-        };
-        GraphNode node2 = new()
-        {
-            NodeId = $"obj-{obj2.ObjectId}",
-            NodeType = obj2.ObjectType,
-            Label = obj2.Name
-        };
+        GraphNode node1 = new() { NodeId = $"obj-{obj1.ObjectId}", NodeType = obj1.ObjectType, Label = obj1.Name };
+        GraphNode node2 = new() { NodeId = $"obj-{obj2.ObjectId}", NodeType = obj2.ObjectType, Label = obj2.Name };
 
         Mock<IGraphNodeFactory> nodeFactory = new(MockBehavior.Strict);
         nodeFactory.Setup(f => f.CreateNode(obj1)).Returns(node1);
@@ -182,5 +169,7 @@ public sealed class DefaultGraphBuilderTests
     private static DefaultGraphBuilder BuildSut(
         Mock<IGraphNodeFactory> nodeFactory,
         Mock<IGraphEdgeInferer> edgeInferer)
-        => new(nodeFactory.Object, edgeInferer.Object);
+    {
+        return new DefaultGraphBuilder(nodeFactory.Object, edgeInferer.Object);
+    }
 }

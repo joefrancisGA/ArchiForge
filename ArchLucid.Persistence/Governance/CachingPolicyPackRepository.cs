@@ -5,14 +5,17 @@ using ArchLucid.Persistence.Caching;
 
 namespace ArchLucid.Persistence.Governance;
 
-/// <summary>Decorates <see cref="IPolicyPackRepository"/> with hot-path reads for <see cref="IPolicyPackRepository.GetByIdAsync"/>.</summary>
+/// <summary>
+///     Decorates <see cref="IPolicyPackRepository" /> with hot-path reads for
+///     <see cref="IPolicyPackRepository.GetByIdAsync" />.
+/// </summary>
 public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHotPathReadCache hotPathReadCache)
     : IPolicyPackRepository
 {
-    private readonly IPolicyPackRepository _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
+
+    private readonly IPolicyPackRepository _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
     /// <inheritdoc />
     public async Task CreateAsync(
@@ -35,17 +38,22 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
     }
 
     /// <inheritdoc />
-    public Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct) =>
-        _hotPathReadCache.GetOrCreateAsync(
+    public Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct)
+    {
+        return _hotPathReadCache.GetOrCreateAsync(
             HotPathCacheKeys.PolicyPack(policyPackId),
             innerCt => _inner.GetByIdAsync(policyPackId, innerCt),
             ct,
             HotPathCacheKeys.LegacyPolicyPack(policyPackId));
+    }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        CancellationToken ct) => _inner.ListByScopeAsync(tenantId, workspaceId, projectId, ct);
+        CancellationToken ct)
+    {
+        return _inner.ListByScopeAsync(tenantId, workspaceId, projectId, ct);
+    }
 }

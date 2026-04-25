@@ -206,8 +206,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     }
 
     /// <summary>
-    /// PR A0.5 / owner 35f — <see cref="GraphNode.Properties"/> carry optional
-    /// <c>serviceType</c>, <c>runtimePlatform</c>, <c>datastoreType</c> keys (enum names, case-insensitive).
+    ///     PR A0.5 / owner 35f — <see cref="GraphNode.Properties" /> carry optional
+    ///     <c>serviceType</c>, <c>runtimePlatform</c>, <c>datastoreType</c> keys (enum names, case-insensitive).
     /// </summary>
     private static void PopulateTypedTopologyFromGraph(GoldenManifest manifest, GraphSnapshot graphSnapshot)
     {
@@ -218,7 +218,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
             string? category = node.Category;
             bool isDatastore = string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase);
+                               || string.Equals(category, GraphTopologyCategories.Storage,
+                                   StringComparison.OrdinalIgnoreCase);
 
             if (isDatastore)
             {
@@ -228,7 +229,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                         DatastoreId = node.NodeId,
                         DatastoreName = node.Label,
                         DatastoreType = ParseEnumKey<DatastoreType>(node.Properties, "datastoreType"),
-                        RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform"),
+                        RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform")
                     });
             }
             else
@@ -239,7 +240,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                         ServiceId = node.NodeId,
                         ServiceName = node.Label,
                         ServiceType = ParseEnumKey<ServiceType>(node.Properties, "serviceType"),
-                        RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform"),
+                        RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform")
                     });
             }
         }
@@ -416,7 +417,6 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
                 manifest.Assumptions.Add(
                     $"Policy '{payload.PolicyName}' applies to {payload.ApplicableTopologyResourceCount} topology resource(s) (APPLIES_TO in knowledge graph).");
-
         }
     }
 
@@ -429,7 +429,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 continue;
 
             string pack = string.IsNullOrWhiteSpace(payload.PolicyReference) ? "Inferred" : payload.PolicyReference!;
-            string controlId = string.IsNullOrWhiteSpace(payload.PolicyReference) ? payload.PolicyName : payload.PolicyReference!;
+            string controlId = string.IsNullOrWhiteSpace(payload.PolicyReference)
+                ? payload.PolicyName
+                : payload.PolicyReference!;
 
             if (finding.Severity == FindingSeverity.Info)
 
@@ -451,7 +453,6 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     PolicyPack = pack,
                     Description = string.IsNullOrWhiteSpace(finding.Rationale) ? finding.Title : finding.Rationale
                 });
-
         }
 
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
@@ -482,7 +483,6 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     PolicyPack = "Governance",
                     Description = finding.Title
                 });
-
         }
     }
 
@@ -562,7 +562,6 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     CoverageStatus = "Uncovered",
                     SupportingFindingIds = [finding.FindingId]
                 });
-
         }
     }
 
@@ -571,7 +570,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         FindingsSnapshot findingsSnapshot,
         RuleAuditTracePayload trace)
     {
-        foreach (Finding finding in trace.AcceptedFindingIds.Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId)).OfType<Finding>())
+        foreach (Finding finding in trace.AcceptedFindingIds
+                     .Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId))
+                     .OfType<Finding>())
 
             if (finding.Severity == FindingSeverity.Critical || finding.Severity == FindingSeverity.Error)
 
@@ -580,8 +581,6 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             else if (finding.Severity == FindingSeverity.Info || finding.Severity == FindingSeverity.Warning)
 
                 manifest.Constraints.Preferences.Add(finding.Title);
-
-
     }
 
     private static void PopulateProvenance(
@@ -604,4 +603,3 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             .ToList();
     }
 }
-

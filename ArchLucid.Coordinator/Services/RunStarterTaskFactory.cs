@@ -5,7 +5,8 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.Coordinator.Services;
 
 /// <summary>
-/// Shared evidence bundle and starter task construction for <see cref="CoordinatorService"/> and deferred authority completion.
+///     Shared evidence bundle and starter task construction for <see cref="CoordinatorService" /> and deferred authority
+///     completion.
 /// </summary>
 public static class RunStarterTaskFactory
 {
@@ -59,7 +60,8 @@ public static class RunStarterTaskFactory
     }
 
     /// <summary>Creates topology, cost, compliance, and critic starter tasks for the run.</summary>
-    public static List<AgentTask> BuildStarterTasks(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
+    public static List<AgentTask> BuildStarterTasks(string runId, EvidenceBundle evidenceBundle,
+        ArchitectureRequest request)
     {
         return
         [
@@ -107,7 +109,8 @@ public static class RunStarterTaskFactory
         return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
-    private static AgentTask CreateTopologyTask(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
+    private static AgentTask CreateTopologyTask(string runId, EvidenceBundle evidenceBundle,
+        ArchitectureRequest request)
     {
         return new AgentTask
         {
@@ -153,7 +156,8 @@ public static class RunStarterTaskFactory
         };
     }
 
-    private static AgentTask CreateComplianceTask(string runId, EvidenceBundle evidenceBundle, ArchitectureRequest request)
+    private static AgentTask CreateComplianceTask(string runId, EvidenceBundle evidenceBundle,
+        ArchitectureRequest request)
     {
         return new AgentTask
         {

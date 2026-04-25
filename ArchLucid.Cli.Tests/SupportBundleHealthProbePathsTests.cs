@@ -9,7 +9,7 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Ensures support bundle collection probes the three health endpoints plus /version (56R).
+///     Ensures support bundle collection probes the three health endpoints plus /version (56R).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -20,10 +20,7 @@ public sealed class SupportBundleHealthProbePathsTests
     {
         ConcurrentBag<string> paths = [];
         using PathRecordingHandler handler = new(paths);
-        using HttpClient http = new(handler)
-        {
-            BaseAddress = new Uri("http://stub.local")
-        };
+        using HttpClient http = new(handler) { BaseAddress = new Uri("http://stub.local") };
         ArchLucidApiClient client = new(http);
 
         ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
@@ -36,8 +33,11 @@ public sealed class SupportBundleHealthProbePathsTests
             Plugins = new ArchLucidProjectScaffolder.PluginsSection { LockFile = "plugins/x.json" },
             Infra = new ArchLucidProjectScaffolder.InfraSection
             {
-                Terraform = new ArchLucidProjectScaffolder.TerraformSection { Enabled = false, Path = "infra/terraform" },
-            },
+                Terraform = new ArchLucidProjectScaffolder.TerraformSection
+                {
+                    Enabled = false, Path = "infra/terraform"
+                }
+            }
         };
 
         string cwd = Path.Combine(Path.GetTempPath(), "ArchLucidBundlePaths." + Guid.NewGuid().ToString("N")[..8]);
@@ -47,7 +47,8 @@ public sealed class SupportBundleHealthProbePathsTests
             Directory.CreateDirectory(cwd);
             Directory.CreateDirectory(Path.Combine(cwd, "outputs"));
 
-            SupportBundlePayload payload = await SupportBundleCollector.CollectAsync(client, cwd, config, CancellationToken.None);
+            SupportBundlePayload payload =
+                await SupportBundleCollector.CollectAsync(client, cwd, config, CancellationToken.None);
 
             payload.Health.Live.Path.Should().Be("/health/live");
             payload.Health.Ready.Path.Should().Be("/health/ready");
@@ -64,14 +65,14 @@ public sealed class SupportBundleHealthProbePathsTests
         {
             if (Directory.Exists(cwd))
 
-                Directory.Delete(cwd, recursive: true);
-
+                Directory.Delete(cwd, true);
         }
     }
 
     private sealed class PathRecordingHandler(ConcurrentBag<string> paths) : HttpMessageHandler
     {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             string path = request.RequestUri?.AbsolutePath ?? string.Empty;
             paths.Add(path);
@@ -88,7 +89,7 @@ public sealed class SupportBundleHealthProbePathsTests
 
             HttpResponseMessage response = new(HttpStatusCode.OK)
             {
-                Content = new StringContent(json, Encoding.UTF8, "application/json"),
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
 
             return Task.FromResult(response);

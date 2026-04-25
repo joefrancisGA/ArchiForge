@@ -19,7 +19,7 @@ public sealed class AuthDebugControllerTests
     {
         ClaimsIdentity identity = new(
             [new Claim(ClaimTypes.Name, "alice"), new Claim("tid", "tenant-1")],
-            authenticationType: "test");
+            "test");
         DefaultHttpContext httpContext = new()
         {
             User = new ClaimsPrincipal(identity)
@@ -43,7 +43,7 @@ public sealed class AuthDebugControllerTests
     [Fact]
     public void Me_returns_ok_when_identity_name_is_null()
     {
-        ClaimsIdentity identity = new([], authenticationType: "test");
+        ClaimsIdentity identity = new([], "test");
         DefaultHttpContext httpContext = new()
         {
             User = new ClaimsPrincipal(identity)

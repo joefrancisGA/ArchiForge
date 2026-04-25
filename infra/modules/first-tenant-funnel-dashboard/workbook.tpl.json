@@ -1,0 +1,76 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# ${workbook_display_name}\n\nFirst-tenant onboarding telemetry funnel (Improvement 12). Six aggregated counters from `archlucid_first_tenant_funnel_events_total`:\n\n1. `signup` → 2. `tour_opt_in` → 3. `first_run_started` → 4. `first_run_committed` → 5. `first_finding_viewed` → 6. `thirty_minute_milestone`\n\n**Default emission shape is aggregated-only** (no per-tenant correlation) per `docs/security/PRIVACY_NOTE.md` §3.A and pending question 40. Tenant-scoped rows in `dbo.FirstTenantFunnelEvents` only appear when the owner flips `Telemetry:FirstTenantFunnel:PerTenantEmission` to `true` after a privacy review.\n\n**30-minute success target:** ${thirty_minute_target_percent}%."
+      },
+      "name": "header"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name == 'archlucid_first_tenant_funnel_events_total'\n| extend funnel_event = tostring(customDimensions['event'])\n| where isnotempty(funnel_event)\n| summarize Count = sum(value) by funnel_event\n| order by Count desc",
+        "size": 0,
+        "title": "Funnel events — totals by event (aggregated)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "barchart"
+      },
+      "name": "totals-by-event"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let counts = customMetrics\n| where name == 'archlucid_first_tenant_funnel_events_total'\n| extend funnel_event = tostring(customDimensions['event'])\n| where funnel_event in ('signup','tour_opt_in','first_run_started','first_run_committed','first_finding_viewed','thirty_minute_milestone')\n| summarize total = sum(value) by funnel_event;\nlet signup = toscalar(counts | where funnel_event == 'signup' | summarize sum(total));\ncounts\n| extend pct_of_signup = iif(signup > 0, round(100.0 * total / signup, 1), 0.0)\n| project funnel_event, total, pct_of_signup\n| order by total desc",
+        "size": 0,
+        "title": "Conversion vs signup (% of signups reaching each step)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "conversion-rates"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let counts = customMetrics\n| where name == 'archlucid_first_tenant_funnel_events_total'\n| extend funnel_event = tostring(customDimensions['event']);\nlet signup = toscalar(counts | where funnel_event == 'signup' | summarize sum(value));\nlet milestone = toscalar(counts | where funnel_event == 'thirty_minute_milestone' | summarize sum(value));\nprint Signups = signup, ThirtyMinMilestones = milestone, ThirtyMinSuccessRatePct = iif(signup > 0, round(100.0 * milestone / signup, 1), 0.0), TargetPct = ${thirty_minute_target_percent}",
+        "size": 0,
+        "title": "30-minute first-finding success rate (vs ${thirty_minute_target_percent}% target)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "table"
+      },
+      "name": "thirty-minute-success-rate"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "customMetrics\n| where name == 'archlucid_first_tenant_funnel_events_total'\n| extend funnel_event = tostring(customDimensions['event'])\n| where funnel_event in ('signup','first_run_committed','first_finding_viewed','thirty_minute_milestone')\n| summarize Count = sum(value) by bin(timestamp, 1d), funnel_event\n| order by timestamp asc",
+        "size": 0,
+        "title": "Daily funnel volume (signup vs commit vs first finding vs 30-min milestone)",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "linechart"
+      },
+      "name": "daily-funnel"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Tile sources\n\n- All tiles read `customMetrics` rows from `archlucid_first_tenant_funnel_events_total` (label `event`).\n- The counter is incremented by `ArchLucidInstrumentation.RecordFirstTenantFunnelEvent` (`ArchLucid.Core/Diagnostics/`).\n- The Workbook **does not** read `dbo.FirstTenantFunnelEvents` — that table is only populated when the owner flips the per-tenant flag, and the funnel is intentionally analyzable without it.\n- Privacy posture: aggregated-only by default, see `docs/security/PRIVACY_NOTE.md` §3.A.\n- Pending question 40 tracks owner sign-off for per-tenant emission and the SLO-grade success-rate target."
+      },
+      "name": "footer"
+    }
+  ],
+  "isLocked": true,
+  "fallbackResourceIds": [
+    "${application_insights_resource_id}"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

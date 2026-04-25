@@ -5,11 +5,14 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Comparison;
 
 /// <summary>
-/// <see cref="IComparisonService"/> implementation: keyed merges over decisions, requirement coverage, security controls, topology resources, and optional max monthly cost.
+///     <see cref="IComparisonService" /> implementation: keyed merges over decisions, requirement coverage, security
+///     controls, topology resources, and optional max monthly cost.
 /// </summary>
 /// <remarks>
-/// Decision keys prefer <see cref="ResolvedArchitectureDecision.DecisionId"/> when set, else <c>Category::Title</c>. Security controls key on <c>ControlId|ControlName</c> when <c>ControlId</c> is non-empty.
-/// Requirement names are matched case-insensitively; several string comparisons for options/status use ordinal rules as implemented per section.
+///     Decision keys prefer <see cref="ResolvedArchitectureDecision.DecisionId" /> when set, else <c>Category::Title</c>.
+///     Security controls key on <c>ControlId|ControlName</c> when <c>ControlId</c> is non-empty.
+///     Requirement names are matched case-insensitively; several string comparisons for options/status use ordinal rules
+///     as implemented per section.
 /// </remarks>
 public sealed class ComparisonService : IComparisonService
 {
@@ -18,11 +21,7 @@ public sealed class ComparisonService : IComparisonService
     {
         ArgumentNullException.ThrowIfNull(baseM);
         ArgumentNullException.ThrowIfNull(targetM);
-        ComparisonResult result = new()
-        {
-            BaseRunId = baseM.RunId,
-            TargetRunId = targetM.RunId
-        };
+        ComparisonResult result = new() { BaseRunId = baseM.RunId, TargetRunId = targetM.RunId };
 
         CompareDecisions(baseM, targetM, result);
         CompareRequirements(baseM, targetM, result);
@@ -40,13 +39,17 @@ public sealed class ComparisonService : IComparisonService
         return result;
     }
 
-    private static string DecisionKey(ResolvedArchitectureDecision d) =>
-        !string.IsNullOrWhiteSpace(d.DecisionId) ? d.DecisionId : $"{d.Category}::{d.Title}";
+    private static string DecisionKey(ResolvedArchitectureDecision d)
+    {
+        return !string.IsNullOrWhiteSpace(d.DecisionId) ? d.DecisionId : $"{d.Category}::{d.Title}";
+    }
 
     private static void CompareDecisions(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        Dictionary<string, ResolvedArchitectureDecision> baseMap = baseM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
-        Dictionary<string, ResolvedArchitectureDecision> targetMap = targetM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
+        Dictionary<string, ResolvedArchitectureDecision> baseMap =
+            baseM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
+        Dictionary<string, ResolvedArchitectureDecision> targetMap =
+            targetM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
 
         foreach (string key in baseMap.Keys.Union(targetMap.Keys))
         {
@@ -57,18 +60,14 @@ public sealed class ComparisonService : IComparisonService
 
                 result.DecisionChanges.Add(new DecisionDelta
                 {
-                    DecisionKey = key,
-                    TargetValue = t!.SelectedOption,
-                    ChangeType = "Added"
+                    DecisionKey = key, TargetValue = t!.SelectedOption, ChangeType = "Added"
                 });
 
             else if (t is null)
 
                 result.DecisionChanges.Add(new DecisionDelta
                 {
-                    DecisionKey = key,
-                    BaseValue = b.SelectedOption,
-                    ChangeType = "Removed"
+                    DecisionKey = key, BaseValue = b.SelectedOption, ChangeType = "Removed"
                 });
 
             else if (!string.Equals(b.SelectedOption, t.SelectedOption, StringComparison.Ordinal))
@@ -80,7 +79,6 @@ public sealed class ComparisonService : IComparisonService
                     TargetValue = t.SelectedOption,
                     ChangeType = "Modified"
                 });
-
         }
     }
 
@@ -106,11 +104,7 @@ public sealed class ComparisonService : IComparisonService
 
             if (b is not null && t is null)
             {
-                result.RequirementChanges.Add(new RequirementDelta
-                {
-                    RequirementName = name,
-                    ChangeType = "Removed"
-                });
+                result.RequirementChanges.Add(new RequirementDelta { RequirementName = name, ChangeType = "Removed" });
                 continue;
             }
 
@@ -130,22 +124,9 @@ public sealed class ComparisonService : IComparisonService
             if (!string.Equals(b.CoverageStatus, t.CoverageStatus, StringComparison.Ordinal) ||
                 b.IsMandatory != t.IsMandatory)
 
-                result.RequirementChanges.Add(new RequirementDelta
-                {
-                    RequirementName = name,
-                    ChangeType = "Changed"
-                });
-
+                result.RequirementChanges.Add(new RequirementDelta { RequirementName = name, ChangeType = "Changed" });
         }
     }
-
-    private enum RequirementBucket
-    {
-        Covered,
-        Uncovered
-    }
-
-    private sealed record RequirementState(RequirementBucket Bucket, string CoverageStatus, bool IsMandatory);
 
     private static Dictionary<string, RequirementState> RequirementStates(RequirementsCoverageSection section)
     {
@@ -153,17 +134,21 @@ public sealed class ComparisonService : IComparisonService
 
         // First-wins: if a name appears in both lists, the Covered entry takes priority.
         foreach (RequirementCoverageItem x in section.Covered)
-            map.TryAdd(x.RequirementName, new RequirementState(RequirementBucket.Covered, x.CoverageStatus, x.IsMandatory));
+            map.TryAdd(x.RequirementName,
+                new RequirementState(RequirementBucket.Covered, x.CoverageStatus, x.IsMandatory));
         foreach (RequirementCoverageItem x in section.Uncovered)
-            map.TryAdd(x.RequirementName, new RequirementState(RequirementBucket.Uncovered, x.CoverageStatus, x.IsMandatory));
+            map.TryAdd(x.RequirementName,
+                new RequirementState(RequirementBucket.Uncovered, x.CoverageStatus, x.IsMandatory));
 
         return map;
     }
 
     private static void CompareSecurity(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        Dictionary<string, SecurityPostureItem> baseMap = baseM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
-        Dictionary<string, SecurityPostureItem> targetMap = targetM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
+        Dictionary<string, SecurityPostureItem> baseMap =
+            baseM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
+        Dictionary<string, SecurityPostureItem> targetMap =
+            targetM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
 
         foreach (string key in baseMap.Keys.Union(targetMap.Keys))
         {
@@ -174,9 +159,7 @@ public sealed class ComparisonService : IComparisonService
             {
                 result.SecurityChanges.Add(new SecurityDelta
                 {
-                    ControlName = t.ControlName,
-                    BaseStatus = null,
-                    TargetStatus = t.Status
+                    ControlName = t.ControlName, BaseStatus = null, TargetStatus = t.Status
                 });
                 continue;
             }
@@ -185,9 +168,7 @@ public sealed class ComparisonService : IComparisonService
             {
                 result.SecurityChanges.Add(new SecurityDelta
                 {
-                    ControlName = b.ControlName,
-                    BaseStatus = b.Status,
-                    TargetStatus = null
+                    ControlName = b.ControlName, BaseStatus = b.Status, TargetStatus = null
                 });
                 continue;
             }
@@ -199,17 +180,16 @@ public sealed class ComparisonService : IComparisonService
 
                 result.SecurityChanges.Add(new SecurityDelta
                 {
-                    ControlName = b.ControlName,
-                    BaseStatus = b.Status,
-                    TargetStatus = t.Status
+                    ControlName = b.ControlName, BaseStatus = b.Status, TargetStatus = t.Status
                 });
-
         }
 
         return;
 
-        static string Key(SecurityPostureItem c) =>
-            string.IsNullOrWhiteSpace(c.ControlId) ? c.ControlName : $"{c.ControlId}|{c.ControlName}";
+        static string Key(SecurityPostureItem c)
+        {
+            return string.IsNullOrWhiteSpace(c.ControlId) ? c.ControlName : $"{c.ControlId}|{c.ControlName}";
+        }
     }
 
     private static void CompareTopology(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
@@ -225,7 +205,6 @@ public sealed class ComparisonService : IComparisonService
         foreach (string r in baseSet.Where(r => !targetSet.Contains(r)))
 
             result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Removed" });
-
     }
 
     private static void CompareCost(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
@@ -234,12 +213,7 @@ public sealed class ComparisonService : IComparisonService
         decimal? t = targetM.Cost.MaxMonthlyCost;
         if (b != t)
 
-            result.CostChanges.Add(new CostDelta
-            {
-                BaseCost = b,
-                TargetCost = t
-            });
-
+            result.CostChanges.Add(new CostDelta { BaseCost = b, TargetCost = t });
     }
 
     private static void BuildSummary(ComparisonResult r)
@@ -257,4 +231,12 @@ public sealed class ComparisonService : IComparisonService
         if (r.SummaryHighlights.Count == 0)
             r.SummaryHighlights.Add("No material differences detected in compared sections.");
     }
+
+    private enum RequirementBucket
+    {
+        Covered,
+        Uncovered
+    }
+
+    private sealed record RequirementState(RequirementBucket Bucket, string CoverageStatus, bool IsMandatory);
 }

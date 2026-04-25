@@ -4,11 +4,19 @@ public class PolicyCoverageFindingPayload
 {
     public int PolicyNodeCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int PolicyApplicabilityEdgeCount
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> UncoveredResources { get; set; } = [];
+
+    public List<string> UncoveredResources
+    {
+        get;
+        set;
+    } = [];
 }

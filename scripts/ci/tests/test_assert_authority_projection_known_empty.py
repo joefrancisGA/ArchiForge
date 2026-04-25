@@ -22,12 +22,14 @@ class AuthorityProjectionKnownEmptyTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_json_has_relationships_row(self) -> None:
+    def test_json_does_not_reintroduce_relationships(self) -> None:
+        # ADR 0030 PR A3 (2026-04-24) — Relationships now round-trips through TopologySection.
+        # The allow-list must not re-introduce it (drift guard).
         repo_root = Path(__file__).resolve().parents[3]
         path = repo_root / "docs" / "architecture" / "AUTHORITY_PROJECTION_KNOWN_EMPTY.json"
         data = json.loads(path.read_text(encoding="utf-8"))
-        names = {r["name"] for r in data["emptyFields"]}
-        self.assertIn("Relationships", names)
+        names = {r["name"] for r in data.get("emptyFields", [])}
+        self.assertNotIn("Relationships", names)
 
 
 if __name__ == "__main__":

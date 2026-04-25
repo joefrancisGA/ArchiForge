@@ -1,33 +1,46 @@
 namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
-/// Per-dimension (category, urgency, signal type) counts and derived rates for learning profiles.
+///     Per-dimension (category, urgency, signal type) counts and derived rates for learning profiles.
 /// </summary>
 public class RecommendationOutcomeStats
 {
     /// <summary>Facet key (e.g. category name).</summary>
-    public string Key { get; set; } = null!;
+    public string Key
+    {
+        get;
+        set;
+    } = null!;
 
     /// <summary>Recommendations proposed in this bucket.</summary>
     public int ProposedCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int AcceptedCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int RejectedCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int DeferredCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int ImplementedCount
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Accepted ÷ proposed.</summary>

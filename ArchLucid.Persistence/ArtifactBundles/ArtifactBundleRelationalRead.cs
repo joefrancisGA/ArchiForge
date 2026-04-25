@@ -8,7 +8,10 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.ArtifactBundles;
 
-/// <summary>Relational hydration for artifact list slices when rows exist; otherwise <c>ArtifactsJson</c>. Trace base remains JSON with relational list overlays.</summary>
+/// <summary>
+///     Relational hydration for artifact list slices when rows exist; otherwise <c>ArtifactsJson</c>. Trace base
+///     remains JSON with relational list overlays.
+/// </summary>
 internal static class ArtifactBundleRelationalRead
 {
     internal static async Task<ArtifactBundle> HydrateBundleAsync(
@@ -23,41 +26,41 @@ internal static class ArtifactBundleRelationalRead
 
         int artifactCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleArtifacts WHERE BundleId = @BundleId",
             new
             {
-                BundleId = bundleId,
+                BundleId = bundleId
             },
             ct);
 
         int genCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceGenerators WHERE BundleId = @BundleId",
             new
             {
-                BundleId = bundleId,
+                BundleId = bundleId
             },
             ct);
 
         int traceDecCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceDecisionLinks WHERE BundleId = @BundleId",
             new
             {
-                BundleId = bundleId,
+                BundleId = bundleId
             },
             ct);
 
         int notesCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
-            transaction: null,
+            null,
             "SELECT COUNT(1) FROM dbo.ArtifactBundleTraceNotes WHERE BundleId = @BundleId",
             new
             {
-                BundleId = bundleId,
+                BundleId = bundleId
             },
             ct);
 
@@ -119,7 +122,7 @@ internal static class ArtifactBundleRelationalRead
             ManifestId = row.ManifestId,
             CreatedUtc = row.CreatedUtc,
             Artifacts = artifacts,
-            Trace = trace,
+            Trace = trace
         };
     }
 
@@ -129,19 +132,19 @@ internal static class ArtifactBundleRelationalRead
         CancellationToken ct)
     {
         const string artifactsSql = """
-            SELECT SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
-                   ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
-            FROM dbo.ArtifactBundleArtifacts
-            WHERE BundleId = @BundleId
-            ORDER BY SortOrder;
-            """;
+                                    SELECT SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
+                                           ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
+                                    FROM dbo.ArtifactBundleArtifacts
+                                    WHERE BundleId = @BundleId
+                                    ORDER BY SortOrder;
+                                    """;
 
         List<ArtifactSliceRow> artifactRows = (await connection.QueryAsync<ArtifactSliceRow>(
             new CommandDefinition(
                 artifactsSql,
                 new
                 {
-                    BundleId = bundleId,
+                    BundleId = bundleId
                 },
                 cancellationToken: ct))).ToList();
 
@@ -149,34 +152,34 @@ internal static class ArtifactBundleRelationalRead
             return [];
 
         const string metaSql = """
-            SELECT ArtifactSortOrder, MetaSortOrder, MetaKey, MetaValue
-            FROM dbo.ArtifactBundleArtifactMetadata
-            WHERE BundleId = @BundleId
-            ORDER BY ArtifactSortOrder, MetaSortOrder;
-            """;
+                               SELECT ArtifactSortOrder, MetaSortOrder, MetaKey, MetaValue
+                               FROM dbo.ArtifactBundleArtifactMetadata
+                               WHERE BundleId = @BundleId
+                               ORDER BY ArtifactSortOrder, MetaSortOrder;
+                               """;
 
         List<MetadataSliceRow> metaRows = (await connection.QueryAsync<MetadataSliceRow>(
             new CommandDefinition(
                 metaSql,
                 new
                 {
-                    BundleId = bundleId,
+                    BundleId = bundleId
                 },
                 cancellationToken: ct))).ToList();
 
         const string decSql = """
-            SELECT ArtifactSortOrder, LinkSortOrder, DecisionId
-            FROM dbo.ArtifactBundleArtifactDecisionLinks
-            WHERE BundleId = @BundleId
-            ORDER BY ArtifactSortOrder, LinkSortOrder;
-            """;
+                              SELECT ArtifactSortOrder, LinkSortOrder, DecisionId
+                              FROM dbo.ArtifactBundleArtifactDecisionLinks
+                              WHERE BundleId = @BundleId
+                              ORDER BY ArtifactSortOrder, LinkSortOrder;
+                              """;
 
         List<ArtifactDecisionSliceRow> decisionRows = (await connection.QueryAsync<ArtifactDecisionSliceRow>(
             new CommandDefinition(
                 decSql,
                 new
                 {
-                    BundleId = bundleId,
+                    BundleId = bundleId
                 },
                 cancellationToken: ct))).ToList();
 
@@ -229,7 +232,7 @@ internal static class ArtifactBundleRelationalRead
                     Content = ar.Content ?? string.Empty,
                     ContentHash = ar.ContentHash,
                     Metadata = meta,
-                    ContributingDecisionIds = decIds,
+                    ContributingDecisionIds = decIds
                 });
         }
 
@@ -247,7 +250,7 @@ internal static class ArtifactBundleRelationalRead
                 sql,
                 new
                 {
-                    BundleId = bundleId,
+                    BundleId = bundleId
                 },
                 cancellationToken: ct));
 
@@ -258,35 +261,68 @@ internal static class ArtifactBundleRelationalRead
     {
         public int SortOrder
         {
-            get; init;
+            get;
+            init;
         }
+
         public Guid ArtifactId
         {
-            get; init;
+            get;
+            init;
         }
+
         public Guid RunId
         {
-            get; init;
+            get;
+            init;
         }
+
         public Guid ManifestId
         {
-            get; init;
+            get;
+            init;
         }
+
         public DateTime CreatedUtc
         {
-            get; init;
+            get;
+            init;
         }
-        public string ArtifactType { get; init; } = null!;
-        public string Name { get; init; } = null!;
-        public string Format { get; init; } = null!;
+
+        public string ArtifactType
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Name
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Format
+        {
+            get;
+            init;
+        } = null!;
+
         public string? Content
         {
-            get; init;
+            get;
+            init;
         }
-        public string ContentHash { get; init; } = null!;
+
+        public string ContentHash
+        {
+            get;
+            init;
+        } = null!;
+
         public string? ContentBlobUri
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -294,26 +330,47 @@ internal static class ArtifactBundleRelationalRead
     {
         public int ArtifactSortOrder
         {
-            get; init;
+            get;
+            init;
         }
+
         public int MetaSortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string MetaKey { get; init; } = null!;
-        public string MetaValue { get; init; } = null!;
+
+        public string MetaKey
+        {
+            get;
+            init;
+        } = null!;
+
+        public string MetaValue
+        {
+            get;
+            init;
+        } = null!;
     }
 
     private sealed class ArtifactDecisionSliceRow
     {
         public int ArtifactSortOrder
         {
-            get; init;
+            get;
+            init;
         }
+
         public int LinkSortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string DecisionId { get; init; } = null!;
+
+        public string DecisionId
+        {
+            get;
+            init;
+        } = null!;
     }
 }

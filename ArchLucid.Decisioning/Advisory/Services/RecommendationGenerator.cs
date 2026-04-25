@@ -4,14 +4,18 @@ using ArchLucid.Decisioning.Advisory.Models;
 namespace ArchLucid.Decisioning.Advisory.Services;
 
 /// <summary>
-/// Default <see cref="IRecommendationGenerator"/>: maps each <see cref="ImprovementSignal"/> to an <see cref="ImprovementRecommendation"/> using rule-based title/action text, category/scoring heuristics, and optional adaptive scoring.
+///     Default <see cref="IRecommendationGenerator" />: maps each <see cref="ImprovementSignal" /> to an
+///     <see cref="ImprovementRecommendation" /> using rule-based title/action text, category/scoring heuristics, and
+///     optional adaptive scoring.
 /// </summary>
 public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adaptiveScorer) : IRecommendationGenerator
 {
     /// <inheritdoc />
     /// <remarks>
-    /// Urgency is derived from signal severity; base priority from category and severity; <paramref name="profile"/> is passed to <see cref="IAdaptiveRecommendationScorer"/>.
-    /// Supporting ids on recommendations come from <see cref="ImprovementSignal.FindingIds"/> and <see cref="ImprovementSignal.DecisionIds"/> (artifacts list is left empty at this stage).
+    ///     Urgency is derived from signal severity; base priority from category and severity; <paramref name="profile" /> is
+    ///     passed to <see cref="IAdaptiveRecommendationScorer" />.
+    ///     Supporting ids on recommendations come from <see cref="ImprovementSignal.FindingIds" /> and
+    ///     <see cref="ImprovementSignal.DecisionIds" /> (artifacts list is left empty at this stage).
     /// </remarks>
     public IReadOnlyList<ImprovementRecommendation> Generate(
         IReadOnlyList<ImprovementSignal> signals,
@@ -21,22 +25,29 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
 
         List<ImprovementRecommendation> recommendations = [];
         recommendations.AddRange(from signal in signals
-                                 let baseScore = ComputePriority(signal)
-                                 let urgency = MapUrgency(signal.Severity)
-
-                                 let scoring = adaptiveScorer.Score(new AdaptiveScoringInput { Category = signal.Category, Urgency = urgency, SignalType = signal.SignalType, BasePriorityScore = baseScore }, profile)
-                                 select new ImprovementRecommendation
-                                 {
-                                     Title = BuildTitle(signal),
-                                     Category = signal.Category,
-                                     Rationale = signal.Description,
-                                     SuggestedAction = BuildSuggestedAction(signal),
-                                     Urgency = urgency,
-                                     ExpectedImpact = BuildImpact(signal),
-                                     SupportingFindingIds = signal.FindingIds.ToList(),
-                                     SupportingDecisionIds = signal.DecisionIds.ToList(),
-                                     PriorityScore = scoring.AdaptedPriorityScore
-                                 });
+            let baseScore = ComputePriority(signal)
+            let urgency = MapUrgency(signal.Severity)
+            let scoring =
+                adaptiveScorer.Score(
+                    new AdaptiveScoringInput
+                    {
+                        Category = signal.Category,
+                        Urgency = urgency,
+                        SignalType = signal.SignalType,
+                        BasePriorityScore = baseScore
+                    }, profile)
+            select new ImprovementRecommendation
+            {
+                Title = BuildTitle(signal),
+                Category = signal.Category,
+                Rationale = signal.Description,
+                SuggestedAction = BuildSuggestedAction(signal),
+                Urgency = urgency,
+                ExpectedImpact = BuildImpact(signal),
+                SupportingFindingIds = signal.FindingIds.ToList(),
+                SupportingDecisionIds = signal.DecisionIds.ToList(),
+                PriorityScore = scoring.AdaptedPriorityScore
+            });
 
         return recommendations
             .OrderByDescending(x => x.PriorityScore)
@@ -44,8 +55,9 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
             .ToList();
     }
 
-    private static string BuildTitle(ImprovementSignal signal) =>
-        signal.SignalType switch
+    private static string BuildTitle(ImprovementSignal signal)
+    {
+        return signal.SignalType switch
         {
             ImprovementSignalTypes.UncoveredRequirement => "Cover an uncovered requirement",
             ImprovementSignalTypes.SecurityGap => "Close a security protection gap",
@@ -59,13 +71,16 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
             ImprovementSignalTypes.PolicyViolation => "Resolve a manifest policy violation",
             _ => signal.Title
         };
+    }
 
-    private static string BuildSuggestedAction(ImprovementSignal signal) =>
-        signal.SignalType switch
+    private static string BuildSuggestedAction(ImprovementSignal signal)
+    {
+        return signal.SignalType switch
         {
             ImprovementSignalTypes.UncoveredRequirement =>
                 "Add architecture components or decisions that explicitly satisfy the uncovered requirement.",
-            ImprovementSignalTypes.SecurityGap => "Introduce or apply missing security controls to the affected resources.",
+            ImprovementSignalTypes.SecurityGap =>
+                "Introduce or apply missing security controls to the affected resources.",
             ImprovementSignalTypes.ComplianceGap =>
                 "Map the required control to architecture resources and add enforcement coverage.",
             ImprovementSignalTypes.TopologyGap => "Add missing topology categories or required platform components.",
@@ -83,9 +98,11 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
                 "Update architecture or context so the policy control is satisfied, or document an approved exemption.",
             _ => "Review this signal and determine the most appropriate architecture correction."
         };
+    }
 
-    private static string BuildImpact(ImprovementSignal signal) =>
-        signal.Category switch
+    private static string BuildImpact(ImprovementSignal signal)
+    {
+        return signal.Category switch
         {
             "Security" => "Reduces security exposure and improves control posture.",
             "Compliance" => "Improves audit readiness and lowers compliance risk.",
@@ -95,15 +112,18 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
             "Risk" => "Reduces delivery and operational risk from open issues.",
             _ => "Improves architecture quality."
         };
+    }
 
-    private static string MapUrgency(string severity) =>
-        severity.ToLowerInvariant() switch
+    private static string MapUrgency(string severity)
+    {
+        return severity.ToLowerInvariant() switch
         {
             "critical" => "Critical",
             "high" => "High",
             "medium" => "Medium",
             _ => "Low"
         };
+    }
 
     private static int ComputePriority(ImprovementSignal signal)
     {

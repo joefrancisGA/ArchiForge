@@ -4,100 +4,156 @@ public sealed class RunRecord
 {
     public Guid TenantId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid WorkspaceId
     {
-        get; set;
+        get;
+        set;
     }
-    /// <summary>Scoped solution/project boundary (GUID). Distinct from <see cref="ProjectId"/> slug.</summary>
+
+    /// <summary>Scoped solution/project boundary (GUID). Distinct from <see cref="ProjectId" /> slug.</summary>
     public Guid ScopeProjectId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid RunId
     {
-        get; set;
+        get;
+        set;
     }
-    public string ProjectId { get; set; } = "";
+
+    public string ProjectId
+    {
+        get;
+        set;
+    } = "";
+
     public string? Description
     {
-        get; set;
+        get;
+        set;
     }
+
     public DateTime CreatedUtc
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid? ContextSnapshotId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid? GraphSnapshotId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid? FindingsSnapshotId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid? GoldenManifestId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid? DecisionTraceId
     {
-        get; set;
+        get;
+        set;
     }
+
     public Guid? ArtifactBundleId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>FK logical key to <c>ArchitectureRequests.RequestId</c>.</summary>
     public string? ArchitectureRequestId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>String form of lifecycle enum (<c>ArchitectureRunStatus</c>) for API/read parity with legacy rows.</summary>
     public string? LegacyRunStatus
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>UTC when the run reached a terminal lifecycle state.</summary>
     public DateTime? CompletedUtc
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Latest committed manifest version key.</summary>
     public string? CurrentManifestVersion
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>W3C trace ID from <c>Activity.Current?.TraceId</c> at run creation; used for post-hoc trace lookup.</summary>
     public string? OtelTraceId
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>When <see langword="true"/>, anonymous marketing may read a bounded showcase payload for this run.</summary>
+    /// <summary>When <see langword="true" />, anonymous marketing may read a bounded showcase payload for this run.</summary>
     public bool IsPublicShowcase
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>When set, the run is excluded from list/detail authority APIs (soft archival).</summary>
     public DateTime? ArchivedUtc
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>SQL Server <c>ROWVERSION</c> for optimistic concurrency on updates; <see langword="null"/> before first read/insert round-trip.</summary>
+    /// <summary>
+    ///     When <see langword="true" />, <c>archlucid try --real</c> substituted simulator output after real Azure OpenAI
+    ///     execution did not complete (first-value report shows a warning callout).
+    /// </summary>
+    public bool RealModeFellBackToSimulator
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Optional snapshot of <c>AzureOpenAI:DeploymentName</c> at fallback time (for provenance footer).</summary>
+    public string? PilotAoaiDeploymentSnapshot
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     SQL Server <c>ROWVERSION</c> for optimistic concurrency on updates; <see langword="null" /> before first
+    ///     read/insert round-trip.
+    /// </summary>
     public byte[]? RowVersion
     {
-        get; set;
+        get;
+        set;
     }
 }

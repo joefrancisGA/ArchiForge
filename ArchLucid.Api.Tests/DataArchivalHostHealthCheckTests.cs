@@ -12,7 +12,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="DataArchivalHostHealthCheck"/> mapping from <see cref="DataArchivalHostHealthState"/>.
+///     Unit tests for <see cref="DataArchivalHostHealthCheck" /> mapping from <see cref="DataArchivalHostHealthState" />.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class DataArchivalHostHealthCheckTests

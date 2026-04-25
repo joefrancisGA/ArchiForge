@@ -54,7 +54,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     [
                         "Add or extend security baseline nodes with PROTECTS edges to each unlisted resource.",
                         "Narrow topology scope so only in-scope resources require explicit baseline coverage.",
-                        "Accept partial coverage with documented compensating controls for specific resources.",
+                        "Accept partial coverage with documented compensating controls for specific resources."
                     ],
                     Notes =
                     [

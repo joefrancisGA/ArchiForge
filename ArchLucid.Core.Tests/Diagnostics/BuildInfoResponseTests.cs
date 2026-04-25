@@ -19,11 +19,11 @@ public sealed class BuildInfoResponseTests
     public void FromProvenance_MapsFields_FromProvenanceAndNames()
     {
         BuildProvenance p = new(
-            InformationalVersion: "1.2.3+sha",
-            AssemblyVersion: "1.2.0.0",
-            FileVersion: "1.2.3.4",
-            RuntimeFrameworkDescription: ".NET Test",
-            CommitSha: "sha");
+            "1.2.3+sha",
+            "1.2.0.0",
+            "1.2.3.4",
+            ".NET Test",
+            "sha");
 
         BuildInfoResponse r = BuildInfoResponse.FromProvenance(p, "ArchLucid.Api", "Staging");
 

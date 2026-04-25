@@ -2,7 +2,7 @@ using ArchLucid.Decisioning.Advisory.Scheduling;
 
 namespace ArchLucid.Decisioning.Advisory.Delivery;
 
-/// <summary>Delivers an <see cref="ArchitectureDigest"/> to a Slack channel via an incoming webhook.</summary>
+/// <summary>Delivers an <see cref="ArchitectureDigest" /> to a Slack channel via an incoming webhook.</summary>
 public sealed class DigestSlackWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IDigestDeliveryChannel
 {
     public string ChannelType => DigestDeliveryChannelType.SlackWebhook;

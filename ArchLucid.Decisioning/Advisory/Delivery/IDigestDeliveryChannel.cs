@@ -1,11 +1,11 @@
 namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
-/// Sends one architecture digest to a subscription destination (parallel concept to <c>IAlertDeliveryChannel</c>).
+///     Sends one architecture digest to a subscription destination (parallel concept to <c>IAlertDeliveryChannel</c>).
 /// </summary>
 public interface IDigestDeliveryChannel
 {
-    /// <summary>Matches <see cref="DigestDeliveryChannelType"/> / subscription rows.</summary>
+    /// <summary>Matches <see cref="DigestDeliveryChannelType" /> / subscription rows.</summary>
     string ChannelType
     {
         get;

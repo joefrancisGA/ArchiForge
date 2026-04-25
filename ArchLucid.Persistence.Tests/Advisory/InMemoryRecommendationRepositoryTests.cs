@@ -23,7 +23,7 @@ public sealed class InMemoryRecommendationRepositoryTests
     {
         InMemoryRecommendationRepository repo = new();
         Guid id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        RecommendationRecord rec = Minimal(id, RunId, priorityScore: 5, BaseUtc);
+        RecommendationRecord rec = Minimal(id, RunId, 5, BaseUtc);
 
         await repo.UpsertAsync(rec, CancellationToken.None);
 
@@ -38,7 +38,8 @@ public sealed class InMemoryRecommendationRepositoryTests
     {
         InMemoryRecommendationRepository repo = new();
         Guid id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-        await repo.UpsertAsync(Minimal(id, RunId, 1, BaseUtc, status: RecommendationStatus.Proposed), CancellationToken.None);
+        await repo.UpsertAsync(Minimal(id, RunId, 1, BaseUtc, status: RecommendationStatus.Proposed),
+            CancellationToken.None);
 
         RecommendationRecord next = Minimal(id, RunId, 9, BaseUtc.AddHours(1), status: RecommendationStatus.Accepted);
         next.Title = "updated";
@@ -58,7 +59,8 @@ public sealed class InMemoryRecommendationRepositoryTests
     {
         InMemoryRecommendationRepository repo = new();
 
-        RecommendationRecord? loaded = await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
+        RecommendationRecord? loaded =
+            await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
 
         loaded.Should().BeNull();
     }
@@ -129,7 +131,7 @@ public sealed class InMemoryRecommendationRepositoryTests
     {
         InMemoryRecommendationRepository repo = new();
         await repo.UpsertAsync(
-            Minimal(Guid.Parse("72000000-0000-0000-0000-000000000001"), RunId, 1, BaseUtc, lastUpdated: BaseUtc),
+            Minimal(Guid.Parse("72000000-0000-0000-0000-000000000001"), RunId, 1, BaseUtc, BaseUtc),
             CancellationToken.None);
 
         await repo.UpsertAsync(
@@ -138,8 +140,8 @@ public sealed class InMemoryRecommendationRepositoryTests
                 RunId,
                 1,
                 BaseUtc,
-                lastUpdated: BaseUtc.AddDays(2),
-                status: RecommendationStatus.Accepted),
+                BaseUtc.AddDays(2),
+                RecommendationStatus.Accepted),
             CancellationToken.None);
 
         await repo.UpsertAsync(
@@ -148,28 +150,29 @@ public sealed class InMemoryRecommendationRepositoryTests
                 RunId,
                 1,
                 BaseUtc,
-                lastUpdated: BaseUtc.AddDays(1),
-                status: RecommendationStatus.Proposed),
+                BaseUtc.AddDays(1),
+                RecommendationStatus.Proposed),
             CancellationToken.None);
 
         IReadOnlyList<RecommendationRecord> all =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, take: 10, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 10, CancellationToken.None);
 
         all.Should().HaveCount(3);
         all[0].RecommendationId.Should().Be(Guid.Parse("72000000-0000-0000-0000-000000000002"));
 
         IReadOnlyList<RecommendationRecord> proposedOnly =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, RecommendationStatus.Proposed, take: 10, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, RecommendationStatus.Proposed, 10,
+                CancellationToken.None);
 
         proposedOnly.Should().HaveCount(2);
 
         IReadOnlyList<RecommendationRecord> defaultTake =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, take: 0, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 0, CancellationToken.None);
 
         defaultTake.Should().HaveCount(3);
 
         IReadOnlyList<RecommendationRecord> maxCap =
-            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, take: 900, CancellationToken.None);
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, null, 900, CancellationToken.None);
 
         maxCap.Should().HaveCount(3);
     }
@@ -208,7 +211,7 @@ public sealed class InMemoryRecommendationRepositoryTests
             PriorityScore = priorityScore,
             Status = status,
             CreatedUtc = createdUtc,
-            LastUpdatedUtc = lastUpdated ?? createdUtc,
+            LastUpdatedUtc = lastUpdated ?? createdUtc
         };
     }
 }

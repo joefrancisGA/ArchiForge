@@ -3,7 +3,8 @@ using System.Text.Json;
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 /// <summary>
-/// Reads simple string tags from <c>ProductLearningPilotSignals.DetailJson</c> (no schema registry; invalid JSON yields empty).
+///     Reads simple string tags from <c>ProductLearningPilotSignals.DetailJson</c> (no schema registry; invalid JSON
+///     yields empty).
 /// </summary>
 internal static class ImprovementThemeDetailJsonAnnotations
 {

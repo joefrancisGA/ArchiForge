@@ -3,8 +3,12 @@ using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Persistence.Tenancy;
 
-/// <summary>Increments <see cref="ArchLucidInstrumentation.FirstSessionCompletedTotal"/> once per tenant after first commit.</summary>
-public sealed class SqlFirstSessionLifecycleHook(ITenantOnboardingStateRepository repository) : IFirstSessionLifecycleHook
+/// <summary>
+///     Increments <see cref="ArchLucidInstrumentation.FirstSessionCompletedTotal" /> once per tenant after first
+///     commit.
+/// </summary>
+public sealed class SqlFirstSessionLifecycleHook(ITenantOnboardingStateRepository repository)
+    : IFirstSessionLifecycleHook
 {
     private readonly ITenantOnboardingStateRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));

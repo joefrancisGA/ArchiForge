@@ -11,8 +11,8 @@ using FluentAssertions;
 namespace ArchLucid.AgentRuntime.Tests.GoldenCohort;
 
 /// <summary>
-/// Reinforces the assumption behind <c>expectedCommittedManifestSha256</c> locking: the Simulator agent path must
-/// return stable <see cref="AgentResult"/> payloads for a fixed <see cref="ArchitectureRequest"/> and task batch.
+///     Reinforces the assumption behind <c>expectedCommittedManifestSha256</c> locking: the Simulator agent path must
+///     return stable <see cref="AgentResult" /> payloads for a fixed <see cref="ArchitectureRequest" /> and task batch.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "GoldenCohort")]
@@ -26,7 +26,8 @@ public sealed class GoldenCohortSimulatorDeterminismTests
     public async Task DeterministicAgentSimulator_produces_identical_results_for_each_cohort_item_over_ten_repetitions()
     {
         string cohortPath = Path.Combine(AppContext.BaseDirectory, "golden-cohort", "cohort.json");
-        Assert.True(File.Exists(cohortPath), $"Missing {cohortPath} — link tests/golden-cohort/cohort.json in the test project.");
+        Assert.True(File.Exists(cohortPath),
+            $"Missing {cohortPath} — link tests/golden-cohort/cohort.json in the test project.");
 
         GoldenCohortDocument document = GoldenCohortDocument.Load(cohortPath);
         DeterministicAgentSimulator simulator = new();
@@ -46,7 +47,8 @@ public sealed class GoldenCohortSimulatorDeterminismTests
 
                 baselineJson ??= wire;
 
-                wire.Should().Be(baselineJson, because: $"item {item.Id} repetition {i.ToString()} must match the Simulator baseline wire payload");
+                wire.Should().Be(baselineJson,
+                    $"item {item.Id} repetition {i.ToString()} must match the Simulator baseline wire payload");
             }
         }
     }
@@ -65,8 +67,8 @@ public sealed class GoldenCohortSimulatorDeterminismTests
                 Description = request.Description,
                 Constraints = request.Constraints.ToList(),
                 RequiredCapabilities = request.RequiredCapabilities.ToList(),
-                Assumptions = request.Assumptions.ToList(),
-            },
+                Assumptions = request.Assumptions.ToList()
+            }
         };
     }
 
@@ -79,29 +81,23 @@ public sealed class GoldenCohortSimulatorDeterminismTests
                 TaskId = "task-topology",
                 RunId = runId,
                 AgentType = AgentType.Topology,
-                Objective = "Propose topology.",
+                Objective = "Propose topology."
             },
             new AgentTask
             {
-                TaskId = "task-cost",
-                RunId = runId,
-                AgentType = AgentType.Cost,
-                Objective = "Estimate cost.",
+                TaskId = "task-cost", RunId = runId, AgentType = AgentType.Cost, Objective = "Estimate cost."
             },
             new AgentTask
             {
                 TaskId = "task-compliance",
                 RunId = runId,
                 AgentType = AgentType.Compliance,
-                Objective = "Check compliance.",
+                Objective = "Check compliance."
             },
             new AgentTask
             {
-                TaskId = "task-critic",
-                RunId = runId,
-                AgentType = AgentType.Critic,
-                Objective = "Critique design.",
-            },
+                TaskId = "task-critic", RunId = runId, AgentType = AgentType.Critic, Objective = "Critique design."
+            }
         ];
     }
 }

@@ -1,8 +1,8 @@
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
 using ExplainabilityMarkers = ArchLucid.Decisioning.Findings.ExplainabilityTraceMarkers;
-using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Findings.Factories;
 
@@ -30,9 +30,7 @@ public static class FindingFactory
             PayloadType = nameof(RequirementFindingPayload),
             Payload = new RequirementFindingPayload
             {
-                RequirementName = requirementName,
-                RequirementText = requirementText,
-                IsMandatory = isMandatory
+                RequirementName = requirementName, RequirementText = requirementText, IsMandatory = isMandatory
             }
         };
     }
@@ -58,18 +56,14 @@ public static class FindingFactory
             Rationale = rationale,
             RelatedNodeIds = relatedNodeIds?.ToList() ?? [],
             PayloadType = nameof(TopologyGapFindingPayload),
-            Payload = new TopologyGapFindingPayload
-            {
-                GapCode = gapCode,
-                Description = description,
-                Impact = impact
-            },
+            Payload =
+                new TopologyGapFindingPayload { GapCode = gapCode, Description = description, Impact = impact },
             Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = relatedNodeIds?.ToList() ?? [],
                 RulesApplied = [$"topology-gap-{gapCode}"],
                 DecisionsTaken = [$"Detected topology gap: {description}"],
-                AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote],
+                AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote]
             }
         };
     }
@@ -89,7 +83,8 @@ public static class FindingFactory
             EngineType = engineType,
             Severity = FindingSeverity.Info,
             Title = $"Policy applicability: {policyNode.Label}",
-            Rationale = "The knowledge graph links this policy control to one or more topology resources via APPLIES_TO edges.",
+            Rationale =
+                "The knowledge graph links this policy control to one or more topology resources via APPLIES_TO edges.",
             RelatedNodeIds = graphNodeIdsExamined.Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
             PayloadType = nameof(PolicyApplicabilityFindingPayload),
             Payload = new PolicyApplicabilityFindingPayload
@@ -103,7 +98,8 @@ public static class FindingFactory
             {
                 GraphNodeIdsExamined = graphNodeIdsExamined.Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
                 RulesApplied = ["policy-applicability-mapping"],
-                DecisionsTaken = ["Interpreted APPLIES_TO edges as policy applicability to topology resources."],
+                DecisionsTaken =
+                    ["Interpreted APPLIES_TO edges as policy applicability to topology resources."],
                 AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote],
                 Notes = [$"Applicable topology targets: {applicableTopologyNodeIds.Count}"]
             }
@@ -145,4 +141,3 @@ public static class FindingFactory
         };
     }
 }
-

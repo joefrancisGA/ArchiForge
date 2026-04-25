@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Governance;
@@ -10,10 +12,11 @@ public sealed class Migration080PolicyPackVersionsSqlTests
     [Fact]
     public void Embedded_080_migration_enforces_unique_pack_version()
     {
-        Assembly asm = typeof(ArchLucid.Persistence.Data.Infrastructure.DatabaseMigrator).Assembly;
+        Assembly asm = typeof(DatabaseMigrator).Assembly;
 
         string? resourceName = asm.GetManifestResourceNames()
-            .SingleOrDefault(static n => n.EndsWith("080_PolicyPackVersions_UniquePackVersion.sql", StringComparison.Ordinal));
+            .SingleOrDefault(static n =>
+                n.EndsWith("080_PolicyPackVersions_UniquePackVersion.sql", StringComparison.Ordinal));
 
         resourceName.Should().NotBeNull();
 

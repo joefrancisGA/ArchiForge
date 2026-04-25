@@ -15,6 +15,7 @@ Operator cheat sheet for **ArchLucid** .NET tests: **what each tier means** and 
 | **Fast core** | Core tests that are **not** `Category=Slow` and **not** `Category=Integration` (typical CI first gate) | `Suite=Core&Category!=Slow&Category!=Integration` |
 | **Integration** | Real API host (`WebApplicationFactory`), HTTP-level behavior | `Category=Integration` |
 | **Slow** | Long-running or heavy; excluded from fast core | `Category=Slow` |
+| **Performance baseline** | In-process **Stopwatch** gates for the pilot path (simulator + in-memory; not production SQL); see **[PERFORMANCE_BASELINES.md](PERFORMANCE_BASELINES.md)** and **`CorePilotFlowPerformanceTests`** in `ArchLucid.Api.Tests/Performance/` | `Category=Slow` (also `Suite=Core`) |
 | **Full regression** | Whole solution, all traits (unless skipped in test code) | *(no filter)* |
 
 ### Property-based tests (FsCheck)

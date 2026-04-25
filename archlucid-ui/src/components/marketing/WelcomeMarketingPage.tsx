@@ -4,10 +4,10 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
+import { BRAND_CATEGORY } from "@/lib/brand-category";
 
-/** §3 “30-second pitch” in `docs/go-to-market/POSITIONING.md` (verbatim, without surrounding quotation marks). */
-const HERO_PITCH =
-  "ArchLucid is an AI Architecture Intelligence platform. You describe a system you want to build, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. Think of it as an AI-powered architecture review board that runs in minutes instead of weeks, with a full audit trail.";
+/** §3 “30-second pitch” in `docs/go-to-market/POSITIONING.md` — category label flows through `BRAND_CATEGORY`. */
+const HERO_PITCH = `ArchLucid is an ${BRAND_CATEGORY} platform. You describe a system you want to build, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. Think of it as an AI-powered architecture review board that runs in minutes instead of weeks, with a full audit trail.`;
 
 const PILLARS: { title: string; body: string }[] = [
   {
@@ -24,18 +24,24 @@ const PILLARS: { title: string; body: string }[] = [
   },
 ];
 
-/** Public marketing landing: hero, pillars, pricing cards from `/pricing.json`, primary CTA to `/signup`. */
+/** Public marketing landing: hero, pillars, pricing cards from `/pricing.json`, primary CTA to `/see-it`. */
 export function WelcomeMarketingPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
       <section aria-labelledby="hero-heading" className="mb-12 text-center">
-        <p className="text-sm font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300">
-          AI Architecture Intelligence
+        <p
+          className="text-sm font-semibold uppercase tracking-wide text-teal-800 dark:text-teal-300"
+          data-testid="welcome-brand-category-eyebrow"
+        >
+          {BRAND_CATEGORY}
         </p>
         <h1 id="hero-heading" className="mt-2 text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 sm:text-4xl">
           Ship governed architecture decisions faster
         </h1>
-        <p className="mx-auto mt-4 max-w-3xl text-left text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-center">
+        <p
+          className="mx-auto mt-4 max-w-3xl text-left text-base leading-relaxed text-neutral-700 dark:text-neutral-300 sm:text-center"
+          data-testid="welcome-brand-category-paragraph"
+        >
           {HERO_PITCH}
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -44,18 +50,29 @@ export function WelcomeMarketingPage() {
             className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-700"
             size="lg"
           >
-            <Link href="/signup">Start free trial</Link>
+            <Link href="/see-it">See it in 30 seconds</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
+            <Link href="/signup">Start free trial</Link>
+          </Button>
+          <Button asChild variant="secondary" size="lg">
             <Link href="/auth/signin">Sign in</Link>
           </Button>
         </div>
-        <div className="mt-6 flex flex-col items-center gap-2">
-          <Button asChild variant="secondary" size="lg">
-            <Link href="/demo/preview">See a real commit page</Link>
-          </Button>
+        <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Anchored in real ArchLucid services. No signup.
+            Same committed demo as{" "}
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+              /demo/preview
+            </Link>{" "}
+            — full page, no signup.
+          </p>
+          <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/WORKED_EXAMPLE_ROI.pdf">
+              See worked example (PDF)
+            </Link>{" "}
+            — Contoso sample ROI (fictional tenant); markdown companion in{" "}
+            <code className="text-xs">docs/go-to-market/WORKED_EXAMPLE_ROI.md</code>.
           </p>
         </div>
       </section>

@@ -28,6 +28,7 @@
 | First-session handoff | `… try` | same as create + demo | `/onboard` | Execute | [FIRST_30_MINUTES.md](../FIRST_30_MINUTES.md) |
 | Sponsor PDF (post-commit) | `… sponsor-one-pager <runId> [--save]` | export endpoints on run | Run detail → exports | Read / Execute per op | [CORE_PILOT.md](../CORE_PILOT.md), [CLI_USAGE.md](CLI_USAGE.md) |
 | First-value Markdown | `… first-value-report <runId> [--save]` | value report API | Run detail | Read / Execute | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) |
+| Recent committed-run delta panel | — | `GET /v1/pilots/runs/recent-deltas?count=N` | Top of `/runs`, sidebar "Recent activity" card, inline on `/runs/{runId}` | Read | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (`BeforeAfterDeltaPanel`) |
 
 ---
 
@@ -48,14 +49,12 @@
 |--------|-----|-------------|-------------|-----------|---------------|
 | Ask (RAG Q&A) | — | Ask / retrieval routes | `/ask` | Read | [operator-shell.md](operator-shell.md) |
 | Search indexed content | — | search APIs | `/search` | Read | [API_CONTRACTS.md](API_CONTRACTS.md) |
-| Advisory scans & digests | — | `/v1/advisory…`, digest reads | `/advisory`, `/digests` | Read | [runbooks/ADVISORY_SCAN_FAILURES.md](../runbooks/ADVISORY_SCAN_FAILURES.md), [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
+| Advisory hub (scans + schedules) | — | `/v1/advisory…`; `/v1/advisory-scheduling…` (CRUD) | `/advisory` (default **Scans**; **Schedules** `?tab=schedules`; legacy `/advisory-scheduling` → redirect) | Read (scans); schedules tab lists GET at Read, mutations Execute | [runbooks/ADVISORY_SCAN_FAILURES.md](../runbooks/ADVISORY_SCAN_FAILURES.md), [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
+| Digests hub (browse + subs + schedule) | — | digest list reads; `/v1/digest-subscriptions…` (mutations); `/v1/tenant/exec-digest-preferences` (save) | `/digests` (default **Browse**; **Subscriptions** `?tab=subscriptions`; **Schedule** `?tab=schedule`; legacy `/digest-subscriptions` and `/settings/exec-digest` → redirect) | Read nav; subscription CRUD Execute; exec schedule GET Read, save Execute | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), [CHANGELOG.md](../CHANGELOG.md) |
 | Recommendation learning | — | learning APIs | `/recommendation-learning` | Read | [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) |
 | Pilot feedback | — | feedback APIs | `/product-learning` | Read | [PILOT_GUIDE.md](PILOT_GUIDE.md) |
 | Planning themes | — | planning writes | `/planning` | Execute | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
 | Evolution candidates | — | evolution APIs | `/evolution-review` | Execute | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
-| Advisory schedules | — | schedule CRUD | `/advisory-scheduling` | Execute | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
-| Digest subscriptions | — | `/v1/digest-subscriptions…` | `/digest-subscriptions` | Execute | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
-| Exec digest email prefs | — | `/v1/tenant/exec-digest-preferences` | `/settings/exec-digest` | Read | [CHANGELOG.md](../CHANGELOG.md) (weekly digest entry) |
 
 ---
 
@@ -63,17 +62,16 @@
 
 | Action | CLI | Primary API | Operator UI | Authority | Runbook / doc |
 |--------|-----|-------------|-------------|-----------|---------------|
-| Alerts inbox | — | `/v1/alerts…` | `/alerts` | Read | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md) |
-| Alert rules | — | `/v1/alert-rules…` | `/alert-rules` | Read | [API_CONTRACTS.md](API_CONTRACTS.md) |
-| Alert routing | — | routing subscriptions | `/alert-routing` | Read | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
-| Composite alert rules | — | `/v1/composite-alert-rules…` | `/composite-alert-rules` | Read | [API_CONTRACTS.md](API_CONTRACTS.md) |
-| Alert simulation / tuning | — | simulation + tuning | `/alert-simulation`, `/alert-tuning` | Read | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
+| Alerts (hub) | — | `/v1/alerts…` and related alert APIs | `/alerts` — **Inbox**; **Rules** `?tab=rules`; **Routing** `?tab=routing`; **Composite** `?tab=composite`; **Simulation & Tuning** `?tab=simulation` (legacy paths redirect) | Read | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md), [API_CONTRACTS.md](API_CONTRACTS.md) |
 | Policy packs | — | `/v1/policy-packs…` | `/policy-packs` | Read / Admin on writes | [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
 | Governance resolution (read) | — | effective governance | `/governance-resolution` | Read | [PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md) |
 | Governance dashboard | — | dashboard aggregates | `/governance/dashboard` | Read | [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) |
 | Governance workflow (mutations) | — | workflow POSTs | `/governance` | Execute | [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) |
 | Audit log | — | `/v1/audit…` | `/audit` | Read (+ Auditor role for CSV where documented) | [support/TIER_1_RUNBOOK.md](../support/TIER_1_RUNBOOK.md) |
 | Security & trust center | — | static + trust payloads | `/workspace/security-trust` (public table: `/security-trust`) | Read | [SECURITY.md](../../SECURITY.md) |
+| Trust Center evidence pack (ZIP) | — | `GET /v1/marketing/trust-center/evidence-pack.zip` | `/trust` (marketing — Download evidence pack button) | Anonymous | [trust-center.md](../trust-center.md) (one ZIP: DPA, subprocessors, SLA, `security.txt`, CAIQ Lite, SIG Core, owner sec assessment, 2026-Q2 SoW, audit matrix; SHA-256 ETag, 1h cache) |
+| In-product support bundle (ZIP) | `archlucid support-bundle` | `POST /v1/admin/support-bundle` | `/admin/support` (Download support bundle button) | Execute (per owner decision F, item 37) | [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) item 37 (parts a + b shipped 2026-04-24; redaction policy part c remains owner-pending — review bundle before forwarding) |
+| Operator opt-in tour | — | — | `/` (operator home — "Show me around" button) | Authenticated | [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) item 38 (5 steps; assistant draft copy wrapped in pending-approval markers; never auto-launches per owner Q9) |
 | Value report DOCX | — | value report generation | `/value-report` | Execute | [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) |
 
 ---

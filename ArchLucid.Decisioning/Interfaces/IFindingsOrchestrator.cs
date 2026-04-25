@@ -11,4 +11,3 @@ public interface IFindingsOrchestrator
         GraphSnapshot graphSnapshot,
         CancellationToken ct);
 }
-

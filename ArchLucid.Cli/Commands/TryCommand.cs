@@ -3,7 +3,9 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 
+using ArchLucid.Cli.Real;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Cli.Commands;
@@ -46,11 +48,13 @@ internal static class TryCommand
         {
             FindComposeDirectory = PilotUpCommand.FindDockerComposeDirectory,
             PilotUp = PilotUpCommand.RunAsync,
+            ValidateRealModeEnv = RealModePreflight.Validate,
+            ResolveComposeOverlays = ComposeOverlayResolver.Resolve,
             DemoSeed = DemoSeedAsync,
             CreateRun = (api, ct) => api.CreateRunAsync(BuildSampleRequest(), ct),
-            ExecuteRun = (apiBaseUrl, runId, ct) => ExecuteRunAsync(apiBaseUrl, runId, ct),
+            ExecuteRun = ExecuteRunAsync,
             GetRun = (api, runId, ct) => api.GetRunAsync(runId, ct),
-            SeedFakeResults = (api, runId, ct) => api.SeedFakeResultsAsync(runId, ct),
+            SeedFakeResults = (api, runId, fellback, ct) => api.SeedFakeResultsAsync(runId, fellback, ct),
             CommitRun = (api, runId, ct) => api.CommitRunAsync(runId, ct),
             DownloadFirstValueReport = (apiBaseUrl, runId, savePath, ct) =>
                 FirstValueReportSaveAsync(apiBaseUrl, runId, savePath, ct),
@@ -76,7 +80,9 @@ internal static class TryCommand
         ArgumentNullException.ThrowIfNull(hooks);
         ArgumentNullException.ThrowIfNull(output);
 
-        if (hooks.FindComposeDirectory() is null)
+        string? composeDir = hooks.FindComposeDirectory();
+
+        if (composeDir is null)
         {
             await output.WriteLineAsync(
                 "Error: docker-compose.yml not found. Run 'archlucid try' from the ArchLucid repo root, or open the repo in the .devcontainer.");
@@ -84,8 +90,34 @@ internal static class TryCommand
             return CliExitCode.UsageError;
         }
 
-        await output.WriteLineAsync("Step 1/5: Bringing up the pilot Docker stack (full-stack + demo overlay)...");
-        int pilotExit = await hooks.PilotUp(cancellationToken);
+        if (options.RealMode && !options.IsPilotRealAzureOpenAiAttempt)
+        {
+            await output.WriteLineAsync(
+                $"Error: `--real` requires environment variable {TryCommandOptions.ArchLucidRealAoaiEnv}=1 (safety gate for the real Azure OpenAI compose overlay).");
+
+            return CliExitCode.UsageError;
+        }
+
+        if (options.IsPilotRealAzureOpenAiAttempt)
+        {
+            RealModePreflightResult preflight = hooks.ValidateRealModeEnv();
+
+            if (!preflight.IsOk)
+            {
+                await output.WriteLineAsync(preflight.ErrorMessage ?? "Real mode preflight failed.");
+
+                return CliExitCode.UsageError;
+            }
+        }
+
+        IReadOnlyList<string> composeAbsolutePaths =
+            ComposePathListBuilder.BuildAbsolutePaths(composeDir, hooks.ResolveComposeOverlays(options.IsPilotRealAzureOpenAiAttempt));
+
+        await output.WriteLineAsync(
+            options.IsPilotRealAzureOpenAiAttempt
+                ? "Step 1/5: Bringing up the pilot Docker stack (full-stack + demo + real Azure OpenAI overlay)..."
+                : "Step 1/5: Bringing up the pilot Docker stack (full-stack + demo overlay)...");
+        int pilotExit = await hooks.PilotUp(composeAbsolutePaths, cancellationToken);
 
         if (pilotExit != CliExitCode.Success)
         {
@@ -118,7 +150,11 @@ internal static class TryCommand
 
         // Best-effort kick: simulator background service usually auto-dispatches, but calling /execute makes
         // the polling deterministic in restored stacks where the background loop has not yet swept new runs.
-        bool executed = await hooks.ExecuteRun(options.ApiBaseUrl, runId, cancellationToken);
+        bool executed = await hooks.ExecuteRun(
+            options.ApiBaseUrl,
+            runId,
+            options.IsPilotRealAzureOpenAiAttempt,
+            cancellationToken);
 
         if (!executed)
             await output.WriteLineAsync(
@@ -134,13 +170,27 @@ internal static class TryCommand
             options.PollInterval,
             cancellationToken);
 
-        if (reached < ArchitectureRunStatus.ReadyForCommit)
+        bool needsSeedFallback =
+            reached == ArchitectureRunStatus.Failed || reached < ArchitectureRunStatus.ReadyForCommit;
+
+        if (needsSeedFallback && options.StrictReal && options.IsPilotRealAzureOpenAiAttempt)
         {
             await output.WriteLineAsync(
-                $"  Simulator did not progress to ReadyForCommit within {options.CommitDeadline.TotalSeconds:n0}s (current status: {reached}). Falling back to seed-fake-results (development-only).");
+                $"Error: `--strict-real` is set but the run did not reach ReadyForCommit (status: {reached}). " +
+                "Fix Azure OpenAI connectivity/configuration or retry without `--strict-real` to allow simulator fallback.");
+
+            return CliExitCode.OperationFailed;
+        }
+
+        if (needsSeedFallback)
+        {
+            await output.WriteLineAsync(
+                $"  Run did not reach ReadyForCommit within {options.CommitDeadline.TotalSeconds:n0}s (status: {reached}). Falling back to seed-fake-results (development-only).");
+
+            bool markPilotFallback = options.IsPilotRealAzureOpenAiAttempt;
 
             ArchLucidApiClient.SeedFakeResultsResult? seed =
-                await hooks.SeedFakeResults(client, runId, cancellationToken);
+                await hooks.SeedFakeResults(client, runId, markPilotFallback, cancellationToken);
 
             if (seed is null || !seed.Success)
             {
@@ -200,10 +250,9 @@ internal static class TryCommand
     }
 
     /// <summary>
-    ///     Polls the supplied status probe at <paramref name="pollInterval" /> until the status is
-    ///     <see cref="ArchitectureRunStatus.ReadyForCommit" /> (or higher), the <paramref name="deadline" />
-    ///     elapses, or the cancellation token fires. Returns the final observed status, or
-    ///     <see cref="ArchitectureRunStatus.Created" /> when no probe ever succeeded.
+    ///     Polls the supplied status probe until the run is <see cref="ArchitectureRunStatus.ReadyForCommit" /> or
+    ///     <see cref="ArchitectureRunStatus.Committed" />, the status is <see cref="ArchitectureRunStatus.Failed" />,
+    ///     the <paramref name="deadline" /> elapses, or cancellation is requested.
     /// </summary>
     /// <remarks>
     ///     Pulled out as an internal static so unit tests can verify the timeout path with a deterministic
@@ -233,7 +282,11 @@ internal static class TryCommand
             {
                 last = observed.Value;
 
-                if (last >= ArchitectureRunStatus.ReadyForCommit)
+                if (last == ArchitectureRunStatus.Failed)
+                    return last;
+
+
+                if (last == ArchitectureRunStatus.ReadyForCommit || last == ArchitectureRunStatus.Committed)
                     return last;
             }
 
@@ -326,7 +379,10 @@ internal static class TryCommand
     ///     Best-effort POST <c>/v1/architecture/run/{runId}/execute</c> to dispatch agents. Returns true on
     ///     2xx; false on any failure (the caller falls back to polling for the simulator background loop).
     /// </summary>
-    private static async Task<bool> ExecuteRunAsync(string apiBaseUrl, string runId,
+    private static async Task<bool> ExecuteRunAsync(
+        string apiBaseUrl,
+        string runId,
+        bool pilotTryRealMode,
         CancellationToken cancellationToken)
     {
         try
@@ -339,6 +395,10 @@ internal static class TryCommand
 
             if (!string.IsNullOrWhiteSpace(apiKey))
                 http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+
+
+            if (pilotTryRealMode)
+                http.DefaultRequestHeaders.Add(PilotTryRealModeHeaders.PilotTryRealMode, "1");
 
 
             using HttpResponseMessage response = await http.PostAsync(

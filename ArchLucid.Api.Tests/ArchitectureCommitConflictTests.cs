@@ -9,9 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Commit Conflict.
+///     Tests for Architecture Commit Conflict.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -23,7 +22,8 @@ public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory)
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMMIT-CONFLICT-001")));
 
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage commit = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);

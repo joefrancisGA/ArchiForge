@@ -10,7 +10,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace ArchLucid.Persistence.Cosmos;
 
-/// <summary>Cosmos-backed <see cref="IAuditRepository"/>.</summary>
+/// <summary>Cosmos-backed <see cref="IAuditRepository" />.</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]
 public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : IAuditRepository
 {
@@ -185,7 +185,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         List<KeyValuePair<string, object?>> parameters =
         [
             new("@wid", wid),
-            new("@pid", pid),
+            new("@pid", pid)
         ];
 
         if (!string.IsNullOrWhiteSpace(filter.EventType))
@@ -256,25 +256,30 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
         return query;
     }
 
-    private static string FormatUtcIso(DateTime value) =>
-        value.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture);
-
-    private static AuditEventDocument ToDocument(AuditEvent auditEvent) => new()
+    private static string FormatUtcIso(DateTime value)
     {
-        Id = auditEvent.EventId.ToString("D"),
-        TenantId = auditEvent.TenantId.ToString("D"),
-        WorkspaceId = auditEvent.WorkspaceId.ToString("D"),
-        ProjectId = auditEvent.ProjectId.ToString("D"),
-        OccurredUtc = FormatUtcIso(auditEvent.OccurredUtc),
-        EventType = auditEvent.EventType,
-        ActorUserId = auditEvent.ActorUserId,
-        ActorUserName = auditEvent.ActorUserName,
-        RunId = auditEvent.RunId?.ToString("D"),
-        ManifestId = auditEvent.ManifestId?.ToString("D"),
-        ArtifactId = auditEvent.ArtifactId?.ToString("D"),
-        DataJson = string.IsNullOrEmpty(auditEvent.DataJson) ? "{}" : auditEvent.DataJson,
-        CorrelationId = auditEvent.CorrelationId,
-    };
+        return value.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture);
+    }
+
+    private static AuditEventDocument ToDocument(AuditEvent auditEvent)
+    {
+        return new AuditEventDocument
+        {
+            Id = auditEvent.EventId.ToString("D"),
+            TenantId = auditEvent.TenantId.ToString("D"),
+            WorkspaceId = auditEvent.WorkspaceId.ToString("D"),
+            ProjectId = auditEvent.ProjectId.ToString("D"),
+            OccurredUtc = FormatUtcIso(auditEvent.OccurredUtc),
+            EventType = auditEvent.EventType,
+            ActorUserId = auditEvent.ActorUserId,
+            ActorUserName = auditEvent.ActorUserName,
+            RunId = auditEvent.RunId?.ToString("D"),
+            ManifestId = auditEvent.ManifestId?.ToString("D"),
+            ArtifactId = auditEvent.ArtifactId?.ToString("D"),
+            DataJson = string.IsNullOrEmpty(auditEvent.DataJson) ? "{}" : auditEvent.DataJson,
+            CorrelationId = auditEvent.CorrelationId
+        };
+    }
 
     private static AuditEvent ToEvent(AuditEventDocument doc)
     {
@@ -292,10 +297,12 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             WorkspaceId = Guid.Parse(doc.WorkspaceId, CultureInfo.InvariantCulture),
             ProjectId = Guid.Parse(doc.ProjectId, CultureInfo.InvariantCulture),
             RunId = string.IsNullOrEmpty(doc.RunId) ? null : Guid.Parse(doc.RunId, CultureInfo.InvariantCulture),
-            ManifestId = string.IsNullOrEmpty(doc.ManifestId) ? null : Guid.Parse(doc.ManifestId, CultureInfo.InvariantCulture),
-            ArtifactId = string.IsNullOrEmpty(doc.ArtifactId) ? null : Guid.Parse(doc.ArtifactId, CultureInfo.InvariantCulture),
+            ManifestId =
+                string.IsNullOrEmpty(doc.ManifestId) ? null : Guid.Parse(doc.ManifestId, CultureInfo.InvariantCulture),
+            ArtifactId =
+                string.IsNullOrEmpty(doc.ArtifactId) ? null : Guid.Parse(doc.ArtifactId, CultureInfo.InvariantCulture),
             DataJson = string.IsNullOrEmpty(doc.DataJson) ? "{}" : doc.DataJson,
-            CorrelationId = doc.CorrelationId,
+            CorrelationId = doc.CorrelationId
         };
     }
 }

@@ -7,7 +7,8 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// API host with <c>ArchLucid:StorageProvider=InMemory</c> so advisory scans use in-memory authority + alert stores (same DI graph as production, different backing stores).
+///     API host with <c>ArchLucid:StorageProvider=InMemory</c> so advisory scans use in-memory authority + alert stores
+///     (same DI graph as production, different backing stores).
 /// </summary>
 public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
 {
@@ -16,7 +17,8 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
     public AlertLifecycleWebAppFactory()
     {
         string databaseName = "ArchLucidAlertTest_" + Guid.NewGuid().ToString("N");
-        _connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
+        _connectionString =
+            SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
         SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
     }
 
@@ -31,8 +33,7 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchLucid:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchLucid"] = _connectionString
+                ["ArchLucid:StorageProvider"] = "InMemory", ["ConnectionStrings:ArchLucid"] = _connectionString
             });
         });
     }

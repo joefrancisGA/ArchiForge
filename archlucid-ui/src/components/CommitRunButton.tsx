@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { commitArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 
 export type CommitRunButtonProps = {
   runId: string;
@@ -35,6 +36,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
 
     try {
       await commitArchitectureRun(runId);
+      recordFirstTenantFunnelEvent("first_run_committed");
       setDialogOpen(false);
       router.refresh();
     } catch (e: unknown) {

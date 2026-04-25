@@ -7,7 +7,10 @@ using Dapper;
 
 namespace ArchLucid.Persistence.ContextSnapshots;
 
-/// <summary>Hydrates <see cref="ContextSnapshot"/> from relational child tables when rows exist; otherwise legacy JSON columns.</summary>
+/// <summary>
+///     Hydrates <see cref="ContextSnapshot" /> from relational child tables when rows exist; otherwise legacy JSON
+///     columns.
+/// </summary>
 internal static class ContextSnapshotRelationalRead
 {
     public static async Task<ContextSnapshot> HydrateAsync(
@@ -22,40 +25,28 @@ internal static class ContextSnapshotRelationalRead
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId",
-            new
-            {
-                SnapshotId = snapshotId,
-            },
+            new { SnapshotId = snapshotId },
             ct);
 
         int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ContextSnapshotWarnings WHERE SnapshotId = @SnapshotId",
-            new
-            {
-                SnapshotId = snapshotId,
-            },
+            new { SnapshotId = snapshotId },
             ct);
 
         int errorsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ContextSnapshotErrors WHERE SnapshotId = @SnapshotId",
-            new
-            {
-                SnapshotId = snapshotId,
-            },
+            new { SnapshotId = snapshotId },
             ct);
 
         int hashesCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.ContextSnapshotSourceHashes WHERE SnapshotId = @SnapshotId",
-            new
-            {
-                SnapshotId = snapshotId,
-            },
+            new { SnapshotId = snapshotId },
             ct);
 
         List<CanonicalObject> canonicalObjects = canonicalCount > 0
@@ -122,10 +113,7 @@ internal static class ContextSnapshotRelationalRead
                 WHERE SnapshotId = @SnapshotId
                 ORDER BY SortOrder;
                 """,
-                new
-                {
-                    SnapshotId = snapshotId
-                },
+                new { SnapshotId = snapshotId },
                 transaction,
                 cancellationToken: ct));
 
@@ -147,10 +135,7 @@ internal static class ContextSnapshotRelationalRead
         IEnumerable<string> rows = await connection.QueryAsync<string>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    SnapshotId = snapshotId
-                },
+                new { SnapshotId = snapshotId },
                 transaction,
                 cancellationToken: ct));
 
@@ -164,19 +149,16 @@ internal static class ContextSnapshotRelationalRead
         CancellationToken ct)
     {
         const string objectsSql = """
-            SELECT CanonicalObjectRowId, SortOrder, ObjectId, ObjectType, Name, SourceType, SourceId
-            FROM dbo.ContextSnapshotCanonicalObjects
-            WHERE SnapshotId = @SnapshotId
-            ORDER BY SortOrder;
-            """;
+                                  SELECT CanonicalObjectRowId, SortOrder, ObjectId, ObjectType, Name, SourceType, SourceId
+                                  FROM dbo.ContextSnapshotCanonicalObjects
+                                  WHERE SnapshotId = @SnapshotId
+                                  ORDER BY SortOrder;
+                                  """;
 
         List<CanonicalObjectRow> objectRows = (await connection.QueryAsync<CanonicalObjectRow>(
             new CommandDefinition(
                 objectsSql,
-                new
-                {
-                    SnapshotId = snapshotId
-                },
+                new { SnapshotId = snapshotId },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -186,19 +168,16 @@ internal static class ContextSnapshotRelationalRead
         List<Guid> rowIds = objectRows.Select(r => r.CanonicalObjectRowId).ToList();
 
         const string propsSql = """
-            SELECT CanonicalObjectRowId, PropertySortOrder, PropertyKey, PropertyValue
-            FROM dbo.ContextSnapshotCanonicalObjectProperties
-            WHERE CanonicalObjectRowId IN @RowIds
-            ORDER BY CanonicalObjectRowId, PropertySortOrder;
-            """;
+                                SELECT CanonicalObjectRowId, PropertySortOrder, PropertyKey, PropertyValue
+                                FROM dbo.ContextSnapshotCanonicalObjectProperties
+                                WHERE CanonicalObjectRowId IN @RowIds
+                                ORDER BY CanonicalObjectRowId, PropertySortOrder;
+                                """;
 
         List<PropertyRow> propertyRows = (await connection.QueryAsync<PropertyRow>(
             new CommandDefinition(
                 propsSql,
-                new
-                {
-                    RowIds = rowIds
-                },
+                new { RowIds = rowIds },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -239,36 +218,86 @@ internal static class ContextSnapshotRelationalRead
     {
         public Guid CanonicalObjectRowId
         {
-            get; init;
+            get;
+            init;
         }
+
         public int SortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string ObjectId { get; init; } = null!;
-        public string ObjectType { get; init; } = null!;
-        public string Name { get; init; } = null!;
-        public string SourceType { get; init; } = null!;
-        public string SourceId { get; init; } = null!;
+
+        public string ObjectId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string ObjectType
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Name
+        {
+            get;
+            init;
+        } = null!;
+
+        public string SourceType
+        {
+            get;
+            init;
+        } = null!;
+
+        public string SourceId
+        {
+            get;
+            init;
+        } = null!;
     }
 
     private sealed class PropertyRow
     {
         public Guid CanonicalObjectRowId
         {
-            get; init;
+            get;
+            init;
         }
+
         public int PropertySortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string PropertyKey { get; init; } = null!;
-        public string PropertyValue { get; init; } = null!;
+
+        public string PropertyKey
+        {
+            get;
+            init;
+        } = null!;
+
+        public string PropertyValue
+        {
+            get;
+            init;
+        } = null!;
     }
 
     private sealed class SourceHashRow
     {
-        public string SourceKey { get; init; } = null!;
-        public string HashValue { get; init; } = null!;
+        public string SourceKey
+        {
+            get;
+            init;
+        } = null!;
+
+        public string HashValue
+        {
+            get;
+            init;
+        } = null!;
     }
 }

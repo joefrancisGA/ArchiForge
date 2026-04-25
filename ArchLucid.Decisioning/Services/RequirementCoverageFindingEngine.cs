@@ -29,7 +29,8 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                 EngineType = EngineType,
                 Severity = FindingSeverity.Warning,
                 Title = "Some requirements are not related to any topology resources",
-                Rationale = "Requirement coverage is incomplete because some requirements do not relate to architecture resources in the graph.",
+                Rationale =
+                    "Requirement coverage is incomplete because some requirements do not relate to architecture resources in the graph.",
                 PayloadType = nameof(RequirementCoverageFindingPayload),
                 Payload = new RequirementCoverageFindingPayload
                 {

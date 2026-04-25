@@ -18,7 +18,8 @@ public static class HotPathCacheEviction
         await cache.RemoveAsync(HotPathCacheKeys.LegacyManifest(scope, manifestId), ct);
     }
 
-    public static async Task RemoveRunAsync(IHotPathReadCache cache, ScopeContext scope, Guid runId, CancellationToken ct)
+    public static async Task RemoveRunAsync(IHotPathReadCache cache, ScopeContext scope, Guid runId,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(cache);
         ArgumentNullException.ThrowIfNull(scope);

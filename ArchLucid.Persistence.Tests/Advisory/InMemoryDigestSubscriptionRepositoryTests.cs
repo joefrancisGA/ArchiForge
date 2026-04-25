@@ -21,7 +21,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
     {
         InMemoryDigestSubscriptionRepository repo = new();
         Guid id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        DigestSubscription sub = Build(id, destination: "digest@x.com", enabled: true, BaseUtc);
+        DigestSubscription sub = Build(id, "digest@x.com", true, BaseUtc);
 
         await repo.CreateAsync(sub, CancellationToken.None);
 
@@ -56,7 +56,8 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
     {
         InMemoryDigestSubscriptionRepository repo = new();
 
-        DigestSubscription? loaded = await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
+        DigestSubscription? loaded =
+            await repo.GetByIdAsync(Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), CancellationToken.None);
 
         loaded.Should().BeNull();
     }
@@ -65,10 +66,14 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
     public async Task ListByScopeAsync_filters_and_orders_CreatedUtc_desc()
     {
         InMemoryDigestSubscriptionRepository repo = new();
-        await repo.CreateAsync(Build(Guid.Parse("80000000-0000-0000-0000-000000000001"), "a", true, BaseUtc), CancellationToken.None);
-        await repo.CreateAsync(Build(Guid.Parse("80000000-0000-0000-0000-000000000002"), "b", true, BaseUtc.AddHours(2)), CancellationToken.None);
+        await repo.CreateAsync(Build(Guid.Parse("80000000-0000-0000-0000-000000000001"), "a", true, BaseUtc),
+            CancellationToken.None);
         await repo.CreateAsync(
-            Build(Guid.Parse("80000000-0000-0000-0000-000000000003"), "c", true, BaseUtc.AddHours(1), tenantId: Guid.Parse("99999999-9999-9999-9999-999999999999")),
+            Build(Guid.Parse("80000000-0000-0000-0000-000000000002"), "b", true, BaseUtc.AddHours(2)),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            Build(Guid.Parse("80000000-0000-0000-0000-000000000003"), "c", true, BaseUtc.AddHours(1),
+                Guid.Parse("99999999-9999-9999-9999-999999999999")),
             CancellationToken.None);
 
         IReadOnlyList<DigestSubscription> list =
@@ -83,8 +88,12 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
     public async Task ListEnabledByScopeAsync_returns_only_IsEnabled_true()
     {
         InMemoryDigestSubscriptionRepository repo = new();
-        await repo.CreateAsync(Build(Guid.Parse("81000000-0000-0000-0000-000000000001"), "on", true, BaseUtc.AddMinutes(5)), CancellationToken.None);
-        await repo.CreateAsync(Build(Guid.Parse("81000000-0000-0000-0000-000000000002"), "off", false, BaseUtc.AddMinutes(10)), CancellationToken.None);
+        await repo.CreateAsync(
+            Build(Guid.Parse("81000000-0000-0000-0000-000000000001"), "on", true, BaseUtc.AddMinutes(5)),
+            CancellationToken.None);
+        await repo.CreateAsync(
+            Build(Guid.Parse("81000000-0000-0000-0000-000000000002"), "off", false, BaseUtc.AddMinutes(10)),
+            CancellationToken.None);
 
         IReadOnlyList<DigestSubscription> enabled =
             await repo.ListEnabledByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
@@ -112,7 +121,8 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         DigestSubscription? gone = await repo.GetByIdAsync(firstId, CancellationToken.None);
         gone.Should().BeNull();
 
-        IReadOnlyList<DigestSubscription> scope = await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
+        IReadOnlyList<DigestSubscription> scope =
+            await repo.ListByScopeAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
         scope.Should().HaveCount(500);
     }
 
@@ -152,7 +162,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
             ChannelType = "Email",
             Destination = destination,
             IsEnabled = enabled,
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
     }
 }

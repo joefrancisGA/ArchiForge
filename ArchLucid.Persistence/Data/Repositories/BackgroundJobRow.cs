@@ -3,54 +3,75 @@ namespace ArchLucid.Persistence.Data.Repositories;
 /// <summary>Persistence row for <c>dbo.BackgroundJobs</c>.</summary>
 public sealed class BackgroundJobRow
 {
-    public string JobId { get; init; } = string.Empty;
+    public string JobId
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string WorkUnitJson { get; init; } = string.Empty;
+    public string WorkUnitJson
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string State { get; init; } = string.Empty;
+    public string State
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public DateTimeOffset CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? StartedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? CompletedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? Error
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? FileName
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? ContentType
     {
-        get; init;
+        get;
+        init;
     }
 
     public int RetryCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int MaxRetries
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? ResultBlobName
     {
-        get; init;
+        get;
+        init;
     }
 }

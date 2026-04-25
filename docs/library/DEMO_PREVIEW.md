@@ -27,6 +27,7 @@ Give **marketing visitors** a **read-only** view of what the operator **commit p
 ## Marketing UI (`archlucid-ui`)
 
 - **Route:** **`src/app/(marketing)/demo/preview/page.tsx`** — **no** operator sidebar; uses the marketing chrome from **`(marketing)/layout.tsx`**.
+- **Fast path:** **`src/app/(marketing)/see-it/page.tsx`** (`/see-it`) — same **`GET /v1/demo/preview`** JSON with a checked-in fallback at **`public/demo-preview-snapshot.json`** when the API is unreachable; optional ETag from **`public/demo-preview-snapshot.etag`** (regenerate via **`scripts/ops/refresh-demo-preview-snapshot.ps1`**). Also honors **`NEXT_PUBLIC_DEMO_API_BASE`** before the preview base chain.
 - **Fetch:** server-side **`fetch`** to **`NEXT_PUBLIC_DEMO_PREVIEW_API_BASE`** (trimmed, no trailing slash), falling back to **`ARCHLUCID_API_BASE_URL`** then **`NEXT_PUBLIC_ARCHLUCID_API_BASE_URL`** — **not** `/api/proxy` (proxy adds operator auth).
 - **ISR:** **`export const revalidate = 300`** aligns with the API TTL.
 - **Robots:** metadata sets **`noindex, nofollow`** so demo numbers are not indexed as production telemetry.

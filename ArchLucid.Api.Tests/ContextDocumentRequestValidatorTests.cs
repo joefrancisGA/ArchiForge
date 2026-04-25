@@ -3,27 +3,27 @@ using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
+using FluentValidation.Results;
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Unit tests for <see cref="ContextDocumentRequestValidator"/> (inline architecture request documents).
+///     Unit tests for <see cref="ContextDocumentRequestValidator" /> (inline architecture request documents).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ContextDocumentRequestValidatorTests
 {
     private readonly ContextDocumentRequestValidator _validator = new();
 
-    private static ContextDocumentRequest ValidDocument() => new()
+    private static ContextDocumentRequest ValidDocument()
     {
-        Name = "notes.md",
-        ContentType = "text/markdown",
-        Content = "REQ: sample"
-    };
+        return new ContextDocumentRequest { Name = "notes.md", ContentType = "text/markdown", Content = "REQ: sample" };
+    }
 
     [Fact]
     public void Validate_Succeeds_WhenAllRulesSatisfied()
     {
-        FluentValidation.Results.ValidationResult result = _validator.Validate(ValidDocument());
+        ValidationResult result = _validator.Validate(ValidDocument());
 
         result.IsValid.Should().BeTrue();
     }
@@ -38,7 +38,7 @@ public sealed class ContextDocumentRequestValidatorTests
         ContextDocumentRequest doc = ValidDocument();
         doc.Name = name!;
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = _validator.Validate(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.Name));
@@ -51,11 +51,12 @@ public sealed class ContextDocumentRequestValidatorTests
         ContextDocumentRequest doc = ValidDocument();
         doc.Name = new string('a', 501);
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = _validator.Validate(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
-            e.PropertyName == nameof(ContextDocumentRequest.Name) && e.ErrorMessage.Contains("500", StringComparison.Ordinal));
+            e.PropertyName == nameof(ContextDocumentRequest.Name) &&
+            e.ErrorMessage.Contains("500", StringComparison.Ordinal));
     }
 
     [Theory]
@@ -67,7 +68,7 @@ public sealed class ContextDocumentRequestValidatorTests
         ContextDocumentRequest doc = ValidDocument();
         doc.ContentType = contentType!;
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = _validator.Validate(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.ContentType));
@@ -80,7 +81,7 @@ public sealed class ContextDocumentRequestValidatorTests
         ContextDocumentRequest doc = ValidDocument();
         doc.ContentType = "application/pdf";
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = _validator.Validate(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
@@ -95,11 +96,12 @@ public sealed class ContextDocumentRequestValidatorTests
         ContextDocumentRequest doc = ValidDocument();
         doc.ContentType = new string('a', 256);
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = _validator.Validate(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
-            e.PropertyName == nameof(ContextDocumentRequest.ContentType) && e.ErrorMessage.Contains("255", StringComparison.Ordinal));
+            e.PropertyName == nameof(ContextDocumentRequest.ContentType) &&
+            e.ErrorMessage.Contains("255", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -108,7 +110,7 @@ public sealed class ContextDocumentRequestValidatorTests
         ContextDocumentRequest doc = ValidDocument();
         doc.Content = null!;
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = _validator.Validate(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(ContextDocumentRequest.Content));
@@ -120,11 +122,12 @@ public sealed class ContextDocumentRequestValidatorTests
         ContextDocumentRequest doc = ValidDocument();
         doc.Content = new string('x', 500_001);
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = _validator.Validate(doc);
 
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e =>
-            e.PropertyName == nameof(ContextDocumentRequest.Content) && e.ErrorMessage.Contains("500000", StringComparison.Ordinal));
+            e.PropertyName == nameof(ContextDocumentRequest.Content) &&
+            e.ErrorMessage.Contains("500000", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -133,7 +136,7 @@ public sealed class ContextDocumentRequestValidatorTests
         ContextDocumentRequest doc = ValidDocument();
         doc.Content = string.Empty;
 
-        FluentValidation.Results.ValidationResult result = _validator.Validate(doc);
+        ValidationResult result = _validator.Validate(doc);
 
         result.IsValid.Should().BeTrue();
     }

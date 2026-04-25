@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Export Audit.
+///     Tests for Architecture Export Audit.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -23,7 +22,8 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -62,7 +62,8 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
 
         historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        RunExportHistoryResponse? payload = await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
+        RunExportHistoryResponse? payload =
+            await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Exports.Should().NotBeEmpty();
 
@@ -82,4 +83,3 @@ public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : 
         export.AnalysisRequestJson.Should().NotBeNullOrWhiteSpace();
     }
 }
-

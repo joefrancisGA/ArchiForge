@@ -1,0 +1,95 @@
+{
+  "generatedUtc": "2026-04-23T12:00:00+00:00",
+  "isDemoData": true,
+  "demoStatusMessage": "demo tenant — replace before publishing",
+  "run": {
+    "runId": "11111111111111111111111111111111",
+    "projectId": "default",
+    "description": "Static fallback: regenerate via scripts/ops/refresh-demo-preview-snapshot.ps1 against docker-compose demo.",
+    "createdUtc": "2026-04-23T12:00:00+00:00"
+  },
+  "manifest": {
+    "manifestId": "22222222222222222222222222222222",
+    "runId": "11111111111111111111111111111111",
+    "createdUtc": "2026-04-23T12:00:00+00:00",
+    "manifestHash": "snapshot0000000000000000000000000000000000000000000000000000",
+    "ruleSetId": "contoso-demo-snapshot",
+    "ruleSetVersion": "0.0.0-snapshot",
+    "decisionCount": 3,
+    "warningCount": 1,
+    "unresolvedIssueCount": 0,
+    "status": "Committed",
+    "operatorSummary": "Checked-in fallback when GET /v1/demo/preview is unreachable at build or request time.",
+    "hasWarnings": true,
+    "hasUnresolvedIssues": false
+  },
+  "authorityChain": {
+    "contextSnapshotId": "33333333333333333333333333333333",
+    "graphSnapshotId": "44444444444444444444444444444444",
+    "findingsSnapshotId": "55555555555555555555555555555555",
+    "goldenManifestId": "22222222222222222222222222222222",
+    "decisionTraceId": "66666666666666666666666666666666",
+    "artifactBundleId": "77777777777777777777777777777777"
+  },
+  "artifacts": [
+    {
+      "artifactId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "artifactType": "MarkdownReport",
+      "name": "architecture-summary.md",
+      "format": "text/markdown",
+      "createdUtc": "2026-04-23T12:00:01+00:00",
+      "contentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    {
+      "artifactId": "cccccccccccccccccccccccccccccccc",
+      "artifactType": "JsonBundle",
+      "name": "findings-bundle.json",
+      "format": "application/json",
+      "createdUtc": "2026-04-23T12:00:02+00:00",
+      "contentHash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "artifactId": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "artifactType": "Diagram",
+      "name": "topology.mmd",
+      "format": "text/plain",
+      "createdUtc": "2026-04-23T12:00:03+00:00",
+      "contentHash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    }
+  ],
+  "pipelineTimeline": [
+    {
+      "eventId": "99999999999999999999999999999999",
+      "occurredUtc": "2026-04-23T12:00:00+00:00",
+      "eventType": "Commit",
+      "actorUserName": "demo-seed",
+      "correlationId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+    }
+  ],
+  "runExplanation": {
+    "explanation": {
+      "rawText": "",
+      "structured": null,
+      "confidence": null,
+      "provenance": null,
+      "summary": "Snapshot placeholder explanation.",
+      "keyDrivers": [],
+      "riskImplications": [],
+      "costImplications": [],
+      "complianceImplications": [],
+      "detailedNarrative": ""
+    },
+    "themeSummaries": ["Governance", "Cost posture"],
+    "overallAssessment": "Illustrative aggregate for marketing fallback JSON.",
+    "riskPosture": "Moderate",
+    "findingCount": 5,
+    "decisionCount": 3,
+    "unresolvedIssueCount": 0,
+    "complianceGapCount": 1,
+    "faithfulnessSupportRatio": null,
+    "usedDeterministicFallback": false,
+    "faithfulnessWarning": null,
+    "findingTraceConfidences": null,
+    "citations": []
+  }
+}

@@ -14,13 +14,14 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GoldenManifests;
 
 /// <summary>
-/// Branch matrix for <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync"/> JSON sections and relational
-/// decision / provenance slices (targets remaining conditional paths alongside existing direct SQL suites).
+///     Branch matrix for <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync" /> JSON sections and relational
+///     decision / provenance slices (targets remaining conditional paths alongside existing direct SQL suites).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "Core")]
-public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlIntegrationTests(
+    SqlServerPersistenceFixture fixture)
 {
     private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -33,8 +34,9 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
         Guid graphId,
         Guid findingsId,
         Guid traceId,
-        DateTime createdUtc) =>
-        new()
+        DateTime createdUtc)
+    {
+        return new GoldenManifest
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
@@ -61,8 +63,9 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
             Assumptions = [],
             Warnings = [],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
+    }
 
     [SkippableTheory]
     [InlineData(0)]
@@ -169,25 +172,25 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
         }
 
         const string insertManifest = """
-            INSERT INTO dbo.GoldenManifests
-            (
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
-                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson
-            );
-            """;
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                                          @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                                          @WarningsJson, @ProvenanceJson
+                                      );
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -219,7 +222,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                     DecisionsJson = decisionsJson,
                     AssumptionsJson = assumptionsJson,
                     WarningsJson = warningsJson,
-                    ProvenanceJson = provenanceJson,
+                    ProvenanceJson = provenanceJson
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -234,10 +237,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                     INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
                     VALUES (@M, N'd1', 0, N'fid');
                     """,
-                    new
-                    {
-                        M = manifestId
-                    },
+                    new { M = manifestId },
                     cancellationToken: CancellationToken.None));
         }
 
@@ -252,10 +252,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                     INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
                     VALUES (@M, N'd2', 0, N'nid');
                     """,
-                    new
-                    {
-                        M = manifestId
-                    },
+                    new { M = manifestId },
                     cancellationToken: CancellationToken.None));
         }
 
@@ -267,10 +264,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                     INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
                     VALUES (@M, 0, N'rule-a');
                     """,
-                    new
-                    {
-                        M = manifestId
-                    },
+                    new { M = manifestId },
                     cancellationToken: CancellationToken.None));
         }
 
@@ -286,15 +280,13 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                     WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
                 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;
                 """,
-                new
-                {
-                    ManifestId = manifestId
-                },
+                new { ManifestId = manifestId },
                 cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated = await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
+        GoldenManifest hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         switch (branch)
         {
@@ -336,7 +328,8 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                 return;
             case 12:
                 {
-                    ResolvedArchitectureDecision d = hydrated.Decisions.Should().ContainSingle(x => x.DecisionId == "d1").Subject;
+                    ResolvedArchitectureDecision d = hydrated.Decisions.Should()
+                        .ContainSingle(x => x.DecisionId == "d1").Subject;
                     d.SupportingFindingIds.Should().Equal("fid");
                     d.RelatedNodeIds.Should().BeEmpty();
                     return;
@@ -344,7 +337,8 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
 
             case 13:
                 {
-                    ResolvedArchitectureDecision d = hydrated.Decisions.Should().ContainSingle(x => x.DecisionId == "d2").Subject;
+                    ResolvedArchitectureDecision d = hydrated.Decisions.Should()
+                        .ContainSingle(x => x.DecisionId == "d2").Subject;
                     d.RelatedNodeIds.Should().Equal("nid");
                     d.SupportingFindingIds.Should().BeEmpty();
                     return;

@@ -3,9 +3,13 @@ using ArchLucid.Retrieval.Models;
 namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IVectorIndex"/> using cosine similarity over stored embeddings (dev/tests or single-node deployments).
+///     Thread-safe in-memory <see cref="IVectorIndex" /> using cosine similarity over stored embeddings (dev/tests or
+///     single-node deployments).
 /// </summary>
-/// <remarks>Replaces existing rows by <see cref="RetrievalChunk.ChunkId"/> on upsert. Filters require exact tenant/workspace/project match; optional run/manifest must match when provided.</remarks>
+/// <remarks>
+///     Replaces existing rows by <see cref="RetrievalChunk.ChunkId" /> on upsert. Filters require exact
+///     tenant/workspace/project match; optional run/manifest must match when provided.
+/// </remarks>
 public sealed class InMemoryVectorIndex : IVectorIndex
 {
     private const int MaxChunks = 10_000;

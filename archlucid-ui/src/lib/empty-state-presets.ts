@@ -2,6 +2,8 @@ import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lu
 
 import type { EmptyStateProps } from "@/components/EmptyState";
 
+export { SEARCH_EMPTY } from "./search-empty-preset";
+
 export const RUNS_EMPTY: EmptyStateProps = {
   icon: FileText,
   title: "No runs in this project yet",
@@ -9,7 +11,7 @@ export const RUNS_EMPTY: EmptyStateProps = {
     "Create your first architecture run using the wizard, or submit one via the CLI or API. Runs appear here when they exist for the project in the URL.",
   actions: [
     { label: "Create your first run", href: "/runs/new" },
-    { label: "View onboarding", href: "/onboarding", variant: "outline" },
+    { label: "Getting started", href: "/getting-started", variant: "outline" },
   ],
   helpTopicPath: "creating-runs",
 };
@@ -20,7 +22,7 @@ export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
   description:
     "Try All or another status, or refresh after a scan window. New alerts appear when scheduled architecture-risk checks fire and dedupe rules allow a row.",
   actions: [
-    { label: "Configure alert rules", href: "/alert-rules" },
+    { label: "Configure alert rules", href: "/alerts?tab=rules" },
     { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "alerts",

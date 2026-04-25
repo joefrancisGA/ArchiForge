@@ -1,11 +1,12 @@
 # Continuous deployment: multi-job pipeline (build → Terraform plan/apply → Container Apps → smoke → optional rollback → NuGet → notify).
 # Azure auth: OIDC only (`azure/login@v2`, `id-token: write`). Do not use AZURE_CREDENTIALS or stored SP passwords.
 #
-# Per GitHub Environment (`staging` / `production`), configure required reviewers + secrets:
+# Per GitHub Environment (`dev` / `staging` / `production`), configure required reviewers + secrets:
 #   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
 #   ACR_LOGIN_SERVER (optional; skips image push when unset)
 #   ACR_NAME — optional explicit registry name for `az acr login --name`
-#   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps (copy .example tfvars to terraform.tfvars / production.tfvars)
+#   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps (copy .example tfvars to dev.tfvars / terraform.tfvars / production.tfvars)
+#   DEV_TFVARS — optional multiline secret (GitHub Environment `dev` only): full contents of dev.tfvars written before `terraform plan` so CD works without committing gitignored tfvars
 #   NUGET_API_KEY — optional; pushes ArchLucid.Api.Client when set (production path)
 #   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push
 #   CONTAINER_APP_WORKER_NAME — optional; worker uses the same image as the API (ArchLucid.Api Dockerfile publishes Worker.dll; CA command is already set in Terraform)
@@ -40,6 +41,7 @@ on:
         required: true
         type: choice
         options:
+          - dev
           - staging
           - production
       run_terraform_apply:
@@ -89,6 +91,8 @@ jobs:
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
           if [ "${{ github.event.inputs.target }}" = "staging" ]; then
             echo "LATEST_ALIAS=latest-staging" >> "$GITHUB_ENV"
+          elif [ "${{ github.event.inputs.target }}" = "dev" ]; then
+            echo "LATEST_ALIAS=latest-dev" >> "$GITHUB_ENV"
           else
             echo "LATEST_ALIAS=latest-production" >> "$GITHUB_ENV"
           fi
@@ -166,6 +170,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Materialize dev.tfvars from secret (optional)
+        if: github.event.inputs.target == 'dev'
+        env:
+          DEV_TFVARS: ${{ secrets.DEV_TFVARS }}
+        run: |
+          if [ -z "${DEV_TFVARS:-}" ] || [ -z "${TF_DIR:-}" ]; then
+            exit 0
+          fi
+          printf '%s\n' "$DEV_TFVARS" > "${TF_DIR}/dev.tfvars"
+
       - name: Azure login (OIDC)
         uses: azure/login@v2
         with:
@@ -201,6 +215,8 @@ jobs:
             VAR_FILE_ARGS="-var-file=production.tfvars"
           elif [ "$TARGET" = "staging" ] && [ -f terraform.tfvars ]; then
             VAR_FILE_ARGS="-var-file=terraform.tfvars"
+          elif [ "$TARGET" = "dev" ] && [ -f dev.tfvars ]; then
+            VAR_FILE_ARGS="-var-file=dev.tfvars"
           fi
           # terraform.tfvars is auto-loaded when present; explicit -var-file documents operator intent per target.
           terraform plan -input=false -out=tfplan $VAR_FILE_ARGS

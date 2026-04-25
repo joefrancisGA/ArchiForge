@@ -208,6 +208,49 @@ public sealed class FindingsOrchestratorTests
         snapshot.Findings.Single().Category.Should().Be("Requirement");
     }
 
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_RecordsOccurredUtcFromTimeProviderOnEngineFailure()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        DateTimeOffset fixedUtc = new(2026, 4, 24, 18, 30, 0, TimeSpan.Zero);
+        FakeTimeProviderForOrchestrator clock = new(fixedUtc);
+
+        Mock<IFindingEngine> bad = new(MockBehavior.Strict);
+        bad.Setup(x => x.EngineType).Returns("fail");
+        bad.Setup(x => x.Category).Returns("Security");
+        bad.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        Mock<IFindingEngine> good = CreateEngine("ok", "Security", []);
+
+        Mock<IFindingPayloadValidator> validator = new();
+        FindingsOrchestrator sut = new(
+            [bad.Object, good.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            clock);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
+
+        snapshot.EngineFailures.Should().ContainSingle();
+        snapshot.EngineFailures[0].OccurredUtc.Should().Be(fixedUtc.UtcDateTime);
+    }
+
+    private sealed class FakeTimeProviderForOrchestrator : TimeProvider
+    {
+        private readonly DateTimeOffset _utcNow;
+
+        public FakeTimeProviderForOrchestrator(DateTimeOffset utcNow)
+        {
+            _utcNow = utcNow;
+        }
+
+        public override DateTimeOffset GetUtcNow()
+        {
+            return _utcNow;
+        }
+    }
+
     private static Mock<IFindingEngine> CreateEngine(string engineType, string category, IReadOnlyList<Finding> findings)
     {
         Mock<IFindingEngine> mock = new(MockBehavior.Strict);

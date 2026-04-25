@@ -10,7 +10,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Dapper implementation for <see cref="IArchitectureRunIdempotencyRepository"/> (SQL Server).
+///     Dapper implementation for <see cref="IArchitectureRunIdempotencyRepository" /> (SQL Server).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory connectionFactory)
@@ -27,30 +27,30 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
         ArgumentNullException.ThrowIfNull(idempotencyKeyHash);
 
         const string sql = """
-            SELECT RunId, RequestFingerprint
-            FROM ArchitectureRunIdempotency
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-              AND IdempotencyKeyHash = @IdempotencyKeyHash;
-            """;
+                           SELECT RunId, RequestFingerprint
+                           FROM ArchitectureRunIdempotency
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                             AND IdempotencyKeyHash = @IdempotencyKeyHash;
+                           """;
 
         using IDbConnection connection = await connectionFactory
-            .CreateOpenConnectionAsync(cancellationToken)
+                .CreateOpenConnectionAsync(cancellationToken)
             ;
 
         ArchitectureRunIdempotencyRow? row = await connection
-            .QueryFirstOrDefaultAsync<ArchitectureRunIdempotencyRow>(
-                new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        TenantId = tenantId,
-                        WorkspaceId = workspaceId,
-                        ProjectId = projectId,
-                        IdempotencyKeyHash = idempotencyKeyHash
-                    },
-                    cancellationToken: cancellationToken))
+                .QueryFirstOrDefaultAsync<ArchitectureRunIdempotencyRow>(
+                    new CommandDefinition(
+                        sql,
+                        new
+                        {
+                            TenantId = tenantId,
+                            WorkspaceId = workspaceId,
+                            ProjectId = projectId,
+                            IdempotencyKeyHash = idempotencyKeyHash
+                        },
+                        cancellationToken: cancellationToken))
             ;
 
         if (row is null)
@@ -58,8 +58,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
 
         return new ArchitectureRunIdempotencyLookup
         {
-            RunId = row.RunId,
-            RequestFingerprint = row.RequestFingerprint ?? []
+            RunId = row.RunId, RequestFingerprint = row.RequestFingerprint ?? []
         };
     }
 
@@ -80,27 +79,27 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         const string sql = """
-            INSERT INTO ArchitectureRunIdempotency
-            (
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                IdempotencyKeyHash,
-                RequestFingerprint,
-                RunId,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @TenantId,
-                @WorkspaceId,
-                @ProjectId,
-                @IdempotencyKeyHash,
-                @RequestFingerprint,
-                @RunId,
-                @CreatedUtc
-            );
-            """;
+                           INSERT INTO ArchitectureRunIdempotency
+                           (
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               IdempotencyKeyHash,
+                               RequestFingerprint,
+                               RunId,
+                               CreatedUtc
+                           )
+                           VALUES
+                           (
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId,
+                               @IdempotencyKeyHash,
+                               @RequestFingerprint,
+                               @RunId,
+                               @CreatedUtc
+                           );
+                           """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
@@ -112,20 +111,20 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
             try
             {
                 int affected = await conn
-                    .ExecuteAsync(new CommandDefinition(
-                        sql,
-                        new
-                        {
-                            TenantId = tenantId,
-                            WorkspaceId = workspaceId,
-                            ProjectId = projectId,
-                            IdempotencyKeyHash = idempotencyKeyHash,
-                            RequestFingerprint = requestFingerprint,
-                            RunId = runId,
-                            CreatedUtc = createdUtc
-                        },
-                        transaction: transaction,
-                        cancellationToken: cancellationToken))
+                        .ExecuteAsync(new CommandDefinition(
+                            sql,
+                            new
+                            {
+                                TenantId = tenantId,
+                                WorkspaceId = workspaceId,
+                                ProjectId = projectId,
+                                IdempotencyKeyHash = idempotencyKeyHash,
+                                RequestFingerprint = requestFingerprint,
+                                RunId = runId,
+                                CreatedUtc = createdUtc
+                            },
+                            transaction,
+                            cancellationToken: cancellationToken))
                     ;
 
                 return affected > 0;
@@ -143,10 +142,16 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
 
     private sealed class ArchitectureRunIdempotencyRow
     {
-        public string RunId { get; init; } = string.Empty;
+        public string RunId
+        {
+            get;
+            init;
+        } = string.Empty;
+
         public byte[]? RequestFingerprint
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

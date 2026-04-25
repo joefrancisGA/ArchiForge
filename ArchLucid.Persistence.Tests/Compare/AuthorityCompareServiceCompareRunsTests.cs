@@ -12,32 +12,25 @@ namespace ArchLucid.Persistence.Tests.Compare;
 public sealed class AuthorityCompareServiceCompareRunsTests
 {
     [Fact]
-    public async Task CompareRunsAsync_omits_manifest_comparison_when_only_one_run_has_golden_manifest_but_run_diff_shows_asymmetry()
+    public async Task
+        CompareRunsAsync_omits_manifest_comparison_when_only_one_run_has_golden_manifest_but_run_diff_shows_asymmetry()
     {
         Guid leftRunId = Guid.NewGuid();
         Guid rightRunId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         RunSummaryDto left = new()
         {
-            RunId = leftRunId,
-            ProjectId = "default",
-            Description = null,
-            GoldenManifestId = manifestId
+            RunId = leftRunId, ProjectId = "default", Description = null, GoldenManifestId = manifestId
         };
 
         RunSummaryDto right = new()
         {
-            RunId = rightRunId,
-            ProjectId = "default",
-            Description = null,
-            GoldenManifestId = null
+            RunId = rightRunId, ProjectId = "default", Description = null, GoldenManifestId = null
         };
 
         Mock<IGoldenManifestRepository> manifests = new();

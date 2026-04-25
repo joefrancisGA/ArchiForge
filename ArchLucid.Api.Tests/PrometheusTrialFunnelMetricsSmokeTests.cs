@@ -5,7 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures trial funnel instruments appear on the Prometheus scrape endpoint after emissions (requires Prometheus exporter).
+///     Ensures trial funnel instruments appear on the Prometheus scrape endpoint after emissions (requires Prometheus
+///     exporter).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -20,6 +21,8 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
         HttpClient client = factory.CreateClient();
         _ = await client.GetAsync(new Uri("/health/ready", UriKind.Relative));
 
+        ArchLucidInstrumentation.RecordTrialFunnelHealthProbe("success");
+        ArchLucidInstrumentation.RecordTrialRegistrationFailure("validation");
         ArchLucidInstrumentation.RecordTrialSignup("smoke", "unit");
         ArchLucidInstrumentation.RecordTrialSignupFailure("smoke", "unit");
         ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
@@ -37,6 +40,8 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
 
         string[] needles =
         [
+            "archlucid_trial_funnel_health_probe_total",
+            "archlucid_trial_registration_failures_total",
             "archlucid_trial_signups_total",
             "archlucid_trial_signup_failures_total",
             "archlucid_trial_signup_baseline_skipped_total",
@@ -45,7 +50,7 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
             "archlucid_trial_conversion_total",
             "archlucid_trial_expirations_total",
             "archlucid_billing_checkouts_total",
-            "archlucid_trial_active_tenants",
+            "archlucid_trial_active_tenants"
         ];
 
         foreach (string needle in needles)

@@ -54,7 +54,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     [
                         "Ingest or regenerate graph snapshots until TopologyResource nodes exist for expected categories.",
                         "Verify the graph projection maps infrastructure types into TopologyResource (not only generic service/datastore nodes).",
-                        "Treat empty topology as intentional and record scope or policy rationale instead of expanding coverage.",
+                        "Treat empty topology as intentional and record scope or policy rationale instead of expanding coverage."
                     ],
                     Notes = ["Expected categories: network, compute, storage, data"]
                 }
@@ -96,7 +96,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     [
                         "Add topology-backed resources for missing categories on the next architecture iteration.",
                         "Narrow expected categories when the workload legitimately omits a pillar (document in manifest notes).",
-                        "Split mixed workloads into separate runs so each graph can meet category expectations independently.",
+                        "Split mixed workloads into separate runs so each graph can meet category expectations independently."
                     ],
                     Notes =
                     [

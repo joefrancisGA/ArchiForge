@@ -40,7 +40,7 @@ Give opted-in operators **actionable, anonymised pattern guidance** (“peers in
 ## Constraints
 
 - **RLS is not weakened** on `dbo.*` tenant tables. No `SECURITY DEFINER`-style broadening of tenant session policies to “read everyone.”
-- **Cross-tenant reads** execute only under a **dedicated Azure AD service principal** (or managed identity) whose SQL permission is **SELECT on a published materialised view (or dedicated staging schema)** — **not** `db_datareader` on the whole database.
+- **Cross-tenant reads** execute only under a **dedicated Microsoft Entra ID service principal** (or managed identity) whose SQL permission is **SELECT on a published materialised view (or dedicated staging schema)** — **not** `db_datareader` on the whole database.
 - **No elastic live query against all tenants in the UI request path.** v1 rejects **Azure SQL elastic query** fan-out from the interactive API for this feature: latency, cost unpredictability, and blast-radius if misconfigured exceed benefit. **Nightly snapshot / ETL** into the aggregate store is mandatory for v1 (see **Architecture Overview** below).
 - **Historical migrations 001–028** remain immutable; any new tables/views ship as **new** migrations + master DDL update per repo rule.
 - **Implementation is blocked** until this ADR is **Accepted** (owner sign-off). Drafting in **Proposed** is allowed; shipping code is not.

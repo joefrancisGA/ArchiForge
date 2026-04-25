@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -6,11 +7,17 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+
+using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Host.Core.Services;
 
@@ -31,6 +38,11 @@ public sealed class ArchitectureApplicationService(
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IEvidenceBuilder evidenceBuilder,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    IConfiguration configuration,
+    IAuditService auditService,
+    IActorContext actorContext,
     ILogger<ArchitectureApplicationService> logger)
     : IArchitectureApplicationService
 {
@@ -152,10 +164,16 @@ public sealed class ArchitectureApplicationService(
         return await unifiedGoldenManifestReader.GetByVersionAsync(version, cancellationToken);
     }
 
-    public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, CancellationToken cancellationToken = default)
+    public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(
+        string runId,
+        PilotSeedFakeResultsOptions? pilotOptions = null,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(runId))
             return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
+
+        if (pilotOptions?.MarkRealModeFellBackToSimulator == true)
+            await TryMarkPilotRealModeFellBackAsync(runId, cancellationToken);
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
@@ -295,5 +313,44 @@ public sealed class ArchitectureApplicationService(
 
             await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
 
+    }
+
+    private async Task TryMarkPilotRealModeFellBackAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (header is null)
+            return;
+
+
+        header.RealModeFellBackToSimulator = true;
+        header.PilotAoaiDeploymentSnapshot = configuration["AzureOpenAI:DeploymentName"]?.Trim();
+        await runRepository.UpdateAsync(header, cancellationToken);
+
+        ArchLucidInstrumentation.RecordTryRealModePilotFellBackToSimulator();
+
+        string actor = actorContext.GetActor();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.FirstRealValueRunFellBackToSimulator,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid
+            },
+            cancellationToken);
+    }
+
+    private static bool TryParseRunGuid(string runId, out Guid runGuid)
+    {
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 }

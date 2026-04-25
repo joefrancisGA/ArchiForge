@@ -7,11 +7,9 @@ using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
-/// <summary>Ensures Advanced Analysis controllers stay behind <see cref="RequiresCommercialTenantTierAttribute"/>.</summary>
+/// <summary>Ensures Advanced Analysis controllers stay behind <see cref="RequiresCommercialTenantTierAttribute" />.</summary>
 public sealed class CommercialPackagingMetadataTests
 {
     [Theory]
@@ -22,7 +20,7 @@ public sealed class CommercialPackagingMetadataTests
     public void Controller_has_requires_commercial_tier_standard(Type controllerType)
     {
         RequiresCommercialTenantTierAttribute? attr =
-            controllerType.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: true);
+            controllerType.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(true);
 
         attr.Should().NotBeNull($"{controllerType.Name} must declare commercial tier packaging.");
         attr!.Arguments.Should().HaveCount(1);

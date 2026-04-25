@@ -7,6 +7,7 @@ ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanFindingsSnapshots
 ArchLucid.Api.Controllers.Admin.AdminController.RemediateOrphanGoldenManifests
 ArchLucid.Api.Controllers.Admin.AdminController.RetryIntegrationOutboxDeadLetter
 ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostClientError
+ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostFirstTenantFunnelEvent
 ArchLucid.Api.Controllers.Admin.ClientErrorTelemetryController.PostSponsorBannerFirstCommitBadge
 ArchLucid.Api.Controllers.Admin.DemoController.SeedAsync
 ArchLucid.Api.Controllers.Admin.TenantsAdminController.ProvisionAsync
@@ -46,6 +47,8 @@ ArchLucid.Api.Controllers.Governance.GovernanceController.BatchReviewApprovalReq
 ArchLucid.Api.Controllers.Governance.GovernanceController.Promote
 ArchLucid.Api.Controllers.Governance.GovernanceController.Reject
 ArchLucid.Api.Controllers.Governance.GovernanceController.SubmitApprovalRequest
+# Durable audit: IPolicyPackDryRunService.EvaluateAsync logs GovernanceDryRunRequested (redacted thresholds) after the response is built.
+ArchLucid.Api.Controllers.Governance.GovernanceController.DryRunPolicyPack
 ArchLucid.Api.Controllers.Governance.GovernancePreviewController.CompareEnvironments
 ArchLucid.Api.Controllers.Governance.GovernancePreviewController.Preview
 ArchLucid.Api.Controllers.Governance.PolicyPacksController.ArchiveAssignment
@@ -65,3 +68,11 @@ ArchLucid.Api.Controllers.Planning.ComparisonsController.ReplayComparisonsBatch
 ArchLucid.Api.Controllers.Planning.ComparisonsController.UpdateComparisonRecord
 ArchLucid.Api.Controllers.Planning.FindingFeedbackController.PostFindingFeedbackAsync
 ArchLucid.Api.Controllers.Tenancy.TenantCustomerSuccessController.PostProductFeedbackAsync
+# SCIM v2: IAuditService.LogAsync runs in ScimUserService / ScimGroupService (see docs/library/AUDIT_COVERAGE_MATRIX.md SCIM rows).
+ArchLucid.Api.Controllers.Scim.ScimGroupsController.CreateAsync
+ArchLucid.Api.Controllers.Scim.ScimGroupsController.ReplaceAsync
+ArchLucid.Api.Controllers.Scim.ScimGroupsController.PatchAsync
+ArchLucid.Api.Controllers.Scim.ScimUsersController.CreateAsync
+ArchLucid.Api.Controllers.Scim.ScimUsersController.ReplaceAsync
+ArchLucid.Api.Controllers.Scim.ScimUsersController.PatchAsync
+ArchLucid.Api.Controllers.Scim.ScimUsersController.DeleteAsync

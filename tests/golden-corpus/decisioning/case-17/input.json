@@ -1,0 +1,28 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000005",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000005",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000005-0000-4000-8000-000000000002",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000005",
+    "runId": "20000000-0000-4000-8000-000000000005",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "s1",
+        "nodeType": "SecurityBaseline",
+        "label": "TLS-2",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "controlId": "SC-8",
+          "status": "missing"
+        }
+      }
+    ],
+    "edges": [],
+    "warnings": []
+  },
+  "merge": null
+}

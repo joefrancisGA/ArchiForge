@@ -7,7 +7,10 @@ namespace ArchLucid.Application.GoldenCohort;
 public sealed class GoldenCohortDocument
 {
     [JsonPropertyName("schemaVersion")]
-    public int SchemaVersion { get; set; }
+    public int SchemaVersion
+    {
+        get; set;
+    }
 
     [JsonPropertyName("cohortName")]
     public string CohortName { get; set; } = string.Empty;
@@ -27,10 +30,7 @@ public sealed class GoldenCohortDocument
 
         GoldenCohortDocument? doc = JsonSerializer.Deserialize<GoldenCohortDocument>(json, SerializerOptions);
 
-        if (doc is null)
-            throw new InvalidOperationException($"Failed to deserialize cohort JSON: {path}");
-
-        return doc;
+        return doc ?? throw new InvalidOperationException($"Failed to deserialize cohort JSON: {path}");
     }
 
     public void Save(string path)

@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
+import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
 
@@ -38,7 +39,7 @@ const corePilotSteps: WorkflowStep[] = [
   },
   {
     title: "Let the pipeline run, then open the run",
-    body: "After creation, the coordinator fills snapshots and authority steps. Watch progress on the wizard's last step or open run detail anytime.",
+    body: "After creation, the coordinator fills snapshots and pipeline validation steps. Watch progress on the wizard's last step or open run detail anytime.",
     primaryHref: "/runs?projectId=default",
     primaryLabel: "Open runs list",
     secondary: (
@@ -269,14 +270,14 @@ export function OperatorFirstRunWorkflowPanel() {
             <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/replay">
               Replay a run
             </Link>
-            {" — "}re-validate the authority chain and surface validation results.
+            {" — "}re-validate the provenance chain and surface validation results.
           </li>
           <li>
             <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/graph">
               Graph (visual)
             </Link>
             {" — "}provenance or architecture graph for a run ID. Enable via{" "}
-            <em>Show more links</em> in the sidebar.
+            <em>{NAV_DISCLOSURE.extended.show}</em> in the sidebar.
           </li>
           <li>
             <strong>Export a package</strong> — on run detail (committed), use{" "}
@@ -287,8 +288,8 @@ export function OperatorFirstRunWorkflowPanel() {
 
       <p className="mt-[18px] text-[13px] text-neutral-700 dark:text-neutral-300">
         More orientation:{" "}
-        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/onboarding">
-          Onboarding
+        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/getting-started">
+          Getting started
         </Link>{" "}
         ·{" "}
         <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/">

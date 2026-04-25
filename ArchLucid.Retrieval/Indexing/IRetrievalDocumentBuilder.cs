@@ -7,12 +7,16 @@ using ArchLucid.Retrieval.Models;
 namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
-/// Maps domain objects into <see cref="ArchLucid.Retrieval.Models.RetrievalDocument"/> rows for <see cref="IRetrievalIndexingService"/>.
+///     Maps domain objects into <see cref="ArchLucid.Retrieval.Models.RetrievalDocument" /> rows for
+///     <see cref="IRetrievalIndexingService" />.
 /// </summary>
-/// <remarks>Implementation: <see cref="RetrievalDocumentBuilder"/> (JSON for manifest/provenance, plain text for artifacts/messages).</remarks>
+/// <remarks>
+///     Implementation: <see cref="RetrievalDocumentBuilder" /> (JSON for manifest/provenance, plain text for
+///     artifacts/messages).
+/// </remarks>
 public interface IRetrievalDocumentBuilder
 {
-    /// <summary>One document: full <see cref="GoldenManifest"/> JSON as content.</summary>
+    /// <summary>One document: full <see cref="GoldenManifest" /> JSON as content.</summary>
     /// <param name="manifest">Golden manifest to index (scope ids are taken from the manifest).</param>
     /// <returns>Single-element list containing the manifest document.</returns>
     IReadOnlyList<RetrievalDocument> BuildForManifest(GoldenManifest manifest);
@@ -22,7 +26,7 @@ public interface IRetrievalDocumentBuilder
     /// <param name="workspaceId">Scope workspace.</param>
     /// <param name="projectId">Scope project.</param>
     /// <param name="artifacts">Artifacts to convert (empty input returns empty list).</param>
-    /// <returns>One <see cref="RetrievalDocument"/> per artifact.</returns>
+    /// <returns>One <see cref="RetrievalDocument" /> per artifact.</returns>
     IReadOnlyList<RetrievalDocument> BuildForArtifacts(
         Guid tenantId,
         Guid workspaceId,
@@ -35,7 +39,7 @@ public interface IRetrievalDocumentBuilder
     /// <param name="projectId">Scope project.</param>
     /// <param name="runId">Optional run anchor for the conversation.</param>
     /// <param name="messages">Conversation messages to index.</param>
-    /// <returns>One <see cref="RetrievalDocument"/> per message.</returns>
+    /// <returns>One <see cref="RetrievalDocument" /> per message.</returns>
     IReadOnlyList<RetrievalDocument> BuildForConversation(
         Guid tenantId,
         Guid workspaceId,
@@ -43,7 +47,7 @@ public interface IRetrievalDocumentBuilder
         Guid? runId,
         IReadOnlyList<ConversationMessage> messages);
 
-    /// <summary>Single document containing serialized <see cref="DecisionProvenanceGraph"/>.</summary>
+    /// <summary>Single document containing serialized <see cref="DecisionProvenanceGraph" />.</summary>
     /// <param name="tenantId">Scope tenant.</param>
     /// <param name="workspaceId">Scope workspace.</param>
     /// <param name="projectId">Scope project.</param>

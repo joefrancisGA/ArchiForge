@@ -72,10 +72,7 @@ public sealed class HostLeaderElectionCoordinatorTests
         Mock<IOptionsMonitor<HostLeaderElectionOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new HostLeaderElectionOptions
         {
-            Enabled = true,
-            LeaseDurationSeconds = 60,
-            RenewIntervalSeconds = 1,
-            FollowerPollMilliseconds = 50
+            Enabled = true, LeaseDurationSeconds = 60, RenewIntervalSeconds = 1, FollowerPollMilliseconds = 50
         });
 
         HostLeaderElectionCoordinator sut = new(

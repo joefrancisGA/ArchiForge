@@ -13,4 +13,3 @@ public interface IDecisionEngine
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct);
 }
-

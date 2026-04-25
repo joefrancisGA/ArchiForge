@@ -1,13 +1,6 @@
-import type { Metadata } from "next";
-import type { JSX } from "react";
+import { redirect } from "next/navigation";
 
-import { OnboardWizardClient } from "./OnboardWizardClient";
-
-export const metadata: Metadata = {
-  title: "Core Pilot onboarding",
-  description: "Four-step first-session wizard: request → seed → commit → manifest hand-off.",
-};
-
-export default function OnboardPage(): JSX.Element {
-  return <OnboardWizardClient />;
+/** @deprecated The four-step first-session flow lives in New run and run detail; canonical checklist is `/getting-started`. */
+export default function OnboardRedirectPage() {
+  redirect("/getting-started");
 }

@@ -1,7 +1,6 @@
 using System.Globalization;
 
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tenancy;
 
@@ -45,18 +44,18 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
 
             await using SqlCommand tenantCmd = setup.CreateCommand();
             tenantCmd.CommandText = """
-                                      INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, TrialStatus, TrialExpiresUtc, TrialRunsUsed, TrialSeatsUsed)
-                                      VALUES (@Id, N'purge-test', @Slug, N'Standard', N'Deleted', SYSUTCDATETIME(), 0, 1);
-                                      """;
+                                    INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, TrialStatus, TrialExpiresUtc, TrialRunsUsed, TrialSeatsUsed)
+                                    VALUES (@Id, N'purge-test', @Slug, N'Standard', N'Deleted', SYSUTCDATETIME(), 0, 1);
+                                    """;
             tenantCmd.Parameters.AddWithValue("@Id", tenantId);
             tenantCmd.Parameters.AddWithValue("@Slug", $"purge-{tenantId:N}".ToLowerInvariant());
             await tenantCmd.ExecuteNonQueryAsync();
 
             await using SqlCommand wsCmd = setup.CreateCommand();
             wsCmd.CommandText = """
-                                 INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
-                                 VALUES (@WsId, @TenantId, N'default', @ProjectId);
-                                 """;
+                                INSERT INTO dbo.TenantWorkspaces (Id, TenantId, Name, DefaultProjectId)
+                                VALUES (@WsId, @TenantId, N'default', @ProjectId);
+                                """;
             wsCmd.Parameters.AddWithValue("@WsId", workspaceId);
             wsCmd.Parameters.AddWithValue("@TenantId", tenantId);
             wsCmd.Parameters.AddWithValue("@ProjectId", projectId);
@@ -64,9 +63,9 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
 
             await using SqlCommand usageCmd = setup.CreateCommand();
             usageCmd.CommandText = """
-                                    INSERT INTO dbo.UsageEvents (TenantId, WorkspaceId, ProjectId, Kind, Quantity)
-                                    VALUES (@TenantId, @WorkspaceId, @ProjectId, N'TestKind', 1);
-                                    """;
+                                   INSERT INTO dbo.UsageEvents (TenantId, WorkspaceId, ProjectId, Kind, Quantity)
+                                   VALUES (@TenantId, @WorkspaceId, @ProjectId, N'TestKind', 1);
+                                   """;
             usageCmd.Parameters.AddWithValue("@TenantId", tenantId);
             usageCmd.Parameters.AddWithValue("@WorkspaceId", workspaceId);
             usageCmd.Parameters.AddWithValue("@ProjectId", projectId);
@@ -74,13 +73,13 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
 
             await using SqlCommand auditCmd = setup.CreateCommand();
             auditCmd.CommandText = """
-                                    INSERT INTO dbo.AuditEvents (
-                                        EventId, OccurredUtc, EventType, ActorUserId, ActorUserName,
-                                        TenantId, WorkspaceId, ProjectId, DataJson)
-                                    VALUES (
-                                        @EventId, SYSUTCDATETIME(), N'PurgeFixture', N'test', N'Test User',
-                                        @TenantId, @WorkspaceId, @ProjectId, N'{}');
-                                    """;
+                                   INSERT INTO dbo.AuditEvents (
+                                       EventId, OccurredUtc, EventType, ActorUserId, ActorUserName,
+                                       TenantId, WorkspaceId, ProjectId, DataJson)
+                                   VALUES (
+                                       @EventId, SYSUTCDATETIME(), N'PurgeFixture', N'test', N'Test User',
+                                       @TenantId, @WorkspaceId, @ProjectId, N'{}');
+                                   """;
             auditCmd.Parameters.AddWithValue("@EventId", auditEventId);
             auditCmd.Parameters.AddWithValue("@TenantId", tenantId);
             auditCmd.Parameters.AddWithValue("@WorkspaceId", workspaceId);
@@ -116,9 +115,9 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
     }
 
     /// <summary>
-    /// Sets <c>SESSION_CONTEXT(N'al_rls_bypass') = 1</c> so writes pass the BLOCK predicates on scope-keyed tables
-    /// covered by the tenant RLS rollout (DbUp 036 + 108; see <c>docs/security/MULTI_TENANT_RLS.md</c>).
-    /// Mirrors <c>SqlTenantHardPurgeService.ApplyBypassSessionAsync</c>.
+    ///     Sets <c>SESSION_CONTEXT(N'al_rls_bypass') = 1</c> so writes pass the BLOCK predicates on scope-keyed tables
+    ///     covered by the tenant RLS rollout (DbUp 036 + 108; see <c>docs/security/MULTI_TENANT_RLS.md</c>).
+    ///     Mirrors <c>SqlTenantHardPurgeService.ApplyBypassSessionAsync</c>.
     /// </summary>
     private static async Task EnableRlsBypassAsync(SqlConnection connection)
     {

@@ -1,0 +1,220 @@
+using System.Globalization;
+using System.IO.Compression;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
+
+namespace ArchLucid.Application.Support;
+
+/// <summary>
+///     Default <see cref="ISupportBundleAssembler" />. Assembles a small, self-contained ZIP
+///     from the running host's perspective (host environment, runtime info, version stamps,
+///     redacted environment-variable snapshot, doc references) — suitable for attaching to
+///     an inbound support ticket from <c>/admin/support</c>.
+/// </summary>
+/// <remarks>
+///     <b>Why not call the CLI's <c>SupportBundleCollector</c>?</b> The CLI variant probes
+///     <c>/health</c>, <c>/version</c>, and <c>/openapi/v1.json</c> over HTTP using
+///     <c>ArchLucidApiClient</c>. Inside the host process we'd be calling ourselves over
+///     the loopback adapter, doubling the HTTP plumbing for no signal gain. We instead
+///     emit the host-side equivalents (build identity from <see cref="Assembly" />,
+///     environment snapshot from <see cref="SupportBundleSensitivePatternRedactor" />,
+///     and a static references section) and keep the file-name conventions identical so
+///     a support engineer reading the ZIP cannot tell which side produced it.
+///
+///     <b>Redaction.</b> Every text section is filtered through
+///     <see cref="SupportBundleSensitivePatternRedactor.RedactSensitivePatterns" /> before
+///     being written to the archive. The environment snapshot also masks values for
+///     names matching the secret-shaped pattern list.
+/// </remarks>
+public sealed class SupportBundleAssembler(TimeProvider timeProvider) : ISupportBundleAssembler
+{
+    /// <summary>File names mirror the CLI <c>SupportBundleArchiveWriter</c> constants.</summary>
+    public const string ReadmeFileName = "README.txt";
+
+    /// <summary>Manifest file inside the ZIP.</summary>
+    public const string ManifestFileName = "manifest.json";
+
+    /// <summary>Build identity file inside the ZIP.</summary>
+    public const string BuildFileName = "build.json";
+
+    /// <summary>Environment snapshot file inside the ZIP.</summary>
+    public const string EnvironmentFileName = "environment.json";
+
+    /// <summary>Static references file inside the ZIP.</summary>
+    public const string ReferencesFileName = "references.json";
+
+    /// <summary>Bundle format version — bumped only on breaking changes to the file shape.</summary>
+    public const string BundleFormatVersion = "server-1.0";
+
+    /// <summary>Content type returned to the controller.</summary>
+    public const string ZipContentType = "application/zip";
+
+    private static readonly JsonSerializerOptions JsonWrite = new() { WriteIndented = true };
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
+    /// <inheritdoc />
+    public Task<SupportBundleArtifact> AssembleAsync(
+        SupportBundleRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (request is null) throw new ArgumentNullException(nameof(request));
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        DateTimeOffset generatedUtc = _timeProvider.GetUtcNow();
+        string createdUtcIso = generatedUtc.UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
+
+        string requesterDisplay = string.IsNullOrWhiteSpace(request.RequesterDisplayId)
+            ? "(unknown operator)"
+            : request.RequesterDisplayId;
+
+        string tenantDisplay = string.IsNullOrWhiteSpace(request.TenantDisplayName)
+            ? "(no tenant context)"
+            : request.TenantDisplayName;
+
+        string manifestJson = SerializeIndented(BuildManifest(createdUtcIso, requesterDisplay, tenantDisplay));
+        string buildJson = SerializeIndented(BuildBuildSection());
+        string environmentJson = SerializeIndented(BuildEnvironmentSection());
+        string referencesJson = SerializeIndented(BuildReferencesSection());
+        string readmeText = BuildReadme(createdUtcIso, requesterDisplay, tenantDisplay);
+
+        byte[] zipBytes = WriteZip(
+        [
+            new SupportBundleZipEntry(ReadmeFileName, RedactToBytes(readmeText)),
+            new SupportBundleZipEntry(ManifestFileName, RedactToBytes(manifestJson)),
+            new SupportBundleZipEntry(BuildFileName, RedactToBytes(buildJson)),
+            new SupportBundleZipEntry(EnvironmentFileName, RedactToBytes(environmentJson)),
+            new SupportBundleZipEntry(ReferencesFileName, RedactToBytes(referencesJson)),
+        ]);
+
+        string fileName = "archlucid-support-bundle-" +
+                          generatedUtc.UtcDateTime.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture) +
+                          "Z.zip";
+
+        return Task.FromResult(new SupportBundleArtifact(zipBytes, fileName, ZipContentType, generatedUtc));
+    }
+
+    private static byte[] RedactToBytes(string text) =>
+        Encoding.UTF8.GetBytes(SupportBundleSensitivePatternRedactor.RedactSensitivePatterns(text));
+
+    private static object BuildManifest(string createdUtcIso, string requesterDisplay, string tenantDisplay) => new
+    {
+        bundleFormatVersion = BundleFormatVersion,
+        source = "api",
+        createdUtc = createdUtcIso,
+        requesterDisplayId = requesterDisplay,
+        tenantDisplayName = tenantDisplay,
+        triageReadOrder = new[]
+        {
+            new { file = ReadmeFileName, why = "Plain-text overview — open first." },
+            new { file = ManifestFileName, why = "Bundle metadata + read order in machine-readable form." },
+            new { file = BuildFileName, why = "Host build identity (assembly version, runtime)." },
+            new { file = EnvironmentFileName, why = "Redacted host environment snapshot." },
+            new { file = ReferencesFileName, why = "Doc links and correlation hints." },
+        },
+        notes = "Server-assembled bundle. Sensitive env-var values appear only as (set)/(not set); " +
+                "bearer tokens, X-Api-Key headers, and connection-string passwords are replaced with [REDACTED].",
+    };
+
+    private static object BuildBuildSection()
+    {
+        Assembly asm = typeof(SupportBundleAssembler).Assembly;
+        AssemblyName name = asm.GetName();
+
+        string assemblyVersion = name.Version?.ToString() ?? "unknown";
+        string informational = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+                               ?? assemblyVersion;
+
+        return new
+        {
+            informationalVersion = informational,
+            assemblyVersion,
+            runtimeFramework = RuntimeInformation.FrameworkDescription,
+            machineName = Environment.MachineName,
+            osDescription = RuntimeInformation.OSDescription,
+            osArchitecture = RuntimeInformation.OSArchitecture.ToString(),
+            processArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
+            timeZoneId = TimeZoneInfo.Local.Id,
+        };
+    }
+
+    private static object BuildEnvironmentSection() => new
+    {
+        archlucidAndDotnetEnvironment = SupportBundleSensitivePatternRedactor.SnapshotEnvironmentForBundle(),
+        notes = "Only ARCHLUCID_* and DOTNET_* variables are included. Secret-shaped names show (set)/(not set) only.",
+    };
+
+    private static object BuildReferencesSection() => new
+    {
+        apiEndpoints = new[]
+        {
+            "GET /version — build identity (no auth)",
+            "GET /health/live — liveness",
+            "GET /health/ready — readiness",
+            "GET /health — combined detailed checks (ReadAuthority)",
+            "GET /openapi/v1.json — OpenAPI document",
+        },
+        documentation = new[]
+        {
+            "docs/TROUBLESHOOTING.md",
+            "docs/OPERATOR_QUICKSTART.md",
+            "docs/library/OPERATOR_ATLAS.md",
+            "docs/PENDING_QUESTIONS.md (item 37 — support-bundle redaction policy still open at owner level)",
+        },
+        correlation = "Match X-Correlation-ID response header / problem JSON correlationId against API logs.",
+    };
+
+    private static string BuildReadme(string createdUtcIso, string requesterDisplay, string tenantDisplay) =>
+        $"""
+         ArchLucid support bundle (server-assembled)
+         ===========================================
+         Generated (UTC): {createdUtcIso}
+         Requester:       {requesterDisplay}
+         Tenant:          {tenantDisplay}
+
+         Read first (in order)
+         ---------------------
+         1. {ManifestFileName}    — bundle metadata + machine-readable read order
+         2. {BuildFileName}       — host build identity (assembly version + runtime)
+         3. {EnvironmentFileName} — redacted ARCHLUCID_* / DOTNET_* env vars
+         4. {ReferencesFileName}  — API endpoints, doc links, correlation tip
+
+         Redaction
+         ---------
+         Bearer tokens, X-Api-Key headers, and password-shaped key=value pairs are replaced
+         with [REDACTED] before the bundle is written. Environment variables whose names
+         look like secrets show (set)/(not set) only.
+
+         Open ticket / next steps
+         ------------------------
+         Attach this ZIP to a support ticket. See docs/PENDING_QUESTIONS.md item 37 — the
+         pre-forwarding redaction policy is still owner-pending; review the contents before
+         forwarding to a third party.
+
+         """;
+
+    private static string SerializeIndented<T>(T value) => JsonSerializer.Serialize(value, JsonWrite);
+
+    private static byte[] WriteZip(IReadOnlyList<SupportBundleZipEntry> entries)
+    {
+        using MemoryStream ms = new();
+
+        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach (SupportBundleZipEntry entry in entries)
+            {
+                ZipArchiveEntry zipEntry = archive.CreateEntry(entry.Name, CompressionLevel.Optimal);
+                using Stream writer = zipEntry.Open();
+                writer.Write(entry.Content, 0, entry.Content.Length);
+            }
+        }
+
+        return ms.ToArray();
+    }
+
+    private sealed record SupportBundleZipEntry(string Name, byte[] Content);
+}

@@ -59,7 +59,7 @@ public sealed class GoldenManifestPayloadBlobEnvelopeTests
             AssumptionsJson = "old",
             WarningsJson = "old",
             ProvenanceJson = "old",
-            ManifestPayloadBlobUri = "https://example/blob",
+            ManifestPayloadBlobUri = "https://example/blob"
         };
 
         GoldenManifestStorageRow merged = GoldenManifestPayloadBlobEnvelope.MergeIntoRow(row, parsed);

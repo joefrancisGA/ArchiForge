@@ -10,11 +10,9 @@ using Moq;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>API factory with a replaceable <see cref="IAuditRepository"/> mock for audit controller tests.</summary>
+/// <summary>API factory with a replaceable <see cref="IAuditRepository" /> mock for audit controller tests.</summary>
 public sealed class AuditControllerSearchApiFactory : ArchLucidApiFactory
 {
-    public Mock<IAuditRepository> AuditRepositoryMock { get; } = new();
-
     public AuditControllerSearchApiFactory()
     {
         AuditRepositoryMock
@@ -37,6 +35,11 @@ public sealed class AuditControllerSearchApiFactory : ArchLucidApiFactory
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
     }
+
+    public Mock<IAuditRepository> AuditRepositoryMock
+    {
+        get;
+    } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

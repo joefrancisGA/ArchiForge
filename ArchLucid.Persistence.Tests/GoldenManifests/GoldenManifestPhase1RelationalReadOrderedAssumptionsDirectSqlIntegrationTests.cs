@@ -14,13 +14,14 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.GoldenManifests;
 
 /// <summary>
-/// Covers <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync"/> relational
-/// <c>dbo.GoldenManifestAssumptions</c> ordering: <c>ORDER BY SortOrder</c> when multiple rows exist.
+///     Covers <see cref="GoldenManifestPhase1RelationalRead.HydrateAsync" /> relational
+///     <c>dbo.GoldenManifestAssumptions</c> ordering: <c>ORDER BY SortOrder</c> when multiple rows exist.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 [Trait("Suite", "Core")]
-public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSqlIntegrationTests(
+    SqlServerPersistenceFixture fixture)
 {
     private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -80,29 +81,29 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSq
             Assumptions = ["json-order-should-not-win"],
             Warnings = [],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
 
         const string insertManifest = """
-            INSERT INTO dbo.GoldenManifests
-            (
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
-            )
-            VALUES
-            (
-                @TenantId, @WorkspaceId, @ProjectId,
-                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
-                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
-                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson
-            );
-            """;
+                                      INSERT INTO dbo.GoldenManifests
+                                      (
+                                          TenantId, WorkspaceId, ProjectId,
+                                          ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                          CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                          MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                          ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                          WarningsJson, ProvenanceJson
+                                      )
+                                      VALUES
+                                      (
+                                          @TenantId, @WorkspaceId, @ProjectId,
+                                          @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                                          @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                                          @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                                          @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                                          @WarningsJson, @ProvenanceJson
+                                      );
+                                      """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -134,14 +135,14 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSq
                     DecisionsJson = JsonEntitySerializer.Serialize(template.Decisions),
                     AssumptionsJson = JsonEntitySerializer.Serialize(template.Assumptions),
                     WarningsJson = JsonEntitySerializer.Serialize(template.Warnings),
-                    ProvenanceJson = JsonEntitySerializer.Serialize(template.Provenance),
+                    ProvenanceJson = JsonEntitySerializer.Serialize(template.Provenance)
                 },
                 cancellationToken: CancellationToken.None));
 
         const string insertAssumption = """
-            INSERT INTO dbo.GoldenManifestAssumptions (ManifestId, SortOrder, AssumptionText, TenantId, WorkspaceId, ProjectId)
-            VALUES (@ManifestId, @SortOrder, @AssumptionText, @TenantId, @WorkspaceId, @ProjectId);
-            """;
+                                        INSERT INTO dbo.GoldenManifestAssumptions (ManifestId, SortOrder, AssumptionText, TenantId, WorkspaceId, ProjectId)
+                                        VALUES (@ManifestId, @SortOrder, @AssumptionText, @TenantId, @WorkspaceId, @ProjectId);
+                                        """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -153,7 +154,7 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSq
                     AssumptionText = "second-by-sort-order",
                     TenantId,
                     WorkspaceId,
-                    ProjectId,
+                    ProjectId
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -167,27 +168,25 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSq
                     AssumptionText = "first-by-sort-order",
                     TenantId,
                     WorkspaceId,
-                    ProjectId,
+                    ProjectId
                 },
                 cancellationToken: CancellationToken.None));
 
         const string selectRow = """
-            SELECT
-                TenantId, WorkspaceId, ProjectId,
-                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
-                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
-                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
-            FROM dbo.GoldenManifests
-            WHERE ManifestId = @ManifestId;
-            """;
+                                 SELECT
+                                     TenantId, WorkspaceId, ProjectId,
+                                     ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                                     CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                                     MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                                     ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                                     WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+                                 FROM dbo.GoldenManifests
+                                 WHERE ManifestId = @ManifestId;
+                                 """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new
-            {
-                ManifestId = manifestId
-            }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new { ManifestId = manifestId },
+                cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 

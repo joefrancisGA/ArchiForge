@@ -106,6 +106,9 @@ public static class ProblemSupportHints
 
             return "Convert the tenant trial (POST /v1/tenant/convert) or purchase a subscription to lift trial limits; see docs/security/TRIAL_LIMITS.md.";
 
+        if (typeUri == ProblemTypes.PackagingTierInsufficient)
+            return "This route requires a higher commercial tenant tier. Use extension fields pricingUrl/upgradeUrl, POST /v1/tenant/billing/checkout, or your sales order path.";
+
         return typeUri == ProblemTypes.InternalError ? "Retry once. If it persists, provide traceId (and X-Correlation-ID if available) to support; do not paste secrets." : null;
     }
 }

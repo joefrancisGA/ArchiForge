@@ -3,14 +3,14 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Core.Audit;
 
 /// <summary>
-/// Bounded retries for durable SQL audit writes on security-relevant paths where a single transient failure
-/// should not silently drop the audit row.
+///     Bounded retries for durable SQL audit writes on security-relevant paths where a single transient failure
+///     should not silently drop the audit row.
 /// </summary>
 public static class DurableAuditLogRetry
 {
     /// <summary>
-    /// Runs <paramref name="writeAsync"/> up to <paramref name="maxAttempts"/> times with short backoff.
-    /// Logs and suppresses the final exception so callers keep their non-audit behavior.
+    ///     Runs <paramref name="writeAsync" /> up to <paramref name="maxAttempts" /> times with short backoff.
+    ///     Logs and suppresses the final exception so callers keep their non-audit behavior.
     /// </summary>
     public static async Task TryLogAsync(
         Func<CancellationToken, Task> writeAsync,
@@ -58,7 +58,6 @@ public static class DurableAuditLogRetry
                 if (attempt < maxAttempts)
 
                     await Task.Delay(TimeSpan.FromMilliseconds(50 * (1 << (attempt - 1))), cancellationToken);
-
             }
 
 
@@ -69,6 +68,5 @@ public static class DurableAuditLogRetry
                 "Durable audit abandoned after {MaxAttempts} attempts for {OperationLabel}",
                 maxAttempts,
                 operationLabel);
-
     }
 }

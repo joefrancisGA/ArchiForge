@@ -11,7 +11,8 @@ public interface IAuthorityPipelineWorkRepository
         string payloadJson,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken cancellationToken);
+    Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(int maxBatch,
+        CancellationToken cancellationToken);
 
     Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken);
 

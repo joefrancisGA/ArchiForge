@@ -18,8 +18,8 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Host.Composition.Tests;
 
 /// <summary>
-/// Builds a real <see cref="ServiceProvider"/> after composition to execute registration lambdas in
-/// <c>ArchLucid.Host.Composition</c> (not covered by registration-only tests).
+///     Builds a real <see cref="ServiceProvider" /> after composition to execute registration lambdas in
+///     <c>ArchLucid.Host.Composition</c> (not covered by registration-only tests).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -28,7 +28,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     [Fact]
     public async Task AddArchLucidApplicationServices_RealAzure_resolves_scoped_IAgentCompletionClient()
     {
-        IConfiguration configuration = CreateRealAzureCompositionConfiguration(fallbackLlmEnabled: false);
+        IConfiguration configuration = CreateRealAzureCompositionConfiguration(false);
         ServiceCollection services = CreateCoreServices(configuration);
 
         services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
@@ -43,9 +43,10 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     }
 
     [Fact]
-    public async Task AddArchLucidApplicationServices_RealAzure_with_FallbackLlm_resolves_FallbackAgentCompletionClient()
+    public async Task
+        AddArchLucidApplicationServices_RealAzure_with_FallbackLlm_resolves_FallbackAgentCompletionClient()
     {
-        IConfiguration configuration = CreateRealAzureCompositionConfiguration(fallbackLlmEnabled: true);
+        IConfiguration configuration = CreateRealAzureCompositionConfiguration(true);
         ServiceCollection services = CreateCoreServices(configuration);
 
         services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
@@ -61,7 +62,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     [Fact]
     public void AddArchLucidApplicationServices_throws_when_FallbackLlm_enabled_but_incomplete()
     {
-        Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(fallbackLlmEnabled: true);
+        Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(true);
         data["ArchLucid:FallbackLlm:ApiKey"] = "";
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
         ServiceCollection services = CreateCoreServices(configuration);
@@ -75,7 +76,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     [Fact]
     public void AddArchLucidApplicationServices_resolves_NullContentSafetyGuard_when_safety_disabled_by_default()
     {
-        IConfiguration configuration = CreateRealAzureCompositionConfiguration(fallbackLlmEnabled: false);
+        IConfiguration configuration = CreateRealAzureCompositionConfiguration(false);
         ServiceCollection services = CreateCoreServices(configuration);
 
         _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
@@ -89,7 +90,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     [Fact]
     public async Task AddArchLucidApplicationServices_resolves_stub_content_safety_guard_when_enabled()
     {
-        Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(fallbackLlmEnabled: false);
+        Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(false);
         data["ArchLucid:ContentSafety:Enabled"] = "true";
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -111,7 +112,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     [Fact]
     public void AddArchLucidApplicationServices_resolves_AzureContentSafetyGuard_when_enabled_with_endpoint_and_key()
     {
-        Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(fallbackLlmEnabled: false);
+        Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(false);
         data["ArchLucid:ContentSafety:Enabled"] = "true";
         data["ArchLucid:ContentSafety:Endpoint"] = "https://unit-test.cognitiveservices.azure.com/";
         data["ArchLucid:ContentSafety:ApiKey"] = "placeholder-key-not-used-in_this_test";
@@ -128,8 +129,11 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     }
 
     [Fact]
-    public async Task AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_RunCommitPathSelector()
+    public async Task
+        AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_AuthorityDriven()
     {
+        // ADR 0030 PR A3 (2026-04-24): RunCommitPathSelector + LegacyRunCommitPathOptions were retired.
+        // The authority-driven orchestrator is the single implementation behind IArchitectureRunCommitOrchestrator.
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(CreateSimulatorCompositionDictionary())
             .Build();
@@ -143,7 +147,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         IArchitectureRunCommitOrchestrator orchestrator =
             scope.ServiceProvider.GetRequiredService<IArchitectureRunCommitOrchestrator>();
 
-        orchestrator.Should().BeOfType<RunCommitPathSelector>();
+        orchestrator.Should().BeOfType<AuthorityDrivenArchitectureRunCommitOrchestrator>();
     }
 
     [Fact]
@@ -203,7 +207,8 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     }
 
     [Fact]
-    public void AddArchLucidApplicationServices_archlucid_environment_production_throws_when_content_safety_credentials_missing()
+    public void
+        AddArchLucidApplicationServices_archlucid_environment_production_throws_when_content_safety_credentials_missing()
     {
         Dictionary<string, string?> data = CreateSimulatorCompositionDictionary();
         data["ARCHLUCID_ENVIRONMENT"] = "Production";
@@ -264,7 +269,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
             ["RateLimiting:Expensive:PermitLimit"] = "100000",
             ["RateLimiting:Expensive:WindowMinutes"] = "1",
-            ["LlmCompletionCache:Enabled"] = "false",
+            ["LlmCompletionCache:Enabled"] = "false"
         };
 
         if (fallbackLlmEnabled)
@@ -296,8 +301,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             ["RateLimiting:Expensive:PermitLimit"] = "100000",
             ["RateLimiting:Expensive:WindowMinutes"] = "1",
             ["LlmCompletionCache:Enabled"] = "false",
-            ["HotPathCache:Enabled"] = "false",
-            ["Coordinator:LegacyRunCommitPath"] = "false",
+            ["HotPathCache:Enabled"] = "false"
         };
     }
 
@@ -309,7 +313,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             {
                 TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
             };
         }
     }

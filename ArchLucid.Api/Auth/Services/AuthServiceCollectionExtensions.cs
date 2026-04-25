@@ -2,8 +2,10 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Auth.Scim;
 using ArchLucid.Api.Authentication;
 using ArchLucid.Api.Configuration;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.AspNetCore.Authentication;
@@ -35,7 +37,12 @@ public static class AuthServiceCollectionExtensions
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(options => ConfigureJwtBearer(options, authOptions, configuration));
+                .AddJwtBearer(options => ConfigureJwtBearer(options, authOptions, configuration))
+                .AddScheme<AuthenticationSchemeOptions, ScimBearerAuthenticationHandler>(
+                    ScimBearerDefaults.AuthenticationScheme,
+                    _ =>
+                    {
+                    });
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
 
@@ -47,6 +54,11 @@ public static class AuthServiceCollectionExtensions
                 })
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
                     ApiKeySchemeName,
+                    _ =>
+                    {
+                    })
+                .AddScheme<AuthenticationSchemeOptions, ScimBearerAuthenticationHandler>(
+                    ScimBearerDefaults.AuthenticationScheme,
                     _ =>
                     {
                     });
@@ -61,6 +73,11 @@ public static class AuthServiceCollectionExtensions
                 })
                 .AddScheme<AuthenticationSchemeOptions, DevelopmentBypassAuthenticationHandler>(
                     DevelopmentBypassAuthenticationHandler.SchemeName,
+                    _ =>
+                    {
+                    })
+                .AddScheme<AuthenticationSchemeOptions, ScimBearerAuthenticationHandler>(
+                    ScimBearerDefaults.AuthenticationScheme,
                     _ =>
                     {
                     });

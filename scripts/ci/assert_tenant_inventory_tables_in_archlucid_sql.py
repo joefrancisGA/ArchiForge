@@ -39,13 +39,34 @@ def _ddl_defines_table(ddl: str, table: str) -> bool:
     return False
 
 
+def _resolve_inventory_path(root: Path) -> Path | None:
+    """Return the first existing inventory path (canonical `docs/library/` location, then legacy `docs/` fallback).
+
+    The doc was reorganized into the spine layout alongside `docs/library/SYSTEM_MAP.md`, etc.
+    Keep the legacy path as a fallback so an interim redirect stub or rollback does not break CI.
+    """
+    candidates = [
+        root / "docs" / "library" / "TENANT_SCOPED_TABLES_INVENTORY.md",
+        root / "docs" / "TENANT_SCOPED_TABLES_INVENTORY.md",
+    ]
+
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+
+    return None
+
+
 def main() -> int:
     root = _repo_root()
-    inv_path = root / "docs" / "TENANT_SCOPED_TABLES_INVENTORY.md"
+    inv_path = _resolve_inventory_path(root)
     ddl_path = root / "ArchLucid.Persistence" / "Scripts" / "ArchLucid.sql"
 
-    if not inv_path.is_file():
-        print(f"Missing {inv_path}", file=sys.stderr)
+    if inv_path is None:
+        print(
+            "Missing TENANT_SCOPED_TABLES_INVENTORY.md (looked in docs/library/ and docs/).",
+            file=sys.stderr,
+        )
         return 2
 
     if not ddl_path.is_file():

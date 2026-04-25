@@ -59,8 +59,8 @@ public sealed class AuditEventCsvFormatterTests
                 WorkspaceId = Guid.Empty,
                 ProjectId = Guid.Empty,
                 OccurredUtc = occurred,
-                DataJson = "{}",
-            },
+                DataJson = "{}"
+            }
         ];
 
         OutputFormatterWriteContext context = new(

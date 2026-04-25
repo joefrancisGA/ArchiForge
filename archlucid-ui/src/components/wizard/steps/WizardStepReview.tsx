@@ -5,6 +5,7 @@ import type { FieldErrors } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 
 import { Separator } from "@/components/ui/separator";
+import { RunWizardCostPreviewCard } from "@/components/wizard/RunWizardCostPreviewCard";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -79,6 +80,8 @@ export function WizardStepReview() {
     >
       <div className="space-y-4">
         <ErrorList errors={formState.errors} />
+
+        <RunWizardCostPreviewCard />
 
         <ReadOnlyBlock title="Identity">
           <dl className="m-0 grid gap-1 sm:grid-cols-[8rem_1fr]">

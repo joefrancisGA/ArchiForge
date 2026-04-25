@@ -22,49 +22,49 @@ internal sealed class DapperProductLearningPlanningThemeRepository(ISqlConnectio
         string status = ProductLearningPlanningRepositoryValidation.NormalizeThemeStatus(theme.Status);
 
         const string sql = """
-            INSERT INTO dbo.ProductLearningImprovementThemes
-            (
-                ThemeId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                ThemeKey,
-                SourceAggregateKey,
-                PatternKey,
-                Title,
-                Summary,
-                AffectedArtifactTypeOrWorkflowArea,
-                SeverityBand,
-                EvidenceSignalCount,
-                DistinctRunCount,
-                AverageTrustScore,
-                DerivationRuleVersion,
-                Status,
-                CreatedUtc,
-                CreatedByUserId
-            )
-            VALUES
-            (
-                @ThemeId,
-                @TenantId,
-                @WorkspaceId,
-                @ProjectId,
-                @ThemeKey,
-                @SourceAggregateKey,
-                @PatternKey,
-                @Title,
-                @Summary,
-                @AffectedArtifactTypeOrWorkflowArea,
-                @SeverityBand,
-                @EvidenceSignalCount,
-                @DistinctRunCount,
-                @AverageTrustScore,
-                @DerivationRuleVersion,
-                @Status,
-                @CreatedUtc,
-                @CreatedByUserId
-            );
-            """;
+                           INSERT INTO dbo.ProductLearningImprovementThemes
+                           (
+                               ThemeId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               ThemeKey,
+                               SourceAggregateKey,
+                               PatternKey,
+                               Title,
+                               Summary,
+                               AffectedArtifactTypeOrWorkflowArea,
+                               SeverityBand,
+                               EvidenceSignalCount,
+                               DistinctRunCount,
+                               AverageTrustScore,
+                               DerivationRuleVersion,
+                               Status,
+                               CreatedUtc,
+                               CreatedByUserId
+                           )
+                           VALUES
+                           (
+                               @ThemeId,
+                               @TenantId,
+                               @WorkspaceId,
+                               @ProjectId,
+                               @ThemeKey,
+                               @SourceAggregateKey,
+                               @PatternKey,
+                               @Title,
+                               @Summary,
+                               @AffectedArtifactTypeOrWorkflowArea,
+                               @SeverityBand,
+                               @EvidenceSignalCount,
+                               @DistinctRunCount,
+                               @AverageTrustScore,
+                               @DerivationRuleVersion,
+                               @Status,
+                               @CreatedUtc,
+                               @CreatedByUserId
+                           );
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await connection.ExecuteAsync(
@@ -77,19 +77,19 @@ internal sealed class DapperProductLearningPlanningThemeRepository(ISqlConnectio
                     theme.WorkspaceId,
                     theme.ProjectId,
                     theme.ThemeKey,
-                    SourceAggregateKey = theme.SourceAggregateKey,
-                    PatternKey = theme.PatternKey,
+                    theme.SourceAggregateKey,
+                    theme.PatternKey,
                     theme.Title,
                     theme.Summary,
                     theme.AffectedArtifactTypeOrWorkflowArea,
                     theme.SeverityBand,
                     theme.EvidenceSignalCount,
                     theme.DistinctRunCount,
-                    AverageTrustScore = theme.AverageTrustScore,
+                    theme.AverageTrustScore,
                     theme.DerivationRuleVersion,
                     Status = status,
                     CreatedUtc = createdUtc,
-                    CreatedByUserId = theme.CreatedByUserId
+                    theme.CreatedByUserId
                 },
                 cancellationToken: cancellationToken));
     }
@@ -102,44 +102,39 @@ internal sealed class DapperProductLearningPlanningThemeRepository(ISqlConnectio
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
         const string sql = """
-            SELECT
-                ThemeId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                ThemeKey,
-                SourceAggregateKey,
-                PatternKey,
-                Title,
-                Summary,
-                AffectedArtifactTypeOrWorkflowArea,
-                SeverityBand,
-                EvidenceSignalCount,
-                DistinctRunCount,
-                AverageTrustScore,
-                DerivationRuleVersion,
-                Status,
-                CreatedUtc,
-                CreatedByUserId
-            FROM dbo.ProductLearningImprovementThemes
-            WHERE ThemeId = @ThemeId
-              AND TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId;
-            """;
+                           SELECT
+                               ThemeId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               ThemeKey,
+                               SourceAggregateKey,
+                               PatternKey,
+                               Title,
+                               Summary,
+                               AffectedArtifactTypeOrWorkflowArea,
+                               SeverityBand,
+                               EvidenceSignalCount,
+                               DistinctRunCount,
+                               AverageTrustScore,
+                               DerivationRuleVersion,
+                               Status,
+                               CreatedUtc,
+                               CreatedByUserId
+                           FROM dbo.ProductLearningImprovementThemes
+                           WHERE ThemeId = @ThemeId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        ProductLearningImprovementThemeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningImprovementThemeSqlRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    ThemeId = themeId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
-                },
-                cancellationToken: cancellationToken));
+        ProductLearningImprovementThemeSqlRow? row =
+            await connection.QuerySingleOrDefaultAsync<ProductLearningImprovementThemeSqlRow>(
+                new CommandDefinition(
+                    sql,
+                    new { ThemeId = themeId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                    cancellationToken: cancellationToken));
 
         return row is null ? null : MapTheme(row);
     }
@@ -153,50 +148,46 @@ internal sealed class DapperProductLearningPlanningThemeRepository(ISqlConnectio
         ProductLearningPlanningRepositoryValidation.EnsureTake(take);
 
         const string sql = """
-            SELECT TOP (@Take)
-                ThemeId,
-                TenantId,
-                WorkspaceId,
-                ProjectId,
-                ThemeKey,
-                SourceAggregateKey,
-                PatternKey,
-                Title,
-                Summary,
-                AffectedArtifactTypeOrWorkflowArea,
-                SeverityBand,
-                EvidenceSignalCount,
-                DistinctRunCount,
-                AverageTrustScore,
-                DerivationRuleVersion,
-                Status,
-                CreatedUtc,
-                CreatedByUserId
-            FROM dbo.ProductLearningImprovementThemes
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-            ORDER BY CreatedUtc DESC, ThemeId ASC;
-            """;
+                           SELECT TOP (@Take)
+                               ThemeId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               ThemeKey,
+                               SourceAggregateKey,
+                               PatternKey,
+                               Title,
+                               Summary,
+                               AffectedArtifactTypeOrWorkflowArea,
+                               SeverityBand,
+                               EvidenceSignalCount,
+                               DistinctRunCount,
+                               AverageTrustScore,
+                               DerivationRuleVersion,
+                               Status,
+                               CreatedUtc,
+                               CreatedByUserId
+                           FROM dbo.ProductLearningImprovementThemes
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId
+                           ORDER BY CreatedUtc DESC, ThemeId ASC;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        IEnumerable<ProductLearningImprovementThemeSqlRow> rows = await connection.QueryAsync<ProductLearningImprovementThemeSqlRow>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    Take = take,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId
-                },
-                cancellationToken: cancellationToken));
+        IEnumerable<ProductLearningImprovementThemeSqlRow> rows =
+            await connection.QueryAsync<ProductLearningImprovementThemeSqlRow>(
+                new CommandDefinition(
+                    sql,
+                    new { Take = take, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
+                    cancellationToken: cancellationToken));
 
         return rows.Select(static r => MapTheme(r)).ToList();
     }
 
-    private static ProductLearningImprovementThemeRecord MapTheme(ProductLearningImprovementThemeSqlRow row) =>
-        new()
+    private static ProductLearningImprovementThemeRecord MapTheme(ProductLearningImprovementThemeSqlRow row)
+    {
+        return new ProductLearningImprovementThemeRecord
         {
             ThemeId = row.ThemeId,
             TenantId = row.TenantId,
@@ -217,4 +208,5 @@ internal sealed class DapperProductLearningPlanningThemeRepository(ISqlConnectio
             CreatedUtc = row.CreatedUtc,
             CreatedByUserId = row.CreatedByUserId
         };
+    }
 }

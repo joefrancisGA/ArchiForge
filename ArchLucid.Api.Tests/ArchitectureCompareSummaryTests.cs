@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Compare Summary.
+///     Tests for Architecture Compare Summary.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -23,21 +22,21 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        CommitRunResponseDto? commitPayload =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         var replayRequest = new
         {
-            commitReplay = true,
-            executionMode = "Current",
-            manifestVersionOverride = "v1-replay"
+            commitReplay = true, executionMode = "Current", manifestVersionOverride = "v1-replay"
         };
 
         await Client.PostAsync($"/v1/architecture/run/{runId}/replay", JsonContent(replayRequest));
@@ -47,7 +46,8 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ManifestCompareSummaryResponse? payload = await response.Content.ReadFromJsonAsync<ManifestCompareSummaryResponse>(JsonOptions);
+        ManifestCompareSummaryResponse? payload =
+            await response.Content.ReadFromJsonAsync<ManifestCompareSummaryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Format.Should().Be("markdown");
         payload.Summary.Should().Contain("# Manifest Comparison");

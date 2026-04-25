@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.TestSupport;
 
@@ -8,7 +10,8 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Verifies DbUp can migrate from N−1 (all scripts except the latest) and then apply the tail in a second run (CI upgrade path).
+///     Verifies DbUp can migrate from N−1 (all scripts except the latest) and then apply the tail in a second run (CI
+///     upgrade path).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -22,10 +25,7 @@ public sealed class DatabaseMigratorUpgradePathSqlIntegrationTests(SqlServerPers
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidMigr_" + suffix;
 
-        SqlConnectionStringBuilder builder = new(fixture.ConnectionString)
-        {
-            InitialCatalog = databaseName,
-        };
+        SqlConnectionStringBuilder builder = new(fixture.ConnectionString) { InitialCatalog = databaseName };
 
         string catalogConnectionString = builder.ConnectionString;
 
@@ -45,6 +45,6 @@ public sealed class DatabaseMigratorUpgradePathSqlIntegrationTests(SqlServerPers
 
         object? scalar = await command.ExecuteScalarAsync(CancellationToken.None);
         scalar.Should().NotBe(DBNull.Value);
-        Convert.ToInt32(scalar, System.Globalization.CultureInfo.InvariantCulture).Should().BeGreaterThan(0);
+        Convert.ToInt32(scalar, CultureInfo.InvariantCulture).Should().BeGreaterThan(0);
     }
 }

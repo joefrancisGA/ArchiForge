@@ -45,7 +45,8 @@ public sealed class ProductLearningFeedbackAggregationService(IProductLearningPi
         IReadOnlyList<ArtifactOutcomeTrend> trends = rawTrends
             .Where(t =>
                 ProductLearningOpportunityScoring.TotalTrendSignals(t) >= options.MinSignalsPerAggregate &&
-                ProductLearningOpportunityScoring.ComputeTrendNegativeMass(t) >= options.MinNegativeOutcomesOnArtifactTrend)
+                ProductLearningOpportunityScoring.ComputeTrendNegativeMass(t) >=
+                options.MinNegativeOutcomesOnArtifactTrend)
             .ToList();
 
         IReadOnlyList<RepeatedCommentTheme> themes = await repository.ListRepeatedCommentThemesAsync(
@@ -64,7 +65,7 @@ public sealed class ProductLearningFeedbackAggregationService(IProductLearningPi
             FeedbackRollups = rollups,
             ArtifactTrends = trends,
             TopRejectedRevisedRollups = [],
-            RepeatedCommentThemes = themes,
+            RepeatedCommentThemes = themes
         };
     }
 }

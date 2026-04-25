@@ -1,7 +1,7 @@
 namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
-/// Lifecycle strings stored on <see cref="AlertRecord.Status"/> and used in SQL deduplication filters.
+///     Lifecycle strings stored on <see cref="AlertRecord.Status" /> and used in SQL deduplication filters.
 /// </summary>
 public static class AlertStatus
 {

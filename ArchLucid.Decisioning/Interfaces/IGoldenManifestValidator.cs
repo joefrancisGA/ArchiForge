@@ -6,4 +6,3 @@ public interface IGoldenManifestValidator
 {
     void Validate(GoldenManifest manifest);
 }
-

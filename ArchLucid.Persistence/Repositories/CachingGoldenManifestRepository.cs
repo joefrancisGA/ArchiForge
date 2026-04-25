@@ -8,16 +8,17 @@ using ArchLucid.Persistence.Caching;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// Decorates <see cref="IGoldenManifestRepository"/> with scoped hot-path reads and evicts on <see cref="SaveAsync"/>.
+///     Decorates <see cref="IGoldenManifestRepository" /> with scoped hot-path reads and evicts on
+///     <see cref="SaveAsync" />.
 /// </summary>
 public sealed class CachingGoldenManifestRepository(
     IGoldenManifestRepository inner,
     IHotPathReadCache hotPathReadCache) : IGoldenManifestRepository
 {
-    private readonly IGoldenManifestRepository _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
+
+    private readonly IGoldenManifestRepository _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
     /// <inheritdoc />
     public async Task SaveAsync(
@@ -28,12 +29,13 @@ public sealed class CachingGoldenManifestRepository(
     {
         await _inner.SaveAsync(manifest, ct, connection, transaction);
 
-        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, AmbientScope(manifest), manifest.ManifestId, ct);
+        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, AmbientScope(manifest), manifest.ManifestId,
+            ct);
     }
 
     /// <inheritdoc />
     public async Task<GoldenManifest> SaveAsync(
-        ArchLucid.Contracts.Manifest.GoldenManifest contract,
+        Contracts.Manifest.GoldenManifest contract,
         ScopeContext scope,
         SaveContractsManifestOptions keying,
         IManifestHashService manifestHashService,
@@ -70,13 +72,17 @@ public sealed class CachingGoldenManifestRepository(
     }
 
     /// <inheritdoc />
-    public Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion, CancellationToken ct) =>
-        _inner.GetByContractManifestVersionAsync(scope, manifestVersion, ct);
-
-    private static ScopeContext AmbientScope(GoldenManifest manifest) => new()
+    public Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion,
+        CancellationToken ct)
     {
-        TenantId = manifest.TenantId,
-        WorkspaceId = manifest.WorkspaceId,
-        ProjectId = manifest.ProjectId
-    };
+        return _inner.GetByContractManifestVersionAsync(scope, manifestVersion, ct);
+    }
+
+    private static ScopeContext AmbientScope(GoldenManifest manifest)
+    {
+        return new ScopeContext
+        {
+            TenantId = manifest.TenantId, WorkspaceId = manifest.WorkspaceId, ProjectId = manifest.ProjectId
+        };
+    }
 }

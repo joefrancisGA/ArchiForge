@@ -25,29 +25,29 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             return;
 
         const string sql = """
-            INSERT INTO DecisionNodes
-            (
-                DecisionId,
-                RunId,
-                Topic,
-                SelectedOptionId,
-                Confidence,
-                Rationale,
-                DecisionJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @DecisionId,
-                @RunId,
-                @Topic,
-                @SelectedOptionId,
-                @Confidence,
-                @Rationale,
-                @DecisionJson,
-                @CreatedUtc
-            );
-            """;
+                           INSERT INTO DecisionNodes
+                           (
+                               DecisionId,
+                               RunId,
+                               Topic,
+                               SelectedOptionId,
+                               Confidence,
+                               Rationale,
+                               DecisionJson,
+                               CreatedUtc
+                           )
+                           VALUES
+                           (
+                               @DecisionId,
+                               @RunId,
+                               @Topic,
+                               @SelectedOptionId,
+                               @Confidence,
+                               @Rationale,
+                               @DecisionJson,
+                               @CreatedUtc
+                           );
+                           """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
@@ -73,34 +73,6 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         }
     }
 
-    private static async Task InsertDecisionNodesAsync(
-        IDbConnection conn,
-        IDbTransaction tx,
-        IReadOnlyCollection<DecisionNode> decisions,
-        string sql,
-        CancellationToken cancellationToken)
-    {
-        foreach (DecisionNode decision in decisions)
-        {
-            string payload = JsonSerializer.Serialize(decision, ContractJson.Default);
-            await conn.ExecuteAsync(new CommandDefinition(
-                sql,
-                new
-                {
-                    decision.DecisionId,
-                    decision.RunId,
-                    decision.Topic,
-                    decision.SelectedOptionId,
-                    decision.Confidence,
-                    decision.Rationale,
-                    DecisionJson = payload,
-                    decision.CreatedUtc
-                },
-                transaction: tx,
-                cancellationToken: cancellationToken));
-        }
-    }
-
     public async Task<IReadOnlyList<DecisionNode>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
@@ -108,19 +80,16 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-            SELECT DecisionJson
-            FROM DecisionNodes
-            WHERE RunId = @RunId
-            ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(1000)};
-            """;
+                      SELECT DecisionJson
+                      FROM DecisionNodes
+                      WHERE RunId = @RunId
+                      ORDER BY CreatedUtc
+                      {SqlPagingSyntax.FirstRowsOnly(1000)};
+                      """;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
         List<DecisionNode> nodes = [];
@@ -149,5 +118,33 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         }
 
         return nodes;
+    }
+
+    private static async Task InsertDecisionNodesAsync(
+        IDbConnection conn,
+        IDbTransaction tx,
+        IReadOnlyCollection<DecisionNode> decisions,
+        string sql,
+        CancellationToken cancellationToken)
+    {
+        foreach (DecisionNode decision in decisions)
+        {
+            string payload = JsonSerializer.Serialize(decision, ContractJson.Default);
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    decision.DecisionId,
+                    decision.RunId,
+                    decision.Topic,
+                    decision.SelectedOptionId,
+                    decision.Confidence,
+                    decision.Rationale,
+                    DecisionJson = payload,
+                    decision.CreatedUtc
+                },
+                tx,
+                cancellationToken: cancellationToken));
+        }
     }
 }

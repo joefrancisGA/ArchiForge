@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Canonical Infrastructure Enricher.
+///     Tests for Canonical Infrastructure Enricher.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class CanonicalInfrastructureEnricherTests

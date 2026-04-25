@@ -11,7 +11,8 @@ using Dapper;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Dapper-backed persistence for <see cref="IAgentEvaluationRepository"/>; writes and reads agent evaluation records from the <c>AgentEvaluations</c> table.
+///     Dapper-backed persistence for <see cref="IAgentEvaluationRepository" />; writes and reads agent evaluation records
+///     from the <c>AgentEvaluations</c> table.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFactory) : IAgentEvaluationRepository
@@ -43,29 +44,29 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         const string deleteSql = "DELETE FROM AgentEvaluations WHERE RunId = @RunId;";
 
         const string insertSql = """
-            INSERT INTO AgentEvaluations
-            (
-                EvaluationId,
-                RunId,
-                TargetAgentTaskId,
-                EvaluationType,
-                ConfidenceDelta,
-                Rationale,
-                EvaluationJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @EvaluationId,
-                @RunId,
-                @TargetAgentTaskId,
-                @EvaluationType,
-                @ConfidenceDelta,
-                @Rationale,
-                @EvaluationJson,
-                @CreatedUtc
-            );
-            """;
+                                 INSERT INTO AgentEvaluations
+                                 (
+                                     EvaluationId,
+                                     RunId,
+                                     TargetAgentTaskId,
+                                     EvaluationType,
+                                     ConfidenceDelta,
+                                     Rationale,
+                                     EvaluationJson,
+                                     CreatedUtc
+                                 )
+                                 VALUES
+                                 (
+                                     @EvaluationId,
+                                     @RunId,
+                                     @TargetAgentTaskId,
+                                     @EvaluationType,
+                                     @ConfidenceDelta,
+                                     @Rationale,
+                                     @EvaluationJson,
+                                     @CreatedUtc
+                                 );
+                                 """;
 
         (IDbConnection conn, bool ownsConnection) =
             await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
@@ -74,7 +75,8 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         {
             if (transaction is not null)
 
-                await ExecuteCreateManyCoreAsync(conn, transaction, evaluations, runId, deleteSql, insertSql, cancellationToken);
+                await ExecuteCreateManyCoreAsync(conn, transaction, evaluations, runId, deleteSql, insertSql,
+                    cancellationToken);
 
             else
             {
@@ -91,45 +93,6 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         }
     }
 
-    private static async Task ExecuteCreateManyCoreAsync(
-        IDbConnection conn,
-        IDbTransaction tx,
-        IReadOnlyCollection<AgentEvaluation> evaluations,
-        string runId,
-        string deleteSql,
-        string insertSql,
-        CancellationToken cancellationToken)
-    {
-        await conn.ExecuteAsync(new CommandDefinition(
-            deleteSql,
-            new
-            {
-                RunId = runId
-            },
-            transaction: tx,
-            cancellationToken: cancellationToken));
-
-        foreach (AgentEvaluation e in evaluations)
-        {
-            string payload = JsonSerializer.Serialize(e, ContractJson.Default);
-            await conn.ExecuteAsync(new CommandDefinition(
-                insertSql,
-                new
-                {
-                    e.EvaluationId,
-                    e.RunId,
-                    e.TargetAgentTaskId,
-                    e.EvaluationType,
-                    e.ConfidenceDelta,
-                    e.Rationale,
-                    EvaluationJson = payload,
-                    e.CreatedUtc
-                },
-                transaction: tx,
-                cancellationToken: cancellationToken));
-        }
-    }
-
     public async Task<IReadOnlyList<AgentEvaluation>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
@@ -137,19 +100,16 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
-            SELECT EvaluationJson
-            FROM AgentEvaluations
-            WHERE RunId = @RunId
-            ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(500)};
-            """;
+                      SELECT EvaluationJson
+                      FROM AgentEvaluations
+                      WHERE RunId = @RunId
+                      ORDER BY CreatedUtc
+                      {SqlPagingSyntax.FirstRowsOnly(500)};
+                      """;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
         List<AgentEvaluation> evaluations = [];
@@ -178,5 +138,41 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         }
 
         return evaluations;
+    }
+
+    private static async Task ExecuteCreateManyCoreAsync(
+        IDbConnection conn,
+        IDbTransaction tx,
+        IReadOnlyCollection<AgentEvaluation> evaluations,
+        string runId,
+        string deleteSql,
+        string insertSql,
+        CancellationToken cancellationToken)
+    {
+        await conn.ExecuteAsync(new CommandDefinition(
+            deleteSql,
+            new { RunId = runId },
+            tx,
+            cancellationToken: cancellationToken));
+
+        foreach (AgentEvaluation e in evaluations)
+        {
+            string payload = JsonSerializer.Serialize(e, ContractJson.Default);
+            await conn.ExecuteAsync(new CommandDefinition(
+                insertSql,
+                new
+                {
+                    e.EvaluationId,
+                    e.RunId,
+                    e.TargetAgentTaskId,
+                    e.EvaluationType,
+                    e.ConfidenceDelta,
+                    e.Rationale,
+                    EvaluationJson = payload,
+                    e.CreatedUtc
+                },
+                tx,
+                cancellationToken: cancellationToken));
+        }
     }
 }

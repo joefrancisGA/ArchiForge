@@ -1,9 +1,11 @@
 import Link from "next/link";
 
-import { type WhyArchLucidComparisonRow } from "@/marketing/why-archlucid-comparison";
+import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { type WhyHardComparisonRow, whyHardCellDisplay } from "@/lib/why-comparison";
 
 export type WhyArchlucidMarketingViewProps = {
-  rows: readonly WhyArchLucidComparisonRow[];
+  /** Parsed from `WHY_COMPARISON_ROWS_SERIALIZED` on the marketing route for a single JSON source path. */
+  frontDoorRows: readonly WhyHardComparisonRow[];
   /**
    * When false, skips the /demo/preview iframe (jest-axe cannot scan iframes in jsdom).
    * Production page passes true (default).
@@ -11,48 +13,34 @@ export type WhyArchlucidMarketingViewProps = {
   showDemoEmbed?: boolean;
 };
 
-function CitationCell({ citation }: { citation: string }) {
-  const trimmed = citation.trim();
-
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    return (
-      <a
-        className="text-sky-700 underline underline-offset-2 dark:text-sky-400"
-        href={trimmed}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        {trimmed}
-      </a>
-    );
-  }
-
-  return <span className="text-neutral-700 dark:text-neutral-300">{trimmed}</span>;
-}
-
 /**
- * Public “Why ArchLucid” differentiation page — no operator auth; citations are enforced in Vitest.
+ * Public “Why ArchLucid” differentiation page — no operator auth.
  */
-export function WhyArchlucidMarketingView({ rows, showDemoEmbed = true }: WhyArchlucidMarketingViewProps) {
+export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true }: WhyArchlucidMarketingViewProps) {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
         Why ArchLucid
       </h1>
-      <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        ArchLucid is an AI Architecture Intelligence platform: specialized agents analyze architecture requests,
-        produce explainable findings, and feed governance workflows with a durable audit trail — grounded in what
-        ships today in V1. The table below lists **five capability claims**; each row cites either a path in this
-        repository, a public HTTPS source, or an explicit first-party baseline disclaimer — the same strings ship in
-        the downloadable proof-pack PDF (CI keeps the page and PDF builder in sync).
+      <p
+        className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+        data-testid="why-brand-category-paragraph"
+      >
+        ArchLucid is an {BRAND_CATEGORY} platform: specialized agents analyze architecture requests, produce
+        explainable findings, and feed governance workflows with a durable audit trail — grounded in what ships today
+        in V1. The **front-door** comparison table below is claim-by-claim and symbol-only in the product columns; the
+        same row labels and order ship in docs/go-to-market/COMPETITIVE_LANDSCAPE.md (CI-aligned with this page). The
+        downloadable proof pack PDF still bundles the deeper five-row benchmarked narrative (citations and evidence
+        strings) kept in sync separately with the PDF builder.
       </p>
 
       <section className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
         <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Side-by-side proof pack</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           Download a single PDF that bundles the same deterministic demo preview as <code>/demo/preview</code> (manifest
-          excerpt, explanation, citations, timeline) plus the **benchmarked differentiation** table (identical rows to
-          the inline table below). Requires demo mode on the API host (otherwise the link returns 404 by design).
+          excerpt, explanation, citations, timeline) plus the **benchmarked differentiation** narrative table (five
+          detailed rows with citations — not the symbol-only front-door grid below). Requires demo mode on the API host
+          (otherwise the link returns 404 by design).
         </p>
         <p className="mt-3">
           <a
@@ -104,63 +92,61 @@ export function WhyArchlucidMarketingView({ rows, showDemoEmbed = true }: WhyArc
         </p>
       </section>
 
-      <section className="mt-12" aria-labelledby="why-compare-heading">
-        <h2 id="why-compare-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Benchmarked differentiation (five claims)
+      <section className="mt-12" aria-labelledby="why-hard-compare-heading">
+        <h2 id="why-hard-compare-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Hard comparison (front-door)
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-          Competitor baselines use neutral category labels and hour ranges where we do not yet have a third-party study
-          — those cells carry the explicit first-party disclaimer in the citation column. ArchLucid evidence points only
-          at artifacts in this repository or public routes; there are no roadmap-only claims in this table.
+          Symbols only in the product columns (✓ / partial / —). Row labels match COMPETITIVE_LANDSCAPE.md.
         </p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <table className="w-full min-w-[960px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[960px] border-collapse text-left text-sm" data-testid="why-hard-comparison-table">
             <caption className="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
-              Five capability claims — claim, evidence, baseline, citation, narrative (same row order as the PDF pack)
+              ArchLucid vs common stacks — technically scoped rows
             </caption>
             <thead>
               <tr className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80">
-                <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                <th scope="col" className="min-w-[220px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
                   Claim
                 </th>
                 <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  ArchLucid evidence
+                  ArchLucid
                 </th>
-                <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  Competitor baseline
+                <th scope="col" className="min-w-[120px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  draw.io+Confluence
                 </th>
-                <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  Citation
+                <th scope="col" className="min-w-[140px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  GitHub Copilot for generic IaC review
                 </th>
-                <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
-                  Narrative (≤4 sentences)
+                <th scope="col" className="min-w-[120px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  Generic AI architect tool
                 </th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, index) => (
+              {frontDoorRows.map((row, index) => (
                 <tr
-                  key={`why-row-${index}`}
+                  key={`why-hard-row-${index}`}
                   className="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
                 >
                   <th
                     scope="row"
-                    className="max-w-[220px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                    className="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
                   >
-                    {row.claim}
+                    {row.label}
                   </th>
-                  <td className="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300">
-                    {row.archlucidEvidence}
+                  <td className="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                    {whyHardCellDisplay(row.archlucid)}
                   </td>
-                  <td className="max-w-[260px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300">
-                    {row.competitorBaseline}
+                  <td className="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                    {whyHardCellDisplay(row.drawioConfluence)}
                   </td>
-                  <td className="max-w-[200px] px-3 py-3 align-top text-neutral-700 dark:text-neutral-300">
-                    <CitationCell citation={row.citation} />
+                  <td className="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                    {whyHardCellDisplay(row.githubCopilotIac)}
                   </td>
-                  <td className="max-w-[320px] px-3 py-3 align-top text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-                    {row.narrativeParagraph}
+                  <td className="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                    {whyHardCellDisplay(row.genericAiArchitect)}
                   </td>
                 </tr>
               ))}

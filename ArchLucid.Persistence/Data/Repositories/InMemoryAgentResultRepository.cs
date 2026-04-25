@@ -7,12 +7,12 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IAgentResultRepository"/> for tests (clone-on-read for isolation).
+///     Thread-safe in-memory <see cref="IAgentResultRepository" /> for tests (clone-on-read for isolation).
 /// </summary>
 public sealed class InMemoryAgentResultRepository : IAgentResultRepository
 {
-    private readonly List<AgentResult> _results = [];
     private readonly Lock _gate = new();
+    private readonly List<AgentResult> _results = [];
 
     /// <inheritdoc />
     public Task CreateAsync(
@@ -62,7 +62,6 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
             foreach (AgentResult r in results)
 
                 _results.Add(Clone(r));
-
         }
 
         return Task.CompletedTask;

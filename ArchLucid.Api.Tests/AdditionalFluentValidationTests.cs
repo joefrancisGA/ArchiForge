@@ -9,6 +9,8 @@ using ArchLucid.Decisioning.Alerts.Tuning;
 
 using FluentAssertions;
 
+using FluentValidation.Results;
+
 namespace ArchLucid.Api.Tests;
 
 public sealed class AdditionalFluentValidationTests
@@ -19,13 +21,10 @@ public sealed class AdditionalFluentValidationTests
         CompositeAlertRuleBodyValidator v = new();
         CompositeAlertRule rule = new()
         {
-            Name = "n",
-            Severity = "Warning",
-            Operator = CompositeOperator.And,
-            Conditions = [],
+            Name = "n", Severity = "Warning", Operator = CompositeOperator.And, Conditions = []
         };
 
-        FluentValidation.Results.ValidationResult r = v.Validate(rule);
+        ValidationResult r = v.Validate(rule);
 
         r.IsValid.Should().BeFalse();
         r.Errors.Should().Contain(e => e.ErrorMessage.Contains("condition", StringComparison.OrdinalIgnoreCase));
@@ -44,14 +43,12 @@ public sealed class AdditionalFluentValidationTests
             [
                 new AlertRuleCondition
                 {
-                    MetricType = "m",
-                    Operator = AlertConditionOperator.GreaterThan,
-                    ThresholdValue = 1,
-                },
-            ],
+                    MetricType = "m", Operator = AlertConditionOperator.GreaterThan, ThresholdValue = 1
+                }
+            ]
         };
 
-        FluentValidation.Results.ValidationResult r = v.Validate(rule);
+        ValidationResult r = v.Validate(rule);
 
         r.IsValid.Should().BeTrue();
     }
@@ -60,12 +57,9 @@ public sealed class AdditionalFluentValidationTests
     public void RecommendationActionRequestValidator_invalid_action_length()
     {
         RecommendationActionRequestValidator v = new();
-        RecommendationActionRequest req = new()
-        {
-            Action = new string('x', 51)
-        };
+        RecommendationActionRequest req = new() { Action = new string('x', 51) };
 
-        FluentValidation.Results.ValidationResult r = v.Validate(req);
+        ValidationResult r = v.Validate(req);
 
         r.IsValid.Should().BeFalse();
     }
@@ -78,10 +72,10 @@ public sealed class AdditionalFluentValidationTests
         {
             RuleKind = "Simple",
             CandidateASimpleRule = new AlertRule { Name = "a", RuleType = AlertRuleType.CostIncreasePercent },
-            CandidateBSimpleRule = null,
+            CandidateBSimpleRule = null
         };
 
-        FluentValidation.Results.ValidationResult r = v.Validate(req);
+        ValidationResult r = v.Validate(req);
 
         r.IsValid.Should().BeFalse();
     }
@@ -90,12 +84,9 @@ public sealed class AdditionalFluentValidationTests
     public void RuleSimulationRequestValidator_invalid_kind()
     {
         RuleSimulationRequestValidator v = new();
-        RuleSimulationRequest req = new()
-        {
-            RuleKind = "Other"
-        };
+        RuleSimulationRequest req = new() { RuleKind = "Other" };
 
-        FluentValidation.Results.ValidationResult r = v.Validate(req);
+        ValidationResult r = v.Validate(req);
 
         r.IsValid.Should().BeFalse();
     }
@@ -113,11 +104,11 @@ public sealed class AdditionalFluentValidationTests
                 TaskId = "t",
                 Confidence = 2,
                 Claims = [],
-                EvidenceRefs = [],
-            },
+                EvidenceRefs = []
+            }
         };
 
-        FluentValidation.Results.ValidationResult r = v.Validate(req);
+        ValidationResult r = v.Validate(req);
 
         r.IsValid.Should().BeFalse();
     }
@@ -128,13 +119,10 @@ public sealed class AdditionalFluentValidationTests
         ThresholdRecommendationRequestValidator v = new();
         ThresholdRecommendationRequest req = new()
         {
-            RuleKind = "Simple",
-            TunedMetricType = "m",
-            CandidateThresholds = [1],
-            RecentRunCount = 0,
+            RuleKind = "Simple", TunedMetricType = "m", CandidateThresholds = [1], RecentRunCount = 0
         };
 
-        FluentValidation.Results.ValidationResult r = v.Validate(req);
+        ValidationResult r = v.Validate(req);
 
         r.IsValid.Should().BeFalse();
     }

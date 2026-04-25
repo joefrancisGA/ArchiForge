@@ -13,22 +13,24 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Category", "Unit")]
 public sealed class AgentOutputQualityGateTests
 {
-    private static AgentOutputEvaluationScore Structural(double ratio) =>
-        new()
+    private static AgentOutputEvaluationScore Structural(double ratio)
+    {
+        return new AgentOutputEvaluationScore
         {
             TraceId = "t",
             AgentType = AgentType.Topology,
             StructuralCompletenessRatio = ratio,
-            IsJsonParseFailure = false,
+            IsJsonParseFailure = false
         };
+    }
 
-    private static AgentOutputSemanticScore Semantic(double overall) =>
-        new()
+    private static AgentOutputSemanticScore Semantic(double overall)
+    {
+        return new AgentOutputSemanticScore
         {
-            TraceId = "t",
-            AgentType = AgentType.Topology,
-            OverallSemanticScore = overall,
+            TraceId = "t", AgentType = AgentType.Topology, OverallSemanticScore = overall
         };
+    }
 
     [Fact]
     public void Evaluate_when_disabled_always_accepts()
@@ -49,7 +51,7 @@ public sealed class AgentOutputQualityGateTests
             StructuralRejectBelow = 0.35,
             SemanticRejectBelow = 0.35,
             StructuralWarnBelow = 0.55,
-            SemanticWarnBelow = 0.55,
+            SemanticWarnBelow = 0.55
         }));
 
         sut.Evaluate(Structural(0.34), Semantic(0.9)).Should().Be(AgentOutputQualityGateOutcome.Rejected);
@@ -64,7 +66,7 @@ public sealed class AgentOutputQualityGateTests
             StructuralRejectBelow = 0.35,
             SemanticRejectBelow = 0.35,
             StructuralWarnBelow = 0.55,
-            SemanticWarnBelow = 0.55,
+            SemanticWarnBelow = 0.55
         }));
 
         sut.Evaluate(Structural(0.5), Semantic(0.5)).Should().Be(AgentOutputQualityGateOutcome.Warned);
@@ -79,7 +81,7 @@ public sealed class AgentOutputQualityGateTests
             StructuralRejectBelow = 0.35,
             SemanticRejectBelow = 0.35,
             StructuralWarnBelow = 0.55,
-            SemanticWarnBelow = 0.55,
+            SemanticWarnBelow = 0.55
         }));
 
         sut.Evaluate(Structural(0.56), Semantic(0.56)).Should().Be(AgentOutputQualityGateOutcome.Accepted);

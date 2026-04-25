@@ -17,8 +17,7 @@ public sealed class ContainerJobsOffloadRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["Jobs:OffloadedToContainerJobs:0"] = "advisory-scan",
-            ["Jobs:DeployedContainerJobNames"] = "",
+            ["Jobs:OffloadedToContainerJobs:0"] = "advisory-scan", ["Jobs:DeployedContainerJobNames"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -32,7 +31,7 @@ public sealed class ContainerJobsOffloadRulesTests
             errors);
 
         errors.Should().ContainSingle(static e => e.Contains("advisory-scan", StringComparison.Ordinal)
-                                                 && e.Contains("DeployedContainerJobNames", StringComparison.Ordinal));
+                                                  && e.Contains("DeployedContainerJobNames", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -41,7 +40,7 @@ public sealed class ContainerJobsOffloadRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Jobs:OffloadedToContainerJobs:0"] = "advisory-scan",
-            ["Jobs:DeployedContainerJobNames"] = "advisory-scan,data-archival",
+            ["Jobs:DeployedContainerJobNames"] = "advisory-scan,data-archival"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();

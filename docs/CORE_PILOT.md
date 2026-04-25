@@ -62,6 +62,8 @@ The Core Pilot boundary lets a pilot:
 
 ## 3. Step-by-step walkthrough
 
+<a id="new-run"></a>
+
 ### Step 1 — Create an architecture request
 
 **Operator UI:** Sidebar → **New run** → seven-step wizard (system identity, requirements, constraints, advanced inputs, submit). The wizard POSTs `POST /v1/architecture/request` and enters pipeline-tracking mode.
@@ -70,6 +72,8 @@ The Core Pilot boundary lets a pilot:
 
 **API:** `POST /v1/architecture/request` — see [docs/API_CONTRACTS.md](library/API_CONTRACTS.md) for the request body shape.
 
+<a id="pipeline-status"></a>
+
 ### Step 2 — Execute the run
 
 After creation, the coordinator fills context snapshots and authority steps automatically. In **simulator mode** (default in dev/demo), the pipeline completes in seconds.
@@ -77,6 +81,8 @@ After creation, the coordinator fills context snapshots and authority steps auto
 **Check status:** Operator UI → Runs → open the row → Pipeline timeline. Or: `archlucid status <runId>`.
 
 The run is ready to commit when the pipeline timeline shows no in-progress steps and the run status is `ReadyToCommit` or equivalent.
+
+<a id="commit"></a>
 
 ### Step 3 — Commit the manifest
 
@@ -88,7 +94,11 @@ Commit produces the **golden manifest** and synthesizes **artifacts**. Nothing i
 
 **API:** `POST /v1/architecture/run/{runId}/commit`.
 
+<a id="governance-gate"></a>
+
 > **Pre-commit governance gate (optional):** If `ArchLucid:Governance:PreCommitGateEnabled` is true, a gate checks findings before allowing commit. For a first pilot, leave this off unless you specifically want to evaluate governance behavior. See [docs/PRE_COMMIT_GOVERNANCE_GATE.md](library/PRE_COMMIT_GOVERNANCE_GATE.md).
+
+<a id="manifest-review"></a>
 
 ### Step 4 — Review manifest and artifacts
 

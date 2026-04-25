@@ -20,6 +20,10 @@ Production and shared environments should **not** store SQL connection strings, 
 
 Double underscores (`__`) map to nested JSON sections in ASP.NET Core configuration.
 
+## Local first-real-value (`docker-compose.real-aoai.yml`)
+
+For **`archlucid try --real`** on a developer workstation, the CLI expects **shell environment variables** (`AZURE_OPENAI_*`) and passes them through Docker Compose into the API container as **`AzureOpenAI__*`** settings. Treat these like any other secret: **short-lived keys**, **no** committing `.env` files that contain real keys, and prefer a **user-level** secret store or OS keychain if you automate the flow. Hosted deployments should still use **Key Vault references** (above) rather than long-lived keys on disk.
+
 ## Sample file
 
 See `ArchLucid.Api/appsettings.KeyVault.sample.json` for a non-functional template of the same shape (do not commit real vault names if they are sensitive; the file is documentation-only).

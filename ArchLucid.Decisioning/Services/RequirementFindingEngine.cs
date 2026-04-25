@@ -29,19 +29,20 @@ public class RequirementFindingEngine : IFindingEngine
 
             List<string> relatedNodeIds = [node.NodeId];
 
-            foreach (string id in relatedFromGraph.Where(id => !relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase)))
+            foreach (string id in relatedFromGraph.Where(id =>
+                         !relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase)))
 
                 relatedNodeIds.Add(id);
 
 
             Finding finding = FindingFactory.CreateRequirementFinding(
-                engineType: EngineType,
-                title: $"Requirement detected: {node.Label}",
-                rationale: "A requirement node exists and must be reflected in the resolved architecture.",
-                requirementName: node.Label,
-                requirementText: requirementText ?? string.Empty,
-                isMandatory: true,
-                relatedNodeIds: relatedNodeIds);
+                EngineType,
+                $"Requirement detected: {node.Label}",
+                "A requirement node exists and must be reflected in the resolved architecture.",
+                node.Label,
+                requirementText ?? string.Empty,
+                true,
+                relatedNodeIds);
 
             finding.RecommendedActions.Add("Carry this requirement into the GoldenManifest.");
             string text = requirementText ?? string.Empty;

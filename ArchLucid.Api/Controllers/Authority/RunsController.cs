@@ -7,8 +7,11 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services;
 
@@ -45,6 +48,7 @@ public sealed partial class RunsController(
     IDeterminismCheckService determinismCheckService,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
+    IAuditService auditService,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -101,7 +105,10 @@ public sealed partial class RunsController(
                 return CreatedAtAction(
                     nameof(RunQueryController.GetRun),
                     "RunQuery",
-                    new { runId = result.Run.RunId },
+                    new
+                    {
+                        runId = result.Run.RunId
+                    },
                     response);
 
             Response.Headers.Append("Idempotency-Replayed", "true");
@@ -158,14 +165,35 @@ public sealed partial class RunsController(
     {
         string user = User.Identity?.Name ?? "anonymous";
         string correlationId = HttpContext.TraceIdentifier;
+        bool pilotTryRealMode = IsPilotTryRealModeRequest();
 
         try
         {
+            if (pilotTryRealMode)
+            {
+                ArchLucidInstrumentation.RecordTryRealModePilotAttempted();
+                await LogPilotTryRealModeAuditAsync(
+                    AuditEventTypes.FirstRealValueRunStarted,
+                    runId,
+                    user,
+                    cancellationToken);
+            }
+
             ExecuteRunResult result = await architectureRunService.ExecuteRunAsync(runId, cancellationToken);
 
             ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
             LogRunExecuted(runId, result.Results.Count, user, correlationId);
+
+            if (!pilotTryRealMode)
+                return Ok(response);
+
+            ArchLucidInstrumentation.RecordTryRealModePilotSucceeded();
+            await LogPilotTryRealModeAuditAsync(
+                AuditEventTypes.FirstRealValueRunCompleted,
+                runId,
+                user,
+                cancellationToken);
 
             return Ok(response);
         }
@@ -359,19 +387,60 @@ public sealed partial class RunsController(
     [Authorize(Policy = "CanSeedResults")]
     public async Task<IActionResult> SeedFakeResults(
         [FromRoute] string runId,
-        CancellationToken cancellationToken)
+        [FromQuery] bool pilotTryRealModeFellBack = false,
+        CancellationToken cancellationToken = default)
     {
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
+        PilotSeedFakeResultsOptions? pilot =
+            pilotTryRealModeFellBack ? new PilotSeedFakeResultsOptions(true) : null;
+
         SeedFakeResultsResult result =
-            await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
+            await architectureApplicationService.SeedFakeResultsAsync(runId, pilot, cancellationToken);
         if (!result.Success)
             return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
 
         LogFakeResultsSeeded(runId, result.ResultCount, user, correlationId);
 
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
+    }
+
+    private bool IsPilotTryRealModeRequest()
+    {
+        return Request.Headers.TryGetValue(PilotTryRealModeHeaders.PilotTryRealMode, out StringValues raw) && string.Equals(raw.ToString().Trim(), "1", StringComparison.Ordinal);
+    }
+
+    private async Task LogPilotTryRealModeAuditAsync(
+        string eventType,
+        string runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Guid? runGuid = TryParseRunGuidForAudit(runId);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = eventType,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid
+            },
+            cancellationToken);
+    }
+
+    private static Guid? TryParseRunGuidForAudit(string runId)
+    {
+        if (Guid.TryParseExact(runId, "N", out Guid g))
+            return g;
+
+
+        return Guid.TryParse(runId, out g) ? g : null;
     }
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind,

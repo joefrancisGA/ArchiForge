@@ -25,33 +25,33 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         // Delete any existing package for this run before inserting so that a retry
         // (e.g. after a partial failure in ExecuteRunAsync) does not accumulate stale rows.
         const string deleteSql = """
-            DELETE FROM AgentEvidencePackages WHERE RunId = @RunId;
-            """;
+                                 DELETE FROM AgentEvidencePackages WHERE RunId = @RunId;
+                                 """;
 
         const string insertSql = """
-            INSERT INTO AgentEvidencePackages
-            (
-                EvidencePackageId,
-                RunId,
-                RequestId,
-                SystemName,
-                Environment,
-                CloudProvider,
-                EvidenceJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @EvidencePackageId,
-                @RunId,
-                @RequestId,
-                @SystemName,
-                @Environment,
-                @CloudProvider,
-                @EvidenceJson,
-                @CreatedUtc
-            );
-            """;
+                                 INSERT INTO AgentEvidencePackages
+                                 (
+                                     EvidencePackageId,
+                                     RunId,
+                                     RequestId,
+                                     SystemName,
+                                     Environment,
+                                     CloudProvider,
+                                     EvidenceJson,
+                                     CreatedUtc
+                                 )
+                                 VALUES
+                                 (
+                                     @EvidencePackageId,
+                                     @RunId,
+                                     @RequestId,
+                                     @SystemName,
+                                     @Environment,
+                                     @CloudProvider,
+                                     @EvidenceJson,
+                                     @CreatedUtc
+                                 );
+                                 """;
 
         string json = JsonSerializer.Serialize(evidencePackage, ContractJson.Default);
 
@@ -76,17 +76,14 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             {
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new
-                    {
-                        evidencePackage.RunId
-                    },
-                    transaction: transaction,
+                    new { evidencePackage.RunId },
+                    transaction,
                     cancellationToken: cancellationToken));
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     insertSql,
                     parameters,
-                    transaction: transaction,
+                    transaction,
                     cancellationToken: cancellationToken));
             }
             else
@@ -95,17 +92,14 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     deleteSql,
-                    new
-                    {
-                        evidencePackage.RunId
-                    },
-                    transaction: tx,
+                    new { evidencePackage.RunId },
+                    tx,
                     cancellationToken: cancellationToken));
 
                 await conn.ExecuteAsync(new CommandDefinition(
                     insertSql,
                     parameters,
-                    transaction: tx,
+                    tx,
                     cancellationToken: cancellationToken));
 
                 tx.Commit();
@@ -122,20 +116,17 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT TOP 1 EvidenceJson
-            FROM AgentEvidencePackages
-            WHERE RunId = @RunId
-            ORDER BY CreatedUtc DESC;
-            """;
+                           SELECT TOP 1 EvidenceJson
+                           FROM AgentEvidencePackages
+                           WHERE RunId = @RunId
+                           ORDER BY CreatedUtc DESC;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
         return DeserializePackage(json, $"run '{runId}'");
@@ -146,19 +137,16 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT EvidenceJson
-            FROM AgentEvidencePackages
-            WHERE EvidencePackageId = @EvidencePackageId;
-            """;
+                           SELECT EvidenceJson
+                           FROM AgentEvidencePackages
+                           WHERE EvidencePackageId = @EvidencePackageId;
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                EvidencePackageId = evidencePackageId
-            },
+            new { EvidencePackageId = evidencePackageId },
             cancellationToken: cancellationToken));
 
         return DeserializePackage(json, $"package '{evidencePackageId}'");
@@ -182,8 +170,8 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         }
 
         return package
-            ?? throw new InvalidOperationException(
-                $"Evidence package JSON for {context} deserialized to null. " +
-                "The stored JSON may be empty or corrupt.");
+               ?? throw new InvalidOperationException(
+                   $"Evidence package JSON for {context} deserialized to null. " +
+                   "The stored JSON may be empty or corrupt.");
     }
 }

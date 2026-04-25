@@ -4,12 +4,12 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Manifest;
 
 /// <summary>
-/// Derives a coarse risk label from authority <see cref="GoldenManifest"/> unresolved issues (deterministic; no LLM).
+///     Derives a coarse risk label from authority <see cref="GoldenManifest" /> unresolved issues (deterministic; no LLM).
 /// </summary>
 public static class AuthorityManifestRiskPosture
 {
     /// <summary>
-    /// Returns <c>Low</c>, <c>Medium</c>, <c>High</c>, or <c>Critical</c> from the worst unresolved issue severity.
+    ///     Returns <c>Low</c>, <c>Medium</c>, <c>High</c>, or <c>Critical</c> from the worst unresolved issue severity.
     /// </summary>
     public static string Derive(GoldenManifest manifest)
     {
@@ -31,7 +31,7 @@ public static class AuthorityManifestRiskPosture
             >= 4 => "Critical",
             3 => "High",
             2 => "Medium",
-            _ => "Low",
+            _ => "Low"
         };
     }
 

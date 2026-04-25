@@ -5,7 +5,7 @@ using ArchLucid.Contracts.Agents;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Persistence interface for <see cref="AgentResult"/> records produced during an architecture run.
+///     Persistence interface for <see cref="AgentResult" /> records produced during an architecture run.
 /// </summary>
 public interface IAgentResultRepository
 {
@@ -19,9 +19,9 @@ public interface IAgentResultRepository
         IDbTransaction? transaction = null);
 
     /// <summary>
-    /// Persists multiple agent results in a single operation.
-    /// Implementations should use an idempotent delete-then-insert strategy within a transaction
-    /// to allow safe retries.
+    ///     Persists multiple agent results in a single operation.
+    ///     Implementations should use an idempotent delete-then-insert strategy within a transaction
+    ///     to allow safe retries.
     /// </summary>
     /// <param name="results">The results to store.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
@@ -32,8 +32,8 @@ public interface IAgentResultRepository
         IDbTransaction? transaction = null);
 
     /// <summary>
-    /// Returns all agent results for the specified run, in creation order.
-    /// Returns an empty collection when the run exists but has no results yet.
+    ///     Returns all agent results for the specified run, in creation order.
+    ///     Returns an empty collection when the run exists but has no results yet.
     /// </summary>
     /// <param name="runId">The run identifier to query.</param>
     /// <param name="cancellationToken">Cancellation token.</param>

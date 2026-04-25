@@ -12,9 +12,8 @@ using Polly;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Circuit Breaking Agent Completion Client.
+///     Tests for Circuit Breaking Agent Completion Client.
 /// </summary>
-
 [Trait("Category", "Unit")]
 public sealed class CircuitBreakingAgentCompletionClientTests
 {
@@ -26,11 +25,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
             .ReturnsAsync("{}");
 
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 5,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
         CircuitBreakerGate gate = new("test-gate", options);
 
         CircuitBreakingAgentCompletionClient sut = new(
@@ -52,11 +47,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("429"));
 
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
         TestClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
@@ -94,11 +85,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
                 return Task.FromResult("{}");
             });
 
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 5,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
         CircuitBreakerGate gate = new("retry-ok-gate", options);
         ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
             maxRetryAttempts: 4,
@@ -125,11 +112,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("always fail"));
 
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
         TestClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerGate gate = new("retry-exhaust-gate", options, clock.ToFunc());
         ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
@@ -162,24 +145,19 @@ public sealed class CircuitBreakingAgentCompletionClientTests
         Mock<IAgentCompletionClient> inner = new();
         inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
         inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
-            .Returns(
-                (string _, string __, CancellationToken ct) =>
+            .Returns((string _, string __, CancellationToken ct) =>
+            {
+                Interlocked.Increment(ref calls);
+
+                if (ct.IsCancellationRequested)
                 {
-                    Interlocked.Increment(ref calls);
+                    return Task.FromException<string>(new OperationCanceledException(ct));
+                }
 
-                    if (ct.IsCancellationRequested)
-                    {
-                        return Task.FromException<string>(new OperationCanceledException(ct));
-                    }
+                return Task.FromResult("{}");
+            });
 
-                    return Task.FromResult("{}");
-                });
-
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 60
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
         CircuitBreakerGate gate = new("cancel-gate", options);
         ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
             maxRetryAttempts: 3,

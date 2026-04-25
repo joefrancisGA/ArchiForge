@@ -67,9 +67,9 @@ public sealed class TrialLifecycleArchLucidJobTests
         services.AddScoped<ITenantHardPurgeService>(_ => Mock.Of<ITenantHardPurgeService>());
         services.AddScoped<IAuditService>(_ => Mock.Of<IAuditService>());
         services.AddSingleton(lifecycleOptions.Object);
-        services.AddSingleton<TimeProvider>(TimeProvider.System);
-        services.AddSingleton<ILogger<TrialLifecycleTransitionEngine>>(
-            _ => NullLogger<TrialLifecycleTransitionEngine>.Instance);
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<ILogger<TrialLifecycleTransitionEngine>>(_ =>
+            NullLogger<TrialLifecycleTransitionEngine>.Instance);
         services.AddScoped<TrialLifecycleTransitionEngine>();
 
         return services.BuildServiceProvider();

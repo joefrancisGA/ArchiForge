@@ -16,10 +16,17 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
 
         TopologyCoverageResult result = new()
         {
-            HasNetwork = categories.Exists(x => x.Equals(GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)),
-            HasCompute = categories.Exists(x => x.Equals(GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase)),
-            HasStorage = categories.Exists(x => x.Equals(GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)),
-            HasData = categories.Exists(x => x.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)),
+            HasNetwork =
+                categories.Exists(x =>
+                    x.Equals(GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)),
+            HasCompute =
+                categories.Exists(x =>
+                    x.Equals(GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase)),
+            HasStorage =
+                categories.Exists(x =>
+                    x.Equals(GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)),
+            HasData =
+                categories.Exists(x => x.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)),
             PresentCategories = categories,
             TopologyNodeCount = topologyNodes.Count,
             TopologyNodeIds = topologyNodes.Select(n => n.NodeId).ToList()

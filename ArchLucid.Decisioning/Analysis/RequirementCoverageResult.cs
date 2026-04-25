@@ -4,16 +4,31 @@ public class RequirementCoverageResult
 {
     public int RequirementNodeCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int RelatedRequirementCount
     {
-        get; set;
+        get;
+        set;
     }
+
     public int UnrelatedRequirementCount
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> CoveredRequirements { get; set; } = [];
-    public List<string> UncoveredRequirements { get; set; } = [];
+
+    public List<string> CoveredRequirements
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> UncoveredRequirements
+    {
+        get;
+        set;
+    } = [];
 }

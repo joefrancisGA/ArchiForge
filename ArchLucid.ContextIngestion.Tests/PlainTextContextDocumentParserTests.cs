@@ -6,9 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
-/// Tests for Plain Text Context Document Parser.
+///     Tests for Plain Text Context Document Parser.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class PlainTextContextDocumentParserTests
 {
@@ -22,11 +21,11 @@ public sealed class PlainTextContextDocumentParserTests
             Name = "spec.md",
             ContentType = "text/markdown",
             Content = """
-                REQ: System must be HA
-                POL: SOC2 alignment
-                TOP: subnet-ingress
-                SEC: encrypt at rest
-                """
+                      REQ: System must be HA
+                      POL: SOC2 alignment
+                      TOP: subnet-ingress
+                      SEC: encrypt at rest
+                      """
         };
 
         IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(doc, CancellationToken.None);

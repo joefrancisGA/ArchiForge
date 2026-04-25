@@ -7,18 +7,19 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
-using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
-
 using Dapper;
 
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
+using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
+
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="SqlFindingsSnapshotRepository"/> against SQL Server + DbUp (relational findings + FindingsJson dual-write).
+///     <see cref="SqlFindingsSnapshotRepository" /> against SQL Server + DbUp (relational findings + FindingsJson
+///     dual-write).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -64,9 +65,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     PayloadType = nameof(RequirementFindingPayload),
                     Payload = new RequirementFindingPayload
                     {
-                        RequirementName = "R1",
-                        RequirementText = "text",
-                        IsMandatory = false,
+                        RequirementName = "R1", RequirementText = "text", IsMandatory = false
                     },
                     Trace = new ExplainabilityTrace
                     {
@@ -74,10 +73,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                         RulesApplied = ["rule-a"],
                         DecisionsTaken = ["decided"],
                         AlternativePathsConsidered = ["alt"],
-                        Notes = ["note1"],
-                    },
-                },
-            ],
+                        Notes = ["note1"]
+                    }
+                }
+            ]
         };
 
         FindingsSnapshotMigrator.Apply(snapshot);
@@ -136,16 +135,11 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     Rationale = "Legacy rationale",
                     RelatedNodeIds = ["rn1", "rn2"],
                     RecommendedActions = ["act-a", "act-b"],
-                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
-                    {
-                        ["propKey"] = "propVal",
-                    },
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["propKey"] = "propVal" },
                     PayloadType = nameof(RequirementFindingPayload),
                     Payload = new RequirementFindingPayload
                     {
-                        RequirementName = "ReqN",
-                        RequirementText = "Req body",
-                        IsMandatory = true,
+                        RequirementName = "ReqN", RequirementText = "Req body", IsMandatory = true
                     },
                     Trace = new ExplainabilityTrace
                     {
@@ -153,27 +147,27 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                         RulesApplied = ["rule-json"],
                         DecisionsTaken = ["dec-json"],
                         AlternativePathsConsidered = ["alt-json"],
-                        Notes = ["trace-note"],
-                    },
-                },
-            ],
+                        Notes = ["trace-note"]
+                    }
+                }
+            ]
         };
 
         FindingsSnapshotMigrator.Apply(original);
         string findingsJson = JsonEntitySerializer.Serialize(original);
 
         const string insertHeader = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingsSnapshots
+                                    (
+                                        FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                                        SchemaVersion, FindingsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                                        @SchemaVersion, @FindingsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -186,7 +180,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphId,
                     original.CreatedUtc,
                     SchemaVersion = 1,
-                    FindingsJson = findingsJson,
+                    FindingsJson = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -252,9 +246,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     PayloadType = nameof(RequirementFindingPayload),
                     Payload = new RequirementFindingPayload
                     {
-                        RequirementName = "ReqFirst",
-                        RequirementText = "Text first",
-                        IsMandatory = true,
+                        RequirementName = "ReqFirst", RequirementText = "Text first", IsMandatory = true
                     },
                     Trace = new ExplainabilityTrace
                     {
@@ -262,8 +254,8 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                         RulesApplied = ["r1a"],
                         DecisionsTaken = ["d1a", "d1b"],
                         AlternativePathsConsidered = ["ap1"],
-                        Notes = ["n1a", "n1b", "n1c"],
-                    },
+                        Notes = ["n1a", "n1b", "n1c"]
+                    }
                 },
                 new Finding
                 {
@@ -276,17 +268,12 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     Rationale = "Rationale middle",
                     RelatedNodeIds = ["rn-mid-x", "rn-mid-y"],
                     RecommendedActions = ["action-mid-1", "action-mid-2"],
-                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
-                    {
-                        ["pm1"] = "vm1",
-                        ["pm2"] = "vm2",
-                    },
+                    Properties =
+                        new Dictionary<string, string>(StringComparer.Ordinal) { ["pm1"] = "vm1", ["pm2"] = "vm2" },
                     PayloadType = nameof(RequirementFindingPayload),
                     Payload = new RequirementFindingPayload
                     {
-                        RequirementName = "ReqMiddle",
-                        RequirementText = "Text middle",
-                        IsMandatory = false,
+                        RequirementName = "ReqMiddle", RequirementText = "Text middle", IsMandatory = false
                     },
                     Trace = new ExplainabilityTrace
                     {
@@ -294,8 +281,8 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                         RulesApplied = ["r2a", "r2b"],
                         DecisionsTaken = ["d2a"],
                         AlternativePathsConsidered = ["ap2a", "ap2b"],
-                        Notes = ["n2a"],
-                    },
+                        Notes = ["n2a"]
+                    }
                 },
                 new Finding
                 {
@@ -312,9 +299,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     PayloadType = nameof(RequirementFindingPayload),
                     Payload = new RequirementFindingPayload
                     {
-                        RequirementName = "ReqLast",
-                        RequirementText = "Text last",
-                        IsMandatory = true,
+                        RequirementName = "ReqLast", RequirementText = "Text last", IsMandatory = true
                     },
                     Trace = new ExplainabilityTrace
                     {
@@ -322,27 +307,27 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                         RulesApplied = ["r3a"],
                         DecisionsTaken = ["d3a"],
                         AlternativePathsConsidered = ["ap3"],
-                        Notes = ["n3a", "n3b"],
-                    },
-                },
-            ],
+                        Notes = ["n3a", "n3b"]
+                    }
+                }
+            ]
         };
 
         FindingsSnapshotMigrator.Apply(original);
         string findingsJson = JsonEntitySerializer.Serialize(original);
 
         const string insertHeader = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingsSnapshots
+                                    (
+                                        FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                                        SchemaVersion, FindingsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                                        @SchemaVersion, @FindingsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -355,7 +340,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = 1,
-                    FindingsJson = findingsJson,
+                    FindingsJson = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -452,9 +437,9 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     {
                         RequirementName = "NamedRequirement",
                         RequirementText = "Requirement body text",
-                        IsMandatory = true,
+                        IsMandatory = true
                     },
-                    Trace = new ExplainabilityTrace(),
+                    Trace = new ExplainabilityTrace()
                 },
                 new Finding
                 {
@@ -477,9 +462,9 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                         ControlId = "AC-2",
                         ControlName = "Account management",
                         AppliesToCategory = "Identity",
-                        AffectedResources = ["sub-a", "sub-b"],
+                        AffectedResources = ["sub-a", "sub-b"]
                     },
-                    Trace = new ExplainabilityTrace(),
+                    Trace = new ExplainabilityTrace()
                 },
                 new Finding
                 {
@@ -496,30 +481,28 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     PayloadType = nameof(CostConstraintFindingPayload),
                     Payload = new CostConstraintFindingPayload
                     {
-                        BudgetName = "MonthlyCap",
-                        MaxMonthlyCost = 12_500.50m,
-                        CostRisk = "high",
+                        BudgetName = "MonthlyCap", MaxMonthlyCost = 12_500.50m, CostRisk = "high"
                     },
-                    Trace = new ExplainabilityTrace(),
-                },
-            ],
+                    Trace = new ExplainabilityTrace()
+                }
+            ]
         };
 
         FindingsSnapshotMigrator.Apply(original);
         string findingsJson = JsonEntitySerializer.Serialize(original);
 
         const string insertHeader = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingsSnapshots
+                                    (
+                                        FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                                        SchemaVersion, FindingsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                                        @SchemaVersion, @FindingsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -532,7 +515,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = 1,
-                    FindingsJson = findingsJson,
+                    FindingsJson = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -581,17 +564,17 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         const int schemaVersion = 1;
 
         const string insertHeader = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingsSnapshots
+                                    (
+                                        FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                                        SchemaVersion, FindingsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                                        @SchemaVersion, @FindingsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -604,7 +587,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = schemaVersion,
-                    FindingsJson = (string?)null,
+                    FindingsJson = (string?)null
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -638,17 +621,17 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         const int schemaVersion = 1;
 
         const string insertHeader = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingsSnapshots
+                                    (
+                                        FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                                        SchemaVersion, FindingsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                                        @SchemaVersion, @FindingsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -661,7 +644,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = schemaVersion,
-                    FindingsJson = "",
+                    FindingsJson = ""
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -701,24 +684,24 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
             GraphSnapshotId = graphId,
             CreatedUtc = createdUtc,
             SchemaVersion = schemaVersion,
-            Findings = [],
+            Findings = []
         };
 
         FindingsSnapshotMigrator.Apply(snapshot);
         string findingsJson = JsonEntitySerializer.Serialize(snapshot);
 
         const string insertHeader = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
-            );
-            """;
+                                    INSERT INTO dbo.FindingsSnapshots
+                                    (
+                                        FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                                        SchemaVersion, FindingsJson
+                                    )
+                                    VALUES
+                                    (
+                                        @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                                        @SchemaVersion, @FindingsJson
+                                    );
+                                    """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -731,7 +714,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     GraphSnapshotId = graphId,
                     CreatedUtc = createdUtc,
                     SchemaVersion = schemaVersion,
-                    FindingsJson = findingsJson,
+                    FindingsJson = findingsJson
                 },
                 cancellationToken: CancellationToken.None));
 
@@ -770,7 +753,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
             ContextSnapshotId = contextId,
             GraphSnapshotId = graphId,
             CreatedUtc = DateTime.UtcNow,
-            Findings = [],
+            Findings = []
         };
 
         FindingsSnapshotMigrator.Apply(snapshot);
@@ -795,9 +778,9 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         Guid scopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
         const string insertRun = """
-            INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
-            VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
-            """;
+                                 INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+                                 VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
+                                 """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -809,7 +792,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     CreatedUtc = DateTime.UtcNow,
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    ScopeProjectId = scopeProjectId,
+                    ScopeProjectId = scopeProjectId
                 },
                 cancellationToken: ct));
 
@@ -817,17 +800,17 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         string emptyStringList = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertContext = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
+                                     INSERT INTO dbo.ContextSnapshots
+                                     (
+                                         SnapshotId, RunId, ProjectId, CreatedUtc,
+                                         CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+                                     )
+                                     VALUES
+                                     (
+                                         @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                                         @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+                                     );
+                                     """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -842,7 +825,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     DeltaSummary = (string?)null,
                     WarningsJson = emptyStringList,
                     ErrorsJson = emptyStringList,
-                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>())
                 },
                 cancellationToken: ct));
 
@@ -851,17 +834,17 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         string emptyGraphWarnings = JsonEntitySerializer.Serialize(new List<string>());
 
         const string insertGraph = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
+                                   INSERT INTO dbo.GraphSnapshots
+                                   (
+                                       GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                                       NodesJson, EdgesJson, WarningsJson
+                                   )
+                                   VALUES
+                                   (
+                                       @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                                       @NodesJson, @EdgesJson, @WarningsJson
+                                   );
+                                   """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -874,7 +857,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     CreatedUtc = DateTime.UtcNow,
                     NodesJson = emptyNodes,
                     EdgesJson = emptyEdges,
-                    WarningsJson = emptyGraphWarnings,
+                    WarningsJson = emptyGraphWarnings
                 },
                 cancellationToken: ct));
     }

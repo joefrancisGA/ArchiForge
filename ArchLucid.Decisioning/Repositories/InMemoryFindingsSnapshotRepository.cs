@@ -1,26 +1,27 @@
 using System.Data;
-using System.Text.Json;
 
+using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Repositories;
 
 /// <summary>
-/// In-memory implementation of <see cref="IFindingsSnapshotRepository"/> for testing and local development.
-/// Stores snapshots as serialized JSON, capped at 500 entries (evicting the oldest by insertion order).
+///     In-memory implementation of <see cref="IFindingsSnapshotRepository" /> for testing and local development.
+///     Stores snapshots as serialized JSON, capped at 500 entries (evicting the oldest by insertion order).
 /// </summary>
+/// <remarks>
+///     Uses <see cref="FindingsSerialization" /> (same as SQL <c>FindingsJson</c> writes) so <see cref="Finding" />
+///     payloads
+///     and <see cref="FindingJsonConverter" /> round-trip; generic Web JSON drops typed payload fidelity and can empty
+///     <c>findings</c>.
+/// </remarks>
 public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 {
     private const int MaxEntries = 500;
-
-    private readonly Dictionary<Guid, string> _store = [];
     private readonly Lock _lock = new();
 
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        WriteIndented = false
-    };
+    private readonly Dictionary<Guid, string> _store = [];
 
     public Task SaveAsync(
         FindingsSnapshot snapshot,
@@ -31,8 +32,8 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         _ = ct;
         _ = connection;
         _ = transaction;
-        // Store as JSON to simulate durable persistence and ensure payload round-trips.
-        string json = JsonSerializer.Serialize(snapshot, JsonOptions);
+        FindingsSnapshotMigrator.Apply(snapshot);
+        string json = FindingsSerialization.SerializeSnapshot(snapshot);
         lock (_lock)
         {
             if (_store.Count >= MaxEntries && !_store.ContainsKey(snapshot.FindingsSnapshotId))
@@ -59,7 +60,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         if (json is null)
             return Task.FromResult<FindingsSnapshot?>(null);
 
-        FindingsSnapshot? snapshot = JsonSerializer.Deserialize<FindingsSnapshot>(json, JsonOptions);
-        return Task.FromResult(snapshot);
+        FindingsSnapshot snapshot = FindingsSerialization.DeserializeSnapshot(json);
+        return Task.FromResult<FindingsSnapshot?>(snapshot);
     }
 }

@@ -29,11 +29,12 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 using AppReplayExportRequest = ArchLucid.Application.Analysis.ReplayExportRequest;
+using ReplayExportRequest = ArchLucid.Api.Models.ReplayExportRequest;
 
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Verifies durable <see cref="IAuditService.LogAsync"/> wiring on controllers that previously lacked coverage.
+///     Verifies durable <see cref="IAuditService.LogAsync" /> wiring on controllers that previously lacked coverage.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class AnalysisReportsControllerAuditTests
@@ -44,16 +45,13 @@ public sealed class AnalysisReportsControllerAuditTests
         string runId = Guid.NewGuid().ToString("N");
         ArchitectureRunDetail detail = new()
         {
-            Run = new ArchitectureRun { RunId = runId },
+            Run = new ArchitectureRun { RunId = runId }
         };
 
         ArchitectureAnalysisReport report = new()
         {
-            Manifest = new GoldenManifest
-            {
-                Metadata = new ManifestMetadata { ManifestVersion = "v7" },
-            },
-            Warnings = ["a"],
+            Manifest = new GoldenManifest { Metadata = new ManifestMetadata { ManifestVersion = "v7" } },
+            Warnings = ["a"]
         };
 
         Mock<IRunDetailQueryService> runDetailQuery = new();
@@ -119,19 +117,19 @@ public sealed class DocxExportControllerAuditTests
         Guid manifestId = Guid.NewGuid();
         Guid? compareWith = Guid.NewGuid();
 
-        ArchLucid.Decisioning.Models.GoldenManifest manifest = new()
+        Decisioning.Models.GoldenManifest manifest = new()
         {
             ManifestId = manifestId,
             RuleSetId = "rs",
             RuleSetVersion = "1",
             RuleSetHash = "h",
-            ManifestHash = "mh",
+            ManifestHash = "mh"
         };
 
         RunDetailDto runDetail = new()
         {
             Run = new RunRecord { RunId = runId },
-            GoldenManifest = manifest,
+            GoldenManifest = manifest
         };
 
         Mock<IScopeContextProvider> scope = new();
@@ -144,33 +142,31 @@ public sealed class DocxExportControllerAuditTests
         authority
             .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), compareWith.Value, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new RunDetailDto
-                {
-                    Run = new RunRecord { RunId = compareWith.Value },
-                    GoldenManifest = manifest,
-                });
+                new RunDetailDto { Run = new RunRecord { RunId = compareWith.Value }, GoldenManifest = manifest });
 
         Mock<IArtifactQueryService> artifacts = new();
         artifacts
-            .Setup(a => a.GetArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), manifestId, It.IsAny<CancellationToken>()))
+            .Setup(a => a.GetArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), manifestId,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<SynthesizedArtifact>());
 
         Mock<IComparisonService> comparison = new();
         comparison.Setup(c => c.Compare(
-                It.IsAny<ArchLucid.Decisioning.Models.GoldenManifest>(),
-                It.IsAny<ArchLucid.Decisioning.Models.GoldenManifest>()))
+                It.IsAny<Decisioning.Models.GoldenManifest>(),
+                It.IsAny<Decisioning.Models.GoldenManifest>()))
             .Returns(new ComparisonResult());
 
         byte[] payload = [1, 2, 3, 4];
         Mock<IDocxExportService> docx = new();
         docx
-            .Setup(d => d.ExportAsync(It.IsAny<DocxExportRequest>(), manifest, It.IsAny<IReadOnlyList<SynthesizedArtifact>>(), It.IsAny<CancellationToken>()))
+            .Setup(d => d.ExportAsync(It.IsAny<DocxExportRequest>(), manifest,
+                It.IsAny<IReadOnlyList<SynthesizedArtifact>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new DocxExportResult
                 {
                     Content = payload,
                     ContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    FileName = "x.docx",
+                    FileName = "x.docx"
                 });
 
         Mock<IAuditService> audit = new();
@@ -188,7 +184,7 @@ public sealed class DocxExportControllerAuditTests
             ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext()
         };
 
-        IActionResult result = await sut.ExportRunDocx(runId, compareWith, explainRun: false, includeComparisonExplanation: false, CancellationToken.None);
+        IActionResult result = await sut.ExportRunDocx(runId, compareWith, false, false, CancellationToken.None);
 
         result.Should().BeOfType<FileContentResult>();
         audit.Verify(
@@ -225,7 +221,7 @@ public sealed class ExportsControllerReplayExportAuditTests
                     RunId = "abc123def4567890abc123def4567890",
                     Format = "docx",
                     FileName = "r.docx",
-                    Content = [],
+                    Content = []
                 });
 
         Mock<IAuditService> audit = new();
@@ -248,7 +244,7 @@ public sealed class ExportsControllerReplayExportAuditTests
 
         await sut.ReplayExportRecord(
             "source-export",
-            new ArchLucid.Api.Models.ReplayExportRequest { RecordReplayExport = true },
+            new ReplayExportRequest { RecordReplayExport = true },
             CancellationToken.None);
 
         audit.Verify(

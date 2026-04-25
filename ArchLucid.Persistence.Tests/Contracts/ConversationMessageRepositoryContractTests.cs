@@ -6,10 +6,11 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IConversationMessageRepository"/>.
+///     Shared contract assertions for <see cref="IConversationMessageRepository" />.
 /// </summary>
 public abstract class ConversationMessageRepositoryContractTests
 {
+    private const int SeededMessagesForThreadTakeContract = 5;
     protected abstract IConversationMessageRepository CreateRepository();
 
     protected virtual void SkipIfSqlServerUnavailable()
@@ -21,8 +22,6 @@ public abstract class ConversationMessageRepositoryContractTests
     {
         return Task.CompletedTask;
     }
-
-    private const int SeededMessagesForThreadTakeContract = 5;
 
     private static ConversationThread NewThreadForMessages()
     {
@@ -68,7 +67,7 @@ public abstract class ConversationMessageRepositoryContractTests
         await repo.AddAsync(second, CancellationToken.None);
 
         IReadOnlyList<ConversationMessage> window =
-            await repo.GetByThreadIdAsync(thread.ThreadId, take: 10, CancellationToken.None);
+            await repo.GetByThreadIdAsync(thread.ThreadId, 10, CancellationToken.None);
 
         window.Should().HaveCount(2);
         window[0].MessageId.Should().Be(first.MessageId);
@@ -98,7 +97,7 @@ public abstract class ConversationMessageRepositoryContractTests
         }
 
         IReadOnlyList<ConversationMessage> window =
-            await repo.GetByThreadIdAsync(thread.ThreadId, take: 2, CancellationToken.None);
+            await repo.GetByThreadIdAsync(thread.ThreadId, 2, CancellationToken.None);
 
         window.Should().HaveCount(2);
     }

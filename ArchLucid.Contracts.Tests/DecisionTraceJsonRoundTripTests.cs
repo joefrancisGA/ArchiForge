@@ -9,7 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Contracts.Tests;
 
 /// <summary>
-/// <see cref="DecisionTrace"/> uses <see cref="DecisionTraceJsonConverter"/>; coordinator and authority payloads must round-trip.
+///     <see cref="DecisionTrace" /> uses <see cref="DecisionTraceJsonConverter" />; coordinator and authority payloads
+///     must round-trip.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -37,7 +38,8 @@ public sealed class DecisionTraceJsonRoundTripTests
             });
 
         string json = JsonSerializer.Serialize<DecisionTrace>(original, JsonOptions);
-        JsonDocument.Parse(json).RootElement.GetProperty("kind").GetInt32().Should().Be((int)DecisionTraceKind.RunEvent);
+        JsonDocument.Parse(json).RootElement.GetProperty("kind").GetInt32().Should()
+            .Be((int)DecisionTraceKind.RunEvent);
 
         DecisionTrace? back = JsonSerializer.Deserialize<DecisionTrace>(json, JsonOptions);
         back.Should().NotBeNull().And.BeOfType<RunEventTrace>();
@@ -72,7 +74,8 @@ public sealed class DecisionTraceJsonRoundTripTests
             });
 
         string json = JsonSerializer.Serialize<DecisionTrace>(original, JsonOptions);
-        JsonDocument.Parse(json).RootElement.GetProperty("kind").GetInt32().Should().Be((int)DecisionTraceKind.RuleAudit);
+        JsonDocument.Parse(json).RootElement.GetProperty("kind").GetInt32().Should()
+            .Be((int)DecisionTraceKind.RuleAudit);
 
         DecisionTrace? back = JsonSerializer.Deserialize<DecisionTrace>(json, JsonOptions);
         back.Should().NotBeNull().And.BeOfType<RuleAuditTrace>();
@@ -86,18 +89,18 @@ public sealed class DecisionTraceJsonRoundTripTests
     public void Legacy_json_with_explicit_null_ruleAudit_deserializes_as_RunEventTrace()
     {
         const string json = """
-            {
-              "kind": 0,
-              "runEvent": {
-                "traceId": "t-legacy",
-                "runId": "run-legacy",
-                "eventType": "Test",
-                "eventDescription": "Legacy shape",
-                "createdUtc": "2026-04-06T14:00:00Z"
-              },
-              "ruleAudit": null
-            }
-            """;
+                            {
+                              "kind": 0,
+                              "runEvent": {
+                                "traceId": "t-legacy",
+                                "runId": "run-legacy",
+                                "eventType": "Test",
+                                "eventDescription": "Legacy shape",
+                                "createdUtc": "2026-04-06T14:00:00Z"
+                              },
+                              "ruleAudit": null
+                            }
+                            """;
 
         DecisionTrace? back = JsonSerializer.Deserialize<DecisionTrace>(json, JsonOptions);
         back.Should().NotBeNull().And.BeOfType<RunEventTrace>();

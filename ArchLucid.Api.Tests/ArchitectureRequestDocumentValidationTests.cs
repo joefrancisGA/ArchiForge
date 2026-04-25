@@ -7,8 +7,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Ensures inline document <c>contentType</c> is rejected at the API boundary when not in
-/// <see cref="ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes"/>.
+///     Ensures inline document <c>contentType</c> is rejected at the API boundary when not in
+///     <see cref="ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes" />.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFactory factory)
@@ -42,7 +42,7 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFacto
 
         JsonElement rootEl = doc.RootElement;
         rootEl.TryGetProperty("errors", out JsonElement errors).Should().BeTrue(
-            because: "validation failures should expose an errors object (problem details shape)");
+            "validation failures should expose an errors object (problem details shape)");
 
         bool hasDocumentContentTypeKey = false;
 

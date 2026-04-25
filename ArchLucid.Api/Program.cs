@@ -1,4 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
+
+using ArchLucid.Api.Hosting;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
@@ -74,9 +77,26 @@ public partial class Program
         builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
 
+        if (builder.Configuration.GetValue("Demo:Enabled", false))
+        {
+            builder.Services.AddHttpClient(
+                TrialFunnelHealthProbe.HttpClientName,
+                static client =>
+                {
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                });
+            builder.Services.AddHostedService<TrialFunnelHealthProbe>();
+        }
+
         WebApplication app = builder.Build();
 
         ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
+
+        // ADR 0030 PR A3 (2026-04-24): Coordinator:LegacyRunCommitPath was retired together with the
+        // legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector + LegacyRunCommitPathOptions.
+        // The authority-driven commit orchestrator is now the only IArchitectureRunCommitOrchestrator
+        // implementation. If the configuration key is still present, it is now warned about by
+        // ArchLucidLegacyConfigurationWarnings (legacy-keys path), not here.
 
         IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
             app.Configuration,
@@ -97,11 +117,13 @@ public partial class Program
                 "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
         }
 
+        ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation(app.Configuration, app.Logger);
+
         ArchLucidAuthOptions authBound = ArchLucidAuthConfigurationBridge.Resolve(app.Configuration);
 
         if (!app.Environment.IsProduction()
             && string.Equals(authBound.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase)
-            && !string.IsNullOrWhiteSpace(authBound.JwtSigningPublicKeyPemPath?.Trim()))
+            && !string.IsNullOrWhiteSpace(authBound.JwtSigningPublicKeyPemPath.Trim()))
 
             if (app.Logger.IsEnabled(LogLevel.Warning))
 

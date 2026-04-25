@@ -18,31 +18,31 @@ public sealed class AgentOutputEvaluationResultRepository(IDbConnectionFactory c
         ArgumentNullException.ThrowIfNull(row);
 
         const string sql = """
-            INSERT INTO AgentOutputEvaluationResults
-            (
-                RunId,
-                TraceId,
-                CaseId,
-                AgentType,
-                OverallScore,
-                StructuralMatch,
-                SemanticMatch,
-                MissingKeysJson,
-                CreatedUtc
-            )
-            VALUES
-            (
-                @RunId,
-                @TraceId,
-                @CaseId,
-                @AgentType,
-                @OverallScore,
-                @StructuralMatch,
-                @SemanticMatch,
-                @MissingKeysJson,
-                @CreatedUtc
-            );
-            """;
+                           INSERT INTO AgentOutputEvaluationResults
+                           (
+                               RunId,
+                               TraceId,
+                               CaseId,
+                               AgentType,
+                               OverallScore,
+                               StructuralMatch,
+                               SemanticMatch,
+                               MissingKeysJson,
+                               CreatedUtc
+                           )
+                           VALUES
+                           (
+                               @RunId,
+                               @TraceId,
+                               @CaseId,
+                               @AgentType,
+                               @OverallScore,
+                               @StructuralMatch,
+                               @SemanticMatch,
+                               @MissingKeysJson,
+                               @CreatedUtc
+                           );
+                           """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -59,7 +59,7 @@ public sealed class AgentOutputEvaluationResultRepository(IDbConnectionFactory c
                     row.StructuralMatch,
                     row.SemanticMatch,
                     row.MissingKeysJson,
-                    row.CreatedUtc,
+                    row.CreatedUtc
                 },
                 cancellationToken: cancellationToken));
     }

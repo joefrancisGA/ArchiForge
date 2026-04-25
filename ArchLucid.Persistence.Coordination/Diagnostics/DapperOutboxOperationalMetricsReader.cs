@@ -17,25 +17,25 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
     public async Task<OutboxOperationalMetricsSnapshot> ReadSnapshotAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
-            FROM dbo.AuthorityPipelineWorkOutbox
-            WHERE ProcessedUtc IS NULL;
+                           SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
+                           FROM dbo.AuthorityPipelineWorkOutbox
+                           WHERE ProcessedUtc IS NULL;
 
-            SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
-            FROM dbo.RetrievalIndexingOutbox
-            WHERE ProcessedUtc IS NULL;
+                           SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
+                           FROM dbo.RetrievalIndexingOutbox
+                           WHERE ProcessedUtc IS NULL;
 
-            SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
-            FROM dbo.IntegrationEventOutbox
-            WHERE ProcessedUtc IS NULL
-              AND DeadLetteredUtc IS NULL
-              AND (NextRetryUtc IS NULL OR NextRetryUtc <= SYSUTCDATETIME());
+                           SELECT COUNT_BIG(1) AS Cnt, MIN(CreatedUtc) AS OldestUtc
+                           FROM dbo.IntegrationEventOutbox
+                           WHERE ProcessedUtc IS NULL
+                             AND DeadLetteredUtc IS NULL
+                             AND (NextRetryUtc IS NULL OR NextRetryUtc <= SYSUTCDATETIME());
 
-            SELECT COUNT_BIG(1) AS Cnt
-            FROM dbo.IntegrationEventOutbox
-            WHERE DeadLetteredUtc IS NOT NULL
-              AND ProcessedUtc IS NULL;
-            """;
+                           SELECT COUNT_BIG(1) AS Cnt
+                           FROM dbo.IntegrationEventOutbox
+                           WHERE DeadLetteredUtc IS NOT NULL
+                             AND ProcessedUtc IS NULL;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -77,12 +77,14 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
     {
         public long Cnt
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTime? OldestUtc
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -91,7 +93,8 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
     {
         public long Cnt
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

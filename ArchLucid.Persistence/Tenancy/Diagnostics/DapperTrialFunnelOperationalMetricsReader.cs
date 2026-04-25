@@ -16,21 +16,18 @@ public sealed class DapperTrialFunnelOperationalMetricsReader(ISqlConnectionFact
     public async Task<long> CountActiveSelfServiceTrialsAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT COUNT_BIG(1)
-            FROM dbo.Tenants
-            WHERE TrialExpiresUtc IS NOT NULL
-              AND TrialStatus = @Active;
-            """;
+                           SELECT COUNT_BIG(1)
+                           FROM dbo.Tenants
+                           WHERE TrialExpiresUtc IS NOT NULL
+                             AND TrialStatus = @Active;
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         long count = await connection.ExecuteScalarAsync<long>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    Active = TrialLifecycleStatus.Active
-                },
+                new { TrialLifecycleStatus.Active },
                 cancellationToken: cancellationToken));
 
         return count;

@@ -23,12 +23,10 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
     public async Task ProcessPendingBatchAsync_starts_activity_with_correlation_tags()
     {
         List<Activity> stopped = [];
-        using ActivityListener listener = new()
-        {
-            ShouldListenTo = s => s.Name == "ArchLucid.RetrievalIndexing.Outbox",
-            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
-            ActivityStopped = a => stopped.Add(a)
-        };
+        using ActivityListener listener = new();
+        listener.ShouldListenTo = s => s.Name == "ArchLucid.RetrievalIndexing.Outbox";
+        listener.Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded;
+        listener.ActivityStopped = a => stopped.Add(a);
         ActivitySource.AddActivityListener(listener);
 
         Guid outboxId = Guid.NewGuid();
@@ -68,7 +66,8 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 
         stopped.Should().ContainSingle(a => a.OperationName == "RetrievalIndexingOutbox.ProcessEntry");
         Activity entryActivity = stopped.Single(a => a.OperationName == "RetrievalIndexingOutbox.ProcessEntry");
-        entryActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should().Be($"retrieval-outbox:{outboxId:D}");
+        entryActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should()
+            .Be($"retrieval-outbox:{outboxId:D}");
         entryActivity.GetTagItem("archlucid.outbox_id").Should().Be(outboxId.ToString("D"));
         entryActivity.GetTagItem("archlucid.run_id").Should().Be(runId.ToString("D"));
     }

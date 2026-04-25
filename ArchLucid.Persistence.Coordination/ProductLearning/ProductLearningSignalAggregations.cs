@@ -3,8 +3,8 @@ using ArchLucid.Contracts.ProductLearning;
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
 /// <summary>
-/// Deterministic grouping rules shared by the in-memory repository and documented to match SQL in
-/// <see cref="DapperProductLearningPilotSignalRepository"/>.
+///     Deterministic grouping rules shared by the in-memory repository and documented to match SQL in
+///     <see cref="DapperProductLearningPilotSignalRepository" />.
 /// </summary>
 public static class ProductLearningSignalAggregations
 {
@@ -117,7 +117,7 @@ public static class ProductLearningSignalAggregations
     {
         int cap = take < 1 ? 1 : Math.Min(take, 200);
 
-        return BuildRunFeedbackAggregates(scoped, maxAggregates: 500)
+        return BuildRunFeedbackAggregates(scoped, 500)
             .OrderByDescending(static a => a.RejectedCount + a.RevisedCount)
             .ThenByDescending(static a => a.LastSignalRecordedUtc)
             .ThenBy(static a => a.AggregateKey, StringComparer.Ordinal)
@@ -147,7 +147,7 @@ public static class ProductLearningSignalAggregations
                 SampleCommentShort = g.Select(x => x.Row.CommentShort ?? string.Empty)
                     .Where(static s => !string.IsNullOrWhiteSpace(s))
                     .OrderBy(static s => s, StringComparer.Ordinal)
-                    .First(),
+                    .First()
             })
             .OrderByDescending(static t => t.OccurrenceCount)
             .ThenBy(static t => t.ThemeKey, StringComparer.Ordinal)
@@ -160,8 +160,10 @@ public static class ProductLearningSignalAggregations
     /// <summary>Maps a rollup to an opportunity row (shared by Dapper repository post-filtering).</summary>
     public static ImprovementOpportunity ToImprovementOpportunityCandidate(
         FeedbackAggregate aggregate,
-        int priorityRank) =>
-        MapAggregateToImprovementOpportunity(aggregate, priorityRank);
+        int priorityRank)
+    {
+        return MapAggregateToImprovementOpportunity(aggregate, priorityRank);
+    }
 
     public static IReadOnlyList<ImprovementOpportunity> BuildImprovementOpportunityCandidates(
         IEnumerable<ProductLearningPilotSignalRecord> scoped,
@@ -175,7 +177,7 @@ public static class ProductLearningSignalAggregations
 
         List<ImprovementOpportunity> result = [];
 
-        List<FeedbackAggregate> candidates = BuildRunFeedbackAggregates(scoped, maxAggregates: 500)
+        List<FeedbackAggregate> candidates = BuildRunFeedbackAggregates(scoped, 500)
             .Where(a =>
                 a.RejectedCount + a.NeedsFollowUpCount >= minPoor ||
                 a.RevisedCount >= minRev)
@@ -229,12 +231,13 @@ public static class ProductLearningSignalAggregations
             TrustedCount = g.Count(static r => r.Disposition == ProductLearningDispositionValues.Trusted),
             RejectedCount = g.Count(static r => r.Disposition == ProductLearningDispositionValues.Rejected),
             RevisedCount = g.Count(static r => r.Disposition == ProductLearningDispositionValues.Revised),
-            NeedsFollowUpCount = g.Count(static r => r.Disposition == ProductLearningDispositionValues.NeedsFollowUp),
+            NeedsFollowUpCount =
+                g.Count(static r => r.Disposition == ProductLearningDispositionValues.NeedsFollowUp),
             AverageTrustScore = null,
             AverageUsefulnessScore = null,
             DominantThemeHint = dominant is null ? null : TruncateHint(dominant, 240),
             FirstSignalRecordedUtc = g.Min(static r => r.RecordedUtc),
-            LastSignalRecordedUtc = g.Max(static r => r.RecordedUtc),
+            LastSignalRecordedUtc = g.Max(static r => r.RecordedUtc)
         };
     }
 
@@ -266,13 +269,14 @@ public static class ProductLearningSignalAggregations
             AcceptedOrTrustedCount = g.Count(static r => r.Disposition == ProductLearningDispositionValues.Trusted),
             RevisionCount = g.Count(static r => r.Disposition == ProductLearningDispositionValues.Revised),
             RejectionCount = g.Count(static r => r.Disposition == ProductLearningDispositionValues.Rejected),
-            NeedsFollowUpCount = g.Count(static r => r.Disposition == ProductLearningDispositionValues.NeedsFollowUp),
+            NeedsFollowUpCount =
+                g.Count(static r => r.Disposition == ProductLearningDispositionValues.NeedsFollowUp),
             DistinctRunCount = distinctRuns,
             AverageTrustScore = null,
             AverageUsefulnessScore = null,
             RepeatedThemeIndicator = theme is null ? null : TruncateHint(theme, 200),
             FirstSeenUtc = g.Min(static r => r.RecordedUtc),
-            LastSeenUtc = g.Max(static r => r.RecordedUtc),
+            LastSeenUtc = g.Max(static r => r.RecordedUtc)
         };
     }
 
@@ -309,7 +313,7 @@ public static class ProductLearningSignalAggregations
             AverageTrustScore = aggregate.AverageTrustScore,
             RepeatedThemeSnippet = aggregate.DominantThemeHint,
             FirstSeenUtc = aggregate.FirstSignalRecordedUtc,
-            LastSeenUtc = aggregate.LastSignalRecordedUtc,
+            LastSeenUtc = aggregate.LastSignalRecordedUtc
         };
     }
 

@@ -6,7 +6,7 @@ using FsCheck.Xunit;
 namespace ArchLucid.Contracts.Tests.Governance;
 
 /// <summary>
-/// FsCheck properties for <see cref="GovernanceEnvironmentOrder"/> (promotion ladder invariants).
+///     FsCheck properties for <see cref="GovernanceEnvironmentOrder" /> (promotion ladder invariants).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -16,7 +16,7 @@ public sealed class GovernanceEnvironmentOrderPropertyTests
     [
         GovernanceEnvironment.Dev,
         GovernanceEnvironment.Test,
-        GovernanceEnvironment.Prod,
+        GovernanceEnvironment.Prod
     ];
 
     [Property(MaxTest = 300)]
@@ -58,7 +58,7 @@ public sealed class GovernanceEnvironmentOrderPropertyTests
     }
 
     /// <summary>
-    /// Whenever promotion is accepted, it must be exactly dev→test or test→prod (case-insensitive).
+    ///     Whenever promotion is accepted, it must be exactly dev→test or test→prod (case-insensitive).
     /// </summary>
     [Property(MaxTest = 400)]
     public Property When_valid_then_must_be_single_ladder_step()
@@ -74,10 +74,10 @@ public sealed class GovernanceEnvironmentOrderPropertyTests
                 }
 
                 bool devTest = string.Equals(a, GovernanceEnvironment.Dev, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(b, GovernanceEnvironment.Test, StringComparison.OrdinalIgnoreCase);
+                               && string.Equals(b, GovernanceEnvironment.Test, StringComparison.OrdinalIgnoreCase);
 
                 bool testProd = string.Equals(a, GovernanceEnvironment.Test, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(b, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase);
+                                && string.Equals(b, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase);
 
                 return devTest || testProd;
             });

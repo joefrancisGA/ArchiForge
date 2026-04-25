@@ -10,12 +10,12 @@ namespace ArchLucid.Persistence.Tests.ProductLearning;
 [Trait("ChangeSet", "58R")]
 public sealed class ProductLearningImprovementOpportunityServiceTests
 {
+    /// <summary>Rollups above the default <c>MaxImprovementOpportunities</c> cap so ranking honors the limit.</summary>
+    private const int SeededFeedbackRollupCountAboveOpportunityCap = 5;
+
     private static readonly DateTime TEarly = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private static readonly DateTime TLate = new(2026, 1, 10, 0, 0, 0, DateTimeKind.Utc);
-
-    /// <summary>Rollups above the default <c>MaxImprovementOpportunities</c> cap so ranking honors the limit.</summary>
-    private const int SeededFeedbackRollupCountAboveOpportunityCap = 5;
 
     [Fact]
     public async Task BuildRankedOpportunitiesAsync_orders_by_bad_score_desc_then_last_seen_then_sort_key()
@@ -24,7 +24,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
         {
             TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
         };
 
         FeedbackAggregate weaker = new()
@@ -39,7 +39,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             RevisedCount = 2,
             NeedsFollowUpCount = 0,
             FirstSignalRecordedUtc = TLate,
-            LastSignalRecordedUtc = TLate,
+            LastSignalRecordedUtc = TLate
         };
 
         FeedbackAggregate stronger = new()
@@ -54,7 +54,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             RevisedCount = 0,
             NeedsFollowUpCount = 0,
             FirstSignalRecordedUtc = TEarly,
-            LastSignalRecordedUtc = TEarly,
+            LastSignalRecordedUtc = TEarly
         };
 
         ProductLearningAggregationSnapshot snapshot = new()
@@ -64,7 +64,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             FeedbackRollups = [weaker, stronger],
             ArtifactTrends = [],
             TopRejectedRevisedRollups = [],
-            RepeatedCommentThemes = [],
+            RepeatedCommentThemes = []
         };
 
         ProductLearningTriageOptions options = new()
@@ -72,7 +72,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             MinSignalsPerAggregate = 2,
             MinAggregateBadScoreForOpportunity = 2,
             MinNegativeOutcomesOnArtifactTrend = 99,
-            MaxImprovementOpportunities = 10,
+            MaxImprovementOpportunities = 10
         };
 
         ProductLearningImprovementOpportunityService svc = new();
@@ -93,7 +93,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
         {
             TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
         };
 
         List<FeedbackAggregate> rollups = [];
@@ -113,7 +113,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
                     RevisedCount = 0,
                     NeedsFollowUpCount = 0,
                     FirstSignalRecordedUtc = TEarly,
-                    LastSignalRecordedUtc = TEarly,
+                    LastSignalRecordedUtc = TEarly
                 });
         }
 
@@ -124,7 +124,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             FeedbackRollups = rollups,
             ArtifactTrends = [],
             TopRejectedRevisedRollups = [],
-            RepeatedCommentThemes = [],
+            RepeatedCommentThemes = []
         };
 
         ProductLearningTriageOptions options = new()
@@ -132,7 +132,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             MinSignalsPerAggregate = 2,
             MinAggregateBadScoreForOpportunity = 2,
             MaxImprovementOpportunities = 2,
-            MinNegativeOutcomesOnArtifactTrend = 99,
+            MinNegativeOutcomesOnArtifactTrend = 99
         };
 
         ProductLearningImprovementOpportunityService svc = new();

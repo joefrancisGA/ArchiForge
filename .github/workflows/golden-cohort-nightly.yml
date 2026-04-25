@@ -1,6 +1,17 @@
 # Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
 # ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
-# Optional real-LLM gate runs only when ARCHLUCID_GOLDEN_COHORT_REAL_LLM is "true" AND scripts/golden_cohort_budget_probe.py exits 0 (MTD < 90% of $50 cap).
+#
+# Optional real-LLM gate (cohort-real-llm-gate job) is gated on:
+#   1. ARCHLUCID_GOLDEN_COHORT_REAL_LLM repo variable == "true"
+#   2. scripts/golden_cohort_budget_probe.py exit code in {0, 1}:
+#        0 → continue normally (MTD < 80% of $50 cap)
+#        1 → WARN: continue but post a GitHub issue (MTD ≥ 80% < 95%)
+#        2 → SKIP: post issue, do NOT count as workflow failure (MTD ≥ 95%)
+#        3 → probe failed: skip + summary, do NOT count as workflow failure
+#
+# Threshold ratios 0.80 / 0.95 are the Q15-conditional rule (PENDING_QUESTIONS Q15) and are
+# enforced by scripts/ci/assert_golden_cohort_kill_switch_present.py at PR-merge time so a
+# future workflow edit cannot silently weaken them. See docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md.
 #
 # Baseline SHAs in tests/golden-cohort/cohort.json were captured from an approved Simulator run (item 33, 2026-04-21).
 # CI (doc-markdown-links job) also runs scripts/ci/assert_golden_cohort_baseline_locked.py with the locked flag so a
@@ -96,9 +107,11 @@ jobs:
     needs: cohort-contract
     if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true' }}
     runs-on: ubuntu-latest
+    # Improvement 11 (2026-04-24) — issues:write needed by the warn/kill auto-issue step.
     permissions:
       contents: read
       id-token: write
+      issues: write
     steps:
       - uses: actions/checkout@v4
 
@@ -117,50 +130,133 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # Improvement 11 (2026-04-24) — Q15-conditional kill-switch.
+      # Exit codes (defined in scripts/golden_cohort_budget_probe.py):
+      #   0 → continue normally (MTD < warnThresholdPercent of monthlyTokenBudgetUsd)
+      #   1 → WARN: continue but post issue   (MTD ≥ warnThresholdPercent and < killSwitchThresholdPercent)
+      #   2 → SKIP: post issue, do not fail   (MTD ≥ killSwitchThresholdPercent)
+      #   3 → probe failed: skip + summary, do not fail
+      # Thresholds 0.80 / 0.95 are enforced at merge time by
+      # scripts/ci/assert_golden_cohort_kill_switch_present.py.
       - id: budget
-        name: Golden cohort budget probe ($50/mo cap, 90% kill)
+        name: Golden cohort budget probe ($50/mo cap, 80% warn / 95% kill)
         env:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
           set -o pipefail
           python scripts/golden_cohort_budget_probe.py --usage-ledger tests/golden-cohort/usage-mtd.json 2>&1 | tee "${RUNNER_TEMP}/golden-cohort-budget-probe.log"
-          code=$?
+          code=${PIPESTATUS[0]}
           set +o pipefail
           mtd_line=$(grep '^EXPORT_MTD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
           mtd_val="${mtd_line#EXPORT_MTD_USD=}"
+          warn_line=$(grep '^EXPORT_WARN_THRESHOLD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
+          warn_val="${warn_line#EXPORT_WARN_THRESHOLD_USD=}"
+          kill_line=$(grep '^EXPORT_KILL_THRESHOLD_USD=' "${RUNNER_TEMP}/golden-cohort-budget-probe.log" | tail -n1 || true)
+          kill_val="${kill_line#EXPORT_KILL_THRESHOLD_USD=}"
           {
             echo "exit_code=${code}"
             echo "mtd_usd=${mtd_val}"
+            echo "warn_threshold_usd=${warn_val}"
+            echo "kill_threshold_usd=${kill_val}"
           } >> "${GITHUB_OUTPUT}"
-          if [ "${code}" -eq 1 ] || [ "${code}" -eq 2 ]; then
-            {
-              echo "## Golden cohort real LLM"
-              echo "Real-LLM cohort skipped - budget kill switch triggered (MTD spend = \$${mtd_val:-unknown} / \$50)."
-            } >> "${GITHUB_STEP_SUMMARY}"
-          elif [ "${code}" -ne 0 ]; then
-            {
-              echo "## Golden cohort real LLM"
-              echo "Real-LLM cohort skipped - budget probe failed (exit ${code}). See docs/runbooks/GOLDEN_COHORT_BUDGET.md."
-            } >> "${GITHUB_STEP_SUMMARY}"
-          fi
+          case "${code}" in
+            0)
+              {
+                echo "## Golden cohort real LLM"
+                echo "Continue: MTD spend \$${mtd_val:-?} is under the warn threshold (\$${warn_val:-?})."
+              } >> "${GITHUB_STEP_SUMMARY}"
+              ;;
+            1)
+              {
+                echo "## Golden cohort real LLM (WARN)"
+                echo "MTD spend \$${mtd_val:-?} crossed the **warn** threshold (\$${warn_val:-?}, 80% of cap)."
+                echo "Cohort run continues; an issue will be opened so the owner is aware before kill threshold."
+              } >> "${GITHUB_STEP_SUMMARY}"
+              ;;
+            2)
+              {
+                echo "## Golden cohort real LLM (SKIP — KILL SWITCH)"
+                echo "MTD spend \$${mtd_val:-?} crossed the **kill** threshold (\$${kill_val:-?}, 95% of cap)."
+                echo "Real-LLM cohort SKIPPED for the rest of the month. Workflow does not count as failure."
+              } >> "${GITHUB_STEP_SUMMARY}"
+              ;;
+            *)
+              {
+                echo "## Golden cohort real LLM (SKIP — probe failed)"
+                echo "Budget probe failed (exit ${code}). See docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md § Probe failure."
+              } >> "${GITHUB_STEP_SUMMARY}"
+              ;;
+          esac
           exit 0
 
+      # Improvement 11 (2026-04-24) — owner visibility for warn (continue) and kill (skip) states.
+      # Uses gh CLI bundled on ubuntu-latest. We DO NOT --label so the issue doesn't require
+      # pre-existing labels. Title is dated so each calendar day appends only one issue per state.
+      - name: Open issue on warn or kill (Q15 owner visibility)
+        if: ${{ steps.budget.outputs.exit_code == '1' || steps.budget.outputs.exit_code == '2' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUDGET_EXIT: ${{ steps.budget.outputs.exit_code }}
+          MTD_USD: ${{ steps.budget.outputs.mtd_usd }}
+          WARN_USD: ${{ steps.budget.outputs.warn_threshold_usd }}
+          KILL_USD: ${{ steps.budget.outputs.kill_threshold_usd }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          state="WARN"
+          body_threshold_line="MTD spend \$${MTD_USD:-?} crossed the warn threshold (\$${WARN_USD:-?}, 80% of cap). Cohort still runs; opening this issue so the owner can monitor before the kill threshold trips."
+          if [ "${BUDGET_EXIT}" = "2" ]; then
+            state="KILL — SKIPPED"
+            body_threshold_line="MTD spend \$${MTD_USD:-?} crossed the kill threshold (\$${KILL_USD:-?}, 95% of cap). Real-LLM cohort SKIPPED for the rest of the month. Workflow did not count as failure (Q15-conditional rule)."
+          fi
+          today=$(date -u +%Y-%m-%d)
+          title="Golden cohort kill-switch ${state} — ${today}"
+          body=$(cat <<EOF
+          ${body_threshold_line}
+
+          - Workflow run: ${RUN_URL}
+          - Probe exit code: ${BUDGET_EXIT}
+          - Month-to-date USD: \$${MTD_USD:-?}
+          - Warn threshold USD: \$${WARN_USD:-?}
+          - Kill threshold USD: \$${KILL_USD:-?}
+          - Runbook: docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md
+
+          This issue was opened automatically by .github/workflows/golden-cohort-nightly.yml. Close it after the owner has reviewed and (for KILL) acknowledged the skip.
+          EOF
+          )
+          gh issue create --title "${title}" --body "${body}" || echo "gh issue create failed; budget step still recorded the state in the workflow summary above."
+
       - name: Setup .NET (golden cohort real LLM gate)
-        if: ${{ steps.budget.outputs.exit_code == '0' }}
+        if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
+      # Improvement 11 (2026-04-24) — runs on exit 0 (green) AND exit 1 (warn — still under kill).
       - name: Run golden cohort real-LLM gate tests (no live OpenAI invoke in CI)
-        if: ${{ steps.budget.outputs.exit_code == '0' }}
+        if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
         env:
           ARCHLUCID_GOLDEN_COHORT_REAL_LLM: "true"
+          ARCHLUCID_GOLDEN_COHORT_LATENCY_REPORT_PATH: ${{ runner.temp }}/golden-cohort-latency.json
         run: >
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
           --configuration Release
           --filter "FullyQualifiedName~GoldenCohortRealLlmGateTests"
+
+      # Improvement 11 (2026-04-24) — capture per-scenario p50/p95/p99 latency JSON, even on test
+      # failure, so the dashboard always has the latest data point. The file is also a candidate to
+      # be pushed into Application Insights customMetrics by an owner-side ingestion job — that
+      # ingestion is out of scope for this PR (no Application Insights connection string is wired
+      # in here; doing so would inject a secret the prompt explicitly says we must not).
+      - name: Upload per-scenario latency JSON
+        if: ${{ always() && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-cohort-latency
+          path: ${{ runner.temp }}/golden-cohort-latency.json
+          if-no-files-found: warn
 
       - uses: actions/upload-artifact@v4
         if: always()

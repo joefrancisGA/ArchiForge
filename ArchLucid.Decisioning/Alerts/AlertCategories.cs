@@ -1,8 +1,8 @@
 namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
-/// Canonical category strings written to <see cref="AlertRecord.Category"/> by <see cref="AlertEvaluator"/>.
-/// Using these constants prevents routing mismatches when delivery channels filter by category.
+///     Canonical category strings written to <see cref="AlertRecord.Category" /> by <see cref="AlertEvaluator" />.
+///     Using these constants prevents routing mismatches when delivery channels filter by category.
 /// </summary>
 public static class AlertCategories
 {

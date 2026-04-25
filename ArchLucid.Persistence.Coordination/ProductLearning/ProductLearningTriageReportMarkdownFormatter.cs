@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 using ArchLucid.Contracts.ProductLearning;
@@ -23,12 +24,14 @@ public static class ProductLearningTriageReportMarkdownFormatter
         sb.AppendLine("- **Workspace:** `" + doc.WorkspaceId + "`");
         sb.AppendLine("- **Project:** `" + doc.ProjectId + "`");
         sb.AppendLine(
-            "- **Generated (UTC):** " + doc.GeneratedUtc.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture) + "Z");
+            "- **Generated (UTC):** " + doc.GeneratedUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) +
+            "Z");
 
         if (doc.SinceUtc is { } since)
 
             sb.AppendLine(
-                "- **Signals since (UTC):** " + since.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture) + "Z");
+                "- **Signals since (UTC):** " + since.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture) +
+                "Z");
 
         else
 
@@ -179,7 +182,10 @@ public static class ProductLearningTriageReportMarkdownFormatter
         return s.Length == 0 ? "—" : s;
     }
 
-    private static string MdPlain(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value.Trim();
+    private static string MdPlain(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "—" : value.Trim();
+    }
 
     private static string EscapeBoldFragment(string value)
     {

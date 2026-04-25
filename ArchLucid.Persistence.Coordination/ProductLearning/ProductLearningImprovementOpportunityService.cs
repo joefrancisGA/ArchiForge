@@ -38,7 +38,8 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
 
 
             string sortKey = "a:" + aggregate.AggregateKey;
-            work.Add((badScore, sortKey, ProductLearningOpportunityScoring.MapAggregateToOpportunity(aggregate, badScore, priorityRank: 0)));
+            work.Add((badScore, sortKey,
+                ProductLearningOpportunityScoring.MapAggregateToOpportunity(aggregate, badScore, 0)));
         }
 
         foreach (ArtifactOutcomeTrend trend in snapshot.ArtifactTrends)
@@ -61,7 +62,7 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
 
             int badScore = negative * 3 + trend.RejectionCount;
             string sortKey = "t:" + trend.TrendKey;
-            work.Add((badScore, sortKey, ProductLearningOpportunityScoring.MapTrendToOpportunity(trend, badScore, priorityRank: 0)));
+            work.Add((badScore, sortKey, ProductLearningOpportunityScoring.MapTrendToOpportunity(trend, badScore, 0)));
         }
 
         int max = options.MaxImprovementOpportunities < 1 ? 1 : Math.Min(options.MaxImprovementOpportunities, 100);
@@ -84,8 +85,9 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
         return Task.FromResult<IReadOnlyList<ImprovementOpportunity>>(ranked);
     }
 
-    private static ImprovementOpportunity WithPriorityRank(ImprovementOpportunity model, int rank) =>
-        new()
+    private static ImprovementOpportunity WithPriorityRank(ImprovementOpportunity model, int rank)
+    {
+        return new ImprovementOpportunity
         {
             OpportunityId = model.OpportunityId,
             SourceAggregateKey = model.SourceAggregateKey,
@@ -101,6 +103,7 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
             AverageTrustScore = model.AverageTrustScore,
             RepeatedThemeSnippet = model.RepeatedThemeSnippet,
             FirstSeenUtc = model.FirstSeenUtc,
-            LastSeenUtc = model.LastSeenUtc,
+            LastSeenUtc = model.LastSeenUtc
         };
+    }
 }

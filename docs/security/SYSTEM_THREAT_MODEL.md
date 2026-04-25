@@ -49,6 +49,14 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 
 **Privacy posture:** responses set **`isDemoData=true`** and fictional Contoso naming from the seed; **`noindex`** on the marketing page prevents search engines from indexing demo metrics as production telemetry.
 
+### 5.2 Local first-real-value path (`archlucid try --real`)
+
+| Surface | Risk | Mitigation |
+|---------|------|------------|
+| Developer exports **`AZURE_OPENAI_API_KEY`** into shell / compose | Key theft via shoulder-surfing, screen share, or committed `.env` | Opt-in gate **`ARCHLUCID_REAL_AOAI=1`** + CLI preflight; document short-lived keys only (**[`docs/library/FIRST_REAL_VALUE.md`](../library/FIRST_REAL_VALUE.md)**, **[`docs/library/CONFIGURATION_KEY_VAULT.md`](../library/CONFIGURATION_KEY_VAULT.md)** § local). |
+| Fallback to simulator after AOAI failure | Buyer misreads simulator metrics as LLM output | Markdown **warning** callout + **Execution provenance** footer; audit **`FirstRealValueRunFellBackToSimulator`**. |
+| **`--strict-real`** in automation | Pipeline fails when AOAI unavailable | Explicit operator choice — no silent substitution. |
+
 ## 6. Data flow (high level)
 
 1. **Authority run:** HTTP → transactional SQL → outboxes → worker indexing / integration publish.

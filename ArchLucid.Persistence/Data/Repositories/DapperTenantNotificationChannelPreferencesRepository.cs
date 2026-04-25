@@ -23,23 +23,21 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
         CancellationToken cancellationToken)
     {
         const string sql = """
-            SELECT
-                TenantId,
-                SchemaVersion,
-                EmailCustomerNotificationsEnabled,
-                TeamsCustomerNotificationsEnabled,
-                OutboundWebhookCustomerNotificationsEnabled,
-                UpdatedUtc
-            FROM dbo.TenantNotificationChannelPreferences
-            WHERE TenantId = @TenantId;
-            """;
+                           SELECT
+                               TenantId,
+                               SchemaVersion,
+                               EmailCustomerNotificationsEnabled,
+                               TeamsCustomerNotificationsEnabled,
+                               OutboundWebhookCustomerNotificationsEnabled,
+                               UpdatedUtc
+                           FROM dbo.TenantNotificationChannelPreferences
+                           WHERE TenantId = @TenantId;
+                           """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        TenantNotificationChannelPreferencesRow? row = await connection.QueryFirstOrDefaultAsync<TenantNotificationChannelPreferencesRow>(
-            new CommandDefinition(sql, new
-            {
-                TenantId = tenantId
-            }, cancellationToken: cancellationToken));
+        TenantNotificationChannelPreferencesRow? row =
+            await connection.QueryFirstOrDefaultAsync<TenantNotificationChannelPreferencesRow>(
+                new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
         if (row is null)
             return null;
@@ -53,7 +51,7 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
             EmailCustomerNotificationsEnabled = row.EmailCustomerNotificationsEnabled,
             TeamsCustomerNotificationsEnabled = row.TeamsCustomerNotificationsEnabled,
             OutboundWebhookCustomerNotificationsEnabled = row.OutboundWebhookCustomerNotificationsEnabled,
-            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero),
+            UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero)
         };
     }
 
@@ -66,10 +64,10 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
         CancellationToken cancellationToken)
     {
         const string tenantExistsSql = """
-            SELECT COUNT(1)
-            FROM dbo.Tenants
-            WHERE Id = @TenantId;
-            """;
+                                       SELECT COUNT(1)
+                                       FROM dbo.Tenants
+                                       WHERE Id = @TenantId;
+                                       """;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         int tenantCount = await connection.ExecuteScalarAsync<int>(
@@ -83,37 +81,37 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
 
 
         const string mergeSql = """
-            MERGE dbo.TenantNotificationChannelPreferences AS t
-            USING (
-                SELECT
-                    @TenantId AS TenantId,
-                    @Email AS EmailCustomerNotificationsEnabled,
-                    @Teams AS TeamsCustomerNotificationsEnabled,
-                    @Webhook AS OutboundWebhookCustomerNotificationsEnabled
-            ) AS s
-            ON t.TenantId = s.TenantId
-            WHEN MATCHED THEN UPDATE SET
-                EmailCustomerNotificationsEnabled = s.EmailCustomerNotificationsEnabled,
-                TeamsCustomerNotificationsEnabled = s.TeamsCustomerNotificationsEnabled,
-                OutboundWebhookCustomerNotificationsEnabled = s.OutboundWebhookCustomerNotificationsEnabled,
-                UpdatedUtc = SYSUTCDATETIME()
-            WHEN NOT MATCHED THEN INSERT (
-                TenantId,
-                SchemaVersion,
-                EmailCustomerNotificationsEnabled,
-                TeamsCustomerNotificationsEnabled,
-                OutboundWebhookCustomerNotificationsEnabled,
-                UpdatedUtc
-            )
-            VALUES (
-                s.TenantId,
-                1,
-                s.EmailCustomerNotificationsEnabled,
-                s.TeamsCustomerNotificationsEnabled,
-                s.OutboundWebhookCustomerNotificationsEnabled,
-                SYSUTCDATETIME()
-            );
-            """;
+                                MERGE dbo.TenantNotificationChannelPreferences AS t
+                                USING (
+                                    SELECT
+                                        @TenantId AS TenantId,
+                                        @Email AS EmailCustomerNotificationsEnabled,
+                                        @Teams AS TeamsCustomerNotificationsEnabled,
+                                        @Webhook AS OutboundWebhookCustomerNotificationsEnabled
+                                ) AS s
+                                ON t.TenantId = s.TenantId
+                                WHEN MATCHED THEN UPDATE SET
+                                    EmailCustomerNotificationsEnabled = s.EmailCustomerNotificationsEnabled,
+                                    TeamsCustomerNotificationsEnabled = s.TeamsCustomerNotificationsEnabled,
+                                    OutboundWebhookCustomerNotificationsEnabled = s.OutboundWebhookCustomerNotificationsEnabled,
+                                    UpdatedUtc = SYSUTCDATETIME()
+                                WHEN NOT MATCHED THEN INSERT (
+                                    TenantId,
+                                    SchemaVersion,
+                                    EmailCustomerNotificationsEnabled,
+                                    TeamsCustomerNotificationsEnabled,
+                                    OutboundWebhookCustomerNotificationsEnabled,
+                                    UpdatedUtc
+                                )
+                                VALUES (
+                                    s.TenantId,
+                                    1,
+                                    s.EmailCustomerNotificationsEnabled,
+                                    s.TeamsCustomerNotificationsEnabled,
+                                    s.OutboundWebhookCustomerNotificationsEnabled,
+                                    SYSUTCDATETIME()
+                                );
+                                """;
 
         await connection.ExecuteAsync(
             new CommandDefinition(
@@ -123,7 +121,7 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
                     TenantId = tenantId,
                     Email = emailCustomerNotificationsEnabled,
                     Teams = teamsCustomerNotificationsEnabled,
-                    Webhook = outboundWebhookCustomerNotificationsEnabled,
+                    Webhook = outboundWebhookCustomerNotificationsEnabled
                 },
                 cancellationToken: cancellationToken));
 
@@ -134,32 +132,38 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
     {
         public Guid TenantId
         {
-            get; init;
+            get;
+            init;
         }
 
         public int SchemaVersion
         {
-            get; init;
+            get;
+            init;
         }
 
         public bool EmailCustomerNotificationsEnabled
         {
-            get; init;
+            get;
+            init;
         }
 
         public bool TeamsCustomerNotificationsEnabled
         {
-            get; init;
+            get;
+            init;
         }
 
         public bool OutboundWebhookCustomerNotificationsEnabled
         {
-            get; init;
+            get;
+            init;
         }
 
         public DateTime UpdatedUtc
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

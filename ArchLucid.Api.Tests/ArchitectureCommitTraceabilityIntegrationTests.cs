@@ -13,8 +13,11 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Commit path through the real API host uses production <see cref="ArchLucid.Decisioning.Merge.DecisionEngineService"/> merge
-/// (not mocks). These tests assert coordinator traceability invariants that unit tests with mocked merge can miss.
+///     Commit path through the real API host uses the production
+///     <see cref="ArchLucid.Decisioning.Interfaces.IDecisionEngine" />
+///     (not mocks). After ADR 0030 PR A3 (2026-04-24), the only commit path is the Authority FK chain — these tests
+///     now assert the authority traceability invariant: the projected manifest must reference the rule-audit trace id
+///     in <c>Metadata.DecisionTraceIds</c>.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -23,8 +26,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     private static StringContent JsonContent(object value)
@@ -45,7 +47,8 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
@@ -55,13 +58,16 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        CommitRunResponse? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponse>(JsonOptions);
+        CommitRunResponse? commitPayload =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponse>(JsonOptions);
         commitPayload.Should().NotBeNull();
 
-        IReadOnlyList<string> gaps = CommittedManifestTraceabilityRules.GetLinkageGaps(
+        IReadOnlyList<string> gaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(
             commitPayload.Manifest,
             commitPayload.DecisionTraces);
 
-        gaps.Should().BeEmpty("manifest metadata must list exactly the coordinator trace ids returned with the commit body");
+        gaps.Should()
+            .BeEmpty(
+                "manifest metadata must list exactly the authority rule-audit trace ids returned with the commit body");
     }
 }

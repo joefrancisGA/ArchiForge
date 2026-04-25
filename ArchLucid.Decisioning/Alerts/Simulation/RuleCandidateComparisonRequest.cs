@@ -1,43 +1,63 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts.Composite;
 
 namespace ArchLucid.Decisioning.Alerts.Simulation;
 
-/// <summary>Input to <see cref="IRuleSimulationService.CompareCandidatesAsync"/> — two rule definitions of the same kind to compare over the same run window.</summary>
+/// <summary>
+///     Input to <see cref="IRuleSimulationService.CompareCandidatesAsync" /> — two rule definitions of the same kind
+///     to compare over the same run window.
+/// </summary>
 [ExcludeFromCodeCoverage(Justification = "Simulation request DTO; no logic.")]
 public class RuleCandidateComparisonRequest
 {
     /// <summary><c>Simple</c> or <c>Composite</c>.</summary>
-    public string RuleKind { get; set; } = null!;
+    public string RuleKind
+    {
+        get;
+        set;
+    } = null!;
 
-    /// <summary>First simple-rule candidate when <see cref="RuleKind"/> is Simple.</summary>
+    /// <summary>First simple-rule candidate when <see cref="RuleKind" /> is Simple.</summary>
     public AlertRule? CandidateASimpleRule
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Second simple-rule candidate.</summary>
     public AlertRule? CandidateBSimpleRule
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>First composite candidate when <see cref="RuleKind"/> is Composite.</summary>
+    /// <summary>First composite candidate when <see cref="RuleKind" /> is Composite.</summary>
     public CompositeAlertRule? CandidateACompositeRule
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Second composite candidate.</summary>
     public CompositeAlertRule? CandidateBCompositeRule
     {
-        get; set;
+        get;
+        set;
     }
 
-    /// <summary>Passed through to each nested <see cref="RuleSimulationRequest"/>.</summary>
-    public int RecentRunCount { get; set; } = 5;
+    /// <summary>Passed through to each nested <see cref="RuleSimulationRequest" />.</summary>
+    public int RecentRunCount
+    {
+        get;
+        set;
+    } = 5;
 
     /// <summary>Project slug for authority run listing.</summary>
-    public string RunProjectSlug { get; set; } = Advisory.Scheduling.AdvisoryScanSchedule.DefaultProjectSlug;
+    public string RunProjectSlug
+    {
+        get;
+        set;
+    } = AdvisoryScanSchedule.DefaultProjectSlug;
 }

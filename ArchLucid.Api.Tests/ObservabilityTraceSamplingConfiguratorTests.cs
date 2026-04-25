@@ -12,7 +12,7 @@ using OpenTelemetry.Trace;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for <see cref="ObservabilityTraceSamplingConfigurator"/>.
+///     Tests for <see cref="ObservabilityTraceSamplingConfigurator" />.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

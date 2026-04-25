@@ -1,10 +1,11 @@
 namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
-/// Stateless evaluator: maps each <see cref="AlertRuleCondition"/> to a boolean via <see cref="AlertConditionOperator"/>, then reduces with <see cref="CompositeOperator"/>.
+///     Stateless evaluator: maps each <see cref="AlertRuleCondition" /> to a boolean via
+///     <see cref="AlertConditionOperator" />, then reduces with <see cref="CompositeOperator" />.
 /// </summary>
 /// <remarks>
-/// Unknown <see cref="AlertMetricType"/> values resolve to metric <c>0</c> in <see cref="ResolveMetric"/>.
+///     Unknown <see cref="AlertMetricType" /> values resolve to metric <c>0</c> in <see cref="ResolveMetric" />.
 /// </remarks>
 public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
 {
@@ -21,11 +22,11 @@ public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
         {
             CompositeOperator.And => results.All(x => x),
             CompositeOperator.Or => results.Any(x => x),
-            _ => false,
+            _ => false
         };
     }
 
-    /// <summary>Compares resolved metric to <see cref="AlertRuleCondition.ThresholdValue"/> using the condition’s operator.</summary>
+    /// <summary>Compares resolved metric to <see cref="AlertRuleCondition.ThresholdValue" /> using the condition’s operator.</summary>
     private static bool EvaluateCondition(AlertRuleCondition condition, AlertMetricSnapshot snapshot)
     {
         decimal actual = ResolveMetric(condition.MetricType, snapshot);
@@ -39,11 +40,11 @@ public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
             AlertConditionOperator.LessThan => actual < expected,
             AlertConditionOperator.Equal => actual == expected,
             AlertConditionOperator.NotEqual => actual != expected,
-            _ => false,
+            _ => false
         };
     }
 
-    /// <summary>Maps string metric type constants (<see cref="AlertMetricType"/>) to snapshot fields.</summary>
+    /// <summary>Maps string metric type constants (<see cref="AlertMetricType" />) to snapshot fields.</summary>
     private static decimal ResolveMetric(string metricType, AlertMetricSnapshot snapshot)
     {
         return metricType switch
@@ -54,7 +55,7 @@ public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
             AlertMetricType.DeferredHighPriorityRecommendationCount => snapshot.DeferredHighPriorityRecommendationCount,
             AlertMetricType.RejectedSecurityRecommendationCount => snapshot.RejectedSecurityRecommendationCount,
             AlertMetricType.AcceptanceRatePercent => snapshot.AcceptanceRatePercent,
-            _ => 0,
+            _ => 0
         };
     }
 }

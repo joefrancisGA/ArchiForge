@@ -2,113 +2,195 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class ComparisonRecordResponseDto
 {
-    public ComparisonRecordDto Record { get; set; } = new();
+    public ComparisonRecordDto Record
+    {
+        get;
+        set;
+    } = new();
 }
 
 public sealed class ComparisonHistoryResponseDto
 {
-    public List<ComparisonRecordDto> Records { get; set; } = [];
+    public List<ComparisonRecordDto> Records
+    {
+        get;
+        set;
+    } = [];
+
     public int? Limit
     {
-        get; set;
+        get;
+        set;
     }
+
     public int? Skip
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? ComparisonType
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? LeftRunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? RightRunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? LeftExportRecordId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? RightExportRecordId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? Label
     {
-        get; set;
+        get;
+        set;
     }
+
     public DateTime? CreatedFromUtc
     {
-        get; set;
+        get;
+        set;
     }
+
     public DateTime? CreatedToUtc
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? Tag
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> Tags { get; set; } = [];
+
+    public List<string> Tags
+    {
+        get;
+        set;
+    } = [];
+
     public string? SortBy
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? SortDir
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? NextCursor
     {
-        get; set;
+        get;
+        set;
     }
 }
 
 public sealed class ComparisonRecordDto
 {
-    public string ComparisonRecordId { get; set; } = string.Empty;
-    public string ComparisonType { get; set; } = string.Empty;
+    public string ComparisonRecordId
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    public string ComparisonType
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public string? LeftRunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? RightRunId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? LeftManifestVersion
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? RightManifestVersion
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? LeftExportRecordId
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? RightExportRecordId
     {
-        get; set;
+        get;
+        set;
     }
-    public string Format { get; set; } = string.Empty;
+
+    public string Format
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public string? SummaryMarkdown
     {
-        get; set;
+        get;
+        set;
     }
-    public string PayloadJson { get; set; } = string.Empty;
+
+    public string PayloadJson
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public string? Notes
     {
-        get; set;
+        get;
+        set;
     }
+
     public string? Label
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> Tags { get; set; } = [];
-}
 
+    public List<string> Tags
+    {
+        get;
+        set;
+    } = [];
+}

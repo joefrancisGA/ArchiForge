@@ -12,7 +12,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Shutdown and loop behavior for <see cref="DataArchivalHostedService"/>.
+///     Shutdown and loop behavior for <see cref="DataArchivalHostedService" />.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

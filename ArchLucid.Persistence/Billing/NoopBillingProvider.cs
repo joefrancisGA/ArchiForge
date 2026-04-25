@@ -31,12 +31,14 @@ public sealed class NoopBillingProvider(IBillingLedger ledger) : IBillingProvide
         {
             CheckoutUrl = $"https://billing.archlucid.local/noop-checkout?session={sessionId}",
             ProviderSessionId = sessionId,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1),
+            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
         };
     }
 
     public Task<BillingWebhookHandleResult> HandleWebhookAsync(
         BillingWebhookInbound inbound,
-        CancellationToken cancellationToken) =>
-        Task.FromResult(BillingWebhookHandleResult.Rejected("Noop billing provider does not accept webhooks."));
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(BillingWebhookHandleResult.Rejected("Noop billing provider does not accept webhooks."));
+    }
 }

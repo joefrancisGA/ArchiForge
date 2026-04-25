@@ -1,17 +1,23 @@
 namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
-/// Evaluates configured alert rules for a run or scan, persists new alerts, and supports lifecycle actions (ack/resolve/suppress).
+///     Evaluates configured alert rules for a run or scan, persists new alerts, and supports lifecycle actions
+///     (ack/resolve/suppress).
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchLucid.Persistence.Alerts.AlertService</c>. Consumed from HTTP (alerts API), authority workflows, and advisory scan runners.
+///     Implemented by <c>ArchLucid.Persistence.Alerts.AlertService</c>. Consumed from HTTP (alerts API), authority
+///     workflows, and advisory scan runners.
 /// </remarks>
 public interface IAlertService
 {
     /// <summary>
-    /// Loads rules for the context’s scope, applies governance filtering, evaluates, persists unseen dedup keys, and dispatches delivery.
+    ///     Loads rules for the context’s scope, applies governance filtering, evaluates, persists unseen dedup keys, and
+    ///     dispatches delivery.
     /// </summary>
-    /// <param name="context">Tenant/workspace/project, run ids, and optional preloaded <see cref="AlertEvaluationContext.EffectiveGovernanceContent"/>.</param>
+    /// <param name="context">
+    ///     Tenant/workspace/project, run ids, and optional preloaded
+    ///     <see cref="AlertEvaluationContext.EffectiveGovernanceContent" />.
+    /// </param>
     /// <param name="ct">Cancellation token.</param>
     Task<AlertEvaluationOutcome> EvaluateAndPersistAsync(
         AlertEvaluationContext context,

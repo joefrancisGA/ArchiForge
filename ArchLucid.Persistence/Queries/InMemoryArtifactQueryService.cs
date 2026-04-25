@@ -6,7 +6,8 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
-/// Same behavior as <see cref="DapperArtifactQueryService"/>; type name reflects typical registration in storage-off mode.
+///     Same behavior as <see cref="DapperArtifactQueryService" />; type name reflects typical registration in storage-off
+///     mode.
 /// </summary>
 public sealed class InMemoryArtifactQueryService(IArtifactBundleRepository artifactBundleRepository)
     : IArtifactQueryService

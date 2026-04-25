@@ -4,7 +4,7 @@ using ArchLucid.Decisioning.Validation;
 namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
-/// Validates merge inputs, filters invalid <see cref="AgentResult"/> rows, and runs per-result JSON schema checks.
+///     Validates merge inputs, filters invalid <see cref="AgentResult" /> rows, and runs per-result JSON schema checks.
 /// </summary>
 public sealed class DecisionMergeInputGate(ISchemaValidationService schemaValidationService)
 {
@@ -98,7 +98,8 @@ public sealed class DecisionMergeInputGate(ISchemaValidationService schemaValida
         if (string.IsNullOrWhiteSpace(result.RunId))
             errors.Add("RunId is required.");
         else if (!string.Equals(result.RunId, runId, StringComparison.Ordinal))
-            errors.Add($"RunId '{result.RunId}' does not match the merge run '{runId}'; cross-run results must not be merged.");
+            errors.Add(
+                $"RunId '{result.RunId}' does not match the merge run '{runId}'; cross-run results must not be merged.");
 
         if (result.Confidence < 0.0 || result.Confidence > 1.0)
             errors.Add("Confidence must be between 0 and 1.");

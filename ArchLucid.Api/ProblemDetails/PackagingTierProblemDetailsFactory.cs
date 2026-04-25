@@ -28,10 +28,24 @@ internal static class PackagingTierProblemDetailsFactory
         ProblemCorrelation.Attach(problem, httpContext);
         problem.Extensions["currentTier"] = currentTier.ToString();
         problem.Extensions["requiredTier"] = requiredTier.ToString();
+        string pricingPageUrl = ResolvePublicPricingPageUrl(httpContext);
+        problem.Extensions["upgradeUrl"] = pricingPageUrl;
+        problem.Extensions["pricingUrl"] = pricingPageUrl;
 
         return new ObjectResult(problem)
         {
-            StatusCode = problem.Status, ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
+            StatusCode = problem.Status,
+            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
         };
+    }
+
+    /// <summary>Canonical public pricing page for human buyers; also used as the browser upgrade CTA in problem+json.</summary>
+    private static string ResolvePublicPricingPageUrl(HttpContext httpContext)
+    {
+        IConfiguration? configuration = httpContext.RequestServices.GetService<IConfiguration>();
+        string? baseUrl = configuration?["ArchLucid:PublicSite:BaseUrl"]?.Trim();
+        if (string.IsNullOrEmpty(baseUrl))
+            baseUrl = "https://archlucid.com";
+        return baseUrl.TrimEnd('/') + "/pricing";
     }
 }

@@ -93,21 +93,23 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
         if (double.IsNaN(sum) || double.IsInfinity(sum) || Math.Abs(sum - 1d) > WeightSumTolerance)
 
             throw new ArgumentException(
-                "Weights must sum to 1.0 (±" + WeightSumTolerance + "). Actual sum=" + sum.ToString(CultureInfo.InvariantCulture) + ".",
+                "Weights must sum to 1.0 (±" + WeightSumTolerance + "). Actual sum=" +
+                sum.ToString(CultureInfo.InvariantCulture) + ".",
                 nameof(weights));
 
 
         if (weights.Frequency < 0 || weights.Severity < 0 || weights.TrustImpact < 0 || weights.Breadth < 0)
 
             throw new ArgumentException("Weights must be non-negative.", nameof(weights));
-
     }
 
     /// <summary>Same spirit as 58R aggregate bad mass: reject &gt; follow-up &gt; revised.</summary>
-    private static int ComputeSeverityRaw(ImprovementPlanScoreInput item) =>
-        Math.Max(0, item.RejectedCount) * 4 +
-        Math.Max(0, item.NeedsFollowUpCount) * 3 +
-        Math.Max(0, item.RevisedCount) * 2;
+    private static int ComputeSeverityRaw(ImprovementPlanScoreInput item)
+    {
+        return Math.Max(0, item.RejectedCount) * 4 +
+               Math.Max(0, item.NeedsFollowUpCount) * 3 +
+               Math.Max(0, item.RevisedCount) * 2;
+    }
 
     /// <summary>Higher when trust is lower; null trust → neutral 0.5 stress.</summary>
     private static double ComputeTrustStress(double? averageTrustScore)
@@ -238,7 +240,7 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
             SeverityScore = plan.SeverityScore,
             TrustImpactScore = plan.TrustImpactScore,
             CreatedUtc = plan.CreatedUtc,
-            PrioritizationExplanation = explanation,
+            PrioritizationExplanation = explanation
         };
     }
 }

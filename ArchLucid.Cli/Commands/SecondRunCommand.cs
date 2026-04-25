@@ -98,7 +98,7 @@ internal static class SecondRunCommand
             await Console.Out.WriteLineAsync(
                 $"  Run did not reach ReadyForCommit (observed {reached}). Trying seed-fake-results (Development hosts only)...");
             ArchLucidApiClient.SeedFakeResultsResult?
-                seed = await client.SeedFakeResultsAsync(runId, cancellationToken);
+                seed = await client.SeedFakeResultsAsync(runId, ct: cancellationToken);
 
             if (seed is null || !seed.Success)
             {

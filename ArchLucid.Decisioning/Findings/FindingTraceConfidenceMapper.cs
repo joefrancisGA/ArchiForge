@@ -5,7 +5,7 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
-/// Builds <see cref="FindingTraceConfidenceDto"/> rows from a findings snapshot (no I/O).
+///     Builds <see cref="FindingTraceConfidenceDto" /> rows from a findings snapshot (no I/O).
 /// </summary>
 public static class FindingTraceConfidenceMapper
 {
@@ -14,7 +14,7 @@ public static class FindingTraceConfidenceMapper
         if (snapshot?.Findings is not { Count: > 0 } list)
             return [];
 
-        List<FindingTraceConfidenceDto> rows = new(capacity: list.Count);
+        List<FindingTraceConfidenceDto> rows = new(list.Count);
 
         foreach (Finding f in list)
         {
@@ -28,7 +28,7 @@ public static class FindingTraceConfidenceMapper
                     TraceCompletenessRatio = score.CompletenessRatio,
                     TraceConfidenceLabel = TraceConfidenceLabels.FromCompletenessRatio(score.CompletenessRatio),
                     RuleId = evidence.RuleId,
-                    EvidenceRefCount = evidence.EvidenceRefs.Count,
+                    EvidenceRefCount = evidence.EvidenceRefs.Count
                 });
         }
 

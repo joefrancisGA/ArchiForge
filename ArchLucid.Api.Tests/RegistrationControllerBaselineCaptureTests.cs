@@ -14,7 +14,10 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
 {
     private readonly GreenfieldSqlApiFactory _fixture;
 
-    public RegistrationControllerBaselineCaptureTests(GreenfieldSqlApiFactory fixture) => _fixture = fixture;
+    public RegistrationControllerBaselineCaptureTests(GreenfieldSqlApiFactory fixture)
+    {
+        _fixture = fixture;
+    }
 
     [Fact]
     public async Task Register_with_baseline_persists_to_trial_status()
@@ -28,8 +31,8 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
                 organizationName,
                 "baseline@example.com",
                 "Baseline User",
-                baselineHours: 18m,
-                baselineSource: "team estimate"));
+                18m,
+                "team estimate"));
 
         created.StatusCode.Should().Be(HttpStatusCode.Created);
         using JsonDocument doc = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
@@ -93,7 +96,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
         {
             ["organizationName"] = "Src Only " + Guid.NewGuid().ToString("N"),
             ["adminEmail"] = "src@example.com",
-            ["baselineReviewCycleSource"] = "orphan source",
+            ["baselineReviewCycleSource"] = "orphan source"
         };
 
         using HttpResponseMessage bad = await client.PostAsync(
@@ -112,8 +115,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
     {
         Dictionary<string, object?> payload = new()
         {
-            ["organizationName"] = organizationName,
-            ["adminEmail"] = adminEmail,
+            ["organizationName"] = organizationName, ["adminEmail"] = adminEmail
         };
 
         if (!string.IsNullOrWhiteSpace(displayName))

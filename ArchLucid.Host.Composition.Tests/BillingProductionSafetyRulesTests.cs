@@ -17,7 +17,7 @@ public sealed class BillingProductionSafetyRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Billing:Stripe:SecretKey"] = "sk_live_unit_test_placeholder_not_a_real_key",
-            ["Billing:Stripe:WebhookSigningSecret"] = "",
+            ["Billing:Stripe:WebhookSigningSecret"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -27,7 +27,7 @@ public sealed class BillingProductionSafetyRulesTests
 
         errors.Should()
             .ContainSingle(static e => e.Contains("sk_live_", StringComparison.Ordinal)
-                                      && e.Contains("WebhookSigningSecret", StringComparison.Ordinal));
+                                       && e.Contains("WebhookSigningSecret", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public sealed class BillingProductionSafetyRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Billing:Stripe:SecretKey"] = "sk_live_unit_test_placeholder_not_a_real_key",
-            ["Billing:Stripe:WebhookSigningSecret"] = "whsec_unit_test_placeholder_not_a_real_secret",
+            ["Billing:Stripe:WebhookSigningSecret"] = "whsec_unit_test_placeholder_not_a_real_secret"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -53,7 +53,7 @@ public sealed class BillingProductionSafetyRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
-            ["Billing:AzureMarketplace:LandingPageUrl"] = "http://localhost:3000/marketplace/landing",
+            ["Billing:AzureMarketplace:LandingPageUrl"] = "http://localhost:3000/marketplace/landing"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -70,7 +70,7 @@ public sealed class BillingProductionSafetyRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
-            ["Billing:AzureMarketplace:LandingPageUrl"] = "https://app.archlucid.com/marketplace/landing",
+            ["Billing:AzureMarketplace:LandingPageUrl"] = "https://app.archlucid.com/marketplace/landing"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -88,7 +88,7 @@ public sealed class BillingProductionSafetyRulesTests
         {
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
             ["Billing:AzureMarketplace:GaEnabled"] = "true",
-            ["Billing:AzureMarketplace:MarketplaceOfferId"] = "",
+            ["Billing:AzureMarketplace:MarketplaceOfferId"] = ""
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -107,7 +107,7 @@ public sealed class BillingProductionSafetyRulesTests
         {
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
             ["Billing:AzureMarketplace:GaEnabled"] = "true",
-            ["Billing:AzureMarketplace:MarketplaceOfferId"] = "contoso-archlucid-saas-offer",
+            ["Billing:AzureMarketplace:MarketplaceOfferId"] = "contoso-archlucid-saas-offer"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();

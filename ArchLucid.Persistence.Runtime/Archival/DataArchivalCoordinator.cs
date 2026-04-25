@@ -18,17 +18,17 @@ public sealed class DataArchivalCoordinator(
     IConversationThreadRepository conversationThreadRepository,
     ILogger<DataArchivalCoordinator> logger) : IDataArchivalCoordinator
 {
-    private readonly IRunRepository _runRepository =
-        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IConversationThreadRepository _conversationThreadRepository =
+        conversationThreadRepository ?? throw new ArgumentNullException(nameof(conversationThreadRepository));
 
     private readonly IArchitectureDigestRepository _digestRepository =
         digestRepository ?? throw new ArgumentNullException(nameof(digestRepository));
 
-    private readonly IConversationThreadRepository _conversationThreadRepository =
-        conversationThreadRepository ?? throw new ArgumentNullException(nameof(conversationThreadRepository));
-
     private readonly ILogger<DataArchivalCoordinator> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     /// <inheritdoc />
     public async Task RunOnceAsync(DataArchivalOptions options, CancellationToken ct)
@@ -51,6 +51,23 @@ public sealed class DataArchivalCoordinator(
                 "Data archival: archived {Count} runs created before {Cutoff:O}.",
                 archivedRuns.UpdatedCount,
                 cutoff);
+
+            if (archivedRuns.UpdatedCount > 0)
+            {
+                RunArchiveChildCascadeCounts c = archivedRuns.ChildCascade;
+                _logger.LogInformation(
+                    "Data archival: child ArchivedUtc cascade counts — GoldenManifests={Golden}, FindingsSnapshots={Findings}, " +
+                    "ContextSnapshots={Context}, GraphSnapshots={Graph}, DecisioningTraces={Decisioning}, " +
+                    "ArtifactBundles={Artifacts}, AgentExecutionTraces={Traces}, ComparisonRecords={Comparisons}.",
+                    c.GoldenManifests,
+                    c.FindingsSnapshots,
+                    c.ContextSnapshots,
+                    c.GraphSnapshots,
+                    c.DecisioningTraces,
+                    c.ArtifactBundles,
+                    c.AgentExecutionTraces,
+                    c.ComparisonRecords);
+            }
         }
 
         if (options.DigestsRetentionDays > 0)

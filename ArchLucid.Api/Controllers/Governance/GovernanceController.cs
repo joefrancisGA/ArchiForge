@@ -43,9 +43,13 @@ public sealed class GovernanceController(
     IGovernanceLineageService governanceLineageService,
     IGovernanceRationaleService governanceRationaleService,
     IComplianceDriftTrendService complianceDriftTrendService,
+    IPolicyPackDryRunService policyPackDryRunService,
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
+    private readonly IPolicyPackDryRunService _policyPackDryRunService =
+        policyPackDryRunService ?? throw new ArgumentNullException(nameof(policyPackDryRunService));
+
     private readonly IComplianceDriftTrendService _complianceDriftTrendService =
         complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
 
@@ -512,5 +516,46 @@ public sealed class GovernanceController(
         IReadOnlyList<GovernanceEnvironmentActivation> items =
             await activationRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
+    }
+
+    /// <summary>
+    ///     Governance dry-run / what-if: evaluates a proposed set of policy thresholds against a fixed
+    ///     list of run ids and returns per-run "would have blocked" deltas without modifying any
+    ///     governance state. Read-auth gated (no commit happens). Persists a redacted
+    ///     <c>GovernanceDryRunRequested</c> audit row per PENDING_QUESTIONS Q37; default page size 20,
+    ///     server-clamped to 100 per Q38.
+    /// </summary>
+    [HttpPost("policy-packs/{id:guid}/dry-run")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PolicyPackDryRunResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DryRunPolicyPack(
+        [FromRoute] Guid id,
+        [FromBody] PolicyPackDryRunRequest? request,
+        [FromQuery] int? pageSize,
+        [FromQuery] int? page,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (request.EvaluateAgainstRunIds.Count == 0)
+            return this.BadRequestProblem(
+                "evaluateAgainstRunIds must contain at least one run id.",
+                ProblemTypes.ValidationFailed);
+
+        IReadOnlyDictionary<string, string> proposedThresholds =
+            request.ProposedThresholds;
+
+        PolicyPackDryRunResponse result = await _policyPackDryRunService.EvaluateAsync(
+            id,
+            proposedThresholds,
+            request.EvaluateAgainstRunIds,
+            pageSize,
+            page,
+            cancellationToken);
+
+        return Ok(result);
     }
 }

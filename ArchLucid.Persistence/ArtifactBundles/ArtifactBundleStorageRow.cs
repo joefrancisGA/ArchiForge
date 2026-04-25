@@ -8,38 +8,62 @@ internal sealed class ArtifactBundleStorageRow
 {
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid BundleId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid RunId
     {
-        get; init;
+        get;
+        init;
     }
+
     public Guid ManifestId
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
-    public string ArtifactsJson { get; init; } = null!;
-    public string TraceJson { get; init; } = null!;
+
+    public string ArtifactsJson
+    {
+        get;
+        init;
+    } = null!;
+
+    public string TraceJson
+    {
+        get;
+        init;
+    } = null!;
 
     /// <summary>Optional pointer to a JSON blob containing artifacts + trace JSON (see <c>034_LargeArtifactBlobPointers</c>).</summary>
     public string? BundlePayloadBlobUri
     {
-        get; init;
+        get;
+        init;
     }
 }

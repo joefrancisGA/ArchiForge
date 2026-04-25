@@ -17,10 +17,10 @@ public sealed class RoiBulletinMarkdownFormatterTests
             TenantCount = 12,
             MeanBaselineHours = 18.5m,
             MedianBaselineHours = 16m,
-            P90BaselineHours = 40m,
+            P90BaselineHours = 40m
         };
 
-        string md = RoiBulletinMarkdownFormatter.FormatDraft(payload, minTenantsUsed: 5);
+        string md = RoiBulletinMarkdownFormatter.FormatDraft(payload, 5);
 
         md.Should().Contain("Q1-2026");
         md.Should().Contain("12");
@@ -40,10 +40,10 @@ public sealed class RoiBulletinMarkdownFormatterTests
             TenantCount = 5,
             MeanBaselineHours = 22.4m,
             MedianBaselineHours = 20m,
-            P90BaselineHours = 46m,
+            P90BaselineHours = 46m
         };
 
-        string md = RoiBulletinMarkdownFormatter.FormatSynthetic(payload, realPublicationMinTenants: 5);
+        string md = RoiBulletinMarkdownFormatter.FormatSynthetic(payload, 5);
 
         md.Should().Contain(RoiBulletinMarkdownFormatter.SyntheticRowStamp);
         md.Should().Contain("CHANGELOG");

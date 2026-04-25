@@ -3,7 +3,7 @@ using ArchLucid.Core.Conversation;
 namespace ArchLucid.Persistence.Conversation;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IConversationMessageRepository"/> for tests and storage-off mode.
+///     Thread-safe in-memory <see cref="IConversationMessageRepository" /> for tests and storage-off mode.
 /// </summary>
 public sealed class InMemoryConversationMessageRepository : IConversationMessageRepository
 {
@@ -22,6 +22,7 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
             if (_messages.Count > MaxEntries)
                 _messages.RemoveRange(0, _messages.Count - MaxEntries);
         }
+
         return Task.CompletedTask;
     }
 

@@ -42,7 +42,8 @@ public sealed class ArchLucidJobRunnerTests
     {
         public bool Invoked
         {
-            get; private set;
+            get;
+            private set;
         }
 
         public string Name => name;

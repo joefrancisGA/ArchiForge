@@ -31,8 +31,8 @@ public sealed class SupportBundleTests
     public void RedactSensitivePatterns_strips_bearer_api_key_and_connection_secrets()
     {
         const string raw = """
-            {"h":"Authorization: Bearer supersecret","x":"X-Api-Key: abcdef","c":"Server=x;Password=hunter2;AccountKey=akey;"}
-            """;
+                           {"h":"Authorization: Bearer supersecret","x":"X-Api-Key: abcdef","c":"Server=x;Password=hunter2;AccountKey=akey;"}
+                           """;
 
         string redacted = SupportBundleRedactor.RedactSensitivePatterns(raw);
 
@@ -47,10 +47,7 @@ public sealed class SupportBundleTests
     public async Task CollectAsync_with_mock_http_produces_all_sections()
     {
         using HttpMessageHandler handler = new StubApiHandler();
-        using HttpClient http = new(handler)
-        {
-            BaseAddress = new Uri("http://stub.local")
-        };
+        using HttpClient http = new(handler) { BaseAddress = new Uri("http://stub.local") };
         ArchLucidApiClient client = new(http);
 
         ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
@@ -63,11 +60,15 @@ public sealed class SupportBundleTests
             Plugins = new ArchLucidProjectScaffolder.PluginsSection { LockFile = "plugins/x.json" },
             Infra = new ArchLucidProjectScaffolder.InfraSection
             {
-                Terraform = new ArchLucidProjectScaffolder.TerraformSection { Enabled = false, Path = "infra/terraform" },
-            },
+                Terraform = new ArchLucidProjectScaffolder.TerraformSection
+                {
+                    Enabled = false, Path = "infra/terraform"
+                }
+            }
         };
 
-        string cwd = Path.Combine(Path.GetTempPath(), "ArchLucidSupportBundleTests." + Guid.NewGuid().ToString("N")[..8]);
+        string cwd = Path.Combine(Path.GetTempPath(),
+            "ArchLucidSupportBundleTests." + Guid.NewGuid().ToString("N")[..8]);
 
         try
         {
@@ -75,7 +76,8 @@ public sealed class SupportBundleTests
             Directory.CreateDirectory(Path.Combine(cwd, "outputs"));
             await File.WriteAllTextAsync(Path.Combine(cwd, "outputs", "x.txt"), "hello");
 
-            SupportBundlePayload payload = await SupportBundleCollector.CollectAsync(client, cwd, config, CancellationToken.None);
+            SupportBundlePayload payload =
+                await SupportBundleCollector.CollectAsync(client, cwd, config, CancellationToken.None);
 
             payload.Build.Cli.InformationalVersion.Should().NotBeNullOrWhiteSpace();
             payload.Build.ApiVersionJson.Should().Contain("informationalVersion");
@@ -90,8 +92,7 @@ public sealed class SupportBundleTests
         {
             if (Directory.Exists(cwd))
 
-                Directory.Delete(cwd, recursive: true);
-
+                Directory.Delete(cwd, true);
         }
     }
 
@@ -119,15 +120,16 @@ public sealed class SupportBundleTests
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.HealthFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ApiContractFileName)).Should().BeTrue();
-            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should().Contain("bundleFormatVersion");
-            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should().Contain("health.json");
+            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should()
+                .Contain("bundleFormatVersion");
+            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should()
+                .Contain("health.json");
         }
         finally
         {
             if (Directory.Exists(dir))
 
-                Directory.Delete(dir, recursive: true);
-
+                Directory.Delete(dir, true);
         }
     }
 
@@ -164,14 +166,14 @@ public sealed class SupportBundleTests
 
             if (Directory.Exists(dir))
 
-                Directory.Delete(dir, recursive: true);
-
+                Directory.Delete(dir, true);
         }
     }
 
     private sealed class StubApiHandler : HttpMessageHandler
     {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             string path = request.RequestUri?.AbsolutePath ?? string.Empty;
             string json;
@@ -186,7 +188,7 @@ public sealed class SupportBundleTests
 
             HttpResponseMessage response = new(HttpStatusCode.OK)
             {
-                Content = new StringContent(json, Encoding.UTF8, "application/json"),
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
 
             return Task.FromResult(response);

@@ -129,4 +129,21 @@ public sealed class ArchitectureRun
         get;
         set;
     } = [];
+
+    /// <summary>
+    ///     When <see langword="true" />, real-mode pilot execution fell back to deterministic simulator output (
+    ///     <c>archlucid try --real</c> path).
+    /// </summary>
+    public bool RealModeFellBackToSimulator
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Azure OpenAI deployment name captured when simulator fallback was recorded (nullable).</summary>
+    public string? PilotAoaiDeploymentSnapshot
+    {
+        get;
+        set;
+    }
 }

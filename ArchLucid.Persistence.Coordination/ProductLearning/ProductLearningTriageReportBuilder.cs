@@ -3,7 +3,8 @@ using ArchLucid.Contracts.ProductLearning;
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
 /// <summary>
-/// Builds a concise triage report document from a full <see cref="LearningDashboardSummary"/> (deterministic ordering).
+///     Builds a concise triage report document from a full <see cref="LearningDashboardSummary" /> (deterministic
+///     ordering).
 /// </summary>
 public static class ProductLearningTriageReportBuilder
 {
@@ -32,7 +33,7 @@ public static class ProductLearningTriageReportBuilder
             ArtifactOutcomes = artifacts,
             TopProblemAreas = problemAreas,
             TopImprovements = improvements,
-            TriageQueuePreview = triage,
+            TriageQueuePreview = triage
         };
     }
 
@@ -55,13 +56,14 @@ public static class ProductLearningTriageReportBuilder
             rows.Add(
                 new ProductLearningTriageReportArtifactRow
                 {
-                    ArtifactLabel = string.IsNullOrWhiteSpace(t.ArtifactTypeOrHint) ? t.TrendKey : t.ArtifactTypeOrHint,
+                    ArtifactLabel =
+                        string.IsNullOrWhiteSpace(t.ArtifactTypeOrHint) ? t.TrendKey : t.ArtifactTypeOrHint,
                     Trusted = t.AcceptedOrTrustedCount,
                     Revised = t.RevisionCount,
                     Rejected = t.RejectionCount,
                     FollowUp = t.NeedsFollowUpCount,
                     Runs = t.DistinctRunCount,
-                    ThemeHint = TrimHint(t.RepeatedThemeIndicator, 120),
+                    ThemeHint = TrimHint(t.RepeatedThemeIndicator, 120)
                 });
 
 
@@ -96,7 +98,8 @@ public static class ProductLearningTriageReportBuilder
             lines.Add(Truncate(line, 200));
         }
 
-        foreach (ImprovementOpportunity o in summary.Opportunities.OrderBy(static o => o.PriorityRank).ThenBy(static o => o.Title, StringComparer.Ordinal))
+        foreach (ImprovementOpportunity o in summary.Opportunities.OrderBy(static o => o.PriorityRank)
+                     .ThenBy(static o => o.Title, StringComparer.Ordinal))
         {
             if (lines.Count >= maxLines)
                 break;
@@ -133,7 +136,6 @@ public static class ProductLearningTriageReportBuilder
             if (hint is not null)
 
                 baseLine += " (" + hint + ")";
-
         }
 
         return baseLine;
@@ -150,14 +152,13 @@ public static class ProductLearningTriageReportBuilder
             .OrderBy(static o => o.PriorityRank)
             .ThenBy(static o => o.Title, StringComparer.Ordinal)
             .Take(max)
-            .Select(
-                o => new ProductLearningTriageReportImprovementLine
-                {
-                    Title = (o.Title ?? string.Empty).Trim(),
-                    Severity = (o.Severity ?? string.Empty).Trim(),
-                    Area = (o.AffectedArtifactTypeOrWorkflowArea ?? string.Empty).Trim(),
-                    Summary = Truncate((o.Summary ?? string.Empty).Trim(), cap),
-                })
+            .Select(o => new ProductLearningTriageReportImprovementLine
+            {
+                Title = (o.Title ?? string.Empty).Trim(),
+                Severity = (o.Severity ?? string.Empty).Trim(),
+                Area = (o.AffectedArtifactTypeOrWorkflowArea ?? string.Empty).Trim(),
+                Summary = Truncate((o.Summary ?? string.Empty).Trim(), cap)
+            })
             .ToList();
     }
 
@@ -171,17 +172,16 @@ public static class ProductLearningTriageReportBuilder
             .OrderBy(static i => i.PriorityRank)
             .ThenBy(static i => i.Title, StringComparer.Ordinal)
             .Take(max)
-            .Select(
-                i => new ProductLearningTriageReportTriageLine
-                {
-                    Rank = i.PriorityRank,
-                    Title = (i.Title ?? string.Empty).Trim(),
-                    Severity = (i.Severity ?? string.Empty).Trim(),
-                    DetailSummary = Truncate((i.DetailSummary ?? string.Empty).Trim(), 280),
-                    SuggestedNextStep = string.IsNullOrWhiteSpace(i.SuggestedNextAction)
-                        ? null
-                        : Truncate(i.SuggestedNextAction.Trim(), 200),
-                })
+            .Select(i => new ProductLearningTriageReportTriageLine
+            {
+                Rank = i.PriorityRank,
+                Title = (i.Title ?? string.Empty).Trim(),
+                Severity = (i.Severity ?? string.Empty).Trim(),
+                DetailSummary = Truncate((i.DetailSummary ?? string.Empty).Trim(), 280),
+                SuggestedNextStep = string.IsNullOrWhiteSpace(i.SuggestedNextAction)
+                    ? null
+                    : Truncate(i.SuggestedNextAction.Trim(), 200)
+            })
             .ToList();
     }
 

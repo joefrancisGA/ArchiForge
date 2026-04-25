@@ -12,6 +12,7 @@ import {
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { LayerHeader } from "@/components/LayerHeader";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { coerceReplayResponse } from "@/lib/operator-response-guards";
@@ -68,7 +69,10 @@ function ReplayForm() {
   return (
     <main>
       <LayerHeader pageKey="replay" />
-      <h2>Replay run</h2>
+      <div className="mb-0 flex flex-wrap items-center gap-2">
+        <h2 className="m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Replay run</h2>
+        <ContextualHelp helpKey="replay-run" />
+      </div>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>
         {" · "}
@@ -77,7 +81,7 @@ function ReplayForm() {
         <Link href="/compare">Compare two runs</Link>
       </p>
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Re-run the stored authority chain for a run. Choose a mode, then read validation flags and notes
+        Re-run the stored validation pipeline for a run. Choose a mode, then read validation flags and notes
         below.
       </p>
 

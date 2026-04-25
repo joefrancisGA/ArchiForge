@@ -34,7 +34,8 @@ public sealed class PilotsController(
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
     IRunDetailQueryService runDetailQueryService,
-    IPilotRunDeltaComputer pilotRunDeltaComputer) : ControllerBase
+    IPilotRunDeltaComputer pilotRunDeltaComputer,
+    IRecentPilotRunDeltasService recentPilotRunDeltasService) : ControllerBase
 {
     /// <summary>
     ///     Read-only telemetry snapshot for the operator-shell <c>/why-archlucid</c> proof page (cumulative since
@@ -105,6 +106,26 @@ public sealed class PilotsController(
         PilotRunDeltas deltas = await pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
 
         return Ok(PilotRunDeltasResponseMapper.ToResponse(deltas));
+    }
+
+    /// <summary>
+    ///     Aggregated proof-of-ROI deltas for the most recent committed runs in scope (newest first).
+    ///     Powers the operator-shell <c>BeforeAfterDeltaPanel</c> "top" / "sidebar" placements so the panel
+    ///     does not have to fan out one HTTP call per run. <paramref name="count" /> is clamped server-side
+    ///     to <c>[1, 25]</c> and defaults to <c>5</c>.
+    /// </summary>
+    [HttpGet("runs/recent-deltas")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(RecentPilotRunDeltasResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<RecentPilotRunDeltasResponse>> GetRecentDeltas(
+        [FromQuery(Name = "count")] int? count,
+        CancellationToken cancellationToken)
+    {
+        int requested = count ?? IRecentPilotRunDeltasService.DefaultCount;
+        RecentPilotRunDeltasResponse response =
+            await recentPilotRunDeltasService.GetRecentDeltasAsync(requested, cancellationToken);
+
+        return Ok(response);
     }
 
     /// <summary>

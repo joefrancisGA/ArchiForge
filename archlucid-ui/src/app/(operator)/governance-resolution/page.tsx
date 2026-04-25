@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -67,9 +68,11 @@ export default function GovernanceResolutionPage() {
 
       <section style={{ marginBottom: 28 }} aria-labelledby="governance-effective-heading">
         <h3 id="governance-effective-heading">
-          {canMutateEnterprisePolicySurfaces
-            ? governanceResolutionEffectivePolicyHeadingOperator
-            : governanceResolutionEffectivePolicyHeadingReader}
+          <GlossaryTooltip termKey="effective_governance">
+            {canMutateEnterprisePolicySurfaces
+              ? governanceResolutionEffectivePolicyHeadingOperator
+              : governanceResolutionEffectivePolicyHeadingReader}
+          </GlossaryTooltip>
         </h3>
         <h4 style={{ marginTop: 8, marginBottom: 8, fontSize: "1rem" }}>Summary notes</h4>
         <ul style={{ fontSize: 14 }}>

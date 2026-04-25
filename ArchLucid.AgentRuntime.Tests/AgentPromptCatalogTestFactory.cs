@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
-/// <summary>Builds a real <see cref="CachedAgentSystemPromptCatalog"/> for handler tests.</summary>
+/// <summary>Builds a real <see cref="CachedAgentSystemPromptCatalog" /> for handler tests.</summary>
 internal static class AgentPromptCatalogTestFactory
 {
     public static IAgentSystemPromptCatalog Create(AgentPromptCatalogOptions? options = null)
@@ -15,12 +15,22 @@ internal static class AgentPromptCatalogTestFactory
         return new CachedAgentSystemPromptCatalog(new StaticPromptOptionsMonitor(value));
     }
 
-    private sealed class StaticPromptOptionsMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    private sealed class StaticPromptOptionsMonitor(AgentPromptCatalogOptions value)
+        : IOptionsMonitor<AgentPromptCatalogOptions>
     {
-        public AgentPromptCatalogOptions CurrentValue { get; } = value;
+        public AgentPromptCatalogOptions CurrentValue
+        {
+            get;
+        } = value;
 
-        public AgentPromptCatalogOptions Get(string? name) => CurrentValue;
+        public AgentPromptCatalogOptions Get(string? name)
+        {
+            return CurrentValue;
+        }
 
-        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
+        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener)
+        {
+            return null;
+        }
     }
 }

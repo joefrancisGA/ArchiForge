@@ -8,38 +8,37 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Core.Resilience;
 
 /// <summary>
-/// Thread-safe three-state circuit breaker (closed → open → half-open probe → closed).
+///     Thread-safe three-state circuit breaker (closed → open → half-open probe → closed).
 /// </summary>
 /// <remarks>
-/// One probe at a time in half-open; concurrent callers receive <see cref="CircuitBreakerOpenException"/>
-/// while a probe is in flight. User-initiated cancellation during a probe clears the probe slot without
-/// counting as a failure so the next request can retry immediately.
+///     One probe at a time in half-open; concurrent callers receive <see cref="CircuitBreakerOpenException" />
+///     while a probe is in flight. User-initiated cancellation during a probe clears the probe slot without
+///     counting as a failure so the next request can retry immediately.
 /// </remarks>
 public sealed class CircuitBreakerGate
 {
+    private readonly Action<CircuitBreakerAuditEntry>? _onAuditEntry;
     private readonly CircuitBreakerOptions? _options;
 
     private readonly IOptionsMonitor<CircuitBreakerOptions>? _optionsMonitor;
 
-    private readonly TimeProvider _timeProvider;
-
     private readonly Lock _sync = new();
 
-    private State _state = State.Closed;
+    private readonly TimeProvider _timeProvider;
 
     private int _consecutiveFailures;
+
+    private DateTimeOffset? _lastStateChangeUtc;
 
     private DateTimeOffset _openUntilUtc;
 
     private bool _probeInFlight;
 
-    private DateTimeOffset? _lastStateChangeUtc;
-
-    private readonly Action<CircuitBreakerAuditEntry>? _onAuditEntry;
+    private State _state = State.Closed;
 
     /// <param name="gateName">Stable low-cardinality label for metrics (e.g. keyed DI name).</param>
     /// <param name="options">Threshold and open duration.</param>
-    /// <param name="timeProvider">Wall clock; defaults to <see cref="TimeProvider.System"/>.</param>
+    /// <param name="timeProvider">Wall clock; defaults to <see cref="TimeProvider.System" />.</param>
     /// <param name="onAuditEntry">Optional durable-audit hook (must not throw); invoked after OTel counters.</param>
     public CircuitBreakerGate(
         string gateName,
@@ -57,7 +56,10 @@ public sealed class CircuitBreakerGate
         _onAuditEntry = onAuditEntry;
     }
 
-    /// <param name="optionsMonitor">Named options monitor; <see cref="IOptionsMonitor{TOptions}.Get"/> uses <paramref name="gateName"/>.</param>
+    /// <param name="optionsMonitor">
+    ///     Named options monitor; <see cref="IOptionsMonitor{TOptions}.Get" /> uses
+    ///     <paramref name="gateName" />.
+    /// </param>
     public CircuitBreakerGate(
         string gateName,
         IOptionsMonitor<CircuitBreakerOptions> optionsMonitor,
@@ -73,7 +75,7 @@ public sealed class CircuitBreakerGate
         _onAuditEntry = onAuditEntry;
     }
 
-    /// <summary>Compatibility constructor: wraps <paramref name="utcNow"/> in a <see cref="TimeProvider"/>.</summary>
+    /// <summary>Compatibility constructor: wraps <paramref name="utcNow" /> in a <see cref="TimeProvider" />.</summary>
     public CircuitBreakerGate(
         string gateName,
         CircuitBreakerOptions options,
@@ -87,7 +89,7 @@ public sealed class CircuitBreakerGate
     {
     }
 
-    /// <summary>Compatibility constructor: wraps <paramref name="utcNow"/> in a <see cref="TimeProvider"/>.</summary>
+    /// <summary>Compatibility constructor: wraps <paramref name="utcNow" /> in a <see cref="TimeProvider" />.</summary>
     public CircuitBreakerGate(
         string gateName,
         IOptionsMonitor<CircuitBreakerOptions> optionsMonitor,
@@ -101,15 +103,16 @@ public sealed class CircuitBreakerGate
     {
     }
 
-    /// <summary>Compatibility constructor: wraps <paramref name="utcNow"/> in a <see cref="TimeProvider"/>.</summary>
+    /// <summary>Compatibility constructor: wraps <paramref name="utcNow" /> in a <see cref="TimeProvider" />.</summary>
     public CircuitBreakerGate(string gateName, CircuitBreakerOptions options, Func<DateTimeOffset>? utcNow)
-        : this(gateName, options, utcNow is null ? null : new DelegateTimeProvider(utcNow), onAuditEntry: null)
+        : this(gateName, options, utcNow is null ? null : new DelegateTimeProvider(utcNow), null)
     {
     }
 
-    /// <summary>Compatibility constructor: wraps <paramref name="utcNow"/> in a <see cref="TimeProvider"/>.</summary>
-    public CircuitBreakerGate(string gateName, IOptionsMonitor<CircuitBreakerOptions> optionsMonitor, Func<DateTimeOffset>? utcNow)
-        : this(gateName, optionsMonitor, utcNow is null ? null : new DelegateTimeProvider(utcNow), onAuditEntry: null)
+    /// <summary>Compatibility constructor: wraps <paramref name="utcNow" /> in a <see cref="TimeProvider" />.</summary>
+    public CircuitBreakerGate(string gateName, IOptionsMonitor<CircuitBreakerOptions> optionsMonitor,
+        Func<DateTimeOffset>? utcNow)
+        : this(gateName, optionsMonitor, utcNow is null ? null : new DelegateTimeProvider(utcNow), null)
     {
     }
 
@@ -127,7 +130,6 @@ public sealed class CircuitBreakerGate
             lock (_sync)
 
                 return _state.ToString();
-
         }
     }
 
@@ -139,7 +141,6 @@ public sealed class CircuitBreakerGate
             lock (_sync)
 
                 return _consecutiveFailures;
-
         }
     }
 
@@ -151,7 +152,6 @@ public sealed class CircuitBreakerGate
             lock (_sync)
 
                 return ResolveOptions().FailureThreshold;
-
         }
     }
 
@@ -163,11 +163,13 @@ public sealed class CircuitBreakerGate
             lock (_sync)
 
                 return ResolveOptions().DurationOfBreakSeconds;
-
         }
     }
 
-    /// <summary>UTC time of the last <c>Closed</c>↔<c>Open</c>↔<c>HalfOpen</c> transition; <see langword="null"/> until the first transition.</summary>
+    /// <summary>
+    ///     UTC time of the last <c>Closed</c>↔<c>Open</c>↔<c>HalfOpen</c> transition; <see langword="null" /> until the
+    ///     first transition.
+    /// </summary>
     public DateTimeOffset? LastStateChangeUtc
     {
         get
@@ -175,14 +177,13 @@ public sealed class CircuitBreakerGate
             lock (_sync)
 
                 return _lastStateChangeUtc;
-
         }
     }
 
     /// <summary>
-    /// Throws <see cref="CircuitBreakerOpenException"/> if the circuit rejects the call; otherwise returns
-    /// so the caller may invoke the downstream operation (and then call <see cref="RecordSuccess"/> or
-    /// <see cref="RecordFailure"/> / <see cref="RecordCallCancelled"/>).
+    ///     Throws <see cref="CircuitBreakerOpenException" /> if the circuit rejects the call; otherwise returns
+    ///     so the caller may invoke the downstream operation (and then call <see cref="RecordSuccess" /> or
+    ///     <see cref="RecordFailure" /> / <see cref="RecordCallCancelled" />).
     /// </summary>
     public void ThrowIfBroken()
     {
@@ -278,7 +279,7 @@ public sealed class CircuitBreakerGate
     }
 
     /// <summary>
-    /// Call when the caller cancelled the operation so the probe slot is released without a failure tick.
+    ///     Call when the caller cancelled the operation so the probe slot is released without a failure tick.
     /// </summary>
     public void RecordCallCancelled()
     {
@@ -309,12 +310,7 @@ public sealed class CircuitBreakerGate
     {
         _lastStateChangeUtc = _timeProvider.GetUtcNow();
 
-        TagList tags = new()
-        {
-            { "gate", GateName },
-            { "from_state", fromState },
-            { "to_state", toState },
-        };
+        TagList tags = new() { { "gate", GateName }, { "from_state", fromState }, { "to_state", toState } };
 
         ArchLucidInstrumentation.CircuitBreakerStateTransitions.Add(1, tags);
         InvokeAuditEntry("StateTransition", fromState, toState, null);

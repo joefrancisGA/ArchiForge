@@ -1,50 +1,59 @@
 namespace ArchLucid.Core.Billing;
 
-/// <summary>Input for <see cref="IBillingProvider.CreateCheckoutSessionAsync"/>.</summary>
+/// <summary>Input for <see cref="IBillingProvider.CreateCheckoutSessionAsync" />.</summary>
 public sealed class BillingCheckoutRequest
 {
     public required Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required Guid ProjectId
     {
-        get; init;
+        get;
+        init;
     }
 
     public BillingCheckoutTier TargetTier
     {
-        get; init;
+        get;
+        init;
     }
 
     public int Seats
     {
-        get; init;
+        get;
+        init;
     }
 
     public int Workspaces
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? BillingEmail
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ReturnUrl
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string CancelUrl
     {
-        get; init;
+        get;
+        init;
     }
 }

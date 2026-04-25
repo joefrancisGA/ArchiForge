@@ -100,7 +100,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
     {
         HttpResponseMessage response = await Client.PostAsync(
             "/v1/evolution/candidates/from-plan/00000000-0000-0000-0000-000000000001",
-            content: null);
+            null);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
@@ -114,7 +114,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
     {
         HttpResponseMessage response = await Client.PostAsync(
             "/v1/evolution/simulate/00000000-0000-0000-0000-0000000000aa",
-            content: null);
+            null);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
 

@@ -15,8 +15,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Integration")]
@@ -25,13 +23,15 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     private readonly ArchLucidApiFactory _factory;
 
-    public MarketingShowcaseEndpointTests(ArchLucidApiFactory factory) => _factory = factory;
+    public MarketingShowcaseEndpointTests(ArchLucidApiFactory factory)
+    {
+        _factory = factory;
+    }
 
     [Fact]
     public async Task GetShowcase_returns_404_when_stub_returns_null()
@@ -80,13 +80,17 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
 
     private sealed class NullShowcaseClient : IPublicShowcaseCommitPageClient
     {
-        public Task<DemoCommitPagePreviewResponse?> GetShowcaseCommitPageAsync(Guid runId, CancellationToken cancellationToken = default) =>
-            Task.FromResult<DemoCommitPagePreviewResponse?>(null);
+        public Task<DemoCommitPagePreviewResponse?> GetShowcaseCommitPageAsync(Guid runId,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<DemoCommitPagePreviewResponse?>(null);
+        }
     }
 
     private sealed class StubShowcaseClient : IPublicShowcaseCommitPageClient
     {
-        public Task<DemoCommitPagePreviewResponse?> GetShowcaseCommitPageAsync(Guid runId, CancellationToken cancellationToken = default)
+        public Task<DemoCommitPagePreviewResponse?> GetShowcaseCommitPageAsync(Guid runId,
+            CancellationToken cancellationToken = default)
         {
             DateTimeOffset generatedUtc = DateTimeOffset.Parse("2026-04-01T12:00:00Z", CultureInfo.InvariantCulture);
             DateTime rowUtc = DateTime.SpecifyKind(new DateTime(2026, 3, 15, 8, 0, 0), DateTimeKind.Utc);
@@ -97,17 +101,15 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
                 GeneratedUtc = generatedUtc,
                 IsDemoData = true,
                 DemoStatusMessage = "stub",
-                Run = new DemoPreviewRun
-                {
-                    RunId = runId.ToString("N"),
-                    ProjectId = "default",
-                    Description = "stub",
-                    CreatedUtc = rowUtc,
-                },
-                AuthorityChain = new DemoPreviewAuthorityChain
-                {
-                    GoldenManifestId = manifestId.ToString("N"),
-                },
+                Run =
+                    new DemoPreviewRun
+                    {
+                        RunId = runId.ToString("N"),
+                        ProjectId = "default",
+                        Description = "stub",
+                        CreatedUtc = rowUtc
+                    },
+                AuthorityChain = new DemoPreviewAuthorityChain { GoldenManifestId = manifestId.ToString("N") },
                 Manifest = new DemoPreviewManifestSummary
                 {
                     ManifestId = manifestId.ToString("N"),
@@ -122,7 +124,7 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
                     Status = "ok",
                     HasWarnings = false,
                     HasUnresolvedIssues = false,
-                    OperatorSummary = "stub",
+                    OperatorSummary = "stub"
                 },
                 Artifacts = [],
                 PipelineTimeline = [],
@@ -131,8 +133,8 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
                     Explanation = new ExplanationResult { Summary = "stub" },
                     ThemeSummaries = ["t1"],
                     OverallAssessment = "a",
-                    RiskPosture = "Low",
-                },
+                    RiskPosture = "Low"
+                }
             };
 
             return Task.FromResult<DemoCommitPagePreviewResponse?>(response);

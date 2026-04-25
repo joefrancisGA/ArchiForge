@@ -11,8 +11,8 @@ namespace ArchLucid.Persistence.GraphSnapshots;
 
 /// <summary>Loads graph snapshot nodes, warnings, and indexed edges from relational tables.</summary>
 /// <remarks>
-/// When <c>dbo.GraphSnapshotEdges</c> has rows but <c>dbo.GraphSnapshotEdgeProperties</c> is empty, label/properties
-/// are merged from <c>EdgesJson</c> (legacy enrichment until all edge metadata is backfilled relationally).
+///     When <c>dbo.GraphSnapshotEdges</c> has rows but <c>dbo.GraphSnapshotEdgeProperties</c> is empty, label/properties
+///     are merged from <c>EdgesJson</c> (legacy enrichment until all edge metadata is backfilled relationally).
 /// </remarks>
 internal static class GraphSnapshotRelationalRead
 {
@@ -28,40 +28,28 @@ internal static class GraphSnapshotRelationalRead
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotNodes WHERE GraphSnapshotId = @GraphSnapshotId",
-            new
-            {
-                GraphSnapshotId = graphSnapshotId,
-            },
+            new { GraphSnapshotId = graphSnapshotId },
             ct);
 
         int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotWarnings WHERE GraphSnapshotId = @GraphSnapshotId",
-            new
-            {
-                GraphSnapshotId = graphSnapshotId,
-            },
+            new { GraphSnapshotId = graphSnapshotId },
             ct);
 
         int edgesCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotEdges WHERE GraphSnapshotId = @GraphSnapshotId",
-            new
-            {
-                GraphSnapshotId = graphSnapshotId,
-            },
+            new { GraphSnapshotId = graphSnapshotId },
             ct);
 
         int edgePropsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotEdgeProperties WHERE GraphSnapshotId = @GraphSnapshotId",
-            new
-            {
-                GraphSnapshotId = graphSnapshotId,
-            },
+            new { GraphSnapshotId = graphSnapshotId },
             ct);
 
         List<GraphNode>? nodesOverride = null;
@@ -107,10 +95,7 @@ internal static class GraphSnapshotRelationalRead
         IEnumerable<string> rows = await connection.QueryAsync<string>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    GraphSnapshotId = graphSnapshotId,
-                },
+                new { GraphSnapshotId = graphSnapshotId },
                 transaction,
                 cancellationToken: ct));
 
@@ -124,19 +109,16 @@ internal static class GraphSnapshotRelationalRead
         CancellationToken ct)
     {
         const string nodesSql = """
-            SELECT GraphNodeRowId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId
-            FROM dbo.GraphSnapshotNodes
-            WHERE GraphSnapshotId = @GraphSnapshotId
-            ORDER BY SortOrder;
-            """;
+                                SELECT GraphNodeRowId, SortOrder, NodeId, NodeType, Label, Category, SourceType, SourceId
+                                FROM dbo.GraphSnapshotNodes
+                                WHERE GraphSnapshotId = @GraphSnapshotId
+                                ORDER BY SortOrder;
+                                """;
 
         List<GraphNodeRow> nodeRows = (await connection.QueryAsync<GraphNodeRow>(
             new CommandDefinition(
                 nodesSql,
-                new
-                {
-                    GraphSnapshotId = graphSnapshotId,
-                },
+                new { GraphSnapshotId = graphSnapshotId },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -146,19 +128,16 @@ internal static class GraphSnapshotRelationalRead
         List<Guid> rowIds = nodeRows.Select(r => r.GraphNodeRowId).ToList();
 
         const string propsSql = """
-            SELECT GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue
-            FROM dbo.GraphSnapshotNodeProperties
-            WHERE GraphNodeRowId IN @RowIds
-            ORDER BY GraphNodeRowId, PropertySortOrder;
-            """;
+                                SELECT GraphNodeRowId, PropertySortOrder, PropertyKey, PropertyValue
+                                FROM dbo.GraphSnapshotNodeProperties
+                                WHERE GraphNodeRowId IN @RowIds
+                                ORDER BY GraphNodeRowId, PropertySortOrder;
+                                """;
 
         List<NodePropertyRow> propertyRows = (await connection.QueryAsync<NodePropertyRow>(
             new CommandDefinition(
                 propsSql,
-                new
-                {
-                    RowIds = rowIds,
-                },
+                new { RowIds = rowIds },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -189,7 +168,7 @@ internal static class GraphSnapshotRelationalRead
                     Category = r.Category,
                     SourceType = r.SourceType,
                     SourceId = r.SourceId,
-                    Properties = props,
+                    Properties = props
                 });
         }
 
@@ -204,19 +183,16 @@ internal static class GraphSnapshotRelationalRead
         CancellationToken ct)
     {
         const string edgesSql = """
-            SELECT EdgeId, FromNodeId, ToNodeId, EdgeType, Weight
-            FROM dbo.GraphSnapshotEdges
-            WHERE GraphSnapshotId = @GraphSnapshotId
-            ORDER BY EdgeId;
-            """;
+                                SELECT EdgeId, FromNodeId, ToNodeId, EdgeType, Weight
+                                FROM dbo.GraphSnapshotEdges
+                                WHERE GraphSnapshotId = @GraphSnapshotId
+                                ORDER BY EdgeId;
+                                """;
 
         List<GraphEdgeTableRow> edgeRows = (await connection.QueryAsync<GraphEdgeTableRow>(
             new CommandDefinition(
                 edgesSql,
-                new
-                {
-                    row.GraphSnapshotId,
-                },
+                new { row.GraphSnapshotId },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -231,10 +207,7 @@ internal static class GraphSnapshotRelationalRead
                 WHERE GraphSnapshotId = @GraphSnapshotId
                 ORDER BY EdgeId, PropertySortOrder;
                 """,
-                new
-                {
-                    row.GraphSnapshotId,
-                },
+                new { row.GraphSnapshotId },
                 transaction,
                 cancellationToken: ct))).ToList();
 
@@ -268,11 +241,11 @@ internal static class GraphSnapshotRelationalRead
 
                 foreach (EdgePropertyRow pr in rowsForEdge.OrderBy(x => x.PropertySortOrder))
 
-                    if (string.Equals(pr.PropertyKey, GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey, StringComparison.Ordinal))
+                    if (string.Equals(pr.PropertyKey, GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey,
+                            StringComparison.Ordinal))
                         label = pr.PropertyValue;
                     else
                         props[pr.PropertyKey] = pr.PropertyValue;
-
 
 
             GraphEdge edge = new()
@@ -283,10 +256,11 @@ internal static class GraphSnapshotRelationalRead
                 EdgeType = er.EdgeType,
                 Weight = er.Weight,
                 Label = label,
-                Properties = props,
+                Properties = props
             };
 
-            if (mergeMetadataFromJson && jsonById is not null && jsonById.TryGetValue(er.EdgeId, out GraphEdge? fromJson))
+            if (mergeMetadataFromJson && jsonById is not null &&
+                jsonById.TryGetValue(er.EdgeId, out GraphEdge? fromJson))
             {
                 if (string.IsNullOrEmpty(edge.Label) && !string.IsNullOrEmpty(fromJson.Label))
                     edge.Label = fromJson.Label;
@@ -305,26 +279,50 @@ internal static class GraphSnapshotRelationalRead
     {
         public Guid GraphNodeRowId
         {
-            get; init;
+            get;
+            init;
         }
+
         public int SortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string NodeId { get; init; } = null!;
-        public string NodeType { get; init; } = null!;
-        public string Label { get; init; } = null!;
+
+        public string NodeId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string NodeType
+        {
+            get;
+            init;
+        } = null!;
+
+        public string Label
+        {
+            get;
+            init;
+        } = null!;
+
         public string? Category
         {
-            get; init;
+            get;
+            init;
         }
+
         public string? SourceType
         {
-            get; init;
+            get;
+            init;
         }
+
         public string? SourceId
         {
-            get; init;
+            get;
+            init;
         }
     }
 
@@ -332,36 +330,86 @@ internal static class GraphSnapshotRelationalRead
     {
         public Guid GraphNodeRowId
         {
-            get; init;
+            get;
+            init;
         }
+
         public int PropertySortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string PropertyKey { get; init; } = null!;
-        public string PropertyValue { get; init; } = null!;
+
+        public string PropertyKey
+        {
+            get;
+            init;
+        } = null!;
+
+        public string PropertyValue
+        {
+            get;
+            init;
+        } = null!;
     }
 
     private sealed class GraphEdgeTableRow
     {
-        public string EdgeId { get; init; } = null!;
-        public string FromNodeId { get; init; } = null!;
-        public string ToNodeId { get; init; } = null!;
-        public string EdgeType { get; init; } = null!;
+        public string EdgeId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string FromNodeId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string ToNodeId
+        {
+            get;
+            init;
+        } = null!;
+
+        public string EdgeType
+        {
+            get;
+            init;
+        } = null!;
+
         public double Weight
         {
-            get; init;
+            get;
+            init;
         }
     }
 
     private sealed class EdgePropertyRow
     {
-        public string EdgeId { get; init; } = null!;
+        public string EdgeId
+        {
+            get;
+            init;
+        } = null!;
+
         public int PropertySortOrder
         {
-            get; init;
+            get;
+            init;
         }
-        public string PropertyKey { get; init; } = null!;
-        public string PropertyValue { get; init; } = null!;
+
+        public string PropertyKey
+        {
+            get;
+            init;
+        } = null!;
+
+        public string PropertyValue
+        {
+            get;
+            init;
+        } = null!;
     }
 }

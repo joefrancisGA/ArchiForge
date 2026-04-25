@@ -6,7 +6,7 @@ using ArchLucid.Contracts.Metadata;
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IRunExportRecordRepository"/> (JSON clone-on-read).
+///     Thread-safe in-memory <see cref="IRunExportRecordRepository" /> (JSON clone-on-read).
 /// </summary>
 public sealed class InMemoryRunExportRecordRepository : IRunExportRecordRepository
 {
@@ -73,7 +73,6 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
 
             return Task.FromResult(
                 _byExportId.TryGetValue(exportRecordId, out RunExportRecord? r) ? Clone(r) : null);
-
     }
 
     private static RunExportRecord Clone(RunExportRecord source)

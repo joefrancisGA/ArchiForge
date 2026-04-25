@@ -1,7 +1,8 @@
 namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>
-/// Low-level embeddings seam (typically Azure OpenAI <see cref="AzureOpenAiEmbeddingClient"/>). Consumed by <see cref="AzureOpenAiEmbeddingService"/>.
+///     Low-level embeddings seam (typically Azure OpenAI <see cref="AzureOpenAiEmbeddingClient" />). Consumed by
+///     <see cref="AzureOpenAiEmbeddingService" />.
 /// </summary>
 public interface IOpenAiEmbeddingClient
 {
@@ -14,6 +15,6 @@ public interface IOpenAiEmbeddingClient
     /// <summary>Batched embeddings in input order (empty list returns empty).</summary>
     /// <param name="texts">Texts to embed; may be empty.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Float vectors in the same order as <paramref name="texts"/>.</returns>
+    /// <returns>Float vectors in the same order as <paramref name="texts" />.</returns>
     Task<IReadOnlyList<float[]>> EmbedManyAsync(IReadOnlyList<string> texts, CancellationToken ct);
 }

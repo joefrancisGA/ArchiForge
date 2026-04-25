@@ -25,11 +25,7 @@ public sealed class ProvenanceCompletenessAnalyzerTests
     [Fact]
     public void Analyze_EmptyGraph_HasFullRatio_AndNoUncoveredKeys()
     {
-        DecisionProvenanceGraph graph = new()
-        {
-            Nodes = [],
-            Edges = []
-        };
+        DecisionProvenanceGraph graph = new() { Nodes = [], Edges = [] };
 
         ProvenanceCompletenessResult result = ProvenanceCompletenessAnalyzer.Analyze(graph);
 
@@ -42,11 +38,7 @@ public sealed class ProvenanceCompletenessAnalyzerTests
     [Fact]
     public void Analyze_TreatsNullNodesAsEmpty()
     {
-        DecisionProvenanceGraph graph = new()
-        {
-            Nodes = null!,
-            Edges = []
-        };
+        DecisionProvenanceGraph graph = new() { Nodes = null!, Edges = [] };
 
         ProvenanceCompletenessResult result = ProvenanceCompletenessAnalyzer.Analyze(graph);
 
@@ -63,10 +55,7 @@ public sealed class ProvenanceCompletenessAnalyzerTests
             [
                 new ProvenanceNode
                 {
-                    Id = DecisionId,
-                    Type = ProvenanceNodeType.Decision,
-                    ReferenceId = "dec-only",
-                    Name = "Lonely"
+                    Id = DecisionId, Type = ProvenanceNodeType.Decision, ReferenceId = "dec-only", Name = "Lonely"
                 }
             ],
             Edges = null!
@@ -151,10 +140,7 @@ public sealed class ProvenanceCompletenessAnalyzerTests
         DecisionProvenanceGraph graph = BuildMinimalCoveredGraph();
         ProvenanceNode secondDecision = new()
         {
-            Id = Decision2Id,
-            Type = ProvenanceNodeType.Decision,
-            ReferenceId = "dec-b",
-            Name = "Second"
+            Id = Decision2Id, Type = ProvenanceNodeType.Decision, ReferenceId = "dec-b", Name = "Second"
         };
         graph.Nodes.Add(secondDecision);
         graph.Edges.Add(
@@ -182,10 +168,7 @@ public sealed class ProvenanceCompletenessAnalyzerTests
         graph.Nodes.Add(
             new ProvenanceNode
             {
-                Id = finding2Id,
-                Type = ProvenanceNodeType.Finding,
-                ReferenceId = "finding-b",
-                Name = "B"
+                Id = finding2Id, Type = ProvenanceNodeType.Finding, ReferenceId = "finding-b", Name = "B"
             });
         graph.Edges.Add(
             new ProvenanceEdge
@@ -206,34 +189,10 @@ public sealed class ProvenanceCompletenessAnalyzerTests
     {
         List<ProvenanceNode> nodes =
         [
-            new()
-            {
-                Id = GraphNodeId,
-                Type = ProvenanceNodeType.GraphNode,
-                ReferenceId = "gn-1",
-                Name = "Graph"
-            },
-            new()
-            {
-                Id = FindingId,
-                Type = ProvenanceNodeType.Finding,
-                ReferenceId = "finding-a",
-                Name = "Finding"
-            },
-            new()
-            {
-                Id = RuleId,
-                Type = ProvenanceNodeType.Rule,
-                ReferenceId = "rule-1",
-                Name = "rule-1"
-            },
-            new()
-            {
-                Id = DecisionId,
-                Type = ProvenanceNodeType.Decision,
-                ReferenceId = "dec-a",
-                Name = "Decision"
-            }
+            new() { Id = GraphNodeId, Type = ProvenanceNodeType.GraphNode, ReferenceId = "gn-1", Name = "Graph" },
+            new() { Id = FindingId, Type = ProvenanceNodeType.Finding, ReferenceId = "finding-a", Name = "Finding" },
+            new() { Id = RuleId, Type = ProvenanceNodeType.Rule, ReferenceId = "rule-1", Name = "rule-1" },
+            new() { Id = DecisionId, Type = ProvenanceNodeType.Decision, ReferenceId = "dec-a", Name = "Decision" }
         ];
 
         List<ProvenanceEdge> edges =
@@ -261,10 +220,6 @@ public sealed class ProvenanceCompletenessAnalyzerTests
             }
         ];
 
-        return new DecisionProvenanceGraph
-        {
-            Nodes = nodes,
-            Edges = edges
-        };
+        return new DecisionProvenanceGraph { Nodes = nodes, Edges = edges };
     }
 }

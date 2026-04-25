@@ -44,7 +44,7 @@ public sealed class TrialSeatReservationMiddlewareTests
 
     private static ClaimsPrincipal AuthenticatedPrincipal(params Claim[] claims)
     {
-        return new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType: "Bearer"));
+        return new ClaimsPrincipal(new ClaimsIdentity(claims, "Bearer"));
     }
 
     [Theory]
@@ -73,7 +73,8 @@ public sealed class TrialSeatReservationMiddlewareTests
 
         nextCalled.Should().BeTrue();
         tenants.Verify(
-            repository => repository.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            repository =>
+                repository.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -94,7 +95,8 @@ public sealed class TrialSeatReservationMiddlewareTests
 
         nextCalled.Should().BeTrue();
         tenants.Verify(
-            repository => repository.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            repository =>
+                repository.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -118,7 +120,8 @@ public sealed class TrialSeatReservationMiddlewareTests
 
         nextCalled.Should().BeTrue();
         tenants.Verify(
-            repository => repository.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            repository =>
+                repository.TryClaimTrialSeatAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -191,7 +194,7 @@ public sealed class TrialSeatReservationMiddlewareTests
         tenants.Setup(repository =>
                 repository.TryClaimTrialSeatAsync(TenantId, "user-sub", It.IsAny<CancellationToken>()))
             .ThrowsAsync(
-                new TrialLimitExceededException(TrialLimitReason.SeatsExceeded, daysRemaining: 0));
+                new TrialLimitExceededException(TrialLimitReason.SeatsExceeded, 0));
 
         bool nextCalled = false;
         TrialSeatReservationMiddleware middleware = new(_ =>

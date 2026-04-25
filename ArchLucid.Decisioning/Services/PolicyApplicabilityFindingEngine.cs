@@ -6,7 +6,7 @@ using ArchLucid.KnowledgeGraph.Models;
 namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
-/// Surfaces <c>APPLIES_TO</c> edges from <c>PolicyControl</c> graph nodes to topology resources.
+///     Surfaces <c>APPLIES_TO</c> edges from <c>PolicyControl</c> graph nodes to topology resources.
 /// </summary>
 public class PolicyApplicabilityFindingEngine : IFindingEngine
 {
@@ -38,7 +38,7 @@ public class PolicyApplicabilityFindingEngine : IFindingEngine
                     EngineType,
                     policy,
                     policyRef,
-                    gapRationale: "Policy is present but has no APPLIES_TO links to topology resources in this graph."));
+                    "Policy is present but has no APPLIES_TO links to topology resources in this graph."));
                 continue;
             }
 

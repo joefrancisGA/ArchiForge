@@ -17,9 +17,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
     {
         LlmDailyTenantBudgetOptions opts = new()
         {
-            Enabled = true,
-            MaxTotalTokensPerTenantPerUtcDay = 10_000,
-            AssumedMaxTotalTokensPerRequest = 512,
+            Enabled = true, MaxTotalTokensPerTenantPerUtcDay = 10_000, AssumedMaxTotalTokensPerRequest = 512
         };
 
         Mock<IOptionsMonitor<LlmDailyTenantBudgetOptions>> monitor = new();
@@ -44,9 +42,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
     {
         LlmDailyTenantBudgetOptions opts = new()
         {
-            Enabled = true,
-            MaxTotalTokensPerTenantPerUtcDay = 500,
-            AssumedMaxTotalTokensPerRequest = 256,
+            Enabled = true, MaxTotalTokensPerTenantPerUtcDay = 500, AssumedMaxTotalTokensPerRequest = 256
         };
 
         Mock<IOptionsMonitor<LlmDailyTenantBudgetOptions>> monitor = new();
@@ -73,9 +69,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
     {
         LlmDailyTenantBudgetOptions opts = new()
         {
-            Enabled = true,
-            MaxTotalTokensPerTenantPerUtcDay = 1000,
-            WarnFraction = 0.8m,
+            Enabled = true, MaxTotalTokensPerTenantPerUtcDay = 1000, WarnFraction = 0.8m
         };
 
         Mock<IOptionsMonitor<LlmDailyTenantBudgetOptions>> monitor = new();
@@ -131,12 +125,7 @@ public sealed class LlmDailyTenantBudgetTrackerTests
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = tenantId,
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid()
-            });
+            new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         return scope.Object;
     }

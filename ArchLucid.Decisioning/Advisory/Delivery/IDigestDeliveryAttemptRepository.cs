@@ -1,14 +1,15 @@
 namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
-/// Persistence for <see cref="DigestDeliveryAttempt"/> rows (one per subscription per digest send try).
+///     Persistence for <see cref="DigestDeliveryAttempt" /> rows (one per subscription per digest send try).
 /// </summary>
 /// <remarks>
-/// SQL: <c>DapperDigestDeliveryAttemptRepository</c> on <c>dbo.DigestDeliveryAttempts</c>. Written by <c>DigestDeliveryDispatcher</c>.
+///     SQL: <c>DapperDigestDeliveryAttemptRepository</c> on <c>dbo.DigestDeliveryAttempts</c>. Written by
+///     <c>DigestDeliveryDispatcher</c>.
 /// </remarks>
 public interface IDigestDeliveryAttemptRepository
 {
-    /// <summary>Creates a row in <see cref="DigestDeliveryStatus.Started"/> before the channel send.</summary>
+    /// <summary>Creates a row in <see cref="DigestDeliveryStatus.Started" /> before the channel send.</summary>
     Task CreateAsync(DigestDeliveryAttempt attempt, CancellationToken ct);
 
     /// <summary>Updates status and error after success or failure.</summary>

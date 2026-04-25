@@ -5,7 +5,8 @@ using ArchLucid.Provenance.Services;
 namespace ArchLucid.Persistence.Provenance;
 
 /// <summary>
-/// <see cref="IProvenanceQueryService"/> implementation using <see cref="IProvenanceSnapshotRepository"/> and in-memory graph algorithms.
+///     <see cref="IProvenanceQueryService" /> implementation using <see cref="IProvenanceSnapshotRepository" /> and
+///     in-memory graph algorithms.
 /// </summary>
 public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) : IProvenanceQueryService
 {

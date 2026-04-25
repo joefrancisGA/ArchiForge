@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IAgentTaskRepository"/>.
+///     Shared contract assertions for <see cref="IAgentTaskRepository" />.
 /// </summary>
 public abstract class AgentTaskRepositoryContractTests
 {
@@ -42,7 +42,7 @@ public abstract class AgentTaskRepositoryContractTests
         List<AgentTask> tasks =
         [
             NewTask(runId, "t2", AgentType.Compliance, newer),
-            NewTask(runId, "t1", AgentType.Topology, older),
+            NewTask(runId, "t1", AgentType.Topology, older)
         ];
 
         await repo.CreateManyAsync(tasks, CancellationToken.None);
@@ -76,7 +76,7 @@ public abstract class AgentTaskRepositoryContractTests
             Objective = "obj",
             Status = AgentTaskStatus.Created,
             CreatedUtc = createdUtc,
-            EvidenceBundleRef = "eb-contract",
+            EvidenceBundleRef = "eb-contract"
         };
     }
 }

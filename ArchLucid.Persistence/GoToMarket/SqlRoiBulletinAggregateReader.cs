@@ -35,22 +35,18 @@ public sealed class SqlRoiBulletinAggregateReader(ISqlConnectionFactory connecti
         int count = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(
                 countSql,
-                new
-                {
-                    Start = window.StartUtcInclusive,
-                    End = window.EndUtcExclusive,
-                },
+                new { Start = window.StartUtcInclusive, End = window.EndUtcExclusive },
                 cancellationToken: cancellationToken));
 
         if (count < minimumTenantsRequired)
         {
             return new RoiBulletinAggregateReadResult(
-                IsSufficientSample: false,
-                TenantCount: count,
-                MeanBaselineHours: null,
-                MedianBaselineHours: null,
-                P90BaselineHours: null,
-                QuarterLabel: window.Label);
+                false,
+                count,
+                null,
+                null,
+                null,
+                window.Label);
         }
 
         const string statsSql = """
@@ -67,31 +63,27 @@ public sealed class SqlRoiBulletinAggregateReader(ISqlConnectionFactory connecti
         StatsRow? row = await connection.QuerySingleOrDefaultAsync<StatsRow>(
             new CommandDefinition(
                 statsSql,
-                new
-                {
-                    Start = window.StartUtcInclusive,
-                    End = window.EndUtcExclusive,
-                },
+                new { Start = window.StartUtcInclusive, End = window.EndUtcExclusive },
                 cancellationToken: cancellationToken));
 
         if (row is null)
         {
             return new RoiBulletinAggregateReadResult(
-                IsSufficientSample: false,
-                TenantCount: count,
-                MeanBaselineHours: null,
-                MedianBaselineHours: null,
-                P90BaselineHours: null,
-                QuarterLabel: window.Label);
+                false,
+                count,
+                null,
+                null,
+                null,
+                window.Label);
         }
 
         return new RoiBulletinAggregateReadResult(
-            IsSufficientSample: true,
-            TenantCount: count,
-            MeanBaselineHours: ToDecimal(row.MeanH),
-            MedianBaselineHours: ToDecimal(row.P50),
-            P90BaselineHours: ToDecimal(row.P90),
-            QuarterLabel: window.Label);
+            true,
+            count,
+            ToDecimal(row.MeanH),
+            ToDecimal(row.P50),
+            ToDecimal(row.P90),
+            window.Label);
     }
 
     private static decimal? ToDecimal(double? value)
@@ -106,17 +98,20 @@ public sealed class SqlRoiBulletinAggregateReader(ISqlConnectionFactory connecti
     {
         public double? MeanH
         {
-            get; init;
+            get;
+            init;
         }
 
         public double? P50
         {
-            get; init;
+            get;
+            init;
         }
 
         public double? P90
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

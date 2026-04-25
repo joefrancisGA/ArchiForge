@@ -6,9 +6,9 @@ using ArchLucid.Provenance;
 namespace ArchLucid.Persistence.Provenance;
 
 /// <summary>
-/// In-memory implementation of <see cref="IProvenanceSnapshotRepository"/> for testing and local development.
-/// Uses last-write-wins semantics per <c>(TenantId, WorkspaceId, ProjectId, RunId)</c> key to prevent
-/// unbounded memory growth when the same run is saved multiple times.
+///     In-memory implementation of <see cref="IProvenanceSnapshotRepository" /> for testing and local development.
+///     Uses last-write-wins semantics per <c>(TenantId, WorkspaceId, ProjectId, RunId)</c> key to prevent
+///     unbounded memory growth when the same run is saved multiple times.
 /// </summary>
 public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRepository
 {
@@ -29,7 +29,8 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
         _ = connection;
         _ = transaction;
 
-        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid RunId) key = (snapshot.TenantId, snapshot.WorkspaceId, snapshot.ProjectId, snapshot.RunId);
+        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid RunId) key = (snapshot.TenantId, snapshot.WorkspaceId,
+            snapshot.ProjectId, snapshot.RunId);
         lock (_gate)
 
             _store[key] = snapshot;
@@ -41,7 +42,8 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
     public Task<DecisionProvenanceSnapshot?> GetByRunIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid runId) key = (scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId);
+        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid runId) key = (scope.TenantId, scope.WorkspaceId,
+            scope.ProjectId, runId);
         lock (_gate)
         {
             _store.TryGetValue(key, out DecisionProvenanceSnapshot? hit);

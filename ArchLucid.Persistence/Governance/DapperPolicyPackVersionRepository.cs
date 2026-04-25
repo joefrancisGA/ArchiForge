@@ -11,11 +11,12 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
-/// SQL Server persistence for <see cref="PolicyPackVersion"/> rows (<c>dbo.PolicyPackVersions</c>).
+///     SQL Server persistence for <see cref="PolicyPackVersion" /> rows (<c>dbo.PolicyPackVersions</c>).
 /// </summary>
 /// <remarks>
-/// Version column is quoted as <c>[Version]</c> in T-SQL. Used by publish, assign preflight (<c>PolicyPacksAppService.TryAssignAsync</c>),
-/// and <c>PolicyPacksController.ListVersions</c>.
+///     Version column is quoted as <c>[Version]</c> in T-SQL. Used by publish, assign preflight (
+///     <c>PolicyPacksAppService.TryAssignAsync</c>),
+///     and <c>PolicyPacksController.ListVersions</c>.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackVersionRepository(
@@ -33,18 +34,18 @@ public sealed class DapperPolicyPackVersionRepository(
         ArgumentNullException.ThrowIfNull(version);
 
         const string sql = """
-            INSERT INTO dbo.PolicyPackVersions
-            (PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished)
-            VALUES
-            (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
-            """;
+                           INSERT INTO dbo.PolicyPackVersions
+                           (PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished)
+                           VALUES
+                           (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
+                           """;
 
         (SqlConnection conn, bool ownsConnection) =
             await SqlExternalConnection.ResolveAsync(connectionFactory, connection, ct);
 
         try
         {
-            await conn.ExecuteAsync(new CommandDefinition(sql, version, transaction: transaction, cancellationToken: ct));
+            await conn.ExecuteAsync(new CommandDefinition(sql, version, transaction, cancellationToken: ct));
         }
         finally
         {
@@ -58,10 +59,10 @@ public sealed class DapperPolicyPackVersionRepository(
         ArgumentNullException.ThrowIfNull(version);
 
         const string sql = """
-            UPDATE dbo.PolicyPackVersions
-            SET ContentJson = @ContentJson, IsPublished = @IsPublished
-            WHERE PolicyPackVersionId = @PolicyPackVersionId;
-            """;
+                           UPDATE dbo.PolicyPackVersions
+                           SET ContentJson = @ContentJson, IsPublished = @IsPublished
+                           WHERE PolicyPackVersionId = @PolicyPackVersionId;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, version, cancellationToken: ct));
@@ -77,20 +78,16 @@ public sealed class DapperPolicyPackVersionRepository(
         ArgumentException.ThrowIfNullOrWhiteSpace(version);
 
         const string sql = """
-            SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
-            FROM dbo.PolicyPackVersions
-            WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
-            """;
+                           SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
+                           FROM dbo.PolicyPackVersions
+                           WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
+                           """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<PolicyPackVersion>(
             new CommandDefinition(
                 sql,
-                new
-                {
-                    PolicyPackId = policyPackId,
-                    Ver = version
-                },
+                new { PolicyPackId = policyPackId, Ver = version },
                 cancellationToken: ct));
     }
 
@@ -104,23 +101,23 @@ public sealed class DapperPolicyPackVersionRepository(
         ArgumentException.ThrowIfNullOrWhiteSpace(version);
 
         const string selectSql = """
-            SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
-            FROM dbo.PolicyPackVersions WITH (UPDLOCK, HOLDLOCK)
-            WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
-            """;
+                                 SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
+                                 FROM dbo.PolicyPackVersions WITH (UPDLOCK, HOLDLOCK)
+                                 WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
+                                 """;
 
         const string updateSql = """
-            UPDATE dbo.PolicyPackVersions
-            SET ContentJson = @ContentJson, IsPublished = @IsPublished
-            WHERE PolicyPackVersionId = @PolicyPackVersionId;
-            """;
+                                 UPDATE dbo.PolicyPackVersions
+                                 SET ContentJson = @ContentJson, IsPublished = @IsPublished
+                                 WHERE PolicyPackVersionId = @PolicyPackVersionId;
+                                 """;
 
         const string insertSql = """
-            INSERT INTO dbo.PolicyPackVersions
-            (PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished)
-            VALUES
-            (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
-            """;
+                                 INSERT INTO dbo.PolicyPackVersions
+                                 (PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished)
+                                 VALUES
+                                 (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
+                                 """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await using SqlTransaction transaction =
@@ -131,12 +128,8 @@ public sealed class DapperPolicyPackVersionRepository(
             PolicyPackVersion? existing = await connection.QueryFirstOrDefaultAsync<PolicyPackVersion>(
                 new CommandDefinition(
                     selectSql,
-                    new
-                    {
-                        PolicyPackId = policyPackId,
-                        Ver = version
-                    },
-                    transaction: transaction,
+                    new { PolicyPackId = policyPackId, Ver = version },
+                    transaction,
                     cancellationToken: ct));
 
             if (existing is not null)
@@ -146,7 +139,7 @@ public sealed class DapperPolicyPackVersionRepository(
                 existing.IsPublished = true;
 
                 await connection.ExecuteAsync(
-                    new CommandDefinition(updateSql, existing, transaction: transaction, cancellationToken: ct));
+                    new CommandDefinition(updateSql, existing, transaction, cancellationToken: ct));
 
                 await transaction.CommitAsync(ct);
 
@@ -160,11 +153,11 @@ public sealed class DapperPolicyPackVersionRepository(
                 Version = version,
                 ContentJson = contentJson,
                 CreatedUtc = DateTime.UtcNow,
-                IsPublished = true,
+                IsPublished = true
             };
 
             await connection.ExecuteAsync(
-                new CommandDefinition(insertSql, inserted, transaction: transaction, cancellationToken: ct));
+                new CommandDefinition(insertSql, inserted, transaction, cancellationToken: ct));
 
             await transaction.CommitAsync(ct);
 
@@ -181,18 +174,16 @@ public sealed class DapperPolicyPackVersionRepository(
     public async Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(Guid policyPackId, CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200 PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
-            FROM dbo.PolicyPackVersions
-            WHERE PolicyPackId = @PolicyPackId
-            ORDER BY CreatedUtc DESC;
-            """;
+                           SELECT TOP 200 PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
+                           FROM dbo.PolicyPackVersions
+                           WHERE PolicyPackId = @PolicyPackId
+                           ORDER BY CreatedUtc DESC;
+                           """;
 
-        await using SqlConnection connection = await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection =
+            await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<PolicyPackVersion> rows = await connection.QueryAsync<PolicyPackVersion>(
-            new CommandDefinition(sql, new
-            {
-                PolicyPackId = policyPackId
-            }, cancellationToken: ct));
+            new CommandDefinition(sql, new { PolicyPackId = policyPackId }, cancellationToken: ct));
         return rows.ToList();
     }
 }

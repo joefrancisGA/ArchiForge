@@ -6,10 +6,12 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Decisioning.Findings.Serialization;
 
 /// <summary>
-/// Round-trip serialization for findings snapshots with typed payload rehydration.
+///     Round-trip serialization for findings snapshots with typed payload rehydration.
 /// </summary>
 public static class FindingsSerialization
 {
+    private static readonly JsonSerializerOptions Options = CreateOptions();
+
     public static JsonSerializerOptions CreateOptions()
     {
         JsonSerializerOptions o = new()
@@ -23,10 +25,10 @@ public static class FindingsSerialization
         return o;
     }
 
-    private static readonly JsonSerializerOptions Options = CreateOptions();
-
     public static string SerializeSnapshot(FindingsSnapshot snapshot)
-        => JsonSerializer.Serialize(snapshot, Options);
+    {
+        return JsonSerializer.Serialize(snapshot, Options);
+    }
 
     public static FindingsSnapshot DeserializeSnapshot(string json)
     {

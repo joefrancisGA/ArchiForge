@@ -42,15 +42,14 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
         List<TenantUsageSummary> summaries = _events
             .Where(e => e.TenantId == tenantId && e.RecordedUtc >= periodStart && e.RecordedUtc < periodEnd)
             .GroupBy(e => e.Kind)
-            .Select(
-                g => new TenantUsageSummary
-                {
-                    TenantId = tenantId,
-                    Kind = g.Key,
-                    TotalQuantity = g.Sum(static x => x.Quantity),
-                    PeriodStartUtc = periodStart,
-                    PeriodEndUtc = periodEnd,
-                })
+            .Select(g => new TenantUsageSummary
+            {
+                TenantId = tenantId,
+                Kind = g.Key,
+                TotalQuantity = g.Sum(static x => x.Quantity),
+                PeriodStartUtc = periodStart,
+                PeriodEndUtc = periodEnd
+            })
             .ToList();
 
         return Task.FromResult<IReadOnlyList<TenantUsageSummary>>(summaries);
@@ -66,13 +65,14 @@ public sealed class InMemoryUsageEventRepository : IUsageEventRepository
     {
         _ = ct;
 
-        IEnumerable<UsageEvent> q = _events.Where(
-            e => e.TenantId == tenantId && e.RecordedUtc >= periodStart && e.RecordedUtc < periodEnd);
+        IEnumerable<UsageEvent> q = _events.Where(e =>
+            e.TenantId == tenantId && e.RecordedUtc >= periodStart && e.RecordedUtc < periodEnd);
 
         if (kindFilter.HasValue)
             q = q.Where(e => e.Kind == kindFilter.Value);
 
-        IReadOnlyList<UsageEvent> list = q.OrderByDescending(static e => e.RecordedUtc).Take(Math.Max(1, take)).ToList();
+        IReadOnlyList<UsageEvent> list = q.OrderByDescending(static e => e.RecordedUtc).Take(Math.Max(1, take))
+            .ToList();
 
         return Task.FromResult(list);
     }

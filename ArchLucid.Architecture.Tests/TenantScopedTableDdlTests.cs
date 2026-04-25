@@ -6,7 +6,7 @@ namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
 /// Lightweight DDL guard: authority tables include tenant scope columns aligned with RLS predicates
-/// (see <c>docs/DATA_MODEL.md</c>, <c>docs/TENANT_SCOPED_TABLES_INVENTORY.md</c>).
+/// (see <c>docs/DATA_MODEL.md</c>, <c>docs/library/TENANT_SCOPED_TABLES_INVENTORY.md</c>).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

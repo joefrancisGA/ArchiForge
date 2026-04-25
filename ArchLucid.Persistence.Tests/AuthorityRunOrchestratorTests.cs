@@ -28,7 +28,7 @@ using DecisioningManifestMetadata = ArchLucid.Decisioning.Manifest.Sections.Mani
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="AuthorityRunOrchestrator"/> unit tests (commit vs rollback, sync vs queued modes).
+///     <see cref="AuthorityRunOrchestrator" /> unit tests (commit vs rollback, sync vs queued modes).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -41,7 +41,7 @@ public sealed class AuthorityRunOrchestratorTests
         {
             TenantId = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1"),
             WorkspaceId = Guid.Parse("a2a2a2a2-a2a2-a2a2-a2a2-a2a2a2a2a2a2"),
-            ProjectId = Guid.Parse("a3a3a3a3-a3a3-a3a3-a3a3-a3a3a3a3a3a3"),
+            ProjectId = Guid.Parse("a3a3a3a3-a3a3-a3a3-a3a3-a3a3a3a3a3a3")
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -69,49 +69,49 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
         pipeline
-            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
-            .Callback<AuthorityPipelineContext, CancellationToken>(
-                (ctx, _) =>
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<AuthorityPipelineContext, CancellationToken>((ctx, _) =>
+            {
+                ctx.ContextSnapshot = new ContextSnapshot
                 {
-                    ctx.ContextSnapshot = new ContextSnapshot
-                    {
-                        SnapshotId = contextSnapshotId,
-                        RunId = ctx.Run.RunId,
-                        ProjectId = ctx.Request.ProjectId,
-                        CreatedUtc = DateTime.UtcNow,
-                    };
+                    SnapshotId = contextSnapshotId,
+                    RunId = ctx.Run.RunId,
+                    ProjectId = ctx.Request.ProjectId,
+                    CreatedUtc = DateTime.UtcNow
+                };
 
-                    ctx.FindingsSnapshot = new FindingsSnapshot
-                    {
-                        FindingsSnapshotId = findingsId,
-                        RunId = ctx.Run.RunId,
-                        ContextSnapshotId = contextSnapshotId,
-                        GraphSnapshotId = Guid.NewGuid(),
-                        CreatedUtc = DateTime.UtcNow,
-                    };
+                ctx.FindingsSnapshot = new FindingsSnapshot
+                {
+                    FindingsSnapshotId = findingsId,
+                    RunId = ctx.Run.RunId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow
+                };
 
-                    ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
-                    {
-                        TenantId = ctx.Scope.TenantId,
-                        WorkspaceId = ctx.Scope.WorkspaceId,
-                        ProjectId = ctx.Scope.ProjectId,
-                        DecisionTraceId = traceId,
-                        RunId = ctx.Run.RunId,
-                        CreatedUtc = DateTime.UtcNow,
-                        RuleSetId = "rs",
-                        RuleSetVersion = "1",
-                        RuleSetHash = "h",
-                    });
+                ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
+                {
+                    TenantId = ctx.Scope.TenantId,
+                    WorkspaceId = ctx.Scope.WorkspaceId,
+                    ProjectId = ctx.Scope.ProjectId,
+                    DecisionTraceId = traceId,
+                    RunId = ctx.Run.RunId,
+                    CreatedUtc = DateTime.UtcNow,
+                    RuleSetId = "rs",
+                    RuleSetVersion = "1",
+                    RuleSetHash = "h"
+                });
 
-                    ctx.Manifest = NewMinimalManifest(
-                        ctx.Scope,
-                        ctx.Run.RunId,
-                        contextSnapshotId,
-                        Guid.NewGuid(),
-                        findingsId,
-                        traceId,
-                        manifestId);
-                })
+                ctx.Manifest = NewMinimalManifest(
+                    ctx.Scope,
+                    ctx.Run.RunId,
+                    contextSnapshotId,
+                    Guid.NewGuid(),
+                    findingsId,
+                    traceId,
+                    manifestId);
+            })
             .Returns(Task.CompletedTask);
 
         Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
@@ -135,7 +135,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventPublisher> integrationEvents = new();
         integrationEvents
-            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         integrationEvents
             .Setup(x => x.PublishAsync(
@@ -148,7 +149,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
         StubIntegrationOutbox(integrationOutbox);
-        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
+            CreateIntegrationEventsOptionsMonitor(false);
 
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
@@ -165,11 +167,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new()
-        {
-            ProjectId = "proj-orchestrator-test",
-            Description = "d",
-        };
+        ContextIngestionRequest request = new() { ProjectId = "proj-orchestrator-test", Description = "d" };
 
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -186,7 +184,8 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         retrievalOutbox.Verify(
-            x => x.EnqueueAsync(result.RunId, scope.TenantId, scope.WorkspaceId, scope.ProjectId, It.IsAny<CancellationToken>()),
+            x => x.EnqueueAsync(result.RunId, scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                It.IsAny<CancellationToken>()),
             Times.Once);
         integrationOutbox.Verify(
             x => x.EnqueueAsync(
@@ -231,7 +230,7 @@ public sealed class AuthorityRunOrchestratorTests
         {
             TenantId = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"),
             WorkspaceId = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2"),
-            ProjectId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3"),
+            ProjectId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3")
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -264,49 +263,49 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
         pipeline
-            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
-            .Callback<AuthorityPipelineContext, CancellationToken>(
-                (ctx, _) =>
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<AuthorityPipelineContext, CancellationToken>((ctx, _) =>
+            {
+                ctx.ContextSnapshot = new ContextSnapshot
                 {
-                    ctx.ContextSnapshot = new ContextSnapshot
-                    {
-                        SnapshotId = contextSnapshotId,
-                        RunId = ctx.Run.RunId,
-                        ProjectId = ctx.Request.ProjectId,
-                        CreatedUtc = DateTime.UtcNow,
-                    };
+                    SnapshotId = contextSnapshotId,
+                    RunId = ctx.Run.RunId,
+                    ProjectId = ctx.Request.ProjectId,
+                    CreatedUtc = DateTime.UtcNow
+                };
 
-                    ctx.FindingsSnapshot = new FindingsSnapshot
-                    {
-                        FindingsSnapshotId = findingsId,
-                        RunId = ctx.Run.RunId,
-                        ContextSnapshotId = contextSnapshotId,
-                        GraphSnapshotId = Guid.NewGuid(),
-                        CreatedUtc = DateTime.UtcNow,
-                    };
+                ctx.FindingsSnapshot = new FindingsSnapshot
+                {
+                    FindingsSnapshotId = findingsId,
+                    RunId = ctx.Run.RunId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow
+                };
 
-                    ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
-                    {
-                        TenantId = ctx.Scope.TenantId,
-                        WorkspaceId = ctx.Scope.WorkspaceId,
-                        ProjectId = ctx.Scope.ProjectId,
-                        DecisionTraceId = traceId,
-                        RunId = ctx.Run.RunId,
-                        CreatedUtc = DateTime.UtcNow,
-                        RuleSetId = "rs",
-                        RuleSetVersion = "1",
-                        RuleSetHash = "h",
-                    });
+                ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
+                {
+                    TenantId = ctx.Scope.TenantId,
+                    WorkspaceId = ctx.Scope.WorkspaceId,
+                    ProjectId = ctx.Scope.ProjectId,
+                    DecisionTraceId = traceId,
+                    RunId = ctx.Run.RunId,
+                    CreatedUtc = DateTime.UtcNow,
+                    RuleSetId = "rs",
+                    RuleSetVersion = "1",
+                    RuleSetHash = "h"
+                });
 
-                    ctx.Manifest = NewMinimalManifest(
-                        ctx.Scope,
-                        ctx.Run.RunId,
-                        contextSnapshotId,
-                        Guid.NewGuid(),
-                        findingsId,
-                        traceId,
-                        manifestId);
-                })
+                ctx.Manifest = NewMinimalManifest(
+                    ctx.Scope,
+                    ctx.Run.RunId,
+                    contextSnapshotId,
+                    Guid.NewGuid(),
+                    findingsId,
+                    traceId,
+                    manifestId);
+            })
             .Returns(Task.CompletedTask);
 
         Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
@@ -332,7 +331,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventPublisher> integrationEvents = new();
         integrationEvents
-            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         integrationEvents
             .Setup(x => x.PublishAsync(
@@ -345,7 +345,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
         StubIntegrationOutbox(integrationOutbox);
-        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(true);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
+            CreateIntegrationEventsOptionsMonitor(true);
 
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
@@ -362,11 +363,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new()
-        {
-            ProjectId = "proj-orchestrator-outbox",
-            Description = "d",
-        };
+        ContextIngestionRequest request = new() { ProjectId = "proj-orchestrator-outbox", Description = "d" };
 
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -399,9 +396,7 @@ public sealed class AuthorityRunOrchestratorTests
     {
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -443,7 +438,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventPublisher> integrationEvents = new();
         integrationEvents
-            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         integrationEvents
             .Setup(x => x.PublishAsync(
@@ -456,7 +452,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
         StubIntegrationOutbox(integrationOutbox);
-        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
+            CreateIntegrationEventsOptionsMonitor(false);
 
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
@@ -473,13 +470,9 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new()
-        {
-            ProjectId = "q",
-            Description = "d"
-        };
+        ContextIngestionRequest request = new() { ProjectId = "q", Description = "d" };
 
-        RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None, evidenceBundleIdForDeferredWork: "evidence-bundle");
+        RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None, "evidence-bundle");
 
         result.ContextSnapshotId.Should().BeNull();
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -487,7 +480,8 @@ public sealed class AuthorityRunOrchestratorTests
             x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()),
             Times.Never);
         retrievalOutbox.Verify(
-            x => x.EnqueueAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.EnqueueAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
         workRepo.Verify(
             x => x.EnqueueAsync(
@@ -519,9 +513,7 @@ public sealed class AuthorityRunOrchestratorTests
         Guid runIdGuid = Guid.NewGuid();
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -544,7 +536,7 @@ public sealed class AuthorityRunOrchestratorTests
             WorkspaceId = scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
             ContextSnapshotId = null,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = DateTime.UtcNow
         };
 
         Mock<IRunRepository> runRepo = new();
@@ -562,49 +554,49 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
         pipeline
-            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
-            .Callback<AuthorityPipelineContext, CancellationToken>(
-                (ctx, _) =>
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<AuthorityPipelineContext, CancellationToken>((ctx, _) =>
+            {
+                ctx.ContextSnapshot = new ContextSnapshot
                 {
-                    ctx.ContextSnapshot = new ContextSnapshot
-                    {
-                        SnapshotId = contextSnapshotId,
-                        RunId = ctx.Run.RunId,
-                        ProjectId = ctx.Request.ProjectId,
-                        CreatedUtc = DateTime.UtcNow,
-                    };
+                    SnapshotId = contextSnapshotId,
+                    RunId = ctx.Run.RunId,
+                    ProjectId = ctx.Request.ProjectId,
+                    CreatedUtc = DateTime.UtcNow
+                };
 
-                    ctx.FindingsSnapshot = new FindingsSnapshot
-                    {
-                        FindingsSnapshotId = findingsId,
-                        RunId = ctx.Run.RunId,
-                        ContextSnapshotId = contextSnapshotId,
-                        GraphSnapshotId = Guid.NewGuid(),
-                        CreatedUtc = DateTime.UtcNow,
-                    };
+                ctx.FindingsSnapshot = new FindingsSnapshot
+                {
+                    FindingsSnapshotId = findingsId,
+                    RunId = ctx.Run.RunId,
+                    ContextSnapshotId = contextSnapshotId,
+                    GraphSnapshotId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow
+                };
 
-                    ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
-                    {
-                        TenantId = ctx.Scope.TenantId,
-                        WorkspaceId = ctx.Scope.WorkspaceId,
-                        ProjectId = ctx.Scope.ProjectId,
-                        DecisionTraceId = traceId,
-                        RunId = ctx.Run.RunId,
-                        CreatedUtc = DateTime.UtcNow,
-                        RuleSetId = "rs",
-                        RuleSetVersion = "1",
-                        RuleSetHash = "h",
-                    });
+                ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
+                {
+                    TenantId = ctx.Scope.TenantId,
+                    WorkspaceId = ctx.Scope.WorkspaceId,
+                    ProjectId = ctx.Scope.ProjectId,
+                    DecisionTraceId = traceId,
+                    RunId = ctx.Run.RunId,
+                    CreatedUtc = DateTime.UtcNow,
+                    RuleSetId = "rs",
+                    RuleSetVersion = "1",
+                    RuleSetHash = "h"
+                });
 
-                    ctx.Manifest = NewMinimalManifest(
-                        ctx.Scope,
-                        ctx.Run.RunId,
-                        contextSnapshotId,
-                        Guid.NewGuid(),
-                        findingsId,
-                        traceId,
-                        manifestId);
-                })
+                ctx.Manifest = NewMinimalManifest(
+                    ctx.Scope,
+                    ctx.Run.RunId,
+                    contextSnapshotId,
+                    Guid.NewGuid(),
+                    findingsId,
+                    traceId,
+                    manifestId);
+            })
             .Returns(Task.CompletedTask);
 
         Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
@@ -625,7 +617,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventPublisher> integrationEvents = new();
         integrationEvents
-            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         integrationEvents
             .Setup(x => x.PublishAsync(
@@ -638,7 +631,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
         StubIntegrationOutbox(integrationOutbox);
-        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
+            CreateIntegrationEventsOptionsMonitor(false);
 
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
@@ -655,12 +649,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new()
-        {
-            RunId = runIdGuid,
-            ProjectId = "resume-proj",
-            Description = "d",
-        };
+        ContextIngestionRequest request = new() { RunId = runIdGuid, ProjectId = "resume-proj", Description = "d" };
 
         RunRecord result = await sut.CompleteQueuedAuthorityPipelineAsync(request, CancellationToken.None);
 
@@ -686,9 +675,7 @@ public sealed class AuthorityRunOrchestratorTests
     {
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -709,7 +696,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
         pipeline
-            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("pipeline failed"));
 
         Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
@@ -725,7 +713,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventPublisher> integrationEvents = new();
         integrationEvents
-            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         integrationEvents
             .Setup(x => x.PublishAsync(
@@ -738,7 +727,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
         StubIntegrationOutbox(integrationOutbox);
-        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
+            CreateIntegrationEventsOptionsMonitor(false);
 
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
@@ -755,10 +745,7 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new()
-        {
-            ProjectId = "proj-fail"
-        };
+        ContextIngestionRequest request = new() { ProjectId = "proj-fail" };
 
         Func<Task> act = async () => await sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -802,7 +789,7 @@ public sealed class AuthorityRunOrchestratorTests
         {
             TenantId = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1"),
             WorkspaceId = Guid.Parse("a2a2a2a2-a2a2-a2a2-a2a2-a2a2a2a2a2a2"),
-            ProjectId = Guid.Parse("a3a3a3a3-a3a3-a3a3-a3a3-a3a3a3a3a3a3"),
+            ProjectId = Guid.Parse("a3a3a3a3-a3a3-a3a3-a3a3-a3a3a3a3a3a3")
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -823,7 +810,8 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
         pipeline
-            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(),
+                It.IsAny<CancellationToken>()))
             .Returns<AuthorityPipelineContext, CancellationToken>((_, ct) => Task.Delay(Timeout.Infinite, ct));
 
         Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
@@ -840,7 +828,8 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IIntegrationEventPublisher> integrationEvents = new();
         Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
         StubIntegrationOutbox(integrationOutbox);
-        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts =
+            CreateIntegrationEventsOptionsMonitor(false);
 
         Mock<IOptionsMonitor<AuthorityPipelineOptions>> pipelineOpts = new();
         pipelineOpts.Setup(m => m.CurrentValue)
@@ -861,11 +850,7 @@ public sealed class AuthorityRunOrchestratorTests
             pipelineOpts.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new()
-        {
-            ProjectId = "proj-timeout",
-            Description = "d",
-        };
+        ContextIngestionRequest request = new() { ProjectId = "proj-timeout", Description = "d" };
 
         Func<Task> act = () => sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -930,7 +915,7 @@ public sealed class AuthorityRunOrchestratorTests
             Assumptions = [],
             Warnings = [],
             Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Decisions = []
         };
     }
 }

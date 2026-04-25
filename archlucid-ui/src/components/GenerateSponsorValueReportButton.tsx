@@ -82,7 +82,7 @@ export function GenerateSponsorValueReportButton() {
         title={
           canMutate
             ? "POST /v1/value-report/{tenantId}/generate (Standard tier tenant on API)"
-            : "Operator or Admin role required (ExecuteAuthority on API)."
+            : "Operator or Admin role required (operator access on the API)."
         }
         onClick={() => void onClick()}
       >
@@ -90,7 +90,7 @@ export function GenerateSponsorValueReportButton() {
       </Button>
       {!canMutate ? (
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Sign in as an operator to generate the sponsor DOCX (API enforces ExecuteAuthority and Standard commercial
+          Sign in as an operator to generate the sponsor DOCX (API enforces operator access and Standard commercial
           tier).
         </p>
       ) : null}

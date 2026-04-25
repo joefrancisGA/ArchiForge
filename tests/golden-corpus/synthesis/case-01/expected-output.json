@@ -1,0 +1,11 @@
+{
+  "CoveredRequirementCount": 2,
+  "UncoveredRequirementCount": 1,
+  "SecurityGapCount": 2,
+  "ComplianceGapCount": 1,
+  "UnresolvedIssueCount": 1,
+  "TopologyGaps": [
+    "Zone redundancy not stated",
+    "Egress path missing"
+  ]
+}

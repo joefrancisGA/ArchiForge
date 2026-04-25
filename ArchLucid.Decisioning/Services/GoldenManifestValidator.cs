@@ -47,4 +47,3 @@ public class GoldenManifestValidator : IGoldenManifestValidator
             throw new InvalidOperationException("Policy.Exemptions list must be initialized.");
     }
 }
-

@@ -6,9 +6,8 @@ using FluentAssertions;
 namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
-/// Tests for Graph Validator.
+///     Tests for Graph Validator.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class GraphValidatorTests
@@ -38,9 +37,7 @@ public sealed class GraphValidatorTests
     {
         GraphSnapshot snapshot = BuildSnapshot(new GraphNode
         {
-            NodeId = "   ",
-            NodeType = GraphNodeTypes.TopologyResource,
-            Label = "node-a"
+            NodeId = "   ", NodeType = GraphNodeTypes.TopologyResource, Label = "node-a"
         });
 
         Action act = () => _sut.Validate(snapshot);
@@ -51,12 +48,7 @@ public sealed class GraphValidatorTests
     [Fact]
     public void Validate_NodeMissingNodeType_ThrowsInvalidOperationException()
     {
-        GraphSnapshot snapshot = BuildSnapshot(new GraphNode
-        {
-            NodeId = "n1",
-            NodeType = "",
-            Label = "node-a"
-        });
+        GraphSnapshot snapshot = BuildSnapshot(new GraphNode { NodeId = "n1", NodeType = "", Label = "node-a" });
 
         Action act = () => _sut.Validate(snapshot);
 
@@ -68,13 +60,7 @@ public sealed class GraphValidatorTests
     {
         GraphNode node = ValidNode("n1");
         GraphSnapshot snapshot = BuildSnapshot(node);
-        snapshot.Edges.Add(new GraphEdge
-        {
-            EdgeId = "e1",
-            FromNodeId = "n1",
-            ToNodeId = "n1",
-            EdgeType = ""
-        });
+        snapshot.Edges.Add(new GraphEdge { EdgeId = "e1", FromNodeId = "n1", ToNodeId = "n1", EdgeType = "" });
 
         Action act = () => _sut.Validate(snapshot);
 
@@ -88,10 +74,7 @@ public sealed class GraphValidatorTests
         GraphSnapshot snapshot = BuildSnapshot(node);
         snapshot.Edges.Add(new GraphEdge
         {
-            EdgeId = "e1",
-            FromNodeId = "missing-node",
-            ToNodeId = "n1",
-            EdgeType = GraphEdgeTypes.Contains
+            EdgeId = "e1", FromNodeId = "missing-node", ToNodeId = "n1", EdgeType = GraphEdgeTypes.Contains
         });
 
         Action act = () => _sut.Validate(snapshot);
@@ -106,10 +89,7 @@ public sealed class GraphValidatorTests
         GraphSnapshot snapshot = BuildSnapshot(node);
         snapshot.Edges.Add(new GraphEdge
         {
-            EdgeId = "e1",
-            FromNodeId = "n1",
-            ToNodeId = "ghost",
-            EdgeType = GraphEdgeTypes.Contains
+            EdgeId = "e1", FromNodeId = "n1", ToNodeId = "ghost", EdgeType = GraphEdgeTypes.Contains
         });
 
         Action act = () => _sut.Validate(snapshot);
@@ -125,10 +105,7 @@ public sealed class GraphValidatorTests
         GraphSnapshot snapshot = BuildSnapshot(a, b);
         snapshot.Edges.Add(new GraphEdge
         {
-            EdgeId = "e1",
-            FromNodeId = "a",
-            ToNodeId = "b",
-            EdgeType = GraphEdgeTypes.Contains
+            EdgeId = "e1", FromNodeId = "a", ToNodeId = "b", EdgeType = GraphEdgeTypes.Contains
         });
 
         Action act = () => _sut.Validate(snapshot);
@@ -144,10 +121,7 @@ public sealed class GraphValidatorTests
         GraphSnapshot snapshot = BuildSnapshot(node);
         snapshot.Edges.Add(new GraphEdge
         {
-            EdgeId = "e1",
-            FromNodeId = "nodea",
-            ToNodeId = "NODEA",
-            EdgeType = GraphEdgeTypes.Contains
+            EdgeId = "e1", FromNodeId = "nodea", ToNodeId = "NODEA", EdgeType = GraphEdgeTypes.Contains
         });
 
         Action act = () => _sut.Validate(snapshot);
@@ -173,11 +147,8 @@ public sealed class GraphValidatorTests
         return snapshot;
     }
 
-    private static GraphNode ValidNode(string nodeId) =>
-        new()
-        {
-            NodeId = nodeId,
-            NodeType = GraphNodeTypes.TopologyResource,
-            Label = nodeId
-        };
+    private static GraphNode ValidNode(string nodeId)
+    {
+        return new GraphNode { NodeId = nodeId, NodeType = GraphNodeTypes.TopologyResource, Label = nodeId };
+    }
 }

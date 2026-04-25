@@ -1,17 +1,18 @@
 namespace ArchLucid.Provenance.Analysis;
 
 /// <summary>
-/// Measures how many golden-manifest decisions have full traceability in a <see cref="DecisionProvenanceGraph"/>:
-/// a <see cref="ProvenanceEdgeType.SupportedBy"/> finding, a <see cref="ProvenanceEdgeType.TriggeredByRule"/> rule,
-/// and graph context via <see cref="ProvenanceEdgeType.InfluencedByGraphNode"/> into at least one supporting finding.
+///     Measures how many golden-manifest decisions have full traceability in a <see cref="DecisionProvenanceGraph" />:
+///     a <see cref="ProvenanceEdgeType.SupportedBy" /> finding, a <see cref="ProvenanceEdgeType.TriggeredByRule" /> rule,
+///     and graph context via <see cref="ProvenanceEdgeType.InfluencedByGraphNode" /> into at least one supporting finding.
 /// </summary>
 /// <remarks>
-/// v1 provenance only materializes direct GraphNode→Finding <see cref="ProvenanceEdgeType.InfluencedByGraphNode"/> edges
-/// (<see cref="ProvenanceBuilder"/>); there is no multi-hop graph walk here.
+///     v1 provenance only materializes direct GraphNode→Finding <see cref="ProvenanceEdgeType.InfluencedByGraphNode" />
+///     edges
+///     (<see cref="ProvenanceBuilder" />); there is no multi-hop graph walk here.
 /// </remarks>
 public static class ProvenanceCompletenessAnalyzer
 {
-    /// <summary>Analyzes decision coverage for the given <paramref name="graph"/>.</summary>
+    /// <summary>Analyzes decision coverage for the given <paramref name="graph" />.</summary>
     public static ProvenanceCompletenessResult Analyze(DecisionProvenanceGraph graph)
     {
         ArgumentNullException.ThrowIfNull(graph);
@@ -31,10 +32,7 @@ public static class ProvenanceCompletenessAnalyzer
 
             return new ProvenanceCompletenessResult
             {
-                DecisionsCovered = 0,
-                TotalDecisions = 0,
-                CoverageRatio = 1.0,
-                UncoveredDecisionKeys = [],
+                DecisionsCovered = 0, TotalDecisions = 0, CoverageRatio = 1.0, UncoveredDecisionKeys = []
             };
 
 
@@ -56,7 +54,7 @@ public static class ProvenanceCompletenessAnalyzer
             DecisionsCovered = covered,
             TotalDecisions = decisionNodes.Count,
             CoverageRatio = ratio,
-            UncoveredDecisionKeys = uncoveredKeys,
+            UncoveredDecisionKeys = uncoveredKeys
         };
     }
 
@@ -68,8 +66,10 @@ public static class ProvenanceCompletenessAnalyzer
     {
         IEnumerable<ProvenanceEdge> inbound = inboundByTarget[decision.Id];
 
-        return HasInboundOfTypeFromNodeType(inbound, nodeById, ProvenanceEdgeType.SupportedBy, ProvenanceNodeType.Finding)
-               && HasInboundOfTypeFromNodeType(inbound, nodeById, ProvenanceEdgeType.TriggeredByRule, ProvenanceNodeType.Rule)
+        return HasInboundOfTypeFromNodeType(inbound, nodeById, ProvenanceEdgeType.SupportedBy,
+                   ProvenanceNodeType.Finding)
+               && HasInboundOfTypeFromNodeType(inbound, nodeById, ProvenanceEdgeType.TriggeredByRule,
+                   ProvenanceNodeType.Rule)
                && SupportingFindingHasGraphInfluence(decision.Id, inboundByTarget, nodeById, allEdges);
     }
 
@@ -79,15 +79,15 @@ public static class ProvenanceCompletenessAnalyzer
         ProvenanceEdgeType edgeType,
         ProvenanceNodeType fromNodeType)
     {
-        return inbound.Any(
-            e => e.Type == edgeType
-                 && nodeById.TryGetValue(e.FromNodeId, out ProvenanceNode? from)
-                 && from.Type == fromNodeType);
+        return inbound.Any(e => e.Type == edgeType
+                                && nodeById.TryGetValue(e.FromNodeId, out ProvenanceNode? from)
+                                && from.Type == fromNodeType);
     }
 
     /// <summary>
-    /// True when some finding linked to the decision via <see cref="ProvenanceEdgeType.SupportedBy"/> has at least one
-    /// <see cref="ProvenanceEdgeType.InfluencedByGraphNode"/> inbound edge from a <see cref="ProvenanceNodeType.GraphNode"/>.
+    ///     True when some finding linked to the decision via <see cref="ProvenanceEdgeType.SupportedBy" /> has at least one
+    ///     <see cref="ProvenanceEdgeType.InfluencedByGraphNode" /> inbound edge from a
+    ///     <see cref="ProvenanceNodeType.GraphNode" />.
     /// </summary>
     private static bool SupportingFindingHasGraphInfluence(
         Guid decisionId,
@@ -108,10 +108,9 @@ public static class ProvenanceCompletenessAnalyzer
         IReadOnlyList<ProvenanceEdge> allEdges,
         Dictionary<Guid, ProvenanceNode> nodeById)
     {
-        return allEdges.Any(
-            e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode
-                 && e.ToNodeId == findingNodeId
-                 && nodeById.TryGetValue(e.FromNodeId, out ProvenanceNode? from)
-                 && from.Type == ProvenanceNodeType.GraphNode);
+        return allEdges.Any(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode
+                                 && e.ToNodeId == findingNodeId
+                                 && nodeById.TryGetValue(e.FromNodeId, out ProvenanceNode? from)
+                                 && from.Type == ProvenanceNodeType.GraphNode);
     }
 }

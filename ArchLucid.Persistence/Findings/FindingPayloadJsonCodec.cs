@@ -7,8 +7,8 @@ using ArchLucid.Decisioning.Models;
 namespace ArchLucid.Persistence.Findings;
 
 /// <summary>
-/// Serializes <see cref="ArchLucid.Decisioning.Models.Finding.Payload"/> to/from <c>PayloadJson</c> using the same
-/// options as <see cref="FindingJsonConverter"/> so typed payloads round-trip.
+///     Serializes <see cref="ArchLucid.Decisioning.Models.Finding.Payload" /> to/from <c>PayloadJson</c> using the same
+///     options as <see cref="FindingJsonConverter" /> so typed payloads round-trip.
 /// </summary>
 public static class FindingPayloadJsonCodec
 {
@@ -40,9 +40,9 @@ public static class FindingPayloadJsonCodec
     }
 
     /// <summary>
-    /// After <see cref="ArchLucid.Persistence.Serialization.JsonEntitySerializer"/> deserializes a
-    /// <see cref="FindingsSnapshot"/>, nested <see cref="Finding.Payload"/> values are often <see cref="JsonElement"/>.
-    /// This aligns the JSON fallback read path with relational reads by materializing registered payload types.
+    ///     After <see cref="ArchLucid.Persistence.Serialization.JsonEntitySerializer" /> deserializes a
+    ///     <see cref="FindingsSnapshot" />, nested <see cref="Finding.Payload" /> values are often <see cref="JsonElement" />.
+    ///     This aligns the JSON fallback read path with relational reads by materializing registered payload types.
     /// </summary>
     public static void HydrateJsonElementPayloads(IReadOnlyList<Finding> findings)
     {

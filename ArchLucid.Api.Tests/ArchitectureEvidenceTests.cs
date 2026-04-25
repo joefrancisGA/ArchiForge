@@ -8,9 +8,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Tests for Architecture Evidence.
+///     Tests for Architecture Evidence.
 /// </summary>
-
 [Trait("Category", "Integration")]
 public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -23,7 +22,8 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
 
         createResponse.EnsureSuccessStatusCode();
 
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -33,7 +33,8 @@ public sealed class ArchitectureEvidenceTests(ArchLucidApiFactory factory) : Int
 
         evidenceResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        AgentEvidencePackageResponse? payload = await evidenceResponse.Content.ReadFromJsonAsync<AgentEvidencePackageResponse>(JsonOptions);
+        AgentEvidencePackageResponse? payload =
+            await evidenceResponse.Content.ReadFromJsonAsync<AgentEvidencePackageResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Evidence.RunId.Should().Be(runId);
         payload.Evidence.SystemName.Should().Be("EnterpriseRag");

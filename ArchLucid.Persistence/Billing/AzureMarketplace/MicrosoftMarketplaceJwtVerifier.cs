@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
@@ -17,7 +18,7 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
     private readonly IOptionsMonitor<BillingOptions> _billingOptions =
         billingOptions ?? throw new ArgumentNullException(nameof(billingOptions));
 
-    public async Task<System.Security.Claims.ClaimsPrincipal?> ValidateAsync(
+    public async Task<ClaimsPrincipal?> ValidateAsync(
         string bearerToken,
         CancellationToken cancellationToken)
     {
@@ -58,7 +59,7 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
             ValidateAudience = true,
             ValidAudiences = audiences,
             ValidateLifetime = true,
-            IssuerSigningKeys = configuration.SigningKeys,
+            IssuerSigningKeys = configuration.SigningKeys
         };
 
         try

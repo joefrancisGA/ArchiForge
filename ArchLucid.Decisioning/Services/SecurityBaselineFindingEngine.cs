@@ -30,7 +30,8 @@ public class SecurityBaselineFindingEngine : IFindingEngine
 
             List<string> relatedNodeIds = [node.NodeId];
 
-            foreach (string id in protectedIds.Where(id => !relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase)))
+            foreach (string id in protectedIds.Where(id =>
+                         !relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase)))
 
                 relatedNodeIds.Add(id);
 
@@ -75,12 +76,12 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                         ?
                         [
                             "Document compensating controls and accept residual risk for this control gap.",
-                            "Defer enforcement with a tracked exception tied to a remediation date.",
+                            "Defer enforcement with a tracked exception tied to a remediation date."
                         ]
                         :
                         [
                             "Tighten scope: require explicit PROTECTS edges for every in-scope resource.",
-                            "Treat as informational only when the control is inherited from a platform baseline.",
+                            "Treat as informational only when the control is inherited from a platform baseline."
                         ],
                     Notes = [$"PROTECTS edge count: {protectedIds.Count}"]
                 }

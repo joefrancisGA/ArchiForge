@@ -1,15 +1,16 @@
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+
 using DmSec = ArchLucid.Decisioning.Manifest.Sections;
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Manifest;
 
-/// <inheritdoc cref="IAuthorityCommitProjectionBuilder"/>
+/// <inheritdoc cref="IAuthorityCommitProjectionBuilder" />
 public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectionBuilder
 {
     public Task<Cm.GoldenManifest> BuildAsync(
-        ArchLucid.Decisioning.Models.GoldenManifest source,
+        GoldenManifest source,
         AuthorityCommitProjectionInput input,
         CancellationToken cancellationToken = default)
     {
@@ -26,18 +27,18 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
 
         Cm.GoldenManifest result = new()
         {
-            RunId = source.RunId.ToString("D"),
+            RunId = source.RunId.ToString("N"),
             SystemName = input.SystemName,
             Services = [.. source.Topology.Services],
             Datastores = [.. source.Topology.Datastores],
-            Relationships = [],
+            Relationships = [.. source.Topology.Relationships],
             Governance = MapGovernance(source),
-            Metadata = MapMetadata(source),
+            Metadata = MapMetadata(source)
         };
         return Task.FromResult(result);
     }
 
-    private static Cm.ManifestGovernance MapGovernance(ArchLucid.Decisioning.Models.GoldenManifest source)
+    private static Cm.ManifestGovernance MapGovernance(GoldenManifest source)
     {
         List<string> complianceTags = source.Compliance.Controls
             .Select(c => c.ControlName)
@@ -71,17 +72,19 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
             PolicyConstraints = policyConstraints,
             RequiredControls = required,
             RiskClassification = risk,
-            CostClassification = costTier,
+            CostClassification = costTier
         };
     }
 
-    private static Cm.ManifestMetadata MapMetadata(ArchLucid.Decisioning.Models.GoldenManifest source)
+    private static Cm.ManifestMetadata MapMetadata(GoldenManifest source)
     {
         DmSec.ManifestMetadata meta = source.Metadata;
 
         string manifestVersion = "v1";
         if (string.IsNullOrWhiteSpace(meta.Version) is false)
-            manifestVersion = meta.Version.StartsWith("v", StringComparison.OrdinalIgnoreCase) ? meta.Version : $"v{meta.Version}";
+            manifestVersion = meta.Version.StartsWith("v", StringComparison.OrdinalIgnoreCase)
+                ? meta.Version
+                : $"v{meta.Version}";
 
         return new Cm.ManifestMetadata
         {
@@ -89,7 +92,7 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
             ParentManifestVersion = null,
             ChangeDescription = meta.Summary,
             DecisionTraceIds = [source.DecisionTraceId.ToString("N")],
-            CreatedUtc = source.CreatedUtc,
+            CreatedUtc = source.CreatedUtc
         };
     }
 }

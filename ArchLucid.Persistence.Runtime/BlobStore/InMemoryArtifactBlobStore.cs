@@ -16,6 +16,8 @@ public sealed class InMemoryArtifactBlobStore : IArtifactBlobStore
 
     public Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
-        return string.IsNullOrWhiteSpace(blobUri) ? Task.FromResult<string?>(null) : Task.FromResult(_blobs.GetValueOrDefault(blobUri));
+        return string.IsNullOrWhiteSpace(blobUri)
+            ? Task.FromResult<string?>(null)
+            : Task.FromResult(_blobs.GetValueOrDefault(blobUri));
     }
 }

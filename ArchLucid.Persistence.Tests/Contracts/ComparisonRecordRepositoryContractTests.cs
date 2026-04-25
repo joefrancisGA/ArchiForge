@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for <see cref="IComparisonRecordRepository"/>.
+///     Shared contract assertions for <see cref="IComparisonRecordRepository" />.
 /// </summary>
 public abstract class ComparisonRecordRepositoryContractTests
 {
@@ -58,7 +58,8 @@ public abstract class ComparisonRecordRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IComparisonRecordRepository repo = CreateRepository();
 
-        ComparisonRecord? result = await repo.GetByIdAsync("missing_" + Guid.NewGuid().ToString("N"), CancellationToken.None);
+        ComparisonRecord? result =
+            await repo.GetByIdAsync("missing_" + Guid.NewGuid().ToString("N"), CancellationToken.None);
 
         result.Should().BeNull();
     }
@@ -91,7 +92,8 @@ public abstract class ComparisonRecordRepositoryContractTests
         ComparisonRecord row = CreateRecord("cmp_upd_" + Guid.NewGuid().ToString("N"));
         await repo.CreateAsync(row, CancellationToken.None);
 
-        bool ok = await repo.UpdateLabelAndTagsAsync(row.ComparisonRecordId, "new-label", ["x"], CancellationToken.None);
+        bool ok = await repo.UpdateLabelAndTagsAsync(row.ComparisonRecordId, "new-label", ["x"],
+            CancellationToken.None);
 
         ok.Should().BeTrue();
 
@@ -105,7 +107,7 @@ public abstract class ComparisonRecordRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IComparisonRecordRepository repo = CreateRepository();
-        ComparisonRecord e2e = CreateRecord("cmp_e2e_" + Guid.NewGuid().ToString("N"), "end-to-end-replay");
+        ComparisonRecord e2e = CreateRecord("cmp_e2e_" + Guid.NewGuid().ToString("N"));
         ComparisonRecord diff = CreateRecord("cmp_diff_" + Guid.NewGuid().ToString("N"), "export-record-diff");
 
         await repo.CreateAsync(e2e, CancellationToken.None);

@@ -4,27 +4,50 @@ public class TopologyCoverageResult
 {
     public bool HasNetwork
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool HasCompute
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool HasStorage
     {
-        get; set;
+        get;
+        set;
     }
+
     public bool HasData
     {
-        get; set;
+        get;
+        set;
     }
-    public List<string> PresentCategories { get; set; } = [];
-    public List<string> MissingCategories { get; set; } = [];
+
+    public List<string> PresentCategories
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> MissingCategories
+    {
+        get;
+        set;
+    } = [];
+
     public int TopologyNodeCount
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Node ids of all <c>TopologyResource</c> nodes examined for category coverage.</summary>
-    public List<string> TopologyNodeIds { get; set; } = [];
+    public List<string> TopologyNodeIds
+    {
+        get;
+        set;
+    } = [];
 }

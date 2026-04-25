@@ -11,18 +11,18 @@ using ArchLucid.Persistence.Tenancy;
 namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// In-memory implementation of <see cref="IRunRepository"/> for testing and local development.
-/// Capped at <see cref="MaxEntries"/> entries; when full, the oldest run (by <c>CreatedUtc</c>) is
-/// evicted on each new insert to prevent unbounded growth.
-/// All reads are filtered to the caller's tenant, workspace, and project scope.
+///     In-memory implementation of <see cref="IRunRepository" /> for testing and local development.
+///     Capped at <see cref="MaxEntries" /> entries; when full, the oldest run (by <c>CreatedUtc</c>) is
+///     evicted on each new insert to prevent unbounded growth.
+///     All reads are filtered to the caller's tenant, workspace, and project scope.
 /// </summary>
 public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = null) : IRunRepository
 {
     private const int MaxEntries = 2_000;
 
-    private readonly ITenantRepository _tenantRepository = tenantRepository ?? new InMemoryTenantRepository();
-
     private readonly ConcurrentDictionary<Guid, RunRecord> _store = new();
+
+    private readonly ITenantRepository _tenantRepository = tenantRepository ?? new InMemoryTenantRepository();
 
     private long _fakeRowVersion;
 
@@ -61,7 +61,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult<RunRecord?>(r);
     }
 
-    public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take, CancellationToken ct)
+    public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take,
+        CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         int n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
@@ -119,11 +120,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult<IReadOnlyList<RunRecord>>(list);
     }
 
-    private static bool MatchesScope(RunRecord r, ScopeContext scope) =>
-        r.TenantId == scope.TenantId &&
-        r.WorkspaceId == scope.WorkspaceId &&
-        r.ScopeProjectId == scope.ProjectId;
-
     public Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,
@@ -154,13 +150,6 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.CompletedTask;
     }
 
-    private byte[] NextFakeRowVersion()
-    {
-        long v = Interlocked.Increment(ref _fakeRowVersion);
-
-        return BitConverter.GetBytes(v);
-    }
-
     /// <inheritdoc />
     public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
     {
@@ -189,11 +178,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             _store[kv.Key] = r;
         }
 
-        return Task.FromResult(new RunArchiveBatchResult
-        {
-            UpdatedCount = archived.Count,
-            ArchivedRuns = archived
-        });
+        return Task.FromResult(new RunArchiveBatchResult { UpdatedCount = archived.Count, ArchivedRuns = archived });
     }
 
     /// <inheritdoc />
@@ -232,7 +217,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
                 RunId = run.RunId,
                 TenantId = run.TenantId,
                 WorkspaceId = run.WorkspaceId,
-                ScopeProjectId = run.ScopeProjectId,
+                ScopeProjectId = run.ScopeProjectId
             });
 
             run.ArchivedUtc = stamp;
@@ -243,7 +228,21 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         {
             SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
             ArchivedRuns = archived,
-            Failed = failed,
+            Failed = failed
         });
+    }
+
+    private static bool MatchesScope(RunRecord r, ScopeContext scope)
+    {
+        return r.TenantId == scope.TenantId &&
+               r.WorkspaceId == scope.WorkspaceId &&
+               r.ScopeProjectId == scope.ProjectId;
+    }
+
+    private byte[] NextFakeRowVersion()
+    {
+        long v = Interlocked.Increment(ref _fakeRowVersion);
+
+        return BitConverter.GetBytes(v);
     }
 }

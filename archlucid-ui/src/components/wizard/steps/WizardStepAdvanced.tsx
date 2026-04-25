@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
+import type { FieldPath } from "react-hook-form";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import type { WizardFormValues } from "@/lib/wizard-schema";
@@ -27,9 +29,11 @@ function AdvancedChipList(props: {
   hint: string;
   inputId: string;
 }) {
-  const { watch, setValue } = useFormContext<WizardFormValues>();
+  const { watch, setValue, formState, clearErrors } = useFormContext<WizardFormValues>();
+  const { errors } = formState;
   const items: string[] = watch(props.fieldName) ?? [];
   const [draft, setDraft] = useState("");
+  const listErr = errors[props.fieldName]?.message;
 
   const addItem = () => {
     const trimmed = draft.trim();
@@ -38,11 +42,13 @@ function AdvancedChipList(props: {
       return;
     }
 
+    clearErrors(props.fieldName);
     setValue(props.fieldName, [...items, trimmed], { shouldValidate: true, shouldDirty: true });
     setDraft("");
   };
 
   const removeItem = (index: number) => {
+    clearErrors(props.fieldName);
     setValue(
       props.fieldName,
       items.filter((_, idx) => idx !== index),
@@ -57,7 +63,10 @@ function AdvancedChipList(props: {
         <Input
           id={props.inputId}
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            clearErrors(props.fieldName);
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -70,6 +79,10 @@ function AdvancedChipList(props: {
           Add
         </Button>
       </div>
+      <WizardFieldError
+        id={`err-wizard-adv-${props.fieldName}`}
+        message={listErr != null ? String(listErr) : undefined}
+      />
       {items.length > 0 ? (
         <ul className="m-0 flex flex-wrap gap-2 p-0 list-none">
           {items.map((item, index) => (
@@ -121,7 +134,8 @@ function CollapsibleSection(props: {
  * Step 5: optional policy hints, topology, security, documents, infrastructure declarations.
  */
 export function WizardStepAdvanced() {
-  const { control, watch, register } = useFormContext<WizardFormValues>();
+  const { control, watch, register, formState, clearErrors } = useFormContext<WizardFormValues>();
+  const { errors } = formState;
   const policyReferences = watch("policyReferences") ?? [];
   const topologyHints = watch("topologyHints") ?? [];
   const securityBaselineHints = watch("securityBaselineHints") ?? [];
@@ -184,20 +198,63 @@ export function WizardStepAdvanced() {
                   <label className="mb-1 block text-xs font-medium" htmlFor={`doc-name-${index}`}>
                     Name
                   </label>
-                  <Input id={`doc-name-${index}`} {...register(`documents.${index}.name`)} />
+                  <Input
+                    id={`doc-name-${index}`}
+                    {...register(`documents.${index}.name`, {
+                      onChange: () => {
+                        clearErrors(`documents.${index}.name` as FieldPath<WizardFormValues>);
+                      },
+                    })}
+                  />
+                  <WizardFieldError
+                    message={
+                      errors.documents?.[index]?.name?.message != null
+                        ? String(errors.documents[index]!.name!.message)
+                        : undefined
+                    }
+                  />
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium" htmlFor={`doc-ct-${index}`}>
                     Content type
                   </label>
-                  <Input id={`doc-ct-${index}`} {...register(`documents.${index}.contentType`)} />
+                  <Input
+                    id={`doc-ct-${index}`}
+                    {...register(`documents.${index}.contentType`, {
+                      onChange: () => {
+                        clearErrors(`documents.${index}.contentType` as FieldPath<WizardFormValues>);
+                      },
+                    })}
+                  />
+                  <WizardFieldError
+                    message={
+                      errors.documents?.[index]?.contentType?.message != null
+                        ? String(errors.documents[index]!.contentType!.message)
+                        : undefined
+                    }
+                  />
                 </div>
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium" htmlFor={`doc-body-${index}`}>
                   Content
                 </label>
-                <Textarea id={`doc-body-${index}`} rows={4} {...register(`documents.${index}.content`)} />
+                <Textarea
+                  id={`doc-body-${index}`}
+                  rows={4}
+                  {...register(`documents.${index}.content`, {
+                    onChange: () => {
+                      clearErrors(`documents.${index}.content` as FieldPath<WizardFormValues>);
+                    },
+                  })}
+                />
+                <WizardFieldError
+                  message={
+                    errors.documents?.[index]?.content?.message != null
+                      ? String(errors.documents[index]!.content!.message)
+                      : undefined
+                  }
+                />
               </div>
               <Button type="button" variant="outline" size="sm" onClick={() => removeDoc(index)}>
                 Remove document
@@ -227,7 +284,23 @@ export function WizardStepAdvanced() {
                   <label className="mb-1 block text-xs font-medium" htmlFor={`infra-name-${index}`}>
                     Name
                   </label>
-                  <Input id={`infra-name-${index}`} {...register(`infrastructureDeclarations.${index}.name`)} />
+                  <Input
+                    id={`infra-name-${index}`}
+                    {...register(`infrastructureDeclarations.${index}.name`, {
+                      onChange: () => {
+                        clearErrors(
+                          `infrastructureDeclarations.${index}.name` as FieldPath<WizardFormValues>,
+                        );
+                      },
+                    })}
+                  />
+                  <WizardFieldError
+                    message={
+                      errors.infrastructureDeclarations?.[index]?.name?.message != null
+                        ? String(errors.infrastructureDeclarations[index]!.name!.message)
+                        : undefined
+                    }
+                  />
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium" htmlFor={`infra-format-${index}`}>
@@ -237,7 +310,15 @@ export function WizardStepAdvanced() {
                     name={`infrastructureDeclarations.${index}.format`}
                     control={control}
                     render={({ field }) => (
-                      <Select value={field.value || "json"} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value || "json"}
+                        onValueChange={(v) => {
+                          clearErrors(
+                            `infrastructureDeclarations.${index}.format` as FieldPath<WizardFormValues>,
+                          );
+                          field.onChange(v);
+                        }}
+                      >
                         <SelectTrigger id={`infra-format-${index}`}>
                           <SelectValue placeholder="Format" />
                         </SelectTrigger>
@@ -248,6 +329,13 @@ export function WizardStepAdvanced() {
                       </Select>
                     )}
                   />
+                  <WizardFieldError
+                    message={
+                      errors.infrastructureDeclarations?.[index]?.format?.message != null
+                        ? String(errors.infrastructureDeclarations[index]!.format!.message)
+                        : undefined
+                    }
+                  />
                 </div>
               </div>
               <div>
@@ -257,7 +345,20 @@ export function WizardStepAdvanced() {
                 <Textarea
                   id={`infra-body-${index}`}
                   rows={4}
-                  {...register(`infrastructureDeclarations.${index}.content`)}
+                  {...register(`infrastructureDeclarations.${index}.content`, {
+                    onChange: () => {
+                      clearErrors(
+                        `infrastructureDeclarations.${index}.content` as FieldPath<WizardFormValues>,
+                      );
+                    },
+                  })}
+                />
+                <WizardFieldError
+                  message={
+                    errors.infrastructureDeclarations?.[index]?.content?.message != null
+                      ? String(errors.infrastructureDeclarations[index]!.content!.message)
+                      : undefined
+                  }
                 />
               </div>
               <Button type="button" variant="outline" size="sm" onClick={() => removeInfra(index)}>

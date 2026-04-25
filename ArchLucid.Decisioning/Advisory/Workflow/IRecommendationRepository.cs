@@ -1,16 +1,18 @@
 namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
-/// Persists <see cref="RecommendationRecord"/> rows scoped by tenant, workspace, project, and authority <see cref="RecommendationRecord.RunId"/>.
+///     Persists <see cref="RecommendationRecord" /> rows scoped by tenant, workspace, project, and authority
+///     <see cref="RecommendationRecord.RunId" />.
 /// </summary>
 /// <remarks>
-/// SQL table: <c>dbo.RecommendationRecords</c>. Implementations live in <c>ArchLucid.Persistence.Advisory</c> (Dapper / in-memory).
-/// HTTP: <c>ArchLucid.Api.Controllers.AdvisoryController</c> lists and drives actions; workflow persistence uses
-/// <c>RecommendationWorkflowService</c>; learning and alert simulation also read counts via this abstraction.
+///     SQL table: <c>dbo.RecommendationRecords</c>. Implementations live in <c>ArchLucid.Persistence.Advisory</c> (Dapper
+///     / in-memory).
+///     HTTP: <c>ArchLucid.Api.Controllers.AdvisoryController</c> lists and drives actions; workflow persistence uses
+///     <c>RecommendationWorkflowService</c>; learning and alert simulation also read counts via this abstraction.
 /// </remarks>
 public interface IRecommendationRepository
 {
-    /// <summary>Inserts or updates a single recommendation by <see cref="RecommendationRecord.RecommendationId"/>.</summary>
+    /// <summary>Inserts or updates a single recommendation by <see cref="RecommendationRecord.RecommendationId" />.</summary>
     /// <param name="recommendation">Fully populated row; JSON columns must already be serialized strings.</param>
     /// <param name="ct">Cancellation token.</param>
     Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct);
@@ -20,7 +22,7 @@ public interface IRecommendationRepository
     Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct);
 
     /// <summary>Lists recommendations for a specific authority run within the given scope.</summary>
-    /// <returns>Ordered by priority score descending, then <see cref="RecommendationRecord.CreatedUtc"/> descending.</returns>
+    /// <returns>Ordered by priority score descending, then <see cref="RecommendationRecord.CreatedUtc" /> descending.</returns>
     Task<IReadOnlyList<RecommendationRecord>> ListByRunAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -30,12 +32,12 @@ public interface IRecommendationRepository
 
     /// <summary>Lists the most recently updated recommendations in the scope, optionally filtered by status string.</summary>
     /// <param name="projectId"></param>
-    /// <param name="status">When non-null, only rows whose <see cref="RecommendationRecord.Status"/> equals this value.</param>
+    /// <param name="status">When non-null, only rows whose <see cref="RecommendationRecord.Status" /> equals this value.</param>
     /// <param name="take">Maximum rows to return (SQL Server: <c>TOP</c>).</param>
     /// <param name="tenantId"></param>
     /// <param name="workspaceId"></param>
     /// <param name="ct"></param>
-    /// <returns>Newest <see cref="RecommendationRecord.LastUpdatedUtc"/> first.</returns>
+    /// <returns>Newest <see cref="RecommendationRecord.LastUpdatedUtc" /> first.</returns>
     Task<IReadOnlyList<RecommendationRecord>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

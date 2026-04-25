@@ -119,7 +119,7 @@ export function WelcomeBanner() {
               <>
                 You have <strong>{days}</strong> calendar day{days === 1 ? "" : "s"} left on the self-service trial.
                 Explore the seeded sample run from{" "}
-                <Link href="/onboarding/start" className="text-teal-800 underline dark:text-teal-300">
+                <Link href="/getting-started?source=registration" className="text-teal-800 underline dark:text-teal-300">
                   onboarding
                 </Link>{" "}
                 or start a fresh architecture run.
@@ -127,7 +127,7 @@ export function WelcomeBanner() {
             ) : (
               <>
                 Explore the guided{" "}
-                <Link href="/onboarding/start" className="text-teal-800 underline dark:text-teal-300">
+                <Link href="/getting-started?source=registration" className="text-teal-800 underline dark:text-teal-300">
                   onboarding checklist
                 </Link>{" "}
                 or jump into the wizard when you are ready.
@@ -153,7 +153,7 @@ export function WelcomeBanner() {
         </Button>
         {trialActive ? (
           <Button asChild variant="outline">
-            <Link href="/onboarding/start">Open onboarding</Link>
+            <Link href="/getting-started?source=registration">Open onboarding</Link>
           </Button>
         ) : null}
       </div>

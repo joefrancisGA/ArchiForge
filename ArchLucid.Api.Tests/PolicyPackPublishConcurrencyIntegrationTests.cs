@@ -9,7 +9,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Parallel publish of the same policy pack version converges on one published <see cref="PolicyPackVersionResponse"/>.
+///     Parallel publish of the same policy pack version converges on one published
+///     <see cref="PolicyPackVersionResponse" />.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -18,8 +19,7 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null, true) }
     };
 
     private static StringContent JsonContent(object value)
@@ -49,17 +49,14 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
                         name = "Concurrency publish pack",
                         description = "",
                         packType = "ProjectCustom",
-                        initialContentJson = "{}",
+                        initialContentJson = "{}"
                     }));
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            PolicyPackResponse? created =
+                await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
-            object body = new
-            {
-                version = "2.1.0-conc",
-                contentJson = """{"metadata":{"k":"conc8"}}""",
-            };
+            object body = new { version = "2.1.0-conc", contentJson = """{"metadata":{"k":"conc8"}}""" };
 
             const int parallel = 8;
             Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
@@ -78,7 +75,8 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
                 foreach (HttpResponseMessage response in responses)
                 {
                     response.StatusCode.Should().Be(HttpStatusCode.OK);
-                    PolicyPackVersionResponse? row = await response.Content.ReadFromJsonAsync<PolicyPackVersionResponse>(JsonOptions);
+                    PolicyPackVersionResponse? row =
+                        await response.Content.ReadFromJsonAsync<PolicyPackVersionResponse>(JsonOptions);
                     row.Should().NotBeNull();
 
                     if (versionId is null)
@@ -112,22 +110,41 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
     {
         public Guid PolicyPackId
         {
-            get; init;
+            get;
+            init;
         }
-        public string Name { get; init; } = "";
+
+        public string Name
+        {
+            get;
+            init;
+        } = "";
     }
 
     private sealed class PolicyPackVersionResponse
     {
         public Guid PolicyPackVersionId
         {
-            get; init;
+            get;
+            init;
         }
-        public string Version { get; init; } = "";
-        public string ContentJson { get; init; } = "";
+
+        public string Version
+        {
+            get;
+            init;
+        } = "";
+
+        public string ContentJson
+        {
+            get;
+            init;
+        } = "";
+
         public bool IsPublished
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

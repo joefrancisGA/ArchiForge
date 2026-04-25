@@ -37,12 +37,12 @@ internal static class PipelineExtensions
                         .GetRequiredService<ILogger<WebApplication>>();
 
                     if (logger.IsEnabled(LogLevel.Error))
-
-                        logger.LogError(
+                    {
+                        logger.LogErrorUnhandledWorkerHttpRequest(
                             ex,
-                            "Unhandled exception for {Method} {Path}",
-                            LogSanitizer.Sanitize(context.Request.Method),
-                            LogSanitizer.Sanitize(context.Request.Path.Value));
+                            context.Request.Method,
+                            context.Request.Path.Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
+                    }
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()

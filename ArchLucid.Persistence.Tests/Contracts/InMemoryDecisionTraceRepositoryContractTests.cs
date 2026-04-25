@@ -4,7 +4,7 @@ using ArchLucid.Decisioning.Repositories;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Runs <see cref="DecisionTraceRepositoryContractTests"/> against <see cref="InMemoryDecisionTraceRepository"/>.
+///     Runs <see cref="DecisionTraceRepositoryContractTests" /> against <see cref="InMemoryDecisionTraceRepository" />.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

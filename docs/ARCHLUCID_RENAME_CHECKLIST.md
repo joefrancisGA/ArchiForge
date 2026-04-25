@@ -1,6 +1,6 @@
 > **Scope:** ArchiForge → ArchLucid Rename Checklist - full detail, tables, and links in the sections below.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Internal only — do not open this checklist looking for mandatory rename batches.** The rename initiative **closed 2026-04-19**; this file is historical receipts and maintenance guidance. For onboarding, start at **[`READ_THIS_FIRST.md`](READ_THIS_FIRST.md)** instead of this checklist.
 
 
 # ArchiForge → ArchLucid Rename Checklist

@@ -1,0 +1,80 @@
+{
+  "runId": "20000000-0000-4000-8000-000000000006",
+  "contextSnapshotId": "10000000-0000-4000-8000-000000000006",
+  "graphSnapshot": {
+    "schemaVersion": 1,
+    "graphSnapshotId": "00000006-0000-4000-8000-000000000000",
+    "contextSnapshotId": "10000000-0000-4000-8000-000000000006",
+    "runId": "20000000-0000-4000-8000-000000000006",
+    "createdUtc": "2026-01-15T12:00:00Z",
+    "nodes": [
+      {
+        "nodeId": "r1",
+        "nodeType": "Requirement",
+        "label": "Auth-0",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "text": "Authenticate users"
+        }
+      },
+      {
+        "nodeId": "t1",
+        "nodeType": "TopologyResource",
+        "label": "vpc",
+        "category": "network",
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {}
+      },
+      {
+        "nodeId": "s1",
+        "nodeType": "SecurityBaseline",
+        "label": "MFA",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "controlId": "AC-2",
+          "status": "missing"
+        }
+      },
+      {
+        "nodeId": "c1",
+        "nodeType": "CostConstraint",
+        "label": "Prod",
+        "category": null,
+        "sourceType": null,
+        "sourceId": null,
+        "properties": {
+          "budgetName": "Prod",
+          "maxMonthlyCost": "5000",
+          "costRisk": "high"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "edgeId": "rel1",
+        "fromNodeId": "r1",
+        "toNodeId": "t1",
+        "edgeType": "RELATES_TO",
+        "label": "relates to",
+        "weight": 1,
+        "properties": {}
+      },
+      {
+        "edgeId": "p1",
+        "fromNodeId": "s1",
+        "toNodeId": "t1",
+        "edgeType": "PROTECTS",
+        "label": "protects",
+        "weight": 1,
+        "properties": {}
+      }
+    ],
+    "warnings": []
+  },
+  "merge": null
+}

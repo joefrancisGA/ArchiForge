@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GovernanceDashboardReaderActionCue } from "@/components/EnterpriseControlsContextHints";
+import { ContextualHelp } from "@/components/ContextualHelp";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -312,8 +314,17 @@ export default function GovernanceDashboardPage() {
   return (
     <main className="mx-auto max-w-4xl px-1 sm:px-0">
       <LayerHeader pageKey="governance-dashboard" />
-      <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
+      <div className="mb-0 flex flex-wrap items-center gap-2">
+        <h2 className="m-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
+        <ContextualHelp helpKey="governance-dashboard" />
+      </div>
       <GovernanceDashboardReaderActionCue />
+
+      <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        Track <GlossaryTooltip termKey="approval_request">approval requests</GlossaryTooltip> and route work through{" "}
+        <GlossaryTooltip termKey="governance_resolution">governance resolution</GlossaryTooltip> when policy requires a
+        decision before promotion.
+      </p>
 
       {failure !== null ? (
         <div className="mb-6" role="alert">

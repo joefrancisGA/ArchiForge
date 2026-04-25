@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { createArchitectureRunMock, getRunSummaryMock } = vi.hoisted(() => ({
   createArchitectureRunMock: vi.fn(),
@@ -46,6 +46,26 @@ async function clickNextAndSettle() {
 describe("NewRunWizardClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+        if (url.includes("/v1/agent-execution/cost-preview")) {
+          return {
+            ok: true,
+            json: async () => ({
+              mode: "Simulator",
+              maxCompletionTokens: 4096,
+              estimatedCostUsd: null,
+              deploymentName: null,
+            }),
+          };
+        }
+
+        return { ok: false, status: 404, json: async () => ({}) };
+      }),
+    );
     createArchitectureRunMock.mockResolvedValue({ run: { runId: "integration-run-1" } });
     getRunSummaryMock.mockResolvedValue({
       runId: "integration-run-1",
@@ -111,17 +131,72 @@ describe("NewRunWizardClient", () => {
     expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
   });
 
-  it("disables Next when the current step has blocking validation errors", async () => {
+  it("blocks Next and shows an inline system name error when required field is empty", async () => {
     render(<NewRunWizardClient />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    expect(greenfieldCard).toBeTruthy();
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
 
     const systemName = screen.getByLabelText("System name");
     fireEvent.change(systemName, { target: { value: "" } });
-    fireEvent.blur(systemName);
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
     });
+
+    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/System name is required/i);
+  });
+
+  it("clears the system name error when the user types", async () => {
+    render(<NewRunWizardClient />);
+
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+
+    const systemName = screen.getByLabelText("System name");
+    fireEvent.change(systemName, { target: { value: "" } });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+
+    fireEvent.change(systemName, { target: { value: "X" } });
+    await waitFor(() => {
+      expect(screen.queryByText(/System name is required/i)).toBeNull();
+    });
+  });
+
+  it("advances from identity when fields satisfy validation", async () => {
+    render(<NewRunWizardClient />);
+
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 });

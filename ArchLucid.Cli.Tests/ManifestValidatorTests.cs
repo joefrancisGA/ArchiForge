@@ -5,6 +5,18 @@ namespace ArchLucid.Cli.Tests;
 [Trait("Category", "Unit")]
 public sealed class ManifestValidatorTests
 {
+    /// <summary>Minimal object schema requiring string property <c>id</c> (JsonSchema.Net).</summary>
+    private const string MinimalObjectSchemaJson =
+        """
+        {
+          "type": "object",
+          "required": [ "id" ],
+          "properties": {
+            "id": { "type": "string" }
+          }
+        }
+        """;
+
     [Fact]
     public void ValidateOrThrow_when_schema_missing_throws_FileNotFoundException()
     {
@@ -83,31 +95,23 @@ public sealed class ManifestValidatorTests
         errorsJson.Should().NotBeNullOrWhiteSpace();
     }
 
-    /// <summary>Minimal object schema requiring string property <c>id</c> (JsonSchema.Net).</summary>
-    private const string MinimalObjectSchemaJson =
-        """
-        {
-          "type": "object",
-          "required": [ "id" ],
-          "properties": {
-            "id": { "type": "string" }
-          }
-        }
-        """;
-
     private sealed class TempDirectory : IDisposable
     {
-        public string Path
-        {
-            get;
-        } =
-            System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
-
         public TempDirectory()
         {
             Directory.CreateDirectory(Path);
         }
 
-        public void Dispose() => Directory.Delete(Path, recursive: true);
+        public string Path
+        {
+            get;
+        } =
+            System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+                "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
+
+        public void Dispose()
+        {
+            Directory.Delete(Path, true);
+        }
     }
 }

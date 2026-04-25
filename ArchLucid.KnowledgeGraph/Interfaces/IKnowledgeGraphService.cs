@@ -9,4 +9,3 @@ public interface IKnowledgeGraphService
         ContextSnapshot contextSnapshot,
         CancellationToken ct);
 }
-

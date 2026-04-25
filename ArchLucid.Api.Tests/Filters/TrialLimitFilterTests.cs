@@ -20,7 +20,7 @@ public sealed class TrialLimitFilterTests
         {
             TraceIdentifier = "test-correlation"
         };
-        TrialLimitExceededException ex = new(TrialLimitReason.Expired, daysRemaining: 0);
+        TrialLimitExceededException ex = new(TrialLimitReason.Expired, 0);
 
         ObjectResult result = TrialLimitProblemResponse.CreateResult(ex, "/v1/runs", http);
 
@@ -29,7 +29,8 @@ public sealed class TrialLimitFilterTests
         problem.Should().NotBeNull();
         problem.Type.Should().Be(ProblemTypes.TrialExpired);
 
-        string json = JsonSerializer.Serialize(problem, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        string json = JsonSerializer.Serialize(problem,
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         using JsonDocument doc = JsonDocument.Parse(json);
         JsonElement root = doc.RootElement;
 

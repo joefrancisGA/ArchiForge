@@ -130,6 +130,30 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       continue;
     }
 
+    if (line.startsWith("## ") && !line.startsWith("###")) {
+      const title = line.slice(3).trim();
+      blocks.push(
+        <h2 key={`h2-${key}`} className="mt-8 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+          {renderInline(title, `h2-${key}`)}
+        </h2>,
+      );
+      key++;
+      i++;
+      continue;
+    }
+
+    if (line.startsWith("# ") && !line.startsWith("##")) {
+      const title = line.slice(2).trim();
+      blocks.push(
+        <h1 key={`h1-${key}`} className="mt-2 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
+          {renderInline(title, `h1-${key}`)}
+        </h1>,
+      );
+      key++;
+      i++;
+      continue;
+    }
+
     if (line.startsWith("### ")) {
       const title = line.slice(4).trim();
       blocks.push(
@@ -139,6 +163,35 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
       );
       key++;
       i++;
+      continue;
+    }
+
+    if (line.trimStart().startsWith(">")) {
+      const quoteLines: string[] = [];
+      while (i < lines.length) {
+        const l = lines[i] ?? "";
+        const t = l.trimStart();
+        if (!t.startsWith(">")) {
+          break;
+        }
+
+        quoteLines.push(t.slice(1).trimStart());
+        i++;
+      }
+
+      const body = quoteLines.join("\n").trim();
+      if (body.length > 0) {
+        blocks.push(
+          <blockquote
+            key={`bq-${key}`}
+            className="my-4 border-l-4 border-neutral-300 pl-4 text-sm italic text-neutral-700 dark:border-neutral-600 dark:text-neutral-300"
+          >
+            <p className="m-0 leading-relaxed">{renderInline(body, `bq-${key}`)}</p>
+          </blockquote>,
+        );
+        key++;
+      }
+
       continue;
     }
 
@@ -264,7 +317,15 @@ export function MarketingAccessibilityMarkdownFragment(props: MarketingAccessibi
         break;
       }
 
-      if (l.startsWith("### ") || isTableRow(l) || l.trimStart().startsWith("- ") || /^\d+\.\s+/.test(l.trimStart())) {
+      if (
+        (l.startsWith("## ") && !l.startsWith("###")) ||
+        (l.startsWith("# ") && !l.startsWith("##")) ||
+        l.startsWith("### ") ||
+        l.trimStart().startsWith(">") ||
+        isTableRow(l) ||
+        l.trimStart().startsWith("- ") ||
+        /^\d+\.\s+/.test(l.trimStart())
+      ) {
         break;
       }
 

@@ -6,104 +6,173 @@ namespace ArchLucid.Persistence.Coordination.ProductLearning;
 [ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class FeedbackAggregateSqlRow
 {
-    public string AggregateKey { get; init; } = string.Empty;
+    public string AggregateKey
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public string? PatternKeyRaw
     {
-        get; init;
+        get;
+        init;
     }
-    public string SubjectTypeOrWorkflowArea { get; init; } = string.Empty;
+
+    public string SubjectTypeOrWorkflowArea
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public int DistinctRunCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int TotalSignalCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int TrustedCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int RejectedCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int RevisedCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int NeedsFollowUpCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? DominantThemeHint
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime FirstSignalRecordedUtc
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime LastSignalRecordedUtc
     {
-        get; init;
+        get;
+        init;
     }
 }
 
 [ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class ArtifactOutcomeTrendSqlRow
 {
-    public string TrendKey { get; init; } = string.Empty;
-    public string ArtifactTypeOrHint { get; init; } = string.Empty;
+    public string TrendKey
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    public string ArtifactTypeOrHint
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public int AcceptedOrTrustedCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int RevisionCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int RejectionCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int NeedsFollowUpCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public int DistinctRunCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public string? RepeatedThemeIndicator
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime FirstSeenUtc
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime LastSeenUtc
     {
-        get; init;
+        get;
+        init;
     }
 }
 
 [ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class RepeatedCommentThemeSqlRow
 {
-    public string ThemeKey { get; init; } = string.Empty;
+    public string ThemeKey
+    {
+        get;
+        init;
+    } = string.Empty;
+
     public long OccurrenceCount
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime FirstSeenUtc
     {
-        get; init;
+        get;
+        init;
     }
+
     public DateTime LastSeenUtc
     {
-        get; init;
+        get;
+        init;
     }
-    public string SampleCommentShort { get; init; } = string.Empty;
+
+    public string SampleCommentShort
+    {
+        get;
+        init;
+    } = string.Empty;
 }

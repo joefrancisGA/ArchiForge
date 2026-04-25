@@ -19,7 +19,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP surface for governance <c>?dryRun=true</c> (response headers and controller wiring).
+///     HTTP surface for governance <c>?dryRun=true</c> (response headers and controller wiring).
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class GovernanceControllerDryRunTests
@@ -29,16 +29,15 @@ public sealed class GovernanceControllerDryRunTests
     {
         Mock<IGovernanceWorkflowService> workflow = new();
         workflow
-            .Setup(
-                w => w.SubmitApprovalRequestAsync(
-                    "r1",
-                    "v1",
-                    "dev",
-                    "test",
-                    "actor-1",
-                    null,
-                    true,
-                    It.IsAny<CancellationToken>()))
+            .Setup(w => w.SubmitApprovalRequestAsync(
+                "r1",
+                "v1",
+                "dev",
+                "test",
+                "actor-1",
+                null,
+                true,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new GovernanceApprovalRequest
                 {
@@ -46,7 +45,7 @@ public sealed class GovernanceControllerDryRunTests
                     ManifestVersion = "v1",
                     SourceEnvironment = "dev",
                     TargetEnvironment = "test",
-                    Status = GovernanceApprovalStatus.Submitted,
+                    Status = GovernanceApprovalStatus.Submitted
                 });
 
         Mock<IActorContext> actor = new();
@@ -63,6 +62,7 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IGovernanceRationaleService>(),
             Mock.Of<IComplianceDriftTrendService>(),
+            Mock.Of<IPolicyPackDryRunService>(),
             NullLogger<GovernanceController>.Instance);
 
         DefaultHttpContext http = new()
@@ -74,12 +74,9 @@ public sealed class GovernanceControllerDryRunTests
         IActionResult actionResult = await sut.SubmitApprovalRequest(
             new CreateGovernanceApprovalRequest
             {
-                RunId = "r1",
-                ManifestVersion = "v1",
-                SourceEnvironment = "dev",
-                TargetEnvironment = "test",
+                RunId = "r1", ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
             },
-            dryRun: true,
+            true,
             CancellationToken.None);
 
         actionResult.Should().BeOfType<OkObjectResult>();
@@ -91,17 +88,16 @@ public sealed class GovernanceControllerDryRunTests
     {
         Mock<IGovernanceWorkflowService> workflow = new();
         workflow
-            .Setup(
-                w => w.PromoteAsync(
-                    "r1",
-                    "v1",
-                    "test",
-                    GovernanceEnvironment.Prod,
-                    "promoter",
-                    "apr-1",
-                    null,
-                    true,
-                    It.IsAny<CancellationToken>()))
+            .Setup(w => w.PromoteAsync(
+                "r1",
+                "v1",
+                "test",
+                GovernanceEnvironment.Prod,
+                "promoter",
+                "apr-1",
+                null,
+                true,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new GovernancePromotionRecord
                 {
@@ -110,7 +106,7 @@ public sealed class GovernanceControllerDryRunTests
                     SourceEnvironment = "test",
                     TargetEnvironment = GovernanceEnvironment.Prod,
                     PromotedBy = "promoter",
-                    ApprovalRequestId = "apr-1",
+                    ApprovalRequestId = "apr-1"
                 });
 
         GovernanceController sut = new(
@@ -124,6 +120,7 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IGovernanceRationaleService>(),
             Mock.Of<IComplianceDriftTrendService>(),
+            Mock.Of<IPolicyPackDryRunService>(),
             NullLogger<GovernanceController>.Instance);
 
         DefaultHttpContext http = new()
@@ -140,9 +137,9 @@ public sealed class GovernanceControllerDryRunTests
                 SourceEnvironment = "test",
                 TargetEnvironment = GovernanceEnvironment.Prod,
                 PromotedBy = "promoter",
-                ApprovalRequestId = "apr-1",
+                ApprovalRequestId = "apr-1"
             },
-            dryRun: true,
+            true,
             CancellationToken.None);
 
         actionResult.Should().BeOfType<OkObjectResult>();
