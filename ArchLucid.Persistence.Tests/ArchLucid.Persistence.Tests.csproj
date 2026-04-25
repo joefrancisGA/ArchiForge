@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Alerts\ArchLucid.Persistence.Alerts.csproj" />
     <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
