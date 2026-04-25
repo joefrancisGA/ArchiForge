@@ -129,11 +129,11 @@ curl -sS -o /dev/null -w "%{http_code}\n" -X POST "https://<staging-api-host>/v1
 `BillingCheckoutController` requires **`[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]`**. The body is **`BillingCheckoutPostRequest`**: `targetTier` (`Team` / `Pro` / `Enterprise`), `returnUrl`, `cancelUrl`, optional `seats`, `workspaces`, `billingEmail`.
 
 1. **Browser path:** In the operator UI, use **Convert to paid** (see [operator-shell.md](../library/operator-shell.md)) and capture the **`POST /v1/tenant/billing/checkout`** response in **DevTools** → **Network** if you need the JSON.
-2. **curl path** (replace `YOUR_JWT` and scope URLs to your UI):
+2. **curl path** (`export JWT='<your token>'` first; use `${JWT}` in the header — an 8+ character placeholder like `YOUR_JWT` after `Bearer` matches `gitleaks`’s `curl-auth-header` rule in CI). Scope URLs to your UI.
 
 ```bash
 curl -sS -X POST "https://<staging-api-host>/v1/tenant/billing/checkout" \
-  -H "Authorization: Bearer YOUR_JWT" \
+  -H "Authorization: Bearer ${JWT}" \
   -H "Content-Type: application/json" \
   -H "X-Tenant-Id: <tenant-guid>" \
   -H "X-Workspace-Id: <workspace-guid>" \
