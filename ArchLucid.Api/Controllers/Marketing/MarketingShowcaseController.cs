@@ -1,3 +1,4 @@
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Host.Core.Marketing;
@@ -31,13 +32,15 @@ public sealed class MarketingShowcaseController(IPublicShowcaseCommitPageClient 
     public async Task<IActionResult> GetShowcase(string runKey, CancellationToken cancellationToken = default)
     {
         if (!TryResolveRunId(runKey, out Guid runId))
-            return NotFound();
+            return this.NotFoundProblem(
+                "The showcase run key is not recognized.",
+                type: ProblemTypes.ResourceNotFound);
 
         DemoCommitPagePreviewResponse? payload =
             await _showcaseClient.GetShowcaseCommitPageAsync(runId, cancellationToken);
 
         if (payload is null)
-            return NotFound();
+            return this.NotFoundProblem("The showcase was not found.", type: ProblemTypes.ResourceNotFound);
 
         return Ok(payload);
     }

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -106,7 +107,7 @@ public sealed class ScimTokensAdminController(
         bool ok = await _tokens.TryRevokeByIdAsync(tenantId, id, cancellationToken);
 
         if (!ok)
-            return NotFound();
+            return this.NotFoundProblem("The SCIM token was not found or could not be revoked.", type: ProblemTypes.ResourceNotFound);
 
         await _auditService.LogAsync(
             new AuditEvent

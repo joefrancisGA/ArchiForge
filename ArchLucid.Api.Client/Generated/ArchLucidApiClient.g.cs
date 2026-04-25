@@ -58,129 +58,129 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsGETAsync(int? startIndex, int? count, string? api_versionQuery, string? api_versionHeader);
+        System.Threading.Tasks.Task GroupsGETAsync(int? startIndex, int? count);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsGETAsync(int? startIndex, int? count, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task GroupsGETAsync(int? startIndex, int? count, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsPOSTAsync(string? api_versionQuery, string? api_versionHeader);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsPOSTAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsGET2Async(System.Guid id, string? api_versionQuery, string? api_versionHeader);
+        System.Threading.Tasks.Task GroupsPOSTAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsGET2Async(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task GroupsPOSTAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsPATCHAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsPATCHAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsPUTAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader);
+        System.Threading.Tasks.Task GroupsGET2Async(System.Guid id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task GroupsPUTAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task GroupsGET2Async(System.Guid id, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ResourceTypesAsync(string? api_versionQuery, string? api_versionHeader);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ResourceTypesAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SchemasAsync(string? api_versionQuery, string? api_versionHeader);
+        System.Threading.Tasks.Task GroupsPATCHAsync(System.Guid id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task SchemasAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task GroupsPATCHAsync(System.Guid id, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ServiceProviderConfigAsync(string? api_versionQuery, string? api_versionHeader);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task ServiceProviderConfigAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersGETAsync(string? filter, int? startIndex, int? count, string? api_versionQuery, string? api_versionHeader);
+        System.Threading.Tasks.Task GroupsPUTAsync(System.Guid id);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersGETAsync(string? filter, int? startIndex, int? count, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task GroupsPUTAsync(System.Guid id, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersPOSTAsync(string? api_versionQuery, string? api_versionHeader);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersPOSTAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersDELETEAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader);
+        System.Threading.Tasks.Task ResourceTypesAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersDELETEAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ResourceTypesAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersGET2Async(System.Guid id, string? api_versionQuery, string? api_versionHeader);
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersGET2Async(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
-
-        /// <returns>OK</returns>
-        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersPATCHAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader);
+        System.Threading.Tasks.Task SchemasAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersPATCHAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task SchemasAsync(System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersPUTAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader);
+        System.Threading.Tasks.Task ServiceProviderConfigAsync();
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task UsersPUTAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task ServiceProviderConfigAsync(System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersGETAsync(string? filter, int? startIndex, int? count);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersGETAsync(string? filter, int? startIndex, int? count, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersPOSTAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersPOSTAsync(System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersDELETEAsync(System.Guid id);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersDELETEAsync(System.Guid id, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersGET2Async(System.Guid id);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersGET2Async(System.Guid id, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersPATCHAsync(System.Guid id);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersPATCHAsync(System.Guid id, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersPUTAsync(System.Guid id);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task UsersPUTAsync(System.Guid id, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -2723,15 +2723,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task GroupsGETAsync(int? startIndex, int? count, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task GroupsGETAsync(int? startIndex, int? count)
         {
-            return GroupsGETAsync(startIndex, count, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return GroupsGETAsync(startIndex, count, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task GroupsGETAsync(int? startIndex, int? count, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task GroupsGETAsync(int? startIndex, int? count, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -2739,9 +2739,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
 
@@ -2758,10 +2755,6 @@ namespace ArchLucid.Api.Client.Generated
                     {
                         urlBuilder_.Append(System.Uri.EscapeDataString("count")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(count, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
                     urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -2813,15 +2806,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task GroupsPOSTAsync(string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task GroupsPOSTAsync()
         {
-            return GroupsPOSTAsync(api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return GroupsPOSTAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task GroupsPOSTAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task GroupsPOSTAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -2829,9 +2822,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
@@ -2840,12 +2830,6 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "scim/v2/Groups"
                     urlBuilder_.Append("scim/v2/Groups");
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -2896,15 +2880,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task GroupsGET2Async(System.Guid id, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task GroupsGET2Async(System.Guid id)
         {
-            return GroupsGET2Async(id, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return GroupsGET2Async(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task GroupsGET2Async(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task GroupsGET2Async(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -2915,9 +2899,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
 
@@ -2926,12 +2907,6 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "scim/v2/Groups/{id}"
                     urlBuilder_.Append("scim/v2/Groups/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -2982,15 +2957,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task GroupsPATCHAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task GroupsPATCHAsync(System.Guid id)
         {
-            return GroupsPATCHAsync(id, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return GroupsPATCHAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task GroupsPATCHAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task GroupsPATCHAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -3001,9 +2976,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("PATCH");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
@@ -3013,12 +2985,6 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "scim/v2/Groups/{id}"
                     urlBuilder_.Append("scim/v2/Groups/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3069,15 +3035,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task GroupsPUTAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task GroupsPUTAsync(System.Guid id)
         {
-            return GroupsPUTAsync(id, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return GroupsPUTAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task GroupsPUTAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task GroupsPUTAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -3088,9 +3054,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
@@ -3100,12 +3063,6 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "scim/v2/Groups/{id}"
                     urlBuilder_.Append("scim/v2/Groups/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3156,15 +3113,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ResourceTypesAsync(string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task ResourceTypesAsync()
         {
-            return ResourceTypesAsync(api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return ResourceTypesAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ResourceTypesAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ResourceTypesAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3172,9 +3129,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
 
@@ -3182,12 +3136,6 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "scim/v2/ResourceTypes"
                     urlBuilder_.Append("scim/v2/ResourceTypes");
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3238,15 +3186,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task SchemasAsync(string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task SchemasAsync()
         {
-            return SchemasAsync(api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return SchemasAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task SchemasAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task SchemasAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3254,9 +3202,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
 
@@ -3264,12 +3209,6 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "scim/v2/Schemas"
                     urlBuilder_.Append("scim/v2/Schemas");
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3320,15 +3259,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task ServiceProviderConfigAsync(string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task ServiceProviderConfigAsync()
         {
-            return ServiceProviderConfigAsync(api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return ServiceProviderConfigAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task ServiceProviderConfigAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task ServiceProviderConfigAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3336,9 +3275,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
 
@@ -3346,12 +3282,6 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "scim/v2/ServiceProviderConfig"
                     urlBuilder_.Append("scim/v2/ServiceProviderConfig");
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3402,15 +3332,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UsersGETAsync(string? filter, int? startIndex, int? count, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task UsersGETAsync(string? filter, int? startIndex, int? count)
         {
-            return UsersGETAsync(filter, startIndex, count, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return UsersGETAsync(filter, startIndex, count, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UsersGETAsync(string? filter, int? startIndex, int? count, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task UsersGETAsync(string? filter, int? startIndex, int? count, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3418,9 +3348,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
 
@@ -3441,10 +3368,6 @@ namespace ArchLucid.Api.Client.Generated
                     {
                         urlBuilder_.Append(System.Uri.EscapeDataString("count")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(count, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     }
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
                     urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -3496,15 +3419,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UsersPOSTAsync(string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task UsersPOSTAsync()
         {
-            return UsersPOSTAsync(api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return UsersPOSTAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UsersPOSTAsync(string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task UsersPOSTAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -3512,9 +3435,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
@@ -3523,12 +3443,6 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "scim/v2/Users"
                     urlBuilder_.Append("scim/v2/Users");
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3579,15 +3493,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UsersDELETEAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task UsersDELETEAsync(System.Guid id)
         {
-            return UsersDELETEAsync(id, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return UsersDELETEAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UsersDELETEAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task UsersDELETEAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -3598,9 +3512,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("DELETE");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
 
@@ -3609,12 +3520,6 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "scim/v2/Users/{id}"
                     urlBuilder_.Append("scim/v2/Users/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3665,15 +3570,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UsersGET2Async(System.Guid id, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task UsersGET2Async(System.Guid id)
         {
-            return UsersGET2Async(id, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return UsersGET2Async(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UsersGET2Async(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task UsersGET2Async(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -3684,9 +3589,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
 
@@ -3695,12 +3597,6 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "scim/v2/Users/{id}"
                     urlBuilder_.Append("scim/v2/Users/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3751,15 +3647,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UsersPATCHAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task UsersPATCHAsync(System.Guid id)
         {
-            return UsersPATCHAsync(id, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return UsersPATCHAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UsersPATCHAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task UsersPATCHAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -3770,9 +3666,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("PATCH");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
@@ -3782,12 +3675,6 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "scim/v2/Users/{id}"
                     urlBuilder_.Append("scim/v2/Users/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -3838,15 +3725,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task UsersPUTAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader)
+        public virtual System.Threading.Tasks.Task UsersPUTAsync(System.Guid id)
         {
-            return UsersPUTAsync(id, api_versionQuery, api_versionHeader, System.Threading.CancellationToken.None);
+            return UsersPUTAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task UsersPUTAsync(System.Guid id, string? api_versionQuery, string? api_versionHeader, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task UsersPUTAsync(System.Guid id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -3857,9 +3744,6 @@ namespace ArchLucid.Api.Client.Generated
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-
-                    if (api_versionHeader != null)
-                        request_.Headers.TryAddWithoutValidation("api-version", ConvertToString(api_versionHeader, System.Globalization.CultureInfo.InvariantCulture));
                     request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
                     request_.Method = new System.Net.Http.HttpMethod("PUT");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/scim+json"));
@@ -3869,12 +3753,6 @@ namespace ArchLucid.Api.Client.Generated
                     // Operation Path: "scim/v2/Users/{id}"
                     urlBuilder_.Append("scim/v2/Users/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
-                    urlBuilder_.Append('?');
-                    if (api_versionQuery != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString("api-version")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(api_versionQuery, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
-                    }
-                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -28774,6 +28652,16 @@ namespace ArchLucid.Api.Client.Generated
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             throw new ArchLucidApiException<ProblemDetails>("Conflict", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                        }
+                        else
+                        if (status_ == 500)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            throw new ArchLucidApiException<ProblemDetails>("Internal Server Error", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {

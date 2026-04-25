@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using Asp.Versioning;
+
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Scim;
 using ArchLucid.Core.Scim.Models;
@@ -13,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Controllers.Scim;
 
 [ApiController]
+[ApiVersionNeutral]
 [Route("scim/v2/Groups")]
 [Authorize(AuthenticationSchemes = ScimBearerDefaults.AuthenticationScheme, Policy = ArchLucidPolicies.ScimWrite)]
 public sealed class ScimGroupsController(

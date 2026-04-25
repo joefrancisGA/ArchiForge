@@ -282,6 +282,18 @@ public static class ArchLucidInstrumentation
             "archlucid_trial_signup_failures_total",
             description: "Self-service trial funnel: failed signup or bootstrap attempts (labels: stage, reason).");
 
+    /// <summary>Background health check of <c>GET /v1/demo/preview</c> (labels: <c>outcome</c>=success|failure).</summary>
+    public static readonly Counter<long> TrialFunnelHealthProbeTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_funnel_health_probe_total",
+            description: "Trial funnel demo preview probe outcomes (label outcome=success|failure).");
+
+    /// <summary>Failed <c>POST /v1/register</c> HTTP responses (labels: <c>reason</c>=validation|conflict|internal).</summary>
+    public static readonly Counter<long> TrialRegistrationFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_registration_failures_total",
+            description: "Self-service registration API failures (label reason=validation|conflict|internal).");
+
     /// <summary>
     ///     Successful <c>POST /v1/register</c> where the prospect did not supply <c>baselineReviewCycleHours</c> (soft-default
     ///     / model path).
@@ -733,6 +745,26 @@ public static class ArchLucidInstrumentation
         };
 
         TrialSignupFailuresTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="TrialFunnelHealthProbeTotal" /> (label: <c>outcome</c> success|failure).</summary>
+    public static void RecordTrialFunnelHealthProbe(string outcome)
+    {
+        string o = string.IsNullOrWhiteSpace(outcome) ? "unknown" : outcome.Trim();
+        if (o is not ("success" or "failure"))
+            o = "unknown";
+        TagList tags = new() { { "outcome", o } };
+        TrialFunnelHealthProbeTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="TrialRegistrationFailuresTotal" /> (label: <c>reason</c> validation|conflict|internal).</summary>
+    public static void RecordTrialRegistrationFailure(string reason)
+    {
+        string r = string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim();
+        if (r is not ("validation" or "conflict" or "internal"))
+            r = "unknown";
+        TagList tags = new() { { "reason", r } };
+        TrialRegistrationFailuresTotal.Add(1, tags);
     }
 
     /// <summary>Increments <see cref="TrialSignupBaselineSkippedTotal" /> (model-default baseline path at signup).</summary>

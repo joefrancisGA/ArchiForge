@@ -1,5 +1,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
@@ -43,7 +44,7 @@ public sealed class TenantCostEstimateController(
             await _estimateService.TryGetEstimateAsync(scope.TenantId, cancellationToken);
 
         if (estimate is null)
-            return NotFound();
+            return this.NotFoundProblem("No cost estimate is configured for this tenant.", type: ProblemTypes.ResourceNotFound);
 
         return Ok(TenantCostEstimateResponse.FromDomain(estimate));
     }

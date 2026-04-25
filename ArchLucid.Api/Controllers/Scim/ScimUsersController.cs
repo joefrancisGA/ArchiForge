@@ -8,6 +8,8 @@ using ArchLucid.Core.Scim.Models;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 
+using Asp.Versioning;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Controllers.Scim;
 
 [ApiController]
+[ApiVersionNeutral]
 [Route("scim/v2/Users")]
 [Authorize(AuthenticationSchemes = ScimBearerDefaults.AuthenticationScheme, Policy = ArchLucidPolicies.ScimWrite)]
 public sealed class ScimUsersController(

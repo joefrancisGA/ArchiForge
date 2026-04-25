@@ -27,6 +27,9 @@ public sealed class RegistrationController(
     IAuditService audit,
     ITrialTenantBootstrapService trialBootstrap) : ControllerBase
 {
+    private const string FriendlyValidation = "The registration could not be completed. Check the organization name, email, and optional review-cycle fields, then try again.";
+    private const string FriendlyInternal = "We could not complete your registration. Please try again in a few minutes. If the problem continues, share the correlationId field on this error response (or the X-Correlation-ID response header) with your administrator.";
+
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
 
     private readonly ITenantProvisioningService _provisioning =
@@ -41,26 +44,56 @@ public sealed class RegistrationController(
     [ProducesResponseType(typeof(TenantProvisioningResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> RegisterAsync(
         [FromBody] TenantRegistrationRequest? body,
         CancellationToken cancellationToken = default)
     {
         if (body is null)
+        {
+            ArchLucidInstrumentation.RecordTrialRegistrationFailure("validation");
+
+            await _audit.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialRegistrationFailed,
+                    ActorUserId = "anonymous@request",
+                    ActorUserName = "anonymous",
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ProjectId = Guid.Empty,
+                    DataJson = JsonSerializer.Serialize(
+                        new { reason = "validation", code = "body_required", message = (string?)"Request body is required." })
+                },
+                cancellationToken);
+
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        }
 
         string? normalizedBaselineSource = NormalizeBaselineReviewCycleSource(body.BaselineReviewCycleSource);
-
         if (body.BaselineReviewCycleHours is null && normalizedBaselineSource is not null)
-            return this.BadRequestProblem(
+        {
+            return await RegisterFailureValidationAsync(
+                body,
+                "validation",
                 "BaselineReviewCycleHours is required when BaselineReviewCycleSource is provided.",
-                ProblemTypes.ValidationFailed);
+                "baseline_incomplete",
+                "BaselineReviewCycleHours is required when BaselineReviewCycleSource is provided.",
+                cancellationToken);
+        }
 
         if (body.BaselineReviewCycleHours is { } baselineHours)
         {
             if (baselineHours <= 0m || baselineHours > 10_000m)
-                return this.BadRequestProblem(
+            {
+                return await RegisterFailureValidationAsync(
+                    body,
+                    "validation",
                     "BaselineReviewCycleHours must be greater than 0 and at most 10000.",
-                    ProblemTypes.TrialBaselineOutOfRange);
+                    "baseline_out_of_range",
+                    "Baseline review cycle hours must be between 0 and 10,000 (exclusive of zero).",
+                    cancellationToken);
+            }
         }
 
         string actorEmail = body.AdminEmail.Trim();
@@ -94,11 +127,12 @@ public sealed class RegistrationController(
             if (result.WasAlreadyProvisioned)
             {
                 ArchLucidInstrumentation.RecordTrialSignupFailure("provision", "duplicate_slug");
+                ArchLucidInstrumentation.RecordTrialRegistrationFailure("conflict");
 
                 await _audit.LogAsync(
                     new AuditEvent
                     {
-                        EventType = AuditEventTypes.TrialSignupFailed,
+                        EventType = AuditEventTypes.TrialRegistrationFailed,
                         ActorUserId = actorEmail,
                         ActorUserName =
                             string.IsNullOrWhiteSpace(body.AdminDisplayName)
@@ -107,7 +141,7 @@ public sealed class RegistrationController(
                         TenantId = Guid.Empty,
                         WorkspaceId = Guid.Empty,
                         ProjectId = Guid.Empty,
-                        DataJson = JsonSerializer.Serialize(new { stage = "provision", reason = "duplicate_slug" })
+                        DataJson = JsonSerializer.Serialize(new { reason = "conflict", code = "duplicate_slug" })
                     },
                     cancellationToken);
 
@@ -137,7 +171,10 @@ public sealed class RegistrationController(
                 ? new TrialSignupBaselineReviewCycleCapture(h, normalizedBaselineSource, DateTimeOffset.UtcNow)
                 : null;
 
-            await _trialBootstrap.TryBootstrapAfterSelfRegistrationAsync(result, actor, baselineCapture,
+            await _trialBootstrap.TryBootstrapAfterSelfRegistrationAsync(
+                result,
+                actor,
+                baselineCapture,
                 cancellationToken);
 
             if (baselineCapture is not null)
@@ -169,50 +206,84 @@ public sealed class RegistrationController(
 
             return StatusCode(StatusCodes.Status201Created, result);
         }
-        catch (ArgumentException ex)
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
         {
             ArchLucidInstrumentation.RecordTrialSignupFailure("validation", ex.GetType().Name);
+            ArchLucidInstrumentation.RecordTrialRegistrationFailure("validation");
 
             await _audit.LogAsync(
                 new AuditEvent
                 {
-                    EventType = AuditEventTypes.TrialSignupFailed,
+                    EventType = AuditEventTypes.TrialRegistrationFailed,
                     ActorUserId = actorEmail,
-                    ActorUserName = actorEmail,
+                    ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
                     TenantId = Guid.Empty,
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
                     DataJson = JsonSerializer.Serialize(new
                     {
-                        stage = "validation", reason = ex.GetType().Name, message = ex.Message
+                        reason = "validation", code = "exception", type = ex.GetType().Name, message = ex.Message
                     })
                 },
                 cancellationToken);
 
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem(FriendlyValidation, ProblemTypes.ValidationFailed);
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex)
         {
-            ArchLucidInstrumentation.RecordTrialSignupFailure("validation", ex.GetType().Name);
+            ArchLucidInstrumentation.RecordTrialSignupFailure("server", ex.GetType().Name);
+            ArchLucidInstrumentation.RecordTrialRegistrationFailure("internal");
 
             await _audit.LogAsync(
                 new AuditEvent
                 {
-                    EventType = AuditEventTypes.TrialSignupFailed,
+                    EventType = AuditEventTypes.TrialRegistrationFailed,
                     ActorUserId = actorEmail,
-                    ActorUserName = actorEmail,
+                    ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
                     TenantId = Guid.Empty,
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        stage = "validation", reason = ex.GetType().Name, message = ex.Message
-                    })
+                    DataJson = JsonSerializer.Serialize(
+                        new { reason = "internal", type = ex.GetType().Name, message = ex.Message })
                 },
                 cancellationToken);
 
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+            if (ex is not OperationCanceledException) return this.InternalServerErrorProblem(FriendlyInternal);
+
+            throw;
         }
+    }
+
+    private async Task<IActionResult> RegisterFailureValidationAsync(
+        TenantRegistrationRequest body,
+        string reasonLabel,
+        string logMessage,
+        string code,
+        string userMessage,
+        CancellationToken cancellationToken)
+    {
+        ArchLucidInstrumentation.RecordTrialRegistrationFailure("validation");
+
+        string actor = string.IsNullOrWhiteSpace(body.AdminEmail) ? "anonymous@request" : body.AdminEmail.Trim();
+        string name = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actor : body.AdminDisplayName.Trim();
+
+        await _audit.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.TrialRegistrationFailed,
+                ActorUserId = actor,
+                ActorUserName = name,
+                TenantId = Guid.Empty,
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.Empty,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    reason = reasonLabel, code, message = logMessage
+                })
+            },
+            cancellationToken);
+
+        return this.BadRequestProblem(userMessage, ProblemTypes.ValidationFailed);
     }
 
     private static string? NormalizeBaselineReviewCycleSource(string? raw)

@@ -21,6 +21,8 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
         HttpClient client = factory.CreateClient();
         _ = await client.GetAsync(new Uri("/health/ready", UriKind.Relative));
 
+        ArchLucidInstrumentation.RecordTrialFunnelHealthProbe("success");
+        ArchLucidInstrumentation.RecordTrialRegistrationFailure("validation");
         ArchLucidInstrumentation.RecordTrialSignup("smoke", "unit");
         ArchLucidInstrumentation.RecordTrialSignupFailure("smoke", "unit");
         ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
@@ -38,6 +40,8 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
 
         string[] needles =
         [
+            "archlucid_trial_funnel_health_probe_total",
+            "archlucid_trial_registration_failures_total",
             "archlucid_trial_signups_total",
             "archlucid_trial_signup_failures_total",
             "archlucid_trial_signup_baseline_skipped_total",

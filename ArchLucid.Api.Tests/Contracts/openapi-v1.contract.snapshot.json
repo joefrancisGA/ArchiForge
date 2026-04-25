@@ -12001,20 +12001,6 @@
                 "string"
               ]
             }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12030,22 +12016,6 @@
         ]
       },
       "post": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
@@ -12068,20 +12038,6 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
               "type": "string"
             }
           }
@@ -12108,20 +12064,6 @@
               "format": "uuid",
               "type": "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12146,20 +12088,6 @@
               "format": "uuid",
               "type": "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12177,22 +12105,6 @@
     },
     "/scim/v2/ResourceTypes": {
       "get": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
@@ -12208,22 +12120,6 @@
     },
     "/scim/v2/Schemas": {
       "get": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
@@ -12239,22 +12135,6 @@
     },
     "/scim/v2/ServiceProviderConfig": {
       "get": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
@@ -12303,20 +12183,6 @@
                 "string"
               ]
             }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12332,22 +12198,6 @@
         ]
       },
       "post": {
-        "parameters": [
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "content": {
@@ -12370,20 +12220,6 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
               "type": "string"
             }
           }
@@ -12410,20 +12246,6 @@
               "format": "uuid",
               "type": "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12448,20 +12270,6 @@
               "format": "uuid",
               "type": "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12484,20 +12292,6 @@
             "required": true,
             "schema": {
               "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "api-version",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "api-version",
-            "schema": {
               "type": "string"
             }
           }
@@ -33336,6 +33130,26 @@
               }
             },
             "description": "Conflict"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error"
           }
         },
         "tags": [

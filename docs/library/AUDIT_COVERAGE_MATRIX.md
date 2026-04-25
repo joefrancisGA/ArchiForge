@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:118 -->
+<!-- audit-core-const-count:119 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -105,7 +105,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Orphan findings-snapshot remediation (execute) | `AdminDiagnosticsService` | `FindingsSnapshotOrphansRemediated` | — | `{ dryRun: false, deletedCount, findingsSnapshotIds[] }` — `POST .../orphan-findings-snapshots?dryRun=false`. |
 | Self-service trial bootstrap (demo seed path) | `TrialTenantBootstrapService` | `TrialProvisioned` | Tenant when parseable | trial window / demo metadata (after tenant + workspace provisioning) |
 | Trial signup channel opened (`POST /v1/register`, trial local register) | `RegistrationController`, `TrialLocalIdentityAuthController` | `TrialSignupAttempted` | Empty GUID scope before tenant exists | `{ channel }` / local identity context |
-| Trial signup rejected (validation, duplicate slug, bootstrap) | `RegistrationController`, `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` | `TrialSignupFailed` | Tenant scope when known | `{ stage, reason, message? }` |
+| Public registration API failed (`POST /v1/register` — validation, duplicate org, or internal) | `RegistrationController` | `TrialRegistrationFailed` | Empty tenant scope (or after attempt) | `{ reason, code, message? }` — `reason` is `validation` / `conflict` / `internal` |
+| Trial signup rejected (local identity, email policy, bootstrap; not `POST /v1/register` body path) | `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` | `TrialSignupFailed` | Tenant scope when known | `{ stage, reason, message? }` |
 | Trial first golden manifest committed (signup → first-run funnel) | `SqlTrialFunnelCommitHook` | `TrialFirstRunCompleted` | Tenant + default workspace/project | `{ signupToCommitSeconds, trialRunUsageRatio }` |
 | Authority committed manifest FK chain (demo trusted-baseline seed) | `DemoSeedService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "demo-seed", projectSlug, richFindingsAndGraph, contextSnapshotId, graphSnapshotId, findingsSnapshotId, decisionTraceId, manifestId }` |
 | Authority committed manifest FK chain (replay commit) | `ReplayRunService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "replay-commit", projectSlug, richFindingsAndGraph: true, … }` — emitted only after `CommitAsync` succeeds. |
@@ -164,7 +165,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 118 (see CI marker above; includes nested `Baseline` and nested `Run`) |
+| **Core `AuditEventTypes` `public const string` rows** | 119 (see CI marker above; includes nested `Baseline` and nested `Run`) |
 | **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
@@ -249,8 +250,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `TenantSelfRegistered` | `TenantSelfRegistered` | `RegistrationController` |
 | `TrialProvisioned` | `TrialProvisioned` | `TrialTenantBootstrapService` |
 | `TrialSignupAttempted` | `TrialSignupAttempted` | `RegistrationController`, `TrialLocalIdentityAuthController` |
+| `TrialRegistrationFailed` | `TrialRegistrationFailed` | `RegistrationController` (failed `POST /v1/register` responses) |
 | `TrialBaselineReviewCycleCaptured` | `TrialBaselineReviewCycleCaptured` | `RegistrationController` (only when prospect supplied a baseline) |
-| `TrialSignupFailed` | `TrialSignupFailed` | `RegistrationController`, `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` |
+| `TrialSignupFailed` | `TrialSignupFailed` | `TrialLocalIdentityAuthController`, `TrialTenantBootstrapService` |
 | `TrialFirstRunCompleted` | `TrialFirstRunCompleted` | `SqlTrialFunnelCommitHook` |
 | `BillingCheckoutInitiated` | `BillingCheckoutInitiated` | `BillingCheckoutController` |
 | `BillingCheckoutCompleted` | `BillingCheckoutCompleted` | `BillingCheckoutController` |

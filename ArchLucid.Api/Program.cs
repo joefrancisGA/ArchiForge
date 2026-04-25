@@ -1,4 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
+
+using ArchLucid.Api.Hosting;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
@@ -74,6 +77,17 @@ public partial class Program
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
         builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
+
+        if (builder.Configuration.GetValue("Demo:Enabled", false))
+        {
+            builder.Services.AddHttpClient(
+                TrialFunnelHealthProbe.HttpClientName,
+                static client =>
+                {
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                });
+            builder.Services.AddHostedService<TrialFunnelHealthProbe>();
+        }
 
         WebApplication app = builder.Build();
 

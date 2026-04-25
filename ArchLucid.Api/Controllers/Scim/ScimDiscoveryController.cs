@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using Asp.Versioning;
+
 using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Controllers.Scim;
 
 [ApiController]
+[ApiVersionNeutral]
 [Route("scim/v2")]
 [Authorize(AuthenticationSchemes = ScimBearerDefaults.AuthenticationScheme, Policy = ArchLucidPolicies.ScimWrite)]
 public sealed class ScimDiscoveryController : ControllerBase

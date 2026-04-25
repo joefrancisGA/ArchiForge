@@ -227,6 +227,12 @@ public static class AuditEventTypes
     /// <summary>Signup or trial bootstrap failed after <see cref="TrialSignupAttempted" /> (payload includes stage/reason).</summary>
     public const string TrialSignupFailed = "TrialSignupFailed";
 
+    /// <summary>
+    ///     Durable failure on <c>POST /v1/register</c> (validation, duplicate org, or unexpected server error). Payload
+    ///     includes <c>reason</c> and optional <c>message</c>.
+    /// </summary>
+    public const string TrialRegistrationFailed = "TrialRegistrationFailed";
+
     /// <summary>Prospect supplied optional review-cycle baseline hours at trial signup (persisted on <c>dbo.Tenants</c>).</summary>
     public const string TrialBaselineReviewCycleCaptured = "TrialBaselineReviewCycleCaptured";
 
