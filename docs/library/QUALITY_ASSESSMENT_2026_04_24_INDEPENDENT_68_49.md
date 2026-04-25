@@ -723,7 +723,7 @@ Requirements:
    - Time column shows estimated read time in minutes
 
 2. Update `docs/READ_THIS_FIRST.md`:
-   - Add a line after the first heading: "**Quick lookup:** [Doc Navigator](NAVIGATOR.md) — find the right doc in one click."
+   - Add a line after the first heading: "**Quick lookup:** [Doc Navigator](../NAVIGATOR.md) — find the right doc in one click." (Under `docs/` only, use same-directory `NAVIGATOR.md` instead of `../NAVIGATOR.md`.)
 
 3. Update `docs/START_HERE.md`:
    - Add a "Quick lookup" link to NAVIGATOR.md in the Assumptions section

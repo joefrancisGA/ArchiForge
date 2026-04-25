@@ -1,6 +1,6 @@
 > **Scope:** Independent first-principles quality assessment of ArchLucid — weighted readiness scoring across 46 qualities, cross-cutting weakness analysis, and top improvement opportunities with Cursor prompts.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
 # ArchLucid Assessment -- Weighted Readiness 67.41%
