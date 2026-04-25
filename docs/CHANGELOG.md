@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-25 — Retire Phase 8 workspace-directory CI guard
+
+**Outcome.** Removed **`doc-markdown-links`** steps that ran **`check_no_legacy_archiforge_dirs.py`** and its unittest: CI trees never recreate deleted workspace-root **`ArchiForge.*`** folders, and rename hygiene remains enforced by **`archiforge`** substring guards (C#, TS/TSX, narrow marketing/terraform paths) in **`dotnet-fast-core`** plus **`terraform-assert-no-archiforge-in-tf`**. Deleted **`scripts/ci/check_no_legacy_archiforge_dirs.py`** and **`scripts/ci/test_check_no_legacy_archiforge_dirs.py`**. **`.gitignore`** still lists **`ArchiForge.*/`** with an updated comment. See **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** (2026-04-25 row).
+
+---
+
 ## 2026-04-24 — Opt-in tour copy finalized
 
 **Opt-in tour copy finalized.** Five-step operator tour ("Show me around") now renders approved copy without pending-approval markers. Step 3 renamed from "Inspect a run" to "Review and commit" for clarity.
@@ -726,7 +732,7 @@ Added **`GET /v1/demo/preview`** and the marketing **`/demo/preview`** page so s
 
 **Added:** [`docs/CONCEPTS.md`](CONCEPTS.md) — canonical concept vocabulary with explicit canonical-vs-rejected mappings, rationale, and a documented promotion gate. Distinct from [`docs/GLOSSARY.md`](library/GLOSSARY.md) (which defines terms) by focusing on adjudication between competing forms and the rules for when reviewers should push back.
 
-**Added:** [`scripts/ci/check_concept_vocabulary.py`](../scripts/ci/check_concept_vocabulary.py) — minimal, conservative CI guard implementing the rules from [`docs/CONCEPTS.md`](CONCEPTS.md) § 1.1. The initial enforced rule is the Microsoft Entra ID rename (see CONCEPTS.md row 1 for the full canonical-vs-rejected mapping). Companion unit tests in `scripts/ci/test_check_concept_vocabulary.py` (12 cases, including word-boundary correctness so unrelated tokens such as `Azure ADX` are not flagged) wired into the same CI workflow as the legacy-directory guard. Adding new rules requires the documented promotion gate in `docs/CONCEPTS.md` § 3.
+**Added:** [`scripts/ci/check_concept_vocabulary.py`](../scripts/ci/check_concept_vocabulary.py) — minimal, conservative CI guard implementing the rules from [`docs/CONCEPTS.md`](CONCEPTS.md) § 1.1. The initial enforced rule is the Microsoft Entra ID rename (see CONCEPTS.md row 1 for the full canonical-vs-rejected mapping). Companion unit tests in `scripts/ci/test_check_concept_vocabulary.py` (12 cases, including word-boundary correctness so unrelated tokens such as `Azure ADX` are not flagged) wired into **`doc-markdown-links`**. Adding new rules requires the documented promotion gate in `docs/CONCEPTS.md` § 3.
 
 **Updated:** [`docs/AZURE_MARKETPLACE_SAAS_OFFER.md`](AZURE_MARKETPLACE_SAAS_OFFER.md) — fixed one stale legacy-tenant reference in the publishing checklist to use the canonical Microsoft Entra ID form so the new CI guard passes against live `docs/`.
 
@@ -738,7 +744,7 @@ Added **`GET /v1/demo/preview`** and the marketing **`/demo/preview`** page so s
 
 ## 2026-04-20 — Workspace-root cleanup + dual-pipeline strangler hardening (Quality Assessment 2026-04-20 § Improvement 3)
 
-**Removed:** Empty legacy `ArchiForge.*` workspace-root directories (28 of them, build-artifact-only, never tracked by git) deleted as workspace-cleanup follow-up to the [ArchLucid rename initiative](ARCHLUCID_RENAME_CHECKLIST.md) (Phase 8). The new blocking CI guard [`scripts/ci/check_no_legacy_archiforge_dirs.py`](../scripts/ci/check_no_legacy_archiforge_dirs.py) (with companion unit tests in `scripts/ci/test_check_no_legacy_archiforge_dirs.py`) prevents reintroduction. Background guidance: [`.cursor/rules/ArchLucid-Rename.mdc`](../.cursor/rules/ArchLucid-Rename.mdc).
+**Removed:** Empty legacy `ArchiForge.*` workspace-root directories (28 of them, build-artifact-only, never tracked by git) deleted as workspace-cleanup follow-up to the [ArchLucid rename initiative](ARCHLUCID_RENAME_CHECKLIST.md) (Phase 8). A blocking CI guard (`scripts/ci/check_no_legacy_archiforge_dirs.py` + unittest) later prevented reintroduction; that guard was **retired 2026-04-25** (see changelog section above) while **`archiforge`** string scans remain. Background guidance: [`.cursor/rules/ArchLucid-Rename.mdc`](../.cursor/rules/ArchLucid-Rename.mdc).
 
 **Added:** Audit-event-type collision regression suite — `ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs` pins the invariant from [`docs/AUDIT_COVERAGE_MATRIX.md`](library/AUDIT_COVERAGE_MATRIX.md) that `CoordinatorRun*` and authority `RunStarted` / `RunCompleted` constants stay distinct as the catalog grows. Four reflection-driven tests cover (1) coordinator-vs-authority value disjointness, (2) baseline-vs-top-level value disjointness, (3) catalog-wide value uniqueness, and (4) every `CoordinatorRun*` constant has either an authority counterpart or an explicit "coordinator-only" allow-list entry.
 

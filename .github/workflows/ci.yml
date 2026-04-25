@@ -331,14 +331,6 @@ jobs:
           python -m unittest test_golden_cohort_budget_probe
           python -m unittest test_golden_cohort_usage_ledger
 
-      - name: Guard — no legacy ArchiForge.* workspace directories
-        run: python scripts/ci/check_no_legacy_archiforge_dirs.py
-
-      - name: Guard — legacy ArchiForge.* directory check unit tests
-        run: |
-          cd scripts/ci
-          python -m unittest test_check_no_legacy_archiforge_dirs
-
       - name: Guard — concept vocabulary (docs/CONCEPTS.md § 1)
         run: python scripts/ci/check_concept_vocabulary.py
 

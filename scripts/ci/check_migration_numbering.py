@@ -23,7 +23,6 @@ Exit: 0 = clean. 1 = at least one violation.
 Companion to:
   - scripts/ci/check_pricing_single_source.py
   - scripts/ci/check_doc_links.py
-  - scripts/ci/check_no_legacy_archiforge_dirs.py
 """
 
 from __future__ import annotations

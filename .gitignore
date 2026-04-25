@@ -385,7 +385,7 @@ MigrationBackup/
 # NSwag: generated HTTP client is committed at ArchLucid.Api.Client/Generated/ (regenerate when OpenAPI changes; do not gitignore).
 
 # Legacy ArchiForge.* directories deleted 2026-04 (workspace-root cleanup, see docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 8).
-# Do not recreate. Enforced by scripts/ci/check_no_legacy_archiforge_dirs.py (blocking CI step).
+# Do not recreate. Rename/token drift is still guarded in .github/workflows/ci.yml (archiforge string scans + Terraform).
 ArchiForge.*/
 
 # k6 --summary-export output (regenerate with scripts/load/record_baseline.ps1 or CI)
