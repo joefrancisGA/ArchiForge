@@ -44,9 +44,9 @@ export const wizardFormSchema = z.object({
   constraints: z.array(z.string()),
   requiredCapabilities: z.array(z.string()),
   assumptions: z.array(z.string()),
-  priorManifestVersion: z
-    .string()
-    .refine((s) => isPriorManifestVersionValid(s), { message: "Use a valid UUID, or leave blank for greenfield." }),
+  priorManifestVersion: z.string().refine(isPriorManifestVersionValid, {
+    message: "Use a valid UUID, or leave blank for greenfield.",
+  }),
   inlineRequirements: z.array(z.string()),
   documents: z.array(wizardDocumentSchema),
   policyReferences: z.array(z.string()),
