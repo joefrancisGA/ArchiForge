@@ -68,14 +68,14 @@ public sealed class TenantBaselineController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
-        if (body.ManualPrepHoursPerReview is { } mh && (mh <= 0m || mh > 10_000m))
+        if (body.ManualPrepHoursPerReview is <= 0m or > 10_000m)
         {
             return this.BadRequestProblem(
                 "Manual preparation hours per review must be between 0 and 10,000 (exclusive of zero) when set.",
                 ProblemTypes.ValidationFailed);
         }
 
-        if (body.PeoplePerReview is { } pr0 && (pr0 <= 0 || pr0 > 10_000))
+        if (body.PeoplePerReview is <= 0 or > 10_000)
         {
             return this.BadRequestProblem(
                 "People involved per review must be between 1 and 10,000 when set.",
@@ -102,14 +102,14 @@ public sealed class TenantBaselineController(
         decimal? prep = body.ManualPrepHoursPerReview ?? existing.BaselineManualPrepHoursPerReview;
         int? people = body.PeoplePerReview ?? existing.BaselinePeoplePerReview;
 
-        if (prep is { } p1 && (p1 <= 0m || p1 > 10_000m))
+        if (prep is <= 0m or > 10_000m)
         {
             return this.BadRequestProblem(
                 "Manual preparation hours per review must be between 0 and 10,000 (exclusive of zero).",
                 ProblemTypes.ValidationFailed);
         }
 
-        if (people is { } p2 && (p2 <= 0 || p2 > 10_000))
+        if (people is <= 0 or > 10_000)
         {
             return this.BadRequestProblem(
                 "People involved per review must be between 1 and 10,000.",

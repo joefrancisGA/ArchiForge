@@ -157,16 +157,13 @@ public sealed class RunQueryController(
         if (pageNumber < 1)
             return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
 
-
-        if (pageSize < 1 || pageSize > PagingParameters.MaxPageSize)
+        if (pageSize is < 1 or > PagingParameters.MaxPageSize)
             return this.BadRequestProblem(
                 $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
                 ProblemTypes.ValidationFailed);
 
-
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
 
         PagingParameters paging = new()
         {
@@ -234,7 +231,6 @@ public sealed class RunQueryController(
             return this.NotFoundProblem(
                 $"Evidence chain is not available for run '{runId}' and finding '{findingId}'.",
                 ProblemTypes.ResourceNotFound);
-
 
         return Ok(chain);
     }

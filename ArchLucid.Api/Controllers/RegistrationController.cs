@@ -63,7 +63,12 @@ public sealed class RegistrationController(
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
                     DataJson = JsonSerializer.Serialize(
-                        new { reason = "validation", code = "body_required", message = (string?)"Request body is required." })
+                        new
+                        {
+                            reason = "validation",
+                            code = "body_required",
+                            message = (string?)"Request body is required."
+                        })
                 },
                 cancellationToken);
 
@@ -82,18 +87,15 @@ public sealed class RegistrationController(
                 cancellationToken);
         }
 
-        if (body.BaselineReviewCycleHours is { } baselineHours)
+        if (body.BaselineReviewCycleHours is <= 0m or > 10_000m)
         {
-            if (baselineHours <= 0m || baselineHours > 10_000m)
-            {
-                return await RegisterFailureValidationAsync(
-                    body,
-                    "validation",
-                    "BaselineReviewCycleHours must be greater than 0 and at most 10000.",
-                    "baseline_out_of_range",
-                    "Baseline review cycle hours must be between 0 and 10,000 (exclusive of zero).",
-                    cancellationToken);
-            }
+            return await RegisterFailureValidationAsync(
+                body,
+                "validation",
+                "BaselineReviewCycleHours must be greater than 0 and at most 10000.",
+                "baseline_out_of_range",
+                "Baseline review cycle hours must be between 0 and 10,000 (exclusive of zero).",
+                cancellationToken);
         }
 
         if (body.CompanySize is { } companySize)
@@ -110,18 +112,15 @@ public sealed class RegistrationController(
             }
         }
 
-        if (body.ArchitectureTeamSize is { } teamSize)
+        if (body.ArchitectureTeamSize is <= 0 or > 10_000)
         {
-            if (teamSize <= 0 || teamSize > 10_000)
-            {
-                return await RegisterFailureValidationAsync(
-                    body,
-                    "validation",
-                    "ArchitectureTeamSize must be between 1 and 10000 when provided.",
-                    "architecture_team_size_out_of_range",
-                    "Architecture team size must be between 1 and 10,000 when provided.",
-                    cancellationToken);
-            }
+            return await RegisterFailureValidationAsync(
+                body,
+                "validation",
+                "ArchitectureTeamSize must be between 1 and 10000 when provided.",
+                "architecture_team_size_out_of_range",
+                "Architecture team size must be between 1 and 10,000 when provided.",
+                cancellationToken);
         }
 
         if (body.IndustryVertical is { } ind)
@@ -308,7 +307,10 @@ public sealed class RegistrationController(
                     ProjectId = Guid.Empty,
                     DataJson = JsonSerializer.Serialize(new
                     {
-                        reason = "validation", code = "exception", type = ex.GetType().Name, message = ex.Message
+                        reason = "validation",
+                        code = "exception",
+                        type = ex.GetType().Name,
+                        message = ex.Message
                     })
                 },
                 cancellationToken);
@@ -330,11 +332,17 @@ public sealed class RegistrationController(
                     WorkspaceId = Guid.Empty,
                     ProjectId = Guid.Empty,
                     DataJson = JsonSerializer.Serialize(
-                        new { reason = "internal", type = ex.GetType().Name, message = ex.Message })
+                        new
+                        {
+                            reason = "internal",
+                            type = ex.GetType().Name,
+                            message = ex.Message
+                        })
                 },
                 cancellationToken);
 
-            if (ex is not OperationCanceledException) return this.InternalServerErrorProblem(FriendlyInternal);
+            if (ex is not OperationCanceledException)
+                return this.InternalServerErrorProblem(FriendlyInternal);
 
             throw;
         }
@@ -364,7 +372,9 @@ public sealed class RegistrationController(
                 ProjectId = Guid.Empty,
                 DataJson = JsonSerializer.Serialize(new
                 {
-                    reason = reasonLabel, code, message = logMessage
+                    reason = reasonLabel,
+                    code,
+                    message = logMessage
                 })
             },
             cancellationToken);
