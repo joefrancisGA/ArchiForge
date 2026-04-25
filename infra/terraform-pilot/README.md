@@ -21,7 +21,7 @@
 ## Guardrails
 
 - **Never** commit secrets; use Key Vault references per [docs/CONFIGURATION_KEY_VAULT.md](../../docs/library/CONFIGURATION_KEY_VAULT.md).
-- **CI** rejects `archiforge` in any `infra/**/*.tf` — keep **ArchLucid** / `archlucid` naming.
+- **Naming:** keep `archiforge` out of `infra/**/*.tf` (**`rg "archiforge" infra --glob "*.tf"`**); dedicated CI grep job was retired.
 
 ## Related
 

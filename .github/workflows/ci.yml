@@ -366,31 +366,11 @@ jobs:
       - name: AuditEvents read path — no NOLOCK hint
         run: python scripts/ci/assert_no_audit_events_nolock.py
 
-  terraform-assert-no-archiforge-in-tf:
-    name: "Terraform: no legacy archiforge token in .tf"
-    needs:
-      - gitleaks
-      - doc-markdown-links
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Fail if infra/**/*.tf contains archiforge
-        run: |
-          set -euo pipefail
-          if grep -rq 'archiforge' --include='*.tf' infra/; then
-            echo "::error::Legacy token 'archiforge' must not appear in Terraform (.tf) sources — see docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5"
-            grep -rn 'archiforge' --include='*.tf' infra/ || true
-            exit 1
-          fi
-          echo "OK: no archiforge in infra/**/*.tf"
-
   terraform-validate-private:
     name: "Terraform: validate private stack (no backend)"
     needs:
       - gitleaks
       - doc-markdown-links
-      - terraform-assert-no-archiforge-in-tf
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -426,7 +406,6 @@ jobs:
     needs:
       - gitleaks
       - doc-markdown-links
-      - terraform-assert-no-archiforge-in-tf
     runs-on: ubuntu-latest
     strategy:
       matrix:

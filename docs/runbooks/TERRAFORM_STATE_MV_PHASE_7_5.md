@@ -7,7 +7,7 @@
 
 This runbook was written for **brownfield** Terraform state that still referenced historical `archiforge` resource **addresses**.
 
-**Greenfield (no Azure deployment yet):** Phase **7.5** is complete in the main branch — `moved {}` blocks were removed, all `infra/**/*.tf` sources use `archlucid` naming, and the Consumption APIM API Azure name is **`archlucid-api`**. CI fails if the substring `archiforge` appears in any Terraform (`.tf`) file under `infra/`.
+**Greenfield (no Azure deployment yet):** Phase **7.5** is complete in the main branch — `moved {}` blocks were removed, all `infra/**/*.tf` sources use `archlucid` naming, and the Consumption APIM API Azure name is **`archlucid-api`**. Re-grep **`rg "archiforge" infra --glob "*.tf"`** before merging Terraform changes (historical CI grep job retired).
 
 **What to read instead**
 

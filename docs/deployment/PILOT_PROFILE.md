@@ -21,7 +21,7 @@ Run a **short-lived** ArchLucid environment (single region, reduced HA) to prove
 - **Identity:** Entra ID (External ID or corporate tenant) — no anonymous public write paths.
 - **Networking:** **Private endpoints** for data plane; **no SMB** on public internet (port 445).
 - **Security:** API auth remains **`ApiKey`** or **`JwtBearer`** — **never** `DevelopmentBypass` in a deployed environment.
-- **IaC:** Terraform roots under `infra/terraform-*` — CI forbids the substring `archiforge` in `infra/**/*.tf`.
+- **IaC:** Terraform roots under `infra/terraform-*` — keep `infra/**/*.tf` free of the substring `archiforge` (run `rg "archiforge" infra --glob "*.tf"` before merge; dedicated CI grep retired).
 
 ## Architecture overview
 

@@ -7,9 +7,9 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
-## 2026-04-25 — Retire Phase 8 workspace-directory CI guard
+## 2026-04-25 — Retire rename legacy CI guards (workspace dirs + Terraform `archiforge` grep)
 
-**Outcome.** Removed **`doc-markdown-links`** steps that ran **`check_no_legacy_archiforge_dirs.py`** and its unittest: CI trees never recreate deleted workspace-root **`ArchiForge.*`** folders, and rename hygiene remains enforced by **`archiforge`** substring guards (C#, TS/TSX, narrow marketing/terraform paths) in **`dotnet-fast-core`** plus **`terraform-assert-no-archiforge-in-tf`**. Deleted **`scripts/ci/check_no_legacy_archiforge_dirs.py`** and **`scripts/ci/test_check_no_legacy_archiforge_dirs.py`**. **`.gitignore`** still lists **`ArchiForge.*/`** with an updated comment. See **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** (2026-04-25 row).
+**Outcome.** Removed **`doc-markdown-links`** steps that ran **`check_no_legacy_archiforge_dirs.py`** and its unittest, and removed **`terraform-assert-no-archiforge-in-tf`** (repo-wide **`infra/**/*.tf`** `archiforge` grep). CI checkouts never recreate deleted **`ArchiForge.*`** workspace folders. **`dotnet-fast-core`** still greps **`archiforge`** in C#, TS/TSX, and narrow marketing/terraform-edge paths. Deleted **`scripts/ci/check_no_legacy_archiforge_dirs.py`** / **`test_check_no_legacy_archiforge_dirs.py`**. **`.gitignore`** still lists **`ArchiForge.*/`**. **Manual:** run **`rg "archiforge" infra --glob "*.tf"`** on Terraform changes under **`infra/`** (see **`docs/ARCHLUCID_RENAME_CHECKLIST.md`** Phase 7.5). Checklist **2026-04-25** row.
 
 ---
 

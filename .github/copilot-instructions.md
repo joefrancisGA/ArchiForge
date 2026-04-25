@@ -58,7 +58,7 @@ Before approving a new helper, search the repo and the change description for an
 ### Infrastructure
 
 - **All infrastructure must be representable in Terraform** (`infra/terraform-*/`). Reject PRs that introduce Azure resources via portal-only steps, ARM templates, or one-off scripts without a corresponding Terraform change.
-- **Greenfield IaC** uses `archlucid` Terraform resource labels; CI rejects the substring `archiforge` in any `infra/**/*.tf` file. Brownfield state migration (if any) is documented in `docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`.
+- **Greenfield IaC** uses `archlucid` Terraform resource labels; do not reintroduce the substring `archiforge` in `infra/**/*.tf` (run `rg "archiforge" infra --glob "*.tf"` on Terraform PRs — merge-blocking grep job retired). Brownfield state migration (if any) is documented in `docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`.
 
 ### Data / DDL
 
