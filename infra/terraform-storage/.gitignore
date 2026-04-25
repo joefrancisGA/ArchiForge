@@ -1,4 +1,7 @@
 .terraform/
+# Local plan snapshots — do not commit; Trivy merges *.tfplan/tfplan as terraformplan-snapshot and stale plans cause false AZU-0012 drift.
+tfplan
+*.tfplan
 backend.tf
 *.tfstate
 *.tfstate.*

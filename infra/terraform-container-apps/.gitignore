@@ -1,4 +1,7 @@
 .terraform/
+# Local plan snapshots — do not commit (Trivy terraformplan-snapshot + stale AZU-0012).
+tfplan
+*.tfplan
 backend.tf
 *.tfstate
 *.tfstate.*

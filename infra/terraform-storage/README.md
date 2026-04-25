@@ -10,6 +10,8 @@ Creates an Azure Storage account (blob only usage) and private containers aligne
 
 ## Wiring
 
+Do **not** commit **`tfplan`** / **`*.tfplan`** into this directory — Trivy IaC scans treat them as **`terraformplan-snapshot`** inputs; a stale plan can resurrect cleared misconfigurations in CI. Plans belong in CI artifacts or a local path ignored by git (see **`.gitignore`**).
+
 1. Apply with `enable_storage_account = true` and a unique `storage_account_name`.
 2. Set API **`ArtifactLargePayload:AzureBlobServiceUri`** to **`primary_blob_endpoint`** (include trailing slash optional; the client normalizes the service URI).
 3. Grant the API **managed identity** **Storage Blob Data Contributor** on this storage account (or subscription scope if your policy allows).
