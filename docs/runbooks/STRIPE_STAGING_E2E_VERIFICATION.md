@@ -44,7 +44,7 @@ These gaps do **not** require source edits for verification; they inform how you
 | 1 | **Stripe** account; **Test mode** ON (Dashboard toggle). | Dashboard shows “Test mode”. |
 | 2 | Staging **ArchLucid API** deployed over **HTTPS** (e.g. behind Front Door). | `curl -fsS -o /dev/null -w "%{http_code}\n" "https://<staging-api-host>/health/live"` → **200** |
 | 3 | Staging app configuration can receive **`Billing:*`** (Key Vault reference or App Settings / Container Apps secrets). | Azure Portal / `az containerapp show` — settings present (redact in logs). |
-| 4 | **SQL** reachable from a secure operator path (Azure AD auth, private jump host, or read-only user as allowed). | `sqlcmd` or SSMS to `dbo` in staging database. |
+| 4 | **SQL** reachable from a secure operator path (Microsoft Entra ID auth, private jump host, or read-only user as allowed). | `sqlcmd` or SSMS to `dbo` in staging database. |
 | 5 | **Entra (or dev bypass)** and a **tenant admin** user to obtain a **Bearer** token for **`POST /v1/tenant/billing/checkout`**. | Sign in to UI as Admin; or use your org’s token procedure. |
 | 6 | **No** this runbook does **not** create Stripe products in your name — you create them in the Dashboard (step **3.3**). | N/A |
 

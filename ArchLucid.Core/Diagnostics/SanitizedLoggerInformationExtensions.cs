@@ -59,6 +59,32 @@ public static class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>
+    ///     Logs a successful governance manifest promotion with four user-derived string placeholders sanitized before the sink.
+    /// </summary>
+    public static void LogInformationGovernanceManifestPromoted(
+        this ILogger logger,
+        string promotionRecordId,
+        string runId,
+        string manifestVersion,
+        string targetEnvironment)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safePromotionRecordId = LogSanitizer.Sanitize(promotionRecordId);
+        string safeRunId = LogSanitizer.Sanitize(runId);
+        string safeManifestVersion = LogSanitizer.Sanitize(manifestVersion);
+        string safeTargetEnvironment = LogSanitizer.Sanitize(targetEnvironment);
+
+        // codeql[cs/log-forging]: all four string placeholders sanitized immediately above (params boxing breaks custom barrier at call sites).
+        logger.LogInformation(
+            "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
+            safePromotionRecordId,
+            safeRunId,
+            safeManifestVersion,
+            safeTargetEnvironment);
+    }
+
+    /// <summary>
     ///     Logs a successful comparison replay with four externally influenced string placeholders sanitized before the sink.
     /// </summary>
     public static void LogInformationComparisonReplaySucceeded(

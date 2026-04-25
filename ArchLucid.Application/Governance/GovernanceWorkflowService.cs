@@ -449,12 +449,11 @@ public sealed class GovernanceWorkflowService(
 
         if (logger.IsEnabled(LogLevel.Information))
 
-            logger.LogInformation(
-                "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
-                LogSanitizer.Sanitize(record.PromotionRecordId),
-                LogSanitizer.Sanitize(record.RunId),
-                LogSanitizer.Sanitize(record.ManifestVersion),
-                LogSanitizer.Sanitize(record.TargetEnvironment));
+            logger.LogInformationGovernanceManifestPromoted(
+                record.PromotionRecordId,
+                record.RunId,
+                record.ManifestVersion,
+                record.TargetEnvironment);
 
 
         return record;
