@@ -1,6 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Core.Scim.Filtering;
 using ArchLucid.Core.Scim.Models;
 
 namespace ArchLucid.Application.Scim;

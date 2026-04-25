@@ -17,5 +17,15 @@
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "e2e"]
+  "exclude": [
+    "node_modules",
+    "e2e",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "vitest-setup-rtl-mock.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ]
 }

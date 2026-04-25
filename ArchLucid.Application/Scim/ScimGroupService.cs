@@ -1,9 +1,8 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
-using ArchLucid.Application.Scim.Patching;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Scim;

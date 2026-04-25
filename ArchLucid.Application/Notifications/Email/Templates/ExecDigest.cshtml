@@ -5,7 +5,7 @@
 <body>
 <p>Weekly executive digest from @Model.ProductName.</p>
 <p><strong>@Model.WeekLabel</strong></p>
-@if (Model.CommittedManifestsInWeek is int mc)
+@if (Model.CommittedManifestsInWeek is { } mc)
 {
   <p>Manifests committed this period: <strong>@mc</strong></p>
 }

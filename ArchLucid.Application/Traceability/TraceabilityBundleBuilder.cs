@@ -1,7 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
 
-using ArchLucid.Application;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;

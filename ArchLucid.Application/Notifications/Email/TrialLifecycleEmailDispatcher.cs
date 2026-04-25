@@ -206,24 +206,18 @@ public sealed class TrialLifecycleEmailDispatcher(
             if (tenant.TrialExpiresUtc is not { } expSoon)
                 return false;
 
-
             if (expSoon <= utcNow)
                 return false;
-
 
             return (expSoon - utcNow).TotalDays <= 2d;
         }
 
-        if (trigger is TrialLifecycleEmailTrigger.Expired)
-        {
-            if (tenant.TrialExpiresUtc is not { } expEnd)
-                return false;
+        if (trigger is not TrialLifecycleEmailTrigger.Expired)
+            return false;
+        if (tenant.TrialExpiresUtc is not { } expEnd)
+            return false;
 
-
-            return expEnd <= utcNow;
-        }
-
-        return false;
+        return expEnd <= utcNow;
     }
 
     private TrialDispatchPlan? TryBuildPlan(
@@ -311,7 +305,8 @@ public sealed class TrialLifecycleEmailDispatcher(
                 model);
         }
 
-        if (envelope.Trigger is TrialLifecycleEmailTrigger.Converted)
+        if (envelope.Trigger is not TrialLifecycleEmailTrigger.Converted)
+            return null;
         {
             string tier = string.IsNullOrWhiteSpace(envelope.TargetTier) ? tenant.Tier.ToString() : envelope.TargetTier.Trim();
 
@@ -324,7 +319,6 @@ public sealed class TrialLifecycleEmailDispatcher(
                 model);
         }
 
-        return null;
     }
 
     private static string CombineUrl(string? baseUrl, string relativePath)

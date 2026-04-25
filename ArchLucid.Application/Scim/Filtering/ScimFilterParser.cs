@@ -1,5 +1,3 @@
-using System.Globalization;
-
 using ArchLucid.Core.Scim.Filtering;
 
 namespace ArchLucid.Application.Scim.Filtering;

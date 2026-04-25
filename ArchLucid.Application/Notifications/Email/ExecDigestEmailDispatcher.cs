@@ -50,15 +50,13 @@ public sealed class ExecDigestEmailDispatcher(
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
 
-        if (composition is null)
-            throw new ArgumentNullException(nameof(composition));
+        ArgumentNullException.ThrowIfNull(composition);
 
-        if (toMailboxes is null || toMailboxes.Count == 0)
+        if (toMailboxes.Count == 0)
             return false;
 
         if (string.IsNullOrWhiteSpace(unsubscribeAbsoluteUrl))
             throw new ArgumentException("Unsubscribe URL is required.", nameof(unsubscribeAbsoluteUrl));
-
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
         string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName)

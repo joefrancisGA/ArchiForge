@@ -30,10 +30,8 @@ public static class EvidencePackEtag
         using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         Span<byte> lengthBuffer = stackalloc byte[4];
 
-        for (int i = 0; i < entries.Count; i++)
+        foreach (var entry in entries)
         {
-            EvidencePackEntry entry = entries[i];
-
             if (entry is null) throw new ArgumentException("Entry must not be null.", nameof(entries));
             if (entry.ZipName is null) throw new ArgumentException("Entry name must not be null.", nameof(entries));
             if (entry.Content is null) throw new ArgumentException("Entry content must not be null.", nameof(entries));

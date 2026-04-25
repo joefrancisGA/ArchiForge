@@ -1,5 +1,4 @@
 using ArchLucid.Application.ExecDigest;
-using ArchLucid.Contracts.Notifications;
 
 namespace ArchLucid.Application.Notifications.Email;
 
