@@ -22,6 +22,7 @@ Use this root when you want **per-app replica scaling** and a **container-native
 
 - **`enable_container_apps = false`** — no resources; safe for `terraform validate` in CI.
 - When **`true`**, you must set **`api_container_image`** and **`ui_container_image`** (full ACR or registry references).
+- For **private** Azure Container Registry images, set **`acr_resource_id`** (full ARM ID of the registry). Terraform then creates a user-assigned identity, grants **AcrPull**, and registers the registry on each Container App. Leave **`acr_resource_id`** empty only when pulling from a **public** registry.
 - When **`true`**, you must set **`artifact_blob_service_uri`** and **`artifact_storage_account_id`** (from **`infra/terraform-storage`** outputs) so the **API** and **Worker** enable **`ArtifactLargePayload`** with **Azure Blob**; each app’s **system-assigned managed identity** receives **Storage Blob Data Contributor** on that account.
 
 ## Large artifact blob offload (staging / production)

@@ -29,6 +29,17 @@ locals {
   artifact_storage_account_name_from_blob = local.enabled && length(trimspace(var.artifact_blob_service_uri)) > 0 && can(
     regex("^https://([^.]+)\\.blob\\.core\\.windows\\.net/?$", var.artifact_blob_service_uri)
   ) ? regex("^https://([^.]+)\\.blob\\.core\\.windows\\.net/?$", var.artifact_blob_service_uri)[0] : ""
+
+  # Private ACR: shared user-assigned identity + AcrPull (see azurerm_user_assigned_identity.acr_pull).
+  acr_pull_enabled = local.enabled && length(trimspace(var.acr_resource_id)) > 0
+
+  acr_registry_id_parts = local.acr_pull_enabled ? regex(
+    "^/subscriptions/[0-9a-fA-F-]+/resourceGroups/([^/]+)/providers/Microsoft.ContainerRegistry/registries/([^/]+)$",
+    var.acr_resource_id
+  ) : []
+
+  acr_rg_for_pull   = length(local.acr_registry_id_parts) > 0 ? local.acr_registry_id_parts[0] : ""
+  acr_name_for_pull = length(local.acr_registry_id_parts) > 1 ? local.acr_registry_id_parts[1] : ""
 }
 
 data "azurerm_resource_group" "target" {
@@ -76,9 +87,34 @@ resource "azurerm_container_app_environment" "main" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.container_apps[0].id
   tags                       = local.merged_tags
 
+  # azurerm 4.x: do not set internal_load_balancer_enabled when there is no subnet (pair must be omitted together for public-only env).
   infrastructure_subnet_id = local.subnet_integrated ? var.container_apps_subnet_id : null
 
-  internal_load_balancer_enabled = local.subnet_integrated && var.container_apps_internal_load_balancer
+  internal_load_balancer_enabled = local.subnet_integrated ? var.container_apps_internal_load_balancer : null
+}
+
+data "azurerm_container_registry" "for_pull" {
+  count = local.acr_pull_enabled ? 1 : 0
+
+  name                = local.acr_name_for_pull
+  resource_group_name = local.acr_rg_for_pull
+}
+
+resource "azurerm_user_assigned_identity" "acr_pull" {
+  count = local.acr_pull_enabled ? 1 : 0
+
+  location            = local.azure_location
+  resource_group_name = local.resource_group_name
+  name                = "id-archlucid-acr-pull"
+  tags                = local.merged_tags
+}
+
+resource "azurerm_role_assignment" "acr_pull_identity" {
+  count = local.acr_pull_enabled ? 1 : 0
+
+  scope                = var.acr_resource_id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.acr_pull[0].principal_id
 }
 
 resource "azurerm_container_app" "api" {
@@ -90,8 +126,20 @@ resource "azurerm_container_app" "api" {
   revision_mode                = var.api_revision_mode
   tags                         = local.merged_tags
 
+  depends_on = [azurerm_role_assignment.acr_pull_identity]
+
   identity {
-    type = "SystemAssigned"
+    type = local.acr_pull_enabled ? "SystemAssigned, UserAssigned" : "SystemAssigned"
+
+    identity_ids = local.acr_pull_enabled ? [azurerm_user_assigned_identity.acr_pull[0].id] : null
+  }
+
+  dynamic "registry" {
+    for_each = local.acr_pull_enabled ? [1] : []
+    content {
+      server   = data.azurerm_container_registry.for_pull[0].login_server
+      identity = azurerm_user_assigned_identity.acr_pull[0].id
+    }
   }
 
   template {
@@ -217,6 +265,8 @@ resource "azurerm_container_app" "worker" {
   revision_mode                = var.worker_revision_mode
   tags                         = local.merged_tags
 
+  depends_on = [azurerm_role_assignment.acr_pull_identity]
+
   dynamic "secret" {
     for_each = local.worker_queue_scale_enabled ? [1] : []
     content {
@@ -226,7 +276,17 @@ resource "azurerm_container_app" "worker" {
   }
 
   identity {
-    type = "SystemAssigned"
+    type = local.acr_pull_enabled ? "SystemAssigned, UserAssigned" : "SystemAssigned"
+
+    identity_ids = local.acr_pull_enabled ? [azurerm_user_assigned_identity.acr_pull[0].id] : null
+  }
+
+  dynamic "registry" {
+    for_each = local.acr_pull_enabled ? [1] : []
+    content {
+      server   = data.azurerm_container_registry.for_pull[0].login_server
+      identity = azurerm_user_assigned_identity.acr_pull[0].id
+    }
   }
 
   template {
@@ -345,6 +405,25 @@ resource "azurerm_container_app" "ui" {
   resource_group_name          = local.resource_group_name
   revision_mode                = var.ui_revision_mode
   tags                         = local.merged_tags
+
+  depends_on = [azurerm_role_assignment.acr_pull_identity]
+
+  dynamic "identity" {
+    for_each = local.acr_pull_enabled ? [1] : []
+    content {
+      type = "UserAssigned"
+
+      identity_ids = [azurerm_user_assigned_identity.acr_pull[0].id]
+    }
+  }
+
+  dynamic "registry" {
+    for_each = local.acr_pull_enabled ? [1] : []
+    content {
+      server   = data.azurerm_container_registry.for_pull[0].login_server
+      identity = azurerm_user_assigned_identity.acr_pull[0].id
+    }
+  }
 
   template {
     min_replicas = var.ui_min_replicas

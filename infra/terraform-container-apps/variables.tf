@@ -130,6 +130,12 @@ variable "ui_container_image" {
   default     = ""
 }
 
+variable "acr_resource_id" {
+  type        = string
+  description = "Full ARM resource ID of the Azure Container Registry used by api_container_image / ui_container_image (and worker when it shares the API image). When set, Terraform grants AcrPull to a user-assigned identity and registers that registry on each Container App so private ACR pulls succeed. Leave empty only for public registries."
+  default     = ""
+}
+
 variable "api_min_replicas" {
   type        = number
   description = "Minimum API replicas. Default 2 for staging/production availability (two instances). Override to 1 for local pilots if duplicate hosted background jobs are unacceptable until leader election or a worker app exists (see README)."

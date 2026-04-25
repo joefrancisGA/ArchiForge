@@ -10,6 +10,9 @@ location                = "eastus2"
 api_container_image = "acrarchluciddev.azurecr.io/archlucid-api:latest-dev"
 ui_container_image  = "acrarchluciddev.azurecr.io/archlucid-ui:latest-dev"
 
+# Required for private ACR (same subscription/RG as typical dev stack). Omit only if images are public.
+acr_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-ArchLucid-dev/providers/Microsoft.ContainerRegistry/registries/acrarchluciddev"
+
 # Pilot-friendly replica floor for cost (duplicate advisory acceptable in personal dev).
 api_min_replicas = 1
 api_max_replicas = 3
