@@ -131,18 +131,69 @@ describe("NewRunWizardClient", () => {
     expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
   });
 
-  it("disables Next when the current step has blocking validation errors", async () => {
+  it("blocks Next and shows an inline system name error when required field is empty", async () => {
     render(<NewRunWizardClient />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    expect(greenfieldCard).toBeTruthy();
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
 
     const systemName = screen.getByLabelText("System name");
     fireEvent.change(systemName, { target: { value: "" } });
-    fireEvent.blur(systemName);
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
     });
+
+    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/System name is required/i);
+  });
+
+  it("clears the system name error when the user types", async () => {
+    render(<NewRunWizardClient />);
+
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+
+    const systemName = screen.getByLabelText("System name");
+    fireEvent.change(systemName, { target: { value: "" } });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+
+    fireEvent.change(systemName, { target: { value: "X" } });
+    await waitFor(() => {
+      expect(screen.queryByText(/System name is required/i)).toBeNull();
+    });
+  });
+
+  it("advances from identity when fields satisfy validation", async () => {
+    render(<NewRunWizardClient />);
+
+    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Select" }));
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    });
+    expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
   });
 
   afterEach(() => {

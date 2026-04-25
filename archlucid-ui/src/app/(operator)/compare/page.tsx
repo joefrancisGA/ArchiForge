@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
@@ -239,6 +240,11 @@ function CompareForm() {
         evaluating. The page <strong>loads</strong> legacy compare then structured compare; <strong>below</strong>,
         read <strong>structured first</strong>, then the legacy flat diff. AI explanation is optional and separate—
         use it after the tables.
+      </p>
+      <p className="mb-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        The structured table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over
+        committed manifests; the API can persist a <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip> for replay
+        and verification.
       </p>
 
       <div className="grid max-w-3xl gap-3">

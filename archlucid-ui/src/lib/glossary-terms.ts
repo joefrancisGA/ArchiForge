@@ -93,6 +93,26 @@ export const GLOSSARY_TERMS = {
     term: "Governance workflow",
     definition: "The structured path to request, review, and activate manifest changes for a run, with approver and evidence trail.",
   },
+  manifest_diff: {
+    term: "Manifest diff",
+    definition: "A field-level comparison between two committed golden manifests (or their persisted projection), used in Compare to see what changed between runs.",
+    docLink: "/docs/library/COMPARISON_REPLAY.md",
+  },
+  comparison_record: {
+    term: "Comparison record",
+    definition: "A persisted result of a compare (legacy and/or structured paths) you can re-open, replay, or reason about without re-running agents.",
+    docLink: "/docs/library/COMPARISON_REPLAY.md",
+  },
+  approval_request: {
+    term: "Approval request",
+    definition: "A governance row asking approvers to promote, reject, or activate a change for a run, with segregation of duties and audit trail.",
+    docLink: "/docs/library/GLOSSARY.md#governance-workflow",
+  },
+  governance_resolution: {
+    term: "Governance resolution",
+    definition: "The operator workflow that applies policy, reconciles risk, and routes outcomes after findings or compliance signals—before or instead of a formal approval in some tenants.",
+    docLink: "/docs/library/GOVERNANCE.md",
+  },
 } as const satisfies Readonly<Record<string, GlossaryTermEntry>>;
 
 export type GlossaryTermKey = keyof typeof GLOSSARY_TERMS;

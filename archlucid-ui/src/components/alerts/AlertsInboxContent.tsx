@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -205,6 +206,10 @@ export function AlertsInboxContent() {
       </div>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateAlertInbox ? alertsPageLeadOperator : alertsPageLeadReader}
+      </p>
+      <p className="mt-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+        Each card links a risk signal to a <GlossaryTooltip termKey="findings">finding</GlossaryTooltip> in scope so
+        you can triage, acknowledge, or resolve.
       </p>
       {!canMutateAlertInbox ? <AlertsInboxRankCue /> : null}
 

@@ -67,7 +67,11 @@ export function WizardStepDescription() {
                   field.onChange(e);
                 }}
                 aria-invalid={descErr != null && String(descErr).length > 0}
-                aria-describedby="wizard-description-count"
+                aria-describedby={
+                  descErr != null && String(descErr).length > 0
+                    ? "wizard-description-count err-wizard-description"
+                    : "wizard-description-count"
+                }
               />
             )}
           />

@@ -219,11 +219,9 @@ export default async function RunDetailPage({
       <RunDetailSectionNav sections={runDetailNavSections} />
 
       <section id="run-metadata" style={{ marginBottom: 24 }}>
-        <h3>
-          <GlossaryTooltip termKey="run">Run</GlossaryTooltip>
-        </h3>
+        <h3>Run</h3>
         <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
-          Manifest summary and artifacts appear below when this run has a{" "}
+          Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this run</GlossaryTooltip> has a{" "}
           <GlossaryTooltip termKey="golden_manifest">golden manifest</GlossaryTooltip> (after commit).
         </p>
         <p>
@@ -259,7 +257,8 @@ export default async function RunDetailPage({
         </div>
         <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
           Audit events associated with this run (oldest first). Empty lists are normal when auditing is sparse or the run
-          was created outside the authority pipeline.
+          was created outside the{" "}
+          <GlossaryTooltip termKey="authority_pipeline">authority pipeline</GlossaryTooltip>.
         </p>
         {pipelineTimelineFailure ? (
           <>
@@ -279,18 +278,23 @@ export default async function RunDetailPage({
       <section id="authority-chain" style={{ marginBottom: 24 }}>
         <h3>Provenance chain</h3>
         <ul>
-          <li>Context Snapshot: {resolvedDetail.run.contextSnapshotId ?? "—"}</li>
+          <li>
+            <GlossaryTooltip termKey="context_snapshot">Context snapshot</GlossaryTooltip>:{" "}
+            {resolvedDetail.run.contextSnapshotId ?? "—"}
+          </li>
           <li>Graph Snapshot: {resolvedDetail.run.graphSnapshotId ?? "—"}</li>
           <li>Findings Snapshot: {resolvedDetail.run.findingsSnapshotId ?? "—"}</li>
           <li>
-            <GlossaryTooltip termKey="golden_manifest">Golden manifest</GlossaryTooltip>:{" "}
+            Golden manifest:{" "}
             {manifestId ? (
               <Link href={`/manifests/${manifestId}`}>{manifestId}</Link>
             ) : (
               "—"
             )}
           </li>
-          <li>Decision Trace: {resolvedDetail.run.decisionTraceId ?? "—"}</li>
+          <li>
+            <GlossaryTooltip termKey="decision_trace">Decision trace</GlossaryTooltip>: {resolvedDetail.run.decisionTraceId ?? "—"}
+          </li>
           <li>Artifact Bundle: {resolvedDetail.run.artifactBundleId ?? "—"}</li>
         </ul>
       </section>
@@ -298,11 +302,7 @@ export default async function RunDetailPage({
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
           <p style={{ margin: 0 }}>
-            This run has no{" "}
-            <GlossaryTooltip termKey="golden_manifest">
-              <strong>golden manifest</strong>
-            </GlossaryTooltip>{" "}
-            yet (normal before commit). After the pipeline
+            This run has no golden manifest yet (normal before commit). After the pipeline
             finishes, commit through the <strong>API or CLI</strong>, then reload this page for manifest summary,
             artifacts, and ZIP exports.
           </p>

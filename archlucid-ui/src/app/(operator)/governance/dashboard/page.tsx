@@ -20,6 +20,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { GovernanceDashboardReaderActionCue } from "@/components/EnterpriseControlsContextHints";
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -318,6 +319,12 @@ export default function GovernanceDashboardPage() {
         <ContextualHelp helpKey="governance-dashboard" />
       </div>
       <GovernanceDashboardReaderActionCue />
+
+      <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        Track <GlossaryTooltip termKey="approval_request">approval requests</GlossaryTooltip> and route work through{" "}
+        <GlossaryTooltip termKey="governance_resolution">governance resolution</GlossaryTooltip> when policy requires a
+        decision before promotion.
+      </p>
 
       {failure !== null ? (
         <div className="mb-6" role="alert">

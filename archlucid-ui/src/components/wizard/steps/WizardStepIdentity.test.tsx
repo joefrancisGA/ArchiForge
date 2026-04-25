@@ -7,19 +7,13 @@ import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-util
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 function SystemNameErrorProbe() {
-  const {
-    formState: { errors },
-    trigger,
-  } = useFormContext();
+  const { trigger } = useFormContext();
 
   return (
     <div>
       <button type="button" onClick={() => void trigger("systemName")}>
         validate-system
       </button>
-      {errors.systemName?.message ? (
-        <span role="alert">{String(errors.systemName.message)}</span>
-      ) : null}
     </div>
   );
 }
@@ -71,6 +65,6 @@ describe("WizardStepIdentity", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "validate-system" }));
 
-    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(await screen.findByText(/System name is required/i)).toBeInTheDocument();
   });
 });

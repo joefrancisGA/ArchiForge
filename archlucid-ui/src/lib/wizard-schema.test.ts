@@ -36,7 +36,7 @@ describe("wizardFormSchema", () => {
       constraints: ["c1"],
       requiredCapabilities: ["cap1"],
       assumptions: ["assume1"],
-      priorManifestVersion: "v1",
+      priorManifestVersion: "00000000-0000-0000-0000-000000000001",
       inlineRequirements: ["req1"],
       documents: [{ name: "adr.md", contentType: "text/markdown", content: "# ADR" }],
       policyReferences: ["pack:default"],
