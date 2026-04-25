@@ -77,7 +77,10 @@ public sealed class StripeBillingProvider(
             options.CustomerEmail = request.BillingEmail;
 
 
-        RequestOptions requestOptions = new() { ApiKey = secretKey };
+        RequestOptions requestOptions = new()
+        {
+            ApiKey = secretKey
+        };
 
         Session session = await sessionService.CreateAsync(options, requestOptions, cancellationToken);
 
@@ -94,13 +97,16 @@ public sealed class StripeBillingProvider(
             Math.Max(1, request.Workspaces),
             cancellationToken);
 
+        // ReSharper disable once PatternAlwaysMatches
         DateTimeOffset? expiresUtc = session.ExpiresAt is DateTime dt
             ? new DateTimeOffset(DateTime.SpecifyKind(dt, DateTimeKind.Utc))
             : null;
 
         return new BillingCheckoutResult
         {
-            CheckoutUrl = session.Url ?? string.Empty, ProviderSessionId = session.Id, ExpiresUtc = expiresUtc
+            CheckoutUrl = session.Url ?? string.Empty,
+            ProviderSessionId = session.Id,
+            ExpiresUtc = expiresUtc
         };
     }
 

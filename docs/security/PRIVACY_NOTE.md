@@ -1,13 +1,6 @@
-> **Scope:** Operators and privacy or compliance reviewers; states controller-side processing activities and legal-basis framing for ArchLucid operational telemetry. Not legal advice, a full subprocessors inventory, tenant workload DPA terms, or final policy until DRAFT sign-off below is complete.
+> **Scope:** Operators and privacy or compliance reviewers; states controller-side processing activities and legal-basis framing for ArchLucid operational telemetry. Not legal advice, a full subprocessors inventory, tenant workload DPA terms, or a consumer-facing privacy policy.
 
-> **Status:** **DRAFT — OWNER REVIEW PENDING.** This file was created on 2026-04-24 as part of Improvement 12 (first-tenant onboarding telemetry funnel) because the assistant needed to record the funnel as a named processing activity and no prior privacy notice existed. Every section below is owner-reviewable; the **First-tenant onboarding funnel** activity is the only one currently relied on by shipping code (and only under the **aggregated-only** default — per-tenant emission stays off until the owner explicitly flips it).
->
-> **What needs owner sign-off before this file stops being marked DRAFT:**
->
-> 1. The data-controller name + contact (placeholders below).
-> 2. The legitimate-interest balancing test wording for §3.A (the funnel activity).
-> 3. The retention period for `dbo.FirstTenantFunnelEvents` (placeholder: 90 days).
-> 4. Whether to add §3.B and §3.C activities for the **trial lifecycle email** flow already shipped (`docs/security/PII_EMAIL.md`) and the **client-error telemetry** flow already shipped (`ArchLucid.Api/Controllers/Admin/ClientErrorTelemetryController.cs`). The assistant intentionally did **not** add those without owner direction — see "Stop-and-ask boundary log" at the bottom.
+> **Status:** **APPROVED — 2026-04-25.** All four owner sign-off items resolved. See §6 change history.
 
 ---
 
@@ -34,7 +27,9 @@ Each subsection follows the GDPR Art. 30 record shape: purpose, legal basis, cat
 
 **Legal basis.** **Article 6(1)(f)** — legitimate interest of the controller (ArchLucid) in measuring product onboarding success without distorting the result by asking each tenant for opt-in consent at the moment of signup (which would itself depress the funnel and bias the measurement).
 
-**Balancing test (DRAFT — owner review pending).** The activity is **default aggregated-only** (no per-tenant correlation in the funnel store). When the optional **per-tenant** flag (`Telemetry:FirstTenantFunnel:PerTenantEmission`) is **off** (the V1 default), the funnel cannot identify any individual operator or tenant — the rows are counts, nothing more. When the flag is **on** (owner-only decision; see [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 40), the funnel store records `tenantId` only — never `userId`, never IP address, never user-agent. The per-tenant mode is therefore a **tenant-organisation-level** record, not a personal-data record on any specific operator employee. The owner's pending question 40 sub-decision is whether tenant-level correlation rises to a privacy-notice line-item in customer comms; this draft assumes the answer is "yes — it must be in the public privacy notice before the flag flips on for any production tenant".
+**Balancing test.** ArchLucid has concluded that its legitimate interest in measuring onboarding success is not overridden by the interests or fundamental rights of the data subjects, given that aggregated mode collects no personal data and per-tenant mode is scoped to organisation-level identifiers only, with no ability to single out an individual operator.
+
+The activity is **default aggregated-only** (no per-tenant correlation in the funnel store). When the optional **per-tenant** flag (`Telemetry:FirstTenantFunnel:PerTenantEmission`) is **off** (the V1 default), the funnel cannot identify any individual operator or tenant — the rows are counts, nothing more. When the flag is **on** (owner-only decision; see [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 40), the funnel store records `tenantId` only — never `userId`, never IP address, never user-agent. The per-tenant mode is therefore a **tenant-organisation-level** record, not a personal-data record on any specific operator employee.
 
 **Categories of data subjects.**
 - **Aggregated mode (default):** none (counters only).
@@ -50,7 +45,7 @@ Each subsection follows the GDPR Art. 30 record shape: purpose, legal basis, cat
 
 **Retention.**
 - **Aggregated mode (default):** governed by the Application Insights workspace retention (currently the platform default; the audit-retention policy at [`docs/library/AUDIT_RETENTION_POLICY.md`](../library/AUDIT_RETENTION_POLICY.md) does not apply because no audit-event row is written).
-- **Per-tenant mode (flag-gated):** **90 days** (DRAFT — owner review pending). Rows older than the retention horizon are pruned by a scheduled Azure SQL job; the deletion runbook lives in the cohort-ops folder.
+- **Per-tenant mode (flag-gated):** **90 days.** Rows older than the retention horizon are pruned by a scheduled Azure SQL job; the deletion runbook lives in the cohort-ops folder.
 
 **Safeguards.**
 - The per-tenant flag defaults to **`FALSE`** in `appsettings.json` and in the production environment configuration; flipping it to `TRUE` requires an owner-only configuration change.
@@ -59,30 +54,90 @@ Each subsection follows the GDPR Art. 30 record shape: purpose, legal basis, cat
 - An integration test asserts that no row is written to `dbo.FirstTenantFunnelEvents` when the flag is `FALSE`.
 - The Workbook dashboard (`infra/modules/first-tenant-funnel-dashboard/`) reads from the **aggregated** counters by default; per-tenant queries require an explicit author-mode edit by a cohort-ops role-holder and are not on the default landing page.
 
-**Controller contact.** *(placeholder — owner provides before publication)* `privacy@archlucid.com`.
+**Controller contact.** `privacy@archlucid.net`.
 
-### 3.B — Trial lifecycle transactional email *(placeholder — see [`docs/security/PII_EMAIL.md`](PII_EMAIL.md))*
+---
 
-> **DRAFT — pending owner sign-off.** The trial transactional email flow is already shipped and already has a PII boundary doc; it should also have a privacy-notice line-item under this notice. Assistant did **not** draft the activity record here without owner direction. See "Stop-and-ask boundary log" at the bottom.
+### 3.B — Trial lifecycle transactional email
 
-### 3.C — Operator-shell client-error telemetry *(placeholder — see `ArchLucid.Api/Controllers/Admin/ClientErrorTelemetryController.cs`)*
+**Purpose.** Deliver transactional email notifications to operator employees throughout the trial lifecycle: welcome on provisioning, approaching-run-limit warning, and trial expiry notice. These emails are a contractual obligation of the trial relationship and are required to operate the SaaS service safely (operators must be informed when limits are approaching).
 
-> **DRAFT — pending owner sign-off.** The client-error telemetry endpoint is already shipped and writes structured warnings. It should have a privacy-notice line-item. Assistant did **not** draft the activity record here without owner direction. See "Stop-and-ask boundary log" at the bottom.
+**Legal basis.** **Article 6(1)(b)** — processing necessary for the performance of a contract to which the data subject's employer (the tenant) is party. The trial agreement requires ArchLucid to notify the operator contact of material trial events.
+
+**Categories of data subjects.** Operator employees designated as the trial contact for their tenant organisation.
+
+**Categories of personal data.**
+- **Email address** (To field, resolved from the `TrialProvisioned` / `TenantSelfRegistered` audit event actor).
+- **Tenant display name** (often a company name; used in email salutation and subject line).
+- **Usage counts and dates** (run counts, trial expiry date, tier label). These are product-metadata fields; they do not include the contents of architecture runs, findings, or manifests.
+- **Explicitly excluded from email bodies:** architecture artefacts, manifest JSON, finding text, run narratives, operator passwords, API keys.
+
+**Recipients.**
+- **Azure Communication Services (ACS)** — preferred production transport with private networking and managed identity. SMTP is available for development environments only and must not be used in production.
+- `dbo.SentEmails` in the ArchLucid production database stores **idempotency keys only** — email bodies are not persisted, which limits the blast radius of a database breach.
+
+**Retention.**
+- Email addresses in the audit store are governed by the audit-retention policy at [`docs/library/AUDIT_RETENTION_POLICY.md`](../library/AUDIT_RETENTION_POLICY.md).
+- `dbo.SentEmails` idempotency rows are pruned on the same schedule as the owning tenant record (cascade delete on tenant removal).
+- Email bodies are not stored; no separate body-level retention applies.
+
+**Safeguards.**
+- All email templates default to `MetadataOnly` content mode (counts, dates, tier labels). A future `TenantEmailContentMode` column would be required to expand content, and only after further legal review — see [`docs/security/PII_EMAIL.md`](PII_EMAIL.md).
+- Links in email bodies are opaque HTTPS paths; no JWTs or session tokens are embedded in URLs.
+- Full email bodies are never logged at `Information` level in production; only template IDs and byte sizes are logged.
+- The email lookup interface (`ITenantTrialEmailContactLookup`) is the sole read path for the email address; it is not passed to any analytics, CRM, or marketing system.
+
+**Controller contact.** `privacy@archlucid.net`.
+
+---
+
+### 3.C — Operator-shell client-error telemetry
+
+**Purpose.** Detect and diagnose JavaScript errors occurring in the operator shell browser application so that ArchLucid can maintain service reliability and identify regressions before they affect a broad operator population. No user-generated content is captured; only technical diagnostic signals are collected.
+
+**Legal basis.** **Article 6(1)(f)** — legitimate interest of the controller (ArchLucid) in maintaining the quality, stability, and security of the SaaS product delivered to paying tenants.
+
+**Balancing test.** The data collected is technical in nature (error messages, stack traces, URL pathnames, user-agent strings) and is processed solely for service reliability purposes. It is not used for profiling, advertising, or any purpose beyond diagnosing and resolving errors. The `LogSanitizer` is applied to every field before logging, preventing inadvertent capture of free-text user input. The interest in reliable service delivery is not overridden by the data subjects' interests.
+
+**Categories of data subjects.** Operator employees using the operator shell browser application at the time a client-side JavaScript error occurs.
+
+**Categories of personal data.**
+- **User-agent string** (truncated to a platform-defined maximum length; identifies browser and OS family, not the individual).
+- **URL pathname** (the operator shell route at the time of the error; truncated; does not include query parameters or fragments that might carry session tokens).
+- **Error message and stack trace** (application-layer JavaScript error text; truncated; sanitized via `LogSanitizer` before logging).
+- **Client-reported timestamp** (UTC string; truncated to 64 characters).
+- **Explicitly excluded:** `userId`, operator email, IP address, architecture artefact content, session tokens, request bodies.
+
+**Recipients.** Application Insights (Azure Monitor workspace) via `ILogger<ClientErrorTelemetryController>` structured logging at `Warning` level. No SQL row is written; no separate store is created for client-error events.
+
+**Retention.** Governed by the Application Insights workspace retention policy (currently the platform default). The audit-retention policy at [`docs/library/AUDIT_RETENTION_POLICY.md`](../library/AUDIT_RETENTION_POLICY.md) does not apply because no audit-event row is written.
+
+**Safeguards.**
+- `LogSanitizer.Sanitize(…)` is applied to every logged field before the `LogWarning` call (`ClientErrorTelemetryController.cs` line 154–158).
+- All inbound fields are truncated to platform-defined maximum lengths (`ClientErrorTelemetryIngestLimits`) before logging.
+- The endpoint requires a valid operator session (authenticated request); unauthenticated callers cannot POST to the endpoint.
+- Context key/value pairs are bounded to a maximum count and character length, preventing log-injection via large context maps.
+- Logging is conditional on `_logger.IsEnabled(LogLevel.Warning)`, respecting any environment-level log-level configuration.
+
+**Controller contact.** `privacy@archlucid.net`.
+
+---
 
 ## 4. Subject rights
 
 Operators (or their data-controller employer) may request:
 
-- **Access** — for per-tenant mode rows, the tenant administrator may export the relevant `dbo.FirstTenantFunnelEvents` rows via the same RLS-scoped read path used by the operator shell (forthcoming admin endpoint; not in V1).
-- **Erasure** — the per-tenant retention default of 90 days satisfies erasure on automatic schedule. Out-of-cycle erasure for a single tenant is supported via the existing tenant-deletion path (cascades to the new table by `tenantId`).
-- **Objection** — the tenant administrator may object to per-tenant mode by leaving the feature flag at `FALSE` (the V1 default). For aggregated mode, no individual data subject can be identified, so the right of objection does not attach to any personal data.
+- **Access** — for per-tenant funnel mode rows (§3.A), the tenant administrator may export the relevant `dbo.FirstTenantFunnelEvents` rows via the same RLS-scoped read path used by the operator shell (forthcoming admin endpoint; not in V1). For transactional email (§3.B), the audit store holds the email address; access requests are fulfilled via the standard audit-data export path. For client-error telemetry (§3.C), Application Insights workspace access is restricted to ArchLucid operations staff; data subjects may request confirmation of what was logged about a specific session.
+- **Erasure** — the per-tenant funnel 90-day retention satisfies erasure on automatic schedule; out-of-cycle erasure for a single tenant is supported via the existing tenant-deletion path. For transactional email, tenant deletion cascades to `dbo.SentEmails`. For client-error telemetry, Application Insights data is purged on workspace retention schedule; individual-record purge is available via the Azure Monitor purge API.
+- **Objection** — for §3.A per-tenant mode, the tenant administrator may object by leaving the feature flag at `FALSE` (the V1 default). For §3.B and §3.C, the processing is necessary for contract performance and legitimate service operation respectively; objection would require ceasing use of the service.
 
 ## 5. Subprocessor map (this notice's scope only)
 
 | Subprocessor | Purpose | Data flowing |
 |---|---|---|
-| **Microsoft Azure** (Application Insights) | Aggregated funnel counters | Counter increments; no `tenantId` in aggregated mode. |
-| **Microsoft Azure** (SQL Database) | Per-tenant funnel rows (flag-gated) | `tenantId`, event name, event timestamp. RLS-scoped per tenant. |
+| **Microsoft Azure** (Application Insights) | Aggregated funnel counters; client-error telemetry | §3.A counter increments (no `tenantId` in aggregated mode); §3.C error messages, pathnames, user-agent strings (sanitized, truncated). |
+| **Microsoft Azure** (SQL Database) | Per-tenant funnel rows (flag-gated); email idempotency keys | §3.A: `tenantId`, event name, timestamp (RLS-scoped). §3.B: idempotency keys only, no email bodies. |
+| **Microsoft Azure** (Azure Communication Services) | Trial lifecycle transactional email delivery | §3.B: email address (To), email body (metadata-only; not persisted by ACS after delivery). |
 
 The full ArchLucid subprocessor list lives in the Trust Center (`docs/trust-center.md`) and is not duplicated here.
 
@@ -91,14 +146,4 @@ The full ArchLucid subprocessor list lives in the Trust Center (`docs/trust-cent
 | Date | Change | Owner sign-off |
 |---|---|---|
 | 2026-04-24 | DRAFT — file created with §3.A funnel activity. §3.B + §3.C placeholders left for owner direction. | **PENDING** |
-
-## Stop-and-ask boundary log
-
-This file was created in response to a Cursor stop-and-ask boundary in **Prompt 12** (`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_23_73_20.md` lines 583–643): step 7 said *"Stop-and-ask if the existing privacy notice text doesn't already cover the activity shape."* The repository did not contain `docs/security/PRIVACY_NOTE.md` at all. The owner explicitly chose **option 2 — create a draft** in the same session: ship the funnel activity record now, mark the file `DRAFT — OWNER REVIEW PENDING`, and surface §3.B / §3.C as owner follow-ups rather than drafting them speculatively.
-
-The assistant treats the following as **out of scope** for this draft and explicitly declined to write them without owner direction:
-
-1. Privacy-notice line-items for already-shipped flows the assistant did not author (transactional email, client-error telemetry, RAG retrieval, agent execution traces). Each of those has its own existing security doc; promoting them to the privacy notice is an owner decision because the wording has external-facing legal weight.
-2. The legitimate-interest balancing-test conclusion text in §3.A. The assistant drafted the structure and the relevant guardrails (default off, no `userId`, no IP, RLS scope, 90-day retention placeholder); the actual balancing-test conclusion is a controller decision.
-3. The retention period for per-tenant mode. 90 days is a placeholder — owner picks the actual value at sign-off.
-4. Any reference to **specific named subprocessors** beyond Microsoft Azure (which is unavoidable because the platform is Azure-native).
+| 2026-04-25 | Decision 1: controller contact confirmed as `privacy@archlucid.net`. Decision 2: balancing-test conclusion for §3.A approved. Decision 3: 90-day retention for `dbo.FirstTenantFunnelEvents` confirmed. Decision 4: §3.B and §3.C drafted in full and approved for inclusion. Status promoted from DRAFT to APPROVED. | **APPROVED** |
