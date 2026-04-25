@@ -45,7 +45,7 @@ public sealed class ArchLucidApiClient
         Converters = { new JsonStringEnumConverter() }
     };
 
-    private readonly Api.Client.ArchLucidApiClient _api;
+    private readonly Gen.ArchLucidApiClient _api;
     private readonly HttpClient _http;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
@@ -67,7 +67,7 @@ public sealed class ArchLucidApiClient
             cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
         CliResilienceOptions httpResilience = CliResilienceOptions.FromCliConfig(effectiveConfig);
         _http = CreateHttpClient(normalized, true, httpResilience);
-        _api = new Api.Client.ArchLucidApiClient(_http) { BaseUrl = normalized + "/", ReadResponseAsString = true };
+        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = normalized + "/", ReadResponseAsString = true };
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public sealed class ArchLucidApiClient
         ArgumentNullException.ThrowIfNull(httpClient);
         _http = httpClient;
         string baseUrl = httpClient.BaseAddress?.ToString().Trim().TrimEnd('/') ?? "http://localhost";
-        _api = new Api.Client.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/", ReadResponseAsString = true };
+        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/", ReadResponseAsString = true };
     }
 
     private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry,
