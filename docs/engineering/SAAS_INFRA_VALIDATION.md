@@ -1,3 +1,5 @@
+> **Scope:** Contributors running offline Terraform `init`/`validate` across declared roots — not `plan`/`apply`, Azure login, or production change windows.
+
 # SaaS infrastructure validation (Terraform)
 
 **Purpose** — run **offline** checks so every Terraform “root” (deployable `infra/terraform*` tree plus `infra/modules/*` packages) **initializes** and **validates** without Azure credentials, and so **layout** matches `infra/apply-saas.ps1` and shared conventions.

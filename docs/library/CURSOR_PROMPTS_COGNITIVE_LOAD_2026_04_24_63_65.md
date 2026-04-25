@@ -1,3 +1,5 @@
+> **Scope:** Engineers pasting Cursor prompts for cognitive-load improvements from the paired assessment — not deferred items 9–10 or out-of-band refactors.
+
 # Cursor prompts — Cognitive Load 63.65% (2026-04-24)
 
 Eight paste-ready Cursor prompts for the actionable improvements in `QUALITY_ASSESSMENT_2026_04_24_COGNITIVE_LOAD_63_65.md`. Improvements 9 and 10 are DEFERRED (owner decisions required) — no full prompts generated for those.

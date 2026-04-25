@@ -1,4 +1,6 @@
-﻿# Configuration reference
+﻿> **Scope:** Operators and integrators looking up recognized configuration keys and host roles — not secret material, deployment order, or full environment architecture.
+
+# Configuration reference
 
 This document lists operator-facing configuration **keys** (colon paths or environment names) recognized by `archlucid config check` and by `GET /v1/admin/config-summary` (presence only, never secret values). The **canonical registry** is `ConfigurationKeyCatalog` in `ArchLucid.Core`.
 

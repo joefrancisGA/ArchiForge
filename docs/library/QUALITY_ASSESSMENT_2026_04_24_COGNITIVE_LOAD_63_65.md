@@ -1,8 +1,9 @@
+> **Scope:** Independent V1 cognitive-load quality review (2026-04-24); deferred V1.1/V2 items excluded — not a substitute for user research or UX sign-off.
+
 # ArchLucid Cognitive Load Quality Assessment — 63.65%
 
 **Date:** 2026-04-24
 **Type:** Independent assessment (single-dimension deep-dive: Cognitive Load)
-**Scope:** V1 surfaces only; items explicitly deferred to V1.1 / V2 are excluded per owner instructions.
 **Definition:** Cognitive Load = how much mental effort the system imposes while a target user completes tasks effectively.
 
 ---

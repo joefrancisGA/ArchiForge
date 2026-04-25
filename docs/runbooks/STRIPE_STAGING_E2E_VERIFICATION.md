@@ -1,3 +1,5 @@
+> **Scope:** Operators exercising Stripe Test mode against staging (checkout, webhooks, SQL) without code changes — not production billing policy or contract terms.
+
 # Stripe staging — end-to-end verification (test mode)
 
 **Objective:** An operator with **no code changes** can **wire, exercise, and verify** Stripe Test mode + ArchLucid staging: checkout session, webhook, SQL ledger, and tenant conversion.

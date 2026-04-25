@@ -1,8 +1,8 @@
+> **Scope:** Operators verifying hosted SaaS staging (Terraform apply order, trial funnel, health probes) using repo-defined stacks — not designing net-new infrastructure.
+
 # Staging deployment checklist (`staging.archlucid.net`)
 
-**Purpose:** Prerequisite and verification list for bringing the **hosted SaaS trial funnel** online on **staging** using **existing** Terraform and CI — **no new resources** in this document; operators apply or configure what is already defined in the repo.
-
-**Scope:** Signup, tenant provisioning, first-value experience, and health probes. Aligned with [TRIAL_AND_SIGNUP.md](../go-to-market/TRIAL_AND_SIGNUP.md), [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md), and [BUYER_FIRST_30_MINUTES.md](../BUYER_FIRST_30_MINUTES.md).
+**Purpose:** Prerequisite and verification list for bringing the **hosted SaaS trial funnel** online on **staging** using **existing** Terraform and CI — **no new resources** in this document; operators apply or configure what is already defined in the repo. Covers signup, tenant provisioning, first-value experience, and health probes. Aligned with [TRIAL_AND_SIGNUP.md](../go-to-market/TRIAL_AND_SIGNUP.md), [REFERENCE_SAAS_STACK_ORDER.md](../library/REFERENCE_SAAS_STACK_ORDER.md), and [BUYER_FIRST_30_MINUTES.md](../BUYER_FIRST_30_MINUTES.md).
 
 **Last updated:** 2026-04-25
 

@@ -1,3 +1,5 @@
+> **Scope:** Readers picking the right next doc from a task-oriented index — not step-by-step procedures (those live in the linked files).
+
 # ArchLucid Doc Navigator
 
 | I want to... | Start here | Time |

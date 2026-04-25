@@ -1,6 +1,6 @@
-# Penetration test — remediation tracker
+> **Scope:** Security lead, engineering, and release managers tracking pen-test remediation status — not publishing raw findings (NDA-gated summaries stay in this folder per `README.md`).
 
-**Audience:** Security lead, engineering owners, release managers.
+# Penetration test — remediation tracker
 
 **Status:** Template — populate rows when vendor findings are triaged. Redacted summaries remain **NDA-gated** per [`README.md`](README.md) in this folder.
 

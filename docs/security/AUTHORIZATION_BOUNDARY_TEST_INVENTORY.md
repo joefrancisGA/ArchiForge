@@ -1,3 +1,5 @@
+> **Scope:** Developers finding Core integration tests for RBAC, API keys, and tenant RLS — not a complete threat model or compliance attestation.
+
 # Authorization boundary test inventory
 
 Integration tests that lock in **RBAC** (Reader / Operator / Admin policy surfaces), **API key** behavior, and **tenant isolation** (SQL row-level security with `SESSION_CONTEXT`) are listed below. They are part of the **Core** integration suite.

@@ -1,3 +1,5 @@
+> **Scope:** Independent weighted-readiness snapshot from direct codebase inspection (2026-04-25) — not a committed roadmap or sales forecast.
+
 # ArchLucid Assessment – Weighted Readiness 61.91%
 
 **Assessor:** Independent first-principles analysis (Opus 4.6)
