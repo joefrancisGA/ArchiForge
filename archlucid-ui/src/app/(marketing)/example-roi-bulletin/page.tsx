@@ -34,7 +34,7 @@ export default function ExampleRoiBulletinMarketingPage() {
       >
         <p className="m-0 font-medium">Real drafts (production SQL) are gated by the admin preview</p>
         <p className="mt-2 m-0 leading-relaxed">
-          Authentic aggregate numbers require an API key with <strong>AdminAuthority</strong>. The same contract the CLI
+          Authentic aggregate numbers require an API key with <strong>Admin access</strong>. The same contract the CLI
           uses is exposed here as a same-origin link (returns <strong>401/403</strong> without credentials — that is
           expected on a public marketing page):
         </p>

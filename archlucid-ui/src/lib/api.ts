@@ -810,7 +810,7 @@ export async function fetchEvolutionResults(candidateId: string): Promise<Evolut
 }
 
 /**
- * Re-runs simulation for the candidate (replaces prior rows). Requires execute authority; may return 403.
+ * Re-runs simulation for the candidate (replaces prior rows). Requires operator access; may return 403.
  */
 export async function postEvolutionSimulate(candidateId: string): Promise<EvolutionSimulateResponse> {
   const id = candidateId.trim();

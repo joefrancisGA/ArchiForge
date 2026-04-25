@@ -38,7 +38,7 @@ const corePilotSteps: WorkflowStep[] = [
   },
   {
     title: "Let the pipeline run, then open the run",
-    body: "After creation, the coordinator fills snapshots and authority steps. Watch progress on the wizard's last step or open run detail anytime.",
+    body: "After creation, the coordinator fills snapshots and pipeline validation steps. Watch progress on the wizard's last step or open run detail anytime.",
     primaryHref: "/runs?projectId=default",
     primaryLabel: "Open runs list",
     secondary: (
@@ -269,7 +269,7 @@ export function OperatorFirstRunWorkflowPanel() {
             <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/replay">
               Replay a run
             </Link>
-            {" — "}re-validate the authority chain and surface validation results.
+            {" — "}re-validate the provenance chain and surface validation results.
           </li>
           <li>
             <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/graph">

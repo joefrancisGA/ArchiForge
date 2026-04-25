@@ -77,7 +77,7 @@ function ReplayForm() {
         <Link href="/compare">Compare two runs</Link>
       </p>
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Re-run the stored authority chain for a run. Choose a mode, then read validation flags and notes
+        Re-run the stored validation pipeline for a run. Choose a mode, then read validation flags and notes
         below.
       </p>
 

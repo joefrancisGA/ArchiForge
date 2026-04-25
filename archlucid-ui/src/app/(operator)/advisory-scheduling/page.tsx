@@ -109,7 +109,7 @@ export default function AdvisorySchedulingPage() {
     <main style={{ maxWidth: 960 }}>
       <h2 style={{ marginTop: 0 }}>Advisory schedules</h2>
       <p style={{ color: "#444", fontSize: 14 }}>
-        Background worker polls every ~5 minutes for due schedules. Use the authority <strong>project slug</strong>{" "}
+        Background worker polls every ~5 minutes for due schedules. Use the <strong>project slug</strong>{" "}
         (same as Runs list, often <code>default</code>) so recent runs are discovered.
       </p>
 

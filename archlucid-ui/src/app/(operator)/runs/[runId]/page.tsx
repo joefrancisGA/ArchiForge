@@ -14,6 +14,7 @@ import {
 } from "@/lib/operator-response-guards";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
+import { ContextualHelp } from "@/components/ContextualHelp";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
@@ -186,7 +187,7 @@ export default async function RunDetailPage({
     { id: "run-metadata", label: "Run", available: true },
     { id: "pipeline-timeline", label: "Timeline", available: true },
     { id: "agent-forensics", label: "Forensics", available: true },
-    { id: "authority-chain", label: "Authority", available: true },
+    { id: "authority-chain", label: "Chain", available: true },
     { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
     { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
     { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
@@ -246,7 +247,12 @@ export default async function RunDetailPage({
       </section>
 
       <section id="pipeline-timeline" style={{ marginBottom: 24 }} aria-labelledby="pipeline-timeline-title">
-        <h3 id="pipeline-timeline-title">Pipeline timeline</h3>
+        <div className="mb-1 flex flex-wrap items-center gap-2">
+          <h3 id="pipeline-timeline-title" className="m-0">
+            Pipeline timeline
+          </h3>
+          <ContextualHelp helpKey="run-pipeline-status" placement="right" />
+        </div>
         <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
           Audit events associated with this run (oldest first). Empty lists are normal when auditing is sparse or the run
           was created outside the authority pipeline.
@@ -267,7 +273,7 @@ export default async function RunDetailPage({
       <RunAgentForensicsSection runId={runId} />
 
       <section id="authority-chain" style={{ marginBottom: 24 }}>
-        <h3>Authority chain</h3>
+        <h3>Provenance chain</h3>
         <ul>
           <li>Context Snapshot: {resolvedDetail.run.contextSnapshotId ?? "—"}</li>
           <li>Graph Snapshot: {resolvedDetail.run.graphSnapshotId ?? "—"}</li>
@@ -293,7 +299,7 @@ export default async function RunDetailPage({
             artifacts, and ZIP exports.
           </p>
           <ol style={{ margin: "12px 0 0", paddingLeft: 20, fontSize: 14, color: "#475569", lineHeight: 1.6 }}>
-            <li>Confirm authority chain items above are populated (snapshots processing).</li>
+            <li>Confirm provenance chain items above are populated (snapshots processing).</li>
             <li>Commit when ready — examples in <code>docs/OPERATOR_QUICKSTART.md</code>.</li>
             <li>Reload run detail; the manifest link and Artifacts section will appear.</li>
           </ol>
@@ -398,6 +404,10 @@ export default async function RunDetailPage({
 
       {manifestId && (
         <section id="artifacts-exports" className="scroll-mt-20">
+        <div className="relative overflow-visible pr-9 sm:pr-10">
+          <div className="absolute end-0 top-0 z-10 sm:end-1 sm:top-1">
+            <ContextualHelp helpKey="manifest-review" placement="left" />
+          </div>
         <CollapsibleSection title="Artifacts & exports" defaultOpen>
           {artifactsFailure && (
             <>
@@ -448,13 +458,23 @@ export default async function RunDetailPage({
             <a href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>Download run export (ZIP)</a>
           </div>
         </CollapsibleSection>
+        </div>
         </section>
       )}
 
       <section id="run-actions" style={{ marginBottom: 24 }}>
         <h3>Actions</h3>
         <div className="mb-4 max-w-xl">
-          <p className="m-0 mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">Commit</p>
+          <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+            <p className="m-0 flex items-center gap-1.5 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+              Commit
+              <ContextualHelp helpKey="commit-manifest" />
+            </p>
+            <p className="m-0 flex items-center gap-1.5 text-sm text-neutral-600 dark:text-neutral-400">
+              <span className="whitespace-nowrap">Governance gate</span>
+              <ContextualHelp helpKey="governance-gate" placement="left" />
+            </p>
+          </div>
           <CommitRunButton runId={runId} disabled={Boolean(manifestId)} />
         </div>
         {manifestId ? (

@@ -37,7 +37,7 @@ function computeUtcDayN(firstCommitIso: string, nowMs: number): number | null {
  * Non-modal post-commit CTA: downloads a sponsor-shareable PDF projection of the canonical first-value-report
  * Markdown for this run, and prompts the operator to email it. Only rendered when the run has a golden manifest.
  *
- * The primary action calls `POST /v1/pilots/runs/{runId}/first-value-report.pdf` (ReadAuthority on API; mirrors
+ * The primary action calls `POST /v1/pilots/runs/{runId}/first-value-report.pdf` (Read access on the API; mirrors
  * the auth surface of the existing Markdown sibling so click-to-download is one-shot).
  */
 export function EmailRunToSponsorBanner({ runId }: EmailRunToSponsorBannerProps) {

@@ -33,7 +33,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
   return {
     title: `ArchLucid · Showcase (${runId})`,
-    description: "Read-only public showcase of a committed Contoso-style authority run.",
+    description: "Read-only public showcase of a committed Contoso-style architecture run.",
     robots: { index: true, follow: true },
   };
 }

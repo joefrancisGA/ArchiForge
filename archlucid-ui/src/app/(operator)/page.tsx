@@ -161,7 +161,7 @@ export default function HomePage() {
             <Link href="/admin/support" className="text-teal-800 underline dark:text-teal-300">
               Support
             </Link>{" "}
-            — need to file a support ticket? Download a redacted support bundle here (gated on Execute authority).
+            — need to file a support ticket? Download a redacted support bundle here (gated on operator access).
           </li>
         </ul>
       </section>

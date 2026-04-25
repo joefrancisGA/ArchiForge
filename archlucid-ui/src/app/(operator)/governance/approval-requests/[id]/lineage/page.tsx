@@ -182,8 +182,8 @@ export default function GovernanceApprovalLineagePage() {
       {data.manifest ? (
         <Card>
           <CardHeader>
-            <CardTitle>Authority manifest</CardTitle>
-            <CardDescription>When the run id maps to an authority golden manifest in scope</CardDescription>
+            <CardTitle>Golden manifest</CardTitle>
+            <CardDescription>When the run id maps to a golden manifest in scope</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-1 text-sm">
             <div>Version {data.manifest.manifestVersion ?? "—"}</div>
@@ -203,7 +203,7 @@ export default function GovernanceApprovalLineagePage() {
           {data.topFindings.length === 0 ? (
             <OperatorEmptyState title="No findings in lineage">
               <p className="text-sm">
-                Authority findings are shown when the approval run id matches an authority run with a snapshot.
+                Findings are shown when the approval run id matches a run with a findings snapshot.
               </p>
             </OperatorEmptyState>
           ) : (

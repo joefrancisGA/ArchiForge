@@ -54,7 +54,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
     title: "4. Governance + alerts",
     body:
       "Once you have a committed run, governance dashboards and alerts highlight policy drift and approval needs. " +
-      "Read-only roles can view; Execute-authority operators can act on findings.",
+      "Read-only roles can view; operators can act on findings (API-enforced access levels).",
   },
   {
     title: "5. Get help",

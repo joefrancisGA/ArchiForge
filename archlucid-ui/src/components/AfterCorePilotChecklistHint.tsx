@@ -48,7 +48,7 @@ export function AfterCorePilotChecklistHint() {
       </h3>
       <p className="m-0 mt-1 text-sm text-neutral-800 dark:text-neutral-200">
         When you have a real question that run detail cannot answer—<strong>what changed between two runs</strong>,{" "}
-        <strong>whether the authority chain still validates</strong>, or a <strong>visual graph</strong>—open{" "}
+        <strong>whether the provenance chain still validates</strong>, or a <strong>visual graph</strong>—open{" "}
         <Link href="/compare" className="font-medium text-teal-900 underline dark:text-teal-200">
           Compare
         </Link>

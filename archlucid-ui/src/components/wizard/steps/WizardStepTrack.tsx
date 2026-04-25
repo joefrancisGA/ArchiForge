@@ -32,7 +32,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
   return (
     <WizardStepPanel
       title="Track pipeline"
-      description="The authority chain runs asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
+      description="Snapshot stages run asynchronously. This view uses a live stream when available, with HTTP polling as a fallback."
     >
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         <strong>Run ID:</strong>{" "}

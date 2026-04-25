@@ -112,7 +112,7 @@ Consolidate the multiple "start here" documentation files into a single unambigu
 2. **Convert competing entry files to redirect stubs:**
    - `docs/FIRST_5_DOCS.md` — already a redirect stub; confirm it points to `READ_THIS_FIRST.md`.
    - `docs/FIRST_FIVE_DOCS.md` — same.
-   - `docs/NAVIGATOR.md` — keep as a reference doc but add a header note: "Entry point: [`READ_THIS_FIRST.md`](READ_THIS_FIRST.md). This page is a task-oriented lookup for users who already chose their lane."
+   - `docs/NAVIGATOR.md` — keep as a reference doc but add a header note: "Entry point: [`READ_THIS_FIRST.md`](../READ_THIS_FIRST.md). This page is a task-oriented lookup for users who already chose their lane."
    - `README.md` (repo root) — ensure its first link is `docs/READ_THIS_FIRST.md` with the label "Start here" and remove any competing "start here" phrasing that links elsewhere.
 
 3. **Consolidate operator docs cross-reference:**

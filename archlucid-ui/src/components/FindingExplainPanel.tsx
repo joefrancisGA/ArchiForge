@@ -70,7 +70,7 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
   if (rank < AUTHORITY_RANK.ReadAuthority) {
     return (
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Sign in with Read authority or higher to view redacted LLM audit text for this finding.
+        Sign in with Read access or higher to view redacted LLM audit text for this finding.
       </p>
     );
   }
@@ -235,7 +235,7 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
         </div>
       ) : (
         <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-          Thumbs feedback requires Execute authority or higher (API-enforced).
+          Thumbs feedback requires Operator access or higher (API-enforced).
         </p>
       )}
     </div>

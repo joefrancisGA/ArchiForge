@@ -33,7 +33,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
 
   return (
     <section id="compare-legacy" style={{ marginTop: 28 }}>
-      <h3 style={{ marginBottom: 8 }}>Authority run / manifest diff (legacy)</h3>
+      <h3 style={{ marginBottom: 8 }}>Run record / manifest diff (legacy)</h3>
       <p style={{ fontSize: 14, color: "#64748b", marginTop: 0 }}>
         <strong>Left (base):</strong> <code style={mono}>{result.leftRunId}</code> ·{" "}
         <strong>Right (target):</strong> <code style={mono}>{result.rightRunId}</code>

@@ -21,7 +21,7 @@ export function PostCommitAdvancedAnalysisHint({ runId }: PostCommitAdvancedAnal
       </p>
       <p className="m-0 mt-1 text-sm text-neutral-800 dark:text-neutral-200">
         This run has a committed manifest. None of this is required to judge first-pilot value—only when you have a
-        concrete question Core Pilot does not answer (diff two runs, re-validate the authority chain, or explore a
+        concrete question Core Pilot does not answer (diff two runs, re-validate the provenance chain, or explore a
         graph). Use the links below; enable <em>Show more links</em> in the sidebar if needed.
       </p>
       <ul className="m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-sm">

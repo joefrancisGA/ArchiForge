@@ -215,7 +215,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/replay",
         label: "Replay a run",
-        title: navTitleWithShortcut("Re-validate authority chain for one run", "alt+p"),
+        title: navTitleWithShortcut("Re-validate the provenance chain for one run", "alt+p"),
         keyShortcut: "alt+p",
         icon: Play,
         tier: "extended",

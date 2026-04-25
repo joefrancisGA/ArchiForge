@@ -61,7 +61,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   replay: {
     layerBadge: "Operate",
-    headline: "Answers: does the stored authority chain still validate for this run?",
+    headline: "Answers: does the stored provenance chain still validate for this run?",
     useWhen: "Use when you need drift or integrity checks on a single run, not a visual diff.",
     firstPilotNote: "Optional until you need to prove or debug chain validation.",
   },

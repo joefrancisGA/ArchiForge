@@ -88,7 +88,7 @@ export default function OnboardingPage() {
             Compare two runs
           </Link>{" "}
           and{" "}
-          <Link href="/replay" title="Replay authority chain for a run">
+          <Link href="/replay" title="Re-validate the provenance chain for a run">
             Replay a run
           </Link>{" "}
           for regression analysis. Enable via <em>Show more links</em>.

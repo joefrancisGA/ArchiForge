@@ -276,7 +276,7 @@ export default function TeamsNotificationsIntegrationPage() {
 
           {!canMutate ? (
             <p className="text-xs text-neutral-600 dark:text-neutral-400">
-              Your role can view this page; saving requires Execute authority (same floor as other Enterprise mutation
+              Your role can view this page; saving requires operator access (same floor as other Enterprise mutation
               surfaces).
             </p>
           ) : null}

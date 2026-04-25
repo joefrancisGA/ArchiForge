@@ -138,7 +138,7 @@ export default function AdvisoryPage() {
         <>
           <h3>Persisted recommendations</h3>
           <p style={{ color: "#555", fontSize: 13 }}>
-            Status and reviewer fields are loaded from storage. Use actions below (requires execute authority on the API).
+            Status and reviewer fields are loaded from storage. Use actions below (requires operator access on the API).
           </p>
           <div style={{ display: "grid", gap: 16 }}>
             {recommendations.map((rec) => (
