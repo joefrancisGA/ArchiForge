@@ -40,6 +40,8 @@ const PAGES = [
   { name: "Governance resolution", path: "/governance-resolution" },
   { name: "Planning", path: "/planning" },
   { name: "Digests", path: "/digests" },
+  { name: "Tenant settings", path: "/settings/tenant" },
+  { name: "Value report", path: "/value-report" },
 ];
 
 test.describe("accessibility baseline — WCAG 2.1 AA", () => {

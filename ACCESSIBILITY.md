@@ -1,6 +1,6 @@
 # Accessibility
 
-Last reviewed: 2026-04-22
+Last reviewed: 2026-04-25
 
 ## Target compliance level
 
@@ -8,17 +8,31 @@ Last reviewed: 2026-04-22
 
 ## Current status
 
-**Baseline** — automated axe-core scanning covers the top 5 operator pages. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
+**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**35** URL patterns as of 2026-04-25, including the **15** high-traffic operator paths in the table below, plus marketing routes, legacy `/onboarding` redirects, run provenance, manifest, replay, search, multiple alerts tabs, planning, digests, and tenant/value surfaces). Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
+
+The **Vitest** axe job (`npm run test:axe-components`) is separate; see the **Tooling** table.
 
 ### Pages with automated checks
 
-| Page         | Route                       | Status  |
-| ------------ | --------------------------- | ------- |
-| Home         | `/`                         | Scanned |
-| Runs         | `/runs?projectId=default`   | Scanned |
-| Audit        | `/audit`                    | Scanned |
-| Policy packs | `/policy-packs`             | Scanned |
-| Alerts       | `/alerts`                   | Scanned |
+The following **15** routes are the **priority operator coverage** set (wizard, list/detail, compare, analysis, graph, governance, settings, and shared pilot surfaces). They are a **subset** of the full `PAGES` array in the Playwright file above; CI scans **all** `PAGES` entries.
+
+| Page | Route | Status |
+| ---- | ----- | ------ |
+| Home | `/` | Scanned |
+| New run (wizard) | `/runs/new` | Scanned |
+| Runs | `/runs?projectId=default` | Scanned |
+| Run detail (fixture) | `/runs/{runId}` (see `e2e/fixtures/ids.ts`) | Scanned |
+| Compare | `/compare` | Scanned |
+| Ask | `/ask` | Scanned |
+| Graph | `/graph` | Scanned |
+| Advisory | `/advisory` | Scanned |
+| Governance dashboard | `/governance/dashboard` | Scanned |
+| Governance workflow | `/governance` | Scanned |
+| Tenant settings | `/settings/tenant` | Scanned |
+| Value report | `/value-report` | Scanned |
+| Audit | `/audit` | Scanned |
+| Policy packs | `/policy-packs` | Scanned |
+| Alerts inbox (hub) | `/alerts` | Scanned |
 
 ## Tooling
 
@@ -49,7 +63,7 @@ None at this time. Document any intentional deviations here with:
 
 ## Review cadence
 
-**Annually.** The next review window is **2027-04-22**. The public attestation surface is the marketing route **`/accessibility`** (source: `archlucid-ui/src/app/(marketing)/accessibility/page.tsx`; live site when published: **https://archlucid.com/accessibility**).
+**Annually.** The next review window is **2027-04-25**. The public attestation surface is the marketing route **`/accessibility`** (source: `archlucid-ui/src/app/(marketing)/accessibility/page.tsx`; live site when published: **https://archlucid.com/accessibility**).
 
 Place the **annual accessibility policy review** on the **same owner calendar** as the independent **quality-assessment** cadence reminder (dated assessment series under `docs/` and prompts such as [`docs/QUALITY_IMPROVEMENT_PROMPTS.md`](docs/library/QUALITY_IMPROVEMENT_PROMPTS.md)).
 
@@ -57,8 +71,8 @@ Place the **annual accessibility policy review** on the **same owner calendar** 
 
 To add accessibility checks for a new page:
 
-1. Add an entry to the `PAGES` array in `archlucid-ui/e2e/accessibility.spec.ts`.
-2. Ensure the mock API server (`e2e/mock-archlucid-api-server.ts`) returns fixture data for that route when needed.
+1. Add an entry to the `PAGES` array in `archlucid-ui/e2e/live-api-accessibility.spec.ts` (and update this document’s table if the route is product-significant).
+2. For **live** e2e: ensure the live API + SQL happy path in `e2e/start-e2e-live-api.ts` / fixture IDs (`e2e/fixtures/ids.ts`) includes data for dynamic routes when needed. For **mock** Playwright: use `npx playwright test -c playwright.mock.config.ts` (that config ignores `live-api-*.spec.ts`).
 3. For route-level axe against a live API, run `npx playwright test` from **`archlucid-ui/`** with **`ArchLucid.Api`** up (see **`docs/LIVE_E2E_HAPPY_PATH.md`**). For component axe only: **`npm run test:axe-components`**.
 
 ## Manual testing guidance

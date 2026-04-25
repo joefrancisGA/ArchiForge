@@ -67,6 +67,21 @@ describe("OptInTour rendering (controlled)", () => {
     expect(step0.textContent).toContain("Your starting point");
     expect(step0.textContent).not.toContain("<<tour");
   });
+
+  it("renders approved title and body for all five steps (no pending-approval placeholders)", () => {
+    render(<OptInTour isOpen={true} onClose={() => {}} />);
+
+    for (let i = 0; i < DRAFT_TOUR_STEPS.length; i++) {
+      const step = DRAFT_TOUR_STEPS[i]!;
+      const el = screen.getByTestId(`opt-in-tour-step-${i}`);
+
+      expect(el.textContent).toContain(step.title);
+      expect(el).toHaveTextContent(step.body);
+      expect(el.textContent).not.toMatch(/pending approval|TourStepPendingApproval/i);
+
+      if (i < DRAFT_TOUR_STEPS.length - 1) fireEvent.click(screen.getByTestId("opt-in-tour-next"));
+    }
+  });
 });
 
 describe("OptInTourLauncher (owner Q9 — never auto-launch)", () => {
