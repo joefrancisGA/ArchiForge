@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-24 — Opt-in tour copy finalized
+
+**Opt-in tour copy finalized.** Five-step operator tour ("Show me around") now renders approved copy without pending-approval markers. Step 3 renamed from "Inspect a run" to "Review and commit" for clarity.
+
+---
+
 ## 2026-04-24 — Audit matrix vs `AuditEventTypes` reconciliation + CI guard
 
 **Outcome.** **`docs/library/AUDIT_COVERAGE_MATRIX.md`** appendix is reconciled with **`ArchLucid.Core/Audit/AuditEventTypes.cs`**: the Core registry no longer duplicates the five **`Run.*`** rows (they stay only under the **`AuditEventTypes.Run`** appendix), **`SupportBundleDownloaded`** now has a Core appendix row aligned with **`SupportBundleController`**, and **`<!-- audit-core-const-count:118 -->`** matches the true **`public const string`** count (**103** top-level + **5** `Run.*` + **10** `Baseline.*`). **CI:** the **`dotnet-fast-core`** bash `grep` guard is replaced by **`scripts/ci/assert_audit_const_count.py`**, which parses the marker, counts and classifies every const, cross-checks appendix first-column names, and prints **`MISSING_IN_MATRIX` / `EXTRA_IN_MATRIX` / `MARKER_MISMATCH` / `ROW_COUNT_MISMATCH`** diffs (including **`::error`** lines for GitHub Actions). **`doc-markdown-links`** runs the same script plus **`scripts/ci/tests/test_assert_audit_const_count.py`**.

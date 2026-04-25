@@ -45,4 +45,8 @@
     <None Include="..\tests\golden-cohort\usage-mtd.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\usage-mtd.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestResults\" />
+  </ItemGroup>
+
 </Project>

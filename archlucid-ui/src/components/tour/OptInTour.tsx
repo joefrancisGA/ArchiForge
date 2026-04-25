@@ -4,14 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import { TourStepPendingApproval } from "./TourStepPendingApproval";
-
 /**
- * In-product opt-in tour (PENDING_QUESTIONS.md item 38, owner Q8 + Q9 — 2026-04-23).
+ * In-product opt-in tour (PENDING_QUESTIONS.md item 38 — owner Q8 + Q9; copy approved 2026-04-24).
  *
  * Hard-wired contract:
- * - Five steps. Copy is the assistant's first cut, wrapped in `TourStepPendingApproval`
- *   so end-tenants see the "pending owner approval" marker until owner sign-off.
+ * - Five steps. Approved copy (Improvement 5, option B — single batch PR).
  * - Tour NEVER auto-launches (owner Q9). The component is purely controlled — render
  *   it conditionally on `isOpen` and trigger via the parent's button.
  * - Closing the tour persists a dismissal flag in `localStorage`. The flag is a
@@ -26,41 +23,38 @@ export interface OptInTourStep {
 }
 
 /**
- * Five-step opt-in tour script. Wording is intentionally generic and DRAFT — every
- * step is wrapped in `TourStepPendingApproval` until the owner approves real copy
- * (owner Q8). When the owner approves, replace the wrapper for that step with a
- * plain fragment.
+ * Five-step opt-in tour script (owner-approved 2026-04-24).
  */
 export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "1. Operator home",
     body:
-      "This is your launchpad — Core Pilot quick links sit at the top, Advanced Analysis and Enterprise Controls below. " +
-      "Skip the lower sections until your first pilot run is done.",
+      "Your starting point. The Core Pilot checklist at the top walks you through your first run — follow it in order. " +
+      "The analysis and governance sections below are optional until your first run is committed.",
   },
   {
     title: "2. Start a run",
     body:
-      "Use New run (Alt+N) to walk through the seven-step wizard. The wizard collects context, kicks off the pipeline, " +
-      "and tracks live progress on the run-detail page.",
+      "Click New run (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and " +
+      "constraints, then kicks off the analysis pipeline. You will see live progress on step 7.",
   },
   {
-    title: "3. Inspect a run",
+    title: "3. Review and commit",
     body:
-      "Open Runs → run detail to view the manifest, evidence chain, and findings. Use Commit run once the pipeline " +
-      "completes to produce the golden manifest and downloadable artifacts.",
+      "When the pipeline finishes, open your run from the Runs list. Review the findings and evidence, then click " +
+      "Commit to produce the versioned manifest — the architecture package you can export and share.",
   },
   {
-    title: "4. Governance + alerts",
+    title: "4. Governance and alerts",
     body:
-      "Once you have a committed run, governance dashboards and alerts highlight policy drift and approval needs. " +
-      "Read-only roles can view; operators can act on findings (API-enforced access levels).",
+      "After your first commit, dashboards and alerts can highlight policy gaps and approval queues. These are " +
+      "available when you are ready — they are not required for a successful first pilot.",
   },
   {
     title: "5. Get help",
     body:
-      "Stuck? /admin/support assembles a redacted bundle you can attach to a support ticket. Most pages also link the " +
-      "relevant doc — look for the small reference pointers under each section.",
+      "If something is not working, go to Admin → Support to download a redacted diagnostics bundle for support " +
+      "tickets. Most pages also include a link to the relevant documentation.",
   },
 ];
 
@@ -121,7 +115,7 @@ export function OptInTour({ isOpen, onClose }: OptInTourProps) {
           idx === stepIndex ? (
             <div key={step.title} data-testid={`opt-in-tour-step-${idx}`} className="space-y-3">
               <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{step.title}</h3>
-              <TourStepPendingApproval>{step.body}</TourStepPendingApproval>
+              <p className="text-sm leading-relaxed text-neutral-800 dark:text-neutral-100">{step.body}</p>
             </div>
           ) : null,
         )}
@@ -152,25 +146,6 @@ export function OptInTour({ isOpen, onClose }: OptInTourProps) {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-/**
- * For tests: render every step's body inline (used by the "all five steps render the
- * pending-approval marker" Vitest assertion). Production code should use `OptInTour`
- * instead — this helper exists only so the spec doesn't need to drive the Next button
- * five times to verify every step's marker.
- */
-export function TourStepListForTesting() {
-  return (
-    <div data-testid="opt-in-tour-all-steps">
-      {DRAFT_TOUR_STEPS.map((step) => (
-        <div key={step.title} data-testid={`opt-in-tour-step-${step.title}`}>
-          <h3>{step.title}</h3>
-          <TourStepPendingApproval>{step.body}</TourStepPendingApproval>
-        </div>
-      ))}
     </div>
   );
 }

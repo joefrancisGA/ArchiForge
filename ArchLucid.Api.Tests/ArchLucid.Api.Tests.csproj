@@ -20,13 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)"
-             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest"
-          Link="golden-cohort\cohort.json" />
+    <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\cohort.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +55,10 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestResults\" />
   </ItemGroup>
 
 </Project>

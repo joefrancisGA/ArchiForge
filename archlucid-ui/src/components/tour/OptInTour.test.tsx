@@ -1,14 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-  DRAFT_TOUR_STEPS,
-  OptInTour,
-  TOUR_DISMISSED_LOCAL_STORAGE_KEY,
-  TourStepListForTesting,
-} from "./OptInTour";
+import { DRAFT_TOUR_STEPS, OptInTour, TOUR_DISMISSED_LOCAL_STORAGE_KEY } from "./OptInTour";
 import { OptInTourLauncher } from "./OptInTourLauncher";
-import { TOUR_PENDING_APPROVAL_MARKER } from "./TourStepPendingApproval";
 
 afterEach(() => {
   window.localStorage.clear();
@@ -20,23 +14,10 @@ describe("OptInTour script", () => {
     expect(DRAFT_TOUR_STEPS).toHaveLength(5);
   });
 
-  it("every step body is non-empty draft copy", () => {
+  it("every step body is non-empty", () => {
     for (const step of DRAFT_TOUR_STEPS) {
       expect(step.title.length).toBeGreaterThan(0);
       expect(step.body.length).toBeGreaterThan(0);
-    }
-  });
-});
-
-describe("TourStepListForTesting (owner Q8 marker per step)", () => {
-  it("renders the pending-approval marker for every one of the five steps", () => {
-    render(<TourStepListForTesting />);
-
-    const markers = screen.getAllByTestId("tour-pending-approval-marker");
-    expect(markers).toHaveLength(DRAFT_TOUR_STEPS.length);
-
-    for (const marker of markers) {
-      expect(marker.textContent).toBe(TOUR_PENDING_APPROVAL_MARKER);
     }
   });
 });
@@ -78,6 +59,14 @@ describe("OptInTour rendering (controlled)", () => {
     expect(screen.queryByTestId("opt-in-tour-next")).toBeNull();
     expect(screen.getByTestId("opt-in-tour-finish")).not.toBeNull();
   });
+
+  it("renders approved step 0 copy as plain text", () => {
+    render(<OptInTour isOpen={true} onClose={() => {}} />);
+
+    const step0 = screen.getByTestId("opt-in-tour-step-0");
+    expect(step0.textContent).toContain("Your starting point");
+    expect(step0.textContent).not.toContain("<<tour");
+  });
 });
 
 describe("OptInTourLauncher (owner Q9 — never auto-launch)", () => {
@@ -105,13 +94,5 @@ describe("OptInTourLauncher (owner Q9 — never auto-launch)", () => {
     fireEvent.click(screen.getByTestId("opt-in-tour-launcher"));
 
     expect(screen.getByTestId("opt-in-tour-dialog")).not.toBeNull();
-  });
-
-  it("first step inside the dialog renders the pending-approval marker", () => {
-    render(<OptInTourLauncher />);
-    fireEvent.click(screen.getByTestId("opt-in-tour-launcher"));
-
-    expect(screen.getByTestId("tour-pending-approval-marker").textContent)
-      .toBe(TOUR_PENDING_APPROVAL_MARKER);
   });
 });

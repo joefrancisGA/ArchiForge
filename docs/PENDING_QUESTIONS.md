@@ -44,7 +44,9 @@ These decisions came out of a structured owner Q&A on the ten improvement opport
 |---|---|---|
 | **4a — screenshot gallery refresh shape** | **Keep separate as PR-2.5.** The screenshot gallery refresh runs as its own PR after PR-2 merges and before PR-3, so PR-2's wording-swap diff stays small and reviewable. | `docs/architecture/REBRAND_WORKSTREAM_2026_04_23.md` (PR sequence table). |
 
-### Improvement 5 — DEFERRED: opt-in tour copy approval (post-owner-copy-approval)
+### Improvement 5 — RESOLVED: opt-in tour copy (2026-04-24)
+
+> **Resolved 2026-04-24 (tour copy approved).** Owner approved all five step copies. `TourStepPendingApproval` wrappers removed in a single batch PR per option B. No mixed-state UI.
 
 | Sub-decision | Decision | Affects |
 |---|---|---|
