@@ -394,7 +394,7 @@ These came out of the 2026-04-23 owner clarification — *"the user will never h
 - **Cadence:** **Weekly.** Each pass produces a `QUALITY_ASSESSMENT_<date>_INDEPENDENT_<score>.md` plus a paired `CURSOR_PROMPTS_<...>.md` and updates this file.
 - **Next pass:** **2026-04-28.**
 - **Trigger to break cadence:** any of the three "score-moving" owner events (first PLG row `Published`, Marketplace listing live, Aeronova pen test summary published) — when one lands, run an unscheduled pass within 48 hours so the score reflects the new artefact.
-- **Documentation layout (Resolved 2026-04-23):** Buyer-facing canonical entry is **[`docs/START_HERE.md`](START_HERE.md)**. CI caps markdown files directly under `docs/` (see `scripts/ci/assert_docs_root_size.py`). Most former root reference pages moved to **[`docs/library/`](library/)** with markdown links rewritten; superseded Cursor/quality packs (except the latest **68.60** pair at repo root) live under **[`docs/archive/quality/2026-04-23-doc-depth-reorg/`](archive/quality/2026-04-23-doc-depth-reorg/)**. Full path listing: **[`docs/DOC_INVENTORY_2026_04_23.md`](DOC_INVENTORY_2026_04_23.md)**.
+- **Documentation layout (Resolved 2026-04-23):** Buyer-facing canonical entry is **[`docs/START_HERE.md`](START_HERE.md)**. CI caps markdown files directly under `docs/` (see `scripts/ci/assert_docs_root_size.py`). Most former root reference pages moved to **[`docs/library/`](library/)** with markdown links rewritten; superseded Cursor/quality packs (except the latest **68.60** pair at repo root) live under **[`docs/archive/quality/2026-04-23-doc-depth-reorg/`](archive/quality/2026-04-23-doc-depth-reorg/)**. Full path listing: **[`docs/library/DOC_INVENTORY_2026_04_23.md`](library/DOC_INVENTORY_2026_04_23.md)**.
 
 ---
 
@@ -402,7 +402,7 @@ These came out of the 2026-04-23 owner clarification — *"the user will never h
 
 | Doc | Use |
 |-----|-----|
-| [`docs/DOC_INVENTORY_2026_04_23.md`](DOC_INVENTORY_2026_04_23.md) | Every active `docs/**/*.md` (excluding `docs/archive/`) with last-modified + audience heuristics |
+| [`docs/library/DOC_INVENTORY_2026_04_23.md`](library/DOC_INVENTORY_2026_04_23.md) | Every active `docs/**/*.md` (excluding `docs/archive/`) with last-modified + audience heuristics |
 | [`docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) | **Latest** weighted independent assessment (68.60%) |
 | [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60.md) | Eight paste-ready Cursor prompts for the 68.60% assessment |
 | [`docs/archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md) | Prior 2026-04-21 assessment (67.61%) — **archived** |

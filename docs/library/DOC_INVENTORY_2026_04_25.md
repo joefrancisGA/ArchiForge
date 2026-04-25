@@ -1,6 +1,6 @@
-> **Scope:** Machine-generated inventory (2026-04-23) — paths under ``docs/`` excluding ``docs/archive/``; used for doc-compression audits.
+> **Scope:** Machine-generated inventory (2026-04-25) — paths under ``docs/`` excluding ``docs/archive/``; used for doc-compression audits.
 
-**Generated:** 2026-04-23 via ``python scripts/generate_doc_inventory.py``.
+**Generated:** 2026-04-25 via ``python scripts/generate_doc_inventory.py``.
 
 **Columns:** `path` · `last_modified` (git commit date touching file) · `buyer_facing` · `engineer_facing` · `redundant_with` (heuristic; empty when none).
 
@@ -40,7 +40,7 @@
 | `architecture/BOUNDARY_TESTS_ROADMAP.md` | 2026-04-22 | N | Y |  |
 | `architecture/COORDINATOR_STRANGLER_INVENTORY.md` | 2026-04-22 | N | Y |  |
 | `architecture/PHASE_3_PR_B_TODO.md` | 2026-04-22 | N | Y |  |
-| `ARCHITECTURE_INDEX.md` | 2026-04-22 | N | Y |  |
+| `ARCHITECTURE_INDEX.md` | 2026-04-23 | N | Y |  |
 | `ARCHITECTURE_ON_ONE_PAGE.md` | 2026-04-23 | N | Y |  |
 | `ARCHLUCID_RENAME_CHECKLIST.md` | 2026-04-23 | N | Y |  |
 | `artifacts/phase3/gate-verification.md` | (unknown) | N | N |  |
@@ -57,15 +57,20 @@
 | `deployment/PER_TENANT_COST_MODEL.md` | 2026-04-23 | N | Y |  |
 | `deployment/PILOT_PROFILE.md` | 2026-04-23 | N | Y |  |
 | `diagrams/c4/README.md` | 2026-04-23 | N | N |  |
-| `library/DOC_INVENTORY_2026_04_23.md` | (unknown) | N | N |  |
+| `engineering/BUILD.md` | 2026-04-23 | N | Y |  |
+| `engineering/CONTAINERIZATION.md` | 2026-04-23 | N | N |  |
+| `engineering/DEPLOYMENT.md` | 2026-04-23 | N | N |  |
+| `engineering/DEVCONTAINER.md` | 2026-04-23 | N | N |  |
+| `engineering/FIRST_30_MINUTES.md` | 2026-04-23 | Y | N |  |
+| `engineering/INSTALL_ORDER.md` | 2026-04-23 | Y | N |  |
 | `evidence/phase3/gate-verification.md` | 2026-04-22 | N | Y |  |
 | `evidence/phase3/pr-a2-cohort-parity.md` | 2026-04-22 | N | Y |  |
 | `EXECUTIVE_SPONSOR_BRIEF.md` | 2026-04-23 | Y | N |  |
 | `explainability/CITATION_BOUND_RENDERING.md` | 2026-04-22 | N | N |  |
 | `FIRST_30_MINUTES.md` | 2026-04-23 | Y | N |  |
 | `FIRST_5_DOCS.md` | 2026-04-23 | N | N |  |
-| `FIRST_FIVE_DOCS.md` | 2026-04-22 | N | N |  |
-| `FIRST_RUN_WALKTHROUGH.md` | 2026-04-22 | N | N |  |
+| `FIRST_FIVE_DOCS.md` | 2026-04-23 | N | N |  |
+| `FIRST_RUN_WALKTHROUGH.md` | 2026-04-23 | N | N |  |
 | `FIRST_RUN_WIZARD.md` | 2026-04-23 | N | N |  |
 | `go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md` | 2026-04-23 | Y | N |  |
 | `go-to-market/BACKUP_AND_DR.md` | 2026-04-22 | Y | N |  |
@@ -77,7 +82,7 @@
 | `go-to-market/CUSTOMER_ONBOARDING_PLAYBOOK.md` | 2026-04-23 | Y | N |  |
 | `go-to-market/DEMO_QUICKSTART.md` | 2026-04-23 | Y | N |  |
 | `go-to-market/DPA_TEMPLATE.md` | 2026-04-23 | Y | N |  |
-| `go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md` | 2026-04-22 | Y | N |  |
+| `go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md` | 2026-04-23 | Y | N |  |
 | `go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md` | 2026-04-22 | Y | N |  |
 | `go-to-market/IDEAL_CUSTOMER_PROFILE.md` | 2026-04-22 | Y | N |  |
 | `go-to-market/INCIDENT_COMMUNICATIONS_POLICY.md` | 2026-04-23 | Y | N |  |
@@ -124,7 +129,7 @@
 | `integrations/CICD_INTEGRATION.md` | 2026-04-23 | N | N |  |
 | `integrations/GITHUB_ACTION_MANIFEST_DELTA.md` | 2026-04-23 | N | N |  |
 | `integrations/GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md` | 2026-04-23 | N | N |  |
-| `integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md` | 2026-04-22 | N | N |  |
+| `integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md` | 2026-04-23 | N | N |  |
 | `library/ACCESSIBILITY.md` | 2026-04-23 | N | Y |  |
 | `library/AGENT_OUTPUT_EVALUATION.md` | 2026-04-23 | N | Y |  |
 | `library/AGENT_TRACE_FORENSICS.md` | 2026-04-23 | N | Y |  |
@@ -189,13 +194,14 @@
 | `library/DEPLOYMENT_TERRAFORM.md` | 2026-04-23 | N | Y |  |
 | `library/DEVCONTAINER.md` | 2026-04-23 | N | Y |  |
 | `library/DI_REGISTRATION_MAP.md` | 2026-04-23 | N | Y |  |
+| `library/DOC_INVENTORY_2026_04_23.md` | (unknown) | N | Y |  |
 | `library/EMAIL_NOTIFICATIONS.md` | 2026-04-23 | N | Y |  |
 | `library/EXPLAINABILITY_TRACE_COVERAGE.md` | 2026-04-23 | N | Y |  |
 | `library/EXPLANATION_SCHEMA.md` | 2026-04-23 | N | Y |  |
 | `library/FINDINGS_TYPED_SCHEMA.md` | 2026-04-23 | N | Y |  |
 | `library/FIRST_AZURE_DEPLOYMENT.md` | 2026-04-23 | N | Y |  |
-| `library/FIRST_RUN_WALKTHROUGH.md` | (unknown) | N | Y |  |
-| `library/FIRST_RUN_WIZARD.md` | (unknown) | N | Y |  |
+| `library/FIRST_RUN_WALKTHROUGH.md` | 2026-04-23 | N | Y |  |
+| `library/FIRST_RUN_WIZARD.md` | 2026-04-23 | N | Y |  |
 | `library/FORMATTING.md` | 2026-04-23 | N | Y |  |
 | `library/FUTURE_PACKAGING_ENFORCEMENT.md` | 2026-04-23 | N | Y |  |
 | `library/GLOSSARY.md` | 2026-04-23 | N | Y |  |
@@ -359,10 +365,10 @@
 | `security/TRIAL_AUTH.md` | 2026-04-22 | N | Y |  |
 | `security/TRIAL_LIMITS.md` | 2026-04-22 | N | Y |  |
 | `security/ZAP_BASELINE_RULES.md` | 2026-04-23 | N | Y |  |
-| `START_HERE.md` | 2026-04-22 | Y | N |  |
+| `START_HERE.md` | 2026-04-23 | Y | N |  |
 | `support/TIER_1_RUNBOOK.md` | 2026-04-23 | N | N |  |
 | `TROUBLESHOOTING.md` | 2026-04-23 | Y | N |  |
 | `V1_REQUIREMENTS_TEST_TRACEABILITY.md` | 2026-04-23 | N | Y |  |
 | `whitepapers/state-of-ai-architecture-2026.md` | 2026-04-22 | Y | Y |  |
 
-**Row count:** 356
+**Row count:** 362
