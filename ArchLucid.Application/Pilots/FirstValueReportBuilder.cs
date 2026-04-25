@@ -67,7 +67,8 @@ public sealed class FirstValueReportBuilder(
         string apiBaseForLinks,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId)) throw new ArgumentException("Run id is required.", nameof(runId));
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new ArgumentException("Run id is required.", nameof(runId));
 
         string baseUrl = string.IsNullOrWhiteSpace(apiBaseForLinks)
             ? "http://localhost:5000"
@@ -223,10 +224,7 @@ public sealed class FirstValueReportBuilder(
 
     private static string FormatTimeToCommit(PilotRunDeltas deltas)
     {
-        if (deltas.TimeToCommittedManifest is not { } wall)
-            return "_(pending — no committed manifest yet)_";
-
-        return $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
+        return deltas.TimeToCommittedManifest is not { } wall ? "_(pending — no committed manifest yet)_" : $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
     }
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas)
@@ -284,7 +282,7 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine("## Decision trace summary (top 5)");
         sb.AppendLine();
 
-        List<DecisionTrace> traces = detail.DecisionTraces.Where(static t => t is not null).Take(5).ToList();
+        List<DecisionTrace> traces = detail.DecisionTraces.Where(static _ => true).Take(5).ToList();
 
         if (traces.Count == 0)
         {

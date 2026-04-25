@@ -46,9 +46,6 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
         if (input.RealModeFellBackToSimulator)
             return "Real → Simulator (fallback)";
 
-        if (string.Equals(input.HostAgentExecutionMode, "Real", StringComparison.OrdinalIgnoreCase))
-            return "Real";
-
-        return "Simulator";
+        return string.Equals(input.HostAgentExecutionMode, "Real", StringComparison.OrdinalIgnoreCase) ? "Real" : "Simulator";
     }
 }

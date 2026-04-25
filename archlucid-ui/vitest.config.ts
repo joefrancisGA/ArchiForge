@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: false,
-    setupFiles: ["./vitest-setup-rtl-mock.ts", "./vitest.setup.ts"],
+    setupFiles: ["./testing/vitest-setup-rtl-mock.tsx", "./vitest.setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     clearMocks: true,
     restoreMocks: true,

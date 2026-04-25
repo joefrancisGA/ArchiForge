@@ -153,10 +153,7 @@ internal static class MarkdownPdfRenderer
     {
         if (!IsTableRow(line))
             return false;
-        if (index + 1 >= lines.Count)
-            return false;
-
-        return IsTableSeparator(lines[index + 1]);
+        return index + 1 < lines.Count && IsTableSeparator(lines[index + 1]);
     }
 
     private static bool IsTableRow(string line)
@@ -217,10 +214,8 @@ internal static class MarkdownPdfRenderer
             foreach (string header in headers)
                 table.Cell().Background(Colors.Grey.Lighten3).Padding(3).Text(t => RenderInline(t, header, bold: true));
 
-
-            foreach (List<string> row in rows)
-                foreach (string cell in row)
-                    table.Cell().BorderTop(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(t => RenderInline(t, cell));
+            foreach (string cell in rows.SelectMany(row => row))
+                table.Cell().BorderTop(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(t => RenderInline(t, cell));
         });
 
         return i - start;

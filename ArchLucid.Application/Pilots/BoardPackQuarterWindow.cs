@@ -14,18 +14,14 @@ public static class BoardPackQuarterWindow
     {
         if (overrideStartUtc is { } os && overrideEndUtc is { } oe)
         {
-            if (oe <= os)
-                throw new ArgumentOutOfRangeException(nameof(overrideEndUtc), "Override window end must be after start.");
-
-            return (os, oe);
+            return oe <= os ? throw new ArgumentOutOfRangeException(nameof(overrideEndUtc), "Override window end must be after start.") : (os, oe);
         }
 
-        if (year < 2000 || year > 2100)
+        if (year is < 2000 or > 2100)
             throw new ArgumentOutOfRangeException(nameof(year));
 
         if (quarter is < 1 or > 4)
             throw new ArgumentOutOfRangeException(nameof(quarter));
-
 
         int startMonth = (quarter - 1) * 3 + 1;
         DateTimeOffset start = new(year, startMonth, 1, 0, 0, 0, TimeSpan.Zero);

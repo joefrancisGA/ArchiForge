@@ -35,7 +35,7 @@ internal static class ReplayAuthorityRunRecordFactory
                 ScopeProjectId = sourceAuthorityRun.ScopeProjectId,
                 RunId = replayRunId,
                 ProjectId = string.IsNullOrWhiteSpace(sourceAuthorityRun.ProjectId)
-                    ? (request.SystemName ?? string.Empty)
+                    ? (request.SystemName)
                     : sourceAuthorityRun.ProjectId,
                 Description = sourceAuthorityRun.Description,
                 CreatedUtc = createdUtc,
@@ -49,7 +49,7 @@ internal static class ReplayAuthorityRunRecordFactory
             WorkspaceId = callScope.WorkspaceId,
             ScopeProjectId = callScope.ProjectId,
             RunId = replayRunId,
-            ProjectId = request.SystemName ?? string.Empty,
+            ProjectId = request.SystemName,
             CreatedUtc = createdUtc,
             ArchitectureRequestId = request.RequestId,
         };

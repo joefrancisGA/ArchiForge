@@ -47,12 +47,13 @@ public sealed class PilotRunDeltaComputer(
         ArchitectureRunDetail detail,
         CancellationToken cancellationToken = default)
     {
-        if (detail is null) throw new ArgumentNullException(nameof(detail));
+        if (detail is null)
+            throw new ArgumentNullException(nameof(detail));
 
-        ArchLucid.Contracts.Metadata.ArchitectureRun run = detail.Run;
+        Contracts.Metadata.ArchitectureRun run = detail.Run;
         string runId = run.RunId;
 
-        DateTime? committedUtc = detail.Manifest?.Metadata?.CreatedUtc;
+        DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
         TimeSpan? wall = committedUtc is { } c
             ? c - run.CreatedUtc
             : null;
@@ -89,9 +90,9 @@ public sealed class PilotRunDeltaComputer(
     /// <summary>Returns severity counts in descending order (highest count first), grouped case-insensitively.</summary>
     private static IReadOnlyList<KeyValuePair<string, int>> AggregateFindingsBySeverity(ArchitectureRunDetail detail) =>
         detail.Results
-            .Where(r => r is not null)
+            .Where(_ => true)
             .SelectMany(static r => r.Findings)
-            .Where(f => f is not null)
+            .Where(_ => true)
             .GroupBy(
                 f => string.IsNullOrWhiteSpace(f.Severity) ? "Unknown" : f.Severity.Trim(),
                 StringComparer.OrdinalIgnoreCase)
@@ -103,9 +104,9 @@ public sealed class PilotRunDeltaComputer(
     /// <summary>Picks the single highest-severity finding; ties broken by first-seen order to keep output deterministic.</summary>
     private static ArchitectureFinding? SelectTopSeverityFinding(ArchitectureRunDetail detail) =>
         detail.Results
-            .Where(r => r is not null)
+            .Where(r => true)
             .SelectMany(static r => r.Findings)
-            .Where(f => f is not null)
+            .Where(f => true)
             .OrderByDescending(f => SeverityRank(f.Severity))
             .FirstOrDefault();
 
@@ -200,9 +201,6 @@ public sealed class PilotRunDeltaComputer(
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-            return true;
-
-        return Guid.TryParse(runId, out runGuid);
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 }

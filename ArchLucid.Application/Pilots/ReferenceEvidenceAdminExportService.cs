@@ -58,21 +58,7 @@ public sealed class ReferenceEvidenceAdminExportService(
         IReadOnlyList<Persistence.Models.ReferenceEvidenceRunCandidate> candidates =
             await _runLookup.ListRecentCommittedRunsAsync(tenantId, 200, cancellationToken);
 
-        Persistence.Models.ReferenceEvidenceRunCandidate? selected = null;
-
-        foreach (Persistence.Models.ReferenceEvidenceRunCandidate row in candidates)
-        {
-            string runKey = row.RunId.ToString("N");
-
-            if (includeDemo
-                || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey)
-                    && !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId)))
-            {
-                selected = row;
-
-                break;
-            }
-        }
+        Persistence.Models.ReferenceEvidenceRunCandidate? selected = (from row in candidates let runKey = row.RunId.ToString("N") where includeDemo || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey) && !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId)) select row).FirstOrDefault();
 
         if (selected is null)
             return null;
@@ -90,7 +76,7 @@ public sealed class ReferenceEvidenceAdminExportService(
             : apiBaseForLinks.Trim().TrimEnd('/');
 
         using MemoryStream zipStream = new();
-        using (ZipArchive zip = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+        await using (ZipArchive zip = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
         {
             using (IDisposable _ = AmbientScopeContext.Push(scope))
             {
@@ -102,7 +88,7 @@ public sealed class ReferenceEvidenceAdminExportService(
                 byte[] deltasJson = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(deltaDto, JsonOptions));
 
                 ZipArchiveEntry deltasEntry = zip.CreateEntry("pilot-run-deltas.json");
-                await using (Stream s = deltasEntry.Open())
+                await using (Stream s = await deltasEntry.OpenAsync(cancellationToken))
                 {
                     await s.WriteAsync(deltasJson, cancellationToken);
                 }
@@ -112,11 +98,9 @@ public sealed class ReferenceEvidenceAdminExportService(
                 if (markdown is not null)
                 {
                     ZipArchiveEntry mdEntry = zip.CreateEntry("first-value-report.md");
-                    await using (Stream s = mdEntry.Open())
-                    {
-                        byte[] mdBytes = Encoding.UTF8.GetBytes(markdown);
-                        await s.WriteAsync(mdBytes, cancellationToken);
-                    }
+                    await using Stream s = await mdEntry.OpenAsync(cancellationToken);
+                    byte[] mdBytes = Encoding.UTF8.GetBytes(markdown);
+                    await s.WriteAsync(mdBytes, cancellationToken);
                 }
 
                 try
@@ -126,10 +110,8 @@ public sealed class ReferenceEvidenceAdminExportService(
                     if (firstPdf is { Length: > 0 })
                     {
                         ZipArchiveEntry pdfEntry = zip.CreateEntry("first-value-report.pdf");
-                        await using (Stream s = pdfEntry.Open())
-                        {
-                            await s.WriteAsync(firstPdf, cancellationToken);
-                        }
+                        await using Stream s = await pdfEntry.OpenAsync(cancellationToken);
+                        await s.WriteAsync(firstPdf, cancellationToken);
                     }
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
@@ -144,10 +126,8 @@ public sealed class ReferenceEvidenceAdminExportService(
                     if (sponsorPdf is { Length: > 0 })
                     {
                         ZipArchiveEntry spEntry = zip.CreateEntry("sponsor-one-pager.pdf");
-                        await using (Stream s = spEntry.Open())
-                        {
-                            await s.WriteAsync(sponsorPdf, cancellationToken);
-                        }
+                        await using Stream s = await spEntry.OpenAsync(cancellationToken);
+                        await s.WriteAsync(sponsorPdf, cancellationToken);
                     }
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
@@ -173,7 +153,7 @@ public sealed class ReferenceEvidenceAdminExportService(
                      """;
 
                 ZipArchiveEntry readmeEntry = zip.CreateEntry("README.txt");
-                await using (Stream s = readmeEntry.Open())
+                await using (Stream s = await readmeEntry.OpenAsync(cancellationToken))
                 {
                     byte[] r = Encoding.UTF8.GetBytes(readme);
                     await s.WriteAsync(r, cancellationToken);

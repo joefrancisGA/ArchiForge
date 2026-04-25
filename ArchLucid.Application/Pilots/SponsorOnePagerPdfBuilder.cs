@@ -44,7 +44,8 @@ public sealed class SponsorOnePagerPdfBuilder(
         string baseUrlForFooter,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId)) throw new ArgumentException("Run id is required.", nameof(runId));
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new ArgumentException("Run id is required.", nameof(runId));
 
         ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken);
 
@@ -115,21 +116,21 @@ public sealed class SponsorOnePagerPdfBuilder(
                     {
                         float h1 = 80f;
                         float h2 = (float)(committedRatio * 80);
-                        float h3 = (float)Math.Max(4, 80 - h2);
+                        float h3 = Math.Max(4, 80 - h2);
 
                         row.RelativeItem().Column(c =>
                         {
-                            c.Item().Height(h1, Unit.Point).Background(Colors.Grey.Lighten3);
+                            c.Item().Height(h1).Background(Colors.Grey.Lighten3);
                             c.Item().Text("Runs in window").FontSize(8).AlignCenter();
                         });
                         row.RelativeItem().Column(c =>
                         {
-                            c.Item().Height(h2, Unit.Point).Background(Colors.Blue.Lighten3);
+                            c.Item().Height(h2).Background(Colors.Blue.Lighten3);
                             c.Item().Text("Committed").FontSize(8).AlignCenter();
                         });
                         row.RelativeItem().Column(c =>
                         {
-                            c.Item().Height(h3, Unit.Point).Background(Colors.Green.Lighten3);
+                            c.Item().Height(h3).Background(Colors.Green.Lighten3);
                             c.Item().Text("Other").FontSize(8).AlignCenter();
                         });
                     });
@@ -149,7 +150,7 @@ public sealed class SponsorOnePagerPdfBuilder(
     }
 
     /// <summary>Renders the four computed-delta rows (time-to-commit, findings total, LLM calls, audit rows) as a 2-column table.</summary>
-    private static void RenderComputedDeltasTable(QuestPDF.Infrastructure.IContainer column, PilotRunDeltas deltas)
+    private static void RenderComputedDeltasTable(IContainer column, PilotRunDeltas deltas)
     {
         column.PaddingTop(4).Table(table =>
         {
@@ -167,7 +168,7 @@ public sealed class SponsorOnePagerPdfBuilder(
         });
     }
 
-    private static void AddDeltaRow(QuestPDF.Fluent.TableDescriptor table, string label, string value)
+    private static void AddDeltaRow(TableDescriptor table, string label, string value)
     {
         table.Cell().Padding(2).Text(label);
         table.Cell().Padding(2).Text(value).Bold();
@@ -175,10 +176,7 @@ public sealed class SponsorOnePagerPdfBuilder(
 
     private static string FormatTimeToCommit(PilotRunDeltas deltas)
     {
-        if (deltas.TimeToCommittedManifest is not { } wall)
-            return "(pending — no committed manifest)";
-
-        return $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
+        return deltas.TimeToCommittedManifest is not { } wall ? "(pending — no committed manifest)" : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
     }
 
     private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
@@ -201,7 +199,7 @@ public sealed class SponsorOnePagerPdfBuilder(
             : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
     }
 
-    private static void RenderEvidenceChain(QuestPDF.Infrastructure.IContainer column, PilotRunDeltas deltas)
+    private static void RenderEvidenceChain(IContainer column, PilotRunDeltas deltas)
     {
         if (deltas.TopFindingId is null)
         {
