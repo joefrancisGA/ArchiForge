@@ -51,7 +51,7 @@ describe("PolicyPackDiffView", () => {
     expect(changed?.querySelector("[data-diff-label]")?.textContent).toContain("Changed");
   });
 
-  it("marks added and removed cards with green and red tones (data + inline styles)", () => {
+  it("marks added and removed cards with green and red tones (data attributes + bg-* classes)", () => {
     const left = version({
       version: "L",
       contentJson: '{"onlyLeft":1}',
@@ -68,9 +68,8 @@ describe("PolicyPackDiffView", () => {
 
     expect(added?.getAttribute("data-card-tone")).toBe("added");
     expect(removed?.getAttribute("data-card-tone")).toBe("removed");
-    // jsdom normalizes hex shorthand to rgb(...)
-    expect(added.style.background).toBe("rgb(236, 253, 245)");
-    expect(removed.style.background).toBe("rgb(254, 242, 242)");
+    expect(added).toHaveClass("bg-emerald-50", "border-emerald-300", "text-emerald-900");
+    expect(removed).toHaveClass("bg-red-50", "border-red-300", "text-red-900");
   });
 
   it("shows changed card with Before/After and yellow tone", () => {
@@ -90,7 +89,7 @@ describe("PolicyPackDiffView", () => {
 
     const changed = document.querySelector('[data-change-type="changed"]') as HTMLElement;
     expect(changed?.getAttribute("data-card-tone")).toBe("changed");
-    expect(changed.style.background).toBe("rgb(254, 252, 232)");
+    expect(changed).toHaveClass("bg-yellow-50", "border-yellow-300", "text-yellow-900");
   });
 
   it("shows parse error for invalid JSON", () => {
