@@ -17,8 +17,8 @@ public static class ProvenanceCompletenessAnalyzer
     {
         ArgumentNullException.ThrowIfNull(graph);
 
-        IReadOnlyList<ProvenanceNode> nodes = graph.Nodes ?? [];
-        IReadOnlyList<ProvenanceEdge> edges = graph.Edges ?? [];
+        IReadOnlyList<ProvenanceNode> nodes = graph.Nodes;
+        IReadOnlyList<ProvenanceEdge> edges = graph.Edges;
 
         Dictionary<Guid, ProvenanceNode> nodeById = nodes.ToDictionary(n => n.Id, n => n);
 
@@ -32,7 +32,10 @@ public static class ProvenanceCompletenessAnalyzer
 
             return new ProvenanceCompletenessResult
             {
-                DecisionsCovered = 0, TotalDecisions = 0, CoverageRatio = 1.0, UncoveredDecisionKeys = []
+                DecisionsCovered = 0,
+                TotalDecisions = 0,
+                CoverageRatio = 1.0,
+                UncoveredDecisionKeys = []
             };
 
 

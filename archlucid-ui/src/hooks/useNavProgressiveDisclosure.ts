@@ -40,11 +40,11 @@ export function useNavProgressiveDisclosure(): {
   setShowAdvanced: (value: boolean) => void;
 } {
   const [mounted, setMounted] = useState(false);
-  const [showExtended, setShowExtendedState] = useState(true);
+  const [showExtended, setShowExtendedState] = useState(false);
   const [showAdvanced, setShowAdvancedState] = useState(false);
 
   useEffect(() => {
-    setShowExtendedState(readBooleanStorage(STORAGE_SHOW_EXTENDED, true));
+    setShowExtendedState(readBooleanStorage(STORAGE_SHOW_EXTENDED, false));
     setShowAdvancedState(readBooleanStorage(STORAGE_SHOW_ADVANCED, false));
     setMounted(true);
   }, []);

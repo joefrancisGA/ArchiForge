@@ -29,19 +29,19 @@ public sealed class AgentPromptRegressionTests
     [Fact]
     public void Topology_system_prompt_hash_matches_baseline()
     {
-        assertPromptHash(AgentType.Topology, "topology");
+        AssertPromptHash(AgentType.Topology, "topology");
     }
 
     [Fact]
     public void Compliance_system_prompt_hash_matches_baseline()
     {
-        assertPromptHash(AgentType.Compliance, "compliance");
+        AssertPromptHash(AgentType.Compliance, "compliance");
     }
 
     [Fact]
     public void Critic_system_prompt_hash_matches_baseline()
     {
-        assertPromptHash(AgentType.Critic, "critic");
+        AssertPromptHash(AgentType.Critic, "critic");
     }
 
     [Fact]
@@ -56,8 +56,8 @@ public sealed class AgentPromptRegressionTests
 
         AgentResult result = await handler.ExecuteAsync(
             RegressionRunId,
-            buildRequest(),
-            buildEvidence(RegressionRunId),
+            BuildRequest(),
+            BuildEvidence(RegressionRunId),
             new AgentTask
             {
                 TaskId = "t-cost",
@@ -67,34 +67,34 @@ public sealed class AgentPromptRegressionTests
             },
             CancellationToken.None);
 
-        assertStructuralValidationPasses(AgentType.Cost, result);
+        AssertStructuralValidationPasses(AgentType.Cost, result);
     }
 
     [Fact]
     public async Task Topology_deterministic_simulator_result_satisfies_structural_validator()
     {
-        await runSimulatorAndAssertStructureAsync(AgentType.Topology, "t-topo");
+        await RunSimulatorAndAssertStructureAsync(AgentType.Topology, "t-topo");
     }
 
     [Fact]
     public async Task Cost_deterministic_simulator_result_satisfies_structural_validator()
     {
-        await runSimulatorAndAssertStructureAsync(AgentType.Cost, "t-cost");
+        await RunSimulatorAndAssertStructureAsync(AgentType.Cost, "t-cost");
     }
 
     [Fact]
     public async Task Compliance_deterministic_simulator_result_satisfies_structural_validator()
     {
-        await runSimulatorAndAssertStructureAsync(AgentType.Compliance, "t-comp");
+        await RunSimulatorAndAssertStructureAsync(AgentType.Compliance, "t-comp");
     }
 
     [Fact]
     public async Task Critic_deterministic_simulator_result_satisfies_structural_validator()
     {
-        await runSimulatorAndAssertStructureAsync(AgentType.Critic, "t-crit");
+        await RunSimulatorAndAssertStructureAsync(AgentType.Critic, "t-crit");
     }
 
-    private static async Task runSimulatorAndAssertStructureAsync(AgentType type, string taskId)
+    private static async Task RunSimulatorAndAssertStructureAsync(AgentType type, string taskId)
     {
         if (type != AgentType.Cost)
         {
@@ -103,22 +103,22 @@ public sealed class AgentPromptRegressionTests
         }
 
         DeterministicAgentSimulator sim = new();
-        ArchitectureRequest request = buildRequest();
-        AgentEvidencePackage evidence = buildEvidence(RegressionRunId);
+        ArchitectureRequest request = BuildRequest();
+        AgentEvidencePackage evidence = BuildEvidence(RegressionRunId);
         List<AgentTask> tasks =
         [
-            new AgentTask { TaskId = taskId, RunId = RegressionRunId, AgentType = type, Objective = "Objective." }
+            new() { TaskId = taskId, RunId = RegressionRunId, AgentType = type, Objective = "Objective." }
         ];
 
         IReadOnlyList<AgentResult> list = await sim.ExecuteAsync(RegressionRunId, request, evidence, tasks);
         list.Should().HaveCount(1);
-        assertStructuralValidationPasses(type, list[0]);
+        AssertStructuralValidationPasses(type, list[0]);
     }
 
-    private static void assertStructuralValidationPasses(AgentType type, AgentResult result)
+    private static void AssertStructuralValidationPasses(AgentType type, AgentResult result)
     {
         string wire = JsonSerializer.Serialize(result, ContractJson.Default);
-        string forValidator = withExplainabilityTracesHydratedForContract(wire);
+        string forValidator = WithExplainabilityTracesHydratedForContract(wire);
         RealLlmStructuralValidationResult v =
             RealLlmOutputStructuralValidator.ValidateAgentResultStructure(type.ToString(), forValidator);
 
@@ -135,7 +135,7 @@ public sealed class AgentPromptRegressionTests
     ///     <see cref="RealLlmOutputStructuralValidator" /> and production wire JSON, without mutating
     ///     <see cref="AgentResult" /> types.
     /// </summary>
-    private static string withExplainabilityTracesHydratedForContract(string agentResultJson)
+    private static string WithExplainabilityTracesHydratedForContract(string agentResultJson)
     {
         JsonNode root = JsonNode.Parse(agentResultJson) ?? throw new InvalidOperationException("Result JSON is null.");
         if (root is not JsonObject obj)
@@ -152,7 +152,7 @@ public sealed class AgentPromptRegressionTests
             if (row["trace"] is not null)
                 continue;
 
-            var trace = new JsonObject
+            JsonObject trace = new()
             {
                 ["sourceAgentExecutionTraceId"] = JsonValue.Create((string?)null),
                 ["graphNodeIdsExamined"] = new JsonArray(),
@@ -167,7 +167,7 @@ public sealed class AgentPromptRegressionTests
         return root.ToJsonString(ContractJson.Default);
     }
 
-    private static void assertPromptHash(AgentType type, string baselineProperty)
+    private static void AssertPromptHash(AgentType type, string baselineProperty)
     {
         string baselinePath = Path.Combine(AppContext.BaseDirectory, BaselineFileName);
         File.Exists(baselinePath).Should().BeTrue("missing {0} — add it next to the test class and set CopyToOutputDirectory.", baselinePath);
@@ -189,7 +189,7 @@ public sealed class AgentPromptRegressionTests
         actual.Should().Be(expected, failHint);
     }
 
-    private static ArchitectureRequest buildRequest()
+    private static ArchitectureRequest BuildRequest()
     {
         return new ArchitectureRequest
         {
@@ -202,7 +202,7 @@ public sealed class AgentPromptRegressionTests
         };
     }
 
-    private static AgentEvidencePackage buildEvidence(string runId)
+    private static AgentEvidencePackage BuildEvidence(string runId)
     {
         return new AgentEvidencePackage
         {

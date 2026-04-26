@@ -1,8 +1,8 @@
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 
-using DmSec = ArchLucid.Decisioning.Manifest.Sections;
 using Cm = ArchLucid.Contracts.Manifest;
+using DmSec = ArchLucid.Decisioning.Manifest.Sections;
 
 namespace ArchLucid.Decisioning.Manifest;
 
@@ -52,7 +52,7 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
             .ToList();
 
         List<string> required = source.Security.Controls
-            .Where(c => string.Equals(c.Status, "missing", StringComparison.OrdinalIgnoreCase) is false)
+            .Where(c => !string.Equals(c.Status, "missing", StringComparison.OrdinalIgnoreCase))
             .Select(c => c.ControlName)
             .Concat(source.Policy.SatisfiedControls.Select(s => s.ControlName))
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -64,7 +64,7 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
         if (source.UnresolvedIssues.Items.Count == 0 && source.Cost.CostRisks.Count == 0)
             risk = "Low";
 
-        string costTier = source.Cost.MaxMonthlyCost is { } m && m > 10000m ? "High" : "Moderate";
+        string costTier = source.Cost.MaxMonthlyCost is > 10000m ? "High" : "Moderate";
 
         return new Cm.ManifestGovernance
         {
@@ -81,7 +81,8 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
         DmSec.ManifestMetadata meta = source.Metadata;
 
         string manifestVersion = "v1";
-        if (string.IsNullOrWhiteSpace(meta.Version) is false)
+
+        if (!string.IsNullOrWhiteSpace(meta.Version))
             manifestVersion = meta.Version.StartsWith("v", StringComparison.OrdinalIgnoreCase)
                 ? meta.Version
                 : $"v{meta.Version}";

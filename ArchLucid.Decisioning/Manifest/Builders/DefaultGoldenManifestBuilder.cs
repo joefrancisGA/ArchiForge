@@ -249,9 +249,6 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     private static TEnum ParseEnumKey<TEnum>(Dictionary<string, string> properties, string key)
         where TEnum : struct, Enum
     {
-        if (properties is null)
-            return default;
-
         if (string.IsNullOrEmpty(key))
             return default;
 
@@ -267,10 +264,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         if (string.IsNullOrWhiteSpace(raw))
             return default;
 
-        if (Enum.TryParse(raw, true, out TEnum e))
-            return e;
-
-        return default;
+        return Enum.TryParse(raw, true, out TEnum e) ? e : default;
     }
 
     private static void PopulateTopology(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
@@ -299,6 +293,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.SecurityControlFinding))
         {
             SecurityControlFindingPayload? payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
+
             if (payload is null)
                 continue;
 
