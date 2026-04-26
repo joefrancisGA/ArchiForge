@@ -1035,10 +1035,12 @@ Hard constraints:
 - Do NOT remove or reorder existing home page components
   (WelcomeBanner, PilotOutcomeCard, OperatorTaskSuccessTile,
   BeforeAfterDeltaPanel, OperatorFirstRunWorkflowPanel,
-  AfterCorePilotChecklistHint, Advanced Analysis section, Enterprise
-  Controls section).
+  AfterCorePilotChecklistHint, Operate · analysis home section, Operate ·
+  governance home section — see `archlucid-ui/src/app/(operator)/page.tsx`
+  for the two optional-maturity h3 blocks).
 - Insert the CommandCenterSection AFTER AfterCorePilotChecklistHint
-  and BEFORE the "Advanced Analysis" section.
+  and BEFORE the Operate · analysis home section (first optional-maturity
+  h3 in `(operator)/page.tsx`).
 - Do NOT add API endpoints. Use ONLY existing endpoints.
 - Do NOT make the command center the primary home experience — the
   checklist remains the primary for new operators.

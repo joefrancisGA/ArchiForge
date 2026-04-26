@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { ContextualHelp } from "@/components/ContextualHelp";
 import { EmptyState } from "@/components/EmptyState";
+import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,14 +109,11 @@ export default function AskPage() {
 
   return (
     <main className="max-w-5xl">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Ask ArchLucid</h2>
-        <ContextualHelp helpKey="ask-archlucid" />
-      </div>
-      <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-        Multi-turn conversations are scoped to your workspace. First message needs a <strong>run ID</strong>;
-        follow-ups can use the same thread without resending it.
-      </p>
+      <OperatorPageHeader
+        title="Ask ArchLucid"
+        helpKey="ask-archlucid"
+        subtitle="Multi-turn conversations are scoped to your workspace. First message needs a run ID; follow-ups can use the same thread without resending it."
+      />
 
       {listFailure !== null ? (
         <div role="alert" className="mb-4">
