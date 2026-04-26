@@ -110,15 +110,15 @@ export function WelcomeBanner() {
       className={cn(
         "relative mb-4 rounded-xl border bg-gradient-to-br px-5 py-4 shadow-sm",
         trialActive
-          ? "border border-amber-200 border-l-4 border-l-amber-500 from-amber-50/80 to-white dark:border-amber-900 dark:border-l-amber-500 dark:from-amber-950/30 dark:to-neutral-900"
-          : "border border-teal-200 border-l-4 border-l-teal-600 from-teal-50/80 to-white dark:border-teal-900 dark:border-l-teal-500 dark:from-teal-950/30 dark:to-neutral-900",
+          ? "isolate relative mb-4 rounded-xl border border-amber-200 border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-50/80 to-white px-5 py-4 shadow-sm dark:border-amber-900 dark:border-l-amber-500 dark:from-amber-950/30 dark:to-neutral-900"
+          : "isolate relative mb-4 rounded-xl border border-teal-200 border-l-4 border-l-teal-600 bg-gradient-to-br from-teal-50/80 to-white px-5 py-4 shadow-sm dark:border-teal-900 dark:border-l-teal-500 dark:from-teal-950/30 dark:to-neutral-900",
       )}
     >
       <Button
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute right-3 top-3 h-7 w-7 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200"
+        className="absolute right-3 top-3 z-10 h-7 w-7 text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200"
         aria-label="Dismiss welcome banner"
         onClick={() => {
           try {
@@ -133,14 +133,24 @@ export function WelcomeBanner() {
         <X className="h-4 w-4" aria-hidden />
       </Button>
 
-      {trialActive && typeof days === "number" ? (
-        <span className="mb-2 inline-block rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-          {days} day{days === 1 ? "" : "s"} left on trial
-        </span>
-      ) : null}
+      <div className="absolute inset-0 z-0 overflow-hidden rounded-xl opacity-40 mix-blend-multiply dark:opacity-20 dark:mix-blend-screen" aria-hidden>
+        <svg className="absolute left-0 top-0 h-full w-full" width="100%" height="100%">
+          <defs>
+            <pattern id="hero-dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" className="fill-teal-800 dark:fill-teal-100" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hero-dots)" />
+        </svg>
+      </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+      <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
         <div className="min-w-0 flex-1 pr-8">
+          {trialActive && typeof days === "number" ? (
+            <span className="mb-2 inline-block rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+              {days} day{days === 1 ? "" : "s"} left on trial
+            </span>
+          ) : null}
           <h2 className="mb-1 pr-10 text-3xl font-bold leading-tight tracking-tight text-neutral-900 dark:text-neutral-100">
             {headingText}
           </h2>
@@ -168,10 +178,10 @@ export function WelcomeBanner() {
 
         {!returningUser ? (
           <div
-            className="w-full shrink-0 rounded-lg border border-teal-200/80 bg-white/70 px-4 py-3 text-sm shadow-sm dark:border-teal-900/60 dark:bg-neutral-900/50 lg:max-w-[17rem]"
+            className="w-full shrink-0 rounded-lg border border-neutral-200/80 bg-white/40 px-4 py-3 text-sm shadow-sm dark:border-neutral-800/60 dark:bg-neutral-900/30 lg:max-w-[17rem]"
             aria-label="Sample completed run output"
           >
-            <p className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+            <p className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
               Sample output includes
             </p>
             <ul className="m-0 list-none space-y-1.5 p-0 text-xs text-neutral-700 dark:text-neutral-300">
@@ -192,12 +202,6 @@ export function WelcomeBanner() {
                 <span>Review trail</span>
               </li>
             </ul>
-            <Link
-              href="/runs?projectId=default"
-              className="mt-3 inline-block text-xs font-semibold text-teal-800 underline decoration-teal-300/70 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-            >
-              See a completed example
-            </Link>
           </div>
         ) : null}
       </div>

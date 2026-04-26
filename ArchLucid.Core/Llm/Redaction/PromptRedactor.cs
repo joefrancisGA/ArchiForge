@@ -99,7 +99,7 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
             counts[category] = counts.GetValueOrDefault(category, 0) + matchCount;
         }
 
-        IReadOnlyList<string> extras = opts.DenyListRegexes ?? [];
+        IReadOnlyList<string> extras = opts.DenyListRegexes;
 
         for (int i = 0; i < extras.Count; i++)
         {

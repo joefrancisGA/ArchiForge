@@ -253,10 +253,12 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             return default;
 
         string? raw = null;
+
         foreach (KeyValuePair<string, string> kv in properties)
         {
-            if (string.Equals(kv.Key, key, StringComparison.OrdinalIgnoreCase) is false)
+            if (!string.Equals(kv.Key, key, StringComparison.OrdinalIgnoreCase))
                 continue;
+
             raw = kv.Value;
             break;
         }

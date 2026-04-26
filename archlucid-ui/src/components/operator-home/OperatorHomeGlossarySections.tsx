@@ -36,7 +36,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     step: 2,
     stage: "Track",
     icon: ListOrdered,
-    label: "Track Run",
+    label: "Track Progress",
     description: "Monitor pipeline progress and inspect run detail.",
     href: "/runs?projectId=default",
     shortcut: "Alt+R",
@@ -157,7 +157,11 @@ function ActionCard({
     <Link
       href={href}
       aria-label={linkAccessibleName}
-      className="group flex h-full flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4 no-underline shadow-sm transition-shadow hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
+      className={`group flex h-full flex-col gap-2 rounded-lg border p-4 no-underline transition-shadow ${
+        pipelineStatus === "current"
+          ? "border-teal-300 bg-teal-50/30 shadow-md ring-1 ring-teal-500/20 hover:shadow-lg dark:border-teal-700/60 dark:bg-teal-900/20 dark:ring-teal-500/20"
+          : "border-neutral-200 bg-white shadow-sm hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"
+      }`}
     >
       <div className="flex items-start gap-2">
         <StepIndicator step={step} pipelineStatus={pipelineStatus} />

@@ -116,14 +116,14 @@ export function RecentRunsHomePanel() {
                 Create a request to generate your first manifest, findings, and artifact bundle.
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <Button asChild variant="primary" size="sm" className="h-8">
+                <Button asChild variant="outline" size="sm" className="h-8">
                   <Link href="/runs/new">Create Request</Link>
                 </Button>
                 <Button
                   asChild
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  className="h-8 border-teal-300 text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+                  className="h-8 text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
                 >
                   <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>See completed example</Link>
                 </Button>

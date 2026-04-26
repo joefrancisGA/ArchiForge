@@ -47,8 +47,7 @@ export function AuthPanel() {
         className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
       >
         <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden />
-        DEV MODE
-        <span className="font-normal text-amber-700 dark:text-amber-400">Auto-authenticated · OIDC disabled</span>
+        Development workspace
       </div>
     );
   }

@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -118,17 +117,8 @@ function RunsNeedingAttentionCard() {
             {attention.length === 0 ? (
               <div className="space-y-2">
                 <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-                  {items.length === 0
-                    ? "No runs currently need attention. Create a request to start your first run."
-                    : "No runs currently need attention."}
+                  No runs currently need attention.
                 </p>
-                {items.length === 0 ? (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button asChild variant="primary" size="sm" className="h-8">
-                      <Link href="/runs/new">Create Request</Link>
-                    </Button>
-                  </div>
-                ) : null}
               </div>
             ) : (
               <>

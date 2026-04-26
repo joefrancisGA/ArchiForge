@@ -69,7 +69,7 @@ describe("HomePage (55R smoke — landing)", () => {
 
     // Mobile + desktop pipelines both mount (one is CSS-hidden) — assert presence without getBy* ambiguity.
     expect(screen.getAllByText("Create Request").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Track Run").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Track Progress").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Finalize Manifest").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Review Artifacts").length).toBeGreaterThanOrEqual(1);
   });
