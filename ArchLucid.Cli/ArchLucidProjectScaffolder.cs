@@ -245,7 +245,7 @@ public static class ArchLucidProjectScaffolder
         }
 
         InfraSection infra = config.Infra ?? new InfraSection();
-        TerraformSection tf = infra.Terraform ?? new TerraformSection { Enabled = false, Path = "infra/terraform" };
+        TerraformSection tf = infra.Terraform;
 
         if (!tf.Enabled)
             return;

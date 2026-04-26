@@ -134,7 +134,7 @@ public sealed class PilotRunDeltaComputer(
             IReadOnlyList<Contracts.Agents.AgentExecutionTrace> traces =
                 await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
-            return traces?.Count ?? 0;
+            return traces.Count;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -165,7 +165,7 @@ public sealed class PilotRunDeltaComputer(
                 filter,
                 cancellationToken);
 
-            int count = events?.Count ?? 0;
+            int count = events.Count;
             bool truncated = count >= AuditRowQueryCap;
 
             return (count, truncated);
