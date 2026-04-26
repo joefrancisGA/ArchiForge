@@ -92,3 +92,25 @@ export function listNavGroupsVisibleInOperatorShell(
 
   return out;
 }
+
+/**
+ * How many hrefs in a group are hidden by the current extended/advanced flags (vs. full disclosure at the same
+ * authority rank). Used to surface a “N more” affordance in the sidebar.
+ */
+export function countLinksHiddenByProgressiveDisclosure(
+  group: NavGroupConfig,
+  showExtended: boolean,
+  showAdvanced: boolean,
+  callerAuthorityRank: number,
+): number {
+  const current = filterNavLinksForOperatorShell(
+    group.links,
+    showExtended,
+    showAdvanced,
+    callerAuthorityRank,
+  );
+  const full = filterNavLinksForOperatorShell(group.links, true, true, callerAuthorityRank);
+  const currentHrefs = new Set(current.map((l) => l.href));
+
+  return full.filter((l) => !currentHrefs.has(l.href)).length;
+}

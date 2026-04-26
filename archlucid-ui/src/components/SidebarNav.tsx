@@ -22,7 +22,7 @@ import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProv
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
-import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import { countLinksHiddenByProgressiveDisclosure, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
@@ -159,6 +159,12 @@ export function SidebarNav() {
         callerAuthorityRank,
       ).map(({ group, visibleLinks }) => {
         const isOpen = !mounted || openByGroup[group.id] !== false;
+        const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
+          group,
+          showExtended,
+          showAdvanced,
+          callerAuthorityRank,
+        );
 
         return (
           <Collapsible
@@ -251,6 +257,17 @@ export function SidebarNav() {
                 })}
               </nav>
             </CollapsibleContent>
+            {hiddenByDisclosure > 0 ? (
+              <button
+                type="button"
+                className="ml-2 mt-1 text-left text-xs text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+                onClick={() => {
+                  setSettingsOpen(true);
+                }}
+              >
+                {hiddenByDisclosure} more
+              </button>
+            ) : null}
           </Collapsible>
         );
       })}

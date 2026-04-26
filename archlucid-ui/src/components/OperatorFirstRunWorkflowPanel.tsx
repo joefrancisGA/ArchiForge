@@ -4,12 +4,13 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import { cn } from "@/lib/utils";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
+const graduatedStorageKey = "archlucid_checklist_graduated";
 
 type WorkflowStep = {
   title: string;
@@ -81,8 +82,10 @@ const steps = corePilotSteps;
  * outline buttons so they do not compete with the main home CTAs.
  */
 export function OperatorFirstRunWorkflowPanel() {
+  const autoGraduateBlockedRef = useRef(false);
   const [hydrated, setHydrated] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  const [graduated, setGraduated] = useState(false);
   const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => steps.map(() => false));
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -103,9 +106,27 @@ export function OperatorFirstRunWorkflowPanel() {
 
     setDoneByIndex(nextDone);
 
+    const allDoneFromStorage = nextDone.length === steps.length && nextDone.every(Boolean);
+
     try {
       if (typeof window !== "undefined" && window.localStorage.getItem(minimizedStorageKey) === "1") {
         setMinimized(true);
+      }
+    } catch {
+      /* private mode */
+    }
+
+    try {
+      if (typeof window !== "undefined") {
+        const rawGrad = window.localStorage.getItem(graduatedStorageKey);
+
+        if (rawGrad === "1" && allDoneFromStorage) {
+          setGraduated(true);
+        }
+
+        if (rawGrad === "1" && !allDoneFromStorage) {
+          window.localStorage.removeItem(graduatedStorageKey);
+        }
       }
     } catch {
       /* private mode */
@@ -119,6 +140,24 @@ export function OperatorFirstRunWorkflowPanel() {
   const allDone = doneCount === steps.length;
 
   const firstUndoneIndex = useMemo(() => doneByIndex.findIndex((d) => !d), [doneByIndex]);
+
+  useEffect(() => {
+    if (!hydrated || !allDone) {
+      return;
+    }
+
+    if (autoGraduateBlockedRef.current) {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(graduatedStorageKey, "1");
+    } catch {
+      /* private mode */
+    }
+
+    setGraduated(true);
+  }, [hydrated, allDone]);
 
   useEffect(() => {
     if (!hydrated) {
@@ -145,6 +184,8 @@ export function OperatorFirstRunWorkflowPanel() {
   }, [hydrated, doneByIndex, firstUndoneIndex]);
 
   const toggleStep = useCallback((index: number) => {
+    autoGraduateBlockedRef.current = false;
+
     setDoneByIndex((prev) => {
       const next = [...prev];
       next[index] = !next[index];
@@ -189,6 +230,25 @@ export function OperatorFirstRunWorkflowPanel() {
     return <div className="min-h-[100px] w-full" aria-hidden />;
   }
 
+  function revisitChecklist() {
+    autoGraduateBlockedRef.current = true;
+
+    try {
+      window.localStorage.removeItem(graduatedStorageKey);
+    } catch {
+      /* private mode */
+    }
+
+    setGraduated(false);
+    setMinimized(false);
+
+    try {
+      window.localStorage.removeItem(minimizedStorageKey);
+    } catch {
+      /* private mode */
+    }
+  }
+
   if (minimized) {
     return (
       <div>
@@ -205,10 +265,53 @@ export function OperatorFirstRunWorkflowPanel() {
     );
   }
 
+  if (graduated && allDone) {
+    return (
+      <section
+        className="w-full rounded-lg border border-teal-200/80 bg-teal-50/80 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/40"
+        aria-labelledby="whats-next-heading"
+      >
+        <h2 id="whats-next-heading" className="m-0 text-base font-semibold text-teal-900 dark:text-teal-100">
+          What&apos;s next
+        </h2>
+        <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-300">
+          Compare runs, replay pipeline steps, and explore the architecture graph.
+        </p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/compare"
+          >
+            Compare
+          </Link>
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/replay"
+          >
+            Replay
+          </Link>
+          <Link
+            className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
+            href="/graph"
+          >
+            Graph
+          </Link>
+        </div>
+        <button
+          type="button"
+          onClick={revisitChecklist}
+          className="auth-panel-focus mt-2 cursor-pointer text-xs font-semibold text-teal-800 underline dark:text-teal-300"
+        >
+          Revisit checklist
+        </button>
+      </section>
+    );
+  }
+
   return (
     <section
       id="first-run-workflow-panel"
-      className="w-full rounded-lg border border-sky-200/90 bg-sky-50/90 px-3 py-3 dark:border-sky-900 dark:bg-sky-950/40"
+      className="w-full rounded-lg border border-sky-200/60 bg-sky-50/50 px-3 py-3 dark:border-sky-900 dark:bg-sky-950/40"
       aria-labelledby="first-run-workflow-heading"
     >
       <div className="mb-2 flex flex-wrap items-start justify-between gap-2">

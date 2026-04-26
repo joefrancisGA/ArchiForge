@@ -11,7 +11,7 @@ vi.mock("@/lib/api", () => ({
 
 import { WelcomeBanner } from "./WelcomeBanner";
 
-const STORAGE_KEY = "archlucid_welcome_dismissed";
+const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
 
 const emptyRunsPage = {
   items: [] as RunSummary[],
@@ -23,6 +23,7 @@ const emptyRunsPage = {
 
 afterEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
   vi.clearAllMocks();
 });
 
@@ -40,7 +41,7 @@ beforeEach(() => {
 });
 
 describe("WelcomeBanner — renders heading and CTAs", () => {
-  it("shows welcome heading, primary CTA, sample output preview, and example link when not dismissed", async () => {
+  it("shows welcome heading, primary CTA, value card, and example link when not dismissed", async () => {
     render(<WelcomeBanner />);
 
     await waitFor(() => {
@@ -54,13 +55,19 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create Request" })).toHaveAttribute("href", "/runs/new");
-    expect(screen.getByRole("link", { name: "See completed example" })).toHaveAttribute(
-      "href",
-      "/runs?projectId=default",
-    );
-    expect(screen.getByLabelText("Sample completed run output")).toBeInTheDocument();
-    expect(screen.getByText("Sample output includes")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "See a completed example" })).toHaveAttribute(
+    // Value card: current copy ("What you'll get" + body) or legacy sample-output list.
+    expect(
+      screen.getByText(
+        /one request produces a governed manifest, actionable findings, and exportable artifacts|Sample output includes/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(
+        /What you will receive from a completed run|Sample completed run output/,
+      ),
+    ).toBeInTheDocument();
+    // CTA or card may label the runs list "See completed example" or "See a completed example" (keeps one href).
+    expect(screen.getByRole("link", { name: /see (a )?completed example/i })).toHaveAttribute(
       "href",
       "/runs?projectId=default",
     );
@@ -98,23 +105,23 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
 });
 
 describe("WelcomeBanner — dismiss hides banner", () => {
-  it("hides after dismiss click", async () => {
+  it("hides after session dismiss click", async () => {
     render(<WelcomeBanner />);
 
     await waitFor(() => {
       expect(screen.getByRole("banner", { name: "Welcome" })).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Dismiss welcome banner" }));
+    fireEvent.click(screen.getByRole("button", { name: /dismiss welcome/i }));
 
     expect(screen.queryByRole("banner", { name: "Welcome" })).not.toBeInTheDocument();
-    expect(localStorage.getItem(STORAGE_KEY)).toBe("1");
+    expect(sessionStorage.getItem(SESSION_DISMISS_KEY)).toBe("1");
   });
 });
 
-describe("WelcomeBanner — localStorage respected on re-render", () => {
-  it("stays hidden when dismissed flag is set", async () => {
-    localStorage.setItem(STORAGE_KEY, "1");
+describe("WelcomeBanner — session flag respected on re-render", () => {
+  it("stays hidden when session dismissed flag is set", async () => {
+    sessionStorage.setItem(SESSION_DISMISS_KEY, "1");
     render(<WelcomeBanner />);
 
     await waitFor(() => {

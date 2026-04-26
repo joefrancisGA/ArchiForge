@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
+import {
+  countLinksHiddenByProgressiveDisclosure,
+  filterNavLinksForOperatorShell,
+  listNavGroupsVisibleInOperatorShell,
+} from "@/lib/nav-shell-visibility";
 
 describe("filterNavLinksForOperatorShell", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
@@ -255,5 +259,21 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
     );
 
     expect(fromList!.visibleLinks.map((l) => l.href)).toEqual(fromFilter.map((l) => l.href));
+  });
+});
+
+describe("countLinksHiddenByProgressiveDisclosure", () => {
+  it("is zero when extended and advanced are fully on", () => {
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance") as NavGroupConfig;
+
+    const n = countLinksHiddenByProgressiveDisclosure(enterprise, true, true, AUTHORITY_RANK.ReadAuthority);
+    expect(n).toBe(0);
+  });
+
+  it("is positive when extended links are off but exist at full disclosure", () => {
+    const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance") as NavGroupConfig;
+
+    const n = countLinksHiddenByProgressiveDisclosure(enterprise, false, false, AUTHORITY_RANK.ReadAuthority);
+    expect(n).toBeGreaterThan(0);
   });
 });
