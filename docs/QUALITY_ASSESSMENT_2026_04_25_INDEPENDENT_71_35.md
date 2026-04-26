@@ -1,6 +1,6 @@
 > **Scope:** Independent first-principles quality assessment of ArchLucid as it stands on **2026-04-25**. Scored from the repository's current state without reference to any prior assessments, scores, or conclusions.
 
-# ArchLucid Assessment – Weighted Readiness 71.08%
+# ArchLucid Assessment – Weighted Readiness 71.35%
 
 **Date:** 2026-04-25
 **Assessor:** Independent first-principles review (Opus 4.6)
@@ -12,15 +12,15 @@
 
 ### Overall Readiness
 
-ArchLucid is a **credible V1 product** that delivers a working end-to-end architecture workflow: request → execute → commit → manifest → review. The codebase demonstrates genuine engineering discipline — tiered CI, coverage gates, OpenAPI contract drift detection, k6 performance baselines, accessibility scanning, and durable audit infrastructure. At 71.08% weighted readiness, the product is **viable for sales-led pilots** but faces real friction in self-serve adoption, proof-of-ROI automation, and commercial packaging that will constrain the transition from founder-led sales to scalable revenue.
+ArchLucid is a **credible V1 product** that delivers a working end-to-end architecture workflow: request → execute → commit → manifest → review. The codebase demonstrates genuine engineering discipline — tiered CI, coverage gates, OpenAPI contract drift detection, k6 performance baselines, accessibility scanning, and durable audit infrastructure. At 71.35% weighted readiness, the product is **viable for sales-led pilots** but faces real friction in self-serve adoption, proof-of-ROI automation, and commercial packaging that will constrain the transition from founder-led sales to scalable revenue.
 
 ### Commercial Picture
 
-The product has clear differentiation in a market gap (AI architecture + enterprise governance) and a well-articulated pricing philosophy. However, **zero published reference customers**, **no live Stripe checkout**, **no published pen-test results**, and **no Azure Marketplace listing** collectively mean every sale requires founder handholding. The self-serve trial funnel is technically wired but not yet live. Proof-of-ROI surfaces exist but require operator effort to populate baselines. Until the commerce un-hold (V1.1) and at least one published reference customer, revenue velocity will be slow.
+The product has clear differentiation in a market gap (AI architecture + enterprise governance) and a well-articulated pricing philosophy. However, **zero published reference customers**, **no live Stripe checkout**, and **no Azure Marketplace listing** collectively mean every sale requires founder handholding. The self-serve trial funnel is technically wired but not yet live. Proof-of-ROI surfaces exist but require operator effort to populate baselines. Until the commerce un-hold (V1.1) and at least one published reference customer, revenue velocity will be slow.
 
 ### Enterprise Picture
 
-Enterprise readiness is **stronger than typical for a V1**. The trust center, DPA template, CAIQ Lite pre-fill, SIG Core pre-fill, SOC 2 self-assessment, RLS, RBAC, audit log (78 event types), governance workflows, and SCIM provisioning address real procurement checklist items. The gaps are in third-party attestation (no completed pen test, no SOC 2 Type II), ITSM connectors (Jira/ServiceNow deferred to V1.1), and the four overlapping onboarding routes that create confusion for new operators.
+Enterprise readiness is **stronger than typical for a V1**. The trust center, DPA template, CAIQ Lite pre-fill, SIG Core pre-fill, SOC 2 self-assessment, RLS, RBAC, audit log (78 event types), governance workflows, and SCIM provisioning address real procurement checklist items. The gaps are in third-party attestation (no SOC 2 Type II; pen test deferred to V1.1), ITSM connectors (Jira/ServiceNow deferred to V1.1), and the four overlapping onboarding routes that create confusion for new operators.
 
 ### Engineering Picture
 
@@ -31,7 +31,7 @@ The architecture is well-decomposed (Coordinator, Decisioning, Persistence, Appl
 ## 2. Weighted Quality Assessment
 
 **Total weight:** 100
-**Weighted score:** 71.08 / 100
+**Weighted score:** 71.35 / 100
 
 Qualities are ordered from **most urgent** (highest weighted deficiency) to **least urgent**.
 
@@ -156,16 +156,15 @@ Qualities are ordered from **most urgent** (highest weighted deficiency) to **le
 
 ---
 
-### Trustworthiness — Score: 70 · Weight: 3 · Weighted Deficiency: 0.90
+### Trustworthiness — Score: 72 · Weight: 3 · Weighted Deficiency: 0.84
 
-**Justification:** The trust center is well-structured with honest status labels (self-asserted vs. third-party confirmed). SOC 2 self-assessment exists but no Type II attestation. Pen test SoW exists but no completed engagement. DPA template, subprocessors register, CAIQ Lite, and SIG Core pre-fills are real procurement assets. The "citations vs. proof" section in the sponsor brief is commendably honest about LLM limitations. RLS, RBAC, and tenant isolation are documented. However, the lack of a completed pen test and SOC 2 attestation is a real blocker for some enterprise buyers.
+**Justification:** The trust center is well-structured with honest status labels (self-asserted vs. third-party confirmed). SOC 2 self-assessment exists with a documented roadmap. DPA template, subprocessors register, CAIQ Lite, and SIG Core pre-fills are real procurement assets. The "citations vs. proof" section in the sponsor brief is commendably honest about LLM limitations. RLS, RBAC, and tenant isolation are documented. The pen test is explicitly deferred to V1.1 and not scored here. The remaining gap is the absence of any third-party attestation (SOC 2 Type II is on the roadmap but not yet engaged).
 
 **Tradeoffs:** SOC 2 Type II takes 6-12 months; the self-assessment is the right interim posture.
 
 **Recommendations:**
-- Complete the Aeronova pen test engagement and publish redacted summary
-- Begin SOC 2 Type II preparation with a CPA firm
-- Fixable in: V1.1 (pen test), V1.1+ (SOC 2)
+- Begin SOC 2 Type II preparation with a CPA firm when revenue supports it
+- Fixable in: V1.1+ (SOC 2)
 
 ---
 
@@ -195,16 +194,15 @@ Qualities are ordered from **most urgent** (highest weighted deficiency) to **le
 
 ---
 
-### Security — Score: 71 · Weight: 3 · Weighted Deficiency: 0.87
+### Security — Score: 74 · Weight: 3 · Weighted Deficiency: 0.78
 
-**Justification:** Strong baseline: RBAC (three roles, five policies), RLS with SESSION_CONTEXT, fixed-time comparison for API keys, LLM prompt redaction, gitleaks secret scanning, CodeQL, Trivy (image + Terraform config), OWASP ZAP baseline, STRIDE threat model, CORS deny-by-default, rate limiting, private endpoint Terraform modules, no SMB/445 exposure. However: no completed pen test (SoW exists, engagement "in flight"), no SOC 2 Type II, no PGP key for coordinated disclosure (V1.1), and the `appsettings.Development.json` DevelopmentBypass mode needs careful documentation to prevent accidental production use.
+**Justification:** Strong baseline: RBAC (three roles, five policies), RLS with SESSION_CONTEXT, fixed-time comparison for API keys, LLM prompt redaction, gitleaks secret scanning, CodeQL, Trivy (image + Terraform config), OWASP ZAP baseline, STRIDE threat model, CORS deny-by-default, rate limiting, private endpoint Terraform modules, no SMB/445 exposure. The pen test and PGP key for coordinated disclosure are explicitly deferred to V1.1 and not scored here. The remaining gap is that `appsettings.Development.json` DevelopmentBypass mode lacks a runtime guard to prevent accidental production use.
 
-**Tradeoffs:** Security posture is strong for a pre-revenue V1; the pen test and SOC 2 are the right next steps.
+**Tradeoffs:** Security posture is strong for a pre-revenue V1; the DevelopmentBypass guard is the highest-leverage V1 fix.
 
 **Recommendations:**
-- Complete the pen test engagement
 - Add a startup guard that prevents DevelopmentBypass in production environments
-- Fixable in: V1 (startup guard), V1.1 (pen test)
+- Fixable in: V1 (startup guard)
 
 ---
 
@@ -232,29 +230,28 @@ Qualities are ordered from **most urgent** (highest weighted deficiency) to **le
 
 ---
 
-### Compliance Readiness — Score: 66 · Weight: 2 · Weighted Deficiency: 0.68
+### Compliance Readiness — Score: 69 · Weight: 2 · Weighted Deficiency: 0.62
 
-**Justification:** SOC 2 self-assessment exists but no Type II attestation. CAIQ Lite and SIG Core pre-fills are real assets. DPA template and subprocessors register exist. Compliance matrix and evidence pack are documented. The trust center is well-organized. However: no completed pen test, no SOC 2 Type II, no ISO 27001, and the evidence pack ZIP endpoint deliberately omits the redacted pen-test summary. For enterprise buyers in regulated industries, the self-assessment posture may not be sufficient.
+**Justification:** SOC 2 self-assessment exists with a documented roadmap. CAIQ Lite and SIG Core pre-fills are real assets. DPA template and subprocessors register exist. Compliance matrix and evidence pack are documented. The trust center is well-organized. The pen test is explicitly deferred to V1.1 and not scored here. The remaining gap is the absence of third-party attestation (SOC 2 Type II, ISO 27001) — the self-assessment posture may not be sufficient for enterprise buyers in highly regulated industries.
 
 **Tradeoffs:** SOC 2 Type II is expensive and time-consuming; the self-assessment is the right V1 posture.
 
 **Recommendations:**
-- Begin SOC 2 Type II preparation
-- Complete pen test to strengthen the trust center
+- Begin SOC 2 Type II preparation when revenue supports it
 - Fixable in: V1.1+ (attestations)
 
 ---
 
-### Procurement Readiness — Score: 64 · Weight: 2 · Weighted Deficiency: 0.72
+### Procurement Readiness — Score: 67 · Weight: 2 · Weighted Deficiency: 0.66
 
-**Justification:** DPA template, subprocessors, CAIQ Lite, SIG Core, MSA template, order form template, procurement pack cover, evidence pack ZIP — these are real and well-structured. The HOW_TO_REQUEST_PROCUREMENT_PACK.md is buyer-friendly. However: no completed pen test to share, no SOC 2 Type II letter, no published reference customers, and no live Marketplace listing. Procurement teams in large enterprises will ask for all four.
+**Justification:** DPA template, subprocessors, CAIQ Lite, SIG Core, MSA template, order form template, procurement pack cover, evidence pack ZIP — these are real and well-structured. The HOW_TO_REQUEST_PROCUREMENT_PACK.md is buyer-friendly. The pen test is explicitly deferred to V1.1 and not scored here. The remaining gaps are: no SOC 2 Type II letter, no published reference customers, and no live Marketplace listing.
 
-**Tradeoffs:** All four gaps are V1.1 or business-development items, not code gaps.
+**Tradeoffs:** Remaining gaps are V1.1 or business-development items, not code gaps.
 
 **Recommendations:**
-- Close pen test and reference customer gaps
+- Close reference customer gap via founder dogfooding
 - Activate Azure Marketplace SaaS offer when Partner Center verification is complete
-- Fixable in: V1.1 (pen test, marketplace), ongoing (reference customers)
+- Fixable in: V1.1 (marketplace), ongoing (reference customers)
 
 ---
 
@@ -624,11 +621,11 @@ Qualities are ordered from **most urgent** (highest weighted deficiency) to **le
 | Differentiability | 72 | 4 | 2.88 | 1.12 |
 | Correctness | 76 | 4 | 3.04 | 0.96 |
 | Architectural Integrity | 78 | 3 | 2.34 | 0.66 |
-| Security | 71 | 3 | 2.13 | 0.87 |
+| Security | 74 | 3 | 2.22 | 0.78 |
 | Traceability | 72 | 3 | 2.16 | 0.84 |
 | Usability | 68 | 3 | 2.04 | 0.96 |
 | Workflow Embeddedness | 60 | 3 | 1.80 | 1.20 |
-| Trustworthiness | 70 | 3 | 2.10 | 0.90 |
+| Trustworthiness | 72 | 3 | 2.16 | 0.84 |
 | Reliability | 73 | 2 | 1.46 | 0.54 |
 | Data Consistency | 72 | 2 | 1.44 | 0.56 |
 | Maintainability | 74 | 2 | 1.48 | 0.52 |
@@ -637,8 +634,8 @@ Qualities are ordered from **most urgent** (highest weighted deficiency) to **le
 | Azure Compatibility and SaaS Deployment Readiness | 70 | 2 | 1.40 | 0.60 |
 | Auditability | 74 | 2 | 1.48 | 0.52 |
 | Policy and Governance Alignment | 72 | 2 | 1.44 | 0.56 |
-| Compliance Readiness | 66 | 2 | 1.32 | 0.68 |
-| Procurement Readiness | 64 | 2 | 1.28 | 0.72 |
+| Compliance Readiness | 69 | 2 | 1.38 | 0.62 |
+| Procurement Readiness | 67 | 2 | 1.34 | 0.66 |
 | Interoperability | 62 | 2 | 1.24 | 0.76 |
 | Decision Velocity | 72 | 2 | 1.44 | 0.56 |
 | Commercial Packaging Readiness | 60 | 2 | 1.20 | 0.80 |
@@ -662,7 +659,7 @@ Qualities are ordered from **most urgent** (highest weighted deficiency) to **le
 | Azure Ecosystem Fit | 74 | 1 | 0.74 | 0.26 |
 | Cognitive Load | 64 | 1 | 0.64 | 0.36 |
 | Cost-Effectiveness | 70 | 1 | 0.70 | 0.30 |
-| **TOTAL** | — | **100** | **71.08** | **28.92** |
+| **TOTAL** | — | **100** | **71.35** | **28.65** |
 
 ---
 
@@ -686,9 +683,9 @@ The hosted trial funnel is technically wired (staging.archlucid.com configured, 
 
 Four overlapping onboarding routes with three distinct wizard implementations create confusion and wasted effort. A new operator may land on any of these, not realize the others exist, and repeat work or miss steps. This directly undermines the "first 30 minutes" experience.
 
-### 5. No Completed Pen Test (Weighted Deficiency: ~1.6 across Security, Compliance, Procurement, Trustworthiness)
+### 5. No Third-Party Security Attestation (Weighted Deficiency: ~0.9 across Compliance, Procurement, Trustworthiness)
 
-The Aeronova engagement is "in flight" with SoW and templates ready, but no completed assessment exists. Some enterprise buyers will hard-stop on this. The self-assessment and STRIDE threat model are strong interim assets but do not substitute for a third-party report.
+No SOC 2 Type II attestation has been issued. The self-assessment, STRIDE threat model, and trust center are strong interim assets. The pen test is explicitly deferred to V1.1 and not scored. Some enterprise buyers in regulated industries will require third-party attestation before signing.
 
 ### 6. Design System Inconsistency on High-Traffic Pages (Weighted Deficiency: ~1.3 across Usability, Accessibility, Cognitive Load)
 
@@ -730,9 +727,9 @@ Product-led growth is impossible without a live trial funnel. The current sales-
 
 The ROI model is theoretical until a real customer validates it. The value-report DOCX generates modeled numbers, not measured outcomes. A sponsor needs a credible "we saved X hours" story, and the product doesn't automatically produce one from real telemetry.
 
-### 5. No Completed Pen Test for Procurement
+### 5. No Third-Party Attestation for Procurement
 
-Some enterprise buyers will not sign a contract without a pen-test report. The SoW and templates exist; the engagement has not produced results. This blocks deals in regulated industries.
+Some enterprise buyers will not sign a contract without a SOC 2 Type II report or equivalent third-party attestation. The self-assessment and trust center are strong interim assets, and the pen test is on the V1.1 roadmap. This may slow deals in regulated industries.
 
 ---
 
@@ -742,9 +739,9 @@ Some enterprise buyers will not sign a contract without a pen-test report. The S
 
 The self-assessment and roadmap exist, but no CPA has issued a Type II report. Large enterprises in finance, healthcare, and government often require SOC 2 Type II as a procurement gate. Timeline: 6-12 months from engagement.
 
-### 2. No Completed Penetration Test
+### 2. No Third-Party Security Attestation
 
-The Aeronova engagement is in flight but has not produced a redacted summary. Security reviewers in enterprise procurement need this to complete their diligence. The STRIDE threat model and ZAP baseline are strong but do not replace a third-party assessment.
+No SOC 2 Type II or equivalent third-party attestation has been issued. Security reviewers in enterprise procurement may require this to complete their diligence. The STRIDE threat model, ZAP baseline, and self-assessment are strong V1 assets. The pen test is on the V1.1 roadmap.
 
 ### 3. No ITSM Connectors (Jira / ServiceNow)
 
