@@ -1,11 +1,12 @@
 "use client";
 
 import Link, { type LinkProps } from "next/link";
-import { forwardRef } from "react";
+import { forwardRef, type AnchorHTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 
-export type ArchLucidWordmarkLinkProps = Omit<LinkProps, "children"> & {
+export type ArchLucidWordmarkLinkProps = Omit<LinkProps, "children"> &
+  Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children" | "href"> & {
   variant: "operator" | "marketing";
   "aria-label": string;
 };
