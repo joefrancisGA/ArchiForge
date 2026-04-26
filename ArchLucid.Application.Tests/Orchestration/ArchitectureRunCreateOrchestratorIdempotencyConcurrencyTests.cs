@@ -130,9 +130,9 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                 It.IsAny<IDbTransaction>()))
             .Returns(
                 (
-                    Guid _tenant,
-                    Guid _workspace,
-                    Guid _project,
+                    Guid tenant,
+                    Guid workspace,
+                    Guid project,
                     byte[] _keyHash,
                     byte[] _fingerprint,
                     string rid,
