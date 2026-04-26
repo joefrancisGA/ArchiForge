@@ -50,7 +50,7 @@ export const wizardFormSchema = z.object({
     .pipe(
       z
         .string()
-        .min(1, "Required")
+        .min(1, "System name is required")
         .min(2, "System name must be at least 2 characters — use a short project slug, e.g. OrderService."),
     ),
   environment: z.string().min(1, "Required"),

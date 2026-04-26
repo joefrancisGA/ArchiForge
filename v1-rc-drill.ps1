@@ -1,5 +1,5 @@
 # V1 RC drill: HTTP checks against a running ArchLucid API (two runs, compare, replay, export, diagnostics).
-# Does not build, deploy, or start the API. See docs/V1_RC_DRILL.md
+# Does not build, deploy, or start the API. See docs/library/V1_RC_DRILL.md
 param(
     [string] $ApiBaseUrl = 'http://localhost:5128',
     [switch] $SkipSupportBundle,
@@ -41,7 +41,7 @@ function Invoke-DrillRestFailure
         -Details @($msg) `
         -NextSteps @(
         'Confirm API is up and -ApiBaseUrl is correct',
-        'docs/V1_RC_DRILL.md - prerequisites (auth, SQL, DevelopmentBypass vs JWT)',
+        'docs/library/V1_RC_DRILL.md - prerequisites (auth, SQL, DevelopmentBypass vs JWT)',
         'dotnet run --project ArchLucid.Cli -- doctor'
     )
 }

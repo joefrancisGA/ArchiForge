@@ -51,7 +51,20 @@ const STEPS: readonly Step[] = [
   },
 ] as const;
 
+/** When set at build time, marketing shows a CTA to the public demo (e.g. https://demo.archlucid.net). */
+function getLiveDemoUrl(): string | null {
+  const raw = process.env.NEXT_PUBLIC_DEMO_URL?.trim();
+  if (!raw) {
+    return null;
+  }
+  if (!/^https:\/\//i.test(raw) || raw.includes("..")) {
+    return null;
+  }
+  return raw;
+}
+
 export default function GetStartedPage(): ReactNode {
+  const liveDemoUrl = getLiveDemoUrl();
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
@@ -71,6 +84,29 @@ export default function GetStartedPage(): ReactNode {
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         Five steps. Roughly thirty minutes end-to-end on a normal connection.
       </p>
+
+      {liveDemoUrl ? (
+        <div
+          className="mt-6 rounded-md border border-teal-200 bg-teal-50 p-4 text-sm text-teal-950 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100"
+          data-testid="get-started-live-demo-cta"
+        >
+          <p className="font-medium">Try the live demo</p>
+          <p className="mt-1 text-teal-900/90 dark:text-teal-200/90">
+            Open the shared sandbox (ArchLucid in simulator mode — no install). You can review pre-seeded sample runs
+            and start your own.
+          </p>
+          <p className="mt-3">
+            <a
+              className="inline-flex font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+              data-testid="get-started-live-demo-link"
+              href={liveDemoUrl}
+              rel="noopener noreferrer"
+            >
+              Open demo environment
+            </a>
+          </p>
+        </div>
+      ) : null}
 
       <section aria-labelledby="vertical-picker-heading" className="mt-8" data-testid="get-started-vertical-picker">
         <h2 id="vertical-picker-heading" className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">

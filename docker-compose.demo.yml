@@ -1,27 +1,38 @@
-# ArchLucid — demo overlay (additive; does not replace docker-compose.yml)
+# ArchLucid public demo (local or Azure Container Apps build context)
+# ─────────────────────────────────────────────────────────────────
+# Merges with docker-compose.yml and adds profile `demo-hosted` so you can
+# start the same full stack as `full-stack` with:
+#   - ArchLucid:AgentExecution:Mode=Simulator (explicit; default is already Simulator)
+#   - UI build: NEXT_PUBLIC_DEMO_URL for /get-started "Try the live demo" (points at your public demo host)
 #
-# One-command evaluation with pre-seeded Contoso Retail demo data and simulator agents.
-# Uses the same SQL/Azurite/Redis stack and full-stack API + UI as the default compose file.
+# Local:
+#   docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile demo-hosted up -d --build
+#   → API http://localhost:5000, UI http://localhost:3000, SQL + Azurite + Redis
 #
-# Usage (from repo root):
-#   docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build
+# Seeded data: `Demo:Enabled` + `Demo:SeedOnStartup` on the API (see main compose) runs
+# `IDemoSeedService` once after DbUp — two committed Contoso Retail runs + governance fixtures
+# (see `ArchLucid.Application/Bootstrap/DemoSeedService.cs`). No extra HostedService is required.
 #
-# Or: .\scripts\demo-start.ps1   /   ./scripts/demo-start.sh
-#
-# Prerequisites: Docker only — no local .NET SDK or Node.js required to run the stack.
-#
-# Demo seed runs at API startup when ASPNETCORE_ENVIRONMENT=Development (see ArchLucidPersistenceStartup).
+# On-demand environment reset: wipe the `ArchLucid` database or redeploy; there is no nightly reset.
+# Visitors may create new runs in DevelopmentBypass (sandbox) unless you put the demo behind an API
+# that uses JwtBearer/ApiKey in production.
+# ─────────────────────────────────────────────────────────────────
+
+include:
+  - path: docker-compose.yml
 
 services:
   api:
+    profiles: ["full-stack", "demo-hosted"]
     environment:
-      Demo__Enabled: "true"
-      Demo__SeedOnStartup: "true"
-      AgentExecution__Mode: "Simulator"
+      ArchLucid__AgentExecution__Mode: "Simulator"
 
   ui:
+    profiles: ["full-stack", "demo-hosted"]
     build:
+      context: .
+      dockerfile: archlucid-ui/Dockerfile
       args:
+        # Match root docker-compose `ui` service; add public demo base URL for marketing CTA
         NEXT_PUBLIC_DOCS_BASE_URL: "https://github.com/joefrancisGA/ArchLucid/blob/main"
-    environment:
-      NEXT_PUBLIC_DOCS_BASE_URL: "https://github.com/joefrancisGA/ArchLucid/blob/main"
+        NEXT_PUBLIC_DEMO_URL: "https://demo.archlucid.net"

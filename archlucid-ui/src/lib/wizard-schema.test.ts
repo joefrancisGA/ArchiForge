@@ -13,7 +13,7 @@ describe("wizardFormSchema", () => {
     const r = wizardFormSchema.safeParse({ ...base, systemName: "" });
     expect(r.success).toBe(false);
     if (!r.success) {
-      expect(r.error.flatten().fieldErrors.systemName?.join(" ")).toMatch(/Required/i);
+      expect(r.error.flatten().fieldErrors.systemName?.join(" ")).toMatch(/System name is required/i);
     }
 
     const r2 = wizardFormSchema.safeParse({ ...base, systemName: "x" });

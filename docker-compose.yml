@@ -144,6 +144,8 @@ services:
       context: .
       dockerfile: archlucid-ui/Dockerfile
       args:
+        # Optional: see docker-compose.demo.yml for https:// → /get-started "Try the live demo"
+        NEXT_PUBLIC_DEMO_URL: ""
         NEXT_PUBLIC_DOCS_BASE_URL: "https://github.com/joefrancisGA/ArchLucid/blob/main"
     container_name: archlucid-ui
     ports:

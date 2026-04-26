@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import GetStartedPage from "./page";
 import { BUYER_GET_STARTED_VERTICAL_SLUGS } from "./get-started-verticals";
@@ -51,6 +51,32 @@ describe("GetStartedPage", () => {
 
     const all = document.body.textContent ?? "";
     expect(/talk to a human/i.test(all)).toBe(false);
+  });
+});
+
+describe.sequential("GetStartedPage — NEXT_PUBLIC_DEMO_URL live demo CTA", () => {
+  const originalDemoUrl = process.env.NEXT_PUBLIC_DEMO_URL;
+  afterEach(() => {
+    if (originalDemoUrl === undefined) {
+      delete process.env.NEXT_PUBLIC_DEMO_URL;
+    } else {
+      process.env.NEXT_PUBLIC_DEMO_URL = originalDemoUrl;
+    }
+  });
+
+  it("omits the CTA when the env var is unset", () => {
+    delete process.env.NEXT_PUBLIC_DEMO_URL;
+    render(<GetStartedPage />);
+    expect(screen.queryByTestId("get-started-live-demo-cta")).not.toBeInTheDocument();
+  });
+
+  it("renders the link when the env var is a valid https URL", () => {
+    process.env.NEXT_PUBLIC_DEMO_URL = "https://demo.archlucid.net";
+    render(<GetStartedPage />);
+    expect(screen.getByTestId("get-started-live-demo-link")).toHaveAttribute(
+      "href",
+      "https://demo.archlucid.net"
+    );
   });
 });
 
