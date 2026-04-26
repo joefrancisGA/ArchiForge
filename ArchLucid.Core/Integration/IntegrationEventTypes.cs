@@ -40,11 +40,7 @@ public static class IntegrationEventTypes
     /// <summary>Returns <paramref name="eventType" /> trimmed (no legacy alias mapping).</summary>
     public static string MapToCanonical(string eventType)
     {
-        if (string.IsNullOrWhiteSpace(eventType))
-            return string.Empty;
-
-
-        return eventType.Trim();
+        return string.IsNullOrWhiteSpace(eventType) ? string.Empty : eventType.Trim();
     }
 
     /// <summary>True when trimmed type strings match ordinally.</summary>
@@ -52,7 +48,6 @@ public static class IntegrationEventTypes
     {
         if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b))
             return false;
-
 
         return string.Equals(a.Trim(), b.Trim(), StringComparison.Ordinal);
     }

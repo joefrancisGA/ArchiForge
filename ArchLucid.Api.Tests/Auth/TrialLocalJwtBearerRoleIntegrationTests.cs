@@ -42,25 +42,23 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
         await using TrialJwtHost host = await TrialJwtHost.CreateAsync();
         host.SetBearer(host.MintJwt(ArchLucidRoles.Reader));
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
-        {
-            Content = new StringContent(
-                JsonSerializer.Serialize(
-                    new
-                    {
-                        requestId = $"trial-jwt-reader-{Guid.NewGuid():N}",
-                        description = "Trial JWT reader role gate".PadRight(80, ' '),
-                        systemName = "TrialJwtGate",
-                        environment = "prod",
-                        cloudProvider = 1,
-                        constraints = Array.Empty<string>(),
-                        requiredCapabilities = new[] { "SQL" },
-                        assumptions = Array.Empty<string>(),
-                        priorManifestVersion = (string?)null
-                    }),
-                Encoding.UTF8,
-                "application/json")
-        };
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request");
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(
+                new
+                {
+                    requestId = $"trial-jwt-reader-{Guid.NewGuid():N}",
+                    description = "Trial JWT reader role gate".PadRight(80, ' '),
+                    systemName = "TrialJwtGate",
+                    environment = "prod",
+                    cloudProvider = 1,
+                    constraints = Array.Empty<string>(),
+                    requiredCapabilities = new[] { "SQL" },
+                    assumptions = Array.Empty<string>(),
+                    priorManifestVersion = (string?)null
+                }),
+            Encoding.UTF8,
+            "application/json");
 
         using HttpResponseMessage response = await host.Client.SendAsync(request, CancellationToken.None);
 
@@ -73,25 +71,23 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
         await using TrialJwtHost host = await TrialJwtHost.CreateAsync();
         host.SetBearer(host.MintJwt(ArchLucidRoles.Admin));
 
-        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
-        {
-            Content = new StringContent(
-                JsonSerializer.Serialize(
-                    new
-                    {
-                        requestId = $"trial-jwt-admin-{Guid.NewGuid():N}",
-                        description = "Trial JWT admin role gate".PadRight(80, ' '),
-                        systemName = "TrialJwtGate",
-                        environment = "prod",
-                        cloudProvider = 1,
-                        constraints = Array.Empty<string>(),
-                        requiredCapabilities = new[] { "SQL" },
-                        assumptions = Array.Empty<string>(),
-                        priorManifestVersion = (string?)null
-                    }),
-                Encoding.UTF8,
-                "application/json")
-        };
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request");
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(
+                new
+                {
+                    requestId = $"trial-jwt-admin-{Guid.NewGuid():N}",
+                    description = "Trial JWT admin role gate".PadRight(80, ' '),
+                    systemName = "TrialJwtGate",
+                    environment = "prod",
+                    cloudProvider = 1,
+                    constraints = Array.Empty<string>(),
+                    requiredCapabilities = new[] { "SQL" },
+                    assumptions = Array.Empty<string>(),
+                    priorManifestVersion = (string?)null
+                }),
+            Encoding.UTF8,
+            "application/json");
 
         using HttpResponseMessage response = await host.Client.SendAsync(request, CancellationToken.None);
 
@@ -110,7 +106,7 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
             Client = client;
         }
 
-        public WebApplicationFactory<Program> App
+        private WebApplicationFactory<Program> App
         {
             get;
         }

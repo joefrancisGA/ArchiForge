@@ -6,10 +6,7 @@ public static class ScimFilterInMemoryEvaluator
 {
     public static bool Matches(ScimUserRecord user, ScimFilterNode? filter)
     {
-        if (filter is null)
-            return true;
-
-        return Evaluate(user, filter);
+        return filter is null || Evaluate(user, filter);
     }
 
     private static bool Evaluate(ScimUserRecord user, ScimFilterNode node)
@@ -92,9 +89,6 @@ public static class ScimFilterInMemoryEvaluator
         if (string.Equals(p, "active", StringComparison.OrdinalIgnoreCase))
             return user.Active ? "true" : "false";
 
-        if (string.Equals(p, "id", StringComparison.OrdinalIgnoreCase))
-            return user.Id.ToString("D");
-
-        return null;
+        return string.Equals(p, "id", StringComparison.OrdinalIgnoreCase) ? user.Id.ToString("D") : null;
     }
 }

@@ -56,10 +56,13 @@ public sealed class CircuitBreakerGate
         _onAuditEntry = onAuditEntry;
     }
 
+    /// <param name="gateName"></param>
     /// <param name="optionsMonitor">
     ///     Named options monitor; <see cref="IOptionsMonitor{TOptions}.Get" /> uses
     ///     <paramref name="gateName" />.
     /// </param>
+    /// <param name="timeProvider"></param>
+    /// <param name="onAuditEntry"></param>
     public CircuitBreakerGate(
         string gateName,
         IOptionsMonitor<CircuitBreakerOptions> optionsMonitor,
@@ -218,13 +221,13 @@ public sealed class CircuitBreakerGate
             }
 
             // HalfOpen: only the probing thread holds the slot; others wait out.
-            if (_probeInFlight)
-            {
-                EmitRejection();
+            if (!_probeInFlight)
+                return;
 
-                throw new CircuitBreakerOpenException(
-                    "Upstream AI recovery probe in progress; retry shortly.");
-            }
+            EmitRejection();
+
+            throw new CircuitBreakerOpenException(
+                "Upstream AI recovery probe in progress; retry shortly.");
         }
     }
 
@@ -350,15 +353,13 @@ public sealed class CircuitBreakerGate
 
     private CircuitBreakerOptions ResolveOptions()
     {
-        if (_optionsMonitor is not null)
-        {
-            CircuitBreakerOptions resolved = _optionsMonitor.Get(GateName);
-            resolved.ApplyDefaults();
+        if (_optionsMonitor is null)
+            return _options!;
 
-            return resolved;
-        }
+        CircuitBreakerOptions resolved = _optionsMonitor.Get(GateName);
+        resolved.ApplyDefaults();
 
-        return _options!;
+        return resolved;
     }
 
     private enum State

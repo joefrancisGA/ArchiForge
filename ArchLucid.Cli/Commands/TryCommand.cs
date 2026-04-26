@@ -56,8 +56,7 @@ internal static class TryCommand
             GetRun = (api, runId, ct) => api.GetRunAsync(runId, ct),
             SeedFakeResults = (api, runId, fellback, ct) => api.SeedFakeResultsAsync(runId, fellback, ct),
             CommitRun = (api, runId, ct) => api.CommitRunAsync(runId, ct),
-            DownloadFirstValueReport = (apiBaseUrl, runId, savePath, ct) =>
-                FirstValueReportSaveAsync(apiBaseUrl, runId, savePath, ct),
+            DownloadFirstValueReport = FirstValueReportSaveAsync,
             OpenFile = OpenLocalArtifact,
             OpenUrl = OpenInBrowser,
             CreateApiClient = baseUrl => new ArchLucidApiClient(baseUrl)
@@ -90,7 +89,7 @@ internal static class TryCommand
             return CliExitCode.UsageError;
         }
 
-        if (options.RealMode && !options.IsPilotRealAzureOpenAiAttempt)
+        if (options is { RealMode: true, IsPilotRealAzureOpenAiAttempt: false })
         {
             await output.WriteLineAsync(
                 $"Error: `--real` requires environment variable {TryCommandOptions.ArchLucidRealAoaiEnv}=1 (safety gate for the real Azure OpenAI compose overlay).");
@@ -173,7 +172,7 @@ internal static class TryCommand
         bool needsSeedFallback =
             reached is ArchitectureRunStatus.Failed or < ArchitectureRunStatus.ReadyForCommit;
 
-        if (needsSeedFallback && options.StrictReal && options.IsPilotRealAzureOpenAiAttempt)
+        if (needsSeedFallback && options is { StrictReal: true, IsPilotRealAzureOpenAiAttempt: true })
         {
             await output.WriteLineAsync(
                 $"Error: `--strict-real` is set but the run did not reach ReadyForCommit (status: {reached}). " +
@@ -344,17 +343,14 @@ internal static class TryCommand
     {
         try
         {
-            using HttpClient http = new()
-            {
-                Timeout = TimeSpan.FromSeconds(60)
-            };
+            using HttpClient http = new();
+            http.Timeout = TimeSpan.FromSeconds(60);
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
 
             string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
 
             if (!string.IsNullOrWhiteSpace(apiKey))
                 http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-
 
             using HttpResponseMessage response = await http.PostAsync(
                 "v1/demo/seed",
@@ -392,10 +388,8 @@ internal static class TryCommand
     {
         try
         {
-            using HttpClient http = new()
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
+            using HttpClient http = new();
+            http.Timeout = TimeSpan.FromSeconds(30);
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -403,7 +397,6 @@ internal static class TryCommand
 
             if (!string.IsNullOrWhiteSpace(apiKey))
                 http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-
 
             if (pilotTryRealMode)
                 http.DefaultRequestHeaders.Add(PilotTryRealModeHeaders.PilotTryRealMode, "1");
@@ -431,10 +424,8 @@ internal static class TryCommand
     {
         try
         {
-            using HttpClient http = new()
-            {
-                Timeout = TimeSpan.FromSeconds(60)
-            };
+            using HttpClient http = new();
+            http.Timeout = TimeSpan.FromSeconds(60);
             http.BaseAddress = new Uri(apiBaseUrl.TrimEnd('/') + "/");
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));
 
@@ -442,7 +433,6 @@ internal static class TryCommand
 
             if (!string.IsNullOrWhiteSpace(apiKey))
                 http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-
 
             using HttpResponseMessage response = await http.GetAsync(
                 $"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report",

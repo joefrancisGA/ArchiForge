@@ -211,14 +211,12 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
                       >
                         <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
                         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{topic.summary}</p>
-                        <p className="mt-1 font-mono text-[10px] text-neutral-400 dark:text-neutral-500">
-                          {topic.docPath}
-                        </p>
                         {href ? (
                           <a
                             href={href}
                             target="_blank"
                             rel="noreferrer"
+                            title={topic.docPath}
                             className="mt-2 inline-block text-sm font-medium text-teal-800 underline dark:text-teal-300"
                           >
                             Open documentation
@@ -248,14 +246,12 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
                       >
                         <div className="font-medium text-neutral-900 dark:text-neutral-100">{topic.title}</div>
                         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{topic.summary}</p>
-                        <p className="mt-1 font-mono text-[10px] text-neutral-400 dark:text-neutral-500">
-                          {topic.docPath}
-                        </p>
                         {href ? (
                           <a
                             href={href}
                             target="_blank"
                             rel="noreferrer"
+                            title={topic.docPath}
                             className="mt-2 inline-block text-sm font-medium text-teal-800 underline dark:text-teal-300"
                           >
                             Open documentation

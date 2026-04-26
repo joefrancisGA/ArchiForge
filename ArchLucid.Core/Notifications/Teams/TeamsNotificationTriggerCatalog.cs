@@ -42,9 +42,7 @@ public static class TeamsNotificationTriggerCatalog
     /// <summary>True when <paramref name="eventType" /> is one of the v1 catalog triggers.</summary>
     public static bool IsKnown(string eventType)
     {
-        if (string.IsNullOrWhiteSpace(eventType)) return false;
-
-        return AllSet.Contains(eventType);
+        return !string.IsNullOrWhiteSpace(eventType) && AllSet.Contains(eventType);
     }
 
     /// <summary>
@@ -65,7 +63,8 @@ public static class TeamsNotificationTriggerCatalog
         {
             string[]? parsed = JsonSerializer.Deserialize<string[]>(json);
 
-            if (parsed is null || parsed.Length == 0) return All;
+            if (parsed is null || parsed.Length == 0)
+                return All;
 
             return parsed
                 .Where(IsKnown)
@@ -84,13 +83,15 @@ public static class TeamsNotificationTriggerCatalog
     /// </summary>
     public static string Serialize(IEnumerable<string>? enabledTriggers)
     {
-        if (enabledTriggers is null) return DefaultEnabledTriggersJson;
+        if (enabledTriggers is null)
+            return DefaultEnabledTriggersJson;
 
         FrozenSet<string> requested = enabledTriggers
             .Where(IsKnown)
             .ToFrozenSet(StringComparer.Ordinal);
 
-        if (requested.Count == 0) return DefaultEnabledTriggersJson;
+        if (requested.Count == 0)
+            return DefaultEnabledTriggersJson;
 
         string[] ordered = All.Where(requested.Contains).ToArray();
         return JsonSerializer.Serialize(ordered);
@@ -99,7 +100,8 @@ public static class TeamsNotificationTriggerCatalog
     /// <summary>Returns the unknown trigger names in <paramref name="enabledTriggers" /> for HTTP 400 reporting.</summary>
     public static IReadOnlyList<string> Unknown(IEnumerable<string>? enabledTriggers)
     {
-        if (enabledTriggers is null) return [];
+        if (enabledTriggers is null)
+            return [];
 
         return enabledTriggers
             .Where(t => !string.IsNullOrWhiteSpace(t) && !IsKnown(t))

@@ -37,7 +37,7 @@ public static class RealLlmOutputStructuralValidator
 
         List<RealLlmStructuralCheckItem> checks = [];
 
-        JsonDocument? doc = null;
+        JsonDocument? doc;
 
         try
         {
@@ -64,16 +64,16 @@ public static class RealLlmOutputStructuralValidator
 
             foreach (string key in BaseTopLevelKeys)
             {
-                if (!root.TryGetProperty(key, out _))
-                {
-                    checks.Add(
-                        new RealLlmStructuralCheckItem(
-                            "topLevelKeys",
-                            false,
-                            $"Missing required top-level property '{key}' on AgentResult JSON."));
+                if (root.TryGetProperty(key, out _))
+                    continue;
 
-                    return new RealLlmStructuralValidationResult(false, checks);
-                }
+                checks.Add(
+                    new RealLlmStructuralCheckItem(
+                        "topLevelKeys",
+                        false,
+                        $"Missing required top-level property '{key}' on AgentResult JSON."));
+
+                return new RealLlmStructuralValidationResult(false, checks);
             }
 
             if (!root.TryGetProperty("agentType", out JsonElement agentTypeEl))
@@ -155,16 +155,16 @@ public static class RealLlmOutputStructuralValidator
 
                 foreach (string listKey in TraceListKeys)
                 {
-                    if (!trace.TryGetProperty(listKey, out JsonElement listEl) || listEl.ValueKind != JsonValueKind.Array)
-                    {
-                        checks.Add(
-                            new RealLlmStructuralCheckItem(
-                                "traceLists",
-                                false,
-                                $"ExplainabilityTrace must include array '{listKey}' (findings[{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}].trace)."));
+                    if (trace.TryGetProperty(listKey, out JsonElement listEl) &&
+                        listEl.ValueKind == JsonValueKind.Array)
+                        continue;
+                    checks.Add(
+                        new RealLlmStructuralCheckItem(
+                            "traceLists",
+                            false,
+                            $"ExplainabilityTrace must include array '{listKey}' (findings[{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}].trace)."));
 
-                        return new RealLlmStructuralValidationResult(false, checks);
-                    }
+                    return new RealLlmStructuralValidationResult(false, checks);
                 }
 
                 index++;
@@ -193,7 +193,7 @@ public static class RealLlmOutputStructuralValidator
         type = default;
         error = null;
 
-        if (Enum.TryParse<AgentType>(input, true, out type) && Enum.IsDefined(type))
+        if (Enum.TryParse(input, true, out type) && Enum.IsDefined(type))
             return true;
 
         if (int.TryParse(input, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int n)
@@ -216,9 +216,7 @@ public static class RealLlmOutputStructuralValidator
         return agentTypeEl.ValueKind switch
         {
             JsonValueKind.String => EnumTryParseLenient(agentTypeEl.GetString(), expected, out message),
-            JsonValueKind.Number => agentTypeEl.TryGetInt32(out int n) && Enum.IsDefined(typeof(AgentType), n) && (AgentType)n == expected
-                ? true
-                : SetMsg(out message, "agentType number does not match the expected type."),
+            JsonValueKind.Number => agentTypeEl.TryGetInt32(out int n) && Enum.IsDefined(typeof(AgentType), n) && (AgentType)n == expected || SetMsg(out message, "agentType number does not match the expected type."),
             _ => SetFalse(out message, "agentType must be a string or number.")
         };
     }
@@ -234,7 +232,7 @@ public static class RealLlmOutputStructuralValidator
             return false;
         }
 
-        if (Enum.TryParse<AgentType>(text, true, out AgentType t) && t == expected)
+        if (Enum.TryParse(text, true, out AgentType t) && t == expected)
             return true;
 
         message = $"JSON agentType '{text}' does not match expected {expected}.";
