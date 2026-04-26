@@ -1,3 +1,5 @@
+> **Scope:** For QA leads and release owners who need human-only validation scenarios that automation cannot reliably cover—**not** a substitute for automated unit, integration, or E2E tests.
+
 # ArchLucid Manual QA Checklist
 
 This checklist focuses **exclusively** on scenarios that are either impossible, extremely brittle, or computationally infeasible to automate. These tests rely on human judgment, subjective evaluation, or complex out-of-band interactions. Everything else (API contracts, state mutations, RBAC enforcement, standard UI flows) should be handled by automated unit, integration, or Playwright tests.
