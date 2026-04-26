@@ -27,7 +27,8 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
     public async Task<TrialSmokeReport> RunAsync(TrialSmokeCommandOptions options, CancellationToken ct = default)
     {
-        if (options is null) throw new ArgumentNullException(nameof(options));
+        if (options is null)
+            throw new ArgumentNullException(nameof(options));
 
         List<TrialSmokeStepResult> steps = [];
 
@@ -78,8 +79,8 @@ public sealed class TrialSmokeRunner(HttpClient http)
     private async Task<(TrialSmokeStepResult Step, TrialSmokeRegisterResponse? Body, string? CorrelationId)>
         RegisterAsync(TrialSmokeCommandOptions options, CancellationToken ct)
     {
-        const string Name = "register";
-        const string Hint = "Look for TrialSignupAttempted / TrialSignupFailed in dbo.AuditEvents.";
+        const string name = "register";
+        const string hint = "Look for TrialSignupAttempted / TrialSignupFailed in dbo.AuditEvents.";
 
         TrialSmokeRegisterRequest payload = new()
         {
@@ -102,10 +103,10 @@ public sealed class TrialSmokeRunner(HttpClient http)
                 return (
                     new TrialSmokeStepResult
                     {
-                        Name = Name,
+                        Name = name,
                         Passed = false,
                         Detail = $"POST /v1/register returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
-                        FailureHint = Hint
+                        FailureHint = hint
                     }, null, correlationId);
             }
 
@@ -116,16 +117,18 @@ public sealed class TrialSmokeRunner(HttpClient http)
                 return (
                     new TrialSmokeStepResult
                     {
-                        Name = Name,
+                        Name = name,
                         Passed = false,
                         Detail = "POST /v1/register returned 201 but the response body did not contain a tenantId.",
-                        FailureHint = Hint
+                        FailureHint = hint
                     }, null, correlationId);
 
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = Name, Passed = true, Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId})."
+                    Name = name,
+                    Passed = true,
+                    Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId})."
                 }, body200, correlationId);
         }
         catch (Exception ex)
@@ -133,35 +136,25 @@ public sealed class TrialSmokeRunner(HttpClient http)
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = Name,
+                    Name = name,
                     Passed = false,
                     Detail = $"POST /v1/register threw: {ex.GetType().Name}: {ex.Message}",
-                    FailureHint = Hint
+                    FailureHint = hint
                 }, null, null);
         }
     }
 
     private static string? ReadCorrelationId(HttpResponseMessage res)
     {
-        if (res is null) return null;
-
-        if (res.Headers.TryGetValues(CorrelationHeaderName, out IEnumerable<string>? values))
-        {
-            foreach (string v in values)
-            {
-                if (!string.IsNullOrWhiteSpace(v)) return v.Trim();
-            }
-        }
-
-        return null;
+        return res.Headers.TryGetValues(CorrelationHeaderName, out IEnumerable<string>? values) ? (from v in values where !string.IsNullOrWhiteSpace(v) select v.Trim()).FirstOrDefault() : null;
     }
 
     private async Task<(TrialSmokeStepResult Step, TrialSmokeTrialStatusResponse? Body)> TrialStatusAsync(
         TrialSmokeRegisterResponse register,
         CancellationToken ct)
     {
-        const string Name = "trial-status";
-        const string Hint = "Look for TrialProvisioned in dbo.AuditEvents and confirm the tenant row in dbo.Tenants.";
+        const string name = "trial-status";
+        const string hint = "Look for TrialProvisioned in dbo.AuditEvents and confirm the tenant row in dbo.Tenants.";
 
         try
         {
@@ -177,11 +170,11 @@ public sealed class TrialSmokeRunner(HttpClient http)
                 return (
                     new TrialSmokeStepResult
                     {
-                        Name = Name,
+                        Name = name,
                         Passed = false,
                         Detail =
                             $"GET /v1/tenant/trial-status returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
-                        FailureHint = Hint
+                        FailureHint = hint
                     }, null);
             }
 
@@ -192,16 +185,16 @@ public sealed class TrialSmokeRunner(HttpClient http)
                 return (
                     new TrialSmokeStepResult
                     {
-                        Name = Name,
+                        Name = name,
                         Passed = false,
                         Detail = "GET /v1/tenant/trial-status returned 200 with an empty/invalid JSON body.",
-                        FailureHint = Hint
+                        FailureHint = hint
                     }, null);
 
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = Name,
+                    Name = name,
                     Passed = true,
                     Detail =
                         $"GET /v1/tenant/trial-status → 200 (status={body200.Status}, welcomeRunId={body200.TrialWelcomeRunId ?? "<none>"})."
@@ -212,10 +205,10 @@ public sealed class TrialSmokeRunner(HttpClient http)
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = Name,
+                    Name = name,
                     Passed = false,
                     Detail = $"GET /v1/tenant/trial-status threw: {ex.GetType().Name}: {ex.Message}",
-                    FailureHint = Hint
+                    FailureHint = hint
                 }, null);
         }
     }
@@ -225,8 +218,8 @@ public sealed class TrialSmokeRunner(HttpClient http)
         string trialWelcomeRunId,
         CancellationToken ct)
     {
-        const string Name = "pilot-run-deltas";
-        const string Hint =
+        const string name = "pilot-run-deltas";
+        const string hint =
             "Look for Run.CommitCompleted (and CoordinatorRunCommitCompleted dual-write) in dbo.AuditEvents.";
 
         try
@@ -243,10 +236,10 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
                 return new TrialSmokeStepResult
                 {
-                    Name = Name,
+                    Name = name,
                     Passed = false,
                     Detail = $"GET {path} returned {(int)res.StatusCode}. Body: {Truncate(body, 240)}",
-                    FailureHint = Hint
+                    FailureHint = hint
                 };
             }
 
@@ -258,7 +251,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
             return new TrialSmokeStepResult
             {
-                Name = Name,
+                Name = name,
                 Passed = true,
                 Detail = $"GET {path} → 200 (timeToCommittedManifestTotalSeconds={seconds})."
             };
@@ -267,10 +260,10 @@ public sealed class TrialSmokeRunner(HttpClient http)
         {
             return new TrialSmokeStepResult
             {
-                Name = Name,
+                Name = name,
                 Passed = false,
                 Detail = $"GET pilot-run-deltas threw: {ex.GetType().Name}: {ex.Message}",
-                FailureHint = Hint
+                FailureHint = hint
             };
         }
     }

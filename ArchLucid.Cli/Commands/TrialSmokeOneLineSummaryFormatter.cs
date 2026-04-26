@@ -16,8 +16,10 @@ public static class TrialSmokeOneLineSummaryFormatter
 
     public static string Format(TrialSmokeReport report, string baseUrl)
     {
-        if (report is null) throw new ArgumentNullException(nameof(report));
-        if (baseUrl is null) throw new ArgumentNullException(nameof(baseUrl));
+        if (report is null)
+            throw new ArgumentNullException(nameof(report));
+        if (baseUrl is null)
+            throw new ArgumentNullException(nameof(baseUrl));
 
         string verdict = report.AllPassed ? "PASS" : "FAIL";
         string correlation = OrNone(report.RegistrationCorrelationId);
@@ -34,11 +36,6 @@ public static class TrialSmokeOneLineSummaryFormatter
 
     private static string? FirstFailedStepName(TrialSmokeReport report)
     {
-        foreach (TrialSmokeStepResult step in report.Steps)
-        {
-            if (!step.Passed) return step.Name;
-        }
-
-        return null;
+        return (from step in report.Steps where !step.Passed select step.Name).FirstOrDefault();
     }
 }

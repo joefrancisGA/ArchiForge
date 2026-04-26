@@ -269,28 +269,28 @@ public static class Program
 
     private static void WriteNoCommandMessage()
     {
-        const string Plain =
+        const string plain =
             "Please provide a command. Available commands: new, dev up, pilot up, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], reference-evidence --run <runId> [--out <dir>] [--include-demo] | --tenant <tenantId> [--out <dir>] [--include-demo], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, config check [--no-api], doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
 
         if (CliExecutionContext.JsonOutput)
 
-            CliJson.WriteFailureLine(Console.Error, CliExitCode.UsageError, "usage", Plain);
+            CliJson.WriteFailureLine(Console.Error, CliExitCode.UsageError, "usage", plain);
 
         else
 
-            Console.WriteLine(Plain);
+            Console.WriteLine(plain);
     }
 
     private static void WriteNewUsage()
     {
-        const string Plain = "Usage: archlucid new <projectName>";
+        const string plain = "Usage: archlucid new <projectName>";
 
         if (CliExecutionContext.JsonOutput)
 
-            CliJson.WriteFailureLine(Console.Error, CliExitCode.UsageError, "usage", Plain);
+            CliJson.WriteFailureLine(Console.Error, CliExitCode.UsageError, "usage", plain);
 
         else
 
-            Console.WriteLine(Plain);
+            Console.WriteLine(plain);
     }
 }
