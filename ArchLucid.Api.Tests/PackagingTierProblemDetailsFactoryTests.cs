@@ -16,14 +16,17 @@ public sealed class PackagingTierProblemDetailsFactoryTests
     [Fact]
     public void CreatePaymentRequired_sets_upgrade_and_pricing_extensions_from_config()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton<IConfiguration>(
             new ConfigurationBuilder()
                 .AddInMemoryCollection(
                     new Dictionary<string, string?> { ["ArchLucid:PublicSite:BaseUrl"] = "https://branded.example" })
                 .Build());
         ServiceProvider sp = services.BuildServiceProvider();
-        DefaultHttpContext http = new() { RequestServices = sp };
+        DefaultHttpContext http = new()
+        {
+            RequestServices = sp
+        };
 
         ObjectResult result = PackagingTierProblemDetailsFactory.CreatePaymentRequired(
             http,
@@ -43,10 +46,13 @@ public sealed class PackagingTierProblemDetailsFactoryTests
     [Fact]
     public void CreatePaymentRequired_uses_default_public_site_when_unconfigured()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
         ServiceProvider sp = services.BuildServiceProvider();
-        DefaultHttpContext http = new() { RequestServices = sp };
+        DefaultHttpContext http = new()
+        {
+            RequestServices = sp
+        };
 
         ObjectResult result = PackagingTierProblemDetailsFactory.CreatePaymentRequired(
             http,

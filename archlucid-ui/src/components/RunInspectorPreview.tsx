@@ -1,0 +1,95 @@
+"use client";
+
+import Link from "next/link";
+
+import { CopyIdButton } from "@/components/CopyIdButton";
+import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { Button } from "@/components/ui/button";
+import type { RunSummary } from "@/types/authority";
+
+function snapshotLabel(ok: boolean | undefined): string {
+  if (ok === true) {
+    return "✓";
+  }
+
+  return "—";
+}
+
+export type RunInspectorPreviewProps = {
+  run: RunSummary;
+};
+
+/**
+ * Read-only run preview for list inspectors — uses only {@link RunSummary} fields from the list payload.
+ */
+export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
+  const createdLabel = new Date(run.createdUtc).toLocaleString();
+  const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
+  const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
+
+  return (
+    <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
+      <div className="flex flex-wrap items-center gap-2">
+        <RunStatusBadge run={run} />
+      </div>
+
+      <dl className="m-0 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
+        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Run ID</dt>
+        <dd className="m-0 flex min-w-0 items-center gap-1">
+          <code className="truncate font-mono text-[11px] text-neutral-900 dark:text-neutral-100">{run.runId}</code>
+          <CopyIdButton value={run.runId} aria-label="Copy run ID" />
+        </dd>
+        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Project</dt>
+        <dd className="m-0 font-mono text-xs">{run.projectId}</dd>
+        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Created</dt>
+        <dd className="m-0">{createdLabel}</dd>
+      </dl>
+
+      <div>
+        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          Provenance snapshot
+        </p>
+        <ul className="m-0 mt-1.5 list-none space-y-1 p-0 text-xs">
+          <li className="flex justify-between gap-2">
+            <span>Context</span>
+            <span aria-label={run.hasContextSnapshot ? "Context snapshot present" : "Context snapshot missing"}>
+              {snapshotLabel(run.hasContextSnapshot)}
+            </span>
+          </li>
+          <li className="flex justify-between gap-2">
+            <span>Graph</span>
+            <span aria-label={run.hasGraphSnapshot ? "Graph snapshot present" : "Graph snapshot missing"}>
+              {snapshotLabel(run.hasGraphSnapshot)}
+            </span>
+          </li>
+          <li className="flex justify-between gap-2">
+            <span>Findings</span>
+            <span aria-label={run.hasFindingsSnapshot ? "Findings snapshot present" : "Findings snapshot missing"}>
+              {snapshotLabel(run.hasFindingsSnapshot)}
+            </span>
+          </li>
+          <li className="flex justify-between gap-2">
+            <span>Manifest</span>
+            <span aria-label={run.hasGoldenManifest ? "Golden manifest present" : "Golden manifest missing"}>
+              {snapshotLabel(run.hasGoldenManifest)}
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <div className="flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+        <Button size="sm" className="w-full sm:w-auto" asChild>
+          <Link href={`/runs/${run.runId}`}>Open run detail</Link>
+        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={compareHref}>Compare</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={replayHref}>Replay</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

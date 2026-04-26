@@ -11,7 +11,7 @@ public sealed class ComposeOverlayResolverTests
     {
         IReadOnlyList<string> overlays = ComposeOverlayResolver.Resolve(false);
 
-        overlays.Should().Equal(["docker-compose.demo.yml"]);
+        overlays.Should().Equal("docker-compose.demo.yml");
     }
 
     [Fact]
@@ -19,6 +19,6 @@ public sealed class ComposeOverlayResolverTests
     {
         IReadOnlyList<string> overlays = ComposeOverlayResolver.Resolve(true);
 
-        overlays.Should().Equal(["docker-compose.demo.yml", "docker-compose.real-aoai.yml"]);
+        overlays.Should().Equal("docker-compose.demo.yml", "docker-compose.real-aoai.yml");
     }
 }

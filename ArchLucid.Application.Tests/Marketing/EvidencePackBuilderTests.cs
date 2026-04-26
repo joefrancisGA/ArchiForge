@@ -25,7 +25,7 @@ public sealed class EvidencePackBuilderTests
 
         IReadOnlyList<string> entriesInZip = ListZipEntryNames(artifact.Bytes);
 
-        entriesInZip.Should().Equal(["README.md", "DPA-template.md", "SUBPROCESSORS.md"]);
+        entriesInZip.Should().Equal("README.md", "DPA-template.md", "SUBPROCESSORS.md");
         artifact.ContentType.Should().Be("application/zip");
     }
 
@@ -123,8 +123,8 @@ public sealed class EvidencePackBuilderTests
         using MemoryStream ms = new(zipBytes);
         using ZipArchive archive = new(ms, ZipArchiveMode.Read);
 
-        ZipArchiveEntry? entry = archive.GetEntry(entryName) ??
-            throw new InvalidOperationException($"Entry {entryName} not found in ZIP.");
+        ZipArchiveEntry entry = archive.GetEntry(entryName) ??
+                                throw new InvalidOperationException($"Entry {entryName} not found in ZIP.");
 
         using Stream stream = entry.Open();
         using StreamReader reader = new(stream, Encoding.UTF8);

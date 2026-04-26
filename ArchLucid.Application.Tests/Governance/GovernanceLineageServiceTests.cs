@@ -48,7 +48,10 @@ public sealed class GovernanceLineageServiceTests
         Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
         Mock<IScopeContextProvider> scope = new();
 
-        GovernanceApprovalRequest approval = new() { RunId = "00000000-0000-0000-0000-000000000000" };
+        GovernanceApprovalRequest approval = new()
+        {
+            RunId = "00000000-0000-0000-0000-000000000000"
+        };
         approvals
             .Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(approval);
@@ -59,14 +62,14 @@ public sealed class GovernanceLineageServiceTests
 
         promotions
             .Setup(p => p.GetByRunIdAsync(approval.RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<GovernancePromotionRecord>());
+            .ReturnsAsync([]);
 
         GovernanceLineageService sut = new(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
 
         GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-1");
 
         result.Should().NotBeNull();
-        result!.TopFindings.Should().BeEmpty();
+        result.TopFindings.Should().BeEmpty();
     }
 
     [Fact]
@@ -81,7 +84,10 @@ public sealed class GovernanceLineageServiceTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid() });
 
-        GovernanceApprovalRequest approval = new() { RunId = runN };
+        GovernanceApprovalRequest approval = new()
+        {
+            RunId = runN
+        };
         approvals
             .Setup(r => r.GetByIdAsync("req-2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(approval);
@@ -100,7 +106,7 @@ public sealed class GovernanceLineageServiceTests
 
         promotions
             .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<GovernancePromotionRecord>());
+            .ReturnsAsync([]);
 
         FindingsSnapshot snapshot = new()
         {
@@ -149,7 +155,7 @@ public sealed class GovernanceLineageServiceTests
         GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-2");
 
         result.Should().NotBeNull();
-        IReadOnlyList<GovernanceLineageFindingSummary> top = result!.TopFindings;
+        List<GovernanceLineageFindingSummary> top = result.TopFindings;
         top.Should().HaveCount(2);
         top[0].Title.Should().Be("alpha");
         top[1].Title.Should().Be("Bravo");

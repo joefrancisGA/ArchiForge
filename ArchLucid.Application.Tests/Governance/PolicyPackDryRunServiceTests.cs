@@ -211,7 +211,7 @@ public sealed class PolicyPackDryRunServiceTests
         using JsonDocument doc = JsonDocument.Parse(audit.LastEvent.DataJson);
         doc.RootElement.GetProperty("policyPackId").GetGuid().Should().Be(PolicyPackId);
         doc.RootElement.GetProperty("evaluatedRunIds").EnumerateArray()
-            .Select(e => e.GetString()).Should().BeEquivalentTo(["run-clean"]);
+            .Select(e => e.GetString()).Should().BeEquivalentTo("run-clean");
         doc.RootElement.GetProperty("deltaCounts").GetProperty("evaluated").GetInt32().Should().Be(1);
     }
 

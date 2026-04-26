@@ -855,6 +855,8 @@ After implementation:
   /policy-packs lists by following the same pattern.
 ```
 
+**Status: shipped.** **`InspectorPanel.tsx`**, **`RunInspectorPreview.tsx`** (list **`RunSummary`** only), **`RunsListClient.tsx`** (row click + **`Open run`** with **`stopPropagation`**, docked inspector at **`lg+`**, slide-over sheet when **`useViewportNarrow()`** is true), **`useViewportNarrow.ts`**, tests **`InspectorPanel.test.tsx`** / **`RunsListClient.test.tsx`**. **`AppShellClient`** unchanged. **Reuse:** same **`InspectorPanel`** shell for governance, alerts, advisory, policy-pack lists.
+
 ---
 
 ## Prompt 13 — Polish the Runs list as a work queue

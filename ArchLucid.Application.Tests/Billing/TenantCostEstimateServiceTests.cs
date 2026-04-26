@@ -44,7 +44,7 @@ public sealed class TenantCostEstimateServiceTests
         TenantCostEstimate? result = await sut.TryGetEstimateAsync(Guid.NewGuid());
 
         result.Should().NotBeNull();
-        result!.EstimatedMonthlyUsdLow.Should().Be(10);
+        result.EstimatedMonthlyUsdLow.Should().Be(10);
         result.EstimatedMonthlyUsdHigh.Should().Be(20);
         result.Tier.Should().Be(TenantTier.Standard);
     }

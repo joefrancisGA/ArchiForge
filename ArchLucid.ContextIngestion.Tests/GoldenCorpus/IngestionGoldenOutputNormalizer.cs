@@ -13,7 +13,7 @@ internal static class IngestionGoldenOutputNormalizer
         Assert.NotNull(root);
         if (root is JsonArray array)
         {
-            JsonArray sorted = new();
+            JsonArray sorted = [];
             foreach (JsonNode? item in array)
             {
                 if (item is not JsonObject obj)

@@ -76,7 +76,7 @@ public sealed class RealModePreflightTests
                 RealModePreflightResult r = RealModePreflight.Validate();
 
                 r.IsOk.Should().BeFalse();
-                r.MissingKeys.Should().BeEquivalentTo([Endpoint, ApiKey, Deployment]);
+                r.MissingKeys.Should().BeEquivalentTo(Endpoint, ApiKey, Deployment);
                 r.ErrorMessage.Should().Contain(Endpoint);
                 r.ErrorMessage.Should().Contain(ApiKey);
                 r.ErrorMessage.Should().Contain(Deployment);
@@ -104,7 +104,7 @@ public sealed class RealModePreflightTests
                 RealModePreflightResult r = RealModePreflight.Validate();
 
                 r.IsOk.Should().BeFalse();
-                r.MissingKeys.Should().BeEquivalentTo([Endpoint]);
+                r.MissingKeys.Should().BeEquivalentTo(Endpoint);
             }
             finally
             {
