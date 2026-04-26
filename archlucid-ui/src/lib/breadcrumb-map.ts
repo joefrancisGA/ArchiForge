@@ -30,6 +30,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "policy-packs": "Policy packs",
   "governance-resolution": "Governance resolution",
   governance: "Governance",
+  findings: "Findings",
   dashboard: "Dashboard",
   audit: "Audit log",
   manifests: "Manifests",

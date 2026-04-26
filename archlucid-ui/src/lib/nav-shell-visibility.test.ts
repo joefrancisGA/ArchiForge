@@ -23,10 +23,10 @@ describe("filterNavLinksForOperatorShell", () => {
   });
 
   /**
-   * Default shell (no extended / no advanced): Reader should still see Enterprise Controls as system health + Alerts inbox.
+   * Default shell (no extended / no advanced): Reader should still see Enterprise Controls as system health + Alerts inbox + Findings hub.
    * If `/alerts` moves off `essential` tier, this fails loudly—avoiding an empty Enterprise group for first pilots.
    */
-  it("exposes system health and Alerts inbox in Enterprise Controls for Reader when extended and advanced are off", () => {
+  it("exposes system health, Alerts inbox, and Findings in Enterprise Controls for Reader when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -36,7 +36,7 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ReadAuthority,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
+    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts", "/governance/findings"]);
   });
 
   it("shows read-tier Enterprise extended links for Reader when extended disclosure is on", () => {
@@ -100,9 +100,9 @@ describe("filterNavLinksForOperatorShell", () => {
 
   /**
    * Default shell (no extended, no advanced): Execute-ranked operators see the same essential Enterprise strip as Reader
-   * — system health + inbox. Rank widens authority-eligible hrefs but does not replace progressive disclosure.
+   * — system health + inbox + Findings. Rank widens authority-eligible hrefs but does not replace progressive disclosure.
    */
-  it("limits Enterprise Controls to system health and Alerts for Execute rank when extended and advanced are off", () => {
+  it("limits Enterprise Controls to system health, Alerts, and Findings for Execute rank when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -112,7 +112,7 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ExecuteAuthority,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
+    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts", "/governance/findings"]);
   });
 
   /**

@@ -22,6 +22,7 @@ export type LayerGuidancePageKey =
   | "replay"
   | "graph"
   | "governance-dashboard"
+  | "governance-findings"
   | "governance-resolution"
   | "governance-workflow"
   | "policy-packs"
@@ -77,6 +78,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen: "Queue snapshot; open a row to continue in workflow for that run.",
     firstPilotNote: "Defer until cross-run triage is routine.",
     enterpriseFootnote: "Signals here; writes in workflow.",
+  },
+  "governance-findings": {
+    layerBadge: "Operate",
+    headline: "Findings from architecture runs and governance scans.",
+    useWhen: "Open a run for snapshot and explainability; use governance dashboard for cross-run queue context.",
+    firstPilotNote: "After your first run with a findings snapshot, use run detail for full findings context.",
+    enterpriseFootnote: "Run-scoped detail; cross-run queue on governance dashboard.",
   },
   alerts: {
     layerBadge: "Operate",

@@ -101,7 +101,7 @@ export function WelcomeBanner() {
   const subheadingText = returningUser
     ? "Monitor active runs, finalize manifests, and review governance findings."
     : "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.";
-  const secondaryCtaLabel = returningUser ? "View runs" : "See a completed example";
+  const secondaryCtaLabel = returningUser ? "View runs" : "See completed example";
 
   return (
     <div
@@ -150,15 +150,13 @@ export function WelcomeBanner() {
             <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
               <Link href="/runs/new">Create Request</Link>
             </Button>
-            {returningUser ? (
-              <Button
-                asChild
-                variant="outline"
-                className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
-              >
-                <Link href="/runs?projectId=default">{secondaryCtaLabel}</Link>
-              </Button>
-            ) : null}
+            <Button
+              asChild
+              variant="outline"
+              className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+            >
+              <Link href="/runs?projectId=default">{secondaryCtaLabel}</Link>
+            </Button>
             {trialActive ? (
               <Button asChild variant="outline" size="sm" className="h-8">
                 <Link href="/getting-started?source=registration">Onboarding checklist</Link>

@@ -122,7 +122,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
             Sw = new Stopwatch();
         }
 
-        public string Name
+        private string Name
         {
             get;
         }

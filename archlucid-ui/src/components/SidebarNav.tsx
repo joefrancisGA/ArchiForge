@@ -30,6 +30,9 @@ import { cn } from "@/lib/utils";
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 
+/** Shown under the Governance group header even when the group is collapsed — first-run discoverability. */
+const GOVERNANCE_PINNED_HREFS = new Set<string>(["/governance/findings"]);
+
 /** Alerts & governance is collapsed by default until the user explicitly opens it (localStorage "1"). */
 function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean {
   if (groupId === "operate-governance") {
@@ -180,12 +183,48 @@ export function SidebarNav() {
                 aria-hidden
               />
             </CollapsibleTrigger>
+            {group.id === "operate-governance" ? (
+              <nav
+                className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
+                aria-label="Governance — pinned links"
+              >
+                {visibleLinks
+                  .filter((link) => GOVERNANCE_PINNED_HREFS.has(link.href))
+                  .map((link) => {
+                    const active = isNavLinkActive(pathname, link.href);
+                    const Icon = link.icon;
+
+                    return (
+                      <Link
+                        key={`pinned-${link.href}`}
+                        href={link.href}
+                        className={cn(
+                          "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                          active
+                            ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                            : "text-neutral-800 dark:text-neutral-200",
+                        )}
+                        title={link.title}
+                        aria-current={active ? "page" : undefined}
+                        aria-keyshortcuts={
+                          link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
+                        }
+                      >
+                        {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+              </nav>
+            ) : null}
             <CollapsibleContent>
               <nav
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
                 aria-label={group.label}
               >
-                {visibleLinks.map((link) => {
+                {visibleLinks
+                  .filter((link) => !GOVERNANCE_PINNED_HREFS.has(link.href))
+                  .map((link) => {
                   const active = isNavLinkActive(pathname, link.href);
                   const Icon = link.icon;
 

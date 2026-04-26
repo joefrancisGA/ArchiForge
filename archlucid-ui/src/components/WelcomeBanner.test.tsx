@@ -54,6 +54,10 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create Request" })).toHaveAttribute("href", "/runs/new");
+    expect(screen.getByRole("link", { name: "See completed example" })).toHaveAttribute(
+      "href",
+      "/runs?projectId=default",
+    );
     expect(screen.getByLabelText("Sample completed run output")).toBeInTheDocument();
     expect(screen.getByText("Sample output includes")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "See a completed example" })).toHaveAttribute(

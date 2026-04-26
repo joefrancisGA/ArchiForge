@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
+  AlertCircle,
   BarChart3,
   Bell,
   Building2,
@@ -295,6 +296,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         title: navTitleWithShortcut("Alerts — inbox, rules, routing, simulation, and tuning", "alt+l"),
         keyShortcut: "alt+l",
         icon: Bell,
+        tier: "essential",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/governance/findings",
+        label: "Findings",
+        title: "Findings — surfaced issues from architecture runs, snapshots, and governance lineage",
+        icon: AlertCircle,
         tier: "essential",
         requiredAuthority: "ReadAuthority",
       },

@@ -25,6 +25,7 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/governance")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/approval-requests/1")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/dashboard/weekly")).toBe("operate-governance");
+    expect(getLayerForRoute("/governance/findings")).toBe("operate-governance");
     expect(getLayerForRoute("/audit")).toBe("operate-governance");
   });
 

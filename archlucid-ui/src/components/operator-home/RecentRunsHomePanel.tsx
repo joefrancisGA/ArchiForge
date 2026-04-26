@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -109,9 +110,25 @@ export function RecentRunsHomePanel() {
           ) : null}
 
           {phase === "ready" && items.length === 0 ? (
-            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-              No architecture runs yet. Create a request to generate your first manifest.
-            </p>
+            <div className="space-y-2">
+              <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">No architecture runs yet</p>
+              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                Create a request to generate your first manifest, findings, and artifact bundle.
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Button asChild variant="primary" size="sm" className="h-8">
+                  <Link href="/runs/new">Create Request</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-8 border-teal-300 text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
+                >
+                  <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>See completed example</Link>
+                </Button>
+              </div>
+            </div>
           ) : null}
 
           {phase === "ready" && items.length > 0 ? (
