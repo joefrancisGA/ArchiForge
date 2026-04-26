@@ -163,9 +163,9 @@ public sealed class RunRationaleService(
 
     private static DecisionTraceEntry MapRuleAudit(RuleAuditTracePayload p)
     {
-        int applied = p.AppliedRuleIds?.Count ?? 0;
-        int accepted = p.AcceptedFindingIds?.Count ?? 0;
-        int rejected = p.RejectedFindingIds?.Count ?? 0;
+        int applied = p.AppliedRuleIds.Count;
+        int accepted = p.AcceptedFindingIds.Count;
+        int rejected = p.RejectedFindingIds.Count;
 
         return new DecisionTraceEntry
         {
@@ -184,9 +184,9 @@ public sealed class RunRationaleService(
                 ["ruleSetId"] = p.RuleSetId,
                 ["ruleSetVersion"] = p.RuleSetVersion,
                 ["ruleSetHash"] = p.RuleSetHash,
-                ["appliedRuleIds"] = p.AppliedRuleIds ?? [],
-                ["acceptedFindingIds"] = p.AcceptedFindingIds ?? [],
-                ["rejectedFindingIds"] = p.RejectedFindingIds ?? [],
+                ["appliedRuleIds"] = p.AppliedRuleIds,
+                ["acceptedFindingIds"] = p.AcceptedFindingIds,
+                ["rejectedFindingIds"] = p.RejectedFindingIds,
                 ["notes"] = p.Notes,
             },
         };
