@@ -42,7 +42,7 @@ public sealed class PwnedPasswordRangeClient(
         string cacheKey = CacheKeyPrefix + prefix;
 
         if (_cache.TryGetValue(cacheKey, out IReadOnlySet<string>? suffixes) && suffixes is not null)
-            return suffixes.Contains(suffix, StringComparer.OrdinalIgnoreCase);
+            return suffixes.Contains(suffix);
 
         using HttpResponseMessage response = await _httpClient.GetAsync(
             new Uri($"https://api.pwnedpasswords.com/range/{prefix}", UriKind.Absolute),
@@ -59,7 +59,7 @@ public sealed class PwnedPasswordRangeClient(
             (IReadOnlySet<string>)set,
             new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = RangeResponseCacheDuration });
 
-        return set.Contains(suffix, StringComparer.OrdinalIgnoreCase);
+        return set.Contains(suffix);
     }
 
     private static HashSet<string> ParseRangeBody(string body)
