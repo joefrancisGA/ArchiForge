@@ -13,6 +13,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
@@ -37,6 +38,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAgentTaskRepository taskRepository,
     IArchitectureRequestRepository requestRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IAgentResultRepository agentResultRepository,
     IGraphSnapshotRepository graphSnapshotRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IDecisionEngine decisionEngine,
@@ -64,6 +66,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
         agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
+    private readonly IAgentResultRepository _agentResultRepository =
+        agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
     private readonly IGraphSnapshotRepository _graphSnapshotRepository =
         graphSnapshotRepository ?? throw new ArgumentNullException(nameof(graphSnapshotRepository));
@@ -290,6 +295,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             if (graph is null)
                 throw new InvalidOperationException($"Graph snapshot '{graphId:D}' for run '{runId}' was not found.");
 
+            IReadOnlyList<AgentResult> agentResults = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken);
+            GraphSnapshot graphForDecision = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResults);
+
             Dm.FindingsSnapshot? findings = await _findingsSnapshotRepository.GetByIdAsync(findingsId, cancellationToken);
 
             if (findings is null)
@@ -299,7 +307,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             (manifestModel, trace) = await _decisionEngine.DecideAsync(
                 runGuid,
                 contextSnapshotId,
-                graph,
+                graphForDecision,
                 findings,
                 cancellationToken);
 
