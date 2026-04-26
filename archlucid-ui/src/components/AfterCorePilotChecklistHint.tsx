@@ -133,7 +133,7 @@ export function AfterCorePilotChecklistHint() {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <ul className="m-0 list-none space-y-3 border-t border-teal-200/60 px-3 py-3 dark:border-teal-800/50">
-                {suggestions.map((s) => {
+                {suggestions.map((s, index) => {
                   return (
                     <li key={s.href} className="text-sm text-neutral-800 dark:text-neutral-200">
                       <div className="font-medium text-teal-900 dark:text-teal-200">
@@ -142,7 +142,10 @@ export function AfterCorePilotChecklistHint() {
                         </Link>
                       </div>
                       <p className="m-0 mt-0.5 text-neutral-700 dark:text-neutral-300">{s.description}</p>
-                      <p className="m-0 mt-1.5 text-xs text-neutral-500 dark:text-neutral-400" data-testid="after-core-pilot-sidebar-note">
+                      <p
+                        className="m-0 mt-1.5 text-xs text-neutral-500 dark:text-neutral-400"
+                        data-testid={`after-core-pilot-sidebar-note-${index}`}
+                      >
                         <span className="font-medium text-neutral-600 dark:text-neutral-500">Sidebar: </span>
                         {s.sidebarNote}
                       </p>

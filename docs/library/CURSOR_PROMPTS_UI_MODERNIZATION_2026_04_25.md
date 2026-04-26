@@ -435,7 +435,7 @@ Do NOT change existing API endpoints. Do NOT add backend code. This
 is a UI-only improvement that consumes existing or future APIs.
 ```
 
-**Status: shipped.** **Scope:** **`ScopeSwitcher`** in **`AppShellClient`** (breadcrumb row: trail + switcher; **`localStorage`** + **`getEffectiveBrowserProxyScopeHeaders`** → proxy scope headers; **`GET /v1/tenant/workspaces`** with empty/error notes when missing). **Tenant:** **`/settings/tenant`** — trial, digest prefs (existing API), scope summary, tenant display name stub. **Users:** **`/admin/users`** — directory table + read-only note until admin user APIs exist. **Nav:** **`nav-config.ts`** — **`/settings/tenant`** (**`ExecuteAuthority`**), **`operator-admin`** group **`/admin/users`** (**`AdminAuthority`**). **ContextualHelp** on scope, tenant, admin users. **Tests:** **`ScopeSwitcher.test.tsx`**, **`settings/tenant/page.test.tsx`**, **`admin/users/page.test.tsx`**.
+**Status: shipped.** **Scope:** **`ScopeSwitcher`** in **`AppShellClient`** on the breadcrumb row **between** breadcrumbs **and** the Help control (then Help); **`localStorage`** + **`getEffectiveBrowserProxyScopeHeaders`** → proxy **`/api/proxy`** scope headers; **`GET /v1/tenant/workspaces`** with empty/error notes when missing. **Tenant:** **`/settings/tenant`** — trial, digest prefs (existing API), scope summary, tenant display name stub. **Users:** **`/admin/users`** — directory table + read-only note until admin user APIs exist (no **`PUT …/authority`** in repo yet). **Nav:** **`nav-config.ts`** — **`/settings/tenant`** (**`ExecuteAuthority`**), **`operator-admin`** **`/admin/users`** (**`AdminAuthority`**). **ContextualHelp** on scope, tenant, admin users. **Tests:** **`ScopeSwitcher.test.tsx`**, **`settings/tenant/page.test.tsx`**, **`admin/users/page.test.tsx`**.
 
 ---
 
@@ -565,6 +565,8 @@ Do NOT add new wizard steps. Do NOT change the Core Pilot checklist.
 Do NOT auto-enable extended/advanced sidebar links — just tell the
 operator what to toggle.
 ```
+
+**Status: shipped.** **`AfterCorePilotChecklistHint`** renders a **Card** with **“Ready for more?”** / **“Expand your pilot”**, intro copy (**`after-core-pilot-intro`**), **Dismiss** → **`AFTER_CORE_PILOT_WHATS_NEXT_DISMISSED_KEY`**, and a **Collapsible** list of four **Next.js** links (**/compare**, **/graph**, **`/alerts?tab=rules`**, **`/policy-packs`**) plus per-item **sidebar** notes from **`NAV_DISCLOSURE`**. Gated on **`readCorePilotChecklistAllDone()`** and listens for **`CORE_PILOT_CHECKLIST_CHANGED_EVENT`**. **Tests:** **`AfterCorePilotChecklistHint.test.tsx`** (incomplete steps → hidden; all done → links; dismiss persists).
 
 ---
 

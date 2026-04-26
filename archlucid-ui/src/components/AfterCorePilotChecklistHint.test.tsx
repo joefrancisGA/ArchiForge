@@ -37,6 +37,8 @@ describe("AfterCorePilotChecklistHint", () => {
     expect(screen.getByRole("link", { name: "Explore the architecture graph" })).toHaveAttribute("href", "/graph");
     expect(screen.getByRole("link", { name: "Set up governance alerts" })).toHaveAttribute("href", "/alerts?tab=rules");
     expect(screen.getByRole("link", { name: "Review policy packs" })).toHaveAttribute("href", "/policy-packs");
+    expect(screen.getByTestId("after-core-pilot-intro")).toBeInTheDocument();
+    expect(screen.getByTestId("after-core-pilot-sidebar-note-0")).toBeInTheDocument();
   });
 
   it("persists dismiss to localStorage and hides the panel", async () => {

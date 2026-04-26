@@ -53,18 +53,6 @@ export function AppShellClient({ children }: AppShellClientProps) {
                 </h1>
               </div>
               <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="hidden sm:inline-flex"
-                  aria-label="Open help"
-                  onClick={() => {
-                    setHelpOpen(true);
-                  }}
-                >
-                  Help
-                </Button>
                 <CommandPalette />
                 <kbd
                   className="hidden rounded border border-neutral-300 bg-white px-1.5 py-0.5 font-mono text-[0.7rem] text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 sm:inline-block"
@@ -82,6 +70,18 @@ export function AppShellClient({ children }: AppShellClientProps) {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <ScopeSwitcher />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="hidden sm:inline-flex"
+                    aria-label="Open help"
+                    onClick={() => {
+                      setHelpOpen(true);
+                    }}
+                  >
+                    Help
+                  </Button>
                 </div>
               </div>
             </div>
