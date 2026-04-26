@@ -54,4 +54,45 @@ describe("RunsListClient inspector", () => {
     fireEvent.keyDown(window, { key: "Escape" });
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
   });
+
+  it("shows work-queue section for needs-attention runs", () => {
+    render(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+    );
+    expect(screen.getByRole("heading", { name: /needs attention/i })).toBeInTheDocument();
+    expect(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByTestId("run-provenance-inline")).toBeInTheDocument();
+  });
+
+  it("renders primary title as Untitled run when description is empty", () => {
+    const untitled: RunSummary = {
+      ...sampleRun,
+      description: "   ",
+    };
+    render(<RunsListClient runs={[untitled]} projectId="default" page={1} pageSize={20} totalCount={1} />);
+    expect(within(screen.getByTestId(`runs-row-${untitled.runId}`)).getByText("Untitled run")).toBeInTheDocument();
+  });
+
+  it("partitions multiple runs into ordered queue sections", () => {
+    const committed: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-000000000001",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+    };
+    const inProgress: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-000000000002",
+      hasFindingsSnapshot: false,
+      hasGoldenManifest: false,
+      hasGraphSnapshot: true,
+    };
+
+    render(
+      <RunsListClient runs={[committed, sampleRun, inProgress]} projectId="default" page={1} pageSize={20} totalCount={3} />,
+    );
+
+    expect(screen.getByRole("heading", { name: /needs attention/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^in progress$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^committed$/i })).toBeInTheDocument();
+  });
 });

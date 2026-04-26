@@ -5,9 +5,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { InspectorPanel } from "@/components/InspectorPanel";
 import { RunInspectorPreview } from "@/components/RunInspectorPreview";
+import { RunProvenanceInline } from "@/components/RunProvenanceInline";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Label } from "@/components/ui/label";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
+import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -38,6 +40,29 @@ function inspectorTitle(run: RunSummary | null): string {
   }
 
   return "Untitled run";
+}
+
+function runListPrimaryTitle(run: RunSummary): string {
+  const d = run.description?.trim() ?? "";
+
+  if (d.length > 0) {
+    return d;
+  }
+
+  return "Untitled run";
+}
+
+function activateRowKeyboard(e: React.KeyboardEvent<HTMLTableRowElement>, run: RunSummary, select: (r: RunSummary) => void) {
+  if (e.key !== "Enter" && e.key !== " ") {
+    return;
+  }
+
+  if ((e.target as HTMLElement).closest("a")) {
+    return;
+  }
+
+  e.preventDefault();
+  select(run);
 }
 
 /**
@@ -98,6 +123,11 @@ export function RunsListClient({
       return sortOrder === "createdDesc" ? rightTime - leftTime : leftTime - rightTime;
     });
   }, [runs, filterText, sortOrder]);
+
+  const workQueueSections = useMemo(
+    () => partitionRunsIntoWorkQueueSections(filteredSorted),
+    [filteredSorted],
+  );
 
   const pages = totalPages(totalCount, pageSize);
   const baseQuery = `projectId=${encodeURIComponent(projectId)}&pageSize=${pageSize}`;
@@ -163,66 +193,129 @@ export function RunsListClient({
 
       <div className={cn(!viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-neutral-300 dark:border-neutral-600">
-                  <th className="p-2 text-left font-semibold">Run ID</th>
-                  <th className="p-2 text-left font-semibold">Status</th>
-                  <th className="p-2 text-left font-semibold">Description</th>
-                  <th className="p-2 text-left font-semibold">Created</th>
-                  <th className="p-2 text-left font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSorted.map((run) => {
-                  const created = new Date(run.createdUtc);
-                  const createdLabel = created.toLocaleString();
-                  const isSelected = selectedRun?.runId === run.runId;
-
-                  return (
-                    <tr
-                      key={run.runId}
-                      data-testid={`runs-row-${run.runId}`}
-                      className={cn(
-                        "cursor-pointer border-b border-neutral-200 transition-colors dark:border-neutral-700",
-                        isSelected
-                          ? "bg-teal-50/80 dark:bg-teal-950/30"
-                          : "hover:bg-neutral-50 dark:hover:bg-neutral-900/50",
-                      )}
-                      onClick={(e) => {
-                        onRowActivate(run, e);
-                      }}
-                    >
-                      <td className="max-w-[11rem] p-2 align-top">
-                        <code className="block break-all font-mono text-[11px] leading-snug text-neutral-800 dark:text-neutral-200">
-                          {run.runId}
-                        </code>
-                      </td>
-                      <td className="p-2 align-middle">
-                        <RunStatusBadge run={run} />
-                      </td>
-                      <td className="p-2 align-top text-neutral-800 dark:text-neutral-200">{run.description ?? ""}</td>
-                      <td className="p-2 align-top text-sm text-neutral-700 dark:text-neutral-300" title={createdLabel}>
-                        <span className="block">{formatRelativeTime(run.createdUtc)}</span>
-                        <span className="mt-0.5 block text-xs text-neutral-500 dark:text-neutral-500">{createdLabel}</span>
-                      </td>
-                      <td className="p-2 align-top">
-                        <Link
-                          href={`/runs/${run.runId}`}
-                          className="font-medium text-teal-800 underline dark:text-teal-300"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                        >
-                          Open run
-                        </Link>
+          <div className="space-y-8">
+            {filteredSorted.length === 0 ? (
+              <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                        Run
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                        Created
+                      </th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="px-3 py-2 text-neutral-600 dark:text-neutral-400" colSpan={3}>
+                        No runs match this filter.
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+
+            {workQueueSections.map((section) => {
+              const headingId = `runs-queue-${section.groupId}`;
+
+              return (
+                <section key={section.groupId} aria-labelledby={headingId} className="space-y-2">
+                  <h3
+                    id={headingId}
+                    className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400"
+                  >
+                    {workQueueSectionHeading(section.groupId)}
+                  </h3>
+                  <div className="overflow-x-auto rounded-md border border-neutral-200 dark:border-neutral-800">
+                    <table className="w-full border-collapse text-sm">
+                      <thead>
+                        <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
+                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                            Run
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                            Created
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                        {section.runs.map((run) => {
+                          const createdLabel = new Date(run.createdUtc).toLocaleString();
+                          const isSelected = selectedRun?.runId === run.runId;
+                          const title = runListPrimaryTitle(run);
+
+                          return (
+                            <tr
+                              key={run.runId}
+                              data-testid={`runs-row-${run.runId}`}
+                              tabIndex={0}
+                              className={cn(
+                                "cursor-pointer outline-none transition-colors focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950",
+                                isSelected
+                                  ? "bg-teal-50/80 dark:bg-teal-950/30"
+                                  : "hover:bg-neutral-50 dark:hover:bg-neutral-800",
+                              )}
+                              onClick={(e) => {
+                                onRowActivate(run, e);
+                              }}
+                              onKeyDown={(e) => {
+                                activateRowKeyboard(e, run, setSelectedRun);
+                              }}
+                            >
+                              <td className="max-w-[min(100vw,28rem)] px-3 py-2 align-top">
+                                <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                                  <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                                    {title}
+                                  </span>
+                                  <RunStatusBadge run={run} />
+                                </div>
+                                <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                                  {run.runId}
+                                </code>
+                                {run.projectId !== projectId ? (
+                                  <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                    Project <span className="font-mono">{run.projectId}</span>
+                                  </p>
+                                ) : null}
+                                <div className="mt-1.5">
+                                  <RunProvenanceInline run={run} />
+                                </div>
+                              </td>
+                              <td
+                                className="whitespace-nowrap px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400"
+                                title={createdLabel}
+                              >
+                                {formatRelativeTime(run.createdUtc)}
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-2 align-top">
+                                <Link
+                                  href={`/runs/${run.runId}`}
+                                  className="font-medium text-teal-800 underline dark:text-teal-300"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                  }}
+                                >
+                                  Open run
+                                </Link>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              );
+            })}
           </div>
 
           <nav

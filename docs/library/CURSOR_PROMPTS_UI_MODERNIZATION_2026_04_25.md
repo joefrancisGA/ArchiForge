@@ -932,6 +932,8 @@ After implementation:
 - Note which RunSummary fields were used vs which were unavailable.
 ```
 
+**Status: shipped.** **`RunsListClient.tsx`** — work-queue **sections** (**Needs attention** / **In progress** / **Committed**) via **`partitionRunsIntoWorkQueueSections`** (groups from **`hasGoldenManifest`** / **`hasFindingsSnapshot`** only; **in-progress** = not yet at findings). Rows: **semibold** primary title (**`description`** or **Untitled run**), **`RunStatusBadge`** (**`StatusPill`**), **runId** + optional **project** when **`projectId`** differs from the page filter, **`formatRelativeTime`** + **`title`** full timestamp, **`RunProvenanceInline`** (four **`has*Snapshot`** / **`hasGoldenManifest`** dots). **Dense** **`px-3 py-2`**, **`divide-y`**, **`tabIndex={0}`** + **Enter/Space** row activate, focus ring. **`run-work-queue-groups.ts`** + tests; **`RunProvenanceInline.tsx`** + test. **Not used on list rows:** `goldenManifestId`, snapshot id strings, **`hasDecisionTrace`**, **`hasArtifactBundle`**. **`page.tsx`**, **`RUNS_EMPTY`**, **BeforeAfter** panels unchanged.
+
 ---
 
 ## Prompt 14 — Polish the governance dashboard as a work queue
