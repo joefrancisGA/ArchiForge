@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
-    get: (key: string) => (key === "example" ? "claims-intake" : null),
+    get: (key: string) => (key === "example" ? "environmental-report-audit" : null),
   }),
 }));
 
@@ -30,7 +30,10 @@ vi.mock("@/lib/api", () => ({
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
-import { OPERATOR_HOME_EXAMPLE_DESCRIPTION } from "@/lib/operator-home-example-request";
+import {
+  OPERATOR_HOME_EXAMPLE_DESCRIPTION,
+  OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
+} from "@/lib/operator-home-example-request";
 
 describe("NewRunWizardClient (example query)", () => {
   beforeEach(() => {
@@ -56,7 +59,7 @@ describe("NewRunWizardClient (example query)", () => {
     );
   });
 
-  it("prefills description and system name when example=claims-intake", async () => {
+  it("prefills description and system name when example=environmental-report-audit", async () => {
     render(<NewRunWizardClient />);
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
@@ -67,7 +70,7 @@ describe("NewRunWizardClient (example query)", () => {
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
     });
 
-    expect((screen.getByLabelText("System name") as HTMLInputElement).value).toBe("ClaimsIntake");
+    expect((screen.getByLabelText("System name") as HTMLInputElement).value).toBe(OPERATOR_HOME_EXAMPLE_SYSTEM_NAME);
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Next" }));

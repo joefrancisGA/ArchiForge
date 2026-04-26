@@ -26,6 +26,7 @@ import { validateWizardStep } from "@/lib/wizard-step-validate";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
+  OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
 } from "@/lib/operator-home-example-request";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 const WIZARD_STEP_DEFINITIONS = [
@@ -128,7 +129,7 @@ export function NewRunWizardClient() {
     }
 
     if (stepIndex >= 1) {
-      setValue("systemName", "ClaimsIntake", { shouldValidate: true, shouldDirty: true });
+      setValue("systemName", OPERATOR_HOME_EXAMPLE_SYSTEM_NAME, { shouldValidate: true, shouldDirty: true });
     }
 
     if (stepIndex >= 2) {
