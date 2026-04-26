@@ -123,13 +123,13 @@ describe("operator client pages — render gate", () => {
   it("SearchPage renders primary heading and contextual help", () => {
     render(<SearchPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Semantic Search" })).toBeInTheDocument();
-    expect(screen.getByLabelText(/help: semantic-search/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/more information: semantic-search/i)).toBeInTheDocument();
   });
 
   it("AskPage renders primary heading and contextual help", () => {
     render(<AskPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Ask ArchLucid" })).toBeInTheDocument();
-    expect(screen.getByLabelText(/help: ask-archlucid/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/more information: ask-archlucid/i)).toBeInTheDocument();
   });
 
   it("GettingStartedPage renders primary heading", async () => {
