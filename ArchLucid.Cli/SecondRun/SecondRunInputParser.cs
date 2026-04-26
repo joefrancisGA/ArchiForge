@@ -127,9 +127,8 @@ public static class SecondRunInputParser
 
     private static string? ReadString(TomlTable table, string key)
     {
-        if (!table.TryGetValue(key, out object? value) || value is null)
+        if (!table.TryGetValue(key, out object value))
             return null;
-
 
         return value switch
         {
@@ -143,20 +142,15 @@ public static class SecondRunInputParser
 
     private static List<string> ReadStringList(TomlTable table, string key)
     {
-        if (!table.TryGetValue(key, out object? value) || value is null)
+        if (!table.TryGetValue(key, out object value))
             return [];
-
 
         if (value is TomlArray arr)
         {
             List<string> list = [];
 
-            foreach (object? item in arr)
+            foreach (object item in arr.OfType<object>())
             {
-                if (item is null)
-                    continue;
-
-
                 string? s = item switch
                 {
                     string str => str,
@@ -218,13 +212,12 @@ public static class SecondRunInputParser
         foreach (string ep in publicEndpoints)
             derivedInline.Add($"Public endpoint: {ep}");
 
-        List<string> mergedInline = [..inline, ..derivedInline];
+        List<string> mergedInline = [.. inline, .. derivedInline];
 
         string requestId = (dto.RequestId ?? string.Empty).Trim().Replace("-", string.Empty);
 
         if (string.IsNullOrWhiteSpace(requestId))
             requestId = Guid.NewGuid().ToString("N");
-
 
         if (requestId.Length > 64)
         {

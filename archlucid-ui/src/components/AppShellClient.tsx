@@ -41,7 +41,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
         </a>
         <div className="flex min-h-screen flex-col bg-neutral-50 dark:bg-neutral-950">
           <header data-testid="app-shell-topbar" className="sticky top-0 z-30 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur print:hidden dark:border-neutral-700 dark:bg-neutral-950/95">
-            <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 lg:px-6">
+            <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-2.5 lg:px-6">
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <MobileNavDrawer />
                 <h1 className="m-0">
@@ -49,38 +49,26 @@ export function AppShellClient({ children }: AppShellClientProps) {
                     <ArchLucidWordmarkLink href="/" aria-label="ArchLucid — go to operator home" variant="operator" />
                   </Button>
                 </h1>
-              </div>
-              <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-                <CommandPalette />
-                <kbd
-                  className="hidden rounded border border-neutral-300 bg-white px-1.5 py-0.5 font-mono text-[0.7rem] text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 sm:inline-block"
-                  aria-hidden
-                >
-                  Ctrl+K
-                </kbd>
-                <ColorModeToggle />
-              </div>
-            </div>
-            <div className="mx-auto max-w-[1600px] border-t border-neutral-100 px-4 pb-2 pt-1 dark:border-neutral-800 lg:px-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="min-w-0 flex-1 basis-[min(100%,28rem)]">
+                <div className="hidden min-w-0 flex-1 items-center gap-1.5 pl-2 lg:flex">
                   <Breadcrumbs />
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <ScopeSwitcher />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="hidden sm:inline-flex"
-                    aria-label="Open help"
-                    onClick={() => {
-                      setHelpOpen(true);
-                    }}
-                  >
-                    Help
-                  </Button>
-                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <ScopeSwitcher />
+                <CommandPalette />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="hidden h-8 w-8 p-0 sm:inline-flex"
+                  aria-label="Open help"
+                  onClick={() => {
+                    setHelpOpen(true);
+                  }}
+                >
+                  <span className="text-xs">?</span>
+                </Button>
+                <ColorModeToggle />
               </div>
             </div>
           </header>

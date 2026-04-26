@@ -1,14 +1,13 @@
 namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
-///     Structured improvement theme derived from 58R aggregates/opportunities (snapshotted metrics for audit).
+///     Structured improvement theme derived from 58R aggregates/opportunities (snapshot metrics for audit).
 /// </summary>
 public sealed class ProductLearningImprovementThemeRecord
 {
     public Guid ThemeId
     {
-        get;
-        init;
+        get; init;
     }
 
     public Guid TenantId

@@ -87,10 +87,10 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     15_000,
   );
 
-  it("exposes Operate · analysis and Operate · governance group navigations when sections are expanded", () => {
+  it("exposes Analysis and Governance group navigations when sections are expanded", () => {
     render(<ShellNav />);
 
-    expect(screen.getByRole("navigation", { name: "Operate · analysis" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
 
     const showMore = screen.queryByRole("button", { name: NAV_DISCLOSURE.extended.show });
@@ -98,15 +98,15 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       fireEvent.click(showMore);
     }
 
-    fireEvent.click(screen.getByRole("button", { name: "Operate · governance" }));
+    fireEvent.click(screen.getByRole("button", { name: "Governance" }));
 
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");
 
-    expect(screen.getByRole("navigation", { name: "Operate · governance" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
     expect(
       screen.getByText(
-        "Governance, audit, policy packs, alerts, and trust. Operator-heavy; Execute+ for writes where the API requires it — not required for first Pilot proof.",
+        "Policy, audit, alerts, and trust controls.",
       ),
     ).toBeInTheDocument();
     expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();

@@ -40,7 +40,7 @@ const suggestions: Suggestion[] = [
     href: "/alerts?tab=rules",
     description: "Inbox, routing, and rules on one hub—tune when architecture-risk signals need action.",
     sidebarNote:
-      "Alerts is under Operate · governance (sidebar). Open Alerts, then use the Rules tab for configuration.",
+      "Alerts is under Governance (sidebar). Open Alerts, then use the Rules tab for configuration.",
   },
   {
     title: "Review policy packs",

@@ -18,7 +18,7 @@ describe("nav-config structure", () => {
     expect(flattenNavLinks().length).toBe(fromGroups);
   });
 
-  it("sets requiredAuthority on every Operate · governance link except system health (Pilot essentials may omit)", () => {
+  it("sets requiredAuthority on every Governance link except system health (Pilot essentials may omit)", () => {
     const enterprise = NAV_GROUPS.find((group) => group.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
@@ -33,7 +33,7 @@ describe("nav-config structure", () => {
     }
   });
 
-  it("sets requiredAuthority on every Operate · analysis nav link", () => {
+  it("sets requiredAuthority on every Analysis nav link", () => {
     const advanced = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
     expect(advanced).toBeDefined();
@@ -47,7 +47,7 @@ describe("nav-config structure", () => {
    * Tier runs before authority in the shell: Execute-class destinations must not sit on **essential** tier or they
    * could appear for first-pilot defaults before “Show more” regardless of rank story (see `nav-shell-visibility.test.ts`).
    */
-  it("keeps ExecuteAuthority Operate · governance links off essential tier", () => {
+  it("keeps ExecuteAuthority Governance links off essential tier", () => {
     const enterprise = NAV_GROUPS.find((group) => group.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
@@ -78,11 +78,11 @@ describe("nav-config structure", () => {
   });
 
   /**
-   * Same structural rule as **Operate · governance**: Execute-class **Operate · analysis** links must not sit on
+   * Same structural rule as **Governance**: Execute-class **Analysis** links must not sit on
    * `essential`, or they could appear before progressive disclosure even when rank allows Execute (`nav-shell-visibility`
    * tier order).
    */
-  it("keeps ExecuteAuthority Operate · analysis links off essential tier", () => {
+  it("keeps ExecuteAuthority Analysis links off essential tier", () => {
     const advanced = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
     expect(advanced).toBeDefined();

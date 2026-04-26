@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Scim.RoleMapping;
 
 public sealed class GroupToRoleMapper(IOptions<ScimOptions> options) : IGroupToRoleMapper
 {
-    private readonly ScimOptions _options = options.Value ?? new ScimOptions();
+    private readonly ScimOptions _options = options.Value;
 
     /// <inheritdoc />
     public string? TryMapGroupToRole(string displayName, string externalId)

@@ -9,10 +9,7 @@ internal static class ComposePathListBuilder
         ArgumentNullException.ThrowIfNull(overlayRelativeOrdered);
 
         List<string> list = [Path.Combine(composeDirectory, "docker-compose.yml")];
-
-        foreach (string rel in overlayRelativeOrdered)
-            list.Add(Path.Combine(composeDirectory, rel));
-
+        list.AddRange(overlayRelativeOrdered.Select(rel => Path.Combine(composeDirectory, rel)));
 
         return list;
     }

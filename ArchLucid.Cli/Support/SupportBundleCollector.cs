@@ -43,7 +43,9 @@ public static class SupportBundleCollector
 
         SupportBundleBuildSection build = new()
         {
-            Cli = ReadCliBuildInfo(), ApiVersionJson = versionJson, ApiVersionError = versionErr
+            Cli = ReadCliBuildInfo(),
+            ApiVersionJson = versionJson,
+            ApiVersionError = versionErr
         };
 
         SupportBundleHealthSection health = new()
@@ -174,8 +176,8 @@ public static class SupportBundleCollector
             InputsBriefPath = config.Inputs.Brief,
             OutputsLocalCacheDir = config.Outputs.LocalCacheDir,
             PluginsLockFile = config.Plugins?.LockFile,
-            TerraformEnabled = config.Infra?.Terraform?.Enabled,
-            TerraformPath = config.Infra?.Terraform?.Path,
+            TerraformEnabled = config.Infra?.Terraform.Enabled,
+            TerraformPath = config.Infra?.Terraform.Path,
             Architecture = config.Architecture
         };
     }

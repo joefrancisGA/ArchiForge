@@ -47,55 +47,80 @@ export function PilotOutcomeCard() {
 
   if (error) {
     return (
-      <section aria-labelledby="pilot-outcome-heading" className="mt-6 rounded-md border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/40">
-        <h2 id="pilot-outcome-heading" className="text-base font-semibold text-red-900 dark:text-red-100">
-          Pilot outcome (last 30 days)
+      <section
+        aria-labelledby="pilot-outcome-heading"
+        className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <h2 id="pilot-outcome-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          Pilot health (last 30 days)
         </h2>
-        <p className="mt-2 text-sm text-red-800 dark:text-red-200" role="alert">
-          {error}
-        </p>
+        <div className="mt-2 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+          <span className="h-2 w-2 rounded-full bg-neutral-300 dark:bg-neutral-600" aria-hidden />
+          Data unavailable — {error}
+        </div>
       </section>
     );
   }
 
   if (summary === null) {
     return (
-      <section aria-labelledby="pilot-outcome-heading" className="mt-6 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-        <h2 id="pilot-outcome-heading" className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          Pilot outcome (last 30 days)
+      <section
+        aria-labelledby="pilot-outcome-heading"
+        className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <h2 id="pilot-outcome-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          Pilot health (last 30 days)
         </h2>
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>
+        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Loading…</p>
       </section>
     );
   }
 
-  return (
-    <section aria-labelledby="pilot-outcome-heading" className="mt-6 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-      <h2 id="pilot-outcome-heading" className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-        Pilot outcome (last 30 days)
-      </h2>
-      {summary.runsInPeriod < 1 ? (
-        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          No runs in this window yet — start with <strong>New run</strong> when you are ready.
+  if (summary.runsInPeriod < 1) {
+    return (
+      <section
+        aria-labelledby="pilot-outcome-heading"
+        className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50"
+      >
+        <h2 id="pilot-outcome-heading" className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+          Pilot health (last 30 days)
+        </h2>
+        <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+          No runs yet. Metrics appear after your first completed run.
         </p>
-      ) : (
-        <dl className="mt-3 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200 sm:grid-cols-2">
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Runs</dt>
-            <dd className="font-medium">{summary.runsInPeriod}</dd>
-          </div>
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Committed manifests</dt>
-            <dd className="font-medium">{summary.runsWithCommittedManifest}</dd>
-          </div>
-          <div className="sm:col-span-2">
-            <dt className="text-neutral-500 dark:text-neutral-400">UTC window</dt>
-            <dd className="font-mono text-xs">
-              {summary.periodStart} → {summary.periodEnd}
-            </dd>
-          </div>
-        </dl>
-      )}
+      </section>
+    );
+  }
+
+  const successRate = summary.runsInPeriod > 0
+    ? Math.round((summary.runsWithCommittedManifest / summary.runsInPeriod) * 100)
+    : 0;
+
+  return (
+    <section
+      aria-labelledby="pilot-outcome-heading"
+      className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+    >
+      <h2 id="pilot-outcome-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        Pilot health (last 30 days)
+      </h2>
+      <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
+        <div>
+          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{successRate}%</dd>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Success rate</dt>
+        </div>
+        <div>
+          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{summary.runsInPeriod}</dd>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Total runs</dt>
+        </div>
+        <div>
+          <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{summary.runsWithCommittedManifest}</dd>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Committed</dt>
+        </div>
+      </dl>
+      <p className="mt-2 text-center font-mono text-[10px] text-neutral-400 dark:text-neutral-500">
+        {summary.periodStart} → {summary.periodEnd}
+      </p>
     </section>
   );
 }

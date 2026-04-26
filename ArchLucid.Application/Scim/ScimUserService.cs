@@ -203,10 +203,7 @@ public sealed class ScimUserService(
         if (!next.TryGetValue(key, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
             return fallback;
 
-        if (el.ValueKind != JsonValueKind.String)
-            return fallback;
-
-        return el.GetString();
+        return el.ValueKind != JsonValueKind.String ? fallback : el.GetString();
     }
 
     private async Task TransitionSeatAsync(Guid tenantId, bool wasActive, bool willBeActive, CancellationToken ct)
@@ -247,11 +244,11 @@ public sealed class ScimUserService(
 
             int rank = RoleRank(role);
 
-            if (rank > best)
-            {
-                best = rank;
-                chosen = role;
-            }
+            if (rank <= best)
+                continue;
+
+            best = rank;
+            chosen = role;
         }
 
         return chosen;

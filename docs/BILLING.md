@@ -1,3 +1,5 @@
+> **Scope:** Short entry for operators: webhook URLs and where the full billing design lives — not a substitute for the canonical architecture doc in `docs/library/`.
+
 # Billing documentation (entry)
 
 **Canonical reference:** [Billing — provider abstraction (Stripe + Azure Marketplace)](library/BILLING.md) (architecture, data flow, security, provider matrix).

@@ -49,7 +49,7 @@ public sealed class ValueReportBuilder(
         decimal teamCostScale = 1m;
         if (raw.TenantBaselinePeoplePerReview is { } ppl)
         {
-            decimal denom = raw.TenantArchitectureTeamSize is { } ats && ats > 0
+            decimal denom = raw.TenantArchitectureTeamSize is { } ats and > 0
                 ? ats
                 : o.DefaultTeamSizeForHourlyCostScaling;
             if (denom > 0m)

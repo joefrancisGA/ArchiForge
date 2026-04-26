@@ -103,7 +103,7 @@ public sealed class TrialTenantBootstrapService(
                     runsLimit: 10,
                     seatsLimit: 3,
                     demoIds.AuthorityRunBaselineId,
-                    baselineReviewCycle is null ? null : baselineReviewCycle.Hours,
+                    baselineReviewCycle?.Hours,
                     baselineReviewCycle?.SourceNote,
                     baselineReviewCycle?.CapturedUtc,
                     companyProfile?.CompanySize,

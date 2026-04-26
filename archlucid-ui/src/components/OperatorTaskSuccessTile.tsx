@@ -47,28 +47,63 @@ export function OperatorTaskSuccessTile() {
     };
   }, []);
 
+  if (error) {
+    return (
+      <section
+        aria-labelledby="operator-task-success-heading"
+        className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50"
+      >
+        <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+          Onboarding funnel
+        </h2>
+        <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+          No data yet. Metrics appear after your first completed run.
+        </p>
+      </section>
+    );
+  }
+
+  if (!data) {
+    return (
+      <section
+        aria-labelledby="operator-task-success-heading"
+        className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          Onboarding funnel
+        </h2>
+        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Loading…</p>
+      </section>
+    );
+  }
+
   return (
     <section
       aria-labelledby="operator-task-success-heading"
-      className="rounded-md border border-neutral-200 bg-white p-4 text-sm dark:border-neutral-800 dark:bg-neutral-900"
+      className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
     >
-      <h2 id="operator-task-success-heading" className="mb-2 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-        Onboarding funnel (host process)
+      <h2 id="operator-task-success-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+        Onboarding funnel
       </h2>
-      {error ? <p className="text-neutral-600 dark:text-neutral-400">{error}</p> : null}
-      {data ? (
-        <dl className="m-0 grid grid-cols-2 gap-2">
-          <div>
-            <dt className="text-xs text-neutral-500 dark:text-neutral-400">First sessions completed</dt>
-            <dd className="m-0 text-lg font-semibold">{data.firstSessionCompletedTotal}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-neutral-500 dark:text-neutral-400">First runs committed</dt>
-            <dd className="m-0 text-lg font-semibold">{data.firstRunCommittedTotal}</dd>
-          </div>
-          <div className="col-span-2 text-xs text-neutral-500 dark:text-neutral-400">{data.windowNote}</div>
-        </dl>
-      ) : null}
+      <dl className="mt-3 grid grid-cols-3 gap-3 text-center">
+        <div>
+          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">{data.firstSessionCompletedTotal}</dd>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Sessions</dt>
+        </div>
+        <div>
+          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">{data.firstRunCommittedTotal}</dd>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Committed</dt>
+        </div>
+        <div>
+          <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">
+            {data.firstSessionCompletedTotal > 0
+              ? `${Math.round(data.firstRunCommittedPerSessionRatio * 100)}%`
+              : "—"}
+          </dd>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Conversion</dt>
+        </div>
+      </dl>
+      <p className="mt-2 text-center text-[10px] text-neutral-400 dark:text-neutral-500">{data.windowNote}</p>
     </section>
   );
 }

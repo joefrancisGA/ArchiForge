@@ -228,9 +228,8 @@ export const NAV_GROUPS: NavGroupConfig[] = [
   },
   {
     id: "operate-analysis",
-    // Buyer layer: Operate (analysis slice) — label disambiguates the duplicate **Operate** buyer name from governance.
-    label: "Operate · analysis",
-    caption: "Analysis, search, planning, advisory, and cost — deeper questions after Pilot proof.",
+    label: "Analysis",
+    caption: "Search, planning, advisory, and deeper questions after Pilot proof.",
     links: [
       {
         href: "/ask",
@@ -325,10 +324,8 @@ export const NAV_GROUPS: NavGroupConfig[] = [
   },
   {
     id: "operate-governance",
-    // Buyer layer: Operate (governance slice) — label disambiguates the duplicate **Operate** buyer name from analysis.
-    label: "Operate · governance",
-    caption:
-      "Governance, audit, policy packs, alerts, and trust. Operator-heavy; Execute+ for writes where the API requires it — not required for first Pilot proof.",
+    label: "Governance",
+    caption: "Policy, audit, alerts, and trust controls.",
     links: [
       {
         href: "/admin/health",

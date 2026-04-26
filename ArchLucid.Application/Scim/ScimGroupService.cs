@@ -68,11 +68,8 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
 
         List<Guid> members = [];
 
-        foreach (JsonElement op in ops.EnumerateArray())
+        foreach (JsonElement op in ops.EnumerateArray().Where(op => op.ValueKind == JsonValueKind.Object))
         {
-            if (op.ValueKind != JsonValueKind.Object)
-                continue;
-
             string? opName = op.TryGetProperty("op", out JsonElement on) && on.ValueKind == JsonValueKind.String
                 ? on.GetString()
                 : null;
@@ -87,14 +84,14 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
             if (!op.TryGetProperty("value", out JsonElement val))
                 throw new ScimUserResourceParseException("invalidValue", "members add requires value.");
 
-            if (val.ValueKind == JsonValueKind.Array)
+            if (val.ValueKind != JsonValueKind.Array)
+                continue;
+
+            foreach (JsonElement m in val.EnumerateArray())
             {
-                foreach (JsonElement m in val.EnumerateArray())
-                {
-                    if (m.TryGetProperty("value", out JsonElement idEl) && idEl.ValueKind == JsonValueKind.String &&
-                        Guid.TryParse(idEl.GetString(), out Guid uid))
-                        members.Add(uid);
-                }
+                if (m.TryGetProperty("value", out JsonElement idEl) && idEl.ValueKind == JsonValueKind.String &&
+                    Guid.TryParse(idEl.GetString(), out Guid uid))
+                    members.Add(uid);
             }
         }
 

@@ -38,37 +38,29 @@ vi.mock("@/components/OperatorHomeGate", () => ({
 import HomePage from "./page";
 
 describe("HomePage (55R smoke — landing)", () => {
-  it("renders dashboard tagline and product-layer sections", async () => {
+  it("renders action cards, maturity layer cards, and workflow panel", async () => {
     render(<HomePage />);
 
-    expect(screen.getByRole("heading", { level: 2, name: "Operator home" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Core Pilot path" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Advanced Analysis" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Enterprise Controls" })).toBeInTheDocument();
+    expect(screen.getByText("Advanced Analysis")).toBeInTheDocument();
+    expect(screen.getByText("Enterprise Controls")).toBeInTheDocument();
+    expect(screen.getByText("Search & Insights")).toBeInTheDocument();
     expect(screen.getByTestId("first-run-panel-mock")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("welcome-banner-mock")).toBeInTheDocument();
     });
-    expect(screen.getByText(/three product layers/i)).toBeInTheDocument();
   });
 
-  it("exposes primary workflow destinations matching shell review paths", () => {
+  it("exposes primary workflow destinations via action cards and layer cards", () => {
     render(<HomePage />);
 
     const runsLinks = screen
-      .getAllByRole("link", { name: "Runs" })
+      .getAllByRole("link")
       .filter((el) => el.getAttribute("href") === "/runs?projectId=default");
     expect(runsLinks.length).toBeGreaterThan(0);
 
-    const graphLinks = screen
-      .getAllByRole("link", { name: "Graph" })
-      .filter((el) => el.getAttribute("href") === "/graph");
-    expect(graphLinks.length).toBeGreaterThan(0);
-
-    const compareLinks = screen.getAllByRole("link", { name: "Compare two runs" });
-    expect(compareLinks.some((el) => el.getAttribute("href") === "/compare")).toBe(true);
-
-    const replayLinks = screen.getAllByRole("link", { name: "Replay a run" });
-    expect(replayLinks.some((el) => el.getAttribute("href") === "/replay")).toBe(true);
+    expect(screen.getByText("Create Run")).toBeInTheDocument();
+    expect(screen.getByText("View Runs")).toBeInTheDocument();
+    expect(screen.getByText("Commit Run")).toBeInTheDocument();
+    expect(screen.getByText("Review Artifacts")).toBeInTheDocument();
   });
 });

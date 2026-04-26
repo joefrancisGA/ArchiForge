@@ -33,9 +33,12 @@ public sealed class TraceabilityBundleBuilder(
         long maxZipBytes,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(runId)) throw new ArgumentException("Run id is required.", nameof(runId));
-        if (scope is null) throw new ArgumentNullException(nameof(scope));
-        if (maxZipBytes <= 0) throw new ArgumentOutOfRangeException(nameof(maxZipBytes));
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new ArgumentException("Run id is required.", nameof(runId));
+        if (scope is null)
+            throw new ArgumentNullException(nameof(scope));
+        if (maxZipBytes <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxZipBytes));
 
         ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
 
@@ -72,10 +75,7 @@ public sealed class TraceabilityBundleBuilder(
 
         byte[] zipBytes = BuildZipInMemory(summary, audits, detail.DecisionTraces);
 
-        if (zipBytes.LongLength > maxZipBytes)
-            throw new TraceabilityBundleTooLargeException(zipBytes.LongLength, maxZipBytes);
-
-        return zipBytes;
+        return zipBytes.LongLength > maxZipBytes ? throw new TraceabilityBundleTooLargeException(zipBytes.LongLength, maxZipBytes) : zipBytes;
     }
 
     private static byte[] BuildZipInMemory(

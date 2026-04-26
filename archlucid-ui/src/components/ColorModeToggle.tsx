@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const storageKey = "archlucid_color_mode";
@@ -96,45 +95,25 @@ export function ColorModeToggle() {
   }, []);
 
   if (!mounted) {
-    return (
-      <div
-        aria-hidden="true"
-        className="min-w-[200px] h-8"
-      />
-    );
+    return <div aria-hidden="true" className="h-8 w-8" />;
   }
 
-  const segmentInactive =
-    "rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100";
-  const segmentActive = cn(
-    buttonVariants({ variant: "primary", size: "sm" }),
-    "min-h-0 !h-auto border border-teal-700 px-2.5 py-1.5 font-semibold dark:border-teal-800",
-  );
+  const nextMode: ColorModePreference =
+    preference === "light" ? "dark" : preference === "dark" ? "system" : "light";
+  const icon = preference === "light" ? "☀️" : preference === "dark" ? "🌙" : "💻";
+  const label = `Theme: ${preference}. Click to switch to ${nextMode}.`;
 
   return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Color mode">
-      <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Theme</span>
-      <button
-        type="button"
-        className={cn("auth-panel-focus", preference === "light" ? segmentActive : segmentInactive)}
-        onClick={() => setAndPersist("light")}
-      >
-        Light
-      </button>
-      <button
-        type="button"
-        className={cn("auth-panel-focus", preference === "dark" ? segmentActive : segmentInactive)}
-        onClick={() => setAndPersist("dark")}
-      >
-        Dark
-      </button>
-      <button
-        type="button"
-        className={cn("auth-panel-focus", preference === "system" ? segmentActive : segmentInactive)}
-        onClick={() => setAndPersist("system")}
-      >
-        System
-      </button>
-    </div>
+    <button
+      type="button"
+      className={cn(
+        "auth-panel-focus flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 bg-white text-sm transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700",
+      )}
+      aria-label={label}
+      title={label}
+      onClick={() => setAndPersist(nextMode)}
+    >
+      <span aria-hidden className="text-xs">{icon}</span>
+    </button>
   );
 }
