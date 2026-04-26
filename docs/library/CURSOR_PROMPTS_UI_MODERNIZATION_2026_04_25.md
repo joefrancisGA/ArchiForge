@@ -1080,6 +1080,8 @@ After implementation, summarize changed files and describe the
 conditional rendering logic.
 ```
 
+**Status: shipped.** **`CommandCenterSection.tsx`** — visible only when **`readCorePilotChecklistAllDone()`** is true; listens for **`CORE_PILOT_CHECKLIST_CHANGED_EVENT`**. Cards: **Runs** (`**listRunsByProjectPaged**` + **`coerceRunSummaryPaged**`, filter **`hasFindingsSnapshot`** && not **`hasGoldenManifest`**, up to 3 rows with **`RunStatusBadge`** / **`StatusPill`**, link **`/runs?projectId=default`**); **Recent activity** (**`useDeltaQuery`** medians, same endpoint as delta banner; link runs list); **System health** (**`GET /api/proxy/health/ready`**, **`StatusPill`** `domain="health"`, fallback copy per prompt). **`page.tsx`** inserts section **after** **`AfterCorePilotChecklistHint`**, **before** Advanced Analysis. **`CommandCenterSection.test.tsx`**. **Not in scope:** governance/alerts/advisory cards (no single lightweight list APIs on home without new calls).
+
 ---
 
 ## Prompt 16 — Improve document/report view readability

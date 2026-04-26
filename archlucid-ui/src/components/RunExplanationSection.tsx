@@ -1,6 +1,9 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { CitationChips } from "@/components/explanation/CitationChips";
+import { DocumentLayout, type DocumentTocItem } from "@/components/DocumentLayout";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
 import type { RunExplanationSummary } from "@/types/explanation";
@@ -12,31 +15,44 @@ export type RunExplanationSectionProps = {
   runId: string;
 };
 
-/** Maps API `riskPosture` string to accessible badge colors (Low / Medium / High / Critical). */
-/** Maps aggregate faithfulness support ratio to badge styling (green / amber / red). */
-export function faithfulnessBadgeStyle(ratio: number): {
-  background: string;
-  color: string;
-  borderColor: string;
-} {
-  const pct = ratio <= 1 ? ratio * 100 : ratio;
+const badgeShell = "inline-block rounded-md border px-2.5 py-1 text-[13px] font-semibold";
 
+/** Tailwind mapping for faithfulness support ratio (0–100). */
+export function faithfulnessBadgeClass(pct: number): string {
   if (pct >= 80 - 1e-9) {
-    return { background: "#dcfce7", color: "#166534", borderColor: "#bbf7d0" };
+    return `${badgeShell} border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-100`;
   }
 
   if (pct >= 50 - 1e-9) {
-    return { background: "#fef3c7", color: "#92400e", borderColor: "#fde68a" };
+    return `${badgeShell} border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-50`;
   }
 
-  return { background: "#fee2e2", color: "#991b1b", borderColor: "#fecaca" };
+  return `${badgeShell} border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-50`;
 }
 
-export function riskPostureBadgeColors(posture: string): {
-  background: string;
-  color: string;
-  borderColor: string;
-} {
+/** Tailwind mapping for risk posture label (case-insensitive). */
+export function riskPostureBadgeClass(posture: string): string {
+  const key = posture.trim().toLowerCase();
+
+  if (key === "critical") {
+    return `${badgeShell} border-rose-300 bg-rose-100 text-rose-950 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-100`;
+  }
+
+  if (key === "high") {
+    return `${badgeShell} border-orange-300 bg-orange-100 text-orange-950 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-50`;
+  }
+
+  if (key === "medium") {
+    return `${badgeShell} border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-50`;
+  }
+
+  return `${badgeShell} border-emerald-300 bg-emerald-100 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-50`;
+}
+
+/**
+ * @deprecated Use {@link riskPostureBadgeClass} for Tailwind; kept for tests that assert legacy hex palette.
+ */
+export function riskPostureBadgeColors(posture: string): { background: string; color: string; borderColor: string } {
   const key = posture.trim().toLowerCase();
 
   if (key === "critical") {
@@ -68,6 +84,32 @@ function confidencePercent(confidence: number): number {
  * Run-level aggregate explanation: assessment, posture, confidence, themes, drivers/risks, provenance.
  */
 export function RunExplanationSection({ summary, loading, error, runId }: RunExplanationSectionProps) {
+  const tocItems = useMemo((): DocumentTocItem[] => {
+    if (summary === null) {
+      return [];
+    }
+
+    const items: DocumentTocItem[] = [{ id: "doc-explanation-assessment", label: "Assessment" }];
+    const traces = summary.findingTraceConfidences;
+
+    if (traces !== null && traces !== undefined && traces.length > 0) {
+      items.push({ id: "doc-explanation-traces", label: "Finding trace confidence" });
+    }
+
+    items.push(
+      { id: "doc-explanation-confidence", label: "Model confidence" },
+      { id: "doc-explanation-themes", label: "Themes" },
+      { id: "doc-explanation-drivers", label: "Key drivers" },
+      { id: "doc-explanation-risks", label: "Risk implications" },
+    );
+
+    if (summary.explanation.provenance !== null && summary.explanation.provenance !== undefined) {
+      items.push({ id: "doc-explanation-provenance", label: "LLM provenance" });
+    }
+
+    return items;
+  }, [summary]);
+
   if (loading) {
     return (
       <div aria-busy="true">
@@ -77,89 +119,55 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
   }
 
   if (error) {
-    return (
-      <p role="alert" style={{ margin: 0, color: "#b91c1c", fontSize: 14 }}>
-        {error}
-      </p>
-    );
+    return <p role="alert" className="m-0 text-sm text-red-700 dark:text-red-300">{error}</p>;
   }
 
   if (!summary) {
     return null;
   }
 
-  const badge = riskPostureBadgeColors(summary.riskPosture);
+  const postureClass = riskPostureBadgeClass(summary.riskPosture);
   const conf = summary.explanation.confidence;
   const pct = conf !== null && conf !== undefined ? confidencePercent(conf) : null;
   const prov = summary.explanation.provenance;
   const faith = summary.faithfulnessSupportRatio;
   let faithPct: number | null = null;
-  let faithStyle: ReturnType<typeof faithfulnessBadgeStyle> | null = null;
+  let faithClass: string | null = null;
 
   if (faith !== null && faith !== undefined && Number.isFinite(faith)) {
     faithPct = Math.round(faith * 100);
-    faithStyle = faithfulnessBadgeStyle(faithPct);
+    faithClass = faithfulnessBadgeClass(faithPct);
   }
 
   return (
-    <div style={{ maxWidth: 720 }}>
-      <p
-        style={{
-          margin: "0 0 12px",
-          fontSize: 16,
-          fontWeight: 600,
-          lineHeight: 1.4,
-          color: "#0f172a",
-        }}
-      >
+    <DocumentLayout tocItems={tocItems}>
+      <p id="doc-explanation-assessment" className="m-0 text-xl font-bold leading-snug text-neutral-900 dark:text-neutral-50">
         {summary.overallAssessment}
       </p>
 
-      <p style={{ margin: "0 0 12px", fontSize: 14, color: "#475569" }}>
+      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         <span className="sr-only">Risk posture:</span>
         <span
           role="status"
           aria-label={`Risk posture ${summary.riskPosture}`}
           data-risk-posture={summary.riskPosture.trim().toLowerCase()}
-          style={{
-            display: "inline-block",
-            padding: "4px 10px",
-            borderRadius: 6,
-            fontSize: 13,
-            fontWeight: 600,
-            border: `1px solid ${badge.borderColor}`,
-            background: badge.background,
-            color: badge.color,
-          }}
+          className={postureClass}
         >
           {summary.riskPosture}
         </span>
-        <span style={{ marginLeft: 12, fontSize: 13, color: "#64748b" }}>
+        <span className="ml-3 text-[13px] text-neutral-500 dark:text-neutral-400">
           {summary.decisionCount} decisions · {summary.findingCount} findings · {summary.unresolvedIssueCount}{" "}
           unresolved · {summary.complianceGapCount} compliance gaps
         </span>
       </p>
 
-      {faithPct !== null && faithStyle ? (
-        <p style={{ margin: "0 0 12px", fontSize: 14, color: "#475569" }}>
+      {faithPct !== null && faithClass !== null ? (
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
           <span className="sr-only">Faithfulness vs findings:</span>
-          <span
-            role="status"
-            aria-label={`Faithfulness support ratio ${faithPct} percent`}
-            style={{
-              display: "inline-block",
-              padding: "4px 10px",
-              borderRadius: 6,
-              fontSize: 13,
-              fontWeight: 600,
-              border: `1px solid ${faithStyle.borderColor}`,
-              background: faithStyle.background,
-              color: faithStyle.color,
-            }}
-          >
+          <span role="status" aria-label={`Faithfulness support ratio ${faithPct} percent`} className={faithClass}>
             Faithfulness {faithPct}%
           </span>
-          <span style={{ marginLeft: 10, fontSize: 12, color: "#64748b" }}>
+          <span className="ml-2.5 text-xs text-neutral-500 dark:text-neutral-400">
             (token overlap vs finding traces — see docs)
           </span>
         </p>
@@ -168,16 +176,7 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
       {summary.usedDeterministicFallback === true ? (
         <p
           role="status"
-          style={{
-            margin: "0 0 12px",
-            padding: "10px 12px",
-            borderRadius: 6,
-            fontSize: 13,
-            lineHeight: 1.5,
-            background: "#fef9c3",
-            color: "#854d0e",
-            border: "1px solid #fde047",
-          }}
+          className="m-0 rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm leading-relaxed text-yellow-950 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-50"
         >
           This explanation was generated from manifest structure because AI-generated text did not sufficiently match
           the underlying findings.
@@ -187,16 +186,7 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
       {summary.faithfulnessWarning && summary.usedDeterministicFallback !== true ? (
         <p
           role="status"
-          style={{
-            margin: "0 0 12px",
-            padding: "10px 12px",
-            borderRadius: 6,
-            fontSize: 13,
-            lineHeight: 1.5,
-            background: "#fff7ed",
-            color: "#9a3412",
-            border: "1px solid #fdba74",
-          }}
+          className="m-0 rounded-md border border-orange-300 bg-orange-50 p-3 text-sm leading-relaxed text-orange-950 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-50"
         >
           {summary.faithfulnessWarning}
         </p>
@@ -205,13 +195,15 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
       <CitationChips citations={summary.citations ?? []} runId={runId} />
 
       {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
-        <div style={{ marginBottom: 16 }}>
-          <h4 style={{ margin: "0 0 8px", fontSize: 15 }}>Finding trace confidence</h4>
-          <ul style={{ margin: 0, paddingLeft: 20, fontSize: 13, lineHeight: 1.5, color: "#334155" }}>
+        <div className="mb-4">
+          <h3 id="doc-explanation-traces" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Finding trace confidence
+          </h3>
+          <ul className="m-0 list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
             {summary.findingTraceConfidences.map((row) => (
               <li key={row.findingId}>
-                <code style={{ fontSize: 12 }}>{row.findingId}</code> — {row.traceConfidenceLabel} (
-                {Math.round(row.traceCompletenessRatio * 100)}% trace fields)
+                <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{row.findingId}</code> —{" "}
+                {row.traceConfidenceLabel} ({Math.round(row.traceCompletenessRatio * 100)}% trace fields)
                 {row.ruleId && row.ruleId.trim().length > 0 ? `; rule ${row.ruleId}` : ""}
                 {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
                   ? `; ${row.evidenceRefCount} evidence ref(s)`
@@ -222,12 +214,12 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
         </div>
       ) : null}
 
-      <div style={{ marginBottom: 16 }}>
-        <p id="explanation-confidence-label" style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 600 }}>
+      <div id="doc-explanation-confidence" className="mb-4">
+        <p id="doc-explanation-confidence-label" className="m-0 mb-1.5 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
           Model confidence
         </p>
         {pct === null ? (
-          <p role="status" style={{ margin: 0, fontSize: 14, color: "#64748b" }}>
+          <p role="status" className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
             Not available
           </p>
         ) : (
@@ -237,34 +229,40 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
               aria-valuemin={0}
               aria-valuemax={100}
               aria-valuenow={pct}
-              aria-labelledby="explanation-confidence-label"
+              aria-labelledby="doc-explanation-confidence-label"
             />
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: "#64748b" }}>{pct}%</p>
+            <p className="m-0 mt-1.5 text-[13px] text-neutral-500 dark:text-neutral-400">{pct}%</p>
           </>
         )}
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ margin: "0 0 8px", fontSize: 15 }}>Themes</h4>
-        <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14, lineHeight: 1.5 }}>
+      <div className="mb-4">
+        <h3 id="doc-explanation-themes" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+          Themes
+        </h3>
+        <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
           {summary.themeSummaries.map((t) => (
             <li key={t}>{t}</li>
           ))}
         </ul>
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ margin: "0 0 8px", fontSize: 15 }}>Key drivers</h4>
-        <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14, lineHeight: 1.5 }}>
+      <div className="mb-4">
+        <h3 id="doc-explanation-drivers" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+          Key drivers
+        </h3>
+        <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
           {summary.explanation.keyDrivers.map((d) => (
             <li key={d}>{d}</li>
           ))}
         </ul>
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <h4 style={{ margin: "0 0 8px", fontSize: 15 }}>Risk implications</h4>
-        <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14, lineHeight: 1.5 }}>
+      <div className="mb-4">
+        <h3 id="doc-explanation-risks" className="m-0 mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+          Risk implications
+        </h3>
+        <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
           {summary.explanation.riskImplications.map((r) => (
             <li key={r}>{r}</li>
           ))}
@@ -272,29 +270,22 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
       </div>
 
       {prov ? (
-        <details style={{ fontSize: 14, color: "#334155" }}>
-          <summary style={{ cursor: "pointer", fontWeight: 600 }}>Provenance metadata</summary>
-          <dl
-            style={{
-              margin: "12px 0 0",
-              display: "grid",
-              gridTemplateColumns: "auto 1fr",
-              gap: "6px 16px",
-            }}
-          >
+        <details id="doc-explanation-provenance" className="text-sm text-neutral-700 dark:text-neutral-300">
+          <summary className="cursor-pointer font-semibold text-neutral-900 dark:text-neutral-100">Provenance metadata</summary>
+          <dl className="m-0 mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
             <dt>Agent type</dt>
-            <dd style={{ margin: 0 }}>{prov.agentType}</dd>
+            <dd className="m-0">{prov.agentType}</dd>
             <dt>Model ID</dt>
-            <dd style={{ margin: 0 }}>{prov.modelId}</dd>
+            <dd className="m-0">{prov.modelId}</dd>
             <dt>Prompt template</dt>
-            <dd style={{ margin: 0 }}>{prov.promptTemplateId ?? "—"}</dd>
+            <dd className="m-0">{prov.promptTemplateId ?? "—"}</dd>
             <dt>Prompt version</dt>
-            <dd style={{ margin: 0 }}>{prov.promptTemplateVersion ?? "—"}</dd>
+            <dd className="m-0">{prov.promptTemplateVersion ?? "—"}</dd>
             <dt>Content hash</dt>
-            <dd style={{ margin: 0 }}>{prov.promptContentHash ?? "—"}</dd>
+            <dd className="m-0">{prov.promptContentHash ?? "—"}</dd>
           </dl>
         </details>
       ) : null}
-    </div>
+    </DocumentLayout>
   );
 }

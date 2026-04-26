@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProvenanceGraphDiagram } from "@/components/ProvenanceGraphDiagram";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
@@ -11,8 +12,9 @@ import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-proven
 function formatUtc(iso: string): string {
   const d = new Date(iso);
 
-  if (Number.isNaN(d.getTime()))
+  if (Number.isNaN(d.getTime())) {
     return iso;
+  }
 
   return d.toISOString().replace("T", " ").replace(/\.\d{3}Z$/, " UTC");
 }
@@ -38,19 +40,21 @@ export default async function RunProvenancePage({
       loadFailure?.message ?? "Provenance could not be loaded (run missing, broken manifest reference, or transport error).";
 
     return (
-      <main>
-        <h2>Provenance</h2>
+      <main className="mx-auto max-w-3xl p-4">
+        <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Provenance</h2>
         <OperatorApiProblem
           problem={loadFailure?.problem ?? null}
           fallbackMessage={fallback}
           correlationId={loadFailure?.correlationId ?? null}
         />
-        <p style={{ margin: "12px 0 0", fontSize: 14 }}>
+        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
           This view uses the coordinator endpoint <code>/v1/architecture/runs/{"{id}"}/provenance</code>. Authority-only
           runs use <Link href="/graph">Graph</Link> with the authority provenance API instead.
         </p>
         <p>
-          <Link href={`/runs/${runId}`}>← Run detail</Link>
+          <Link href={`/runs/${runId}`} className="text-teal-800 underline dark:text-teal-300">
+            ← Run detail
+          </Link>
         </p>
       </main>
     );
@@ -58,132 +62,143 @@ export default async function RunProvenancePage({
 
   const graph = provenanceResponse.data;
   const provenanceTraceId = provenanceResponse.traceId;
+  const tocItems = [
+    ...(graph.traceabilityGaps.length > 0 ? [{ id: "trace-gaps", label: "Traceability gaps" as const }] : []),
+    { id: "prov-timeline", label: "Trace timeline" as const },
+    { id: "prov-nodes", label: "Nodes" as const },
+    { id: "prov-edges", label: "Edges" as const },
+  ];
 
   return (
-    <main>
-      <h2>Provenance</h2>
-      <p style={{ fontSize: 14, marginBottom: 8 }}>
-        Run <code>{graph.runId}</code> — {graph.nodes.length} nodes, {graph.edges.length} edges,{" "}
-        {graph.timeline.length} timeline events.
-      </p>
-      <div style={{ marginBottom: 16 }}>
-        <RunTraceViewerLink traceId={provenanceTraceId} />
-      </div>
-
-      {graph.traceabilityGaps.length > 0 ? (
-        <section
-          aria-labelledby="trace-gaps"
-          style={{
-            marginBottom: 20,
-            padding: 12,
-            border: "1px solid #c9a227",
-            background: "#fffbeb",
-            borderRadius: 4,
-          }}
-        >
-          <h3 id="trace-gaps" style={{ marginTop: 0 }}>
-            Traceability gaps
-          </h3>
-          <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14 }}>
-            {graph.traceabilityGaps.map((g) => (
-              <li key={g}>{g}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <ProvenanceGraphDiagram nodes={graph.nodes} edges={graph.edges} />
-
-      <p>
-        <Link href={`/runs/${runId}`}>← Run detail</Link>
-      </p>
-
-      <section aria-labelledby="prov-timeline" style={{ marginTop: 24 }}>
-        <h3 id="prov-timeline">Trace timeline</h3>
-        <p style={{ fontSize: 13, color: "#444", marginTop: 4 }}>
-          Ordered events from run lifecycle, agent work, merge traces, and committed decisions.
+    <main className="mx-auto p-4 print:w-full">
+      <DocumentLayout tocItems={tocItems}>
+        <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Provenance</h2>
+        <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          Run <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{graph.runId}</code> —{" "}
+          {graph.nodes.length} nodes, {graph.edges.length} edges, {graph.timeline.length} timeline events.
         </p>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 14 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Time (UTC)</th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Kind</th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Label</th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Reference</th>
-              </tr>
-            </thead>
-            <tbody>
-              {graph.timeline.map((row) => (
-                <tr key={`${row.timestampUtc}-${row.kind}-${row.referenceId ?? row.label}`}>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top", whiteSpace: "nowrap" }}>
-                    {formatUtc(row.timestampUtc)}
-                  </td>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top" }}>{row.kind}</td>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top" }}>{row.label}</td>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top", wordBreak: "break-all" }}>
-                    {row.referenceId ?? "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mb-4">
+          <RunTraceViewerLink traceId={provenanceTraceId} />
         </div>
-      </section>
 
-      <section aria-labelledby="prov-nodes" style={{ marginTop: 24 }}>
-        <h3 id="prov-nodes">Nodes</h3>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 14 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Type</th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Name</th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Reference</th>
-              </tr>
-            </thead>
-            <tbody>
-              {graph.nodes.map((n) => (
-                <tr key={n.id} id={`prov-node-row-${n.id}`}>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top" }}>{n.type}</td>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top" }}>{n.name}</td>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top", wordBreak: "break-all" }}>
-                    {n.referenceId}
-                  </td>
-                </tr>
+        {graph.traceabilityGaps.length > 0 ? (
+          <section
+            id="trace-gaps"
+            aria-labelledby="trace-gaps-heading"
+            className="mb-5 rounded-md border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/40"
+          >
+            <h3 id="trace-gaps-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              Traceability gaps
+            </h3>
+            <ul className="m-0 mt-2 list-disc space-y-1 pl-5 text-sm text-neutral-800 dark:text-neutral-200">
+              {graph.traceabilityGaps.map((g) => (
+                <li key={g}>{g}</li>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            </ul>
+          </section>
+        ) : null}
 
-      <section aria-labelledby="prov-edges" style={{ marginTop: 24 }}>
-        <h3 id="prov-edges">Edges</h3>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 14 }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>Type</th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>From</th>
-                <th style={{ textAlign: "left", borderBottom: "1px solid #ccc" }}>To</th>
-              </tr>
-            </thead>
-            <tbody>
-              {graph.edges.map((e) => (
-                <tr key={e.id}>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top" }}>{e.type}</td>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top", wordBreak: "break-all" }}>
-                    {e.fromNodeId}
-                  </td>
-                  <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top", wordBreak: "break-all" }}>
-                    {e.toNodeId}
-                  </td>
+        <ProvenanceGraphDiagram nodes={graph.nodes} edges={graph.edges} />
+
+        <p>
+          <Link href={`/runs/${runId}`} className="text-teal-800 underline dark:text-teal-300">
+            ← Run detail
+          </Link>
+        </p>
+
+        <section id="prov-timeline" aria-labelledby="prov-timeline-heading" className="mt-6">
+          <h3 id="prov-timeline-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Trace timeline
+          </h3>
+          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            Ordered events from run lifecycle, agent work, merge traces, and committed decisions.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-neutral-200 dark:border-neutral-700">
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Time (UTC)</th>
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Kind</th>
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Label</th>
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Reference</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </thead>
+              <tbody>
+                {graph.timeline.map((row) => (
+                  <tr key={`${row.timestampUtc}-${row.kind}-${row.referenceId ?? row.label}`}>
+                    <td className="border-b border-neutral-100 p-2 align-top whitespace-nowrap dark:border-neutral-800">
+                      {formatUtc(row.timestampUtc)}
+                    </td>
+                    <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{row.kind}</td>
+                    <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{row.label}</td>
+                    <td className="break-all border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
+                      {row.referenceId ?? "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="prov-nodes" aria-labelledby="prov-nodes-heading" className="mt-6">
+          <h3 id="prov-nodes-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Nodes
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-neutral-200 dark:border-neutral-700">
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Type</th>
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Name</th>
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Reference</th>
+                </tr>
+              </thead>
+              <tbody>
+                {graph.nodes.map((n) => (
+                  <tr key={n.id} id={`prov-node-row-${n.id}`}>
+                    <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{n.type}</td>
+                    <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{n.name}</td>
+                    <td className="break-all border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
+                      {n.referenceId}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="prov-edges" aria-labelledby="prov-edges-heading" className="mt-6">
+          <h3 id="prov-edges-heading" className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            Edges
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-neutral-200 dark:border-neutral-700">
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Type</th>
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">From</th>
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">To</th>
+                </tr>
+              </thead>
+              <tbody>
+                {graph.edges.map((e) => (
+                  <tr key={e.id}>
+                    <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{e.type}</td>
+                    <td className="break-all border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
+                      {e.fromNodeId}
+                    </td>
+                    <td className="break-all border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
+                      {e.toNodeId}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </DocumentLayout>
     </main>
   );
 }

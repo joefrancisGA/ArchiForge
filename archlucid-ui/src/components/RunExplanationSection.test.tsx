@@ -1,7 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { riskPostureBadgeColors, RunExplanationSection } from "@/components/RunExplanationSection";
+import { riskPostureBadgeClass, riskPostureBadgeColors, RunExplanationSection } from "@/components/RunExplanationSection";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 function mockSummary(overrides: Partial<RunExplanationSummary> = {}): RunExplanationSummary {
@@ -26,7 +26,7 @@ function mockSummary(overrides: Partial<RunExplanationSummary> = {}): RunExplana
 
   const explanation: RunExplanationSummary["explanation"] = {
     ...defaultExplanation,
-    ...overrides.explanation,
+    ...(overrides.explanation ?? {}),
   };
 
   return {
@@ -47,6 +47,15 @@ describe("riskPostureBadgeColors", () => {
     expect(riskPostureBadgeColors("medium").background).toBe("#fef3c7");
     expect(riskPostureBadgeColors("HIGH").background).toBe("#ffedd5");
     expect(riskPostureBadgeColors("Critical").background).toBe("#fee2e2");
+  });
+});
+
+describe("riskPostureBadgeClass", () => {
+  it("maps severities to Tailwind utility groups", () => {
+    expect(riskPostureBadgeClass("Low")).toContain("emerald");
+    expect(riskPostureBadgeClass("medium")).toContain("amber");
+    expect(riskPostureBadgeClass("HIGH")).toContain("orange");
+    expect(riskPostureBadgeClass("Critical")).toContain("rose");
   });
 });
 
@@ -86,7 +95,9 @@ describe("RunExplanationSection", () => {
   it("reveals provenance in details", () => {
     render(<RunExplanationSection summary={mockSummary()} loading={false} error={null} runId="r1" />);
 
-    fireEvent.click(screen.getByText("Provenance metadata"));
+    const provenanceDetails = document.getElementById("doc-explanation-provenance");
+    expect(provenanceDetails).not.toBeNull();
+    fireEvent.click(within(provenanceDetails as HTMLElement).getByText("Provenance metadata"));
 
     expect(screen.getByText("unit-agent")).toBeInTheDocument();
     expect(screen.getByText("gpt-test")).toBeInTheDocument();

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
@@ -157,29 +158,46 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
       ) : null}
 
       {!loading && failure === null && audit !== null ? (
-        <div className="space-y-2">
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-            System prompt (redacted) · trace {audit.traceId}
-          </p>
-          <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
-            {audit.systemPromptRedacted.trim().length > 0 ? audit.systemPromptRedacted : "(empty)"}
-          </pre>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-            User prompt (redacted)
-          </p>
-          <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
-            {audit.userPromptRedacted.trim().length > 0 ? audit.userPromptRedacted : "(empty)"}
-          </pre>
-          <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-            LLM completion (redacted)
-          </p>
-          <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
-            {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
-          </pre>
-          <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-            Model: {audit.modelDeploymentName ?? "—"} · Agent: {audit.agentType}
-          </p>
-        </div>
+        <DocumentLayout
+          tocItems={[
+            { id: "finding-audit-system", label: "System prompt" },
+            { id: "finding-audit-user", label: "User prompt" },
+            { id: "finding-audit-completion", label: "Completion" },
+          ]}
+        >
+          <div className="space-y-2">
+            <p
+              id="finding-audit-system"
+              className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              System prompt (redacted) · trace {audit.traceId}
+            </p>
+            <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
+              {audit.systemPromptRedacted.trim().length > 0 ? audit.systemPromptRedacted : "(empty)"}
+            </pre>
+            <p
+              id="finding-audit-user"
+              className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              User prompt (redacted)
+            </p>
+            <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
+              {audit.userPromptRedacted.trim().length > 0 ? audit.userPromptRedacted : "(empty)"}
+            </pre>
+            <p
+              id="finding-audit-completion"
+              className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+            >
+              LLM completion (redacted)
+            </p>
+            <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
+              {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
+            </pre>
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              Model: {audit.modelDeploymentName ?? "—"} · Agent: {audit.agentType}
+            </p>
+          </div>
+        </DocumentLayout>
       ) : null}
 
       {canVote ? (

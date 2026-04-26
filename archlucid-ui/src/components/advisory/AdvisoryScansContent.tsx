@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+
 import { ContextualHelp } from "@/components/ContextualHelp";
+import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
 import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -29,6 +32,7 @@ export function AdvisoryScansContent() {
     try {
       await applyRecommendationAction(recommendationId, action, comment, rationale);
       const rid = runId.trim();
+
       if (rid) {
         const refreshed = await listRecommendations(rid);
         setRecommendations(refreshed);
@@ -40,6 +44,7 @@ export function AdvisoryScansContent() {
 
   async function loadAdvice() {
     const rid = runId.trim();
+
     if (!rid) {
       return;
     }
@@ -62,9 +67,11 @@ export function AdvisoryScansContent() {
 
   async function refreshPersistedOnly() {
     const rid = runId.trim();
+
     if (!rid) {
       return;
     }
+
     setLoading(true);
     setFailure(null);
     try {
@@ -78,148 +85,146 @@ export function AdvisoryScansContent() {
   }
 
   return (
-    <main style={{ maxWidth: 900 }}>
-      <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
-        <h2 className="m-0">Improvement Advisor</h2>
-        <ContextualHelp helpKey="advisory-hub" />
-      </div>
-      <p style={{ color: "#444", fontSize: 14 }}>
-        Ranked recommendations from manifest gaps, issues, cost risks, and optional comparison to a prior run. Generated
-        plans are persisted; accept, reject, defer, or mark implemented to feed the governance workflow.
-      </p>
-
-      <div style={{ display: "grid", gap: 12, marginBottom: 24 }}>
-        <input
-          value={runId}
-          onChange={(e) => setRunId(e.target.value)}
-          placeholder="Run ID (target / current run)"
-          style={{ padding: 8, fontFamily: "monospace" }}
-        />
-        <input
-          value={compareToRunId}
-          onChange={(e) => setCompareToRunId(e.target.value)}
-          placeholder="Optional compare-to run ID (base run for delta signals)"
-          style={{ padding: 8, fontFamily: "monospace" }}
-        />
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button type="button" onClick={() => void loadAdvice()} disabled={loading || !runId.trim()}>
-            {loading ? "Working…" : "Generate recommendations"}
-          </button>
-          <button type="button" onClick={() => void refreshPersistedOnly()} disabled={loading || !runId.trim()}>
-            Refresh saved list
-          </button>
+    <main className="mx-auto max-w-4xl px-4 py-6">
+      <DocumentLayout>
+        <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
+          <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Improvement Advisor</h2>
+          <ContextualHelp helpKey="advisory-hub" />
         </div>
-      </div>
+        <p className="doc-meta m-0">
+          Ranked recommendations from manifest gaps, issues, cost risks, and optional comparison to a prior architecture
+          run. Generated plans are persisted; accept, reject, defer, or mark implemented to feed the governance workflow.
+        </p>
 
-      {failure !== null ? (
-        <div role="alert">
-          <OperatorApiProblem
-            problem={failure.problem}
-            fallbackMessage={failure.message}
-            correlationId={failure.correlationId}
+        <div className="mb-6 grid gap-3">
+          <input
+            value={runId}
+            onChange={(e) => setRunId(e.target.value)}
+            placeholder="Architecture run ID (target / current run)"
+            className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
           />
-        </div>
-      ) : null}
-
-      {isExperimentalAdvisoryPanelsEnabled() ? (
-        <section
-          aria-label="Experimental advisory panels"
-          style={{ border: "1px dashed #94a3b8", padding: 12, marginBottom: 16, borderRadius: 8 }}
-        >
-          <h3 style={{ marginTop: 0 }}>Experimental</h3>
-          <p style={{ fontSize: 13, color: "#475569", marginBottom: 0 }}>
-            Optional panels for in-development advisory UX. Enable with{" "}
-            <code style={{ fontSize: 12 }}>NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS=true</code> at build time.
-          </p>
-        </section>
-      ) : null}
-
-      {planSummary ? (
-        <>
-          <h3>Summary</h3>
-          <ul>
-            {planSummary.summaryNotes.map((note, index) => (
-              <li key={index}>{note}</li>
-            ))}
-          </ul>
-        </>
-      ) : null}
-
-      {recommendations.length > 0 ? (
-        <>
-          <h3>Persisted recommendations</h3>
-          <p style={{ color: "#555", fontSize: 13 }}>
-            Status and reviewer fields are loaded from storage. Use actions below (requires operator access on the API).
-          </p>
-          <div style={{ display: "grid", gap: 16 }}>
-            {recommendations.map((rec) => (
-              <div
-                key={rec.recommendationId}
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: 8,
-                  padding: 16,
-                  background: "#fff",
-                }}
-              >
-                <h4 style={{ marginTop: 0 }}>{rec.title}</h4>
-                <p>
-                  <strong>Status:</strong> {rec.status}
-                </p>
-                <p>
-                  <strong>Category:</strong> {rec.category}
-                </p>
-                <p>
-                  <strong>Urgency:</strong> {rec.urgency}
-                </p>
-                <p>
-                  <strong>Priority score:</strong> {rec.priorityScore}
-                </p>
-                <p>
-                  <strong>Rationale:</strong> {rec.rationale}
-                </p>
-                <p>
-                  <strong>Suggested action:</strong> {rec.suggestedAction}
-                </p>
-                <p>
-                  <strong>Expected impact:</strong> {rec.expectedImpact}
-                </p>
-                {rec.reviewedByUserName ? (
-                  <p>
-                    <strong>Last reviewed by:</strong> {rec.reviewedByUserName}
-                  </p>
-                ) : null}
-                {rec.reviewComment ? (
-                  <p>
-                    <strong>Review comment:</strong> {rec.reviewComment}
-                  </p>
-                ) : null}
-                {rec.resolutionRationale ? (
-                  <p>
-                    <strong>Resolution rationale:</strong> {rec.resolutionRationale}
-                  </p>
-                ) : null}
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-                  <button type="button" onClick={() => void takeAction(rec.recommendationId, "Accept")}>
-                    Accept
-                  </button>
-                  <button type="button" onClick={() => void takeAction(rec.recommendationId, "Reject")}>
-                    Reject
-                  </button>
-                  <button type="button" onClick={() => void takeAction(rec.recommendationId, "Defer")}>
-                    Defer
-                  </button>
-                  <button type="button" onClick={() => void takeAction(rec.recommendationId, "MarkImplemented")}>
-                    Implemented
-                  </button>
-                </div>
-              </div>
-            ))}
+          <input
+            value={compareToRunId}
+            onChange={(e) => setCompareToRunId(e.target.value)}
+            placeholder="Optional compare-to architecture run ID (base run for delta signals)"
+            className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
+          />
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" onClick={() => void loadAdvice()} disabled={loading || !runId.trim()}>
+              {loading ? "Working…" : "Generate recommendations"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => void refreshPersistedOnly()} disabled={loading || !runId.trim()}>
+              Refresh saved list
+            </Button>
           </div>
-        </>
-      ) : planSummary && recommendations.length === 0 ? (
-        <p style={{ color: "#666" }}>No persisted recommendations returned for this run.</p>
-      ) : null}
+        </div>
+
+        {failure !== null ? (
+          <div role="alert">
+            <OperatorApiProblem
+              problem={failure.problem}
+              fallbackMessage={failure.message}
+              correlationId={failure.correlationId}
+            />
+          </div>
+        ) : null}
+
+        {isExperimentalAdvisoryPanelsEnabled() ? (
+          <section
+            aria-label="Experimental advisory panels"
+            className="mb-4 rounded-lg border border-dashed border-neutral-400 p-3 dark:border-neutral-500"
+          >
+            <h3 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Experimental</h3>
+            <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+              Optional panels for in-development advisory UX. Enable with{" "}
+              <code className="rounded bg-neutral-200 px-1 text-xs dark:bg-neutral-800">NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS=true</code>{" "}
+              at build time.
+            </p>
+          </section>
+        ) : null}
+
+        {planSummary ? (
+          <>
+            <h3 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Summary</h3>
+            <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
+              {planSummary.summaryNotes.map((note, index) => (
+                <li key={index}>{note}</li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+
+        {recommendations.length > 0 ? (
+          <>
+            <h3 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Persisted recommendations</h3>
+            <p className="doc-meta m-0 text-sm">
+              Status and reviewer fields are loaded from storage. Use actions below (requires operator access on the API).
+            </p>
+            <div className="grid gap-4">
+              {recommendations.map((rec) => (
+                <div
+                  key={rec.recommendationId}
+                  className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+                >
+                  <h4 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">{rec.title}</h4>
+                  <p className="m-0 mt-2 text-base leading-relaxed">
+                    <strong>Status:</strong> {rec.status}
+                  </p>
+                  <p className="m-0 mt-2 text-base leading-relaxed">
+                    <strong>Category:</strong> {rec.category}
+                  </p>
+                  <p className="m-0 mt-2 text-base leading-relaxed">
+                    <strong>Urgency:</strong> {rec.urgency}
+                  </p>
+                  <p className="m-0 mt-2 text-base leading-relaxed">
+                    <strong>Priority score:</strong> {rec.priorityScore}
+                  </p>
+                  <p className="m-0 mt-2 text-base leading-relaxed">
+                    <strong>Rationale:</strong> {rec.rationale}
+                  </p>
+                  <p className="m-0 mt-2 text-base leading-relaxed">
+                    <strong>Suggested action:</strong> {rec.suggestedAction}
+                  </p>
+                  <p className="m-0 mt-2 text-base leading-relaxed">
+                    <strong>Expected impact:</strong> {rec.expectedImpact}
+                  </p>
+                  {rec.reviewedByUserName ? (
+                    <p className="m-0 mt-2 text-base leading-relaxed">
+                      <strong>Last reviewed by:</strong> {rec.reviewedByUserName}
+                    </p>
+                  ) : null}
+                  {rec.reviewComment ? (
+                    <p className="m-0 mt-2 text-base leading-relaxed">
+                      <strong>Review comment:</strong> {rec.reviewComment}
+                    </p>
+                  ) : null}
+                  {rec.resolutionRationale ? (
+                    <p className="m-0 mt-2 text-base leading-relaxed">
+                      <strong>Resolution rationale:</strong> {rec.resolutionRationale}
+                    </p>
+                  ) : null}
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button type="button" size="sm" variant="outline" onClick={() => void takeAction(rec.recommendationId, "Accept")}>
+                      Accept
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" onClick={() => void takeAction(rec.recommendationId, "Reject")}>
+                      Reject
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" onClick={() => void takeAction(rec.recommendationId, "Defer")}>
+                      Defer
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" onClick={() => void takeAction(rec.recommendationId, "MarkImplemented")}>
+                      Implemented
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : planSummary && recommendations.length === 0 ? (
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No persisted recommendations returned for this architecture run.</p>
+        ) : null}
+      </DocumentLayout>
     </main>
   );
 }
