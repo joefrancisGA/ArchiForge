@@ -27,6 +27,7 @@ public sealed class ScimPatchOpEvaluatorTests
     [Fact]
     public void Add_inserts_value()
     {
+        // ReSharper disable once CollectionNeverUpdated.Local
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase);
         JsonElement patch = JsonDocument.Parse(
             """{"Operations":[{"op":"add","path":"active","value":true}]}""").RootElement;
@@ -53,6 +54,7 @@ public sealed class ScimPatchOpEvaluatorTests
     [Fact]
     public void Complex_path_throws_invalidPath()
     {
+        // ReSharper disable once CollectionNeverUpdated.Local
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase);
         JsonElement patch = JsonDocument.Parse(
             """{"Operations":[{"op":"replace","path":"members[value eq \"x\"]","value":[]}]}""").RootElement;
@@ -65,6 +67,7 @@ public sealed class ScimPatchOpEvaluatorTests
     [Fact]
     public void Missing_value_on_replace_throws()
     {
+        // ReSharper disable once CollectionNeverUpdated.Local
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase);
         JsonElement patch = JsonDocument.Parse(
             """{"Operations":[{"op":"replace","path":"userName"}]}""").RootElement;

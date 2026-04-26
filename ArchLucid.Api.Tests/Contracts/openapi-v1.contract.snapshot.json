@@ -22,6 +22,20 @@
         },
         "type": "object"
       },
+      "AdminConfigSummaryResponse": {
+        "properties": {
+          "keys": {
+            "items": {
+              "$ref": "#/components/schemas/ConfigSummaryKeyRow"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "AdminOutboxSnapshot": {
         "properties": {
           "authorityPipelineWorkPending": {
@@ -2911,6 +2925,20 @@
           "workspaceId": {
             "format": "uuid",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ConfigSummaryKeyRow": {
+        "properties": {
+          "configPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isSet": {
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -11044,6 +11072,55 @@
         ],
         "type": "object"
       },
+      "TenantBaselineGetResponse": {
+        "properties": {
+          "capturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "manualPrepHoursPerReview": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "peoplePerReview": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "TenantBaselinePutRequest": {
+        "properties": {
+          "manualPrepHoursPerReview": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "peoplePerReview": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "TenantCostEstimateResponse": {
         "properties": {
           "currency": {
@@ -11249,6 +11326,36 @@
       },
       "TenantRecord": {
         "properties": {
+          "architectureTeamSize": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "baselineManualPrepCapturedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "baselineManualPrepHoursPerReview": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "baselinePeoplePerReview": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "baselineReviewCycleCapturedUtc": {
             "format": "date-time",
             "type": [
@@ -11266,6 +11373,12 @@
             ]
           },
           "baselineReviewCycleSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "companySize": {
             "type": [
               "null",
               "string"
@@ -11296,6 +11409,18 @@
           "id": {
             "format": "uuid",
             "type": "string"
+          },
+          "industryVertical": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "industryVerticalOther": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
             "type": "string"
@@ -11399,6 +11524,13 @@
             "maxLength": 320,
             "type": "string"
           },
+          "architectureTeamSize": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
           "baselineReviewCycleHours": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
@@ -11409,6 +11541,27 @@
             ]
           },
           "baselineReviewCycleSource": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "companySize": {
+            "maxLength": 30,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "industryVertical": {
+            "maxLength": 100,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "industryVerticalOther": {
+            "maxLength": 200,
             "type": [
               "null",
               "string"
@@ -12318,6 +12471,35 @@
         },
         "tags": [
           "ArchLucid.Api"
+        ]
+      }
+    },
+    "/v1/admin/config-summary": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigSummaryResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminConfigSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Admin"
         ]
       }
     },
@@ -33282,6 +33464,162 @@
         ]
       }
     },
+    "/v1/tenant/baseline": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBaselineGetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBaselineGetResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBaselineGetResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantBaseline"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantBaselinePutRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantBaselinePutRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantBaselinePutRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBaselineGetResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBaselineGetResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBaselineGetResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantBaseline"
+        ]
+      }
+    },
     "/v1/tenant/billing/checkout": {
       "post": {
         "requestBody": {
@@ -34249,6 +34587,9 @@
     },
     {
       "name": "TeamsIncomingWebhookConnections"
+    },
+    {
+      "name": "TenantBaseline"
     },
     {
       "name": "TenantCostEstimate"

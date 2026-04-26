@@ -10,6 +10,12 @@ export const metadata: Metadata = {
   },
   description:
     "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#1E3A5F",
+  icons: {
+    icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
 };
 
 /** Root layout: global styles only. Route groups supply operator shell (`(operator)/layout`) or marketing chrome (`(marketing)/layout`). */

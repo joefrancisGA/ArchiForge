@@ -1,4 +1,33 @@
 <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <polygon points="16,48 32,10 48,48" fill="#1E3A5F"></polygon>
-  <polygon points="24,48 32,28 40,48" fill="#00AEEF"></polygon>
+  <defs>
+    <style>
+      /* Light browser chrome: navy tile with light mark (matches app icon). */
+      .bg {
+        fill: #1e3a5f;
+      }
+
+      .outer {
+        fill: #ffffff;
+      }
+
+      .inner {
+        fill: #00aeef;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        /* Dark browser chrome: white tile so the navy mark stays visible. */
+        .bg {
+          fill: #ffffff;
+        }
+
+        .outer {
+          fill: #1e3a5f;
+        }
+      }
+    </style>
+  </defs>
+
+  <rect class="bg" width="64" height="64" rx="10" />
+  <polygon class="outer" points="16,48 32,10 48,48" />
+  <polygon class="inner" points="24,48 32,28 40,48" />
 </svg>

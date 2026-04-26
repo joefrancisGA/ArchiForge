@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
@@ -41,6 +42,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
     };
 
     [Fact]
+    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     public async Task Parallel_create_with_same_idempotency_key_invokes_coordinator_once()
     {
         Guid tenantId = TestScope.TenantId;
@@ -134,7 +136,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                     Guid workspace,
                     Guid project,
                     byte[] keyHash,
-                    byte[] _fingerprint,
+                    byte[] fingerprint,
                     string rid,
                     CancellationToken ct,
                     IDbConnection? conn,
