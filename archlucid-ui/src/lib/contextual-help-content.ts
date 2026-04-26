@@ -83,7 +83,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/library/API_CONTRACTS.md",
   },
   "system-health": {
-    text: "System health shows API readiness, circuit breaker state, and onboarding rates. For full metrics, use Prometheus or Application Insights — see docs/library/OBSERVABILITY.md.",
+    text: "System health shows API readiness checks, circuit breaker state, and onboarding milestone rates. For full metrics, connect Prometheus or Application Insights — see docs/library/OBSERVABILITY.md.",
     learnMoreUrl: "/docs/library/OBSERVABILITY.md",
   },
 };

@@ -522,6 +522,8 @@ Do NOT add new API endpoints. Do NOT modify health check registration.
 This is a UI-only consumer of existing API surfaces.
 ```
 
+**Status: shipped.** **`/admin/health`** — **`page.tsx`** (three **Cards**: readiness via **`/api/proxy/health/ready`**, circuits via **`/api/proxy/health`**, onboarding counters via **`/api/proxy/v1/diagnostics/operator-task-success-rates`**), **`loading.tsx`**, **`health-dashboard-types.ts`**, **`ContextualHelp`** **`system-health`**, **`help-topics`** **`system-health`**, **`nav-config`** under **`operate-governance`** (**`essential`**, **`requiredAuthority`** omitted for diagnostics). **Tests:** **`admin/health/page.test.tsx`**.
+
 ---
 
 ## Prompt 9 — Add a "what's next" continuation funnel after Core Pilot checklist completion

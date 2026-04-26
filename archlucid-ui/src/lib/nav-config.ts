@@ -126,7 +126,7 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/advisory`** and **`/digests`** with in-page Execute gating).
  *   Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
  * - **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers
- *   are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
+ *   are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **`/admin/health`** omits **`requiredAuthority`** so any authenticated session sees diagnostics (owner 2026-04-25). **Governance workflow** (mutations) → **`ExecuteAuthority`**.
  *   Do not use **`AdminAuthority`** on nav entries: Admin-only actions (e.g. policy pack create) are enforced on POST;
  *   the UI page is still reachable at Read for list/effective views.
  *
@@ -336,7 +336,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         title: "System health — readiness, circuit breakers, onboarding funnel metrics",
         icon: HeartPulse,
         tier: "essential",
-        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/alerts",

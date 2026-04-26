@@ -82,7 +82,9 @@ export default function AdminHealthPage() {
 
       if (healthRes.status === 401 || healthRes.status === 403) {
         setCircuitGates([]);
-        setCircuitNote("Circuit breaker detail requires API authentication (Read) — sign in or use DevelopmentBypass with a valid scope.");
+        setCircuitNote(
+          "Circuit breaker detail requires API authentication. Sign in with Read access (or use DevelopmentBypass with a valid scope) to load full health JSON.",
+        );
       } else if (healthRes.ok) {
         const h = (await healthRes.json()) as HealthDetailedResponse;
         const cb = findCircuitBreakersEntry(h.entries);
@@ -157,29 +159,38 @@ export default function AdminHealthPage() {
             </div>
           ) : null}
           {ready && ready.entries.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm" data-testid="admin-health-ready-table">
-                <thead>
-                  <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
-                    <th className="py-2 pr-3">Check</th>
-                    <th className="py-2 pr-3">Status</th>
-                    <th className="py-2 pr-3">Duration</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ready.entries.map((e) => {
-                    return (
-                      <tr key={e.name} className="border-b border-neutral-100 dark:border-neutral-800">
-                        <td className="py-2 pr-3 font-mono text-xs text-neutral-800 dark:text-neutral-200">{e.name}</td>
-                        <td className="py-2 pr-3">
-                          <span className={`inline-flex rounded border px-2 py-0.5 text-xs font-medium ${statusBadgeClass(e.status)}`}>{e.status}</span>
-                        </td>
-                        <td className="py-2 pr-3 text-neutral-500 dark:text-neutral-400">—</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="space-y-2">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm" data-testid="admin-health-ready-table">
+                  <thead>
+                    <tr className="border-b border-neutral-200 text-xs uppercase text-neutral-500 dark:border-neutral-700">
+                      <th className="py-2 pr-3">Check</th>
+                      <th className="py-2 pr-3">Status</th>
+                      <th className="py-2 pr-3">Duration</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ready.entries.map((e) => {
+                      const durationMs = typeof e.durationMs === "number" && Number.isFinite(e.durationMs) ? e.durationMs : null;
+
+                      return (
+                        <tr key={e.name} className="border-b border-neutral-100 dark:border-neutral-800">
+                          <td className="py-2 pr-3 font-mono text-xs text-neutral-800 dark:text-neutral-200">{e.name}</td>
+                          <td className="py-2 pr-3">
+                            <span className={`inline-flex rounded border px-2 py-0.5 text-xs font-medium ${statusBadgeClass(e.status)}`}>{e.status}</span>
+                          </td>
+                          <td className="py-2 pr-3 text-neutral-500 dark:text-neutral-400">
+                            {durationMs !== null ? `${Math.round(durationMs)} ms` : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400" data-testid="admin-health-ready-duration-footnote">
+                Readiness summary (`GET /health/ready`) normally omits per-check duration; values appear when the API includes them.
+              </p>
             </div>
           ) : (
             !readyError && <p className="m-0 text-sm text-neutral-500">No readiness entries.</p>

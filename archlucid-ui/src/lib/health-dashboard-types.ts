@@ -8,6 +8,8 @@ export type HealthReadyResponse = {
   entries: ReadonlyArray<{
     name: string;
     status: string;
+    /** Present only if the host writer adds timing to the readiness payload; default summary omits it. */
+    durationMs?: number;
   }>;
 };
 

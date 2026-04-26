@@ -13,7 +13,10 @@ describe("AdminHealthPage", () => {
       async (url: string | URL) => {
         const s = String(url);
         if (s.includes("health/ready")) {
-          return jsonResponse({ status: "Healthy", entries: [{ name: "database", status: "Healthy" }] });
+          return jsonResponse({
+            status: "Healthy",
+            entries: [{ name: "database", status: "Healthy", durationMs: 12.3 }],
+          });
         }
         if (s.includes("/version")) {
           return jsonResponse({ informationalVersion: "1.0.0+abc", commitSha: "abc123" });
@@ -36,6 +39,38 @@ describe("AdminHealthPage", () => {
     render(<AdminHealthPage />);
     expect(await screen.findByTestId("admin-health-ready-table")).toBeInTheDocument();
     expect(await screen.findByText("database")).toBeInTheDocument();
+    expect(await screen.findByText("12 ms")).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("shows Degraded when overall readiness status is Degraded", async () => {
+    const fetchMock = vi.fn(
+      async (url: string | URL) => {
+        const s = String(url);
+        if (s.includes("/health/ready")) {
+          return jsonResponse({ status: "Degraded", entries: [{ name: "database", status: "Degraded" }] });
+        }
+        if (s.includes("/version")) {
+          return jsonResponse({});
+        }
+        if (s.includes("/api/proxy/health") && !s.includes("ready") && !s.includes("live")) {
+          return jsonResponse({ status: "Healthy", entries: [] });
+        }
+        if (s.includes("operator-task-success-rates")) {
+          return jsonResponse({
+            windowNote: "n",
+            firstRunCommittedTotal: 0,
+            firstSessionCompletedTotal: 0,
+            firstRunCommittedPerSessionRatio: 0,
+          });
+        }
+        return new Response("n", { status: 404 });
+      },
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    render(<AdminHealthPage />);
+    const badge = await screen.findByTestId("admin-health-overall-badge");
+    expect(badge.textContent).toMatch(/degraded/i);
     vi.unstubAllGlobals();
   });
 
