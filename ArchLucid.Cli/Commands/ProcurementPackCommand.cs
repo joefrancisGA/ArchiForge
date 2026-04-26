@@ -91,7 +91,8 @@ internal static class ProcurementPackCommand
             psi.ArgumentList.Add(Path.GetFullPath(outZip));
         }
 
-        using Process process = new() { StartInfo = psi };
+        using Process process = new();
+        process.StartInfo = psi;
 
         try
         {
@@ -130,9 +131,6 @@ internal static class ProcurementPackCommand
         if (!string.IsNullOrWhiteSpace(fromEnv))
             return fromEnv.Trim();
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return "python";
-
-        return "python3";
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "python" : "python3";
     }
 }

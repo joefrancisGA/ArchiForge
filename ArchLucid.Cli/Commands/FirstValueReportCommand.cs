@@ -24,9 +24,9 @@ internal static class FirstValueReportCommand
         if (outcome != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
-
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new() { Timeout = TimeSpan.FromSeconds(60) };
+        using HttpClient http = new();
+        http.Timeout = TimeSpan.FromSeconds(60);
         http.BaseAddress = new Uri(normalized + "/");
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/markdown"));
 

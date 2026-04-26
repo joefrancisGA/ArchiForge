@@ -158,7 +158,7 @@ internal static class ConfigCheckCommand
             Console.WriteLine(
               $"Required satisfied: {requiredSatisfied}/{requiredTotal} · optional set: {optionalSet}/{optionalTotal} (optional do not fail the command).");
             if (pairFailed)
-                Console.Error.WriteLine("API key key material: set AdminKey and/or ReadOnlyKey when `Authentication:ApiKey:Enabled` is true.");
+                await Console.Error.WriteLineAsync("API key key material: set AdminKey and/or ReadOnlyKey when `Authentication:ApiKey:Enabled` is true.");
         }
 
         return ok ? CliExitCode.Success : CliExitCode.OperationFailed;
@@ -237,12 +237,7 @@ internal static class ConfigCheckCommand
             return "api";
         }
 
-        if (fromLocal)
-        {
-            return "local";
-        }
-
-        return "—";
+        return fromLocal ? "local" : "—";
     }
 
     private static async Task<(IReadOnlyDictionary<string, bool>?, string?)> TryFetchApiSummaryAsync(
@@ -261,14 +256,12 @@ internal static class ConfigCheckCommand
             return (null, "API: (skip) set ARCHLUCID_API_KEY (Admin) to merge GET /v1/admin/config-summary presence.");
         }
 
-        using HttpClient c = new()
-        {
-            BaseAddress = new Uri(
+        using HttpClient c = new();
+        c.BaseAddress = new Uri(
             baseUrl
-              .Trim()
-              .TrimEnd('/') + "/", UriKind.Absolute),
-            Timeout = TimeSpan.FromSeconds(20)
-        };
+                .Trim()
+                .TrimEnd('/') + "/", UriKind.Absolute);
+        c.Timeout = TimeSpan.FromSeconds(20);
         c.DefaultRequestHeaders.Add("X-Api-Key", k);
         c.DefaultRequestHeaders.Add("Accept", "application/json");
 

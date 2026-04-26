@@ -23,8 +23,8 @@ internal static class RoiBulletinCommand
 
         if (opts is null)
         {
-            Console.Error.WriteLine(parseError);
-            Console.Error.WriteLine(
+            await Console.Error.WriteLineAsync(parseError);
+            await Console.Error.WriteLineAsync(
                 "Usage: archlucid roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain]");
 
             return CliExitCode.UsageError;
@@ -68,7 +68,10 @@ internal static class RoiBulletinCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new() { BaseAddress = new Uri(normalized + "/") };
+        using HttpClient http = new()
+        {
+            BaseAddress = new Uri(normalized + "/")
+        };
         http.DefaultRequestHeaders.Remove("Accept");
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 

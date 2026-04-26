@@ -163,7 +163,11 @@ internal static class GoldenCohortLockBaselineCommand
                 item.ExpectedCommittedManifestSha256 = shaLower;
 
             if (CliExecutionContext.JsonOutput)
-                jsonRows.Add(new { id = item.Id, committedManifestSha256 = shaLower });
+                jsonRows.Add(new
+                {
+                    id = item.Id,
+                    committedManifestSha256 = shaLower
+                });
             else
                 Console.WriteLine($"{item.Id}\t{shaLower}");
         }
@@ -176,12 +180,16 @@ internal static class GoldenCohortLockBaselineCommand
                 Console.WriteLine($"Wrote updated SHAs to {resolvedCohort}");
         }
 
-        if (CliExecutionContext.JsonOutput)
+        if (!CliExecutionContext.JsonOutput)
+            return CliExitCode.Success;
+        object payload = new
         {
-            object payload = new { cohortPath = resolvedCohort, wrote = write, items = jsonRows };
+            cohortPath = resolvedCohort,
+            wrote = write,
+            items = jsonRows
+        };
 
-            Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
-        }
+        Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
 
         return CliExitCode.Success;
     }

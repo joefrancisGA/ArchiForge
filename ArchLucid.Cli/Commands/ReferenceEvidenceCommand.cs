@@ -32,10 +32,8 @@ internal static class ReferenceEvidenceCommand
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        using HttpClient http = new()
-        {
-            Timeout = TimeSpan.FromMinutes(3)
-        };
+        using HttpClient http = new();
+        http.Timeout = TimeSpan.FromMinutes(3);
         http.BaseAddress = new Uri(normalized + "/");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
@@ -190,7 +188,7 @@ internal static class ReferenceEvidenceCommand
         public bool IsDemoTenant
         {
             get;
-            set;
+            init;
         }
     }
 

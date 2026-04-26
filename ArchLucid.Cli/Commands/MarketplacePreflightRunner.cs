@@ -134,17 +134,17 @@ public static class MarketplacePreflightRunner
                     ? "Found ArchLucid.Api/appsettings.json"
                     : "Missing ArchLucid.Api/appsettings.json"));
 
-        if (appSettings is not null)
-        {
-            bool offerKey = appSettings.Contains("\"MarketplaceOfferId\"", StringComparison.Ordinal);
-            steps.Add(
-                new MarketplacePreflightStepResult(
-                    "appsettings_marketplace_offer_id_key",
-                    offerKey,
-                    offerKey
-                        ? "ArchLucid.Api/appsettings.json includes Billing:AzureMarketplace:MarketplaceOfferId"
-                        : "ArchLucid.Api/appsettings.json must define MarketplaceOfferId under Billing:AzureMarketplace"));
-        }
+        if (appSettings is null)
+            return steps;
+
+        bool offerKey = appSettings.Contains("\"MarketplaceOfferId\"", StringComparison.Ordinal);
+        steps.Add(
+            new MarketplacePreflightStepResult(
+                "appsettings_marketplace_offer_id_key",
+                offerKey,
+                offerKey
+                    ? "ArchLucid.Api/appsettings.json includes Billing:AzureMarketplace:MarketplaceOfferId"
+                    : "ArchLucid.Api/appsettings.json must define MarketplaceOfferId under Billing:AzureMarketplace"));
 
         return steps;
     }
@@ -153,9 +153,6 @@ public static class MarketplacePreflightRunner
     {
         string path = Path.Combine(repositoryRoot, relativePath);
 
-        if (!File.Exists(path))
-            return null;
-
-        return File.ReadAllText(path, Encoding.UTF8);
+        return !File.Exists(path) ? null : File.ReadAllText(path, Encoding.UTF8);
     }
 }

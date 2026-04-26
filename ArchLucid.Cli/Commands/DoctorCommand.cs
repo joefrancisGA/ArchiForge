@@ -175,11 +175,6 @@ internal static class DoctorCommand
             "These rows are **not** fetched from the API host process; they inspect local environment variables " +
             "the SaaS profile expects. See `ArchLucid.Api/appsettings.SaaS.json` and `docs/engineering/FIRST_30_MINUTES.md`.");
 
-        static string Cell(string value)
-        {
-            return string.IsNullOrWhiteSpace(value) ? "MISSING" : "OK";
-        }
-
         string apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY") ?? string.Empty;
         string sql =
             Environment.GetEnvironmentVariable("ConnectionStrings__ArchLucid")
@@ -198,6 +193,12 @@ internal static class DoctorCommand
         Console.WriteLine(
             "| RLS bypass | MANUAL | `ArchLucid:Persistence:AllowRlsBypass` must stay **false** outside break-glass. |");
         Console.WriteLine();
+        return;
+
+        static string Cell(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? "MISSING" : "OK";
+        }
     }
 
     private static async Task<bool> PrintProbeAsync(

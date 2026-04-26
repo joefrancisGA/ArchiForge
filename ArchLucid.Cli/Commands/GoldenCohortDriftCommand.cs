@@ -150,8 +150,6 @@ internal static class GoldenCohortDriftCommand
                 return CliExitCode.OperationFailed;
             }
 
-            string? actualShaLower = null;
-
             if (!structuralOnly)
             {
                 ArchLucidApiClient.GoldenManifestFingerprintResult? fingerprint =
@@ -165,7 +163,7 @@ internal static class GoldenCohortDriftCommand
                     return CliExitCode.OperationFailed;
                 }
 
-                actualShaLower = fingerprint.Sha256HexUpper.ToLowerInvariant();
+                string actualShaLower = fingerprint.Sha256HexUpper.ToLowerInvariant();
                 string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
 
                 if (!string.Equals(actualShaLower, expectedSha, StringComparison.OrdinalIgnoreCase))
@@ -190,7 +188,7 @@ internal static class GoldenCohortDriftCommand
             {
                 if (getRun.Run.RealModeFellBackToSimulator is true)
                 {
-                    var fb = new GoldenCohortDriftStructuralFailure
+                    GoldenCohortDriftStructuralFailure fb = new()
                     {
                         CohortItemId = item.Id,
                         RunId = runId,
@@ -200,7 +198,11 @@ internal static class GoldenCohortDriftCommand
                     };
                     structuralFailures.Add(fb);
                     await Console.Out.WriteLineAsync(
-                        JsonSerializer.Serialize(new { success = false, failure = fb }, StdoutJson));
+                        JsonSerializer.Serialize(new
+                        {
+                            success = false,
+                            failure = fb
+                        }, StdoutJson));
 
                     return CliExitCode.OperationFailed;
                 }
@@ -223,10 +225,9 @@ internal static class GoldenCohortDriftCommand
                 SortedSet<string> actualCategories = GoldenCohortFindingCategoryAggregator.DistinctCategories(agentResults);
                 SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
 
-                foreach (string c in item.ExpectedFindingCategories)
+                foreach (string c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))
                 {
-                    if (!string.IsNullOrWhiteSpace(c))
-                        expectedCategories.Add(c.Trim());
+                    expectedCategories.Add(c.Trim());
                 }
 
                 if (!actualCategories.SetEquals(expectedCategories))
@@ -239,42 +240,42 @@ internal static class GoldenCohortDriftCommand
                 }
             }
 
-            if (runStructural)
+            if (!runStructural)
+                continue;
+
+            // Serialize the raw API result object so extra JSON (e.g. per-finding `trace`) is not dropped by
+            // ArchLucid.Contracts.Agents.AgentResult round-trip.
+            for (int ri = 0; ri < getRun.Results.Count; ri++)
             {
-                // Serialize the raw API result object so extra JSON (e.g. per-finding `trace`) is not dropped by
-                // ArchLucid.Contracts.Agents.AgentResult round-trip.
-                for (int ri = 0; ri < getRun.Results.Count; ri++)
+                object raw = getRun.Results[ri];
+                string resultJson = JsonSerializer.Serialize(raw, ContractJson.Default);
+                AgentResult? r = JsonSerializer.Deserialize<AgentResult>(resultJson, ContractJson.Default);
+
+                if (r is null)
                 {
-                    object raw = getRun.Results[ri];
-                    string resultJson = JsonSerializer.Serialize(raw, ContractJson.Default);
-                    AgentResult? r = JsonSerializer.Deserialize<AgentResult>(resultJson, ContractJson.Default);
+                    await Console.Error.WriteLineAsync(
+                        $"[{item.Id}] could not read agentType for structural validation at result index {ri.ToString(CultureInfo.InvariantCulture)}.");
 
-                    if (r is null)
-                    {
-                        await Console.Error.WriteLineAsync(
-                            $"[{item.Id}] could not read agentType for structural validation at result index {ri.ToString(CultureInfo.InvariantCulture)}.");
-
-                        return CliExitCode.OperationFailed;
-                    }
-
-                    RealLlmStructuralValidationResult v =
-                        RealLlmOutputStructuralValidator.ValidateAgentResultStructure(r.AgentType.ToString(), resultJson);
-
-                    if (v.IsValid)
-                        continue;
-
-                    structuralFailures.Add(
-                        new GoldenCohortDriftStructuralFailure
-                        {
-                            CohortItemId = item.Id,
-                            RunId = runId,
-                            Code = "structuralValidation",
-                            Message = "One or more structural checks failed for an agent result.",
-                            AgentType = r.AgentType.ToString(),
-                            ResultId = r.ResultId,
-                            Validation = v
-                        });
+                    return CliExitCode.OperationFailed;
                 }
+
+                RealLlmStructuralValidationResult v =
+                    RealLlmOutputStructuralValidator.ValidateAgentResultStructure(r.AgentType.ToString(), resultJson);
+
+                if (v.IsValid)
+                    continue;
+
+                structuralFailures.Add(
+                    new GoldenCohortDriftStructuralFailure
+                    {
+                        CohortItemId = item.Id,
+                        RunId = runId,
+                        Code = "structuralValidation",
+                        Message = "One or more structural checks failed for an agent result.",
+                        AgentType = r.AgentType.ToString(),
+                        ResultId = r.ResultId,
+                        Validation = v
+                    });
             }
         }
 
@@ -325,21 +326,11 @@ internal static class GoldenCohortDriftCommand
     {
         error = null;
 
-        if (raw is null)
-        {
-            error = $"[{itemId}] run results are null.";
-
-            return null;
-        }
-
         List<AgentResult> list = [];
         int i = 0;
 
-        foreach (object o in raw)
+        foreach (AgentResult? ar in raw.Select(o => JsonSerializer.Serialize(o, ContractJson.Default)).Select(j => JsonSerializer.Deserialize<AgentResult>(j, ContractJson.Default)))
         {
-            string j = JsonSerializer.Serialize(o, ContractJson.Default);
-            AgentResult? ar = JsonSerializer.Deserialize<AgentResult>(j, ContractJson.Default);
-
             if (ar is null)
             {
                 error = $"[{itemId}] could not deserialize agent result at index {i.ToString(CultureInfo.InvariantCulture)}.";
@@ -351,14 +342,11 @@ internal static class GoldenCohortDriftCommand
             i++;
         }
 
-        if (list.Count == 0)
-        {
-            error = $"[{itemId}] no agent results returned for drift analysis.";
+        if (list.Count != 0)
+            return list;
+        error = $"[{itemId}] no agent results returned for drift analysis.";
 
-            return null;
-        }
-
-        return list;
+        return null;
     }
 
     private static bool IsRealLlmContext() =>

@@ -46,7 +46,7 @@ internal static class PilotUpCommand
         IReadOnlyList<string> composeAbsolutePaths,
         CancellationToken cancellationToken)
     {
-        if (composeAbsolutePaths is null || composeAbsolutePaths.Count < 2)
+        if (composeAbsolutePaths.Count < 2)
         {
             Console.WriteLine("Error: At least two compose files (base + overlay) are required.");
 
@@ -97,10 +97,8 @@ internal static class PilotUpCommand
         DateTime deadline = DateTime.UtcNow + ReadyDeadline;
         bool ready = false;
 
-        using HttpClient probe = new()
-        {
-            Timeout = TimeSpan.FromSeconds(8)
-        };
+        using HttpClient probe = new();
+        probe.Timeout = TimeSpan.FromSeconds(8);
 
         while (DateTime.UtcNow < deadline && !cancellationToken.IsCancellationRequested)
         {

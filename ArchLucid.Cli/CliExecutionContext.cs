@@ -26,10 +26,6 @@ public static class CliExecutionContext
             i++;
         }
 
-        if (i == 0)
-            return args;
-
-
-        return args[i..];
+        return i == 0 ? args : args[i..];
     }
 }

@@ -19,14 +19,15 @@ internal static class TrialSmokeCommand
 
     public static async Task<int> RunAsync(string[] args)
     {
-        if (args is null) throw new ArgumentNullException(nameof(args));
+        if (args is null)
+            throw new ArgumentNullException(nameof(args));
 
         TrialSmokeCommandOptions? options = TrialSmokeCommandOptions.Parse(args, out string? error);
 
         if (options is null)
         {
-            Console.Error.WriteLine(error);
-            Console.Error.WriteLine(
+            await Console.Error.WriteLineAsync(error);
+            await Console.Error.WriteLineAsync(
                 "Usage: archlucid trial smoke --org <name> --email <email> [--display-name <name>] " +
                 "[--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas] " +
                 "[--staging] [--one-line]");
@@ -39,7 +40,10 @@ internal static class TrialSmokeCommand
             ? CliCommandShared.GetBaseUrl(config)
             : options.ApiBaseUrl!.Trim().TrimEnd('/');
 
-        using HttpClient http = new() { BaseAddress = new Uri(baseUrl + "/") };
+        using HttpClient http = new()
+        {
+            BaseAddress = new Uri(baseUrl + "/")
+        };
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         TrialSmokeRunner runner = new(http);

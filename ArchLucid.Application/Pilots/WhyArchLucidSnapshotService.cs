@@ -24,10 +24,14 @@ public sealed class WhyArchLucidSnapshotService(
     /// <inheritdoc />
     public async Task<WhyArchLucidSnapshotResponse> BuildAsync(CancellationToken cancellationToken)
     {
-        if (counters is null) throw new ArgumentNullException(nameof(counters));
-        if (auditRepository is null) throw new ArgumentNullException(nameof(auditRepository));
-        if (timeProvider is null) throw new ArgumentNullException(nameof(timeProvider));
-        if (logger is null) throw new ArgumentNullException(nameof(logger));
+        if (counters is null)
+            throw new ArgumentNullException(nameof(counters));
+        if (auditRepository is null)
+            throw new ArgumentNullException(nameof(auditRepository));
+        if (timeProvider is null)
+            throw new ArgumentNullException(nameof(timeProvider));
+        if (logger is null)
+            throw new ArgumentNullException(nameof(logger));
 
         InstrumentationCounterSnapshot snapshot = counters.GetSnapshot();
 
@@ -43,8 +47,7 @@ public sealed class WhyArchLucidSnapshotService(
                 WhyArchLucidSnapshotResponse.AuditRowCountCap,
                 cancellationToken);
 
-            auditCount = events?.Count ?? 0;
-            truncated = auditCount >= WhyArchLucidSnapshotResponse.AuditRowCountCap;
+            truncated = events.Count >= WhyArchLucidSnapshotResponse.AuditRowCountCap;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

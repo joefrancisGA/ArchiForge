@@ -26,10 +26,9 @@ public static class AgentTopologyProposalGraphMerge
 
         HashSet<string> seenLabels = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (GraphNode n in graph.Nodes)
+        foreach (GraphNode n in graph.Nodes.Where(n => !string.IsNullOrWhiteSpace(n.Label)))
         {
-            if (!string.IsNullOrWhiteSpace(n.Label))
-                seenLabels.Add(n.Label);
+            seenLabels.Add(n.Label);
         }
 
         List<GraphNode> added = [];
@@ -57,18 +56,18 @@ public static class AgentTopologyProposalGraphMerge
                 }
             }
 
-            if (proposal.AddedDatastores is { Count: > 0 })
+            if (proposal.AddedDatastores is not { Count: > 0 })
+                continue;
+
+            foreach (ManifestDatastore ds in proposal.AddedDatastores)
             {
-                foreach (ManifestDatastore ds in proposal.AddedDatastores)
-                {
-                    if (string.IsNullOrWhiteSpace(ds.DatastoreName))
-                        continue;
+                if (string.IsNullOrWhiteSpace(ds.DatastoreName))
+                    continue;
 
-                    if (!seenLabels.Add(ds.DatastoreName))
-                        continue;
+                if (!seenLabels.Add(ds.DatastoreName))
+                    continue;
 
-                    added.Add(TopologyDatastoreNode(ds));
-                }
+                added.Add(TopologyDatastoreNode(ds));
             }
         }
 
