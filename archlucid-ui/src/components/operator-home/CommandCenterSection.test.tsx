@@ -105,6 +105,6 @@ describe("CommandCenterSection", () => {
 
     render(<CommandCenterSection />);
 
-    expect(await screen.findByLabelText(/Run pipeline status: Ready for commit/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/Run pipeline status: Ready to finalize/i)).toBeInTheDocument();
   });
 });

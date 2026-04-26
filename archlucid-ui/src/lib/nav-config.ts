@@ -3,7 +3,6 @@ import {
   Activity,
   BarChart3,
   Bell,
-  BookOpen,
   Building2,
   ClipboardList,
   FileSearch,
@@ -78,7 +77,7 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  * **`useOperateCapability()`** + **`OperateCapabilityHints`** (Execute+ floor). Enumeration: **docs/PRODUCT_PACKAGING.md** §3.
  *
  * Nav groups map to buyer layers (see docs/PRODUCT_PACKAGING.md):
- *   pilot              → Pilot    (request · run · commit · review)
+ *   pilot              → Pilot    (request · run · finalize · review)
  *   operate-analysis   → Operate  (analysis slice — compare, replay, graph, Q&A, advisory, …)
  *   operate-governance → Operate  (governance slice — policy, audit, alerts, trust — Execute+ for writes where noted)
  *
@@ -148,7 +147,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     id: "pilot",
     // Buyer layer: Pilot
     label: "Pilot",
-    caption: "Default path — request through commit and artifact review.",
+    caption: "Default path — request through finalization and artifact review.",
     links: [
       {
         href: "/",
@@ -159,17 +158,10 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "essential",
       },
       {
-        href: "/getting-started",
-        label: "Getting started",
-        title: "Same Core Pilot checklist as Home — plus trial handoff and anchors",
-        icon: BookOpen,
-        tier: "essential",
-      },
-      {
         href: "/runs/new",
-        label: "New run",
+        label: "New request",
         title: navTitleWithShortcut(
-          "Guided first-run wizard — system identity through pipeline tracking",
+          "Guided new-request wizard — system identity through pipeline tracking",
           "alt+n",
         ),
         keyShortcut: "alt+n",

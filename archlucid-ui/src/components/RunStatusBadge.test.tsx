@@ -11,18 +11,18 @@ const base: RunSummary = {
 };
 
 describe("deriveRunListPipelineLabel", () => {
-  it("returns Committed when golden manifest flag is true", () => {
-    expect(deriveRunListPipelineLabel({ ...base, hasGoldenManifest: true })).toBe("Committed");
+  it("returns Finalized when golden manifest flag is true", () => {
+    expect(deriveRunListPipelineLabel({ ...base, hasGoldenManifest: true })).toBe("Finalized");
   });
 
-  it("returns Ready for commit when findings present but no manifest", () => {
+  it("returns Ready to finalize when findings present but no manifest", () => {
     expect(
       deriveRunListPipelineLabel({
         ...base,
         hasFindingsSnapshot: true,
         hasGoldenManifest: false,
       }),
-    ).toBe("Ready for commit");
+    ).toBe("Ready to finalize");
   });
 });
 
@@ -30,12 +30,12 @@ describe("RunStatusBadge", () => {
   it("exposes pipeline status in aria-label via StatusPill", () => {
     render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
 
-    expect(screen.getByLabelText(/Run pipeline status: Committed/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Run pipeline status: Finalized/i)).toBeInTheDocument();
   });
 
-  it("delegates to StatusPill pipeline domain (Committed styling)", () => {
+  it("delegates to StatusPill pipeline domain (Finalized styling)", () => {
     const { container } = render(<RunStatusBadge run={{ ...base, hasGoldenManifest: true }} />);
-    const pill = container.querySelector('[aria-label="Run pipeline status: Committed"]');
+    const pill = container.querySelector('[aria-label="Run pipeline status: Finalized"]');
 
     expect(pill).not.toBeNull();
     expect(pill?.className).toMatch(/rounded-full/);

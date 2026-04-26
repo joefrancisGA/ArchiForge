@@ -73,7 +73,8 @@ public sealed class TenantHealthScoringHostedServiceTests
 
         await sut.StartAsync(hostCts.Token);
 
-        await Task.Delay(500, hostCts.Token);
+        // Do not pass hostCts.Token: the repository callback cancels it to exit the worker's long interval delay.
+        await Task.Delay(500);
 
         await sut.StopAsync(CancellationToken.None);
 

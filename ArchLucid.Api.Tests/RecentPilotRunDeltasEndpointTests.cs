@@ -38,7 +38,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
             await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.RequestedCount.Should().Be(5);
+        body.RequestedCount.Should().Be(5);
         body.ReturnedCount.Should().BeGreaterThanOrEqualTo(0);
         body.Items.Should().NotBeNull();
         body.ReturnedCount.Should().Be(body.Items.Count);
@@ -58,7 +58,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
             await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.RequestedCount.Should().Be(3);
+        body.RequestedCount.Should().Be(3);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
             await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.RequestedCount.Should().BeLessThanOrEqualTo(25);
+        body.RequestedCount.Should().BeLessThanOrEqualTo(25);
         body.RequestedCount.Should().BeGreaterThan(5);
     }
 
@@ -93,7 +93,7 @@ public sealed class RecentPilotRunDeltasEndpointTests(ArchLucidApiFactory factor
             await response.Content.ReadFromJsonAsync<RecentPilotRunDeltasResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.RequestedCount.Should().Be(1);
+        body.RequestedCount.Should().Be(1);
     }
 
     [Fact]

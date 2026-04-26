@@ -20,7 +20,7 @@ const PILLARS: { title: string; body: string }[] = [
   },
   {
     title: "Enterprise governance",
-    body: "Architecture decisions in ArchLucid are not just analyzed — they are governed. Policy packs define compliance rules. Approval workflows enforce segregation of duties. Pre-commit gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.",
+    body: "Architecture decisions in ArchLucid are not just analyzed — they are governed. Policy packs define compliance rules. Approval workflows enforce segregation of duties. Pre-finalization gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.",
   },
 ];
 
@@ -57,7 +57,7 @@ export function WelcomeMarketingPage() {
         </div>
         <div className="mt-6 text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Same committed demo as{" "}
+            Same finalized demo as{" "}
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
               /demo/preview
             </Link>{" "}

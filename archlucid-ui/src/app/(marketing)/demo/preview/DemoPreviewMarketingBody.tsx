@@ -2,6 +2,17 @@ import Link from "next/link";
 
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
+/** Maps API status strings to operator-facing labels (API may still return `Committed`). */
+function manifestStatusForDisplay(status: string): string {
+  const t = status.trim();
+
+  if (/^committed$/i.test(t)) {
+    return "Finalized";
+  }
+
+  return t;
+}
+
 export function DemoPreviewNotAvailable() {
   return (
     <div
@@ -81,7 +92,7 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{payload.manifest.operatorSummary}</p>
         ) : null}
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Status:</strong> {payload.manifest.status}
+          <strong>Status:</strong> {manifestStatusForDisplay(payload.manifest.status)}
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Rule set:</strong> {payload.manifest.ruleSetId} {payload.manifest.ruleSetVersion}
@@ -166,7 +177,7 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
         data-testid="demo-preview-footer"
         className="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
       >
-        Source: <code>GET /v1/demo/preview</code> · This page is a real ArchLucid commit page sourced from the demo seed.
+        Source: <code>GET /v1/demo/preview</code> · This page is a real ArchLucid manifest detail view sourced from the demo seed.
       </footer>
     </div>
   );

@@ -40,7 +40,7 @@ export function RunDetailPageHeader({
         </div>
         <div className="flex shrink-0 flex-col gap-1.5">
           <p className="m-0 flex items-center gap-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
-            Commit
+            Finalize
             <ContextualHelp helpKey="commit-manifest" />
           </p>
           <CommitRunButton runId={runId} disabled={hasGoldenManifest} />

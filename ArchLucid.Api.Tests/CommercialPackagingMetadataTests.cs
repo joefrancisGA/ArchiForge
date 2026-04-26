@@ -23,7 +23,7 @@ public sealed class CommercialPackagingMetadataTests
             controllerType.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(true);
 
         attr.Should().NotBeNull($"{controllerType.Name} must declare commercial tier packaging.");
-        attr!.Arguments.Should().HaveCount(1);
+        attr.Arguments.Should().HaveCount(1);
         attr.Arguments[0].Should().Be(TenantTier.Standard);
     }
 }

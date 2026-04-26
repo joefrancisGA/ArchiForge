@@ -68,7 +68,7 @@ public sealed class AlertRuleConcurrencyIntegrationTests
                 AlertRule? created = await response.Content
                     .ReadFromJsonAsync<AlertRule>(JsonOptions, CancellationToken.None);
                 created.Should().NotBeNull();
-                _ = ruleIds.Add(created!.RuleId);
+                _ = ruleIds.Add(created.RuleId);
             }
 
             ruleIds.Count.Should().Be(parallel);
@@ -82,7 +82,7 @@ public sealed class AlertRuleConcurrencyIntegrationTests
                     JsonOptions,
                     CancellationToken.None);
             list.Should().NotBeNull();
-            IReadOnlyList<AlertRule> inScope = list!
+            IReadOnlyList<AlertRule> inScope = list
                 .Where(
                     r => r.TenantId == ScopeIds.DefaultTenant
                     && r.WorkspaceId == ScopeIds.DefaultWorkspace

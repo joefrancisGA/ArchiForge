@@ -27,7 +27,7 @@ export default async function GettingStartedPage({ searchParams }: GettingStarte
         <Link
           className="font-medium text-teal-800 underline dark:text-teal-300"
           href="/"
-          title="Home — Advanced Analysis and Enterprise sections when you expand past Core Pilot"
+          title="Home — Advanced Analysis and Enterprise sections when you expand past the first-manifest path"
         >
           Week-one orientation (home overview)
         </Link>{" "}

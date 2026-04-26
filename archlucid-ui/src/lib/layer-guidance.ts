@@ -55,7 +55,7 @@ export type LayerGuidanceBlock = {
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
   compare: {
     layerBadge: "Operate",
-    headline: "Answers: what changed between two committed runs?",
+    headline: "Answers: what changed between two finalized runs?",
     useWhen: "Use after you have two runs with golden manifests when you need a structured diff or narrative.",
     firstPilotNote: "Not needed for your first pilot unless you are explicitly comparing two outcomes.",
   },
@@ -69,7 +69,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Operate",
     headline: "Answers: how does provenance or architecture look for one run?",
     useWhen: "Use when tables and compare are not enough and you need a visual exploration.",
-    firstPilotNote: "Skip until you have a committed run and a concrete graph question.",
+    firstPilotNote: "Skip until you have a finalized run and a concrete graph question.",
   },
   "governance-dashboard": {
     layerBadge: "Operate",
@@ -110,7 +110,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "value-report": {
     layerBadge: "Operate",
     headline: "Sponsor-facing value DOCX for a UTC window.",
-    useWhen: "After you have committed runs; pairs with ROI_MODEL for CFO-ready narrative.",
+    useWhen: "After you have finalized runs; pairs with ROI_MODEL for CFO-ready narrative.",
     firstPilotNote: "Defer until the tenant is on Standard tier and operators need sponsor collateral.",
     enterpriseFootnote: "Execute + Standard tier on API; LLM line is estimated per ROI_MODEL when SQL token ledger absent.",
   },

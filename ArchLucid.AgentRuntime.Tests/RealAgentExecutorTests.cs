@@ -132,39 +132,33 @@ public sealed class RealAgentExecutorTests
 
         ActivitySource.AddActivityListener(listener);
 
-        try
-        {
-            IAgentHandler topology = new StubAgentHandler(AgentType.Topology);
-            IAgentHandler compliance = new StubAgentHandler(AgentType.Compliance);
-            RealAgentExecutor sut = CreateSut(topology, compliance);
-            ArchitectureRequest request = new()
-            {
-                RequestId = "r1",
-                Description = "1234567890ab",
-                SystemName = "S",
-                Environment = "prod"
-            };
-            AgentEvidencePackage evidence = new();
-            string runId = Guid.NewGuid().ToString("N");
-            AgentTask taskZ = new()
-            {
-                TaskId = "tz",
-                RunId = runId,
-                AgentType = AgentType.Topology
-            };
-            AgentTask taskC = new()
-            {
-                TaskId = "tc",
-                RunId = runId,
-                AgentType = AgentType.Compliance
-            };
 
-            await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
-        }
-        finally
+        IAgentHandler topology = new StubAgentHandler(AgentType.Topology);
+        IAgentHandler compliance = new StubAgentHandler(AgentType.Compliance);
+        RealAgentExecutor sut = CreateSut(topology, compliance);
+        ArchitectureRequest request = new()
         {
-            listener.Dispose();
-        }
+            RequestId = "r1",
+            Description = "1234567890ab",
+            SystemName = "S",
+            Environment = "prod"
+        };
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask taskZ = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology
+        };
+        AgentTask taskC = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance
+        };
+
+        await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
 
         completed.Should().HaveCount(2);
         completed.Should().OnlyContain(a => a.OperationName == "archlucid.agent.handle");

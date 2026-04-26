@@ -56,7 +56,7 @@ public sealed class DocxValueReportRendererTests
         docx.Should().NotBeEmpty();
 
         using MemoryStream ms = new(docx);
-        using ZipArchive zip = new(ms, ZipArchiveMode.Read);
+        await using ZipArchive zip = new(ms, ZipArchiveMode.Read);
         ZipArchiveEntry? entry = zip.GetEntry("word/document.xml");
         entry.Should().NotBeNull();
 

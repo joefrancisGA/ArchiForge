@@ -54,7 +54,7 @@ public sealed class PolicyPackDryRunIntegrationTests
 
         DryRunResponseDto? payload = await response.Content.ReadFromJsonAsync<DryRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.PageSize.Should().Be(20, "default page size is 20 per PENDING_QUESTIONS Q38");
+        payload.PageSize.Should().Be(20, "default page size is 20 per PENDING_QUESTIONS Q38");
         payload.ProposedThresholdsRedactedJson.Should().Contain("[REDACTED]");
         payload.ProposedThresholdsRedactedJson.Should().NotContain("alice@example.com");
         payload.ProposedThresholdsRedactedJson.Should().NotContain("111-22-3333");
@@ -62,7 +62,7 @@ public sealed class PolicyPackDryRunIntegrationTests
         IReadOnlyList<AuditEvent> rows = factory.Audit.Snapshot();
         AuditEvent? dryRunRow = rows.FirstOrDefault(e => e.EventType == AuditEventTypes.GovernanceDryRunRequested);
         dryRunRow.Should().NotBeNull();
-        dryRunRow!.DataJson.Should().Contain("[REDACTED]");
+        dryRunRow.DataJson.Should().Contain("[REDACTED]");
         dryRunRow.DataJson.Should().NotContain("alice@example.com");
         dryRunRow.DataJson.Should().NotContain("111-22-3333");
 

@@ -99,8 +99,8 @@ export function WelcomeBanner() {
     ? "Architecture manifest workspace"
     : "Generate your first architecture manifest";
   const subheadingText = returningUser
-    ? "Monitor active runs, commit manifests, and review governance findings."
-    : "Turn architecture intent into governed, reviewable output your team can inspect, commit, and improve.";
+    ? "Monitor active runs, finalize manifests, and review governance findings."
+    : "Turn architecture intent into governed, reviewable output your team can inspect, finalize, and improve.";
   const secondaryCtaLabel = returningUser ? "View runs" : "See a completed example";
 
   return (
@@ -146,7 +146,7 @@ export function WelcomeBanner() {
 
       <div className="mt-4 flex flex-wrap items-center gap-2.5">
         <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
-          <Link href="/runs/new">Create Run</Link>
+          <Link href="/runs/new">Create Request</Link>
         </Button>
         <Button asChild variant="outline" className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40">
           <Link href="/runs?projectId=default">{secondaryCtaLabel}</Link>

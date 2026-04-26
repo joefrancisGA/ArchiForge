@@ -123,13 +123,13 @@ test.describe("trial-funnel-test-mode (staging, Stripe TEST mode)", () => {
 
       const wizardStep7 = page
         .getByTestId("operator-first-run-wizard-step-7")
-        .or(page.getByRole("button", { name: /commit manifest/i }));
+        .or(page.getByRole("button", { name: /finalize manifest/i }));
       await expect(wizardStep7).toBeVisible({ timeout: 60_000 });
 
       const commitResPromise = page.waitForResponse(
         (res) => res.url().includes("/architecture/run/") && res.url().endsWith("/commit"),
       );
-      await page.getByRole("button", { name: /commit manifest/i }).click();
+      await page.getByRole("button", { name: /finalize manifest/i }).click();
 
       const commitRes = await commitResPromise;
       expect(commitRes.ok(), `commit failed; correlation=${correlation.lastSeen ?? "<none>"}`).toBeTruthy();
@@ -137,7 +137,7 @@ test.describe("trial-funnel-test-mode (staging, Stripe TEST mode)", () => {
 
       const valueReport = page
         .getByTestId("email-run-to-sponsor-banner")
-        .or(page.getByText(/day .* since first commit/i));
+        .or(page.getByText(/day .* since first finalization/i));
       await expect(valueReport).toBeVisible({ timeout: 60_000 });
 
       expect(correlation.ids.length, "expected at least one X-Correlation-ID across the funnel").toBeGreaterThan(0);

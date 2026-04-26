@@ -7,7 +7,7 @@ const GROUP_ORDER: RunWorkQueueGroupId[] = ["needs-attention", "in-progress", "c
 
 /**
  * Assigns each run to a work-queue bucket for list grouping.
- * Matches operator semantics: "Ready for commit" runs (findings without manifest) surface under needs-attention.
+ * Matches operator semantics: "Ready to finalize" runs (findings without manifest) surface under needs-attention.
  */
 export function assignRunWorkQueueGroup(run: RunSummary): RunWorkQueueGroupId {
   if (run.hasGoldenManifest === true) {
@@ -54,7 +54,7 @@ export function workQueueSectionHeading(groupId: RunWorkQueueGroupId): string {
     case "in-progress":
       return "In progress";
     case "committed":
-      return "Committed";
+      return "Finalized";
     default: {
       const _exhaustive: never = groupId;
       return _exhaustive;

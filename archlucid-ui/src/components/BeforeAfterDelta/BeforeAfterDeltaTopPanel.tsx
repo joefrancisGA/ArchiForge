@@ -31,14 +31,14 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
     <section
       data-testid="before-after-delta-panel-top"
       role="region"
-      aria-label="Median proof-of-ROI deltas across recent committed runs"
+      aria-label="Median proof-of-ROI deltas across recent finalized runs"
       className="mb-6 max-w-4xl rounded-md border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
     >
       <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-        Recent committed runs — median delta
+        Recent finalized runs — median delta
       </h3>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-        Across the last <strong data-testid="delta-top-window">{data.returnedCount}</strong> committed run(s) in
+        Across the last <strong data-testid="delta-top-window">{data.returnedCount}</strong> finalized run(s) in
         scope. Median (not mean) so one outlier does not skew the headline. Same numbers as the per-run value
         report.
       </p>
@@ -46,7 +46,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
       <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
-            Median findings per committed run
+            Median findings per finalized run
           </dt>
           <dd
             data-testid="delta-top-median-findings"
@@ -57,7 +57,7 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
         </div>
         <div className="rounded border border-neutral-200 p-3 dark:border-neutral-700">
           <dt className="text-xs font-medium uppercase text-neutral-500 dark:text-neutral-400">
-            Median time-to-committed manifest
+            Median time to finalized manifest
           </dt>
           <dd
             data-testid="delta-top-median-time"

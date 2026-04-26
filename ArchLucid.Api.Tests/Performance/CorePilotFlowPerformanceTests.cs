@@ -111,7 +111,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         CommitRunResponseDto? commit = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();
-        return (manifestVersion, runId, commit!);
+        return (manifestVersion, runId, commit);
     }
 
     private readonly struct StepTiming

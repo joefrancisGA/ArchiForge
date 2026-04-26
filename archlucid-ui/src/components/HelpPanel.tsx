@@ -99,7 +99,7 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
 
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             In-app: <Link href="/getting-started" className="text-teal-800 underline dark:text-teal-300">Getting started</Link>{" "}
-            (same Core Pilot checklist as Home).
+            (same first-manifest checklist as Home).
           </p>
         </div>
       </DialogContent>

@@ -302,7 +302,7 @@ export function SignupForm() {
             Review-cycle baseline (recommended)
           </p>
           <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-            Default keeps signup fast; we still compute a measured-vs-baseline curve after your first committed run using
+            Default keeps signup fast; we still compute a measured-vs-baseline curve after your first finalized run using
             the conservative model from <code className="text-[0.85em]">docs/PILOT_ROI_MODEL.md</code> when you do not
             override.{" "}
             <strong>Supplying your own hours</strong> tightens the &quot;before&quot; anchor to your team&apos;s median
@@ -346,7 +346,7 @@ export function SignupForm() {
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs text-xs leading-snug">
                       We record that you stayed on the modeled baseline path (no tenant-specific hours). The operator
-                      dashboard still shows measured time-to-commit; the &quot;before&quot; line uses the conservative
+                      dashboard still shows measured time to finalization; the &quot;before&quot; line uses the conservative
                       default from the ROI model until you supply hours.
                     </TooltipContent>
                   </Tooltip>
@@ -372,7 +372,7 @@ export function SignupForm() {
           {baselineChoice === "custom" ? (
             <div className="mt-3 space-y-3 border-t border-neutral-200 pt-3 dark:border-neutral-600">
               <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                Overriding produces a measured-vs-baseline curve on the operator dashboard once a run commits.
+                Overriding produces a measured-vs-baseline curve on the operator dashboard once a run finalizes.
               </p>
               <div>
                 <Label htmlFor="signup-baseline-hours">Baseline review cycle (hours)</Label>

@@ -26,8 +26,8 @@ import type {
 // `ArchLucid.Core.Notifications.Teams.TeamsNotificationTriggerCatalog.All` (server-side source of truth).
 const TRIGGER_DESCRIPTIONS: Record<string, { label: string; helpText: string }> = {
   "com.archlucid.authority.run.completed": {
-    label: "Run committed",
-    helpText: "An architecture run produced a committed manifest (operator UI: run page).",
+    label: "Run finalized",
+    helpText: "An architecture run produced a finalized manifest (operator UI: run page).",
   },
   "com.archlucid.governance.approval.submitted": {
     label: "Governance approval requested",
@@ -43,7 +43,7 @@ const TRIGGER_DESCRIPTIONS: Record<string, { label: string; helpText: string }> 
   },
   "com.archlucid.advisory.scan.completed": {
     label: "Advisory scan completed",
-    helpText: "An advisory finding scan committed a fresh result (operator UI: advisory findings).",
+    helpText: "An advisory finding scan persisted a fresh result (operator UI: advisory findings).",
   },
   "com.archlucid.seat.reservation.released": {
     label: "Trial seat released",

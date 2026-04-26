@@ -22,7 +22,7 @@ public sealed class TenantCostEstimateEndpointTests(ArchLucidApiFactory factory)
             await response.Content.ReadFromJsonAsync<TenantCostEstimateResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Currency.Should().Be("USD");
+        body.Currency.Should().Be("USD");
         body.EstimatedMonthlyUsdLow.Should().BeGreaterThanOrEqualTo(0);
         body.EstimatedMonthlyUsdHigh.Should().BeGreaterThanOrEqualTo(body.EstimatedMonthlyUsdLow);
         body.Factors.Should().NotBeEmpty();

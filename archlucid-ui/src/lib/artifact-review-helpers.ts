@@ -40,7 +40,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   CoverageSummary: {
     label: "Coverage summary",
     description:
-      "JSON summary of coverage dimensions (e.g. requirements or controls) for the committed manifest.",
+      "JSON summary of coverage dimensions (e.g. requirements or controls) for the finalized manifest.",
   },
   UnresolvedIssuesReport: {
     label: "Unresolved issues",

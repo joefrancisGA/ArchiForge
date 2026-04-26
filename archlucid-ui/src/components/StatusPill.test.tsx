@@ -6,7 +6,7 @@ import { StatusPill } from "./StatusPill";
 
 expect.extend(toHaveNoViolations);
 
-const pipelineStatuses = ["Committed", "Ready for commit", "In pipeline", "Starting"] as const;
+const pipelineStatuses = ["Finalized", "Ready to finalize", "In pipeline", "Starting"] as const;
 const governanceStatuses = ["Submitted", "Approved", "Rejected", "Promoted", "Activated", "Draft"] as const;
 
 describe("StatusPill", () => {
@@ -40,7 +40,7 @@ describe("StatusPill", () => {
       <div className="bg-neutral-50 p-4">
         <StatusPill status="Healthy" domain="health" />
         <StatusPill status="Submitted" domain="governance" />
-        <StatusPill status="Committed" domain="pipeline" />
+        <StatusPill status="Finalized" domain="pipeline" />
         <StatusPill status="Unknown" domain="general" />
       </div>,
     );

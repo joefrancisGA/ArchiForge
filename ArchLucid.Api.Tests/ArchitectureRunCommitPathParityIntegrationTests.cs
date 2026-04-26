@@ -59,7 +59,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
-        string runId = created!.Run.RunId;
+        string runId = created.Run.RunId;
 
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
@@ -70,7 +70,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         CommitRunResponseDto? commitPayload =
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
-        int manifestTraceIdCount = commitPayload!.Manifest.Metadata.DecisionTraceIds.Count;
+        int manifestTraceIdCount = commitPayload.Manifest.Metadata.DecisionTraceIds.Count;
         string manifestJson = JsonSerializer.Serialize(commitPayload.Manifest, JsonOptions);
 
         HttpResponseMessage reportResponse = await client.GetAsync($"/v1/pilots/runs/{runId}/first-value-report");

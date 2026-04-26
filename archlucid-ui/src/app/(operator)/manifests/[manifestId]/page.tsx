@@ -71,7 +71,7 @@ export default async function ManifestDetailPage({
         <OperatorTryNext>
           Typical causes: unknown manifest ID (404), auth, or API unavailability—this is not an empty artifact list.
           Re-open the manifest link from <Link href="/runs?projectId=default">Runs</Link> → run detail, or confirm the
-          ID in the URL matches a committed manifest in scope.
+          ID in the URL matches a finalized manifest in scope.
         </OperatorTryNext>
         <p className="text-sm">
           <Link href="/">Home</Link>

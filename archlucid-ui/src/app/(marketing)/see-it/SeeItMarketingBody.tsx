@@ -33,7 +33,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
       </div>
 
       <section data-testid="see-it-summary" className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Committed demo run (read-only)</h2>
+        <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Finalized demo run (read-only)</h2>
         <dl className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Run id</dt>
@@ -88,7 +88,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
           className="inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-100 dark:hover:bg-neutral-900"
           href="/demo/preview"
         >
-          Open full commit preview
+          Open full demo preview
         </Link>
       </section>
       <p className="text-xs text-neutral-600 dark:text-neutral-400">

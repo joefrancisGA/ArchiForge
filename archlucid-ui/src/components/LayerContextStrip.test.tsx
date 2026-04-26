@@ -9,7 +9,7 @@ describe("LayerContextStrip", () => {
       {
         id: "pilot" as const,
         wantLabel: "Pilot",
-        wantQuestion: "Can we go from request to committed manifest faster?"
+        wantQuestion: "Can we go from request to finalized manifest faster?"
       },
       {
         id: "operate-analysis" as const,

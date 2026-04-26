@@ -6,8 +6,8 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ArchLucid · See a real commit page",
-  description: "A live commit-page preview powered by the ArchLucid demo seed.",
+  title: "ArchLucid · See a finalized manifest (demo)",
+  description: "A live manifest preview powered by the ArchLucid demo seed.",
   robots: { index: false, follow: false },
 };
 
@@ -36,7 +36,7 @@ export default async function DemoPreviewMarketingPage() {
   if (!base) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a real commit page</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
         <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
           Configure <code>NEXT_PUBLIC_DEMO_PREVIEW_API_BASE</code> (or server <code>ARCHLUCID_API_BASE_URL</code>) so this
           marketing host can reach the ArchLucid API anonymously.
@@ -51,7 +51,7 @@ export default async function DemoPreviewMarketingPage() {
   if (response.status === 404)
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a real commit page</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
         <div className="mt-6">
           <DemoPreviewNotAvailable />
         </div>
@@ -61,7 +61,7 @@ export default async function DemoPreviewMarketingPage() {
   if (!response.ok) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a real commit page</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
         <p className="mt-3 text-sm text-red-700 dark:text-red-300">
           The preview API returned HTTP {response.status}. Confirm the API is reachable at{" "}
           <code>{url}</code>.
@@ -74,9 +74,9 @@ export default async function DemoPreviewMarketingPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a real commit page</h1>
+      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">See a finalized manifest (demo)</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        Read-only view of the latest committed demo-seed run — same services as the operator commit page, without signing in.
+        Read-only view of the latest finalized demo-seed run — same services as the operator manifest page, without signing in.
       </p>
       <div className="mt-8">
         <DemoPreviewMarketingBody payload={payload} />

@@ -42,7 +42,7 @@ const STEPS: readonly Step[] = [
   {
     n: 4,
     title: "Read your first finding",
-    body: `Open the committed run and read the first typed finding — what was flagged, why it was flagged, and which evidence backs it. This is the smallest unit of value the product produces. ${PLACEHOLDER_MARKER}`,
+    body: `Open the finalized run and read the first typed finding — what was flagged, why it was flagged, and which evidence backs it. This is the smallest unit of value the product produces. ${PLACEHOLDER_MARKER}`,
   },
   {
     n: 5,

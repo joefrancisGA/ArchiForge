@@ -259,7 +259,7 @@ export default async function RunDetailPage({
             <h3 className={sectionHeadingClass}>Run</h3>
             <CardDescription>
               Manifest summary and artifacts appear below when <GlossaryTooltip termKey="run">this run</GlossaryTooltip>{" "}
-              has a <GlossaryTooltip termKey="golden_manifest">golden manifest</GlossaryTooltip> (after commit).
+              has a <GlossaryTooltip termKey="golden_manifest">golden manifest</GlossaryTooltip> (after finalization).
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
@@ -412,13 +412,13 @@ export default async function RunDetailPage({
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
           <p className="m-0">
-            This run has no golden manifest yet (normal before commit). After the pipeline
-            finishes, commit through the <strong>API or CLI</strong>, then reload this page for manifest summary,
+            This run has no golden manifest yet (normal before finalization). After the pipeline
+            finishes, finalize through the <strong>API or CLI</strong>, then reload this page for manifest summary,
             artifacts, and ZIP exports.
           </p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             <li>Confirm provenance chain items above are populated (snapshots processing).</li>
-            <li>Commit when ready — examples in <code>docs/OPERATOR_QUICKSTART.md</code>.</li>
+            <li>Finalize when ready — examples in <code>docs/OPERATOR_QUICKSTART.md</code>.</li>
             <li>Reload run detail; the manifest link and Artifacts section will appear.</li>
           </ol>
         </OperatorEmptyState>

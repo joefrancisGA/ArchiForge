@@ -48,7 +48,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     });
 
     expect(screen.getByRole("heading", { name: "Generate your first architecture manifest" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Create Run" })).toHaveAttribute("href", "/runs/new");
+    expect(screen.getByRole("link", { name: "Create Request" })).toHaveAttribute("href", "/runs/new");
     expect(screen.getByRole("link", { name: "See a completed example" })).toHaveAttribute(
       "href",
       "/runs?projectId=default",
@@ -80,7 +80,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     });
 
     expect(
-      screen.getByText("Monitor active runs, commit manifests, and review governance findings."),
+      screen.getByText("Monitor active runs, finalize manifests, and review governance findings."),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View runs" })).toHaveAttribute("href", "/runs?projectId=default");
   });

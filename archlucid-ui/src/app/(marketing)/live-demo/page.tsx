@@ -75,7 +75,7 @@ export default async function LiveDemoMarketingPage() {
     <main className="mx-auto max-w-5xl px-4 py-10">
       <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-        Same read-only bundle as the operator commit page, served from <code>GET /v1/public/demo/sample-run</code>{" "}
+        Same read-only bundle as the operator manifest page, served from <code>GET /v1/public/demo/sample-run</code>{" "}
         (anonymous, rate-limited).
       </p>
       <div className="mt-8">

@@ -27,7 +27,7 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="compare" />);
 
     expect(screen.getByText("Operate")).toBeInTheDocument();
-    expect(screen.getByText(/what changed between two committed runs/i)).toBeInTheDocument();
+    expect(screen.getByText(/what changed between two finalized runs/i)).toBeInTheDocument();
   });
 
   it("renders Operate governance responsibility footnote on audit", () => {

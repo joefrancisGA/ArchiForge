@@ -247,7 +247,7 @@ function BeforeAfterDeltaCyclePanel({ runId }: { runId?: string }) {
           <dd className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
             {data.measuredAvailable
               ? `From GET /v1/pilots/runs/${data.effectiveRunId}/pilot-run-deltas.`
-              : "No committed manifest yet — commit your first run to populate the measurement."}
+              : "No finalized manifest yet — finalize your first run to populate the measurement."}
           </dd>
         </div>
       </dl>

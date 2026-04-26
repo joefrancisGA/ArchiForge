@@ -48,7 +48,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
         });
       } else {
         setError({
-          message: e instanceof Error ? e.message : "Commit failed.",
+          message: e instanceof Error ? e.message : "Finalization failed.",
           problem: null,
           correlationId: null,
         });
@@ -61,7 +61,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
   if (disabled) {
     return (
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
-        This run is already committed (golden manifest present).
+        This run is already finalized (golden manifest present).
       </p>
     );
   }
@@ -77,10 +77,10 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
             setDialogOpen(true);
           }}
         >
-          Commit manifest
+          Finalize manifest
         </Button>
         <p className="mt-1.5 max-w-xl text-sm text-neutral-600 dark:text-neutral-400">
-          Finalizes the golden manifest and decision traces when the run is ready. Requires permission to commit manifests.
+          Finalizes the golden manifest and decision traces when the run is ready. Requires permission to finalize manifests.
         </p>
       </div>
 
@@ -95,9 +95,9 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
       <ConfirmationDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="Commit this manifest?"
+        title="Finalize this manifest?"
         description="Merges agent results for this run through the decision engine and persists the golden manifest. If the run is not ready, the API returns a conflict — adjust the run and try again."
-        confirmLabel="Commit manifest"
+        confirmLabel="Finalize manifest"
         cancelLabel="Cancel"
         variant="default"
         onConfirm={() => void onConfirm()}

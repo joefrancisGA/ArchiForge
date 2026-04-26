@@ -93,7 +93,7 @@ export function ExecDigestScheduleContent() {
       <div>
         <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Weekly executive digest</h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Schedule a weekly email for sponsors with compliance drift, committed manifest highlights, and dashboard links.
+          Schedule a weekly email for sponsors with compliance drift, finalized manifest highlights, and dashboard links.
           Delivery uses the same outbound email transport as trial lifecycle messages.
         </p>
       </div>

@@ -37,7 +37,7 @@ public sealed class PackagingTierProblemDetailsFactoryTests
         result.StatusCode.Should().Be(402);
         Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.PackagingTierInsufficient);
+        problem.Type.Should().Be(ProblemTypes.PackagingTierInsufficient);
         problem.Extensions["upgradeUrl"].Should().Be("https://branded.example/pricing");
         problem.Extensions["pricingUrl"].Should().Be("https://branded.example/pricing");
         problem.Extensions["supportHint"].Should().NotBeNull();

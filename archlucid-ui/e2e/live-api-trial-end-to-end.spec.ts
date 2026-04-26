@@ -286,13 +286,13 @@ test.describe("live-api-trial-end-to-end", () => {
 
     await expect(page.getByText(/Loading run detail/i)).toHaveCount(0, { timeout: 120_000 });
 
-    await page.getByRole("button", { name: "Commit manifest" }).first().click();
-    await page.getByRole("alertdialog").getByRole("button", { name: "Commit manifest" }).click();
+    await page.getByRole("button", { name: "Finalize manifest" }).first().click();
+    await page.getByRole("alertdialog").getByRole("button", { name: "Finalize manifest" }).click();
 
-    await expect(page.getByText(/This run is already committed/i)).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByText(/This run is already finalized/i)).toBeVisible({ timeout: 120_000 });
 
     await expect(page.getByTestId("email-run-to-sponsor-first-commit-badge")).toBeVisible({ timeout: 120_000 });
-    await expect(page.getByText(/Day \d+ since first commit/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/Day \d+ since first finalization/i)).toBeVisible({ timeout: 10_000 });
 
     const afterFirstCommit = await getTenantTrialStatus(request, scope);
 

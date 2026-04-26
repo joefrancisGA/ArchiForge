@@ -18,10 +18,10 @@ import { CommitRunButton } from "./CommitRunButton";
 const mockCommit = vi.mocked(commitArchitectureRun);
 
 describe("CommitRunButton", () => {
-  it("renders disabled message when already committed", () => {
+  it("renders disabled message when already finalized", () => {
     render(<CommitRunButton runId="abc" disabled />);
 
-    expect(screen.getByText(/already committed/i)).toBeInTheDocument();
+    expect(screen.getByText(/already finalized/i)).toBeInTheDocument();
   });
 
   it("opens confirm dialog and calls commit on confirm", async () => {
@@ -29,11 +29,11 @@ describe("CommitRunButton", () => {
 
     render(<CommitRunButton runId="run-1" disabled={false} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /^commit manifest$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^finalize manifest$/i }));
 
     const dialog = await screen.findByRole("alertdialog");
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^commit manifest$/i }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize manifest$/i }));
 
     await waitFor(() => {
       expect(mockCommit).toHaveBeenCalledWith("run-1");

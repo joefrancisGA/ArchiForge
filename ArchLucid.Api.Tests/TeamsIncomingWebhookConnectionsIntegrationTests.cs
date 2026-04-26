@@ -43,7 +43,10 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        TeamsIncomingWebhookConnectionUpsertRequest body = new() { KeyVaultSecretName = "teams-incoming-webhook-demo" };
+        TeamsIncomingWebhookConnectionUpsertRequest body = new()
+        {
+            KeyVaultSecretName = "teams-incoming-webhook-demo"
+        };
 
         HttpResponseMessage res = await client.PostAsJsonAsync(
             new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
@@ -96,7 +99,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         TeamsIncomingWebhookConnectionResponse? parsed0 =
             await get0.Content.ReadFromJsonAsync<TeamsIncomingWebhookConnectionResponse>(JsonOptions);
         parsed0.Should().NotBeNull();
-        parsed0!.IsConfigured.Should().BeFalse();
+        parsed0.IsConfigured.Should().BeFalse();
         parsed0.EnabledTriggers.Should().Contain("com.archlucid.authority.run.completed");
         parsed0.EnabledTriggers.Should().Contain("com.archlucid.seat.reservation.released");
         parsed0.EnabledTriggers.Should().HaveCount(6, "fresh tenants default to the v1 all-on catalog");
@@ -119,7 +122,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         TeamsIncomingWebhookConnectionResponse? postParsed =
             await post.Content.ReadFromJsonAsync<TeamsIncomingWebhookConnectionResponse>(JsonOptions);
         postParsed.Should().NotBeNull();
-        postParsed!.IsConfigured.Should().BeTrue();
+        postParsed.IsConfigured.Should().BeTrue();
         postParsed.KeyVaultSecretName.Should().Be("kv-teams-webhook-ref");
         postParsed.EnabledTriggers.Should()
             .BeEquivalentTo("com.archlucid.authority.run.completed", "com.archlucid.alert.fired");
@@ -181,9 +184,9 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         res.StatusCode.Should().Be(HttpStatusCode.OK);
         string[]? triggers = await res.Content.ReadFromJsonAsync<string[]>(JsonOptions);
         triggers.Should().NotBeNull();
-        triggers!.Should().Contain("com.archlucid.compliance.drift.escalated");
-        triggers!.Should().Contain("com.archlucid.advisory.scan.completed");
-        triggers!.Should().Contain("com.archlucid.seat.reservation.released");
+        triggers.Should().Contain("com.archlucid.compliance.drift.escalated");
+        triggers.Should().Contain("com.archlucid.advisory.scan.completed");
+        triggers.Should().Contain("com.archlucid.seat.reservation.released");
     }
 
     private static string MintJwt(

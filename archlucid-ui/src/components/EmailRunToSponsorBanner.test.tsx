@@ -96,6 +96,7 @@ describe("EmailRunToSponsorBanner", () => {
   });
 
   it("renders Day 0 when first commit is within the first UTC day (fake timers)", async () => {
+    vi.useRealTimers();
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-03-10T14:00:00.000Z"));
     const anchorIso = new Date("2026-03-10T12:00:00.000Z").toISOString();
@@ -108,7 +109,7 @@ describe("EmailRunToSponsorBanner", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
-        "Day 0 since first commit",
+        "Day 0 since first finalization",
       );
     });
 
@@ -116,6 +117,7 @@ describe("EmailRunToSponsorBanner", () => {
   });
 
   it("renders Day 1 once 24h elapsed since first commit (fake timers)", async () => {
+    vi.useRealTimers();
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-03-11T12:00:01.000Z"));
     const anchorIso = new Date("2026-03-10T12:00:00.000Z").toISOString();
@@ -128,7 +130,7 @@ describe("EmailRunToSponsorBanner", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
-        "Day 1 since first commit",
+        "Day 1 since first finalization",
       );
     });
 
@@ -147,7 +149,7 @@ describe("EmailRunToSponsorBanner", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
-        "Day 4 since first commit",
+        "Day 4 since first finalization",
       );
     });
 

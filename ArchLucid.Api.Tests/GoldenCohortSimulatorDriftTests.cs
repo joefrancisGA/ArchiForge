@@ -71,7 +71,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             created.Should().NotBeNull();
 
-            string runId = created!.Run.RunId;
+            string runId = created.Run.RunId;
 
             HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
             executeResponse.EnsureSuccessStatusCode();
@@ -86,7 +86,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             manifest.Should().NotBeNull();
 
-            string actualSha = GoldenManifestFingerprint.ComputeSha256Hex(manifest!);
+            string actualSha = GoldenManifestFingerprint.ComputeSha256Hex(manifest);
             string expectedSha = item.ExpectedCommittedManifestSha256.Trim();
             bool shaMatches = string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase);
 
@@ -97,13 +97,13 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             runPayload.Should().NotBeNull();
 
-            string resultsJson = JsonSerializer.Serialize(runPayload!.Results, JsonOptions);
+            string resultsJson = JsonSerializer.Serialize(runPayload.Results, JsonOptions);
             List<AgentResult>? typedResults = JsonSerializer.Deserialize<List<AgentResult>>(resultsJson, JsonOptions);
 
             typedResults.Should().NotBeNull();
 
             SortedSet<string> actualCategories =
-                GoldenCohortFindingCategoryAggregator.DistinctCategories(typedResults!);
+                GoldenCohortFindingCategoryAggregator.DistinctCategories(typedResults);
             SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
 
             foreach (string c in item.ExpectedFindingCategories)

@@ -86,7 +86,7 @@ export function PilotOutcomeCard() {
           Pilot health (last 30 days)
         </h2>
         <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-          After your first committed run, this panel will show success rates, committed manifests, and time-to-commit trends.
+          After your first finalized run, this panel will show success rates, finalized manifests, and time-to-finalization trends.
         </p>
       </section>
     );
@@ -115,7 +115,7 @@ export function PilotOutcomeCard() {
         </div>
         <div>
           <dd className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{summary.runsWithCommittedManifest}</dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Committed</dt>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Finalized</dt>
         </div>
       </dl>
       <p className="mt-2 text-center font-mono text-[10px] text-neutral-400 dark:text-neutral-500">

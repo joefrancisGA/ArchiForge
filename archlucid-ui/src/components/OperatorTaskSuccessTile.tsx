@@ -92,7 +92,7 @@ export function OperatorTaskSuccessTile() {
         </div>
         <div>
           <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">{data.firstRunCommittedTotal}</dd>
-          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Committed</dt>
+          <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Finalized</dt>
         </div>
         <div>
           <dd className="m-0 text-2xl font-bold text-neutral-900 dark:text-neutral-100">

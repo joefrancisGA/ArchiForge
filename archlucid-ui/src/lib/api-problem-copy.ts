@@ -19,7 +19,7 @@ const ERROR_CODE_HEADINGS: Record<string, string> = {
   CONFLICT: "Conflict",
   COMPARISON_VERIFICATION_FAILED: "Comparison verification failed",
   INTERNAL_ERROR: "Server error",
-  COMMIT_FAILED: "Commit failed",
+  COMMIT_FAILED: "Finalization failed",
   INVALID_RUN_STATE: "Invalid run state",
   POLICY_PACK_VERSION_NOT_FOUND: "Policy pack version not found",
 };

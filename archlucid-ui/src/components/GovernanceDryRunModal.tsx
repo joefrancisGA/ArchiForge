@@ -123,7 +123,7 @@ export function GovernanceDryRunModal({ policyPackId }: GovernanceDryRunModalPro
           <DialogTitle>Governance dry-run</DialogTitle>
           <DialogDescription>
             Simulate proposed threshold changes for this policy pack against historic runs without
-            committing. Default page size {POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE}, server cap{" "}
+            persisting changes. Default page size {POLICY_PACK_DRY_RUN_DEFAULT_PAGE_SIZE}, server cap{" "}
             {POLICY_PACK_DRY_RUN_MAX_PAGE_SIZE}.
           </DialogDescription>
         </DialogHeader>

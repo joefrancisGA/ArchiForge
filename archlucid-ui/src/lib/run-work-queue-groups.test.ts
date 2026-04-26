@@ -70,6 +70,6 @@ describe("workQueueSectionHeading", () => {
   it("returns stable labels", () => {
     expect(workQueueSectionHeading("needs-attention")).toBe("Needs attention");
     expect(workQueueSectionHeading("in-progress")).toBe("In progress");
-    expect(workQueueSectionHeading("committed")).toBe("Committed");
+    expect(workQueueSectionHeading("committed")).toBe("Finalized");
   });
 });

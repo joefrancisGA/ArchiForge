@@ -76,7 +76,7 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
             await response.Content.ReadFromJsonAsync<DemoCommitPagePreviewResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Run.RunId.Should().NotBeNullOrWhiteSpace();
+        body.Run.RunId.Should().NotBeNullOrWhiteSpace();
     }
 
     private sealed class NullShowcaseClient : IPublicShowcaseCommitPageClient

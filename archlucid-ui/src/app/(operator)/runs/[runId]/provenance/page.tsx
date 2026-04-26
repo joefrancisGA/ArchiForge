@@ -111,7 +111,7 @@ export default async function RunProvenancePage({
             Trace timeline
           </h3>
           <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Ordered events from run lifecycle, agent work, merge traces, and committed decisions.
+            Ordered events from run lifecycle, agent work, merge traces, and finalized decisions.
           </p>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">

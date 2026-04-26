@@ -88,7 +88,7 @@ describe("Demo preview marketing body", () => {
     expect(screen.getByTestId("demo-preview-status-banner")).toHaveTextContent("demo tenant — replace before publishing");
     expect(screen.getByTestId("demo-preview-run")).toHaveTextContent("Fixture");
     expect(screen.getByTestId("demo-preview-authority-chain")).toHaveTextContent("Golden Manifest:");
-    expect(screen.getByTestId("demo-preview-manifest-summary")).toHaveTextContent("Committed");
+    expect(screen.getByTestId("demo-preview-manifest-summary")).toHaveTextContent("Finalized");
     expect(screen.getByTestId("demo-preview-aggregate-explanation")).toHaveTextContent("Healthy");
     expect(screen.getByTestId("demo-preview-pipeline-timeline")).toHaveTextContent("Commit");
     expect(screen.getByTestId("demo-preview-artifacts")).toHaveTextContent("Architecture brief");
@@ -100,10 +100,10 @@ describe("Demo preview marketing body", () => {
     expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
   });
 
-  it("does not render sponsor email banner or commit controls", () => {
+  it("does not render sponsor email banner or finalize controls", () => {
     render(<DemoPreviewMarketingBody payload={fixture} />);
 
     expect(screen.queryByTestId("email-run-to-sponsor-banner")).toBeNull();
-    expect(screen.queryByRole("button", { name: /commit/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /finalize manifest/i })).toBeNull();
   });
 });

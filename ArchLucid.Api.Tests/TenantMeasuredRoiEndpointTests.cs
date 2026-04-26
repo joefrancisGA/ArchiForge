@@ -23,7 +23,7 @@ public sealed class TenantMeasuredRoiEndpointTests(ArchLucidApiFactory factory) 
             await response.Content.ReadFromJsonAsync<TenantMeasuredRoiResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Disclaimer.Should().NotBeNullOrWhiteSpace();
+        body.Disclaimer.Should().NotBeNullOrWhiteSpace();
         body.Snapshot.Should().NotBeNull();
         body.Snapshot.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
         body.Snapshot.RunsCreatedTotal.Should().BeGreaterThanOrEqualTo(0);

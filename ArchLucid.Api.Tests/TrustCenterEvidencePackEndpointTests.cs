@@ -84,7 +84,7 @@ public sealed class TrustCenterEvidencePackEndpointTests
 
         CacheControlHeaderValue? cacheControl = response.Headers.CacheControl;
         cacheControl.Should().NotBeNull();
-        cacheControl!.Public.Should().BeTrue();
+        cacheControl.Public.Should().BeTrue();
         cacheControl.MaxAge.Should().Be(TimeSpan.FromHours(1));
     }
 

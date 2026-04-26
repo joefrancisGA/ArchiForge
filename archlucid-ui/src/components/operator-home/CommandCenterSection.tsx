@@ -94,7 +94,7 @@ function RunsNeedingAttentionCard() {
           Runs needing attention
         </CardTitle>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Runs with findings that have not yet been committed.
+          Runs with findings that have not yet been finalized.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
@@ -116,7 +116,7 @@ function RunsNeedingAttentionCard() {
           <>
             {attention.length === 0 ? (
               <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-                No runs currently need attention. All runs are committed — create a new run or wait for pipeline results.
+                No runs currently need attention. All runs are finalized — create a new run or wait for pipeline results.
               </p>
             ) : (
               <>
@@ -164,7 +164,7 @@ function RecentActivityCommandCard() {
       <CardHeader className="space-y-1 px-3 pb-2 pt-3">
         <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Run outcomes</CardTitle>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          Manifests committed, findings surfaced, and average time to commit.
+          Manifests finalized, findings surfaced, and average time to finalization.
         </p>
       </CardHeader>
       <CardContent className="space-y-3 px-3 pb-3 text-sm">
@@ -187,7 +187,7 @@ function RecentActivityCommandCard() {
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Time to commit</dt>
+              <dt className="text-[10px] uppercase text-neutral-500 dark:text-neutral-400">Time to finalize</dt>
               <dd className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                 {formatHours(data.medianTimeToCommittedManifestTotalSeconds)}
               </dd>
@@ -197,8 +197,8 @@ function RecentActivityCommandCard() {
 
         {status === "ready" && data !== null && data.returnedCount === 0 ? (
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            After your first committed run, this panel will show manifests committed, findings surfaced, and average time to
-            commit.
+            After your first finalized run, this panel will show manifests finalized, findings surfaced, and average time to
+            finalization.
           </p>
         ) : null}
 

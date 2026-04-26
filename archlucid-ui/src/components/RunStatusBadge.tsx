@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
 export type RunPipelineLabel =
-  | "Committed"
-  | "Ready for commit"
+  | "Finalized"
+  | "Ready to finalize"
   | "In pipeline"
   | "Starting";
 
@@ -13,11 +13,11 @@ export type RunPipelineLabel =
  */
 export function deriveRunListPipelineLabel(run: RunSummary): RunPipelineLabel {
   if (run.hasGoldenManifest === true) {
-    return "Committed";
+    return "Finalized";
   }
 
   if (run.hasFindingsSnapshot === true) {
-    return "Ready for commit";
+    return "Ready to finalize";
   }
 
   if (run.hasGraphSnapshot === true || run.hasContextSnapshot === true) {

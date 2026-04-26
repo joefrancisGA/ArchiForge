@@ -7,9 +7,9 @@ export const STATUS_PILL_BASE = "rounded-full px-2.5 py-0.5 text-[0.65rem] font-
 
 function pipelineSemanticClass(status: string): string {
   switch (status) {
-    case "Committed":
+    case "Finalized":
       return "border-transparent bg-emerald-600 text-white shadow-sm hover:bg-emerald-600/90 dark:bg-emerald-600 dark:text-white dark:hover:bg-emerald-600/90";
-    case "Ready for commit":
+    case "Ready to finalize":
       return "border-amber-500/70 bg-amber-50 text-amber-950 shadow-sm dark:border-amber-600/60 dark:bg-amber-950/50 dark:text-amber-50";
     case "In pipeline":
       return "border-blue-500/70 bg-blue-50 text-blue-950 dark:border-blue-600/60 dark:bg-blue-950/40 dark:text-blue-100";

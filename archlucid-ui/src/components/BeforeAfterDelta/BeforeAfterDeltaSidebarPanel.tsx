@@ -33,7 +33,7 @@ export function BeforeAfterDeltaSidebarPanel({ count = 5 }: BeforeAfterDeltaSide
       className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
     >
       <p className="m-0 mb-2 text-[10px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-        Median delta · last <span data-testid="delta-sidebar-window">{data.returnedCount}</span> commit(s)
+        Median delta · last <span data-testid="delta-sidebar-window">{data.returnedCount}</span> finalized run(s)
       </p>
       <dl className="m-0 grid grid-cols-2 gap-2">
         <div>

@@ -56,16 +56,16 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
 
       <section className="mt-10" aria-labelledby="why-demo-heading">
         <h2 id="why-demo-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
-          See a real commit-shaped page
+          See a real finalized-manifest page
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Anonymous read-only preview of the latest committed demo-seed run (cached JSON + marketing UI). Same shape as
-          the operator commit experience — no sign-in. Described in docs/DEMO_PREVIEW.md and docs/adr/0027-demo-preview-cached-anonymous-commit-page.md.
+          Anonymous read-only preview of the latest finalized demo-seed run (cached JSON + marketing UI). Same shape as
+          the operator finalize experience — no sign-in. Described in docs/DEMO_PREVIEW.md and docs/adr/0027-demo-preview-cached-anonymous-commit-page.md.
         </p>
         {showDemoEmbed ? (
           <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
             <iframe
-              title="ArchLucid demo commit page preview"
+              title="ArchLucid demo manifest page preview"
               src="/demo/preview"
               className="h-[min(70vh,520px)] w-full border-0"
               loading="lazy"

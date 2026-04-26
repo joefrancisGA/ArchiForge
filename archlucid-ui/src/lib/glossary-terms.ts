@@ -12,12 +12,12 @@ export type GlossaryTermEntry = {
 export const GLOSSARY_TERMS = {
   run: {
     term: "Architecture run",
-    definition: "The top-level work unit: a request that flows through ingestion, graph, findings, decisioning, and artifacts, ending in a committed golden manifest.",
+    definition: "The top-level work unit: a request that flows through ingestion, graph, findings, decisioning, and artifacts, ending in a finalized golden manifest.",
     docLink: "/docs/library/GLOSSARY.md#architecture-run-run",
   },
   golden_manifest: {
     term: "Golden manifest",
-    definition: "The versioned, committed design record for a run—the source of truth for governance, comparison, and artifacts.",
+    definition: "The versioned, finalized design record for a run—the source of truth for governance, comparison, and artifacts.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   findings: {
@@ -95,7 +95,7 @@ export const GLOSSARY_TERMS = {
   },
   manifest_diff: {
     term: "Manifest diff",
-    definition: "A field-level comparison between two committed golden manifests (or their persisted projection), used in Compare to see what changed between runs.",
+    definition: "A field-level comparison between two finalized golden manifests (or their persisted projection), used in Compare to see what changed between runs.",
     docLink: "/docs/library/COMPARISON_REPLAY.md",
   },
   comparison_record: {

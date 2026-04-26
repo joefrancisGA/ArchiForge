@@ -15,11 +15,11 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md#new-run",
   },
   "run-pipeline-status": {
-    text: "The pipeline shows each AI agent's progress. When all steps complete, the run is ready to commit.",
+    text: "The pipeline shows each AI agent's progress. When all steps complete, the run is ready to finalize.",
     learnMoreUrl: "/docs/CORE_PILOT.md#pipeline-status",
   },
   "commit-manifest": {
-    text: "Committing produces a versioned golden manifest and synthesizes artifacts. This is the primary pilot deliverable.",
+    text: "Finalizing produces a versioned golden manifest and synthesizes artifacts. This is the primary pilot deliverable.",
     learnMoreUrl: "/docs/CORE_PILOT.md#commit",
   },
   "manifest-review": {
@@ -27,7 +27,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/CORE_PILOT.md#manifest-review",
   },
   "governance-gate": {
-    text: "When enabled, the governance gate checks findings against severity thresholds before allowing commit.",
+    text: "When enabled, the governance gate checks findings against severity thresholds before allowing finalization.",
     learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
   },
   "alerts-inbox": {
@@ -39,7 +39,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/API_CONTRACTS.md",
   },
   "compare-runs": {
-    text: "Compare diffs two committed manifests. Enter base and target run IDs from the Runs list.",
+    text: "Compare diffs two finalized manifests. Enter base and target run IDs from the Runs list.",
     learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
   },
   "replay-run": {

@@ -29,8 +29,8 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
   {
     title: "1. Operator home",
     body:
-      "Your starting point. The Core Pilot checklist at the top walks you through your first run — follow it in order. " +
-      "The analysis and governance sections below are optional until your first run is committed.",
+      "Your starting point. The first-manifest checklist at the top walks you through your first run — follow it in order. " +
+      "The analysis and governance sections below are optional until your first run is finalized.",
   },
   {
     title: "2. Start a run",
@@ -39,15 +39,15 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
       "constraints, then kicks off the analysis pipeline. You will see live progress on step 7.",
   },
   {
-    title: "3. Review and commit",
+    title: "3. Review and finalize",
     body:
       "When the pipeline finishes, open your run from the Runs list. Review the findings and evidence, then click " +
-      "Commit to produce the versioned manifest — the architecture package you can export and share.",
+      "Finalize manifest to produce the versioned manifest — the architecture package you can export and share.",
   },
   {
     title: "4. Governance and alerts",
     body:
-      "After your first commit, dashboards and alerts can highlight policy gaps and approval queues. These are " +
+      "After your first finalization, dashboards and alerts can highlight policy gaps and approval queues. These are " +
       "available when you are ready — they are not required for a successful first pilot.",
   },
   {

@@ -241,7 +241,7 @@ function CompareForm() {
       </p>
       <p className="mb-0 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         The structured table is the <GlossaryTooltip termKey="manifest_diff">manifest diff</GlossaryTooltip> over
-        committed manifests; the API can persist a <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip> for replay
+        finalized manifests; the API can persist a <GlossaryTooltip termKey="comparison_record">comparison record</GlossaryTooltip> for replay
         and verification.
       </p>
 
@@ -357,7 +357,7 @@ function CompareForm() {
             The legacy comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both runs have committed golden manifests in scope. If only legacy diff is needed for now, scroll
+            Verify both runs have finalized golden manifests in scope. If only legacy diff is needed for now, scroll
             to <strong>Legacy authority diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>

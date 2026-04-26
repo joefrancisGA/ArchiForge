@@ -8,12 +8,14 @@ namespace ArchLucid.Decisioning.Findings;
 /// </summary>
 public static class ExplainabilityTraceCompletenessAnalyzer
 {
+    private static readonly ExplainabilityTrace s_emptyTrace = new();
+
     /// <summary>Analyzes a single finding's trace; treats null <see cref="Finding.Trace" /> as empty.</summary>
     public static TraceCompletenessScore AnalyzeFinding(Finding finding)
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        ExplainabilityTrace trace = finding.Trace;
+        ExplainabilityTrace trace = finding.Trace ?? s_emptyTrace;
 
         bool hasGraph = ListHasMeaningfulContent(trace.GraphNodeIdsExamined);
         bool hasRules = ListHasMeaningfulContent(trace.RulesApplied);

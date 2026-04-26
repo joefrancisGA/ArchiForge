@@ -71,7 +71,7 @@ public sealed class DemoSeedDepthIntegrationTests
         bool richSeed)
     {
         detail.Should().NotBeNull("the demo seed must commit through the authority FK chain in both SeedDepth modes");
-        detail!.Run.Status.Should().Be(ArchitectureRunStatus.Committed,
+        detail.Run.Status.Should().Be(ArchitectureRunStatus.Committed,
             "ADR 0030 PR A3 wires DemoSeedService through the authority commit orchestrator; both modes must end Committed");
 
         detail.Manifest.Should().NotBeNull(
@@ -107,7 +107,8 @@ public sealed class DemoSeedDepthIntegrationTests
             {
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["Demo:Enabled"] = "true", ["Demo:SeedDepth"] = seedDepth
+                    ["Demo:Enabled"] = "true",
+                    ["Demo:SeedDepth"] = seedDepth
                 });
             });
         }

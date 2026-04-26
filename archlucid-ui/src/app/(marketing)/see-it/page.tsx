@@ -9,7 +9,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "ArchLucid · See it in 30 seconds",
   description:
-    "No-install snapshot of the latest committed Contoso demo run — same JSON as GET /v1/demo/preview, with a static fallback when the API is unreachable.",
+    "No-install snapshot of the latest finalized Contoso demo run — same JSON as GET /v1/demo/preview, with a static fallback when the API is unreachable.",
   robots: { index: true, follow: true },
   other: {
     "data-demo": "true",
@@ -22,7 +22,7 @@ export default async function SeeItMarketingPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
-        See a real committed manifest in 30 seconds
+        See a real finalized manifest in 30 seconds
       </h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         No install — data comes from <code className="text-xs">GET /v1/demo/preview</code> when the demo API is

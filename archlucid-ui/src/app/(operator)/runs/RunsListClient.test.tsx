@@ -93,6 +93,6 @@ describe("RunsListClient inspector", () => {
 
     expect(screen.getByRole("heading", { name: /needs attention/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /^in progress$/i })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /^committed$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^finalized$/i })).toBeInTheDocument();
   });
 });

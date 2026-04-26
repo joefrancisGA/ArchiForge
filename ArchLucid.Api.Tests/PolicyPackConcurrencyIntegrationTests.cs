@@ -23,7 +23,8 @@ public sealed class PolicyPackConcurrencyIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     private static StringContent JsonContent(object value)
@@ -78,7 +79,7 @@ public sealed class PolicyPackConcurrencyIntegrationTests
                 PolicyPack? created =
                     await response.Content.ReadFromJsonAsync<PolicyPack>(JsonOptions, CancellationToken.None);
                 created.Should().NotBeNull();
-                _ = packIds.Add(created!.PolicyPackId);
+                _ = packIds.Add(created.PolicyPackId);
             }
 
             packIds.Count.Should().Be(parallel, "each parallel create should mint a new PolicyPackId");
@@ -90,7 +91,7 @@ public sealed class PolicyPackConcurrencyIntegrationTests
                     JsonOptions,
                     CancellationToken.None);
             list.Should().NotBeNull();
-            IReadOnlyList<PolicyPack> inScope = list!
+            IReadOnlyList<PolicyPack> inScope = list
                 .Where(
                     p => p.TenantId == ScopeIds.DefaultTenant
                     && p.WorkspaceId == ScopeIds.DefaultWorkspace

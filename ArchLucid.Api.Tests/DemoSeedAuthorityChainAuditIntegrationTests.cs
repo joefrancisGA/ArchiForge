@@ -87,7 +87,7 @@ public sealed class DemoSeedAuthorityChainAuditIntegrationTests
         command.Parameters.AddWithValue("@eventType", AuditEventTypes.AuthorityCommittedChainPersisted);
         object? correlation = await command.ExecuteScalarAsync(CancellationToken.None);
         correlation.Should().NotBeNull();
-        correlation!.ToString().Should().NotBeNullOrWhiteSpace();
+        correlation.ToString().Should().NotBeNullOrWhiteSpace();
     }
 
     private static async Task<int> CountAuthorityCommittedChainAuditRowsAsync(string connectionString, Guid tenantId)

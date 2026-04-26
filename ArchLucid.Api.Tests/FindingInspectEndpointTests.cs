@@ -56,7 +56,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
             CancellationToken.None);
 
         detail.Should().NotBeNull();
-        detail!.FindingsSnapshot.Should().NotBeNull();
+        detail.FindingsSnapshot.Should().NotBeNull();
         detail.FindingsSnapshot!.Findings.Should().NotBeEmpty();
     }
 
@@ -71,7 +71,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
         FindingInspectResponse? body = await response.Content.ReadFromJsonAsync<FindingInspectResponse>(JsonOptions);
         body.Should().NotBeNull();
-        body!.FindingId.Should().Be(DemoPrimaryFindingId);
+        body.FindingId.Should().Be(DemoPrimaryFindingId);
         body.RunId.Should().Be(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId);
         body.ManifestVersion.Should().NotBeNullOrWhiteSpace();
         body.DecisionRuleId.Should().Be("demo-seed-rule");

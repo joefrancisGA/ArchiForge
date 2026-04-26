@@ -31,7 +31,7 @@ export function GettingStartedTrialSection({ fromRegistrationQuery }: GettingSta
       ) : null}
       {fromRegistrationQuery ? (
         <p className="mb-6 max-w-3xl text-sm text-neutral-700 dark:text-neutral-300">
-          Confirm trial limits below, then use the Core Pilot checklist or open the new-run wizard with the sample
+          Confirm trial limits below, then use the first-manifest checklist or open the new-run wizard with the sample
           highlighted on step one.
         </p>
       ) : null}

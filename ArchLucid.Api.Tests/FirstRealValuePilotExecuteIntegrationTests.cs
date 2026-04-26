@@ -47,7 +47,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
-        string runId = created!.Run.RunId;
+        string runId = created.Run.RunId;
         bool parsed = Guid.TryParse(runId, out Guid runGuid);
         parsed.Should().BeTrue();
 
@@ -63,7 +63,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         auditStarted.StatusCode.Should().Be(HttpStatusCode.OK);
         List<AuditEvent>? startedEvents = await auditStarted.Content.ReadFromJsonAsync<List<AuditEvent>>(JsonOptions);
         startedEvents.Should().NotBeNull();
-        startedEvents!.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted);
+        startedEvents.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted);
 
         HttpResponseMessage auditCompleted = await client.GetAsync(
             $"/v1/audit/search?eventType={Uri.EscapeDataString(AuditEventTypes.FirstRealValueRunCompleted)}&runId={runGuid}&take=10");
@@ -71,6 +71,6 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         auditCompleted.StatusCode.Should().Be(HttpStatusCode.OK);
         List<AuditEvent>? completedEvents = await auditCompleted.Content.ReadFromJsonAsync<List<AuditEvent>>(JsonOptions);
         completedEvents.Should().NotBeNull();
-        completedEvents!.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted);
+        completedEvents.Should().Contain(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted);
     }
 }

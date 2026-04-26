@@ -21,7 +21,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
     [Fact]
     public async Task GetCostPreview_when_mode_is_simulator_returns_null_estimate()
     {
-        using OpenApiContractWebAppFactory factory = new();
+        await using OpenApiContractWebAppFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/v1/agent-execution/cost-preview");
@@ -29,7 +29,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         AgentExecutionCostPreviewDto? body = await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
         body.Should().NotBeNull();
-        body!.Mode.Should().Be("Simulator");
+        body.Mode.Should().Be("Simulator");
         body.MaxCompletionTokens.Should().Be(4096);
         body.EstimatedCostUsd.Should().BeNull();
         body.DeploymentName.Should().BeNull();
@@ -38,7 +38,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
     [Fact]
     public async Task GetCostPreview_when_mode_is_real_returns_estimate_and_deployment()
     {
-        using RealModeOpenApiContractWebAppFactory factory = new();
+        await using RealModeOpenApiContractWebAppFactory factory = new();
         using HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync("/v1/agent-execution/cost-preview");
@@ -46,7 +46,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         AgentExecutionCostPreviewDto? body = await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
         body.Should().NotBeNull();
-        body!.Mode.Should().Be("Real");
+        body.Mode.Should().Be("Real");
         body.MaxCompletionTokens.Should().Be(1024);
         body.DeploymentName.Should().Be("gpt-test-deploy");
         body.EstimatedCostUsd.Should().NotBeNull();

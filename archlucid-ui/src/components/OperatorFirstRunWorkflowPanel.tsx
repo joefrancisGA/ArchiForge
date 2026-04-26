@@ -56,20 +56,20 @@ const corePilotSteps: WorkflowStep[] = [
     ),
   },
   {
-    title: "Commit the reviewed manifest",
-    shortBody: "On run detail, commit when the run is ready, or use the API/CLI for automation.",
+    title: "Finalize the reviewed manifest",
+    shortBody: "On run detail, finalize when the run is ready, or use the API/CLI for automation.",
     detail:
-      "Until commit, there is no manifest link or artifact exports. See docs/OPERATOR_QUICKSTART.md in the repo for CLI/API examples.",
+      "Until finalization, there is no manifest link or artifact exports. See docs/OPERATOR_QUICKSTART.md in the repo for CLI/API examples.",
     primaryHref: "/runs?projectId=default",
     primaryLabel: "Choose run → open detail",
   },
   {
     title: "Inspect manifest & artifacts",
-    shortBody: "After commit, review the manifest summary, artifact table, and export links on run detail.",
+    shortBody: "After finalization, review the manifest summary, artifact table, and export links on run detail.",
     detail:
       "Open the reviewed manifest link from run detail for the full page; use artifact actions for download and review.",
     primaryHref: "/runs?projectId=default",
-    primaryLabel: "Open a committed run",
+    primaryLabel: "Open a finalized run",
   },
 ];
 
@@ -77,7 +77,7 @@ const corePilotSteps: WorkflowStep[] = [
 const steps = corePilotSteps;
 
 /**
- * Collapsible Core Pilot checklist. Persists "minimized" in localStorage. Compact for a side column; step actions are
+ * Collapsible first-manifest checklist. Persists "minimized" in localStorage. Compact for a side column; step actions are
  * outline buttons so they do not compete with the main home CTAs.
  */
 export function OperatorFirstRunWorkflowPanel() {
@@ -199,7 +199,7 @@ export function OperatorFirstRunWorkflowPanel() {
           aria-controls="first-run-workflow-panel"
           className="auth-panel-focus w-full cursor-pointer rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-left text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
         >
-          Show Core Pilot checklist
+          Show First Manifest Checklist
         </button>
       </div>
     );
@@ -214,9 +214,9 @@ export function OperatorFirstRunWorkflowPanel() {
       <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-sky-900 dark:text-sky-100">
-            Core Pilot checklist
+            First Manifest Checklist
           </h2>
-          <p className="m-0 mt-0.5 text-[11px] text-sky-800 dark:text-sky-300">Create · run · commit · review</p>
+          <p className="m-0 mt-0.5 text-[11px] text-sky-800 dark:text-sky-300">Create · run · finalize · review</p>
         </div>
         <button
           type="button"
@@ -229,11 +229,11 @@ export function OperatorFirstRunWorkflowPanel() {
         </button>
       </div>
       <p className="m-0 mb-2 text-xs font-medium text-sky-900 dark:text-sky-100" aria-live="polite">
-        Progress: {doneCount} of {steps.length} complete
+        {doneCount} of {steps.length} steps complete
       </p>
       {allDone ? (
         <p className="m-0 mb-2 rounded border border-teal-200/80 bg-teal-50/80 px-2 py-1.5 text-xs text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
-          Core Pilot complete. You can hide this panel or revisit any step.
+          First manifest complete. You can hide this panel or revisit any step.
         </p>
       ) : null}
       <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
@@ -307,7 +307,7 @@ export function OperatorFirstRunWorkflowPanel() {
 
       <div className="mt-3 border-t border-sky-200/40 pt-2.5 dark:border-sky-800/40">
         <p className="m-0 mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] leading-snug text-neutral-600 dark:text-neutral-400">
-          <span className="font-semibold text-neutral-700 dark:text-neutral-300">After your first commit</span>
+          <span className="font-semibold text-neutral-700 dark:text-neutral-300">After your first finalization</span>
           <Link
             className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 font-medium text-teal-800 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-neutral-800"
             href="/compare"

@@ -153,16 +153,16 @@ export function EmailRunToSponsorBanner({ runId }: EmailRunToSponsorBannerProps)
         {badgeDayN !== null ? (
           <span
             data-testid="email-run-to-sponsor-first-commit-badge"
-            title="UTC days since your tenant's first committed golden manifest"
-            aria-label={`Day ${badgeDayN} since your tenant's first committed golden manifest`}
+            title="UTC days since your tenant's first finalized golden manifest"
+            aria-label={`Day ${badgeDayN} since your tenant's first finalized golden manifest`}
             className="ml-2 inline-flex items-center rounded-full bg-teal-100 px-2 py-0.5 text-[11px] font-medium text-teal-900 dark:bg-teal-900 dark:text-teal-100"
           >
-            Day {badgeDayN} since first commit
+            Day {badgeDayN} since first finalization
           </span>
         ) : null}
       </p>
       <p className="m-0 mt-1 text-sm text-neutral-800 dark:text-neutral-100">
-        This run is committed. Send your sponsor a one-page PDF derived from the first-value-report Markdown so they
+        This run is finalized. Send your sponsor a one-page PDF derived from the first-value-report Markdown so they
         can see the headline timing, findings counts, and decision-trace summary without opening the operator shell.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-3">

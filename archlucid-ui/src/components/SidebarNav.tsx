@@ -46,7 +46,7 @@ function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean 
  * collapsed by default the very first time so the card does not push nav links down
  * for a brand-new operator with zero context.
  *
- * Hidden entirely until at least one committed run exists (same rule as the compact
+ * Hidden entirely until at least one finalized run exists (same rule as the compact
  * sidebar delta panel) so first-run tenants do not see an empty collapsible.
  */
 function SidebarRecentActivityCard() {

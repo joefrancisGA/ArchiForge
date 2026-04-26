@@ -114,7 +114,7 @@ export default function ValueReportPage() {
       <DocumentLayout>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Value report</h1>
         <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
-          Generates a stakeholder-grade DOCX from committed runs, governance and drift audit counts, and ROI_MODEL-aligned
+          Generates a stakeholder-grade DOCX from finalized runs, governance and drift audit counts, and ROI_MODEL-aligned
           estimates for the selected UTC window. Requires{" "}
           <strong className="font-medium text-neutral-800 dark:text-neutral-200">Standard</strong> commercial tier on the
           API.
