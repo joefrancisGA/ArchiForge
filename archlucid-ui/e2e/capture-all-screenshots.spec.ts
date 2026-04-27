@@ -1,16 +1,17 @@
 import { expect, test } from "@playwright/test";
 
 import {
-  FIXTURE_LEFT_RUN_ID,
-  FIXTURE_MANIFEST_ID,
-  FIXTURE_RIGHT_RUN_ID,
-  FIXTURE_RUN_ID,
   fixtureArtifactDescriptorsNonEmpty,
   fixtureComparisonExplanation,
   fixtureGoldenManifestComparison,
   fixtureLegacyRunComparison,
   fixtureManifestSummary,
   fixtureRunDetail,
+  FIXTURE_LEFT_RUN_ID,
+  FIXTURE_MANIFEST_ID,
+  FIXTURE_RIGHT_RUN_ID,
+  FIXTURE_RUN_ID,
+  SHOWCASE_DEMO_RUN_ID,
 } from "./fixtures";
 import { comparePairSearchParams } from "./helpers/operator-journey";
 import { FIXTURE_EMPTY_ZIP_BYTES, registerOperatorJourneyApiRoutes } from "./helpers/register-operator-api-routes";
@@ -78,7 +79,7 @@ const HREFS: string[] = [
   "/search",
   "/security-trust",
   "/see-it",
-  `/showcase/${encodeURIComponent(FIXTURE_RUN_ID)}`,
+  `/showcase/${encodeURIComponent(SHOWCASE_DEMO_RUN_ID)}`,
   "/settings/baseline",
   "/settings/exec-digest",
   "/settings/tenant",
@@ -129,7 +130,17 @@ test.describe("all routes screenshots (mock API)", () => {
     test.setTimeout(ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS);
 
     for (const href of HREFS) {
-      await page.goto(href, { waitUntil: "domcontentloaded", timeout: 120_000 });
+      await page.goto(href, { waitUntil: "networkidle", timeout: 120_000 });
+
+      if (href === "/advisory-scheduling")
+        await page.waitForURL(/\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/, { timeout: 30_000 });
+      else if (href === "/settings/exec-digest")
+        await page.waitForURL(/\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/, { timeout: 30_000 });
+
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 500);
+      });
+
       await expect(page.locator("body")).toBeVisible({ timeout: 120_000 });
       await page.screenshot({ path: filePathForHref(href), fullPage: true });
     }

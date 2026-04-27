@@ -30,4 +30,12 @@ describe("getBreadcrumbs", () => {
       { label: "Dashboard" },
     ]);
   });
+
+  it("labels showcase demo slug before uuid-style titles", () => {
+    expect(getBreadcrumbs("/showcase/claims-intake-modernization")).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Showcase", href: "/showcase" },
+      { label: "Claims Intake Modernization" },
+    ]);
+  });
 });

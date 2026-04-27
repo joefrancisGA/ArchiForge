@@ -7,13 +7,23 @@ import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 
+function gateAllowsInitialPaint(): boolean {
+  if (AUTH_MODE === "development-bypass" || !isJwtAuthMode())
+    return true;
+
+  if (typeof window === "undefined")
+    return false;
+
+  return isLikelySignedIn();
+}
+
 /**
  * When OIDC JWT mode is enabled and the browser has no session, the operator home (`/`)
  * redirects buyers to the public marketing welcome page.
  */
 export function OperatorHomeGate({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [allow, setAllow] = useState(false);
+  const [allow, setAllow] = useState(gateAllowsInitialPaint);
 
   useEffect(() => {
     if (AUTH_MODE === "development-bypass" || !isJwtAuthMode()) {

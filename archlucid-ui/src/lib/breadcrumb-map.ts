@@ -95,13 +95,14 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-fixture-right-run": "Target architecture run (compare)",
   "e2e-fixture-manifest-001": "Sample finalized manifest",
   "e2e-fixture-manifest-empty-artifacts": "Manifest (artifacts pending)",
+  "claims-intake-modernization": "Claims Intake Modernization",
 };
 
 function labelForSegment(segment: string, allSegments: string[], index: number): string {
   const prev = index > 0 ? allSegments[index - 1] : "";
   const demoTitle = DEMO_PATH_SEGMENT_TITLES[segment];
 
-  if (demoTitle != null && (prev === "runs" || prev === "manifests")) {
+  if (demoTitle != null && (prev === "runs" || prev === "manifests" || prev === "showcase")) {
     return demoTitle;
   }
 

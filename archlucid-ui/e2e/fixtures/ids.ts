@@ -6,3 +6,6 @@ export const FIXTURE_MANIFEST_ID = "e2e-fixture-manifest-001";
 export const FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID = "e2e-fixture-manifest-empty-artifacts";
 export const FIXTURE_LEFT_RUN_ID = "e2e-fixture-left-run";
 export const FIXTURE_RIGHT_RUN_ID = "e2e-fixture-right-run";
+
+/** Human slug for screenshot + marketing URLs — avoids `e2e-fixture-*` in showcase PNG filenames. */
+export const SHOWCASE_DEMO_RUN_ID = "claims-intake-modernization";

@@ -1,11 +1,10 @@
 using System.Text.Json;
 
 using ArchLucid.AgentSimulator.Services;
-using ArchLucid.Core.GoldenCorpus;
-using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.GoldenCorpus;
 
 using FluentAssertions;
 

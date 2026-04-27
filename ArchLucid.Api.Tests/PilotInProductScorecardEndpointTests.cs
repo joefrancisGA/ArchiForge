@@ -22,7 +22,7 @@ public sealed class PilotInProductScorecardEndpointTests(ArchLucidApiFactory fac
             await response.Content.ReadFromJsonAsync<PilotInProductScorecardResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.TenantId.Should().NotBeEmpty();
+        body.TenantId.Should().NotBeEmpty();
         body.TotalRunsCommitted.Should().BeGreaterThanOrEqualTo(0);
         body.TotalManifestsCreated.Should().BeGreaterThanOrEqualTo(0);
         body.RoiEstimate.Should().BeNull();

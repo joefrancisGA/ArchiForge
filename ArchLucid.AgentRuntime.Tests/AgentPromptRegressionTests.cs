@@ -3,7 +3,6 @@ using System.Text.Json.Nodes;
 
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentSimulator.Services;
-using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;

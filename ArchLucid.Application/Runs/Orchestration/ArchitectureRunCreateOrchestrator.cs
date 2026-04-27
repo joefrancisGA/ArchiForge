@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
@@ -27,7 +27,7 @@ namespace ArchLucid.Application.Runs.Orchestration;
 /// <c>sp_getapplock</c> so concurrent replicas serialize the same idempotency key.
 /// </remarks>
 public sealed class ArchitectureRunCreateOrchestrator(
-    ICoordinatorService coordinator,
+    IArchitectureRunAuthorityCoordination authorityCoordination,
     IArchitectureRequestRepository requestRepository,
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
@@ -43,7 +43,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
     TimeProvider timeProvider,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
-    private readonly ICoordinatorService _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
+    private readonly IArchitectureRunAuthorityCoordination _authorityCoordination =
+        authorityCoordination ?? throw new ArgumentNullException(nameof(authorityCoordination));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
@@ -135,7 +136,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     {
         string actor = _actorContext.GetActor();
 
-        CoordinationResult coordination = await _coordinator.CreateRunAsync(request, cancellationToken);
+        CoordinationResult coordination = await _authorityCoordination.CreateRunAsync(request, cancellationToken);
 
         if (!coordination.Success)
         {

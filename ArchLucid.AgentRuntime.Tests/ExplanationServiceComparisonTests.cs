@@ -1,4 +1,3 @@
-using ArchLucid.Application.Explanation;
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
@@ -30,7 +29,9 @@ public sealed class ExplanationServiceComparisonTests
             NullLogger<ExplanationService>.Instance);
         ComparisonResult comparison = new()
         {
-            BaseRunId = Guid.NewGuid(), TargetRunId = Guid.NewGuid(), SummaryHighlights = ["Highlight A"]
+            BaseRunId = Guid.NewGuid(),
+            TargetRunId = Guid.NewGuid(),
+            SummaryHighlights = ["Highlight A"]
         };
 
         ComparisonExplanationResult result = await svc.ExplainComparisonAsync(comparison, CancellationToken.None);

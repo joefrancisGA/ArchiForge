@@ -22,6 +22,8 @@ import {
   fixtureRunDetail,
   fixtureRunExplanationSummary,
 } from "./fixtures/index";
+import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
+
 import {
   getEmptyGraphViewModelJson,
   getScreenshotMockFallbackGetJson,
@@ -93,6 +95,13 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
       if (req.method === "GET" && pathname === "/v1/public/demo/sample-run") {
         sendJson(res, 404, { detail: "Not available in E2E mock" });
+        return;
+      }
+
+      const showcaseMatch = /^\/v1\/marketing\/showcase\/(.+)$/.exec(pathname);
+
+      if (req.method === "GET" && showcaseMatch) {
+        sendJson(res, 200, getShowcaseStaticDemoPayload(decodeURIComponent(showcaseMatch[1])));
         return;
       }
 

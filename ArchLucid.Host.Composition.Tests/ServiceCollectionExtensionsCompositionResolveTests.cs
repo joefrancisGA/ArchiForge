@@ -272,13 +272,12 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             ["LlmCompletionCache:Enabled"] = "false"
         };
 
-        if (fallbackLlmEnabled)
-        {
-            data["ArchLucid:FallbackLlm:Enabled"] = "true";
-            data["ArchLucid:FallbackLlm:Endpoint"] = "https://fallback-unit-test.openai.azure.com/";
-            data["ArchLucid:FallbackLlm:ApiKey"] = "fallback-test-key";
-            data["ArchLucid:FallbackLlm:DeploymentName"] = "gpt-fallback-test";
-        }
+        if (!fallbackLlmEnabled) return data;
+
+        data["ArchLucid:FallbackLlm:Enabled"] = "true";
+        data["ArchLucid:FallbackLlm:Endpoint"] = "https://fallback-unit-test.openai.azure.com/";
+        data["ArchLucid:FallbackLlm:ApiKey"] = "fallback-test-key";
+        data["ArchLucid:FallbackLlm:DeploymentName"] = "gpt-fallback-test";
 
         return data;
     }

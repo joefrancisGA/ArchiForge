@@ -12,6 +12,7 @@ export {
   FIXTURE_PROJECT_ID,
   FIXTURE_RIGHT_RUN_ID,
   FIXTURE_RUN_ID,
+  SHOWCASE_DEMO_RUN_ID,
 } from "./ids";
 export { fixtureManifestSummary, fixtureManifestSummaryEmptyArtifacts } from "./manifest-summary";
 export { fixtureRunDetail } from "./run-detail";
