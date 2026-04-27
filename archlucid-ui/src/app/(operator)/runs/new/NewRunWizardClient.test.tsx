@@ -83,21 +83,21 @@ describe("NewRunWizardClient", () => {
     async () => {
     render(<NewRunWizardClient />);
 
-    expect(progressLine()).toHaveTextContent(/Step 1 of 7 — Choose starting point/);
-    expect(screen.getByTestId("new-run-wizard-stage-line")).toHaveTextContent(/Stage 1 of 3:\s*Request brief/);
+    expect(progressLine()).toHaveTextContent(/Step 1: Choose starting point/);
+    expect(screen.getByTestId("new-run-wizard-stage-line")).toHaveTextContent(/Stage 1 of 3 — Request brief/);
 
     const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
     expect(greenfieldCard).toBeTruthy();
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
 
     await clickPrimaryForward();
-    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
 
     for (let i = 0; i < 4; i += 1) {
       await clickPrimaryForward();
     }
 
-    expect(progressLine()).toHaveTextContent(/Step 6 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 6:/);
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
 
     await act(async () => {
@@ -123,13 +123,13 @@ describe("NewRunWizardClient", () => {
     render(<NewRunWizardClient />);
 
     await clickPrimaryForward();
-    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
 
     await clickPrimaryForward();
-    expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 3:/);
 
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
-    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
   });
 
   it("blocks Next and shows an inline system name error when required field is empty", async () => {
@@ -142,13 +142,13 @@ describe("NewRunWizardClient", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /^(Continue|Next)$/ }));
     });
-    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
 
     const systemName = screen.getByLabelText("System name");
     fireEvent.change(systemName, { target: { value: "" } });
     fireEvent.blur(systemName);
 
-    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(/Required/i);
@@ -184,12 +184,12 @@ describe("NewRunWizardClient", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /^(Continue|Next)$/ }));
     });
-    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
     });
-    expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 3:/);
   });
 
   it("blocks Next on identity when prior manifest version is not a valid UUID", async () => {
@@ -201,7 +201,7 @@ describe("NewRunWizardClient", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: /^(Continue|Next)$/ }));
     });
-    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
 
     const prior = screen.getByLabelText("Prior manifest version (optional)");
     fireEvent.change(prior, {
@@ -209,7 +209,7 @@ describe("NewRunWizardClient", () => {
     });
     fireEvent.blur(prior);
 
-    expect(progressLine()).toHaveTextContent(/Step 2 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     expect(await screen.findByRole("alert")).toHaveTextContent(/valid uuid/i);
   });
@@ -226,13 +226,13 @@ describe("NewRunWizardClient", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
     });
-    expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 3:/);
 
     const description = screen.getByLabelText("Description");
     fireEvent.change(description, { target: { value: "short" } });
     fireEvent.blur(description);
 
-    expect(progressLine()).toHaveTextContent(/Step 3 of 7/);
+    expect(progressLine()).toHaveTextContent(/Step 3:/);
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     expect(await screen.findByRole("alert")).toHaveTextContent(/at least 10 characters/i);
   });

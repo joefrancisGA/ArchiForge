@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 const HERO_VERTICAL_IDS = new Set<string>(["vertical-healthcare", "vertical-financial-services"]);
 
 function verticalTemplateActionLabel(preset: WizardPreset): string {
-  return `Use ${preset.label.toLowerCase()} template`;
+  return `Use ${preset.label.toLowerCase()} starter`;
 }
 
 export type WizardStepPresetProps = {
@@ -101,8 +101,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
             manifest, findings, and artifacts.
           </p>
           <p className="m-0">
-            Choose how you want to begin. You can start from scratch, use a vertical template, or import a prepared
-            request file.
+            Start from scratch, use an industry starter, or import a prepared request file.
           </p>
         </div>
       }
@@ -135,8 +134,13 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <Button type="button" className="w-full sm:w-auto" onClick={startScratch} data-testid="wizard-start-blank">
-            Start blank request
+          <Button 
+            type="button" 
+            className="w-full bg-teal-600 text-white hover:bg-teal-700 dark:bg-teal-700 dark:text-white dark:hover:bg-teal-600 sm:w-auto" 
+            onClick={startScratch} 
+            data-testid="wizard-start-blank"
+          >
+            Start from scratch
           </Button>
         </CardFooter>
       </Card>
@@ -144,11 +148,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       <div className="mb-6">
         <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Industry starters</h3>
         <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-          Pre-fill regulated-industry context. Pair with a matching policy pack from{" "}
-          <Link href="/policy-packs" className="text-teal-700 underline">
-            Policy packs
-          </Link>{" "}
-          when you are ready.
+          Pre-fill regulated-industry context. You can add matching policy packs later.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           {heroVerticals.map((preset) => (
@@ -243,7 +243,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
             className="flex h-auto w-full items-center justify-between gap-2 py-3 text-left font-semibold"
             data-testid="wizard-import-request-toggle"
           >
-            <span>Import a request file</span>
+            <span>Import prepared request</span>
             <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", importOpen ? "rotate-180" : "")} aria-hidden />
           </Button>
         </CollapsibleTrigger>

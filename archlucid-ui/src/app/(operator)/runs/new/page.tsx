@@ -20,8 +20,7 @@ export default function NewRunPage() {
         <ContextualHelp helpKey="new-run-wizard" />
       </div>
       <p className="mt-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Create a request from scratch, choose a vertical starter, or import a prepared file — then confirm details and
-        track the pipeline.
+        Create a request from scratch, use an industry starter, or import a prepared file.
       </p>
       <Suspense fallback={<NewRunWizardFallback />}>
         <NewRunWizardClient />

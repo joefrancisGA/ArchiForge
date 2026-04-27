@@ -24,7 +24,7 @@ describe("WizardStepPreset", () => {
 
     expect(screen.getByRole("heading", { name: "Start your architecture request" })).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: "Start blank request" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start from scratch" })).toBeInTheDocument();
 
     for (const preset of wizardPresets) {
       expect(screen.getByText(preset.label)).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe("WizardStepPreset", () => {
       ).toBeInTheDocument();
     }
 
-    expect(screen.getByRole("button", { name: /Import a request file/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Import prepared request/i })).toBeInTheDocument();
   });
 
   it("calls onPresetSelect with the correct preset id when a quick-shape button is clicked", () => {
@@ -70,7 +70,7 @@ describe("WizardStepPreset", () => {
     expect(screen.getByTestId("probe-system")).toHaveTextContent("LegacyModernization");
   });
 
-  it("Start blank request resets to buildDefaultWizardValues system name", () => {
+  it("Start from scratch resets to buildDefaultWizardValues system name", () => {
     render(
       <WizardFormTestHarness
         values={{
@@ -84,7 +84,7 @@ describe("WizardStepPreset", () => {
 
     expect(screen.getByTestId("probe-system")).toHaveTextContent("CustomBefore");
 
-    fireEvent.click(screen.getByRole("button", { name: "Start blank request" }));
+    fireEvent.click(screen.getByRole("button", { name: "Start from scratch" }));
 
     expect(screen.getByTestId("probe-system")).toHaveTextContent("TargetSystem");
   });
