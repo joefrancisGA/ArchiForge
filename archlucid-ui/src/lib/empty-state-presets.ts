@@ -58,7 +58,7 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   description:
     "Enter a run ID in Approval requests for a run and click Load to fetch approval requests, promotions, and activations for that run.",
   actions: [
-    { label: "Governance dashboard", href: "/governance/dashboard", variant: "outline" },
+    { label: "Governance findings", href: "/governance/findings", variant: "outline" },
     { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "governance",
@@ -71,7 +71,7 @@ export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
   description:
     "Enter a run ID under Approval requests for a run and click Load to review approvals, promotions, and activations. Submitting, reviewing, promoting, or activating still requires operator-level API access where your tenant expects it.",
   actions: [
-    { label: "Governance dashboard", href: "/governance/dashboard", variant: "outline" },
+    { label: "Governance findings", href: "/governance/findings", variant: "outline" },
     { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
   ],
   helpTopicPath: "governance",

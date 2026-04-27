@@ -88,13 +88,38 @@ export function AdvisoryScansContent() {
     <main className="mx-auto max-w-4xl px-4 py-6">
       <DocumentLayout>
         <div className="m-0 mb-1 flex flex-wrap items-center gap-2">
-          <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Improvement Advisor</h2>
+          <h2 className="m-0 text-xl font-bold text-neutral-900 dark:text-neutral-50">Architecture advisory</h2>
           <ContextualHelp helpKey="advisory-hub" />
         </div>
         <p className="doc-meta m-0">
-          Ranked recommendations from manifest gaps, issues, cost risks, and optional comparison to a prior architecture
-          run. Generated plans are persisted; accept, reject, defer, or mark implemented to feed the governance workflow.
+          Generate ranked recommendations from a completed run: changes, risks, tradeoffs, and follow-up actions. Output
+          can be accepted, rejected, deferred, or marked as implemented to feed the governance workflow. Optionally
+          compare to a second run for delta signals.
         </p>
+
+        <section
+          className="mb-6 rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 dark:border-teal-900/50 dark:bg-teal-950/20"
+          aria-label="Example recommendation shape"
+        >
+          <h3 className="m-0 text-sm font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+            Example recommendation (illustrative)
+          </h3>
+          <div className="mt-3 rounded border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-950">
+            <p className="m-0 text-xs font-medium text-amber-800 dark:text-amber-200">High impact</p>
+            <p className="m-0 mt-1 font-semibold text-neutral-900 dark:text-neutral-100">
+              API tier lacks a circuit breaker around legacy claims service
+            </p>
+            <p className="m-0 mt-2 text-neutral-700 dark:text-neutral-300">
+              Under load, repeated timeouts could cascade. Harden the integration and add a documented fallback path
+              before the next production promotion.
+            </p>
+            <p className="m-0 mt-2 text-neutral-600 dark:text-neutral-400">
+              <strong className="font-medium text-neutral-800 dark:text-neutral-200">Suggested action:</strong> Add
+              timeout + bulkhead; capture health metrics for the dependency.
+            </p>
+            <p className="m-0 mt-3 text-xs text-neutral-500">Accept · Reject · Defer · Mark implemented (when connected to the API)</p>
+          </div>
+        </section>
 
         <div className="mb-6 grid gap-3">
           <input
@@ -110,7 +135,12 @@ export function AdvisoryScansContent() {
             className="rounded-md border border-neutral-300 bg-white p-2 font-mono text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-100"
           />
           <div className="flex flex-wrap gap-2">
-            <Button type="button" onClick={() => void loadAdvice()} disabled={loading || !runId.trim()}>
+            <Button
+              type="button"
+              className="bg-teal-600 text-white hover:bg-teal-700"
+              onClick={() => void loadAdvice()}
+              disabled={loading || !runId.trim()}
+            >
               {loading ? "Working…" : "Generate recommendations"}
             </Button>
             <Button type="button" variant="outline" onClick={() => void refreshPersistedOnly()} disabled={loading || !runId.trim()}>

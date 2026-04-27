@@ -14,7 +14,6 @@ import {
   auditLogRankReaderLine,
   enterpriseExecutePageHintReaderRank,
   enterpriseNavHintOperatorRank,
-  enterpriseNavHintReaderRank,
   governanceDashboardReaderActionLine,
   governanceResolutionRankOperatorLine,
   governanceResolutionRankReaderLine,
@@ -80,11 +79,11 @@ describe("OperateCapabilityHints authority shaping", () => {
   });
 
   describe("OperateCapabilityNavGroupHint", () => {
-    it("uses reader nav copy below Execute", () => {
+    it("omits reader nav line when copy is empty", () => {
       navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
-      render(<OperateCapabilityNavGroupHint />);
+      const { container } = render(<OperateCapabilityNavGroupHint />);
 
-      expect(screen.getByText(enterpriseNavHintReaderRank)).toBeInTheDocument();
+      expect(container.textContent).toBe("");
     });
 
     it("uses operator nav copy at Execute+", () => {

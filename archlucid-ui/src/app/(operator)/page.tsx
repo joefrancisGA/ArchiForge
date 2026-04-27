@@ -64,7 +64,7 @@ export default function HomePage() {
                   icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}
                   title="Enterprise Controls"
                   items={["Governance", "Policy packs", "Audit log", "Alerts"]}
-                  href="/governance/dashboard"
+                  href="/governance/findings"
                 />
                 <LayerCard
                   icon={<Search className="h-5 w-5 text-amber-600 dark:text-amber-400" aria-hidden />}

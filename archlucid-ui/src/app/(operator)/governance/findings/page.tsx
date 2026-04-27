@@ -30,7 +30,7 @@ export default function GovernanceFindingsPage() {
               <Link href="/runs?projectId=default">View runs</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
-              <Link href="/governance/dashboard">Governance dashboard</Link>
+              <Link href="/governance">Governance workflow</Link>
             </Button>
           </CardContent>
         </Card>

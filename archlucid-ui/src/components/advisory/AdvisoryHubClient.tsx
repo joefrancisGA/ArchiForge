@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { ADVISORY_HUB_TAB_IDS, advisoryHubTabFromSearchParam, type AdvisoryHubTabId } from "@/lib/advisory-hub-tab";
@@ -20,25 +20,44 @@ const TAB_LABEL: Record<AdvisoryHubTabId, string> = {
 const SCHEDULES_TAB_READER_TITLE =
   "View schedules and executions; creating schedules and run-now require operator (Execute) access on the API.";
 
+export type AdvisoryHubClientProps = {
+  readonly initialTab: AdvisoryHubTabId;
+};
+
 /**
  * Single `/advisory` surface: improvement scans and advisory scan schedules. Tab state in `?tab=` for deep links.
+ * `initialTab` comes from the server so this tree does not depend on `useSearchParams` (avoids long Suspense fallbacks).
  */
-export function AdvisoryHubClient() {
+export function AdvisoryHubClient({ initialTab }: AdvisoryHubClientProps) {
   const router: ReturnType<typeof useRouter> = useRouter();
   const pathname: string = usePathname();
-  const searchParams = useSearchParams();
   const canMutate: boolean = useEnterpriseMutationCapability();
-  const rawTab: string | null = searchParams.get(TAB_PARAM);
+  const [activeTab, setActiveTab] = useState<AdvisoryHubTabId>(initialTab);
 
-  const activeTab: AdvisoryHubTabId = useMemo(
-    () => advisoryHubTabFromSearchParam(rawTab),
-    [rawTab],
-  );
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
+  useEffect(() => {
+    const onPop = () => {
+      const sp = new URLSearchParams(window.location.search);
+      setActiveTab(advisoryHubTabFromSearchParam(sp.get(TAB_PARAM)));
+    };
+
+    window.addEventListener("popstate", onPop);
+
+    return () => {
+      window.removeEventListener("popstate", onPop);
+    };
+  }, []);
 
   const onSelectTab = useCallback(
     (id: AdvisoryHubTabId) => {
+      setActiveTab(id);
+
       if (id === "scans") {
         router.push(pathname);
+
         return;
       }
 

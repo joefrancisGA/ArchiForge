@@ -54,7 +54,7 @@ describe("filterNavLinksForOperatorShell", () => {
     );
 
     expect(visible.some((l) => l.href === "/policy-packs")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance/dashboard")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
   });
 
@@ -80,7 +80,7 @@ describe("filterNavLinksForOperatorShell", () => {
     );
 
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
-    expect(visible.some((l) => l.href === "/governance/dashboard")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
   });
 
   /**

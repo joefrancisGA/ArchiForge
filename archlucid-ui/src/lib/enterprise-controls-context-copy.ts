@@ -30,8 +30,8 @@ export const enterpriseMutationControlDisabledTitle =
 export const auditExportControlDisabledTitle =
   "CSV export requires Auditor or Admin on the API for this tenant; search above still works for your role.";
 
-/** Sidebar / mobile: reader sees fewer links in this group */
-export const enterpriseNavHintReaderRank = "Read-tier nav; operator links omitted.";
+/** Sidebar / mobile: optional micro-copy when Reader-ranked shell shows fewer nav items (empty = omit line). */
+export const enterpriseNavHintReaderRank = "";
 
 /** Sidebar / mobile: operator+ framing for Enterprise group */
 export const enterpriseNavHintOperatorRank = "Policies, findings, and controls.";

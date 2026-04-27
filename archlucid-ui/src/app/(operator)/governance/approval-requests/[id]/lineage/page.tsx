@@ -82,7 +82,7 @@ export default function GovernanceApprovalLineagePage() {
             Retry
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/governance/dashboard">Dashboard</Link>
+            <Link href="/governance/findings">Findings</Link>
           </Button>
         </div>
         <OperatorApiProblem
@@ -114,7 +114,7 @@ export default function GovernanceApprovalLineagePage() {
           </p>
         </div>
         <Button variant="outline" size="sm" asChild>
-          <Link href="/governance/dashboard">Back to dashboard</Link>
+          <Link href="/governance/findings">Back to findings</Link>
         </Button>
       </div>
 

@@ -12,7 +12,7 @@ export function fixtureRunDetail(): RunDetail {
     run: {
       runId: FIXTURE_RUN_ID,
       projectId: FIXTURE_PROJECT_ID,
-      description: "E2E fixture run (no live API).",
+      description: "Claims Intake Modernization — sample completed run (demo).",
       createdUtc: "2025-06-01T12:00:00.000Z",
       contextSnapshotId: "ctx-snap-fixture",
       graphSnapshotId: "graph-snap-fixture",

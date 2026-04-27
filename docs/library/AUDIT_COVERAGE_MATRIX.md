@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:122 -->
+<!-- audit-core-const-count:117 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -27,8 +27,8 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scri
 | **`GetFilteredAsync` instead of overloading `GetByScopeAsync`** | Eight or more call sites and test doubles already depend on the original signature. A new method adds filtering without breaking consumers. |
 | **Static matrix + CI guard** | Cheaper than runtime introspection of all call sites. The matrix can drift; `assert_audit_const_count.py` fails merge with a per-name diff when rows or the count marker disagree with `AuditEventTypes.cs`. |
 | **Single Core catalog for baseline + durable** | Application references `ArchLucid.Core.Audit.AuditEventTypes.Baseline` so operators and developers have one file for all event-type strings; nested `Baseline` preserves namespaced baseline values without colliding with authority `RunStarted` / `RunCompleted`. |
-| **Coordinator orchestration dual-write** | The three coordinator orchestrators (`Create`, `Execute`, `Commit`) call `IBaselineMutationAuditService.RecordAsync` for baseline `Architecture.*` events; `BaselineMutationAuditService` echoes durable `CoordinatorRun*` + `AuditEventTypes.Run.*` via `BaselineMutationAuditArchitectureDurableWriter` (same payloads as the former in-orchestrator dual-write). Pre-commit governance warnings/blocks on commit still call `IAuditService.LogAsync` directly from `ArchitectureRunCommitOrchestrator`. Failures on the durable echo path are swallowed — audit must not break orchestration. |
-| **Critical-path durable audit retry** | `CoordinatorRunCreated`, `CoordinatorRunExecuteStarted`, `CoordinatorRunExecuteSucceeded`, and `CoordinatorRunCommitCompleted` echoes use `ArchLucid.Core.Audit.DurableAuditLogRetry` (short exponential backoff, default 3 attempts). `CoordinatorRunFailed` uses `CoordinatorRunFailedDurableAudit` (single attempt with inner `try/catch`). After exhaustion, failures are logged only — orchestration still completes. |
+| **Coordinator orchestration durable echo** | The coordinator orchestrators (`Create`, `Execute`, `Commit`) call `IBaselineMutationAuditService.RecordAsync` for baseline `Architecture.*` events; `BaselineMutationAuditService` appends one durable `dbo.AuditEvents` row per signal using **`AuditEventTypes.Run.*`** via `BaselineMutationAuditArchitectureDurableWriter` (legacy `CoordinatorRun*` constants were removed). Pre-commit governance warnings/blocks on commit still call `IAuditService.LogAsync` directly from `ArchitectureRunCommitOrchestrator`. Failures on the durable echo path are swallowed — audit must not break orchestration. |
+| **Critical-path durable audit retry** | `Run.Created`, `Run.ExecuteStarted`, `Run.ExecuteSucceeded`, and `Run.CommitCompleted` echoes use `ArchLucid.Core.Audit.DurableAuditLogRetry` (short exponential backoff, default 3 attempts). `Run.Failed` uses a single attempt with inner `try/catch` in the writer. After exhaustion, failures are logged only — orchestration still completes. |
 | **Database-level append-only on `dbo.AuditEvents`** | Migration **`051_AuditEvents_DenyUpdateDelete.sql`** (and the same idempotent **`DENY`** block in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** after the table DDL) issues **`DENY UPDATE`** and **`DENY DELETE`** on **`dbo.AuditEvents`** to the database role **`ArchLucidApp`** when that role exists. This closes the gap where code only `INSERT`s but ad-hoc SQL or bugs could mutate rows. **`dbo` / `db_owner`** are unaffected for break-glass. Local dev often has no **`ArchLucidApp`** role (app runs as **`dbo`** / SQL auth admin) — the migration **skips** until operators create the role and add the managed identity or SQL user (see **`docs/security/MANAGED_IDENTITY_SQL_BLOB.md`**). Deployments that only use **`db_datawriter`** without **`ArchLucidApp`** should create the role and move the app principal into it, or apply an environment-specific **`DENY`** to **`[db_datawriter]`** for this table. |
 
 ### Indexes on `dbo.AuditEvents`
@@ -93,11 +93,11 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | OpenAI circuit breaker | `CircuitBreakerAuditBridge` (wired from `CircuitBreakerGate`) | `CircuitBreakerStateTransition`, `CircuitBreakerRejection`, `CircuitBreakerProbeOutcome` | Tenant/Workspace/Project from ambient scope | `{ gate, fromState, toState, probeOutcome? }` |
 | Security assessment published (trust center / procurement) | `SecurityTrustPublicationController` | `SecurityAssessmentPublished` | Tenant/Workspace/Project from ambient scope | `{ assessmentCode, summaryReference, assessorDisplayName? }` |
 | Agent result JSON failed schema validation (enforced parse) | `TopologyAgentHandler`, `ComplianceAgentHandler`, `CriticAgentHandler` → `AgentResultSchemaViolationAudit` | `AuditEventTypes.AgentResultSchemaViolation` | RunId / task context when parseable | schema errors, truncated JSON, agent type |
-| Coordinator run created (dual-write) | `BaselineMutationAuditService` (triggered by `ArchitectureRunCreateOrchestrator` baseline `Architecture.RunCreated`) | `AuditEventTypes.CoordinatorRunCreated` **then** `AuditEventTypes.Run.Created` (ADR 0021 Phase 2) | RunId | `{ requestId, systemName }` |
-| Coordinator run execution started (dual-write) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunStarted`) | `AuditEventTypes.CoordinatorRunExecuteStarted` **then** `AuditEventTypes.Run.ExecuteStarted` | RunId | `{ runId }` |
-| Coordinator run execution succeeded (dual-write) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunExecuteSucceeded`) | `AuditEventTypes.CoordinatorRunExecuteSucceeded` **then** `AuditEventTypes.Run.ExecuteSucceeded` | RunId | `{ runId, resultCount }` |
-| Coordinator run commit completed (dual-write) | `BaselineMutationAuditService` (`ArchitectureRunCommitOrchestrator` / `AuthorityDrivenArchitectureRunCommitOrchestrator` → `Architecture.RunCompleted`) | `AuditEventTypes.CoordinatorRunCommitCompleted` **then** `AuditEventTypes.Run.CommitCompleted` | RunId | Coordinator path: `{ runId, manifestVersion, systemName }`; authority path adds `warningCount`, `commitPath` |
-| Coordinator run failed (dual-write) | `BaselineMutationAuditService` (orchestrators → `Architecture.RunFailed`); writer delegates to `CoordinatorRunFailedDurableAudit` | `AuditEventTypes.CoordinatorRunFailed` **then** `AuditEventTypes.Run.Failed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
+| Coordinator run created (baseline → durable) | `BaselineMutationAuditService` (triggered by `ArchitectureRunCreateOrchestrator` baseline `Architecture.RunCreated`) | `AuditEventTypes.Run.Created` | RunId | `{ requestId, systemName }` |
+| Coordinator run execution started (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunStarted`) | `AuditEventTypes.Run.ExecuteStarted` | RunId | `{ runId }` |
+| Coordinator run execution succeeded (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunExecuteSucceeded`) | `AuditEventTypes.Run.ExecuteSucceeded` | RunId | `{ runId, resultCount }` |
+| Coordinator run commit completed (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunCommitOrchestrator` / `AuthorityDrivenArchitectureRunCommitOrchestrator` → `Architecture.RunCompleted`) | `AuditEventTypes.Run.CommitCompleted` | RunId | Coordinator path: `{ runId, manifestVersion, systemName }`; authority path adds `warningCount`, `commitPath` |
+| Coordinator run failed (baseline → durable) | `BaselineMutationAuditService` (orchestrators → `Architecture.RunFailed`) via `BaselineMutationAuditArchitectureDurableWriter` | `AuditEventTypes.Run.Failed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
 | Agent trace blob persistence failed or timed out | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceBlobPersistenceFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, failedBlobTypes? }` — emitted when inline blob writes after trace insert exhaust retries, time out, or throw unexpectedly; execute outcome elsewhere is unchanged. |
 | Agent trace mandatory inline fallback failed or forensic verification failed | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceInlineFallbackFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, exceptionDetail? }` — SQL inline patch threw, trace row missing on read, or blob+inline still missing non-empty prompt/response after patch; **`dbo.AgentExecutionTraces.InlineFallbackFailed`** set; execute outcome elsewhere is unchanged. |
 | Orphan comparison-record remediation (execute) | `AdminDiagnosticsService` | `ComparisonRecordOrphansRemediated` | — | `{ dryRun: false, deletedCount, comparisonRecordIds[] }` — `POST .../admin/diagnostics/data-consistency/orphan-comparison-records?dryRun=false`; dry-run calls emit no audit row. |
@@ -135,8 +135,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Operation | Orchestrator / service | Event type constant | Notes |
 |-----------|------------------------|---------------------|-------|
-| Architecture run create / fail | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` | Entity id in `RecordAsync` is run id or request id; details string only. **Dual-write:** `BaselineMutationAuditService` echoes durable `CoordinatorRun*` + `Run.*` (see durable table). |
-| Architecture run execute / commit | `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator`, `AuthorityDrivenArchitectureRunCommitOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` (`Architecture.RunStarted`, `Architecture.RunCompleted`, `Architecture.RunFailed`, …) | Same baseline channel. **Dual-write:** durable coordinator catalog rows from `BaselineMutationAuditService` (see durable table). |
+| Architecture run create / fail | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` | Entity id in `RecordAsync` is run id or request id; details string only. **Durable echo:** `BaselineMutationAuditService` appends `AuditEventTypes.Run.*` rows (see durable table). |
+| Architecture run execute / commit | `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator`, `AuthorityDrivenArchitectureRunCommitOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` (`Architecture.RunStarted`, `Architecture.RunCompleted`, `Architecture.RunFailed`, …) | Same baseline channel. **Durable echo:** `Run.*` rows from `BaselineMutationAuditService` (see durable table). |
 | Governance workflow | `GovernanceWorkflowService` | `AuditEventTypes.Baseline.Governance.*` (mirrors `GovernanceAuditEventTypes`) | **Dual-write:** same service also calls `IAuditService` with top-level Core governance event types via `DurableAuditLogRetry` (see durable table above). |
 
 **Implication:** operators searching **Audit log** in the UI see `IAuditService` rows, including governance transitions from `GovernanceWorkflowService`. Baseline mutation logs remain for grep-friendly structured logging.
@@ -155,9 +155,9 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 |---------------------------|-----------|--------------|
 | `ConversationController` | Read-only (GET endpoints only); no state to audit | Controller surface review |
 | `GovernanceController` | All POST actions delegate to `GovernanceWorkflowService`, which already dual-writes | Five `RecordAsync` ↔ `LogAsync` pairs in `GovernanceWorkflowService.cs` |
-| Coordinator orchestrators (`Create`, `Execute`, `Commit`) | Architecture durable dual-write centralized in `BaselineMutationAuditService`; commit orchestrators still emit pre-commit governance rows directly | `BaselineMutationAuditService.cs`, `BaselineMutationAuditArchitectureDurableWriter.cs`, orchestrator `RecordAsync` call sites |
+| Coordinator orchestrators (`Create`, `Execute`, `Commit`) | Architecture durable `Run.*` echo centralized in `BaselineMutationAuditService`; commit orchestrators still emit pre-commit governance rows directly | `BaselineMutationAuditService.cs`, `BaselineMutationAuditArchitectureDurableWriter.cs`, orchestrator `RecordAsync` call sites |
 
-**Future-drift signal.** Most `RecordAsync` call sites must still show an obvious durable sibling **or** be listed in `BaselineMutationAuditDualWritePairingTests.AllowedBaselineOnlyFiles`. Architecture coordinator create/execute orchestrators are exempt: durable rows are centralized in `BaselineMutationAuditService` + `BaselineMutationAuditArchitectureDurableWriter`. Governance and commit orchestrators retain in-file `LogAsync` / `CoordinatorRunFailedDurableAudit` where applicable. The pairing test is a static assertion against `ArchLucid.Application` source.
+**Future-drift signal.** Most `RecordAsync` call sites must still show an obvious durable sibling **or** be listed in `BaselineMutationAuditDualWritePairingTests.AllowedBaselineOnlyFiles`. Architecture coordinator create/execute orchestrators are exempt: durable rows are centralized in `BaselineMutationAuditService` + `BaselineMutationAuditArchitectureDurableWriter`. Governance and commit orchestrators retain in-file `LogAsync` where applicable. The pairing test is a static assertion against `ArchLucid.Application` source.
 
 ---
 
@@ -165,7 +165,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 122 (see CI marker above; includes nested `Baseline` and nested `Run`) |
+| **Core `AuditEventTypes` `public const string` rows** | 117 (see CI marker above; includes nested `Baseline` and nested `Run`) |
 | **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
@@ -194,11 +194,6 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `GovernancePreCommitBlocked` | `GovernancePreCommitBlocked` | `ArchitectureRunCommitOrchestrator` (optional pre-commit gate) |
 | `GovernancePreCommitWarned` | `GovernancePreCommitWarned` | `ArchitectureRunCommitOrchestrator` (warn-only severity in pre-commit gate) |
 | `GovernanceApprovalSlaBreached` | `GovernanceApprovalSlaBreached` | `ApprovalSlaMonitor` (pending approval request past SLA deadline) |
-| `CoordinatorRunCreated` | `CoordinatorRunCreated` | `BaselineMutationAuditService` / writer (create orchestrator baseline) |
-| `CoordinatorRunExecuteStarted` | `CoordinatorRunExecuteStarted` | `BaselineMutationAuditService` / writer (execute orchestrator baseline) |
-| `CoordinatorRunExecuteSucceeded` | `CoordinatorRunExecuteSucceeded` | `BaselineMutationAuditService` / writer (execute orchestrator baseline) |
-| `CoordinatorRunCommitCompleted` | `CoordinatorRunCommitCompleted` | `BaselineMutationAuditService` / writer (commit orchestrators baseline) |
-| `CoordinatorRunFailed` | `CoordinatorRunFailed` | `BaselineMutationAuditService` / writer → `CoordinatorRunFailedDurableAudit` (orchestrator baseline `RunFailed`) |
 | `RecommendationGenerated` | `RecommendationGenerated` | `AdvisoryController` |
 | `RecommendationAccepted` | `RecommendationAccepted` | `AdvisoryController` |
 | `RecommendationRejected` | `RecommendationRejected` | `AdvisoryController` |
@@ -288,15 +283,15 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 
 ---
 
-## Appendix — `AuditEventTypes.Run` registry (Phase 2 canonical coordinator durable rows)
+## Appendix — `AuditEventTypes.Run` registry (canonical coordinator durable rows)
 
-| Constant | Value | Emitted immediately after (same payload) |
-|----------|-------|-------------------------------------------|
-| `Run.Created` | `Run.Created` | `CoordinatorRunCreated` |
-| `Run.ExecuteStarted` | `Run.ExecuteStarted` | `CoordinatorRunExecuteStarted` |
-| `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `CoordinatorRunExecuteSucceeded` |
-| `Run.CommitCompleted` | `Run.CommitCompleted` | `CoordinatorRunCommitCompleted` |
-| `Run.Failed` | `Run.Failed` | `CoordinatorRunFailed` |
+| Constant | Value | Durable audit producer(s) |
+|----------|-------|---------------------------|
+| `Run.Created` | `Run.Created` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunCreated`) |
+| `Run.ExecuteStarted` | `Run.ExecuteStarted` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunStarted`) |
+| `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunExecuteSucceeded`) |
+| `Run.CommitCompleted` | `Run.CommitCompleted` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunCompleted`) |
+| `Run.Failed` | `Run.Failed` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunFailed`) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 

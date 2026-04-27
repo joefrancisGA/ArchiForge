@@ -88,10 +88,24 @@ export function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
   return items;
 }
 
-function labelForSegment(segment: string, allSegments: string[], index: number): string {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
-    const prev = index > 0 ? allSegments[index - 1] : "";
+/** E2E / demo fixture ids in path segments — show realistic titles instead of slug-style labels. */
+const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
+  "e2e-fixture-run-001": "Claims Intake Modernization",
+  "e2e-fixture-left-run": "Baseline architecture run (compare)",
+  "e2e-fixture-right-run": "Target architecture run (compare)",
+  "e2e-fixture-manifest-001": "Sample finalized manifest",
+  "e2e-fixture-manifest-empty-artifacts": "Manifest (artifacts pending)",
+};
 
+function labelForSegment(segment: string, allSegments: string[], index: number): string {
+  const prev = index > 0 ? allSegments[index - 1] : "";
+  const demoTitle = DEMO_PATH_SEGMENT_TITLES[segment];
+
+  if (demoTitle != null && (prev === "runs" || prev === "manifests")) {
+    return demoTitle;
+  }
+
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
     if (prev === "runs") {
       return "Run detail";
     }
@@ -112,8 +126,6 @@ function labelForSegment(segment: string, allSegments: string[], index: number):
   }
 
   if (/^[0-9a-f-]{16,}$/i.test(segment) && segment.includes("-")) {
-    const prev = index > 0 ? allSegments[index - 1] : "";
-
     if (prev === "runs") {
       return "Run detail";
     }

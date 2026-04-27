@@ -105,8 +105,23 @@ export function NewRunWizardClient() {
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
-  const [wizardMode, setWizardMode] = useState<"quick" | "full">("quick");
-  const [wizardModeReady, setWizardModeReady] = useState(false);
+  const [wizardMode, setWizardMode] = useState<"quick" | "full">(() => {
+    if (typeof window === "undefined") {
+      return "quick";
+    }
+
+    try {
+      const stored = window.localStorage.getItem(WIZARD_MODE_STORAGE_KEY);
+      if (stored === "quick" || stored === "full") {
+        return stored;
+      }
+    } catch {
+      /* ignore */
+    }
+
+    return "quick";
+  });
+  const [wizardModeReady] = useState(true);
   const liveRef = useRef<HTMLDivElement>(null);
   const { summary: pollSummary } = useRunSummaryStream(runId, {
     enabled:
@@ -140,10 +155,6 @@ export function NewRunWizardClient() {
           typeof window !== "undefined" ? window.localStorage.getItem(WIZARD_MODE_STORAGE_KEY) : null;
 
         if (stored === "quick" || stored === "full") {
-          if (!cancelled) {
-            setWizardMode(stored);
-          }
-
           return;
         }
 
@@ -156,10 +167,6 @@ export function NewRunWizardClient() {
       } catch {
         if (!cancelled) {
           setWizardMode("quick");
-        }
-      } finally {
-        if (!cancelled) {
-          setWizardModeReady(true);
         }
       }
     })();

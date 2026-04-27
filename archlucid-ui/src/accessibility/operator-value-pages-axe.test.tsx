@@ -96,6 +96,14 @@ vi.mock("@/components/advisory/AdvisoryHubClient", () => ({
   AdvisoryHubClient: () => <div data-testid="stub-advisory-hub">Advisory Hub</div>,
 }));
 
+/** RSC `advisory/page` is async; Vitest client render needs a sync stub. */
+vi.mock("@/app/(operator)/advisory/page", () => ({
+  __esModule: true,
+  default: function AdvisoryPageStub() {
+    return <div data-testid="stub-advisory-page">Advisory</div>;
+  },
+}));
+
 vi.mock("@/components/advisory/AdvisorySchedulingClient", () => ({
   AdvisorySchedulingClient: () => <div data-testid="stub-advisory-scheduling">Scheduling</div>,
 }));

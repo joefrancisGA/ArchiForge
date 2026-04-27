@@ -121,11 +121,19 @@ export function CallbackClient() {
 
   return (
     <div style={{ maxWidth: 560 }}>
-      <h2 style={{ marginTop: 0 }}>Sign-in callback</h2>
+      <h2 style={{ marginTop: 0 }}>{failed ? "Sign-in was not completed" : "Completing sign-in"}</h2>
       <p style={{ color: failed ? "#b91c1c" : undefined }}>{message}</p>
       {failed ? (
-        <p>
-          <Link href="/auth/signin">Try again</Link> · <Link href="/">Home</Link>
+        <p className="text-sm text-neutral-700 dark:text-neutral-300">
+          Your session may not have been established. This can be temporary with your identity provider.{" "}
+          <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
+            Try again
+          </Link>{" "}
+          or{" "}
+          <Link className="text-teal-700 underline dark:text-teal-300" href="/">
+            return home
+          </Link>
+          .
         </p>
       ) : null}
     </div>

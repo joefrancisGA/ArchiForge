@@ -96,7 +96,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Governance" }));
 
-      expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");
+      expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
 
       expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");

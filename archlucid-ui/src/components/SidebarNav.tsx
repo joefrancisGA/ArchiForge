@@ -279,7 +279,9 @@ export function SidebarNav() {
                     ? "View governance tools"
                     : group.id === "operator-admin"
                       ? "View admin tools"
-                      : `View more in ${group.label}`}
+                      : group.id === "pilot"
+                        ? "View more tools"
+                        : "More in this group"}
               </button>
             ) : null}
           </Collapsible>

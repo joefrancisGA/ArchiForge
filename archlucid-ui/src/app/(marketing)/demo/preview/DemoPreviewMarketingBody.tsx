@@ -50,8 +50,11 @@ function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreview
 
 /** Marketing-only commit page projection (no operator CTAs). */
 export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
-  const themes = payload.runExplanation.themeSummaries.slice(0, 5);
-  const citationCount = payload.runExplanation.citations?.length ?? 0;
+  const runEx = payload.runExplanation;
+  const themes = (runEx?.themeSummaries ?? []).slice(0, 5);
+  const citationCount = runEx?.citations?.length ?? 0;
+  const pipelineTimeline = payload.pipelineTimeline ?? [];
+  const artifacts = payload.artifacts ?? [];
 
   return (
     <div className="space-y-8">
@@ -111,10 +114,10 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
       <section data-testid="demo-preview-aggregate-explanation">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Aggregate explanation</h2>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Overall assessment:</strong> {payload.runExplanation.overallAssessment}
+          <strong>Overall assessment:</strong> {runEx?.overallAssessment ?? "—"}
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Risk posture:</strong> {payload.runExplanation.riskPosture}
+          <strong>Risk posture:</strong> {runEx?.riskPosture ?? "—"}
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Themes (up to 5):</strong> {themes.length ? themes.join(" · ") : "—"}
@@ -127,10 +130,10 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
       <section data-testid="demo-preview-pipeline-timeline">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Pipeline timeline</h2>
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-          First {payload.pipelineTimeline.length} events (oldest first).
+          First {pipelineTimeline.length} events (oldest first).
         </p>
         <ul className="mt-2 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          {payload.pipelineTimeline.map((e) => (
+          {pipelineTimeline.map((e) => (
             <li key={e.eventId}>
               <code>{e.eventType}</code> · {e.occurredUtc} · {e.actorUserName}
             </li>
@@ -159,7 +162,7 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
               </tr>
             </thead>
             <tbody>
-              {payload.artifacts.map((a) => (
+              {artifacts.map((a) => (
                 <tr key={a.artifactId} className="border-t border-neutral-200 dark:border-neutral-800">
                   <td className="px-3 py-2">{a.name}</td>
                   <td className="px-3 py-2">{a.artifactType}</td>

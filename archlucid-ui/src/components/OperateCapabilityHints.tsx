@@ -33,6 +33,10 @@ export function OperateCapabilityNavGroupHint(): ReactNode {
   const text =
     rank < AUTHORITY_RANK.ExecuteAuthority ? enterpriseNavHintReaderRank : enterpriseNavHintOperatorRank;
 
+  if (text.length === 0) {
+    return null;
+  }
+
   return (
     <span className="mt-0.5 block max-w-[14rem] text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-500 dark:text-neutral-500">
       {text}

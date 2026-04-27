@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
-import { DemoPreviewMarketingBody, DemoPreviewNotAvailable } from "../../demo/preview/DemoPreviewMarketingBody";
+import {
+  DemoPreviewMarketingBody,
+  DemoPreviewNotAvailable,
+} from "../../demo/preview/DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 export const revalidate = 300;
@@ -78,7 +81,30 @@ export default async function MarketingShowcasePage(props: PageProps) {
     );
   }
 
-  const payload = (await response.json()) as DemoCommitPagePreviewResponse;
+  let payload: DemoCommitPagePreviewResponse;
+  try {
+    payload = (await response.json()) as DemoCommitPagePreviewResponse;
+  } catch {
+    return (
+      <main className="mx-auto max-w-5xl px-4 py-10">
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
+        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+          The server returned data this page could not read. Please try again later.
+        </p>
+      </main>
+    );
+  }
+
+  if (payload == null || typeof payload !== "object" || payload.run == null || payload.manifest == null) {
+    return (
+      <main className="mx-auto max-w-5xl px-4 py-10">
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Public showcase</h1>
+        <div className="mt-6">
+          <DemoPreviewNotAvailable />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">

@@ -45,9 +45,9 @@ export const SHORTCUTS: ShortcutEntry[] = [
   },
   {
     key: "alt+g",
-    label: "Governance dashboard",
-    route: "/governance/dashboard",
-    description: "Open governance",
+    label: "Governance findings",
+    route: "/governance/findings",
+    description: "Open governance findings",
   },
   {
     key: "alt+y",

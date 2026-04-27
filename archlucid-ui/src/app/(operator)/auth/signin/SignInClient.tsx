@@ -19,8 +19,21 @@ import { isLikelySignedIn, storePkceState } from "@/lib/oidc/session";
 /**
  * Starts OIDC authorization code + PKCE against NEXT_PUBLIC_OIDC_* (Entra or any OIDC provider).
  */
+const REDIRECT_FALLBACK_MS = 8000;
+
 export function SignInClient() {
   const [error, setError] = useState<string | null>(null);
+  const [showSlowHint, setShowSlowHint] = useState(false);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      setShowSlowHint(true);
+    }, REDIRECT_FALLBACK_MS);
+
+    return () => {
+      window.clearTimeout(t);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isJwtAuthMode()) {
@@ -98,6 +111,18 @@ export function SignInClient() {
     <div style={{ maxWidth: 560 }}>
       <h2 style={{ marginTop: 0 }}>Sign-in</h2>
       <p>Redirecting to your identity provider…</p>
+      {showSlowHint ? (
+        <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+          Taking longer than expected?{" "}
+          <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
+            Try again
+          </Link>{" "}
+          or <Link className="text-teal-700 underline dark:text-teal-300" href="/">
+            return home
+          </Link>
+          .
+        </p>
+      ) : null}
     </div>
   );
 }

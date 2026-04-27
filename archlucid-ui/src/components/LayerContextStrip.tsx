@@ -72,7 +72,7 @@ export function LayerContextStrip({ layerId, className }: LayerContextStripProps
             data-testid="layer-context-back-pilot"
             href="/"
           >
-            Back to Pilot
+            Back to home
           </Link>
         ) : null}
       </div>

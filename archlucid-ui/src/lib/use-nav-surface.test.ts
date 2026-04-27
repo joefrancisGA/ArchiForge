@@ -97,7 +97,7 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
       true,
     );
 
-    expect(composed.contextHints.enterpriseNavGroupHint).toBe(enterpriseNavHintReaderRank);
+    expect(composed.contextHints.enterpriseNavGroupHint).toBe("");
     expect(composed.contextHints.enterpriseExecutePageHint).toBe(enterpriseExecutePageHintReaderRank);
     expect(composed.contextHints.governanceResolutionRank).toBe(governanceResolutionRankReaderLine);
     expect(composed.contextHints.alertsInboxRank).toBe(alertsInboxRankReaderLine);
