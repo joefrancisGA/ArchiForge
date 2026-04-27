@@ -2,9 +2,9 @@
 
 # ArchLucid Trust Center
 
-<!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-04-24 -->
+<!-- TRUST_CENTER_LAST_REVIEWED_UTC:2026-04-27 -->
 
-**Last reviewed (UTC):** 2026-04-24
+**Last reviewed (UTC):** 2026-04-27
 
 This page is the **single buyer-facing index** for security questionnaires, self-assessments, and procurement artifacts. Status labels are honest about evidence type: **self-asserted** documentation, **V1.1-scheduled** work, **engagements in flight**, or **third-party confirmed** only where a linked file states that explicitly.
 
