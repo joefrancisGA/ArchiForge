@@ -68,9 +68,8 @@ public sealed class BaselineMutationAuditServiceTests
             .Callback((IInvocation invocation) =>
             {
                 object state = invocation.Arguments[2];
-                Delegate? formatter = invocation.Arguments[4] as Delegate;
 
-                if (formatter is not null)
+                if (invocation.Arguments[4] is Delegate formatter)
                 {
                     formatted = formatter.DynamicInvoke(state, null)?.ToString();
                 }

@@ -2,7 +2,6 @@
 
 import { Controller, useFormContext } from "react-hook-form";
 
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -24,6 +23,10 @@ const ENVIRONMENT_OPTIONS = [
   { value: "development", label: "Development" },
   { value: "sandbox", label: "Sandbox" },
 ] as const;
+
+/** Shared with Environment + Cloud selects so the wizard matches Input focus/border weight. */
+const wizardSelectTriggerClassName =
+  "w-full max-w-md border-neutral-200/90 bg-white text-left shadow-sm transition-colors hover:border-neutral-300 focus:ring-teal-600/35 dark:border-neutral-600 dark:bg-neutral-950/40 dark:hover:border-neutral-500";
 
 /**
  * Step 2: system name, environment, cloud (Azure only), optional prior manifest version.
@@ -78,7 +81,7 @@ export function WizardStepIdentity() {
                   field.onChange(v);
                 }}
               >
-                <SelectTrigger id="wizard-environment" className="w-full max-w-md">
+                <SelectTrigger id="wizard-environment" className={wizardSelectTriggerClassName}>
                   <SelectValue placeholder="Select environment" />
                 </SelectTrigger>
                 <SelectContent>
@@ -112,22 +115,18 @@ export function WizardStepIdentity() {
                   field.onChange(v);
                 }}
               >
-                <SelectTrigger id="wizard-cloud-provider" className="w-full max-w-md">
-                  <SelectValue />
+                <SelectTrigger id="wizard-cloud-provider" className={wizardSelectTriggerClassName}>
+                  <SelectValue placeholder="Select cloud provider" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="border-neutral-200/90 dark:border-neutral-600">
                   <SelectItem value="Azure">Microsoft Azure</SelectItem>
-                  <SelectItem disabled value="Aws">
-                    <span className="flex items-center gap-2">
-                      Amazon Web Services
-                      <Badge variant="secondary">Coming soon</Badge>
-                    </span>
+                  <SelectItem className="text-neutral-500 dark:text-neutral-400" disabled value="Aws">
+                    Amazon Web Services
+                    <span className="ml-1.5 text-xs text-neutral-400 dark:text-neutral-500">(coming soon)</span>
                   </SelectItem>
-                  <SelectItem disabled value="Gcp">
-                    <span className="flex items-center gap-2">
-                      Google Cloud
-                      <Badge variant="secondary">Coming soon</Badge>
-                    </span>
+                  <SelectItem className="text-neutral-500 dark:text-neutral-400" disabled value="Gcp">
+                    Google Cloud
+                    <span className="ml-1.5 text-xs text-neutral-400 dark:text-neutral-500">(coming soon)</span>
                   </SelectItem>
                 </SelectContent>
               </Select>
