@@ -2,7 +2,7 @@
 
 > **Scope:** Terraform stack for an Azure Container App that runs the OpenTelemetry collector with a **tail-sampling** policy. It exists because the in-process .NET SDK is **head-based** (decision at trace start), so high-value traces (errors, slow requests, `ArchLucid.AuthorityRun`) get silently dropped at production sampling ratios. See `docs/OBSERVABILITY.md` § Sampling strategy.
 >
-> **Status:** Scaffold only. `versions.tf` and `variables.tf` are real; `main.tf` is intentionally a TODO with the wiring sketched in comments. Do not `terraform apply` until the TODOs are filled in and reviewed.
+> **Status:** `main.tf` provisions an OpenTelemetry Collector Container App when `enable_otel_deployment = true` (default `false` for validate-only runs). Review `variables.tf` / `outputs.tf` before any `terraform apply`.
 
 ## Why this stack is separate
 
@@ -45,4 +45,4 @@ These are the same five activity sources called out in `docs/OBSERVABILITY.md` p
 - [ ] Wire `azurerm_monitor_diagnostic_setting` for the collector container itself.
 - [ ] Add a `checks.tf` postcondition that the OTLP endpoints respond to `/health` after apply.
 
-Until those are done, `terraform plan` will NOT produce a usable resource — it will produce an empty plan because `main.tf` has no resources, only documentation.
+With `enable_otel_deployment = false` (default), `terraform plan` is a no-op for resources. Set `enable_otel_deployment = true` plus a valid `container_apps_environment_id` and Application Insights connection string to materialize the collector.

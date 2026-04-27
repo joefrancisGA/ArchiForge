@@ -3,6 +3,7 @@ using ArchLucid.Core.Scim.Filtering;
 using ArchLucid.Core.Scim.Models;
 
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Utilities;
 
 using Dapper;
 
@@ -118,7 +119,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                            VALUES (@TenantId, @ExternalId, @UserName, @DisplayName, @Active, @ResolvedRole);
                            """;
 
-        UserRow row = await connection.QuerySingleAsync<UserRow>(
+        UserRow? outRow = await connection.QueryFirstOrDefaultAsync<UserRow>(
             new CommandDefinition(
                 sql,
                 new
@@ -132,7 +133,9 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                 },
                 cancellationToken: cancellationToken));
 
-        return row.ToRecord();
+        return DapperRowExpect
+            .Required(outRow, "SCIM user insert must return OUTPUT row from dbo.ScimUsers.")
+            .ToRecord();
     }
 
     /// <inheritdoc />

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -79,6 +80,7 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
   const canVote = rank >= AUTHORITY_RANK.ExecuteAuthority;
 
   return (
+    <MutationErrorBoundary title="Finding explain panel failed to render">
     <div className="space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-700">
       <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Explain this finding (LLM audit)</h4>
       <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
@@ -257,5 +259,6 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
         </p>
       )}
     </div>
+    </MutationErrorBoundary>
   );
 }

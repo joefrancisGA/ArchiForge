@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
+import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -385,6 +386,7 @@ function GovernanceWorkflowPageInner() {
   }
 
   return (
+    <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <main className="mx-auto max-w-4xl">
       <LayerHeader pageKey="governance-workflow" />
@@ -953,6 +955,7 @@ function GovernanceWorkflowPageInner() {
       />
     </main>
     </TooltipProvider>
+    </MutationErrorBoundary>
   );
 }
 

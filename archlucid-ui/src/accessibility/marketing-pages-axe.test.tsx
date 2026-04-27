@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
     get: () => null,
     toString: () => "",
   }),
+  redirect: vi.fn(),
 }));
 
 vi.mock("@/lib/toast", () => ({

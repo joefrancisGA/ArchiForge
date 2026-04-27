@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -61,8 +62,6 @@ export function FindingInspectView({
     );
   }
 
-  const typedJson = JSON.stringify(payload.typedPayload ?? null, null, 2);
-
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-6">
       <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
@@ -88,9 +87,9 @@ export function FindingInspectView({
 
       <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
         <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Payload</h2>
-        <pre className="mt-2 max-h-80 overflow-auto rounded bg-white p-3 text-xs text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100">
-          {typedJson}
-        </pre>
+        <div className="mt-2">
+          <FindingInspectJsonPayload value={payload.typedPayload ?? null} />
+        </div>
       </section>
 
       <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">

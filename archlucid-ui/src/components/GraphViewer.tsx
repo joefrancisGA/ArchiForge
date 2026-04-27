@@ -73,6 +73,7 @@ export function GraphViewer({
             nodes={nodes as Node[]}
             edges={edges as Edge[]}
             fitView
+            onlyRenderVisibleElements
             onNodeClick={(_, node) =>
               setSelectedNode((node.data.raw as GraphNodeVm) ?? null)
             }

@@ -7,12 +7,19 @@
 # Purpose
 #   Prove every quarter that infra/terraform applies cleanly against an empty
 #   Azure subscription, that DbUp migrates a greenfield SQL catalog, and that
-#   the API reaches /health/ready.
+#   a deployed API (optional) reaches /health/ready.
 #
 # Required repository secrets (add when enabling):
 #   AZURE_GREENFIELD_TENANT_ID
 #   AZURE_GREENFIELD_SUBSCRIPTION_ID
 #   AZURE_GREENFIELD_CLIENT_ID    # OIDC federated identity for this workflow only
+#
+# Optional (full Terraform apply of infra/terraform-otel-collector in the disposable RG):
+#   AZURE_GREENFIELD_CAE_ID
+#   AZURE_GREENFIELD_APPINSIGHTS_CS
+#
+# Optional (smoke / doctor against a known API base; strip path if present, https assumed):
+#   GREENFIELD_SMOKE_API_BASE_URL
 #
 # Cleanup contract
 #   The destroy job runs in `if: always()` to avoid orphan spend. If destroy
@@ -41,25 +48,26 @@ permissions:
 
 env:
   TF_VERSION: "1.9.5"
-  RG_NAME: "archlucid-greenfield-${{ github.run_id }}"
-  REGION: "eastus2"
+  RG_NAME: archlucid-greenfield-${{ github.run_id }}
+  REGION: eastus2
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   apply:
     name: terraform apply (greenfield)
     runs-on: ubuntu-latest
     outputs:
-      api_host: ${{ steps.terraform_outputs.outputs.api_host }}
+      api_host: ${{ steps.emit_outputs.outputs.api_host }}
+      resource_group: ${{ steps.emit_outputs.outputs.resource_group }}
     steps:
       - uses: actions/checkout@v5
 
-      - name: TODO — azure/login@v2 with OIDC
-        run: |
-          echo "DRAFT: replace this step with azure/login@v2 once secrets exist."
-          echo "Tenant=$AZURE_GREENFIELD_TENANT_ID Sub=$AZURE_GREENFIELD_SUBSCRIPTION_ID"
-        env:
-          AZURE_GREENFIELD_TENANT_ID: ${{ secrets.AZURE_GREENFIELD_TENANT_ID }}
-          AZURE_GREENFIELD_SUBSCRIPTION_ID: ${{ secrets.AZURE_GREENFIELD_SUBSCRIPTION_ID }}
+      - name: Azure login (OIDC, greenfield SP)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_GREENFIELD_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_GREENFIELD_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_GREENFIELD_SUBSCRIPTION_ID }}
 
       - uses: hashicorp/setup-terraform@v3
         with:
@@ -74,40 +82,90 @@ jobs:
             (cd "$d" && terraform init -backend=false && terraform validate)
           done
 
-      - name: TODO — terraform apply minimal SaaS stack
+      - name: Create RG and optional Terraform apply (otel stack)
+        env:
+          AZURE_GREENFIELD_CAE_ID: ${{ secrets.AZURE_GREENFIELD_CAE_ID }}
+          AZURE_GREENFIELD_APPINSIGHTS_CS: ${{ secrets.AZURE_GREENFIELD_APPINSIGHTS_CS }}
+          ARCHLUCID_GREENFIELD_RG_NAME: ${{ env.RG_NAME }}
+          ARCHLUCID_GREENFIELD_REGION: ${{ env.REGION }}
         run: |
-          echo "DRAFT: orchestrate apply order:"
-          echo "  1) terraform-monitoring (Log Analytics, AppInsights)"
-          echo "  2) terraform-keyvault   (KV + access policies)"
-          echo "  3) terraform-storage    (CMK-ready storage account)"
-          echo "  4) terraform-sql-failover (logical server + greenfield empty DB)"
-          echo "  5) terraform-container-apps (env + API revision)"
-          echo "  6) terraform-otel-collector (after main.tf has resources)"
+          set -eux
+          chmod +x scripts/saas-greenfield-apply.sh
+          ./scripts/saas-greenfield-apply.sh
 
-      - id: terraform_outputs
-        name: TODO — emit api_host from terraform outputs
-        run: echo "api_host=PLACEHOLDER.archlucid.io" >> "$GITHUB_OUTPUT"
+      - name: Emit outputs (smoke target + resource group)
+        id: emit_outputs
+        env:
+          GREENFIELD_SMOKE_API_BASE_URL: ${{ secrets.GREENFIELD_SMOKE_API_BASE_URL }}
+        run: |
+          set -eux
+          echo "resource_group=${{ env.RG_NAME }}" >> "$GITHUB_OUTPUT"
+          if [ -n "${GREENFIELD_SMOKE_API_BASE_URL:-}" ]
+          then
+            u="${GREENFIELD_SMOKE_API_BASE_URL#https://}"
+            u="${u#http://}"
+            u="${u%%/*}"
+            echo "api_host=$u" >> "$GITHUB_OUTPUT"
+            echo "Emitting api_host for smoke: $u"
+          else
+            echo "api_host=" >> "$GITHUB_OUTPUT"
+            echo "::notice::GREENFIELD_SMOKE_API_BASE_URL is unset; smoke / doctor will be skipped. Set the secret to exercise /health/ready and CLI doctor."
+          fi
 
   smoke:
     name: smoke (/health/ready + archlucid doctor)
     runs-on: ubuntu-latest
     needs: apply
     steps:
-      - name: TODO — wait for /health/ready
-        run: |
-          echo "DRAFT: curl --retry 30 --retry-delay 10 https://${{ needs.apply.outputs.api_host }}/health/ready"
+      - uses: actions/checkout@v5
 
-      - name: TODO — archlucid doctor against deployed API
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Wait for /health/ready
+        if: needs.apply.outputs.api_host != ''
+        env:
+          MAX_ATTEMPTS: 12
+          SLEEP: 10
         run: |
-          echo "DRAFT: dotnet run --project ArchLucid.Cli -- doctor --api https://${{ needs.apply.outputs.api_host }}"
+          set -eux
+          host=${{ needs.apply.outputs.api_host }}
+          for n in $(seq 1 "$MAX_ATTEMPTS")
+          do
+            if curl -sf "https://$host/health/ready"
+            then
+              echo " health/ready OK on attempt $n"
+              exit 0
+            fi
+            echo "Attempt $n failed; sleep ${SLEEP}s"
+            sleep "$SLEEP"
+          done
+          echo "::error::Timed out waiting for https://$host/health/ready"
+          exit 1
+
+      - name: archlucid doctor (against deployed API)
+        if: needs.apply.outputs.api_host != ''
+        run: |
+          set -eux
+          dotnet run --project ArchLucid.Cli -- doctor --api "https://${{ needs.apply.outputs.api_host }}"
 
   destroy:
-    name: terraform destroy (cleanup)
+    name: resource group delete (cleanup)
     runs-on: ubuntu-latest
     needs: [apply, smoke]
     if: always() && inputs.keep_after_apply != 'true'
     steps:
-      - name: TODO — terraform destroy in reverse order
+      - name: Azure login (OIDC, greenfield SP)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_GREENFIELD_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_GREENFIELD_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_GREENFIELD_SUBSCRIPTION_ID }}
+
+      - name: Delete greenfield resource group
         run: |
-          echo "DRAFT: destroy stacks in reverse order; on failure, page #ops."
-          echo "Resource group target: $RG_NAME"
+          set -eux
+          echo "Deleting ${{ needs.apply.outputs.resource_group }} …"
+          az group delete --name "${{ needs.apply.outputs.resource_group }}" --yes --no-wait
+          echo "Delete issued (async)."

@@ -1,3 +1,9 @@
+variable "enable_otel_deployment" {
+  type        = bool
+  default     = false
+  description = "When true, create the collector Container App. Keep false in CI/validate until an Application Insights connection string and Container Apps environment id are available."
+}
+
 variable "resource_group_name" {
   description = "Existing resource group hosting the Container Apps environment."
   type        = string
@@ -43,4 +49,10 @@ variable "tail_sampling_min_root_duration_ms" {
   description = "Root-span wall-clock minimum (ms) above which a trace is always retained."
   type        = number
   default     = 2000
+}
+
+variable "otel_ingress_external_enabled" {
+  type        = bool
+  default     = false
+  description = "When false, the collector ingress is internal-only to the environment (VNet-integrated dev clusters). Set true for dev-only or when Front Door is not required."
 }

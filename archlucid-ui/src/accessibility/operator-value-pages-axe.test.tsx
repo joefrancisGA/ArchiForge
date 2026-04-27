@@ -9,6 +9,7 @@ vi.mock("next/navigation", () => ({
     get: () => null,
     toString: () => "",
   }),
+  redirect: vi.fn(),
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -41,9 +42,15 @@ vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
   useEnterpriseMutationCapability: () => false,
 }));
 
-vi.mock("@/lib/use-nav-surface", () => ({
-  useNavSurface: () => ({ mutationCapability: false }),
-}));
+vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/use-nav-surface")>();
+  // LayerHeader needs full NavSurface; composeNavSurface is pure (no React hooks).
+  return {
+    ...actual,
+    useNavSurface: (routeKey: Parameters<typeof actual.useNavSurface>[0]) =>
+      actual.composeNavSurface(routeKey, 2, true, true, true),
+  };
+});
 
 vi.mock("@/hooks/useViewportNarrow", () => ({
   useViewportNarrow: () => false,

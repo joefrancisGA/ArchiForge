@@ -47,11 +47,11 @@ ALLOWED_PARAGRAPHS_NORMALIZED: frozenset[str] = frozenset(
     {
         # Buyer doc — body paragraphs (after markdown stripping)
         "ArchLucid is a SaaS product. You will not install anything to evaluate it.",
-        "You found ArchLucid on GitHub. The repository is open so engineers can read the source, the architecture decisions, and the security posture before talking to us. Evaluating the product itself happens on the hosted SaaS at archlucid.com — there is no Docker, SQL, .NET, Node, Terraform, or CLI on the buyer path.",
-        "For the same five steps with screenshots and links, open archlucid.com/get-started.",
+        "You found ArchLucid on GitHub. The repository is open so engineers can read the source, the architecture decisions, and the security posture before talking to us. Evaluating the product itself happens on the hosted SaaS at archlucid.net — there is no Docker, SQL, .NET, Node, Terraform, or CLI on the buyer path.",
+        "For the same five steps with screenshots and links, open archlucid.net/get-started.",
         "Five steps. Roughly thirty minutes end-to-end on a normal connection.",
-        # Buyer doc — steps 1–5 (numbered list); link targets normalized (archlucid.com, templates/briefs/, docs/CORE_PILOT.md)
-        "Sign in. Open archlucid.com and sign in with your work identity (Microsoft Entra ID or a Google Workspace account). The sign-in flow uses your existing identity provider — there is no separate account to create and no credit card is required to start. You will land on a clean workspace ready for your first architecture run.",
+        # Buyer doc — steps 1–5 (numbered list); link targets normalized (archlucid.net, templates/briefs/, docs/CORE_PILOT.md)
+        "Sign in. Open archlucid.net and sign in with your work identity (Microsoft Entra ID or a Google Workspace account). The sign-in flow uses your existing identity provider — there is no separate account to create and no credit card is required to start. You will land on a clean workspace ready for your first architecture run.",
         "Pick a vertical. A short picker asks which industry profile to start from. The defaults match the briefs in templates/briefs/ — financial-services, healthcare, public-sector, public-sector-us, retail, saas. Choose the closest match; you can change it later. The vertical sets default compliance rules, terminology, and analysis priorities so the first run produces findings relevant to your domain. You are not locked in — the vertical can be changed at any time, and you can run against multiple verticals from the same workspace.",
         "Run a sample. ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline. No upload required for the first run. Within a few seconds the pipeline runs topology, cost, and compliance analysis against the sample request and produces a committed manifest with structured findings and downloadable artifacts. You do not need to prepare any inputs or upload any files for this first pass — the goal is to see the shape of the output before investing your own data.",
         "Read your first finding. Open the committed run and read the first typed finding — what was flagged, why it was flagged, what evidence backs it. This is the smallest unit of value the product produces. Each finding carries a category (topology, cost, compliance, or quality), a severity level, a plain-language explanation of why it matters, and the evidence the analysis used to reach the conclusion. This is how ArchLucid communicates reviewable, defensible architecture observations — structured enough to act on, transparent enough to challenge.",
@@ -69,10 +69,16 @@ ALLOWED_PARAGRAPHS_NORMALIZED: frozenset[str] = frozenset(
         "pricing",
         "Your first 30 minutes with ArchLucid",
         # Buyer doc — "Where to go next" link bullets (consultative scaffolding)
-        "Screenshots and the same five steps with the live UI: archlucid.com/get-started.",
+        "Screenshots and the same five steps with the live UI: archlucid.net/get-started.",
         "Operator path (after the sample run, when you are ready for a real pilot): docs/CORE_PILOT.md.",
         "What the product is and is not, in plain language: docs/EXECUTIVE_SPONSOR_BRIEF.md.",
-        "Pricing: archlucid.com/pricing.",
+        "Pricing: archlucid.net/pricing.",
+        # Marketing page — step bodies (h3 holds the step title; body omits the buyer-doc list lead-in)
+        "Open archlucid.net and sign in with your work identity (Microsoft Entra ID or a Google Workspace account). The sign-in flow uses your existing identity provider — there is no separate account to create and no credit card is required to start. You will land on a clean workspace ready for your first architecture run.",
+        "A short picker asks which industry profile to start from. The defaults match the briefs in templates/briefs/ — financial-services, healthcare, public-sector, public-sector-us, retail, saas. Choose the closest match; you can change it later. The vertical sets default compliance rules, terminology, and analysis priorities so the first run produces findings relevant to your domain. You are not locked in — the vertical can be changed at any time, and you can run against multiple verticals from the same workspace.",
+        "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline. No upload required for the first run. Within a few seconds the pipeline runs topology, cost, and compliance analysis against the sample request and produces a committed manifest with structured findings and downloadable artifacts. You do not need to prepare any inputs or upload any files for this first pass — the goal is to see the shape of the output before investing your own data.",
+        "Open the committed run and read the first typed finding — what was flagged, why it was flagged, what evidence backs it. This is the smallest unit of value the product produces. Each finding carries a category (topology, cost, compliance, or quality), a severity level, a plain-language explanation of why it matters, and the evidence the analysis used to reach the conclusion. This is how ArchLucid communicates reviewable, defensible architecture observations — structured enough to act on, transparent enough to challenge.",
+        "Either invite a colleague and run a second sample, or hand off to a guided pilot. If you want a second opinion, invite a colleague to sign in and run the same sample or a different vertical — no configuration is needed, and they will see results in their own workspace within minutes. If you are ready to move beyond the sample, the guided pilot path walks through creating a request with your own inputs, committing a manifest, and reviewing the artifacts that a real pilot would produce.",
     }
 )
 

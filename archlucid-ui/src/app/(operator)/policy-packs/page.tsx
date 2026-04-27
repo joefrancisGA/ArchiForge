@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
+import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
@@ -384,14 +385,25 @@ export default function PolicyPacksPage() {
           {canMutatePacks ? policyPacksPackContentHeadingOperator : policyPacksPackContentHeadingReader}
         </h3>
         <h4 className="mt-2 mb-2">Effective resolved packs</h4>
-        <pre className="bg-neutral-100 p-3 overflow-auto text-xs max-h-[360px] mb-5 dark:bg-neutral-800">
-          {effective ? JSON.stringify(effective, null, 2) : "—"}
-        </pre>
+        {effective ? (
+          <div className="mb-5">
+            <CollapsibleJsonTree value={effective} className="max-h-[360px] border border-neutral-200 dark:border-neutral-600" />
+          </div>
+        ) : (
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">—</p>
+        )}
 
         <h4 className="mt-0 mb-2">Resolved effective content</h4>
-        <pre className="bg-neutral-100 p-3 overflow-auto text-xs max-h-[360px] mb-6 dark:bg-neutral-800">
-          {effectiveContent ? JSON.stringify(effectiveContent, null, 2) : "—"}
-        </pre>
+        {effectiveContent ? (
+          <div className="mb-6">
+            <CollapsibleJsonTree
+              value={effectiveContent}
+              className="max-h-[360px] border border-neutral-200 dark:border-neutral-600"
+            />
+          </div>
+        ) : (
+          <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">—</p>
+        )}
 
         <h4 className="mt-0 mb-2">Published versions</h4>
         {packVersions.length === 0 ? (
