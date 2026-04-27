@@ -1,6 +1,6 @@
-> **Deprecated as primary entry (2026-04-27):** **[`START_HERE.md`](START_HERE.md)** is the single decision-tree entry. Keep this file for bookmarks only.
-
 > **Scope:** Former Y/N branch list (buyer, security reviewer, contributor, architect); routes you to the next document in one click. Not a primer or substitute for the linked docs themselves.
+
+> **Deprecated as primary entry (2026-04-27):** **[`START_HERE.md`](START_HERE.md)** is the single decision-tree entry. Keep this file for bookmarks only.
 
 > **If you are pressed for time, read [`docs/CONTRIBUTOR_ON_ONE_PAGE.md`](CONTRIBUTOR_ON_ONE_PAGE.md) first.**
 

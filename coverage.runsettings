@@ -11,7 +11,7 @@
           <!-- Tier 5: generated / external-HTTP surfaces not meaningfully unit-tested -->
           <Exclude>[ArchLucid.Cli]*ArchLucidApiClient*</Exclude>
           <Exclude>[ArchLucid.Api]Microsoft.AspNetCore.OpenApi.Generated*</Exclude>
-          <ExcludeByFile>**/obj/**/OpenApiXmlCommentSupport.generated.cs,**/obj/**/LoggerMessage.g.cs,**/ArchLucid.Api.Client/Generated/**</ExcludeByFile>
+          <ExcludeByFile>**/obj/**/OpenApiXmlCommentSupport.generated.cs,**/obj/**/LoggerMessage.g.cs,**/ArchLucid.Api.Client/Generated/**,**/RegexGenerator.g.cs</ExcludeByFile>
         </Configuration>
       </DataCollector>
     </DataCollectors>

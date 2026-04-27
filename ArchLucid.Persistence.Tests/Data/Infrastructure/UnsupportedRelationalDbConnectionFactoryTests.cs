@@ -1,30 +1,29 @@
+using System.Data;
+
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class UnsupportedRelationalDbConnectionFactoryTests
 {
+    private readonly UnsupportedRelationalDbConnectionFactory _sut = new();
+
     [Fact]
-    public void CreateConnection_throws()
+    public void CreateConnection_Throws()
     {
-        UnsupportedRelationalDbConnectionFactory factory = new();
+        Action act = () => _sut.CreateConnection();
 
-        Action act = () => factory.CreateConnection();
-
-        act.Should().Throw<InvalidOperationException>();
+        act.Should().Throw<InvalidOperationException>().WithMessage("*InMemory*");
     }
 
     [Fact]
-    public async Task CreateOpenConnectionAsync_throws()
+    public async Task CreateOpenConnectionAsync_Throws()
     {
-        UnsupportedRelationalDbConnectionFactory factory = new();
+        Func<Task> act = async () => await _sut.CreateOpenConnectionAsync(CancellationToken.None);
 
-        Func<Task> act = async () => await factory.CreateOpenConnectionAsync(CancellationToken.None);
-
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*InMemory*");
     }
 }

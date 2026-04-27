@@ -1,6 +1,6 @@
-> **Deprecated as primary entry (2026-04-27):** **[`START_HERE.md`](START_HERE.md)** §3 is the contributor path. This page remains a one-pager shortcut.
-
 > **Scope:** Contributor fast path — install order, one verification command, and where to read next; not buyer narrative, deep architecture, or operator atlas detail.
+
+> **Deprecated as primary entry (2026-04-27):** **[`START_HERE.md`](START_HERE.md)** §3 is the contributor path. This page remains a one-pager shortcut.
 
 # Contributor on one page
 

@@ -1,0 +1,74 @@
+using ArchLucid.Core.Configuration;
+using ArchLucid.Persistence.Configuration;
+
+using Dapper;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Configuration;
+
+namespace ArchLucid.Persistence.Tests.Configuration;
+
+[Trait("Category", "Unit")]
+public sealed class DapperGlobalCommandTimeoutBootstrapTests
+{
+    private static readonly object s_commandTimeoutGate = new();
+
+    [Fact]
+    public void ApplyIfConfigured_Throws_WhenConfigurationNull()
+    {
+        Action act = () => DapperGlobalCommandTimeoutBootstrap.ApplyIfConfigured(null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("configuration");
+    }
+
+    [Fact]
+    public void ApplyIfConfigured_NoOp_WhenSecondsMissingOrNonPositive()
+    {
+        lock (s_commandTimeoutGate)
+        {
+            int? before = SqlMapper.Settings.CommandTimeout;
+
+            try
+            {
+                IConfiguration empty = new ConfigurationBuilder().AddInMemoryCollection().Build();
+                DapperGlobalCommandTimeoutBootstrap.ApplyIfConfigured(empty);
+
+                IConfiguration zero = new ConfigurationBuilder()
+                    .AddInMemoryCollection(
+                        [new($"{ArchLucidPersistenceOptions.SectionPath}:DefaultSqlCommandTimeoutSeconds", "0")])
+                    .Build();
+                DapperGlobalCommandTimeoutBootstrap.ApplyIfConfigured(zero);
+            }
+            finally
+            {
+                SqlMapper.Settings.CommandTimeout = before;
+            }
+        }
+    }
+
+    [Fact]
+    public void ApplyIfConfigured_SetsSqlMapper_WhenPositive()
+    {
+        lock (s_commandTimeoutGate)
+        {
+            int? before = SqlMapper.Settings.CommandTimeout;
+
+            try
+            {
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddInMemoryCollection(
+                        [new($"{ArchLucidPersistenceOptions.SectionPath}:DefaultSqlCommandTimeoutSeconds", "44")])
+                    .Build();
+
+                DapperGlobalCommandTimeoutBootstrap.ApplyIfConfigured(config);
+
+                SqlMapper.Settings.CommandTimeout.Should().Be(44);
+            }
+            finally
+            {
+                SqlMapper.Settings.CommandTimeout = before;
+            }
+        }
+    }
+}
