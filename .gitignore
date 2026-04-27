@@ -70,6 +70,9 @@ _docker_publish_test/
 _docker_publish_worker/
 _docker_r2r_noflag/
 
+# Ad-hoc dotnet build/test -o output folders at repo root (e.g. _tmp_build_out, _tmp_test_out)
+_tmp*/
+
 # Benchmark JSON outputs under repo root (regenerate with BenchmarkDotNet locally)
 artifacts-bench/results/
 

@@ -1,13 +1,13 @@
 > **Scope:** Eight paste-ready Cursor prompts for the largest-impact improvements in [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md). Each prompt is self-contained — it assumes the assistant starts from a clean session with no memory of the assessment.
 
-> **Spine doc:** [Five-document onboarding spine](FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
+> **Spine doc:** [Five-document onboarding spine](../../../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 >
-> **Follow-on prompts (same assessment, §1.9–1.18):** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md`](archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md) — eight more paste-ready blocks (Prompts **A–H**).
+> **Follow-on prompts (same assessment, §1.9–1.18):** [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md`](../2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md) — eight more paste-ready blocks (Prompts **A–H**).
 
 # Cursor prompts — top-8 improvements after the 68.60% assessment (2026-04-21)
 
-**How to use.** One prompt per session. Paste the whole block (between the triple backticks) into a fresh Cursor agent. Each prompt names its **stop-and-ask** boundaries — the assistant should not cross those without owner input. After each prompt completes, update [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) accordingly.
+**How to use.** One prompt per session. Paste the whole block (between the triple backticks) into a fresh Cursor agent. Each prompt names its **stop-and-ask** boundaries — the assistant should not cross those without owner input. After each prompt completes, update [`docs/PENDING_QUESTIONS.md`](../../../PENDING_QUESTIONS.md) accordingly.
 
 **DEFERRED markers.** A prompt is marked `[DEFERRED]` in the heading when the assistant cannot complete **at least part** of it without owner input that has not yet been received. None of the eight below are fully `DEFERRED` — every prompt has substantive work the assistant can land today.
 
@@ -694,4 +694,4 @@ enriched.
 - **Track resolution in `PENDING_QUESTIONS.md`.** Each prompt enriches the relevant items so the next session sees the open shape.
 - **Order matters only loosely.** Prompts 1, 2, and 6 unblock owner-only work; the rest are independent.
 - **Re-run-safe.** Each prompt's exit criteria are idempotent; running the same prompt twice in different sessions should converge on the same end state.
-- **More prompts:** eight assessment-aligned follow-ons (strangler CI, board-pack PDF, task telemetry, pricing quote, compliance journey page, procurement ZIP, traceability ZIP, game day) live in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md`](archive/quality/2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md).
+- **More prompts:** eight assessment-aligned follow-ons (strangler CI, board-pack PDF, task telemetry, pricing quote, compliance journey page, procurement ZIP, traceability ZIP, game day) live in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md`](../2026-04-23-doc-depth-reorg/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_68_60_ADDITIONAL.md).
