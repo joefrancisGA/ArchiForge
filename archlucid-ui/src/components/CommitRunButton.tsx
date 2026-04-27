@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { commitArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -23,6 +24,7 @@ export type CommitRunButtonProps = {
 export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [notifySponsor, setNotifySponsor] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<{
     message: string;
@@ -35,7 +37,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
     setError(null);
 
     try {
-      await commitArchitectureRun(runId);
+      await commitArchitectureRun(runId, { notifySponsor });
       recordFirstTenantFunnelEvent("first_run_committed");
       setDialogOpen(false);
       router.refresh();
@@ -74,6 +76,7 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
           variant="primary"
           onClick={() => {
             setError(null);
+            setNotifySponsor(false);
             setDialogOpen(true);
           }}
         >
@@ -102,6 +105,29 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
         variant="default"
         onConfirm={() => void onConfirm()}
         busy={busy}
+        extraContent={
+          <div className="flex items-start gap-2 px-1 py-1">
+            <input
+              id="commit-notify-sponsor"
+              type="checkbox"
+              className="mt-1 h-4 w-4 rounded border border-neutral-300 text-neutral-900 focus-visible:ring-2 focus-visible:ring-neutral-400 disabled:opacity-50 dark:border-neutral-600 dark:text-neutral-100 dark:focus-visible:ring-neutral-500"
+              checked={notifySponsor}
+              disabled={busy}
+              onChange={(e) => {
+                setNotifySponsor(e.target.checked);
+              }}
+            />
+            <div className="min-w-0">
+              <Label htmlFor="commit-notify-sponsor" className="font-medium text-neutral-900 dark:text-neutral-100">
+                Email tenant admin contact
+              </Label>
+              <p className="mt-0.5 text-xs text-neutral-600 dark:text-neutral-400">
+                Sends a short heads-up with a link to this run when the tenant admin mailbox is on file and outbound
+                email is configured.
+              </p>
+            </div>
+          </div>
+        }
       />
     </div>
   );

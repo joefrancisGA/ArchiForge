@@ -325,8 +325,13 @@ export async function createArchitectureRun(
 }
 
 /** Commits agent results into a golden manifest (POST /v1/architecture/run/{runId}/commit). */
-export async function commitArchitectureRun(runId: string): Promise<unknown> {
-  return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/commit`, {});
+export async function commitArchitectureRun(
+  runId: string,
+  options?: { readonly notifySponsor?: boolean },
+): Promise<unknown> {
+  return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/commit`, {
+    notifySponsor: options?.notifySponsor === true,
+  });
 }
 
 /** Seeds deterministic fake agent results for a run (POST /v1/architecture/run/{runId}/seed-fake-results; non-Production only). */

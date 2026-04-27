@@ -366,7 +366,7 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            Gen.CommitRunResponse result = await _api.CommitAsync(runId, ct);
+            Gen.CommitRunResponse result = await _api.CommitAsync(runId, body: null, ct);
             CommitRunResponse? mapped = DeserializeRoundTrip<CommitRunResponse>(result);
 
             return new CommitRunResult(true, mapped, null);
@@ -424,7 +424,7 @@ public sealed class ArchLucidApiClient
 
         try
         {
-            Gen.CommitRunResponse gen = await _api.CommitAsync(runId, ct);
+            Gen.CommitRunResponse gen = await _api.CommitAsync(runId, body: null, ct);
             Gen.GoldenManifest? gm = gen.Manifest;
 
             if (gm is null)

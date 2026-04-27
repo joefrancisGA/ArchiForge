@@ -6,6 +6,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
@@ -49,6 +50,7 @@ public sealed partial class RunsController(
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
+    ICommitSponsorEmailNotifier commitSponsorEmailNotifier,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -307,6 +309,7 @@ public sealed partial class RunsController(
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CommitRun(
         [FromRoute] string runId,
+        [FromBody] CommitRunRequest? request,
         CancellationToken cancellationToken)
     {
         string user = actorContext.GetActor();
@@ -327,6 +330,15 @@ public sealed partial class RunsController(
                 result.Warnings.Count,
                 user,
                 correlationId);
+
+            if (request?.NotifySponsor == true)
+            {
+                Guid tenantId = scopeContextProvider.GetCurrentScope().TenantId;
+
+                await commitSponsorEmailNotifier
+                    .NotifyAfterCommitAsync(tenantId, runId, cancellationToken)
+                    .ConfigureAwait(false);
+            }
 
             return Ok(response);
         }

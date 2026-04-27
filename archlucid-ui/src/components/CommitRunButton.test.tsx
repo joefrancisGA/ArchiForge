@@ -36,7 +36,25 @@ describe("CommitRunButton", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /^finalize manifest$/i }));
 
     await waitFor(() => {
-      expect(mockCommit).toHaveBeenCalledWith("run-1");
+      expect(mockCommit).toHaveBeenCalledWith("run-1", { notifySponsor: false });
+    });
+  });
+
+  it("passes notifySponsor when the email checkbox is checked", async () => {
+    mockCommit.mockResolvedValue({});
+
+    render(<CommitRunButton runId="run-2" disabled={false} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /^finalize manifest$/i }));
+
+    const dialog = await screen.findByRole("alertdialog");
+
+    fireEvent.click(within(dialog).getByRole("checkbox", { name: /email tenant admin contact/i }));
+
+    fireEvent.click(within(dialog).getByRole("button", { name: /^finalize manifest$/i }));
+
+    await waitFor(() => {
+      expect(mockCommit).toHaveBeenCalledWith("run-2", { notifySponsor: true });
     });
   });
 });

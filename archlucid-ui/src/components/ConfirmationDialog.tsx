@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 
 import {
@@ -24,6 +25,8 @@ export type ConfirmationDialogProps = {
   variant?: "destructive" | "default";
   onConfirm: () => void;
   busy?: boolean;
+  /** Rendered after the description and before the footer (e.g. optional checkboxes). */
+  extraContent?: ReactNode;
 };
 
 const defaultConfirmLabel = "Confirm";
@@ -39,6 +42,7 @@ export function ConfirmationDialog({
   variant = "destructive",
   onConfirm,
   busy = false,
+  extraContent,
 }: ConfirmationDialogProps) {
   const resolvedConfirmLabel = confirmLabel;
   const isDestructive = variant === "destructive";
@@ -50,6 +54,7 @@ export function ConfirmationDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
+        {extraContent ?? null}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={busy}>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
