@@ -60,6 +60,11 @@ describe("KeyboardShortcutProvider", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Keyboard shortcuts" })).toBeInTheDocument();
 
+    // Help content groups shortcuts in collapsible sections; hidden nodes are not matched by getByText.
+    fireEvent.click(screen.getByRole("button", { name: "Show all navigation shortcuts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show alerts page shortcuts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show help overlay shortcut" }));
+
     for (const entry of SHORTCUTS) {
       expect(screen.getByText(entry.description)).toBeInTheDocument();
     }
