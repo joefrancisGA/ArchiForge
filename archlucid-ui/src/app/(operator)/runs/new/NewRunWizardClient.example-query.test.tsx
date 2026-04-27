@@ -49,8 +49,12 @@ import {
   OPERATOR_HOME_EXAMPLE_SYSTEM_NAME,
 } from "@/lib/operator-home-example-request";
 
+const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
+
 describe("NewRunWizardClient (example query)", () => {
   beforeEach(() => {
+    window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL) => {
@@ -96,6 +100,7 @@ describe("NewRunWizardClient (example query)", () => {
   });
 
   afterEach(() => {
+    window.localStorage.removeItem(WIZARD_MODE_STORAGE_KEY);
     vi.unstubAllGlobals();
   });
 });

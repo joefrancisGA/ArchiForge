@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
@@ -45,6 +47,14 @@ vi.mock("@/lib/api", () => ({
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
 describe("NewRunWizardClient (sampleRunId query)", () => {
+  beforeEach(() => {
+    window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+  });
+
+  afterEach(() => {
+    window.localStorage.removeItem(WIZARD_MODE_STORAGE_KEY);
+  });
+
   it("shows trial sample callout on step 1 when sampleRunId is present", async () => {
     render(<NewRunWizardClient />);
 

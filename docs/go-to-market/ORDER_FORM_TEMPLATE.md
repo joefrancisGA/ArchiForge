@@ -133,7 +133,7 @@ By signing this order form, Customer agrees to the following (each incorporated 
 
 | Document | Location |
 |----------|----------|
-| **Terms of Service** | [TBD — URL] |
+| **Master Service Agreement** | [MSA_TEMPLATE.md](MSA_TEMPLATE.md) |
 | **Data Processing Agreement** | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) |
 | **Service Level Objectives** | [SLA_SUMMARY.md](SLA_SUMMARY.md) |
 | **Acceptable Use Policy** | [TBD — URL] |
@@ -246,6 +246,7 @@ A **chargeback** is a bank-initiated dispute after the card network’s rules-ba
 
 | Doc | Use |
 |-----|-----|
+| [MSA_TEMPLATE.md](MSA_TEMPLATE.md) | Master Service Agreement (this Order Form is governed by the MSA) |
 | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | **Single source of truth** for all list prices, pilot pricing, re-rate gates, and sensitivity playbook |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data processing terms |
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Service level objectives |

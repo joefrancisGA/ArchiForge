@@ -1,5 +1,8 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+/** Must match `NewRunWizardClient` — stored "quick" overrides `listRunsByProjectPaged` and hides the import path. */
+const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
@@ -44,6 +47,14 @@ vi.mock("@/lib/api", () => ({
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
 describe("NewRunWizardClient (SECOND_RUN paste)", () => {
+  beforeEach(() => {
+    window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
+  });
+
+  afterEach(() => {
+    window.localStorage.removeItem(WIZARD_MODE_STORAGE_KEY);
+  });
+
   it("step 1 exposes paste path and applying TOML pre-fills system name on identity step", async () => {
     render(<NewRunWizardClient />);
 
@@ -51,8 +62,10 @@ describe("NewRunWizardClient (SECOND_RUN paste)", () => {
       expect(screen.queryByText("Loading wizard…")).not.toBeInTheDocument();
     });
 
+    const importToggle = await screen.findByTestId("wizard-import-request-toggle");
+
     await act(async () => {
-      fireEvent.click(screen.getByTestId("wizard-import-request-toggle"));
+      fireEvent.click(importToggle);
     });
 
     expect(screen.getByTestId("second-run-paste-textarea")).toBeInTheDocument();
