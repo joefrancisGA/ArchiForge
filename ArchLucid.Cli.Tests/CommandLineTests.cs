@@ -94,7 +94,7 @@ public sealed class CommandLineTests
     [Fact]
     public async Task LeadingGlobalJson_HealthUnreachable_WritesJsonToStderr()
     {
-        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+        RedirectConsole(out _, out StringWriter errWriter, out TextWriter prevOut,
             out TextWriter prevErr);
         try
         {

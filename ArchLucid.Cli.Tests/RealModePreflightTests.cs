@@ -6,7 +6,7 @@ namespace ArchLucid.Cli.Tests;
 
 public sealed class RealModePreflightTests
 {
-    private static readonly object AzureEnvLock = new();
+    private static readonly Lock AzureEnvLock = new();
 
     private const string Endpoint = "AZURE_OPENAI_ENDPOINT";
     private const string ApiKey = "AZURE_OPENAI_API_KEY";
@@ -17,20 +17,14 @@ public sealed class RealModePreflightTests
         if (!stash.ContainsKey(key))
             stash[key] = Environment.GetEnvironmentVariable(key);
 
-        if (value is null)
-            Environment.SetEnvironmentVariable(key, null);
-        else
-            Environment.SetEnvironmentVariable(key, value);
+        Environment.SetEnvironmentVariable(key, value ?? null);
     }
 
     private static void RestoreAll(Dictionary<string, string?> stash)
     {
         foreach (KeyValuePair<string, string?> kv in stash)
         {
-            if (kv.Value is null)
-                Environment.SetEnvironmentVariable(kv.Key, null);
-            else
-                Environment.SetEnvironmentVariable(kv.Key, kv.Value);
+            Environment.SetEnvironmentVariable(kv.Key, kv.Value ?? null);
         }
     }
 

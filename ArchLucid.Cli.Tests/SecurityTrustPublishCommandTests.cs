@@ -14,7 +14,8 @@ public sealed class SecurityTrustPublishCommandTests
     public async Task ExecutePublicationAsync_posts_json_and_returns_success()
     {
         CapturingHandler handler = new();
-        using HttpClient http = new(handler) { BaseAddress = new Uri("http://localhost:5555/") };
+        using HttpClient http = new(handler);
+        http.BaseAddress = new Uri("http://localhost:5555/");
 
         SecurityTrustPublishCommandOptions? opts = SecurityTrustPublishCommandOptions.Parse(
             [

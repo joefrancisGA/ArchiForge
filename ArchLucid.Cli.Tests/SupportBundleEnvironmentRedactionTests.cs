@@ -11,7 +11,7 @@ namespace ArchLucid.Cli.Tests;
 [Trait("Suite", "Core")]
 public sealed class SupportBundleEnvironmentRedactionTests
 {
-    private static readonly object EnvMutationLock = new();
+    private static readonly Lock EnvMutationLock = new();
 
     [Fact]
     public void
@@ -59,13 +59,7 @@ public sealed class SupportBundleEnvironmentRedactionTests
             }
             finally
             {
-                if (prior is null)
-
-                    Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", null);
-
-                else
-
-                    Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", prior);
+                Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", prior ?? null);
             }
         }
     }
