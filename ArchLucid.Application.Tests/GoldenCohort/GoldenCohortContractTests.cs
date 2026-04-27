@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-using ArchLucid.Application.GoldenCohort;
+using ArchLucid.Core.GoldenCorpus;
 
 using Xunit.Abstractions;
 

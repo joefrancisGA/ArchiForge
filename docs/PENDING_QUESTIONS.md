@@ -5,7 +5,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-28 (Assessor B; Q7 resolved via `MANUAL_QA_CHECKLIST.md` §8.3; Q9 uptime; only Q3 still open in Assessor B thread).
+**Last updated:** 2026-04-29 (item **12** — public `/accessibility` + `accessibility@archlucid.net`; Assessor B thread: only Q3 still open).
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -34,6 +34,13 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | **Azure spend (staging + production)** | **Target:** combined **no more than ~USD $400 / month** until there are paying customers. | FinOps; buyer-facing `ROI_MODEL.md` infrastructure bands are often higher — **your** COGS is leaner pre-customer. |
 | **Third-party pen test / “shareable” date (Q8)** | **No** third-party pen-test **report** or **customer-shareable** redacted summary **yet**. Security work in progress: **internal / founder-led** penetration testing plus in-repo and CI controls (ZAP, Schemathesis, runbooks, Trust Center). **When** a third-party firm is engaged, shareable vs NDA-only is set with that SoW. | Procurement narrative; do **not** imply independent attestation. Trust Center honest labels unchanged. |
 | **Uptime / 30-day rollup (Q9)** | **No 30-day measured rollup** for `archlucid.net` / `staging` **yet** — not publishing an **achieved** availability %. **Stated SLO in docs** remains **99.5%** availability over a **30-day** rolling window (e.g. `docs/library/API_SLOS.md`, Prometheus rules in-repo). | Buyer narrative: **target** from docs, not a verified operational score until monitoring exports a 30-day number. |
+
+### Resolved 2026-04-29 (2026-04-21 assessment backlog — item 12 — accessibility publication channel)
+
+| Sub-decision | Decision | Notes / surfaces |
+|---|---|---|
+| **WCAG conformance publication surface** | **Public marketing route** (`/accessibility`) **is canonical** — not Trust Center-only. Buyer-facing narrative and tooling live on **`archlucid-ui/src/app/(marketing)/accessibility/page.tsx`** (pipeline from root **`ACCESSIBILITY.md`** per **`CHANGELOG.md` 2026-04-22**). **`docs/go-to-market/TRUST_CENTER.md`** may cross-link. | Aligns backlog item **12** with shipped UI; WCAG clause level in policy text follows root **`ACCESSIBILITY.md`**. |
+| **Mailbox** | **`accessibility@archlucid.net`** — **use this alias** for accessibility/WCAG reports; **do not** advertise **`security@`** as the sole contact for accessibility-only topics. Custodian routing is documented in [`docs/security/ACCESSIBILITY_MAILBOX.md`](security/ACCESSIBILITY_MAILBOX.md). | Reconfirmed by owner **2026-04-29**; UI mailto on [`AccessibilityMarketingPublicView`](../archlucid-ui/src/components/marketing/AccessibilityMarketingPublicView.tsx); backlog question’s `accessibility@archlucid.dev` hypothetical **superseded** by **`.net`**. |
 
 ### Still open — same assessment thread (Assessor B §9)
 
@@ -186,7 +193,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
 11. **Workflow-integration sequencing (rescoped 2026-04-23 — second pass; updated 2026-04-24)** — **ServiceNow** is release-window-pinned to **V1.1** and **Slack** is release-window-pinned to **V2** (see the resolved table in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B): *Resolved 2026-04-23 (ServiceNow + Slack connector scope)*). **Confluence is now release-window-pinned to V1.1** (owner decision 2026-04-24 — all Atlassian suite connectors deferred to V1.1; see Improvement 3 above and [`docs/library/V1_DEFERRED.md` §6](library/V1_DEFERRED.md)). Sequencing preference is unchanged: prefer **Microsoft-native** options (Teams notifications — already shipped in V1, Logic Apps Standard workflows, deeper ADO/GitHub) as the primary surface; Atlassian connectors (Jira, Confluence) follow in V1.1.
 
-12. **WCAG 2.2 AA conformance publication channel** — Trust Center page only, or also a public `/accessibility` page on the marketing site? Whether to create an `accessibility@archlucid.dev` alias or reuse `security@`.
+12. **WCAG conformance publication channel — Resolved 2026-04-22 (reconfirmed 2026-04-29).** **Public `/accessibility`** on the marketing site is **canonical** (not Trust Center-only). Use **`accessibility@archlucid.net`** for accessibility reports — **not** `security@` as the advertised channel for WCAG-only follow-up. See **Resolved 2026-04-29** above, [`CHANGELOG.md`](CHANGELOG.md) (2026-04-22), and [`docs/security/ACCESSIBILITY_MAILBOX.md`](security/ACCESSIBILITY_MAILBOX.md).
 
 13. **Public price list publication on marketing site** — `PRICING_PHILOSOPHY.md` is internal today. Marketplace publication (item 8) makes price public anyway; do we publish on the marketing site simultaneously or stay quote-on-request elsewhere?
 

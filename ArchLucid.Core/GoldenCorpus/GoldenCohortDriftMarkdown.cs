@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace ArchLucid.Application.GoldenCohort;
+namespace ArchLucid.Core.GoldenCorpus;
 
 /// <summary>Formats golden-cohort drift output as Markdown for CI / <c>docs/quality</c> consumers.</summary>
 public static class GoldenCohortDriftMarkdown

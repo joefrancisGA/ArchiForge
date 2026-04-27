@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Application.GoldenCohort;
+using ArchLucid.Core.GoldenCorpus;
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Cli.Commands;

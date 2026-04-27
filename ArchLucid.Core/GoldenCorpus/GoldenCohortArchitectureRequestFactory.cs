@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
-namespace ArchLucid.Application.GoldenCohort;
+namespace ArchLucid.Core.GoldenCorpus;
 
 /// <summary>Builds <see cref="ArchitectureRequest"/> payloads for golden-cohort simulator runs.</summary>
 public static class GoldenCohortArchitectureRequestFactory

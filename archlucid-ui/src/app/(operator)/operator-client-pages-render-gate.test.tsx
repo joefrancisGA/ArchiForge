@@ -72,7 +72,7 @@ describe("operator client pages — render gate", () => {
 
   it("Advisory hub Scans tab content renders primary heading", () => {
     render(<AdvisoryScansContent />);
-    expect(screen.getByRole("heading", { level: 2, name: "Improvement Advisor" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Architecture advisory" })).toBeInTheDocument();
   });
 
   it("Advisory hub Schedules tab content renders primary heading", () => {

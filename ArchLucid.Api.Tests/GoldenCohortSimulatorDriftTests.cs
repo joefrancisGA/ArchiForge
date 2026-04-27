@@ -4,7 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
-using ArchLucid.Application.GoldenCohort;
+using ArchLucid.Core.GoldenCorpus;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
 

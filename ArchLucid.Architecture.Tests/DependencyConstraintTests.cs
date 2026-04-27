@@ -359,18 +359,25 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
-    public void AgentRuntime_must_not_depend_on_Application()
+    public void AgentRuntime_must_not_depend_on_Application_outside_explanation_ports()
     {
+        // AgentRuntime.Explanation implements Application.Explanation port interfaces
+        // (IExplanationService, IRunExplanationSummaryService) — that dependency is the
+        // correct adapter→port direction in hexagonal architecture and is therefore allowed.
+        // Every OTHER namespace in AgentRuntime must stay decoupled from Application.
         Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
 
         TestResult result = Types
             .InAssembly(agentRuntime)
+            .That()
+            .DoNotResideInNamespace("ArchLucid.AgentRuntime.Explanation")
             .ShouldNot()
             .HaveDependencyOn("ArchLucid.Application")
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue(
-            because: "AgentRuntime is a peer of Application, not a consumer. Offending types: {0}",
+            because: "Only AgentRuntime.Explanation may implement Application.Explanation ports; " +
+                     "all other AgentRuntime types must not reference Application orchestration. Offending types: {0}",
             FormatFailingTypeNames(result));
     }
 
@@ -504,6 +511,87 @@ public sealed class DependencyConstraintTests
             .NotContain(
                 ["AdvisoryScanRunner", "RecommendationLearningService"],
                 "orchestration lives in ArchLucid.Application.Advisory");
+    }
+
+    // ── Tier 6 — New gap coverage ─────────────────────────────────────────────
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Cli_must_not_reference_Application_assembly()
+    {
+        // GoldenCohort data types moved to Core.GoldenCorpus; Cli is now a thin HTTP-client
+        // host that should compose over Api.Client and Contracts only.
+        Assembly cli = typeof(ManifestValidator).Assembly;
+        AssemblyName[] references = cli.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Application",
+            because: "Cli is a thin host over ArchLucid.Api.Client; data utilities belong in Core.GoldenCorpus not Application.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Cli_must_not_reference_Coordinator_assembly()
+    {
+        Assembly cli = typeof(ManifestValidator).Assembly;
+        AssemblyName[] references = cli.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Coordinator",
+            because: "Cli must not pull in domain orchestration layers; HTTP transport via Api.Client is the correct boundary.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_Explanation_may_only_import_Application_Explanation_namespace()
+    {
+        // Positive complement of AgentRuntime_must_not_depend_on_Application_outside_explanation_ports.
+        // Verify that the one allowed cross-boundary import stays scoped to Application.Explanation.
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+
+        TestResult result = Types
+            .InAssembly(agentRuntime)
+            .That()
+            .ResideInNamespace("ArchLucid.AgentRuntime.Explanation")
+            .ShouldNot()
+            .HaveDependencyOnAny(
+                "ArchLucid.Application.Runs",
+                "ArchLucid.Application.Advisory",
+                "ArchLucid.Application.Analysis",
+                "ArchLucid.Application.Governance",
+                "ArchLucid.Application.GoldenCohort",
+                "ArchLucid.Application.Pilots",
+                "ArchLucid.Application.Notifications",
+                "ArchLucid.Application.Marketing",
+                "ArchLucid.Application.Common")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "AgentRuntime.Explanation may implement Application.Explanation port interfaces only; " +
+                     "it must not reach into Application orchestration or use-case namespaces. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_references_AgentSimulator_by_design()
+    {
+        // SimulatorExecutionTraceRecordingExecutor, EchoAgentCompletionClient, and CostAgentHandler
+        // in AgentRuntime use DeterministicAgentSimulator for Simulator-mode execution paths.
+        // This is production behaviour (not test-only): when AgentExecution:Mode=Simulator the runtime
+        // delegates to AgentSimulator rather than calling Azure OpenAI.
+        // This test documents and accepts that coupling so future reviewers do not treat it as a bug.
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+        AssemblyName[] references = agentRuntime.GetReferencedAssemblies();
+
+        references.Should().Contain(
+            a => a.Name == "ArchLucid.AgentSimulator",
+            because: "AgentRuntime hosts simulator-mode execution adapters (SimulatorExecutionTraceRecordingExecutor, " +
+                     "EchoAgentCompletionClient) that delegate to DeterministicAgentSimulator in non-real-LLM environments.");
     }
 
     private static string? FindRepositoryRootContainingSolution()

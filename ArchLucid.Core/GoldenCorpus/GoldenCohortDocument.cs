@@ -1,16 +1,13 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchLucid.Application.GoldenCohort;
+namespace ArchLucid.Core.GoldenCorpus;
 
 /// <summary>Root JSON for <c>tests/golden-cohort/cohort.json</c>.</summary>
 public sealed class GoldenCohortDocument
 {
     [JsonPropertyName("schemaVersion")]
-    public int SchemaVersion
-    {
-        get; set;
-    }
+    public int SchemaVersion { get; set; }
 
     [JsonPropertyName("cohortName")]
     public string CohortName { get; set; } = string.Empty;

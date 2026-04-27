@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
 
-namespace ArchLucid.Application.GoldenCohort;
+namespace ArchLucid.Core.GoldenCorpus;
 
 /// <summary>Builds the golden-cohort finding category multiset from persisted <see cref="AgentResult"/> rows.</summary>
 public static class GoldenCohortFindingCategoryAggregator
@@ -16,9 +16,7 @@ public static class GoldenCohortFindingCategoryAggregator
         foreach (AgentResult result in results)
         {
             foreach (ArchitectureFinding finding in result.Findings.Where(finding => !string.IsNullOrWhiteSpace(finding.Category)))
-            {
                 set.Add(finding.Category.Trim());
-            }
         }
 
         return set;

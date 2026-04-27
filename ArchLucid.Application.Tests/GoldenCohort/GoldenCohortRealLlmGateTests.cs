@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.Application.GoldenCohort;
+using ArchLucid.Core.GoldenCorpus;
 
 namespace ArchLucid.Application.Tests.GoldenCohort;
 

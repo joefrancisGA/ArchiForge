@@ -1,4 +1,4 @@
-namespace ArchLucid.Application.GoldenCohort;
+namespace ArchLucid.Core.GoldenCorpus;
 
 /// <summary>Shared literals for golden-cohort baseline state.</summary>
 public static class GoldenCohortBaselineConstants

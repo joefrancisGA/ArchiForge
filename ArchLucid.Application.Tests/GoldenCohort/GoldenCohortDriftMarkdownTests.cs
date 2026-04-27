@@ -1,4 +1,4 @@
-using ArchLucid.Application.GoldenCohort;
+using ArchLucid.Core.GoldenCorpus;
 
 using FluentAssertions;
 
