@@ -27,7 +27,7 @@ public sealed class InMemoryBackgroundJobQueueTests
             "application/octet-stream");
     }
 
-    private static (InMemoryBackgroundJobQueue Queue, Mock<IBackgroundJobWorkUnitExecutor> Executor) CreateSystem(
+    private static InMemoryBackgroundJobQueue CreateSystem(
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger,
         Action<Mock<IBackgroundJobWorkUnitExecutor>>? configureExecutor = null)
     {
@@ -40,9 +40,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScopeFactory scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
 
-        InMemoryBackgroundJobQueue queue = new(logger.Object, scopeFactory);
-
-        return (queue, executor);
+        return new InMemoryBackgroundJobQueue(logger.Object, scopeFactory);
     }
 
     [Fact]
@@ -51,7 +49,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         TaskCompletionSource<bool> barrier = new();
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
 
-        (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
+        InMemoryBackgroundJobQueue queue = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
                 .Returns<BackgroundJobWorkUnit, CancellationToken>(async (_, ct) =>
@@ -85,7 +83,7 @@ public sealed class InMemoryBackgroundJobQueueTests
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
 
-        (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
+        InMemoryBackgroundJobQueue queue = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new InvalidOperationException("work failed")));
@@ -109,7 +107,7 @@ public sealed class InMemoryBackgroundJobQueueTests
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
 
-        (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
+        InMemoryBackgroundJobQueue queue = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
                 .Returns(async (BackgroundJobWorkUnit _, CancellationToken ct) =>
@@ -142,7 +140,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         int attempt = 0;
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
 
-        (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
+        InMemoryBackgroundJobQueue queue = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
                 .Returns(() =>
@@ -174,7 +172,7 @@ public sealed class InMemoryBackgroundJobQueueTests
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
 
-        (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
+        InMemoryBackgroundJobQueue queue = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new InvalidOperationException("Always fails")));
@@ -199,7 +197,7 @@ public sealed class InMemoryBackgroundJobQueueTests
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
 
-        (InMemoryBackgroundJobQueue queue, _) = CreateSystem(
+        InMemoryBackgroundJobQueue queue = CreateSystem(
             logger,
             m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new InvalidOperationException("Immediate fail")));

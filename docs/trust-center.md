@@ -10,6 +10,12 @@ This page is the **single buyer-facing index** for security questionnaires, self
 
 ---
 
+## Healthcare and PHI
+
+ArchLucid is for **architecture and governance evidence** about systems you describe — not a regulated record system for clinical care. **Do not upload PHI** into briefs, uploads, or free-text fields intended for architecture context. For **BAA**, **MSA/DPA** wording, or **contractual** posture beyond the in-repo templates ([DPA template](go-to-market/DPA_TEMPLATE.md), [`PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md), [`V1_SCOPE.md`](library/V1_SCOPE.md)), contact **`sales@archlucid.net`**. Deeper **vertical positioning** (Medicare/Medicaid–adjacent patterns, starter HIPAA *program* mapping for conversations — not a legal attestation) lives in [`HEALTHCARE_VERTICAL_BRIEF.md`](go-to-market/HEALTHCARE_VERTICAL_BRIEF.md). This section states product fit and data-handling expectations only; it does **not** add new compliance-certification claims beyond what linked documents already say.
+
+---
+
 ## Download the evidence pack
 
 Procurement teams can pull every artefact below in one ZIP — generated on-demand from the in-repo source files (no third-party tracking, no email gate, anonymous):
