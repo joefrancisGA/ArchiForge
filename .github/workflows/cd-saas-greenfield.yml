@@ -51,7 +51,7 @@ jobs:
     outputs:
       api_host: ${{ steps.terraform_outputs.outputs.api_host }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: TODO — azure/login@v2 with OIDC
         run: |
@@ -61,7 +61,7 @@ jobs:
           AZURE_GREENFIELD_TENANT_ID: ${{ secrets.AZURE_GREENFIELD_TENANT_ID }}
           AZURE_GREENFIELD_SUBSCRIPTION_ID: ${{ secrets.AZURE_GREENFIELD_SUBSCRIPTION_ID }}
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TF_VERSION }}
 

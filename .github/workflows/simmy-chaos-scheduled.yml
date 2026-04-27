@@ -40,7 +40,7 @@ jobs:
     name: "Simmy chaos — LLM + SQL + Blob"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       # Per owner decision 2026-04-22 (PENDING_QUESTIONS item 34), production chaos is
       # out of scope for v1 and beyond. Reopening requires an explicit ADR — do not loosen
@@ -73,7 +73,7 @@ jobs:
           echo "**This run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -92,7 +92,7 @@ jobs:
             --logger "trx;LogFileName=chaos-persistence.trx"
 
       - name: Upload chaos test results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: chaos-test-results

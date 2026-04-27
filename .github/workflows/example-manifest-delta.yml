@@ -22,7 +22,7 @@ jobs:
   manifest-delta:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: ArchLucid manifest delta (job summary)
         uses: ./integrations/github-action-manifest-delta

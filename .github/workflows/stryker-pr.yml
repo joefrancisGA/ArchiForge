@@ -23,7 +23,7 @@ jobs:
       run: ${{ steps.plan.outputs.run }}
       matrix_include: ${{ steps.plan.outputs.matrix_include }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -58,7 +58,7 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.stryker_pr_plan.outputs.matrix_include) }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -67,7 +67,7 @@ jobs:
         run: git fetch --no-tags origin ${{ github.event.pull_request.base.sha }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -95,7 +95,7 @@ jobs:
           --allow-zero-denominator
 
       - name: Upload Stryker report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: stryker-pr-${{ matrix.label }}

@@ -30,7 +30,7 @@ jobs:
   schemathesis:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Build API image
         run: docker build -f ArchLucid.Api/Dockerfile -t archlucid-api:fuzz .
@@ -82,7 +82,7 @@ jobs:
 
       - name: Upload Schemathesis JUnit
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: schemathesis-junit-${{ github.run_id }}
           path: .schemathesis-out/schemathesis-results.xml
