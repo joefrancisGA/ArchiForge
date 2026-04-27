@@ -5,7 +5,7 @@ namespace ArchLucid.Decisioning.Advisory.Scheduling;
 ///     poller).
 /// </summary>
 /// <remarks>
-///     Registered scoped in DI. Implementation lives in <c>ArchLucid.Persistence.Advisory.AdvisoryScanRunner</c>.
+///     Registered scoped in DI. Implementation lives in <c>ArchLucid.Application.Advisory.AdvisoryScanRunner</c>.
 ///     Primary callers: <c>ArchLucid.Api.Hosted.AdvisoryScanHostedService</c> (due schedules) and
 ///     <c>ArchLucid.Api.Controllers.AdvisorySchedulingController.RunNow</c>.
 /// </remarks>

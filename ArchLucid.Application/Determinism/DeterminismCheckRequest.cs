@@ -1,3 +1,5 @@
+using ArchLucid.Application;
+
 namespace ArchLucid.Application.Determinism;
 
 /// <summary>
@@ -18,7 +20,7 @@ public sealed class DeterminismCheckRequest
     /// Agent execution mode passed to <see cref="ArchLucid.Application.Agents.IAgentExecutorResolver"/>
     /// (e.g. <c>"Current"</c>). Defaults to <c>"Current"</c>.
     /// </summary>
-    public string ExecutionMode { get; set; } = "Current";
+    public string ExecutionMode { get; set; } = ExecutionModes.Current;
 
     /// <summary>
     /// When <c>true</c>, each replay run is committed with a determinism-prefixed manifest version

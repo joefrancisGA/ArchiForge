@@ -1,0 +1,16 @@
+---
+description: "Enforce single-threaded agent work unless the user explicitly approves parallelism"
+alwaysApply: true
+---
+
+# Agent execution: single-thread by default
+
+## Policy
+
+- Prefer one sequential agent loop. Do not start Background agents or parallel worktrees unless the user clearly asked for parallel or background execution in this conversation.
+- `.cursor/hooks.json` blocks **parallel** subagent workers (`is_parallel_worker`). If a run is denied, tell the user they can temporarily adjust or remove the `subagentStart` hook after explicit approval.
+- `sessionStart` may surface a notice when a **background** agent session starts; it does not replace the policy above.
+
+## Relation to other rules
+
+- This file states **team policy** and hook behavior. `.cursor/rules/Do-The-Work-Yourself.mdc` still governs when the Task tool is appropriate for non-parallel exploration.

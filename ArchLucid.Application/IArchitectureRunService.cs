@@ -26,7 +26,7 @@ public interface IArchitectureRunService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Builds persisted evidence, runs <see cref="ArchLucid.AgentSimulator.Services.IAgentExecutor"/>, stores results and evaluations, and moves the run to <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.ReadyForCommit"/>.
+    /// Builds persisted evidence, runs <see cref="ArchLucid.Contracts.Abstractions.Agents.IAgentExecutor"/>, stores results and evaluations, and moves the run to <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.ReadyForCommit"/>.
     /// </summary>
     /// <remarks>
     /// Idempotent when the run is already <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.ReadyForCommit"/> or <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.Committed"/> and agent results exist: returns stored results without re-executing agents.

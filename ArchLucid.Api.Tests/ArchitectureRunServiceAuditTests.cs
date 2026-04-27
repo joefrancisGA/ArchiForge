@@ -1,4 +1,4 @@
-using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;

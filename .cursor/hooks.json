@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "hooks": {
+    "subagentStart": [
+      {
+        "command": "node .cursor/hooks/guard-parallel.mjs",
+        "failClosed": true
+      }
+    ],
+    "sessionStart": [
+      {
+        "command": "node .cursor/hooks/guard-background.mjs"
+      }
+    ]
+  }
+}

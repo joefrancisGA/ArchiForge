@@ -16,8 +16,8 @@ import coordinator_parity_probe as probe  # noqa: E402  (after sys.path)
 
 class CoordinatorParityProbeTests(unittest.TestCase):
     def test_format_markdown_row_uses_dash_when_none(self) -> None:
-        row = probe.format_markdown_row("a", "b", None, None, None)
-        self.assertIn("- / - / -", row)
+        row = probe.format_markdown_row("a", "b", None, None)
+        self.assertIn("- / -", row)
         self.assertTrue(row.startswith("| "))
 
     def test_upsert_table_appends_within_markers(self) -> None:

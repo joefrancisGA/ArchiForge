@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
+    <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 
   <ItemGroup>

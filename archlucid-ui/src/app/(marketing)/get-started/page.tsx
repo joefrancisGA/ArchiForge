@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { BUYER_GET_STARTED_VERTICAL_SLUGS, VERTICAL_DISPLAY_NAMES } from "./get-started-verticals";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 
 export const metadata: Metadata = {
   title: "Get started · ArchLucid",
@@ -157,7 +158,7 @@ export default function GetStartedPage(): ReactNode {
             Ready for a real pilot with your own data? The{" "}
             <a
               className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-              href="https://github.com/ArchiForge/ArchiForge/blob/main/docs/CORE_PILOT.md"
+              href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/CORE_PILOT.md`}
               rel="noopener noreferrer"
             >
               Core Pilot guide
@@ -175,7 +176,7 @@ export default function GetStartedPage(): ReactNode {
             For the sponsor-facing narrative, see the{" "}
             <a
               className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-              href="https://github.com/ArchiForge/ArchiForge/blob/main/docs/EXECUTIVE_SPONSOR_BRIEF.md"
+              href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/EXECUTIVE_SPONSOR_BRIEF.md`}
               rel="noopener noreferrer"
             >
               executive sponsor brief

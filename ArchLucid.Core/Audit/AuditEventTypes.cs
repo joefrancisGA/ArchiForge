@@ -5,24 +5,6 @@ public static class AuditEventTypes
     public const string RunStarted = "RunStarted";
     public const string RunCompleted = "RunCompleted";
 
-    /// <summary>Coordinator-level: architecture run created and persisted (coordinator create orchestrator).</summary>
-    public const string CoordinatorRunCreated = "CoordinatorRunCreated";
-
-    /// <summary>Coordinator-level: architecture run execution started (coordinator execute orchestrator).</summary>
-    public const string CoordinatorRunExecuteStarted = "CoordinatorRunExecuteStarted";
-
-    /// <summary>Coordinator-level: architecture run execution succeeded (coordinator execute orchestrator).</summary>
-    public const string CoordinatorRunExecuteSucceeded = "CoordinatorRunExecuteSucceeded";
-
-    /// <summary>Coordinator-level: architecture run commit completed (coordinator commit orchestrator).</summary>
-    public const string CoordinatorRunCommitCompleted = "CoordinatorRunCommitCompleted";
-
-    /// <summary>
-    ///     Coordinator-level: architecture run failed after baseline <c>Architecture.RunFailed</c> (create, execute, or
-    ///     commit path).
-    /// </summary>
-    public const string CoordinatorRunFailed = "CoordinatorRunFailed";
-
     public const string ManifestGenerated = "ManifestGenerated";
     public const string ArtifactsGenerated = "ArtifactsGenerated";
     public const string ReplayExecuted = "ReplayExecuted";
@@ -305,24 +287,19 @@ public static class AuditEventTypes
     public const string FirstRealValueRunFellBackToSimulator = "FirstRealValueRunFellBackToSimulator";
 
     /// <summary>
-    ///     Phase 2 canonical durable catalog for coordinator run-stage semantics (ADR 0021 § Phase 2).
-    ///     Dual-written with legacy <c>CoordinatorRun*</c> wire values until the Sunset window closes.
+    ///     Canonical durable <c>dbo.AuditEvents</c> event types for architecture run-stage semantics (create, execute,
+    ///     commit, failure).
     /// </summary>
     public static class Run
     {
-        /// <summary>Canonical twin of <see cref="CoordinatorRunCreated" />.</summary>
         public const string Created = "Run.Created";
 
-        /// <summary>Canonical twin of <see cref="CoordinatorRunExecuteStarted" />.</summary>
         public const string ExecuteStarted = "Run.ExecuteStarted";
 
-        /// <summary>Canonical twin of <see cref="CoordinatorRunExecuteSucceeded" />.</summary>
         public const string ExecuteSucceeded = "Run.ExecuteSucceeded";
 
-        /// <summary>Canonical twin of <see cref="CoordinatorRunCommitCompleted" />.</summary>
         public const string CommitCompleted = "Run.CommitCompleted";
 
-        /// <summary>Canonical twin of <see cref="CoordinatorRunFailed" />.</summary>
         public const string Failed = "Run.Failed";
     }
 

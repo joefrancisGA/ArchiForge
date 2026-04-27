@@ -1,6 +1,6 @@
 using System.Data;
 
-using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;

@@ -18,6 +18,7 @@ using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
@@ -26,7 +27,7 @@ using Microsoft.Extensions.Options;
 
 using Serilog.Context;
 
-namespace ArchLucid.Persistence;
+namespace ArchLucid.Application.Advisory;
 
 /// <summary>
 /// Executes a scheduled advisory scan: compares runs, builds an improvement plan, merges effective policy defaults, evaluates alerts, and delivers a digest.

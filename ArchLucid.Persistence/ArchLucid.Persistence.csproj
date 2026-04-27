@@ -40,7 +40,6 @@
     <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
-    <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 
   <ItemGroup>

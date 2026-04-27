@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Application;
+
 namespace ArchLucid.Api.Models;
 
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
@@ -15,7 +17,7 @@ public sealed class ReplayRunRequest
     {
         get;
         set;
-    } = "Current";
+    } = ExecutionModes.Current;
 
     public string? ManifestVersionOverride
     {

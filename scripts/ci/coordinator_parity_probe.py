@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ADR 0021 gate (iv) helper: append coordinator vs authority durable audit counts into the parity runbook.
+"""Append Run-catalog vs authority durable audit counts into the parity runbook.
 
 When ``AuditEventTypes.Run`` is absent from ``ArchLucid.Core/Audit/AuditEventTypes.cs``, exits 0 without
 mutating the runbook (probe ships before Phase 2 catalog is everywhere).
@@ -18,14 +18,6 @@ from pathlib import Path
 MARKER_START = "<!-- coordinator-parity-probe:table -->"
 MARKER_END = "<!-- /coordinator-parity-probe:table -->"
 
-COORD_LEGACY_TYPES = (
-    "CoordinatorRunCreated",
-    "CoordinatorRunExecuteStarted",
-    "CoordinatorRunExecuteSucceeded",
-    "CoordinatorRunCommitCompleted",
-    "CoordinatorRunFailed",
-)
-
 CANONICAL_RUN_TYPES = (
     "Run.Created",
     "Run.ExecuteStarted",
@@ -42,16 +34,16 @@ def run_catalog_present(audit_types_path: Path) -> bool:
     return "public static class Run" in text and "Run.Created" in text
 
 
-def fetch_counts_from_sql(_odbc: str) -> tuple[int | None, int | None, int | None]:
+def fetch_counts_from_sql(_odbc: str) -> tuple[int | None, int | None]:
     try:
         import pyodbc  # type: ignore[import-not-found]
     except ImportError:
-        return None, None, None
+        return None, None
 
     try:
         conn = pyodbc.connect(_odbc, timeout=15)
     except Exception:
-        return None, None, None
+        return None, None
 
     try:
         cursor = conn.cursor()
@@ -69,7 +61,7 @@ def fetch_counts_from_sql(_odbc: str) -> tuple[int | None, int | None, int | Non
                 return None
             return int(row[0])
 
-        return _count_in(COORD_LEGACY_TYPES), _count_in(CANONICAL_RUN_TYPES), _count_in(AUTHORITY_TYPES)
+        return _count_in(CANONICAL_RUN_TYPES), _count_in(AUTHORITY_TYPES)
     finally:
         conn.close()
 
@@ -77,7 +69,6 @@ def fetch_counts_from_sql(_odbc: str) -> tuple[int | None, int | None, int | Non
 def format_markdown_row(
     window_start: str,
     window_end: str,
-    coord: int | None,
     canonical: int | None,
     authority: int | None,
 ) -> str:
@@ -88,7 +79,7 @@ def format_markdown_row(
 
     return (
         f"| {window_start} | {window_end} | *(sample)* | - | - | "
-        f"{cell(coord)} / {cell(canonical)} / {cell(authority)} | - | "
+        f"{cell(canonical)} / {cell(authority)} | - | "
         f"auto `scripts/ci/coordinator_parity_probe.py` |"
     )
 
@@ -142,14 +133,13 @@ def main() -> int:
         return 0
 
     odbc = __import__("os").environ.get("ARCHLUCID_COORDINATOR_PARITY_ODBC", "").strip()
-    coord, canon, auth = fetch_counts_from_sql(odbc) if odbc else (None, None, None)
+    canon, auth = fetch_counts_from_sql(odbc) if odbc else (None, None)
 
     end = dt.datetime.now(dt.timezone.utc)
     start = end - dt.timedelta(hours=24)
     row = format_markdown_row(
         start.strftime("%Y-%m-%d %H:%M UTC"),
         end.strftime("%Y-%m-%d %H:%M UTC"),
-        coord,
         canon,
         auth,
     )

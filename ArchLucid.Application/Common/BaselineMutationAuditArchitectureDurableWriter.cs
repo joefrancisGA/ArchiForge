@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -11,9 +10,8 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Common;
 
 /// <summary>
-/// Universal durable dual-write for <see cref="AuditEventTypes.Baseline.Architecture"/> baseline events:
-/// mirrors legacy <see cref="CoordinatorRunCatalogDurableDualWrite"/> / <see cref="CoordinatorRunFailedDurableAudit"/>
-/// payloads from <see cref="IBaselineMutationAuditService.RecordAsync"/> arguments.
+///     Durable echo for <see cref="AuditEventTypes.Baseline.Architecture" /> baseline events: one
+///     <c>dbo.AuditEvents</c> row per signal using <see cref="AuditEventTypes.Run" /> wire values.
 /// </summary>
 internal static class BaselineMutationAuditArchitectureDurableWriter
 {
@@ -38,13 +36,28 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
 
         if (string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunFailed, StringComparison.Ordinal))
         {
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                auditService,
-                scopeContextProvider,
+            await DurableAuditLogRetry.TryLogAsync(
+                async ct =>
+                {
+                    ScopeContext scope = scopeContextProvider.GetCurrentScope();
+                    Guid? runGuid = Guid.TryParse(entityId, out Guid g) ? g : null;
+
+                    AuditEvent failed = new()
+                    {
+                        EventType = AuditEventTypes.Run.Failed,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ProjectId = scope.ProjectId,
+                        RunId = runGuid,
+                        DataJson = JsonSerializer.Serialize(new { runId = entityId, reason = details }),
+                    };
+
+                    await auditService.LogAsync(failed, ct);
+                },
                 logger,
-                actor,
-                entityId,
-                details,
+                $"Run.Failed:{LogSanitizer.Sanitize(entityId)}",
                 cancellationToken);
 
             return;
@@ -62,9 +75,9 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     string requestId = GetDetail(kv, "RequestId");
                     string systemName = GetDetail(kv, "SystemName");
 
-                    AuditEvent legacyCreated = new()
+                    AuditEvent created = new()
                     {
-                        EventType = AuditEventTypes.CoordinatorRunCreated,
+                        EventType = AuditEventTypes.Run.Created,
                         ActorUserId = actor,
                         ActorUserName = actor,
                         TenantId = scope.TenantId,
@@ -78,14 +91,10 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         }),
                     };
 
-                    await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                        auditService,
-                        legacyCreated,
-                        AuditEventTypes.Run.Created,
-                        ct);
+                    await auditService.LogAsync(created, ct);
                 },
                 logger,
-                $"CoordinatorRunCreated:{LogSanitizer.Sanitize(entityId)}",
+                $"Run.Created:{LogSanitizer.Sanitize(entityId)}",
                 cancellationToken);
 
             return;
@@ -99,9 +108,9 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     ScopeContext scope = scopeContextProvider.GetCurrentScope();
                     Guid? runGuid = Guid.TryParse(entityId, out Guid rid) ? rid : null;
 
-                    AuditEvent legacyExecuteStarted = new()
+                    AuditEvent executeStarted = new()
                     {
-                        EventType = AuditEventTypes.CoordinatorRunExecuteStarted,
+                        EventType = AuditEventTypes.Run.ExecuteStarted,
                         ActorUserId = actor,
                         ActorUserName = actor,
                         TenantId = scope.TenantId,
@@ -114,14 +123,10 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         }),
                     };
 
-                    await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                        auditService,
-                        legacyExecuteStarted,
-                        AuditEventTypes.Run.ExecuteStarted,
-                        ct);
+                    await auditService.LogAsync(executeStarted, ct);
                 },
                 logger,
-                $"CoordinatorRunExecuteStarted:{LogSanitizer.Sanitize(entityId)}",
+                $"Run.ExecuteStarted:{LogSanitizer.Sanitize(entityId)}",
                 cancellationToken);
 
             return;
@@ -136,9 +141,9 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     Guid? runGuid = Guid.TryParse(entityId, out Guid rid) ? rid : null;
                     int resultCount = TryParseResultCount(details);
 
-                    AuditEvent legacyExecuteSucceeded = new()
+                    AuditEvent executeSucceeded = new()
                     {
-                        EventType = AuditEventTypes.CoordinatorRunExecuteSucceeded,
+                        EventType = AuditEventTypes.Run.ExecuteSucceeded,
                         ActorUserId = actor,
                         ActorUserName = actor,
                         TenantId = scope.TenantId,
@@ -152,14 +157,10 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         }),
                     };
 
-                    await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                        auditService,
-                        legacyExecuteSucceeded,
-                        AuditEventTypes.Run.ExecuteSucceeded,
-                        ct);
+                    await auditService.LogAsync(executeSucceeded, ct);
                 },
                 logger,
-                $"CoordinatorRunExecuteSucceeded:{LogSanitizer.Sanitize(entityId)}",
+                $"Run.ExecuteSucceeded:{LogSanitizer.Sanitize(entityId)}",
                 cancellationToken);
 
             return;
@@ -178,7 +179,6 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     int warningCount = int.TryParse(GetDetail(kv, "WarningCount"), out int wc) ? wc : 0;
                     string? commitPath = GetDetailOrNull(kv, "CommitPath");
 
-                    // Coordinator path historically omitted warningCount/commitPath in DataJson; authority adds commitPath (+ counts).
                     string commitJson = string.IsNullOrWhiteSpace(commitPath)
                         ? JsonSerializer.Serialize(new
                         {
@@ -196,9 +196,9 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                                 commitPath,
                             });
 
-                    AuditEvent legacyCommitCompleted = new()
+                    AuditEvent commitCompleted = new()
                     {
-                        EventType = AuditEventTypes.CoordinatorRunCommitCompleted,
+                        EventType = AuditEventTypes.Run.CommitCompleted,
                         ActorUserId = actor,
                         ActorUserName = actor,
                         TenantId = scope.TenantId,
@@ -208,14 +208,10 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         DataJson = commitJson,
                     };
 
-                    await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
-                        auditService,
-                        legacyCommitCompleted,
-                        AuditEventTypes.Run.CommitCompleted,
-                        ct);
+                    await auditService.LogAsync(commitCompleted, ct);
                 },
                 logger,
-                $"CoordinatorRunCommitCompleted:{LogSanitizer.Sanitize(entityId)}",
+                $"Run.CommitCompleted:{LogSanitizer.Sanitize(entityId)}",
                 cancellationToken);
         }
     }

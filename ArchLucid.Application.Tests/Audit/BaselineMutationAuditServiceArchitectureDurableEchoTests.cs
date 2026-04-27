@@ -24,7 +24,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
     };
 
     [Fact]
-    public async Task RunCreated_emits_CoordinatorRunCreated_and_Run_Created_with_scope_and_payload()
+    public async Task RunCreated_emits_Run_Created_with_scope_and_payload()
     {
         Guid runGuid = Guid.NewGuid();
         string runId = runGuid.ToString("N");
@@ -47,7 +47,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
         auditService.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
-                    e.EventType == AuditEventTypes.CoordinatorRunCreated
+                    e.EventType == AuditEventTypes.Run.Created
                     && e.RunId == runGuid
                     && e.TenantId == TestScope.TenantId
                     && e.WorkspaceId == TestScope.WorkspaceId
@@ -56,18 +56,10 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
                     && JsonHasString(e.DataJson, "systemName", "AlphaSys")),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-
-        auditService.Verify(
-            a => a.LogAsync(
-                It.Is<AuditEvent>(e =>
-                    e.EventType == AuditEventTypes.Run.Created
-                    && e.RunId == runGuid),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
     }
 
     [Fact]
-    public async Task RunExecuteSucceeded_emits_dual_catalog_rows_with_resultCount()
+    public async Task RunExecuteSucceeded_emits_Run_ExecuteSucceeded_with_resultCount()
     {
         string runId = Guid.NewGuid().ToString("N");
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -89,14 +81,8 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
         auditService.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
-                    e.EventType == AuditEventTypes.CoordinatorRunExecuteSucceeded
+                    e.EventType == AuditEventTypes.Run.ExecuteSucceeded
                     && JsonHasInt(e.DataJson, "resultCount", 3)),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-
-        auditService.Verify(
-            a => a.LogAsync(
-                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.Run.ExecuteSucceeded),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -124,7 +110,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
         auditService.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
-                    e.EventType == AuditEventTypes.CoordinatorRunCommitCompleted
+                    e.EventType == AuditEventTypes.Run.CommitCompleted
                     && JsonHasString(e.DataJson, "runId", runId)
                     && JsonHasString(e.DataJson, "manifestVersion", "v9")
                     && JsonHasString(e.DataJson, "systemName", "CoSys")
@@ -156,7 +142,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
         auditService.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
-                    e.EventType == AuditEventTypes.CoordinatorRunCommitCompleted
+                    e.EventType == AuditEventTypes.Run.CommitCompleted
                     && JsonHasString(e.DataJson, "commitPath", "authority")
                     && JsonHasInt(e.DataJson, "warningCount", 1)),
                 It.IsAny<CancellationToken>()),
@@ -164,7 +150,7 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
     }
 
     [Fact]
-    public async Task RunFailed_emits_CoordinatorRunFailed_and_Run_Failed()
+    public async Task RunFailed_emits_Run_Failed()
     {
         string runId = Guid.NewGuid().ToString("N");
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -186,14 +172,8 @@ public sealed class BaselineMutationAuditServiceArchitectureDurableEchoTests
         auditService.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
-                    e.EventType == AuditEventTypes.CoordinatorRunFailed
+                    e.EventType == AuditEventTypes.Run.Failed
                     && JsonHasString(e.DataJson, "reason", "Coordination failed: boom")),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-
-        auditService.Verify(
-            a => a.LogAsync(
-                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.Run.Failed),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

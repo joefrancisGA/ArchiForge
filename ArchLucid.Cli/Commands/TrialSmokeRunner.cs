@@ -220,7 +220,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
     {
         const string name = "pilot-run-deltas";
         const string hint =
-            "Look for Run.CommitCompleted (and CoordinatorRunCommitCompleted dual-write) in dbo.AuditEvents.";
+            "Look for Run.CommitCompleted in dbo.AuditEvents.";
 
         try
         {

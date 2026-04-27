@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 
-namespace ArchLucid.AgentSimulator.Services;
+namespace ArchLucid.Contracts.Abstractions.Agents;
 
 /// <summary>
 ///     Runs a batch of <see cref="AgentTask" /> items for one architecture run (production handlers or test doubles).

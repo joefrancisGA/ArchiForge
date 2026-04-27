@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Audit;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ContextIngestion.Interfaces;

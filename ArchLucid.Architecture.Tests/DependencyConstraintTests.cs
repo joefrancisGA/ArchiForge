@@ -1,17 +1,21 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 
+using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Cli;
 using ArchLucid.ContextIngestion;
 using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Coordination.Replay;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Retrieval.Queries;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -332,6 +336,117 @@ public sealed class DependencyConstraintTests
         references.Should().Contain(
             a => a.Name == "ArchLucid.Core",
             because: "Application orchestrators use ArchLucid.Core.Audit.AuditEventTypes.Baseline for trusted-baseline mutation strings (single catalog with durable AuditEventTypes).");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_must_not_depend_on_Retrieval()
+    {
+        Assembly persistence = typeof(IRunRepository).Assembly;
+
+        TestResult result = Types
+            .InAssembly(persistence)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Retrieval")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Persistence must not reference Retrieval; Coordination owns that edge. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void AgentRuntime_must_not_depend_on_Application()
+    {
+        Assembly agentRuntime = typeof(RealAgentExecutor).Assembly;
+
+        TestResult result = Types
+            .InAssembly(agentRuntime)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Application")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "AgentRuntime is a peer of Application, not a consumer. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Retrieval_must_not_depend_on_Persistence()
+    {
+        Assembly retrieval = typeof(IRetrievalQueryService).Assembly;
+
+        TestResult result = Types
+            .InAssembly(retrieval)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Persistence")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Retrieval stays above SQL/Dapper. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Legacy_CoordinatorRun_audit_constants_are_removed_from_AuditEventTypes()
+    {
+        List<string> names = typeof(AuditEventTypes)
+            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+            .Where(f => f is { IsLiteral: true, IsInitOnly: false } && f.FieldType == typeof(string))
+            .Select(f => f.Name)
+            .ToList();
+
+        names.Should().NotContain(
+            n => n.StartsWith("CoordinatorRun", StringComparison.Ordinal),
+            "legacy CoordinatorRun* durable constants were removed; use AuditEventTypes.Run.*");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_reference_AgentSimulator_assembly()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+        AssemblyName[] references = application.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.AgentSimulator",
+            because: "IAgentExecutor lives in Contracts.Abstractions; Application must not depend on the simulator package.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_assembly_must_not_export_GovernanceAuditEventTypes()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+
+        application.GetExportedTypes()
+            .Select(t => t.Name)
+            .Should()
+            .NotContain("GovernanceAuditEventTypes", "use AuditEventTypes.Baseline.Governance only");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Persistence_Advisory_must_not_host_advisory_orchestration_services()
+    {
+        Assembly advisory = typeof(DapperAdvisoryScanScheduleRepository).Assembly;
+
+        advisory.GetExportedTypes()
+            .Select(t => t.Name)
+            .Should()
+            .NotContain(
+                ["AdvisoryScanRunner", "RecommendationLearningService"],
+                "orchestration lives in ArchLucid.Application.Advisory");
     }
 
     private static string? FindRepositoryRootContainingSolution()

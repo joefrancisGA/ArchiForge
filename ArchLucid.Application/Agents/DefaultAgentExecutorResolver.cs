@@ -1,4 +1,4 @@
-using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Abstractions.Agents;
 
 namespace ArchLucid.Application.Agents;
 

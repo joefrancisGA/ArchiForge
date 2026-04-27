@@ -22,8 +22,8 @@ public class AuditEvent
 
     /// <summary>
     ///     A domain-specific event type string (e.g. <c>"RunCreated"</c>, <c>"ManifestPromoted"</c>).
-    ///     Consumers should use constants from <c>GovernanceAuditEventTypes</c> or equivalent
-    ///     event-type registries rather than free-form strings.
+    ///     Consumers should use constants from <see cref="AuditEventTypes" /> (or nested catalogs such as
+    ///     <see cref="AuditEventTypes.Baseline" />) rather than free-form strings.
     /// </summary>
     public string EventType
     {

@@ -98,8 +98,7 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
             };
 
 
-        if (string.Equals(auditEvent.EventType, AuditEventTypes.CoordinatorRunCommitCompleted, StringComparison.Ordinal)
-            || string.Equals(auditEvent.EventType, AuditEventTypes.Run.CommitCompleted, StringComparison.Ordinal))
+        if (string.Equals(auditEvent.EventType, AuditEventTypes.Run.CommitCompleted, StringComparison.Ordinal))
 
             return new TrialLifecycleEmailIntegrationEnvelope
             {

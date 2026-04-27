@@ -3,6 +3,7 @@ using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
@@ -251,7 +252,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 scopeContextProvider,
                 Mock.Of<IArchitectureRequestRepository>(),
                 taskRepository,
-                Mock.Of<AgentSimulator.Services.IAgentExecutor>(),
+                Mock.Of<IAgentExecutor>(),
                 Mock.Of<IAgentEvaluationService>(),
                 Mock.Of<IAgentResultRepository>(),
                 Mock.Of<IAgentEvaluationRepository>(),
