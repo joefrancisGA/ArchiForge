@@ -116,6 +116,9 @@ public static class AuditEventTypes
 
     public const string GovernanceApprovalSubmitted = "GovernanceApprovalSubmitted";
     public const string GovernanceApprovalApproved = "GovernanceApprovalApproved";
+
+    /// <summary>Operator set pilot scorecard ROI baselines (<c>PUT /v1/pilots/scorecard/baselines</c>).</summary>
+    public const string PilotScorecardBaselinesUpdated = "PilotScorecardBaselinesUpdated";
     public const string GovernanceApprovalRejected = "GovernanceApprovalRejected";
 
     /// <summary>

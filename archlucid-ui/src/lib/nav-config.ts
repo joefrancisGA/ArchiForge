@@ -184,6 +184,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         icon: LifeBuoy,
         tier: "essential",
       },
+      {
+        href: "/scorecard",
+        label: "Scorecard",
+        title: "Pilot scorecard — committed-run metrics and ROI baselines",
+        icon: BarChart3,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
     ],
   },
   {

@@ -30,7 +30,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed class ManifestsController(
     IArchitectureApplicationService architectureApplicationService,
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,

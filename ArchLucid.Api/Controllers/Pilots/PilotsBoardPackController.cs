@@ -22,7 +22,7 @@ namespace ArchLucid.Api.Controllers.Pilots;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed class PilotsBoardPackController(BoardPackPdfBuilder boardPackPdfBuilder) : ControllerBase
 {
     private readonly BoardPackPdfBuilder _boardPackPdfBuilder =

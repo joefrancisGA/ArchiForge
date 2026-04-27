@@ -9,8 +9,7 @@ namespace ArchLucid.Api.Filters;
 
 /// <summary>
 ///     Enforces a minimum <see cref="TenantTier" /> for the current scope (loaded from <c>dbo.Tenants</c>).
-///     Returns <c>402 Payment Required</c> when the tenant is below the required tier (product decision: Stripe-style
-///     code).
+///     Returns <c>404 Not Found</c> when the scope is not entitled so callers cannot infer hidden capabilities.
 /// </summary>
 public sealed class CommercialTenantTierFilter(
     TenantTier minimumTier,
@@ -40,9 +39,9 @@ public sealed class CommercialTenantTierFilter(
             Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
             {
                 Type = ProblemTypes.ResourceNotFound,
-                Title = "Forbidden",
-                Status = StatusCodes.Status403Forbidden,
-                Detail = "Tenant record was not found for the current scope.",
+                Title = "Not Found",
+                Status = StatusCodes.Status404NotFound,
+                Detail = "The requested resource was not found.",
                 Instance = context.HttpContext.Request.Path.Value
             };
 

@@ -37,7 +37,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 [Route("v{version:apiVersion}/policy-packs")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed class PolicyPacksController(
     IScopeContextProvider scopeProvider,
     IPolicyPackRepository packRepository,

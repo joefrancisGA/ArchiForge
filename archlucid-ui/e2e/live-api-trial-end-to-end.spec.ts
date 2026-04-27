@@ -190,17 +190,15 @@ test.describe("live-api-trial-end-to-end", () => {
     const commercialPackagingProbe = await request.get(`${liveApiBase}/v1/policy-packs`, {
       headers: { Accept: "application/json", ...liveTenantScopeHeaders(scope) },
     });
-    expect(commercialPackagingProbe.status(), await commercialPackagingProbe.text()).toBe(402);
+    expect(commercialPackagingProbe.status(), await commercialPackagingProbe.text()).toBe(404);
     expect((commercialPackagingProbe.headers()["content-type"] ?? "").toLowerCase()).toContain("application/problem");
     const packagingProblem = (await commercialPackagingProbe.json()) as {
       type?: string;
-      upgradeUrl?: string;
-      pricingUrl?: string;
+      status?: number;
     };
-    const upgrade = packagingProblem.upgradeUrl ?? packagingProblem.pricingUrl;
-    expect(upgrade?.length, "402 commercial tier should include pricing/upgrade link").toBeGreaterThan(0);
-    expect(String(upgrade), "upgrade CTA should point at public pricing").toMatch(/\/pricing$/);
-    expect(packagingProblem.type ?? "", "packaging 402 should use problem type").toMatch(/packaging-tier/i);
+    expect(packagingProblem.type ?? "", "tier-hidden route should not disclose packaging; use not-found type").toMatch(
+      /resource-not-found/i,
+    );
 
     await page.addInitScript(
       (payload) => {

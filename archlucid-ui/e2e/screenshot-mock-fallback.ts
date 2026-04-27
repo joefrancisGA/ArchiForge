@@ -155,6 +155,22 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     };
   }
 
+  if (pathname === "/v1/pilots/scorecard") {
+    return {
+      tenantId: "00000000-0000-0000-0000-000000000001",
+      totalRunsCommitted: 0,
+      totalManifestsCreated: 0,
+      totalFindingsResolved: 0,
+      averageTimeToManifestMinutes: null,
+      totalAuditEventsGenerated: 0,
+      totalGovernanceApprovalsCompleted: 0,
+      firstCommitUtc: null,
+      daysSinceFirstCommit: null,
+      baselines: null,
+      roiEstimate: null,
+    };
+  }
+
   if (pathname === "/v1/tenant/measured-roi") {
     return {
       snapshot: {

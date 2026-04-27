@@ -42,7 +42,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 [Route("v{version:apiVersion}/governance-resolution")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed class GovernanceResolutionController(
     IScopeContextProvider scopeProvider,
     IEffectiveGovernanceResolver resolver,

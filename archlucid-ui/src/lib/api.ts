@@ -887,7 +887,7 @@ export async function getExecDigestPreferences(): Promise<ExecDigestPreferencesR
   return apiGet<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`);
 }
 
-/** Rough monthly spend band for Standard+ tenants (402 when below Standard). */
+/** Rough monthly spend band for Standard+ tenants (404 when below Standard; route not disclosed). */
 export async function getTenantCostEstimate(): Promise<TenantCostEstimateResponse> {
   return apiGet<TenantCostEstimateResponse>(`/${ApiV1Routes.tenantCostEstimate}`);
 }
