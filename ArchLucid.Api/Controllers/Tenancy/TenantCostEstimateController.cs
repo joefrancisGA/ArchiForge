@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
-/// <summary>Non-authoritative spend guidance for Standard+ tenants (402 below Standard).</summary>
+/// <summary>Non-authoritative spend guidance for Standard+ tenants (404 when below Standard; endpoint hidden by tier).</summary>
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]

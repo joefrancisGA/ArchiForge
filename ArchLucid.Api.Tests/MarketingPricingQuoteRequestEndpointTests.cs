@@ -8,6 +8,7 @@ using ArchLucid.Persistence.Marketing;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Moq;

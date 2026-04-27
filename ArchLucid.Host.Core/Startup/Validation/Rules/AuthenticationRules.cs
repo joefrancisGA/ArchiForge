@@ -93,6 +93,13 @@ internal static class AuthenticationRules
     {
         string? authMode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
 
+        if (!IsWellKnownAuthMode(authMode))
+
+            errors.Add(
+                "ArchLucidAuth:Mode must be ApiKey, JwtBearer, or DevelopmentBypass. "
+                + "Unrecognized values are not allowed (they are treated as an unsupported auth path at startup).");
+
+
         if (configuration.GetValue("ArchLucidAuth:RequireJwtBearerInProduction", false) &&
             !string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
 
@@ -140,5 +147,27 @@ internal static class AuthenticationRules
             errors.Add(
                 "Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
 
+    }
+
+    private static bool IsWellKnownAuthMode(string? mode)
+    {
+        // Omitted in JSON binds to the ArchLucidAuthOptions class default (ApiKey).
+        if (string.IsNullOrWhiteSpace(mode))
+            return true;
+
+
+        if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+        if (string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+        if (string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+        return false;
     }
 }

@@ -35,6 +35,28 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenProductionAndAuthModeUnrecognized_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "NotARealMode",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(
+            e => e.Contains("ArchLucidAuth:Mode", StringComparison.OrdinalIgnoreCase)
+                 && e.Contains("Unrecognized", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenProductionAndJwtBearerWithoutAuthority_contains_error()
     {
         Dictionary<string, string?> data = new()

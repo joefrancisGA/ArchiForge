@@ -63,6 +63,7 @@ using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Value;
 using ArchLucid.Persistence.Tenancy.Diagnostics;
 using ArchLucid.Persistence.Transactions;
+using ArchLucid.Persistence.Pilots;
 using ArchLucid.Provenance;
 
 namespace ArchLucid.Host.Composition.Configuration;
@@ -100,6 +101,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
         services.AddSingleton<IAuditRepository, InMemoryAuditRepository>();
+        services.AddSingleton<IPilotScorecardMetricsReader, NullPilotScorecardMetricsReader>();
+        services.AddSingleton<IPilotBaselineRepository, InMemoryPilotBaselineRepository>();
         services.AddSingleton<IValueReportMetricsReader, InMemoryValueReportMetricsReader>();
         services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();
         services.AddSingleton<IProvenanceSnapshotRepository, InMemoryProvenanceSnapshotRepository>();

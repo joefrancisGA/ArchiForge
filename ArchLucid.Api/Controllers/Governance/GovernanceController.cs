@@ -31,7 +31,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 [RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
-[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed class GovernanceController(
     IGovernanceWorkflowService workflowService,
     IGovernanceApprovalRequestRepository approvalRepo,

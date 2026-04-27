@@ -24,7 +24,7 @@ namespace ArchLucid.Api.Controllers.Governance;
 [Route("v{version:apiVersion}/governance-preview")]
 [EnableRateLimiting("fixed")]
 [RequiresCommercialTenantTier(TenantTier.Standard)]
-[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public sealed class GovernancePreviewController(
     IGovernancePreviewService previewService,
     ILogger<GovernancePreviewController> logger) : ControllerBase

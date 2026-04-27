@@ -30,6 +30,7 @@ public sealed class PilotsController(
     FirstValueReportBuilder firstValueReportBuilder,
     FirstValueReportPdfBuilder firstValueReportPdfBuilder,
     PilotScorecardBuilder pilotScorecardBuilder,
+    IPilotInProductScorecardService pilotInProductScorecardService,
     PilotOutcomeSummaryService pilotOutcomeSummaryService,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
@@ -50,6 +51,39 @@ public sealed class PilotsController(
         WhyArchLucidSnapshotResponse snapshot = await whyArchLucidSnapshotService.BuildAsync(cancellationToken);
 
         return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     In-product pilot scorecard: cumulative tenant metrics (SQL-backed), optional ROI baselines, and ROI estimate when
+    ///     baselines are complete.
+    /// </summary>
+    [HttpGet("scorecard")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PilotInProductScorecardResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PilotInProductScorecardResponse>> GetInProductScorecard(
+        CancellationToken cancellationToken)
+    {
+        PilotInProductScorecardResult result = await pilotInProductScorecardService.GetAsync(cancellationToken);
+
+        return Ok(PilotInProductScorecardMapper.ToResponse(result));
+    }
+
+    /// <summary>Operator-entered pilot ROI baselines (tenant-scoped, durable audit).</summary>
+    [HttpPut("scorecard/baselines")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> PutScorecardBaselines(
+        [FromBody] PilotScorecardBaselinesPutRequest? body,
+        CancellationToken cancellationToken)
+    {
+        await pilotInProductScorecardService.UpsertBaselinesAsync(
+            body?.BaselineHoursPerReview,
+            body?.BaselineReviewsPerQuarter,
+            body?.BaselineArchitectHourlyCost,
+            cancellationToken);
+
+        return NoContent();
     }
 
     /// <summary>Trailing 30-day pilot outcome rollup for the current tenant scope (cached ~60s).</summary>
@@ -185,7 +219,7 @@ public sealed class PilotsController(
     [Produces("application/pdf")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PostSponsorOnePager(string runId, CancellationToken cancellationToken)
     {
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";

@@ -127,7 +127,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
     [Produces("application/json", "text/csv")]
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ExportAudit(
         [FromQuery] DateTime fromUtc,
