@@ -72,7 +72,7 @@ const EMPTY_PENDING_APPROVALS: GovernanceApprovalRequest[] = [];
 
 function DashboardSkeleton() {
   return (
-    <div className="grid gap-6" aria-busy="true" aria-label="Loading governance dashboard">
+    <div className="grid gap-6" role="status" aria-busy="true" aria-label="Loading governance dashboard">
       {[1, 2, 3].map((i) => (
         <Card key={i}>
           <CardHeader>

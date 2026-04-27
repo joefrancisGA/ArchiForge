@@ -48,14 +48,33 @@ vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
   useEnterpriseMutationCapability: () => false,
 }));
 
-vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/use-nav-surface")>();
-  return {
-    ...actual,
-    useNavSurface: (routeKey: Parameters<typeof actual.useNavSurface>[0]) =>
-      actual.composeNavSurface(routeKey, 2, true, true, true),
-  };
-});
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    links: [],
+    mutationCapability: false,
+    layerGuidance: {
+      layerBadge: "Pilot",
+      headline: "Stub headline",
+      useWhen: "For accessibility tests.",
+      firstPilotNote: null,
+      enterpriseFootnote: null,
+    },
+    contextHints: {
+      enterpriseNavGroupHint: "",
+      enterpriseExecutePageHint: null,
+      layerHeaderEnterpriseRankCue: null,
+      governanceResolutionRank: "",
+      alertsInboxRank: "",
+      auditLogRank: "",
+      alertOperatorToolingRank: "",
+      governanceDashboardReaderAction: null,
+    },
+    callerAuthorityRank: 0,
+    showExtended: true,
+    showAdvanced: true,
+    mounted: true,
+  }),
+}));
 
 vi.mock("@/hooks/useViewportNarrow", () => ({
   useViewportNarrow: () => false,
