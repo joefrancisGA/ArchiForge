@@ -1,8 +1,10 @@
+> **Deprecated as primary entry (2026-04-27):** **[`START_HERE.md`](START_HERE.md)** §3 is the contributor path. This page remains a one-pager shortcut.
+
 > **Scope:** Contributor fast path — install order, one verification command, and where to read next; not buyer narrative, deep architecture, or operator atlas detail.
 
 # Contributor on one page
 
-**ArchLucid** is an AI-assisted architecture workflow (structured request → run → committed manifest, with exports and governance hooks). Forced navigation: [READ_THIS_FIRST.md](READ_THIS_FIRST.md).
+**ArchLucid** is an AI-assisted architecture workflow (structured request → run → committed manifest, with exports and governance hooks). **Onboarding entry:** [START_HERE.md](START_HERE.md).
 
 ## Common tasks
 

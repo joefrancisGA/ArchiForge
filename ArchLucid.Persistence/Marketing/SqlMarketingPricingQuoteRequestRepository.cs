@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Marketing;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -17,7 +18,7 @@ public sealed class SqlMarketingPricingQuoteRequestRepository(ISqlConnectionFact
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     /// <inheritdoc />
-    public async Task AppendAsync(
+    public async Task<MarketingPricingQuoteRequestInsertResult?> AppendAsync(
         string workEmail,
         string companyName,
         string tierInterest,
@@ -35,6 +36,7 @@ public sealed class SqlMarketingPricingQuoteRequestRepository(ISqlConnectionFact
 
         const string sql = """
                            INSERT INTO dbo.MarketingPricingQuoteRequests (WorkEmail, CompanyName, TierInterest, Message, ClientIpHash)
+                           OUTPUT INSERTED.Id, INSERTED.CreatedUtc
                            VALUES (@WorkEmail, @CompanyName, @TierInterest, @Message, @ClientIpHash);
                            """;
 
@@ -52,6 +54,9 @@ public sealed class SqlMarketingPricingQuoteRequestRepository(ISqlConnectionFact
             },
             cancellationToken: cancellationToken);
 
-        await connection.ExecuteAsync(cmd);
+        (Guid Id, DateTime CreatedUtc) row =
+            await connection.QuerySingleAsync<(Guid Id, DateTime CreatedUtc)>(cmd).ConfigureAwait(false);
+
+        return new MarketingPricingQuoteRequestInsertResult(row.Id, row.CreatedUtc);
     }
 }

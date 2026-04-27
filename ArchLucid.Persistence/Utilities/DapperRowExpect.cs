@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Utilities;
 /// </summary>
 public static class DapperRowExpect
 {
-    public static T Required<T>(T? row, string notFoundMessage) where T : class
+    public static T Required<T>(T? row, string notFoundMessage) where T : class?
     {
         if (row is null)
         {

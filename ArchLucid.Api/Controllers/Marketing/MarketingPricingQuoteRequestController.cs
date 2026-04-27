@@ -4,6 +4,8 @@ using System.Text;
 
 using ArchLucid.Api.Models.Marketing;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Contracts.Marketing;
 using ArchLucid.Persistence.Marketing;
 
 using Asp.Versioning;
@@ -22,6 +24,7 @@ namespace ArchLucid.Api.Controllers.Marketing;
 [AllowAnonymous]
 public sealed class MarketingPricingQuoteRequestController(
     IMarketingPricingQuoteRequestRepository quoteRepository,
+    IMarketingPricingQuoteSalesNotifier salesNotifier,
     ILogger<MarketingPricingQuoteRequestController> logger) : ControllerBase
 {
     private const int MaxMessageChars = 2000;
@@ -31,6 +34,9 @@ public sealed class MarketingPricingQuoteRequestController(
 
     private readonly IMarketingPricingQuoteRequestRepository _quoteRepository =
         quoteRepository ?? throw new ArgumentNullException(nameof(quoteRepository));
+
+    private readonly IMarketingPricingQuoteSalesNotifier _salesNotifier =
+        salesNotifier ?? throw new ArgumentNullException(nameof(salesNotifier));
 
     /// <summary>Append-only quote request (honeypot + rate limit).</summary>
     [HttpPost("quote-request")]
@@ -64,7 +70,7 @@ public sealed class MarketingPricingQuoteRequestController(
 
         byte[]? ipHash = TryHashRemoteIp(HttpContext);
 
-        await _quoteRepository.AppendAsync(
+        MarketingPricingQuoteRequestInsertResult? insert = await _quoteRepository.AppendAsync(
             body.WorkEmail.Trim(),
             body.CompanyName.Trim(),
             body.TierInterest.Trim(),
@@ -74,6 +80,20 @@ public sealed class MarketingPricingQuoteRequestController(
 
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Marketing pricing quote request stored.");
+
+        if (insert.HasValue)
+        {
+            await _salesNotifier.NotifyAsync(
+                insert.Value,
+                body.WorkEmail.Trim(),
+                body.CompanyName.Trim(),
+                body.TierInterest.Trim(),
+                body.Message.Trim(),
+                cancellationToken);
+        }
+        else if (_logger.IsEnabled(LogLevel.Information))
+            _logger.LogInformation(
+                "Marketing pricing quote sales notification skipped (quote row not persisted — in-memory storage).");
 
         return NoContent();
     }

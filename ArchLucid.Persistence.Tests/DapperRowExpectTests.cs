@@ -16,6 +16,6 @@ public sealed class DapperRowExpectTests
     [Fact]
     public void Required_throws_when_null()
     {
-        Assert.Throws<InvalidOperationException>(() => DapperRowExpect.Required<string?>(null, "missing"));
+        Assert.Throws<InvalidOperationException>(() => DapperRowExpect.Required<string>(null!, "missing"));
     }
 }

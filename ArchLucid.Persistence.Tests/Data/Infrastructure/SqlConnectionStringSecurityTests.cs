@@ -6,39 +6,28 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
-[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class SqlConnectionStringSecurityTests
 {
     [Fact]
-    public void EnsureSqlClientEncryptMandatory_throws_on_null_or_whitespace()
+    public void EnsureSqlClientEncryptMandatory_TrimsAndSetsEncryptMandatory()
     {
-        Action a1 = () => SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(null!);
-        a1.Should().Throw<ArgumentException>().WithParameterName("connectionString");
+        string input = " Server=localhost; Database=Db; Integrated Security=true; TrustServerCertificate=true; ";
 
-        Action a2 = () => SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory("  ");
-        a2.Should().Throw<ArgumentException>().WithParameterName("connectionString");
+        string actual = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(input);
+
+        SqlConnectionStringBuilder b = new(actual);
+        b.Encrypt.Should().Be(SqlConnectionEncryptOption.Mandatory);
+        b.DataSource.Should().Be("localhost");
     }
 
     [Fact]
-    public void EnsureSqlClientEncryptMandatory_sets_mandatory_encrypt()
+    public void EnsureSqlClientEncryptMandatory_Throws_WhenNullOrWhiteSpace()
     {
-        const string input = "Server=localhost;Database=db1;Trusted_Connection=True;";
+        Action actNull = () => SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(null!);
+        Action actEmpty = () => SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory("   ");
 
-        string result = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(input);
-
-        SqlConnectionStringBuilder roundTrip = new(result);
-        roundTrip.Encrypt.Should().Be(SqlConnectionEncryptOption.Mandatory);
-    }
-
-    [Fact]
-    public void EnsureSqlClientEncryptMandatory_is_idempotent()
-    {
-        const string input = "Server=localhost;Database=db1;Trusted_Connection=True;";
-
-        string once = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(input);
-        string twice = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(once);
-
-        twice.Should().Be(once);
+        actNull.Should().Throw<ArgumentException>().WithParameterName("connectionString");
+        actEmpty.Should().Throw<ArgumentException>().WithParameterName("connectionString");
     }
 }

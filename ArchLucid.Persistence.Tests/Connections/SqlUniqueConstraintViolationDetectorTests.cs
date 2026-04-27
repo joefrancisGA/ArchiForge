@@ -1,36 +1,46 @@
 using ArchLucid.Persistence.Connections;
+
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchLucid.Persistence.Tests.Connections;
 
+[Trait("Category", "Unit")]
 public sealed class SqlUniqueConstraintViolationDetectorTests
 {
     [Theory]
     [InlineData(2601)]
     [InlineData(2627)]
-    public void IsUniqueKeyViolation_SqlException_with_duplicate_key_numbers_ReturnsTrue(int errorNumber)
+    public void IsUniqueKeyViolation_ReturnsTrue_WhenTopLevelSqlException(int number)
     {
-        Exception ex = SqlExceptionTestFactory.Create(errorNumber);
+        SqlException ex = SqlExceptionTestFactory.Create(number);
 
         SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex).Should().BeTrue();
     }
 
     [Fact]
-    public void IsUniqueKeyViolation_wrapped_in_invalid_operation_preserves_detection()
+    public void IsUniqueKeyViolation_ReturnsFalse_ForNonUniqueError()
     {
-        Exception inner = SqlExceptionTestFactory.Create(2627);
-        Exception wrapped = new InvalidOperationException("dapper", inner);
+        SqlException ex = SqlExceptionTestFactory.Create(50000);
 
-        SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(wrapped).Should().BeTrue();
+        SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex).Should().BeFalse();
     }
 
     [Fact]
-    public void IsUniqueKeyViolation_transient_deadlock_code_ReturnsFalse()
+    public void IsUniqueKeyViolation_ReturnsTrue_WhenInnerSqlException()
     {
-        Exception ex = SqlExceptionTestFactory.Create(1205);
+        SqlException inner = SqlExceptionTestFactory.Create(2627);
+        Exception ex = new("wrap", inner);
 
-        SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex).Should().BeFalse();
+        SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex).Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsUniqueKeyViolation_ReturnsFalse_ForNull()
+    {
+        SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(null).Should().BeFalse();
     }
 }

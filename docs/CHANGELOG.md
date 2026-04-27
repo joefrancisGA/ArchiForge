@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-27 — Quote inbox notification, onboarding hub trim, healthcare trust pointer
+
+**Outcome.** Successful **`POST /v1/marketing/pricing/quote-request`** (SQL persist) triggers **`IMarketingPricingQuoteSalesNotifier`** → transactional email to **`Email:PricingQuoteSalesInbox`** (default **`sales@archlucid.net`**); **`Noop`** logs **would notify**. Config surface: **`ArchLucid.Api/appsettings.json`** `Email` section; runbook [`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md). **`docs/START_HERE.md`** is the ≤40-line **entry tree**; depth moved to [`docs/library/START_HERE_DEPTH.md`](library/START_HERE_DEPTH.md). **`README.md`** leads with **`START_HERE`**; contributor persona table moved to [`docs/library/CONTRIBUTOR_PERSONA_TABLE.md`](library/CONTRIBUTOR_PERSONA_TABLE.md). **`docs/trust-center.md`** adds **Healthcare and PHI**; **`docs/go-to-market/TENANT_ISOLATION.md`** links to it. **`docs/PENDING_QUESTIONS.md`** item 13 notes inbox wiring.
+
+---
+
 ## 2026-04-27 — Independent weighted quality assessment (snapshot)
 
 **Outcome.** Added [`docs/library/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_66_74.md`](library/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_66_74.md): first-principles weighted readiness **66.74%** (**Σ(score × weight) / 102**; the 46 quality weights sum to **102**). Owner context recorded: production site at **`https://archlucid.net`**, quote-request destination **`sales@archlucid.net`**, first pilot **~2026-05-15**, initial vertical **Medicare/Medicaid–adjacent healthcare**, GTM via professional network. One **DEFERRED** improvement (V1.1 commerce un-hold); eight actionable items with Cursor prompts (onboarding consolidation, quote notification, trust-center healthcare paragraph, coverage, scorecard, templates, quality gate).

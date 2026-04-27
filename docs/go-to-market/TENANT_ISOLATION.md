@@ -11,6 +11,8 @@
 
 **Headline:** Your data is **logically isolated** at **identity**, **application**, and **database** layers when ArchLucid is deployed with the recommended Azure posture. This page summarizes; deep references are linked below.
 
+**Healthcare / PHI:** ArchLucid is for **architecture and governance evidence** about systems you describe; **do not upload PHI** into product briefs or unstructured context fields. Posture and contractual questions (including BAA) are summarized under **[`docs/trust-center.md`](../trust-center.md)** (**Healthcare and PHI**); inquiries → **`sales@archlucid.net`**.
+
 ---
 
 ## 1. Three layers

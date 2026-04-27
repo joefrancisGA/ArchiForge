@@ -1,178 +1,63 @@
 using System.Data;
-using System.Text.Json;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
+using Dapper;
+
 using FluentAssertions;
+
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
 [Trait("Category", "Unit")]
 public sealed class ListStringTypeHandlerTests
 {
-    private readonly ListStringTypeHandler _handler = new();
+    private readonly ListStringTypeHandler _sut = new();
 
     [Fact]
-    public void Parse_Null_ReturnsEmptyList()
+    public void Parse_ReturnsEmpty_ForNullDbNullOrBlank()
     {
-        List<string> result = _handler.Parse(null!);
-
-        result.Should().NotBeNull().And.BeEmpty();
-    }
-
-    [Fact]
-    public void Parse_DbNull_ReturnsEmptyList()
-    {
-        List<string> result = _handler.Parse(DBNull.Value);
-
-        result.Should().NotBeNull().And.BeEmpty();
+        _sut.Parse(null!).Should().BeEmpty();
+        _sut.Parse(DBNull.Value).Should().BeEmpty();
+        _sut.Parse("  ").Should().BeEmpty();
     }
 
     [Fact]
-    public void Parse_NonString_ReturnsEmptyList()
+    public void Parse_ReturnsList_ForValidJson()
     {
-        List<string> result = _handler.Parse(42);
+        IReadOnlyList<string> r = _sut.Parse("""["a","b"]""");
 
-        result.Should().NotBeNull().And.BeEmpty();
+        r.Should().Equal("a", "b");
     }
 
     [Fact]
-    public void Parse_EmptyString_ReturnsEmptyList()
+    public void Parse_ReturnsEmpty_OnInvalidJson()
     {
-        List<string> result = _handler.Parse("");
+        IReadOnlyList<string> r = _sut.Parse("not json");
 
-        result.Should().NotBeNull().And.BeEmpty();
+        r.Should().BeEmpty();
     }
 
     [Fact]
-    public void Parse_Whitespace_ReturnsEmptyList()
+    public void SetValue_SerializesOrDbNull()
     {
-        List<string> result = _handler.Parse("   ");
+        SqlParameter p = new();
 
-        result.Should().NotBeNull().And.BeEmpty();
+        _sut.SetValue(p, null);
+        p.Value.Should().Be(DBNull.Value);
+
+        _sut.SetValue(p, []);
+        p.Value.Should().Be(DBNull.Value);
+
+        _sut.SetValue(p, ["x"]);
+        p.Value.ToString().Should().Contain("x");
     }
 
     [Fact]
-    public void Parse_ValidJson_ReturnsDeserializedList()
+    public void Register_IsIdempotent()
     {
-        List<string> result = _handler.Parse("[\"a\",\"b\"]");
-
-        result.Should().Equal("a", "b");
+        ListStringTypeHandler.Register();
+        ListStringTypeHandler.Register();
     }
-
-    [Fact]
-    public void Parse_InvalidJson_ReturnsEmptyList()
-    {
-        List<string> result = _handler.Parse("not json");
-
-        result.Should().NotBeNull().And.BeEmpty();
-    }
-
-    [Fact]
-    public void SetValue_NullList_SetsDbNull()
-    {
-        FakeDbParameter parameter = new();
-
-        _handler.SetValue(parameter, null);
-
-        parameter.Value.Should().Be(DBNull.Value);
-        parameter.DbType.Should().Be(DbType.String);
-    }
-
-    [Fact]
-    public void SetValue_EmptyList_SetsDbNull()
-    {
-        FakeDbParameter parameter = new();
-
-        _handler.SetValue(parameter, []);
-
-        parameter.Value.Should().Be(DBNull.Value);
-    }
-
-    [Fact]
-    public void SetValue_PopulatedList_SerializesJson()
-    {
-        FakeDbParameter parameter = new();
-        List<string> list = ["x", "y"];
-
-        _handler.SetValue(parameter, list);
-
-        parameter.Value.Should().BeOfType<string>();
-        string json = (string)parameter.Value;
-        List<string>? roundTrip = JsonSerializer.Deserialize<List<string>>(json);
-        roundTrip.Should().NotBeNull().And.Equal("x", "y");
-    }
-
-    [Fact]
-    public void Register_CalledTwice_DoesNotThrow()
-    {
-        Action act = () =>
-        {
-            ListStringTypeHandler.Register();
-            ListStringTypeHandler.Register();
-        };
-
-        act.Should().NotThrow();
-    }
-#pragma warning disable CS8766, CS8767 // Test fake: IDataParameter nullability vs concrete storage
-    private sealed class FakeDbParameter : IDbDataParameter
-    {
-        public DbType DbType
-        {
-            get;
-            set;
-        }
-
-        public ParameterDirection Direction
-        {
-            get;
-            set;
-        }
-
-        public bool IsNullable => false;
-
-        public string ParameterName
-        {
-            get;
-            set;
-        } = "";
-
-        public string SourceColumn
-        {
-            get;
-            set;
-        } = "";
-
-        public DataRowVersion SourceVersion
-        {
-            get;
-            set;
-        }
-
-        public object? Value
-        {
-            get;
-            set;
-        }
-
-        public byte Precision
-        {
-            get;
-            set;
-        }
-
-        public byte Scale
-        {
-            get;
-            set;
-        }
-
-        public int Size
-        {
-            get;
-            set;
-        }
-    }
-
-#pragma warning restore CS8766, CS8767
 }

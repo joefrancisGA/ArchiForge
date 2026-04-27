@@ -74,6 +74,13 @@ public sealed class EmailNotificationOptions
         get;
         init;
     }
+
+    /// <summary>Inbox for <c>POST /v1/marketing/pricing/quote-request</c> notifications (sales follow-up).</summary>
+    public string? PricingQuoteSalesInbox
+    {
+        get;
+        init;
+    } = "sales@archlucid.net";
 }
 
 /// <summary>Stable <see cref="EmailNotificationOptions.Provider" /> literals.</summary>

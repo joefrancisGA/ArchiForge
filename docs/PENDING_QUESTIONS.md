@@ -157,7 +157,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
 13. **Public price list publication on marketing site** — `PRICING_PHILOSOPHY.md` is internal today. Marketplace publication (item 8) makes price public anyway; do we publish on the marketing site simultaneously or stay quote-on-request elsewhere?
 
-    - **Repo wiring (2026-04-22):** anonymous **`POST /v1/marketing/pricing/quote-request`** + **`dbo.MarketingPricingQuoteRequests`** capture intent when live checkout is not the chosen path; CRM / Salesforce owner decisions still apply before production mail-forwarding.
+    - **Repo wiring (2026-04-22):** anonymous **`POST /v1/marketing/pricing/quote-request`** + **`dbo.MarketingPricingQuoteRequests`** capture intent when live checkout is not the chosen path; **`Email:PricingQuoteSalesInbox`** (default **`sales@archlucid.net`**) receives a transactional notification after SQL persist when **`Email:Provider`** is not **`Noop`** ([`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md)). CRM / Salesforce owner decisions still apply for lead routing beyond inbox mail.
 
 14. **Cross-tenant pattern library — Resolved 2026-04-22.** Implementing **ADR 0031** is drafted for owner sign-off: [`docs/adr/0031-cross-tenant-pattern-library.md`](adr/0031-cross-tenant-pattern-library.md). **Status remains Proposed** until the owner flips to **Accepted**; no implementation merge until then.
 

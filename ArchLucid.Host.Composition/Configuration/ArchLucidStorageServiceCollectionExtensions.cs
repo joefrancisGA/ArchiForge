@@ -92,6 +92,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.TryAddSingleton<IEmailTemplateRenderer, RazorLightEmailTemplateRenderer>();
         services.TryAddScoped<ITrialLifecycleEmailDispatcher, TrialLifecycleEmailDispatcher>();
         services.TryAddScoped<ICommitSponsorEmailNotifier, CommitSponsorEmailNotifier>();
+        services.TryAddScoped<IMarketingPricingQuoteSalesNotifier, MarketingPricingQuoteSalesNotifier>();
         services.TryAddScoped<TrialScheduledLifecycleEmailScanner>();
         services.TryAddSingleton<IAzureCommunicationEmailApi, AzureCommunicationEmailApi>();
 
