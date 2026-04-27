@@ -17,6 +17,9 @@ import { FIXTURE_EMPTY_ZIP_BYTES, registerOperatorJourneyApiRoutes } from "./hel
 
 const OUT = "public/screenshots/all-routes";
 
+/** Per-test cap for visiting every route: default Playwright would time out; 30m for slow cold builds or CI. */
+const ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS = 30 * 60 * 1_000;
+
 const PLAN_ID = "e2e-plan-001";
 const FINDING_ID = "e2e-finding-001";
 const APPROVAL_ID = "e2e-approval-001";
@@ -122,7 +125,7 @@ test.describe("all routes screenshots (mock API)", () => {
   });
 
   test("writes PNGs for every app route (page.tsx)", async ({ page }) => {
-    test.setTimeout(600_000);
+    test.setTimeout(ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS);
 
     for (const href of HREFS) {
       await page.goto(href, { waitUntil: "domcontentloaded", timeout: 120_000 });
