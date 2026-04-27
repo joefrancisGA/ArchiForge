@@ -96,7 +96,9 @@ public sealed class DemoViewerControllerTests
         }
 
         HttpResponseMessage response =
-            await client.PostAsync("/v1/demo/viewer/runs", JsonContent.Create(new { }));
+            await client.PostAsync("/v1/demo/viewer/runs", JsonContent.Create(new
+            {
+            }));
 
         response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
     }
@@ -126,6 +128,6 @@ public sealed class DemoViewerControllerTests
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         body.Should().NotBeNull();
-        body!.Run.RunId.Should().NotBeNullOrWhiteSpace();
+        body.Run.RunId.Should().NotBeNullOrWhiteSpace();
     }
 }
