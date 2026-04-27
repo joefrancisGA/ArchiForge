@@ -1,3 +1,4 @@
+using ArchLucid.Core;
 using ArchLucid.Core.Configuration;
 
 using FluentAssertions;

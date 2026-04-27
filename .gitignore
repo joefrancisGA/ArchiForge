@@ -72,6 +72,10 @@ _docker_r2r_noflag/
 
 # Ad-hoc dotnet build/test -o output folders at repo root (e.g. _tmp_build_out, _tmp_test_out)
 _tmp*/
+# Alternate Api output when default bin/ is file-locked (do not add to solution / source control)
+_api_build_out/
+_api_out_verify/
+_arch_test_out/
 
 # Benchmark JSON outputs under repo root (regenerate with BenchmarkDotNet locally)
 artifacts-bench/results/

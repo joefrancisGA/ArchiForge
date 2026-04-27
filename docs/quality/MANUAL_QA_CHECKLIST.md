@@ -122,6 +122,15 @@ Each test includes a justification for why human intervention is strictly necess
 - **Test:** If AI generates the finding rationale or summaries, read 10-15 generated outputs.
 - **Justification:** Automation can check for restricted keywords, but only a human can tell if the AI is being overly pedantic, condescending, or hallucinates architectural components that don't exist in the manifest.
 
+### 8.3. Real-LLM / agent output quality (manual “Q7” gate)
+- **Test:** On **staging** (or another non-simulator host configured for **real** Azure OpenAI — see `docs/library/FIRST_REAL_VALUE.md` and your deployment secrets), run **at least one** full authority run through **create → execute → commit** with a **realistic** architecture brief (not the bare minimum one-liner). Then:
+  - Skim every agent-backed finding: are claims **plausible** given the manifest and context, or obvious nonsense?
+  - Open **agent execution trace** (prompts/response) for at least one agent (e.g. Topology) and confirm the model is **answering the actual request**, not a template mismatch.
+  - If your environment exposes it (UI, diagnostics, or Grafana): note **structural completeness** and **semantic**-style signals so you are not flying blind compared to the **simulator** on the same shape of request.
+  - Optionally: run a **second** run with **simulator** mode on the **same** or equivalent request to **feel** the difference in usefulness (simulator = deterministic for CI; real LLM = what pilots experience).
+- **Record (for you):** date, **environment URL**, model/deployment id if known, and one line: **“acceptable for pilot” / “not yet”** and why. This is your **manual** answer to the independent assessment **Q7** (agent eval / “last green” narrative) when you do **not** yet rely on a **published** 30-day rollup from `agent-eval-datasets-nightly` (`.github/workflows/agent-eval-datasets-nightly.yml`) or other automation.
+- **Justification:** Scheduled jobs can assert JSON shape and thresholds; they **cannot** stand in for a human judgment that **this** pipeline output is **credible and safe to show a sponsor** on a real engagement. This step turns anxiety into a **finite, repeatable** session you control.
+
 ---
 
 ## 9. Runbook & Incident Response Validation

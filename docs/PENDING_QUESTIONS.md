@@ -5,7 +5,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-27 (Post-assessment Q&A resolution of authentication and error obfuscation).
+**Last updated:** 2026-04-28 (Assessor B; Q7 resolved via `MANUAL_QA_CHECKLIST.md` §8.3; Q9 uptime; only Q3 still open in Assessor B thread).
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -19,6 +19,27 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 |---|---|---|
 | **Default Authentication Strategy for SaaS vs. On-Prem** | **Require Entra ID configuration or a static API key.** The open `DevelopmentBypassAll` default must not be the production posture. | `ArchLucid.Api/Auth/Models/ArchLucidAuthOptions.cs`, `docs/library/` |
 | **Unify Error Responses for Hidden UI Features** | **404 Not Found.** Restricted API routes will return 404 instead of 403 to prevent feature and resource enumeration by unauthorized tiers/roles. | `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`, `ArchLucid.Api.Tests/`, Operator UI interpretation logic. |
+
+**Refined 2026-04-28 (Assessor B):** for **tenant-scoped** run/manifest APIs, owner prefers **403** with clear Problem Details for **debuggability**; **404** remains preferred for **admin** surfaces. See **Resolved 2026-04-28** — implementation work reconciles this split with the filter above on a per-route basis.
+
+---
+
+## Resolved 2026-04-28 (Assessor B follow-up — `docs/library/QUALITY_ASSESSMENT_2026_04_27_INDEPENDENT_B_64_63.md` §9)
+
+| Sub-decision | Decision | Affects / notes |
+|---|---|---|
+| **Auth modes (first pilot)** | **Both** in spirit: people use **JWT** (Entra / OIDC); automation uses **API keys** where the environment still allows. | With **`ArchLucidAuth:RequireJwtBearerInProduction = true`**, **Production** must use **`ArchLucidAuth:Mode = JwtBearer`** — **not** `ApiKey` at the host. Automate against prod with **client-credentials JWT** (or a non-prod host that accepts API keys). |
+| **Require JWT in production** | **Yes** — `ArchLucidAuth:RequireJwtBearerInProduction` **true** for production. | `ArchLucid.Host.Core/Startup/Validation/Rules/AuthenticationRules.cs`, `docs/library/SECURITY.md` |
+| **403 vs 404 (enumeration vs debuggability)** | **Split:** **404** when denying access to **admin**-style surfaces; **403** (clear Problem Details) for **tenant-scoped** run/manifest and main product APIs. | Align handlers and filters in a follow-up; refines 2026-04-27 row for tenant paths. |
+| **Azure spend (staging + production)** | **Target:** combined **no more than ~USD $400 / month** until there are paying customers. | FinOps; buyer-facing `ROI_MODEL.md` infrastructure bands are often higher — **your** COGS is leaner pre-customer. |
+| **Third-party pen test / “shareable” date (Q8)** | **No** third-party pen-test **report** or **customer-shareable** redacted summary **yet**. Security work in progress: **internal / founder-led** penetration testing plus in-repo and CI controls (ZAP, Schemathesis, runbooks, Trust Center). **When** a third-party firm is engaged, shareable vs NDA-only is set with that SoW. | Procurement narrative; do **not** imply independent attestation. Trust Center honest labels unchanged. |
+| **Uptime / 30-day rollup (Q9)** | **No 30-day measured rollup** for `archlucid.net` / `staging` **yet** — not publishing an **achieved** availability %. **Stated SLO in docs** remains **99.5%** availability over a **30-day** rolling window (e.g. `docs/library/API_SLOS.md`, Prometheus rules in-repo). | Buyer narrative: **target** from docs, not a verified operational score until monitoring exports a 30-day number. |
+
+### Still open — same assessment thread (Assessor B §9)
+
+1. **API key lifecycle (Q3)** — how keys are **created, rotated, distributed**, and **break-glass** for any path that still uses API keys (typically **non-production** or emergency while prod is JWT-only).
+
+**Resolved 2026-04-28 (Q7 — agent eval / real LLM signal)** — **Manual gate preferred by owner** until a CI rollup is a habit. Use **`docs/quality/MANUAL_QA_CHECKLIST.md` §8.3** (*Real-LLM / agent output quality*) to perform a **staging real-LLM** run, subjective sponsor-readiness check, and a one-line private note. **Optional later:** add “last time I ran §8.3” / link to a **green** `agent-eval-datasets-nightly` run when you start tracking it. Automated nightly does **not** replace §8.3; it **complements** it.
 
 ---
 

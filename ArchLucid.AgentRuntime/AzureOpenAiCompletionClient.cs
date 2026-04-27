@@ -2,6 +2,7 @@ using System.ClientModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 
 using Azure.AI.OpenAI;
@@ -19,7 +20,7 @@ namespace ArchLucid.AgentRuntime;
 public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 {
     /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
-    public const int DefaultMaxCompletionTokens = 4096;
+    public const int DefaultMaxCompletionTokens = AzureOpenAiOptions.DefaultMaxCompletionTokens;
 
     private static readonly AsyncLocal<(int Prompt, int Completion)?> LastCompletionTokenUsage = new();
 

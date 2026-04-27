@@ -1,4 +1,4 @@
-namespace ArchLucid.AgentRuntime;
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>Estimates LLM call cost from token usage and <see cref="LlmCostEstimationOptions" />.</summary>
 public interface ILlmCostEstimator

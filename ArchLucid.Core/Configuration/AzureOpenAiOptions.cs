@@ -1,11 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchLucid.AgentRuntime;
+namespace ArchLucid.Core.Configuration;
 
 [ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
 public sealed class AzureOpenAiOptions
 {
     public const string SectionName = "AzureOpenAI";
+
+    /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
+    public const int DefaultMaxCompletionTokens = 4096;
 
     public string Endpoint
     {
@@ -27,8 +30,7 @@ public sealed class AzureOpenAiOptions
 
     /// <summary>
     ///     Hard cap on model output tokens per completion (maps to <c>MaxOutputTokenCount</c> on the chat request).
-    ///     When unset or zero, <see cref="AzureOpenAiCompletionClient.DefaultMaxCompletionTokens" /> is used so deployments
-    ///     are never unbounded by default.
+    ///     When unset or zero, <see cref="DefaultMaxCompletionTokens" /> is used so deployments are never unbounded by default.
     /// </summary>
     public int MaxCompletionTokens
     {

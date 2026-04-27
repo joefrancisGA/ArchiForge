@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;

@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Evidence;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Generators;

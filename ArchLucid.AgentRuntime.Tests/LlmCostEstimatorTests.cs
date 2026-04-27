@@ -1,3 +1,5 @@
+using ArchLucid.Core.Configuration;
+
 using FluentAssertions;
 
 using Microsoft.Extensions.Options;

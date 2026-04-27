@@ -1,3 +1,5 @@
+using ArchLucid.Core.Configuration;
+
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;

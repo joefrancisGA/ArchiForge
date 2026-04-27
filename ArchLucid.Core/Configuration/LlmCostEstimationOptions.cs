@@ -1,8 +1,11 @@
-namespace ArchLucid.AgentRuntime;
+using System.Diagnostics.CodeAnalysis;
+
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>
 ///     Optional USD cost estimation for LLM calls from reported token counts (Azure-style input/output split).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
 public sealed class LlmCostEstimationOptions
 {
     public const string SectionPath = "AgentExecution:LlmCostEstimation";

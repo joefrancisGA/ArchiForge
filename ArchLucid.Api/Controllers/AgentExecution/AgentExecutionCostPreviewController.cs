@@ -1,4 +1,3 @@
-using ArchLucid.AgentRuntime;
 using ArchLucid.Api.Models;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -54,7 +53,7 @@ public sealed class AgentExecutionCostPreviewController(
         int maxOut = azure.MaxCompletionTokens;
 
         if (maxOut <= 0)
-            maxOut = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
+            maxOut = AzureOpenAiOptions.DefaultMaxCompletionTokens;
 
         string modeLabel = isReal ? "Real" : "Simulator";
         string? deployment =

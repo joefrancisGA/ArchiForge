@@ -193,16 +193,25 @@ Layering, tests (core integration, property tests, Stryker, live Playwright, ZAP
 
 ---
 
-## 9. Pending questions for later (by improvement)
+## 9. Pending questions (status 2026-04-28)
 
-| Item | Questions |
-|------|-----------|
-| Default auth (DEFERRED) | ApiKey vs JWT for pilot; `RequireJwtBearerInProduction` for that tenant; rotation cadence. |
-| 403/404 (DEFERRED) | One global rule or split admin vs run scope? |
-| **Cost / SRE** | Current monthly run rate of staging (€/$) to compare to `docs/go-to-market/ROI_MODEL.md` assumptions? |
-| **Agent eval** | Last `agent-eval-datasets` / nightly scores for structural+semantic? |
-| **Pen test** | Expected date for *shareable* vs NDA summary relative to first pilot? |
-| **Uptime** | 30-day synthetic/uptime for `archlucid.net` / `staging`? |
+**Resolved (owner) —** see **`docs/PENDING_QUESTIONS.md`** *Resolved 2026-04-28 (Assessor B follow-up)* for the canonical table.
+
+| Topic | Resolution (summary) |
+|--------|------------------------|
+| **Auth modes** | **Both:** people → JWT; automation → API keys where allowed. **Production** with `RequireJwtBearerInProduction` → **JwtBearer**; prod automation → **client-credentials JWT**, not `X-Api-Key` on prod API. |
+| **Require JWT in prod** | **Yes** (`RequireJwtBearerInProduction` true for production). |
+| **403 vs 404** | **404** for **admin** surfaces; **403** (clear body) for **tenant-scoped** APIs — **debuggability** on main product paths. |
+| **Cost** | **~USD $400/mo** cap for **staging + production** combined until there are customers. |
+| **Pen test / shareable evidence** | **No** third-party report or customer-shareable summary **yet**; **internal / founder** pen testing + ZAP, Schemathesis, runbooks, Trust Center. Third-party + shareable vs NDA **when** a firm is engaged. |
+| **Uptime (Q9)** | **No 30-day measured rollup yet** (no published **achieved** %). **Stated SLO in docs:** **99.5%** over **30 days** (see e.g. `docs/library/API_SLOS.md`). |
+| **Agent eval / real LLM (Q7)** | **Manual gate:** `docs/quality/MANUAL_QA_CHECKLIST.md` **§8.3** — staging real-LLM run + sponsor-readiness gut check + one-line note. Complements (does not replace) optional tracking of `agent-eval-datasets-nightly` when desired. |
+
+**Still open**
+
+| # | Item |
+|---|------|
+| **1** | **API key lifecycle** (creation, rotation, distribution, break-glass) for non-prod or any remaining key paths. |
 
 ---
 

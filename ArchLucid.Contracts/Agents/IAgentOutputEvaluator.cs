@@ -1,7 +1,6 @@
-using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
-namespace ArchLucid.AgentRuntime.Evaluation;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 ///     Pure structural checks on persisted <see cref="AgentExecutionTrace" /> JSON (see

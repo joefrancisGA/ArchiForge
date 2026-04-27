@@ -24,6 +24,7 @@
     <ProjectReference Include="..\ArchLucid.Cli\ArchLucid.Cli.csproj" />
     <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchLucid.AgentRuntime\ArchLucid.AgentRuntime.csproj" />
+    <ProjectReference Include="..\ArchLucid.Api\ArchLucid.Api.csproj" />
     <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts.Abstractions\ArchLucid.Contracts.Abstractions.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
@@ -37,6 +38,7 @@
     <ProjectReference Include="..\ArchLucid.Persistence.Runtime\ArchLucid.Persistence.Runtime.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
     <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
+    <ProjectReference Include="..\ArchLucid.Worker\ArchLucid.Worker.csproj" />
   </ItemGroup>
 
   <ItemGroup>

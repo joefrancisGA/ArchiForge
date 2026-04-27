@@ -4,7 +4,7 @@ namespace ArchLucid.Core.Explanation;
 ///     Stakeholder-facing explanation for a single run: short summary, bullet facets, longer narrative, and optional
 ///     structured LLM envelope.
 /// </summary>
-/// <remarks>Produced by <c>ArchLucid.AgentRuntime.Explanation.IExplanationService.ExplainRunAsync</c>.</remarks>
+/// <remarks>Produced by <c>ArchLucid.Application.Explanation.IExplanationService.ExplainRunAsync</c>.</remarks>
 public class ExplanationResult
 {
     /// <summary>Raw LLM completion (after JSON fence unwrap), for auditing and backward-compatible opaque access.</summary>
@@ -97,7 +97,7 @@ public class ExplanationResult
 /// <summary>
 ///     Narrative bundle for a manifest-to-manifest comparison (base → target).
 /// </summary>
-/// <remarks>Produced by <c>ArchLucid.AgentRuntime.Explanation.IExplanationService.ExplainComparisonAsync</c>.</remarks>
+/// <remarks>Produced by <c>ArchLucid.Application.Explanation.IExplanationService.ExplainComparisonAsync</c>.</remarks>
 public class ComparisonExplanationResult
 {
     /// <summary>Short executive summary of what changed.</summary>

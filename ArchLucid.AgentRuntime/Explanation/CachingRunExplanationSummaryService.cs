@@ -1,3 +1,4 @@
+using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;

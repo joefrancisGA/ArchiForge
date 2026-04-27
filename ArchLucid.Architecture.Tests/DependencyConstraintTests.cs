@@ -437,6 +437,63 @@ public sealed class DependencyConstraintTests
     [Fact]
     [Trait("Suite", "Core")]
     [Trait("Category", "Unit")]
+    public void Api_must_not_depend_on_AgentRuntime()
+    {
+        Assembly api = typeof(ArchLucid.Api.Program).Assembly;
+
+        TestResult result = Types
+            .InAssembly(api)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.AgentRuntime")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "API reaches agents via Application and host DI only. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Worker_must_not_reference_Api_assembly()
+    {
+        Assembly worker = typeof(ArchLucid.Worker.Program).Assembly;
+        AssemblyName[] references = worker.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Api",
+            because: "Worker composes Host paths and contracts; it must not reference the HTTP host assembly.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_reference_Host_Composition_assembly()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+        AssemblyName[] references = application.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Host.Composition",
+            because: "Application stays host-agnostic; composition is a host concern.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_must_not_reference_Persistence_Advisory_assembly()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+        AssemblyName[] references = application.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Persistence.Advisory",
+            because: "Advisory repository ports are declared on ArchLucid.Persistence; Persistence.Advisory hosts adapters only.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
     public void Persistence_Advisory_must_not_host_advisory_orchestration_services()
     {
         Assembly advisory = typeof(DapperAdvisoryScanScheduleRepository).Assembly;

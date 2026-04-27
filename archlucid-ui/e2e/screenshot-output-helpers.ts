@@ -1,13 +1,9 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const e2eDir = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.join(e2eDir, "..");
 
 /**
- * Resolves a path under `archlucid-ui/public/...` regardless of process CWD
- * (Playwright screenshot `path` is relative to cwd when a relative path is used).
+ * Resolves a path under `archlucid-ui/public/...`.
+ * Uses `process.cwd()` so Playwright's transform matches Node execution (avoid `import.meta` + bundler tsconfig).
  */
 export function publicDirUnderUi(...parts: string[]): string {
-  return path.join(projectRoot, "public", ...parts);
+  return path.join(process.cwd(), "public", ...parts);
 }

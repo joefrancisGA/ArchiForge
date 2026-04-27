@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Explanation;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;

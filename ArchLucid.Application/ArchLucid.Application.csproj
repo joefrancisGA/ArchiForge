@@ -66,10 +66,10 @@
     <ProjectReference Include="..\ArchLucid.Contracts.Abstractions\ArchLucid.Contracts.Abstractions.csproj" />
     <ProjectReference Include="..\ArchLucid.Coordinator\ArchLucid.Coordinator.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
-    <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
+    <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
   </ItemGroup>
 
 </Project>
