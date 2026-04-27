@@ -15,7 +15,7 @@
 
 > **Update 2026-04-23 (second deferral, same day).** **Prompt 4** ("Marketplace + Stripe live readiness — production-safety guards") was **removed** because the underlying improvement was deferred to V1.1 by owner decision (see [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md`](QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md) §0.3 — commerce un-hold). Its slot is now filled by **Prompt 4 (replacement) — Governance dry-run / what-if mode for policy threshold changes**, sourced from §1.22's standing recommendation. **Prompt 2** (trial signup funnel TEST-mode) is unchanged and stays a live V1 obligation — only its "flip TEST → live" gate is V1.1-deferred. Prompts 3, 5, 6, 7, 8 are unchanged. The actionable count remains 8.
 
-> **SaaS audience guard (read before running any prompt below).** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform.** They only ever interact with the public website (`archlucid.com`), the in-product operator UI (after sign-in), and the Azure portal for their own subscription identity / billing. When any prompt below produces customer-facing copy (signup flow, marketing routes, pricing, trust center, sponsor brief, value report, reference case study, evidence pack, ROI bulletin, board pack, operator UI text), it **must not** assume the customer runs Docker, opens a terminal, runs `archlucid try`, or applies Terraform. Tooling like `apply-saas.ps1`, `archlucid try`, `dev up`, `docker compose`, the `.devcontainer/`, and `INSTALL_ORDER.md` is **internal ArchLucid contributor / operator** tooling — fine to reference in **engineer-facing** docs, never on a buyer surface. If a prompt seems to require a customer-side install step, **stop and ask the user** rather than inventing one. See `docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` §0.1 for the full SaaS-framing addendum.
+> **SaaS audience guard (read before running any prompt below).** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform.** They only ever interact with the public website (`archlucid.net`), the in-product operator UI (after sign-in), and the Azure portal for their own subscription identity / billing. When any prompt below produces customer-facing copy (signup flow, marketing routes, pricing, trust center, sponsor brief, value report, reference case study, evidence pack, ROI bulletin, board pack, operator UI text), it **must not** assume the customer runs Docker, opens a terminal, runs `archlucid try`, or applies Terraform. Tooling like `apply-saas.ps1`, `archlucid try`, `dev up`, `docker compose`, the `.devcontainer/`, and `INSTALL_ORDER.md` is **internal ArchLucid contributor / operator** tooling — fine to reference in **engineer-facing** docs, never on a buyer surface. If a prompt seems to require a customer-side install step, **stop and ask the user** rather than inventing one. See `docs/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_68_60.md` §0.1 for the full SaaS-framing addendum.
 
 ---
 
@@ -201,7 +201,7 @@ Do this:
 Stop and ask the user before:
 - Switching the funnel from Stripe TEST mode to live mode
 - Turning off the trial signup feature flag in production
-- Setting any DNS record on archlucid.com or staging.archlucid.com
+- Setting any DNS record on archlucid.net or staging.archlucid.net
 
 Exit criteria: end-to-end funnel works against staging in TEST mode;
 Playwright spec green against deterministic mocks; CLI command shipped
@@ -525,7 +525,7 @@ Do this:
    pending — see docs/PENDING_QUESTIONS.md item 21)" sentence.
 6. Add a new pending-question sub-bullet asking the security custodian
    to confirm the canonical email address for the key
-   (security@archlucid.dev vs security@archlucid.com — the .dev TLD
+   (security@archlucid.dev vs security@archlucid.net — the .dev TLD
    appears in some docs but not all).
 
 Stop and ask the user before:

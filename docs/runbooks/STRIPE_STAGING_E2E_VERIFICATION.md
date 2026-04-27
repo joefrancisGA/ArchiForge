@@ -31,7 +31,7 @@
 | Checkout method | `POST /v1/tenant/billing/checkout` | **Correct** — but requires **JWT** and **`AdminAuthority`**, not anonymous. |
 | `pricing.json` | “Set `teamStripeCheckoutUrl`” | The committed **`archlucid-ui/public/pricing.json`** is **packages-only**; **`teamStripeCheckoutUrl`** is **optional** in the TypeScript type and used by **`MarketingTierPricingSection`**. Add the property in **deployed** static JSON when you want a Payment Link CTA; not required for API-only checkout. |
 | Webhook event list | “Align with `StripeBillingProvider`” | For **entitlement** updates, the provider only **activates** on **`checkout.session.completed`**. |
-| Staging host examples | e.g. `staging.archlucid.com` | Use your real staging hostname everywhere below (`<staging-api-host>`). |
+| Staging host examples | e.g. `staging.archlucid.net` | Use your real staging hostname everywhere below (`<staging-api-host>`). |
 
 These gaps do **not** require source edits for verification; they inform how you configure Dashboard, secrets, and UI.
 

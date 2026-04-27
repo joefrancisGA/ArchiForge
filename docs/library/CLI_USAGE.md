@@ -167,7 +167,7 @@ Each step prints **`PASS` / `FAIL`** with the underlying HTTP detail. Failures i
 ### Local quick-start (Stripe TEST mode against staging)
 
 ```bash
-export ARCHLUCID_API_URL=https://staging.archlucid.com
+export ARCHLUCID_API_URL=https://staging.archlucid.net
 dotnet run --project ArchLucid.Cli -- trial smoke \
   --org "TrialSmoke-$(date +%s)" \
   --email "trial-smoke@example.invalid" \
@@ -178,7 +178,7 @@ dotnet run --project ArchLucid.Cli -- trial smoke \
 PowerShell (Windows):
 
 ```powershell
-$env:ARCHLUCID_API_URL = "https://staging.archlucid.com"
+$env:ARCHLUCID_API_URL = "https://staging.archlucid.net"
 dotnet run --project ArchLucid.Cli -- trial smoke `
   --org "TrialSmoke-$([int][double]::Parse((Get-Date -UFormat %s)))" `
   --email "trial-smoke@example.invalid" `
@@ -218,7 +218,7 @@ Use **`--synthetic`** to print a **non-SQL** Markdown sample (fixed illustrative
 ### Example
 
 ```bash
-export ARCHLUCID_API_URL=https://staging.archlucid.com
+export ARCHLUCID_API_URL=https://staging.archlucid.net
 export ARCHLUCID_API_KEY='<admin key>'
 dotnet run --project ArchLucid.Cli -- roi-bulletin --quarter Q1-2026 --min-tenants 5 --out ./roi-bulletin-Q1-2026-draft.md
 ```

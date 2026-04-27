@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import GetStartedPage from "./page";
-import { BUYER_GET_STARTED_VERTICAL_SLUGS } from "./get-started-verticals";
+import { BUYER_GET_STARTED_VERTICAL_SLUGS, VERTICAL_DISPLAY_NAMES } from "./get-started-verticals";
 
 function readBriefSlugs(): readonly string[] {
   const briefsRoot = resolve(__dirname, "../../../../../templates/briefs");
@@ -24,17 +24,17 @@ describe("BUYER_GET_STARTED_VERTICAL_SLUGS", () => {
 });
 
 describe("GetStartedPage", () => {
-  it("renders all five steps with placeholder image slots", () => {
+  it("renders all five steps with step indicators", () => {
     render(<GetStartedPage />);
 
     for (let n = 1; n <= 5; n++) {
       expect(screen.getByTestId(`get-started-step-${n}`)).toBeInTheDocument();
-      const img = screen.getByTestId(`get-started-step-${n}-image`);
-      expect(img.getAttribute("src") ?? "").toMatch(new RegExp(`step-${n}-placeholder\\.png`));
+      const indicator = screen.getByTestId(`get-started-step-${n}-indicator`);
+      expect(indicator.textContent).toBe(String(n));
     }
   });
 
-  it("renders the vertical picker with one button per templates/briefs slug", () => {
+  it("renders the vertical picker with friendly labels for each templates/briefs slug", () => {
     render(<GetStartedPage />);
 
     const picker = screen.getByTestId("get-started-vertical-picker");
@@ -43,6 +43,7 @@ describe("GetStartedPage", () => {
     for (const slug of BUYER_GET_STARTED_VERTICAL_SLUGS) {
       const button = screen.getByTestId(`get-started-vertical-${slug}`);
       expect(button).toHaveAttribute("data-vertical-slug", slug);
+      expect(button.textContent).toBe(VERTICAL_DISPLAY_NAMES[slug]);
     }
   });
 
@@ -89,7 +90,7 @@ describe("docs/BUYER_FIRST_30_MINUTES.md", () => {
     expect(text).toMatch(/>\s*\*\*Scope:\*\*/);
     expect(text).toContain("Audience banner:");
     expect(text).toContain("docs/engineering/FIRST_30_MINUTES.md");
-    expect(text).toContain("archlucid.com/get-started");
+    expect(text).toContain("archlucid.net/get-started");
     expect(text).not.toContain("<<placeholder copy");
   });
 });

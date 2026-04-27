@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { BUYER_GET_STARTED_VERTICAL_SLUGS } from "./get-started-verticals";
+import { BUYER_GET_STARTED_VERTICAL_SLUGS, VERTICAL_DISPLAY_NAMES } from "./get-started-verticals";
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
 
 export const metadata: Metadata = {
@@ -15,8 +14,6 @@ export const metadata: Metadata = {
   },
 };
 
-const PLACEHOLDER_MARKER = "<<placeholder copy — replace before external use>>";
-
 type Step = {
   readonly n: number;
   readonly title: string;
@@ -27,27 +24,27 @@ const STEPS: readonly Step[] = [
   {
     n: 1,
     title: "Sign in",
-    body: `Sign in at archlucid.com with your work identity (Microsoft Entra ID or a Google Workspace account). ${PLACEHOLDER_MARKER}`,
+    body: "Open archlucid.net and sign in with your work identity (Microsoft Entra ID or a Google Workspace account). The sign-in flow uses your existing identity provider — there is no separate account to create and no credit card is required to start. You will land on a clean workspace ready for your first architecture run.",
   },
   {
     n: 2,
     title: "Pick a vertical",
-    body: `Choose the industry profile closest to the system you want to evaluate. The defaults match the briefs shipped in templates/briefs/ — pick the closest match; you can change it after the first run. ${PLACEHOLDER_MARKER}`,
+    body: "A short picker asks which industry profile to start from. The defaults match the briefs in templates/briefs/ — financial-services, healthcare, public-sector, public-sector-us, retail, saas. Choose the closest match; you can change it later. The vertical sets default compliance rules, terminology, and analysis priorities so the first run produces findings relevant to your domain. You are not locked in — the vertical can be changed at any time, and you can run against multiple verticals from the same workspace.",
   },
   {
     n: 3,
     title: "Run a sample",
-    body: `ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline against it. No upload required for the first run. ${PLACEHOLDER_MARKER}`,
+    body: "ArchLucid pre-populates a sample architecture request shaped for the vertical you picked, then runs the analysis pipeline. No upload required for the first run. Within a few seconds the pipeline runs topology, cost, and compliance analysis against the sample request and produces a committed manifest with structured findings and downloadable artifacts. You do not need to prepare any inputs or upload any files for this first pass — the goal is to see the shape of the output before investing your own data.",
   },
   {
     n: 4,
     title: "Read your first finding",
-    body: `Open the finalized run and read the first typed finding — what was flagged, why it was flagged, and which evidence backs it. This is the smallest unit of value the product produces. ${PLACEHOLDER_MARKER}`,
+    body: "Open the committed run and read the first typed finding — what was flagged, why it was flagged, what evidence backs it. This is the smallest unit of value the product produces. Each finding carries a category (topology, cost, compliance, or quality), a severity level, a plain-language explanation of why it matters, and the evidence the analysis used to reach the conclusion. This is how ArchLucid communicates reviewable, defensible architecture observations — structured enough to act on, transparent enough to challenge.",
   },
   {
     n: 5,
     title: "Decide what to do next",
-    body: `Either invite a colleague and run a second sample, or hand off to a guided pilot. ${PLACEHOLDER_MARKER}`,
+    body: "Either invite a colleague and run a second sample, or hand off to a guided pilot. If you want a second opinion, invite a colleague to sign in and run the same sample or a different vertical — no configuration is needed, and they will see results in their own workspace within minutes. If you are ready to move beyond the sample, the guided pilot path walks through creating a request with your own inputs, committing a manifest, and reviewing the artifacts that a real pilot would produce.",
   },
 ] as const;
 
@@ -124,7 +121,7 @@ export default function GetStartedPage(): ReactNode {
                 data-vertical-slug={slug}
                 className="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-left text-sm text-neutral-900 hover:border-teal-400 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50"
               >
-                {slug}
+                {VERTICAL_DISPLAY_NAMES[slug]}
               </button>
             </li>
           ))}
@@ -134,19 +131,16 @@ export default function GetStartedPage(): ReactNode {
       <ol className="mt-10 space-y-8" data-testid="get-started-steps">
         {STEPS.map((step) => (
           <li key={step.n} data-testid={`get-started-step-${step.n}`} className="flex gap-4">
-            <div className="flex-shrink-0">
-              <Image
-                src={`/get-started/step-${step.n}-placeholder.png`}
-                alt=""
-                width={160}
-                height={100}
-                data-testid={`get-started-step-${step.n}-image`}
-                className="rounded-md border border-dashed border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900"
-              />
+            <div
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-800 dark:bg-teal-900 dark:text-teal-200"
+              data-testid={`get-started-step-${step.n}-indicator`}
+              aria-hidden="true"
+            >
+              {step.n}
             </div>
             <div>
               <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">
-                {step.n}. {step.title}
+                {step.title}
               </h3>
               <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{step.body}</p>
             </div>
@@ -160,15 +154,33 @@ export default function GetStartedPage(): ReactNode {
         </h2>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
           <li>
+            Ready for a real pilot with your own data? The{" "}
+            <a
+              className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+              href="https://github.com/ArchiForge/ArchiForge/blob/main/docs/CORE_PILOT.md"
+              rel="noopener noreferrer"
+            >
+              Core Pilot guide
+            </a>{" "}
+            walks through creating a request, committing a manifest, and reviewing real artifacts.
+          </li>
+          <li>
             For the operator path after the sample run, see{" "}
             <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/pricing">
               pricing
             </Link>{" "}
-            or talk to your account team via the Request a quote button on the pricing page.
+            or request a quote from the pricing page.
           </li>
           <li>
-            For the sponsor-facing narrative, see the executive sponsor brief in the public repository at
-            docs/EXECUTIVE_SPONSOR_BRIEF.md.
+            For the sponsor-facing narrative, see the{" "}
+            <a
+              className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+              href="https://github.com/ArchiForge/ArchiForge/blob/main/docs/EXECUTIVE_SPONSOR_BRIEF.md"
+              rel="noopener noreferrer"
+            >
+              executive sponsor brief
+            </a>
+            .
           </li>
         </ul>
       </section>

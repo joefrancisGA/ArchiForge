@@ -162,7 +162,7 @@ export function MarketingSecurityTrustView(
 
       <footer className="mt-12 border-t border-neutral-200 pt-6 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
         <p>
-          Procurement contact: <span className="font-medium text-neutral-800 dark:text-neutral-200">security@archlucid.com</span>
+          Procurement contact: <span className="font-medium text-neutral-800 dark:text-neutral-200">security@archlucid.net</span>
         </p>
       </footer>
     </main>

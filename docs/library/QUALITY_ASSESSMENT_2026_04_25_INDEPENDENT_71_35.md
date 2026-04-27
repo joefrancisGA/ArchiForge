@@ -85,7 +85,7 @@ Qualities are ordered from **most urgent** (highest weighted deficiency) to **le
 **Tradeoffs:** Rushing the hosted funnel live without the pen test and commerce un-hold creates security/commercial risk vs. the cost of slow prospect conversion.
 
 **Recommendations:**
-- Prioritize hosted SaaS funnel activation (staging.archlucid.com is already configured)
+- Prioritize hosted SaaS funnel activation (staging.archlucid.net is already configured)
 - Ensure demo preview page works without authentication for top-of-funnel
 - Fixable in: V1.1 (commerce un-hold), partially V1 (demo preview hardening)
 
@@ -677,7 +677,7 @@ All three reference-customer rows are Placeholder or Customer review. Without a 
 
 ### 3. Self-Serve Trial Funnel Not Live (Weighted Deficiency: ~2.3 across Time-to-Value, Adoption Friction, Commercial Packaging)
 
-The hosted trial funnel is technically wired (staging.archlucid.com configured, Entra social login designed, demo seed automated) but not activated. Prospects cannot self-evaluate. This creates a fatal bottleneck in the buyer journey for anyone not already in a founder-led conversation.
+The hosted trial funnel is technically wired (staging.archlucid.net configured, Entra social login designed, demo seed automated) but not activated. Prospects cannot self-evaluate. This creates a fatal bottleneck in the buyer journey for anyone not already in a founder-led conversation.
 
 ### 4. Onboarding Route Fragmentation (Weighted Deficiency: ~1.8 across Adoption Friction, Usability, Cognitive Load)
 
@@ -713,7 +713,7 @@ The ROI model requires operators to manually capture baseline metrics before the
 
 ### 1. Commerce Un-Hold (Stripe + Marketplace)
 
-No live Stripe keys in production, no Published Azure Marketplace SaaS offer, no production DNS cutover for `signup.archlucid.com`. The entire purchasing flow is test-mode. This is the single most important monetization blocker and requires owner actions (Partner Center verification, tax profile, payout account).
+No live Stripe keys in production, no Published Azure Marketplace SaaS offer, no production DNS cutover for `signup.archlucid.net`. The entire purchasing flow is test-mode. This is the single most important monetization blocker and requires owner actions (Partner Center verification, tax profile, payout account).
 
 ### 2. Zero Reference Customers
 
@@ -1295,7 +1295,7 @@ Constraints:
 - What is the status of Partner Center seller verification?
 - Has the tax profile been submitted for Azure Marketplace?
 - When should Stripe live keys be flipped (staging first)?
-- Is `signup.archlucid.com` DNS under your control?
+- Is `signup.archlucid.net` DNS under your control?
 
 ### Improvement 9 — Pen Test
 - What is the current engagement status with Aeronova?
@@ -1308,7 +1308,7 @@ Constraints:
 - Is the Phase 7 rename (ArchLucid → ArchLucid) purely cosmetic, or does it cause real confusion for contributors?
 
 ### Commercial
-- What is the current state of the archlucid.com domain and DNS?
+- What is the current state of the archlucid.net domain and DNS?
 - Is there a CRM or sales pipeline tool in use?
 - What is the target timeline for first revenue?
 

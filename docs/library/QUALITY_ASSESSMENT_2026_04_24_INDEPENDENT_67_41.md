@@ -904,13 +904,13 @@ These are cross-cutting weaknesses ranked from most serious to least serious.
 **Title:** DEFERRED -- Deploy marketing site to production domain
 
 **Reason for deferral:** Production deployment requires owner decisions on:
-- Domain acquisition and DNS configuration (`archlucid.com`)
+- Domain acquisition and DNS configuration (`archlucid.net`)
 - Azure Front Door custom domain attachment and managed certificate
 - Whether to use the staging deployment as-is or create a separate production Front Door origin
 - SSL certificate provisioning strategy
 
 **Information needed from owner:**
-- Has `archlucid.com` been acquired? If so, what is the DNS registrar and current nameserver configuration?
+- Has `archlucid.net` been acquired? If so, what is the DNS registrar and current nameserver configuration?
 - Should the production marketing site share the same Azure subscription and resource group as the API, or a separate one?
 - Is the marketing site deployment gated on any other V1 milestone?
 
@@ -1181,13 +1181,13 @@ I was able to locate `docs/library/V1_DEFERRED.md` which comprehensively lists a
 ## 10. Pending Questions for Later
 
 ### Improvement 4 (DEFERRED: Production Marketing Site Deployment)
-- Has `archlucid.com` been acquired? What is the current DNS registrar and nameserver configuration?
+- Has `archlucid.net` been acquired? What is the current DNS registrar and nameserver configuration?
 - Should the production marketing site share the Azure subscription with the API, or use a separate subscription?
 - Is the production marketing deployment gated on any other V1 milestone (e.g., staging trial funnel completion)?
 - What is the target go-live date for the marketing site (even approximate)?
 
 ### Improvement 1 (Trial Funnel Validation)
-- Is the staging trial funnel currently accessible at `staging.archlucid.com/signup`, or is there a different staging URL?
+- Is the staging trial funnel currently accessible at `staging.archlucid.net/signup`, or is there a different staging URL?
 - Has the Stripe TEST mode been configured with test webhook secrets on the staging environment?
 
 ### Proof-of-ROI Readiness

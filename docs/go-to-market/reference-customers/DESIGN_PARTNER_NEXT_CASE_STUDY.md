@@ -98,7 +98,7 @@ Anchor every "After" number against the [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_
 
 | Channel | Commitment | Limit |
 |---------|------------|-------|
-| Logo on archlucid.com | `<<LOGO_RIGHTS>>` (e.g., "Granted, all marketing pages") | `<<LOGO_LIMIT>>` |
+| Logo on archlucid.net | `<<LOGO_RIGHTS>>` (e.g., "Granted, all marketing pages") | `<<LOGO_LIMIT>>` |
 | Reference calls with prospects | `<<REFERENCE_CALL_LIMIT>>` per quarter | At customer's discretion; rescheduled within 30 days if declined |
 | Quote in published case study | `<<QUOTE_RIGHTS>>` (e.g., "This document only") | Re-approval required for any new wording |
 | Speaking slot at ArchLucid event | `<<SPEAKING_SLOT>>` (e.g., "One per year, optional") | Customer can decline without affecting the rest of the agreement |

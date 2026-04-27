@@ -6,7 +6,7 @@
 #      correlation ID for support).
 #   2. Playwright UI smoke: e2e/trial-funnel-test-mode.spec.ts via the dedicated
 #      `playwright.trial-funnel-test-mode.config.ts` (no local Next.js — drives
-#      a real browser at signup.staging.archlucid.com).
+#      a real browser at signup.staging.archlucid.net).
 #   3. On failure, posts a single line to STAGING_ONCALL_WEBHOOK_URL (placeholder
 #      secret — owner sets the real Slack/Teams/PagerDuty URL later). Missing
 #      secret is a soft no-op so the workflow does not require secret rotation
@@ -18,14 +18,14 @@
 #     and it is only read to satisfy the spec's skip guard.
 #   - This workflow MUST NOT publish the Marketplace listing (the staging
 #     environment stays at Status: Draft).
-#   - This workflow MUST NOT cut over signup.archlucid.com DNS — staging only.
+#   - This workflow MUST NOT cut over signup.archlucid.net DNS — staging only.
 name: trial-funnel-test-mode
 
 on:
   workflow_dispatch:
     inputs:
       override_base_url:
-        description: "Override staging base URL (default: signup.staging.archlucid.com)."
+        description: "Override staging base URL (default: signup.staging.archlucid.net)."
         required: false
         type: string
   schedule:
@@ -45,8 +45,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      STAGING_BASE_URL: ${{ inputs.override_base_url || vars.ARCHLUCID_STAGING_SIGNUP_BASE_URL || 'https://signup.staging.archlucid.com' }}
-      STAGING_OPERATOR_BASE_URL: ${{ vars.ARCHLUCID_STAGING_OPERATOR_BASE_URL || vars.ARCHLUCID_STAGING_SIGNUP_BASE_URL || 'https://signup.staging.archlucid.com' }}
+      STAGING_BASE_URL: ${{ inputs.override_base_url || vars.ARCHLUCID_STAGING_SIGNUP_BASE_URL || 'https://signup.staging.archlucid.net' }}
+      STAGING_OPERATOR_BASE_URL: ${{ vars.ARCHLUCID_STAGING_OPERATOR_BASE_URL || vars.ARCHLUCID_STAGING_SIGNUP_BASE_URL || 'https://signup.staging.archlucid.net' }}
       STRIPE_TEST_KEY: ${{ secrets.STRIPE_TEST_KEY }}
     steps:
       - uses: actions/checkout@v5

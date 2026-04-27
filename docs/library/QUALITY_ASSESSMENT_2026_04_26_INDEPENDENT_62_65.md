@@ -37,7 +37,7 @@ Ordered by weighted deficiency (most urgent first).
 
 ### 1. Time-to-Value — Score: 55 | Weight: 7 | Weighted Deficiency: 315
 
-**Justification:** A buyer who arrives at the product today cannot experience value without significant friction. The cloud trial funnel (`archlucid.com/signup`) is "wired in code but not yet live in production." The local path requires Docker + SQL Server. The simulator mode produces deterministic fake results that do not demonstrate real AI capability. The `--real` mode requires an Azure OpenAI deployment the buyer does not have. The gap between "signing up" and "seeing a meaningful architecture review" is weeks, not minutes.
+**Justification:** A buyer who arrives at the product today cannot experience value without significant friction. The cloud trial funnel (`archlucid.net/signup`) is "wired in code but not yet live in production." The local path requires Docker + SQL Server. The simulator mode produces deterministic fake results that do not demonstrate real AI capability. The `--real` mode requires an Azure OpenAI deployment the buyer does not have. The gap between "signing up" and "seeing a meaningful architecture review" is weeks, not minutes.
 
 **Tradeoffs:** Building the full pipeline infrastructure before having customers is expensive. Simulator mode de-risks demos but undercuts believability.
 
@@ -373,7 +373,7 @@ Ordered by weighted deficiency (most urgent first).
 
 1. **No live customer or revenue** — The product is commercially inert. No buyer has completed the full journey from signup to paying subscription. Every commercial quality suffers from this single fact.
 
-2. **Cloud trial funnel is not live** — The SaaS promise is broken at the front door. `archlucid.com/signup` is wired but not deployed. A prospective buyer cannot self-serve into a trial.
+2. **Cloud trial funnel is not live** — The SaaS promise is broken at the front door. `archlucid.net/signup` is wired but not deployed. A prospective buyer cannot self-serve into a trial.
 
 3. **AI output quality is unvalidated** — The core value proposition (AI-driven architecture review) has no empirical validation. Simulator mode produces fake results. Real-mode has not been tested at scale. No human-vs-AI accuracy benchmark exists.
 
@@ -476,11 +476,11 @@ docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile demo-h
 
 ### Improvement 2: DEFERRED — Make Cloud Trial Signup Live
 
-**Title:** DEFERRED — Activate the cloud trial signup funnel at `archlucid.com/signup`
+**Title:** DEFERRED — Activate the cloud trial signup funnel at `archlucid.net/signup`
 
-**Reason deferred:** Requires owner decisions on: (a) the DNS domain (`archlucid.com` acquisition status), (b) the production Azure subscription and Entra ID app registration, (c) the Stripe test-to-live cutover timing, (d) the landing page URL for Marketplace.
+**Reason deferred:** Requires owner decisions on: (a) the DNS domain (`archlucid.net` acquisition status), (b) the production Azure subscription and Entra ID app registration, (c) the Stripe test-to-live cutover timing, (d) the landing page URL for Marketplace.
 
-**Input needed:** Confirmation that `archlucid.com` domain is acquired and DNS is configured; the Azure subscription ID for production; the Entra ID app registration client ID; the Stripe mode (test vs live) for initial launch.
+**Input needed:** Confirmation that `archlucid.net` domain is acquired and DNS is configured; the Azure subscription ID for production; the Entra ID app registration client ID; the Stripe mode (test vs live) for initial launch.
 
 ---
 
@@ -652,7 +652,7 @@ Scope:
 2. In `archlucid-ui/src/app/(marketing)/privacy/page.tsx`:
    - Render the non-blocked sections of the privacy notice
    - Show a clearly-marked "This section is under legal review" banner for the blocked sections
-   - Add a "Contact privacy@archlucid.com for questions" footer (or security@ per existing convention)
+   - Add a "Contact privacy@archlucid.net for questions" footer (or security@ per existing convention)
 
 3. Update `docs/go-to-market/TRUST_CENTER.md` to link to the privacy notice page.
 
@@ -742,7 +742,7 @@ Scope:
      - Public price list publication (item 13)
      - Legal entity for Marketplace listing (item 8a)
      - First-paying-tenant graduation owner (item 19)
-     - Domain acquisition (`archlucid.com`) status
+     - Domain acquisition (`archlucid.net`) status
    - A "Not Blocking V1 Launch" section listing items explicitly deferred to V1.1+ (pen test, PGP key, SOC 2, ITSM connectors, MCP)
 
 2. Add a link to this checklist from:
@@ -859,12 +859,12 @@ No deferred items were referenced that could not be located in the source materi
 ## 10. Pending Questions for Later
 
 ### Improvement 1 (Hosted Demo)
-- What is the target URL for the hosted demo? (e.g., `demo.archlucid.com` or `archlucid.com/demo`)
+- What is the target URL for the hosted demo? (e.g., `demo.archlucid.net` or `archlucid.net/demo`)
 - Should the demo reset nightly or on-demand?
 - Should visitors be able to create new runs in the demo, or only view pre-seeded data?
 
 ### Improvement 2 (Cloud Trial — DEFERRED)
-- Has the `archlucid.com` domain been acquired?
+- Has the `archlucid.net` domain been acquired?
 - What is the target Azure subscription for production?
 - What is the Entra ID app registration client ID?
 
@@ -872,7 +872,7 @@ No deferred items were referenced that could not be located in the source materi
 - Are there graph nodes in the current simulator seed data that have `serviceType` and `datastoreType` properties, or do the seed data generators need to be updated first?
 
 ### Improvement 6 (Privacy Notice)
-- Is `privacy@archlucid.com` a valid alias, or should the privacy contact use `security@archlucid.com`?
+- Is `privacy@archlucid.net` a valid alias, or should the privacy contact use `security@archlucid.net`?
 - Does the owner want to publish the privacy notice at `/privacy` before legal review of the blocked sections, or wait for full sign-off?
 
 ### Improvement 9 (Staging Deployment — DEFERRED)

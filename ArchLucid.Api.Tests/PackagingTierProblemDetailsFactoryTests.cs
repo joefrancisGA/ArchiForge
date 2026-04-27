@@ -61,6 +61,6 @@ public sealed class PackagingTierProblemDetailsFactoryTests
             null);
 
         Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
-        problem!.Extensions["upgradeUrl"].Should().Be("https://archlucid.com/pricing");
+        problem!.Extensions["upgradeUrl"].Should().Be("https://archlucid.net/pricing");
     }
 }

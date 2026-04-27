@@ -8,7 +8,7 @@ namespace ArchLucid.Cli.Tests;
 [Trait("Suite", "Core")]
 public sealed class TrialSmokeOneLineSummaryFormatterTests
 {
-    private const string BaseUrl = "https://staging.archlucid.com";
+    private const string BaseUrl = "https://staging.archlucid.net";
 
     [Fact]
     public void Format_AllPassed_EmitsPassWithCorrelationAndTenantAndWelcomeRun()
@@ -25,7 +25,7 @@ public sealed class TrialSmokeOneLineSummaryFormatterTests
         string line = TrialSmokeOneLineSummaryFormatter.Format(report, BaseUrl);
 
         line.Should().Be(
-            "PASS host=https://staging.archlucid.com correlation=corr-1 tenant=tenant-1 welcomeRun=welcome-1 failed=<none>");
+            "PASS host=https://staging.archlucid.net correlation=corr-1 tenant=tenant-1 welcomeRun=welcome-1 failed=<none>");
     }
 
     [Fact]

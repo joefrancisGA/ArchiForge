@@ -2,7 +2,7 @@
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
-> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customer-facing deliverables are the public website, the in-product operator UI, the published API client libraries, OpenAPI contracts, and documentation.** Docker images, `docker compose` definitions, and the contents of this document are **engineering / CI/CD / vendor-operations artifacts** — not a "customer installs our containers" distribution model. Customer entry points: **[`START_HERE.md`](../START_HERE.md)** "Audience split" and `archlucid.com`.
+> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customer-facing deliverables are the public website, the in-product operator UI, the published API client libraries, OpenAPI contracts, and documentation.** Docker images, `docker compose` definitions, and the contents of this document are **engineering / CI/CD / vendor-operations artifacts** — not a "customer installs our containers" distribution model. Customer entry points: **[`START_HERE.md`](../START_HERE.md)** "Audience split" and `archlucid.net`.
 
 # Containerization
 
@@ -89,7 +89,7 @@ Additive file: **`docker-compose.demo.yml`** (does not replace **`docker-compose
 docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build
 ```
 
-Or run **`scripts/demo-start.ps1`** / **`scripts/demo-stop.ps1`** (Windows) or **`scripts/demo-start.sh`** / **`scripts/demo-stop.sh`** (macOS/Linux). Internal seller-led walkthrough: **[go-to-market/DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md)** (this is **not** the customer first-run path; customers use the trial funnel on `archlucid.com`).
+Or run **`scripts/demo-start.ps1`** / **`scripts/demo-stop.ps1`** (Windows) or **`scripts/demo-start.sh`** / **`scripts/demo-stop.sh`** (macOS/Linux). Internal seller-led walkthrough: **[go-to-market/DEMO_QUICKSTART.md](../go-to-market/DEMO_QUICKSTART.md)** (this is **not** the customer first-run path; customers use the trial funnel on `archlucid.net`).
 
 ### Workflow 3 — Azure deployment
 

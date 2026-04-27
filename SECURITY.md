@@ -6,7 +6,7 @@ ArchLucid takes security seriously. This document describes how to report vulner
 
 **Please do not open public GitHub issues for security vulnerabilities.** Public disclosure can put users at risk before a fix is available.
 
-Instead, email **security@archlucid.com** with:
+Instead, email **security@archlucid.net** with:
 
 - A clear description of the issue and its impact
 - Steps to reproduce (or proof-of-concept), if possible
@@ -14,7 +14,7 @@ Instead, email **security@archlucid.com** with:
 
 We will send an **initial acknowledgment within 48 hours** and aim to provide a **substantive update or resolution within 10 business days** for valid reports in scope. Complex issues may require more time; we will keep you informed.
 
-**Accessibility barriers (non-security):** for WCAG / usability barriers in the product or public marketing pages, email **accessibility@archlucid.com**. This alias routes to the **same operational custodian** as **security@archlucid.com** (decision **2026-04-22** — see [`docs/security/ACCESSIBILITY_MAILBOX.md`](docs/security/ACCESSIBILITY_MAILBOX.md)); triage distinguishes accessibility follow-up from coordinated security disclosure.
+**Accessibility barriers (non-security):** for WCAG / usability barriers in the product or public marketing pages, email **accessibility@archlucid.net**. This alias routes to the **same operational custodian** as **security@archlucid.net** (decision **2026-04-22** — see [`docs/security/ACCESSIBILITY_MAILBOX.md`](docs/security/ACCESSIBILITY_MAILBOX.md)); triage distinguishes accessibility follow-up from coordinated security disclosure.
 
 ## Scope
 
@@ -50,8 +50,8 @@ Security patches are applied to the **latest release branch / current default br
 
 ## PGP / encrypted email
 
-**Public key publication procedure:** follow [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](docs/security/PGP_KEY_GENERATION_RECIPE.md) (owner-self custodian, decision **2026-04-22** — [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) items **10**, **21**). Until the public key file exists at [`archlucid-ui/public/.well-known/pgp-key.txt`](../archlucid-ui/public/.well-known/pgp-key.txt) and is served at **`/.well-known/pgp-key.txt`** on the marketing site, use **plain email** to **`security@archlucid.com`** for coordinated disclosure.
+**Public key publication procedure:** follow [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](docs/security/PGP_KEY_GENERATION_RECIPE.md) (owner-self custodian, decision **2026-04-22** — [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) items **10**, **21**). Until the public key file exists at [`archlucid-ui/public/.well-known/pgp-key.txt`](../archlucid-ui/public/.well-known/pgp-key.txt) and is served at **`/.well-known/pgp-key.txt`** on the marketing site, use **plain email** to **`security@archlucid.net`** for coordinated disclosure.
 
-**After publication:** add the **short fingerprint** (16 hex chars) from `gpg -K security@archlucid.com` on a line here for humans scanning `SECURITY.md` only — **Key ID:** *(owner completes)*.
+**After publication:** add the **short fingerprint** (16 hex chars) from `gpg -K security@archlucid.net` on a line here for humans scanning `SECURITY.md` only — **Key ID:** *(owner completes)*.
 
-**Contact file:** [`archlucid-ui/public/.well-known/security.txt`](../archlucid-ui/public/.well-known/security.txt) is published at `https://archlucid.com/.well-known/security.txt` when the marketing site is live.
+**Contact file:** [`archlucid-ui/public/.well-known/security.txt`](../archlucid-ui/public/.well-known/security.txt) is published at `https://archlucid.net/.well-known/security.txt` when the marketing site is live.

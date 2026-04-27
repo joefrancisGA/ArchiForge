@@ -28,7 +28,7 @@
 | `scripts/ci/check_pricing_single_source.py` enforcing one source of truth for prices | Brand consistency, GTM |
 | OpenAPI snapshot + `ArchLucid.Api.Client` republished (B2 billing-bridge work) | Ecosystem (consumption from non-.NET) |
 
-**Honesty boundary.** The marketing pages and pricing JSON exist **in the repo** and are wired correctly, but I have **no evidence of a live public deployment** at a marketing domain (no `archlucid.com` references, no Front Door routing config for a public marketing host, no SEO meta strategy). The leaked Stripe-style test token in commit history (`fb35bf11`, `fec717c7`) implies a billing bridge is **in progress, not GA**. Treat the +8.8-point jump as "the rails are now built and code-complete," not "the commercial motion is live." This distinction shapes most of the recommendations below.
+**Honesty boundary.** The marketing pages and pricing JSON exist **in the repo** and are wired correctly, but I have **no evidence of a live public deployment** at a marketing domain (no `archlucid.net` references, no Front Door routing config for a public marketing host, no SEO meta strategy). The leaked Stripe-style test token in commit history (`fb35bf11`, `fec717c7`) implies a billing bridge is **in progress, not GA**. Treat the +8.8-point jump as "the rails are now built and code-complete," not "the commercial motion is live." This distinction shapes most of the recommendations below.
 
 ---
 
@@ -95,7 +95,7 @@ What is still missing is the only thing that actually proves PMF: **closed pilot
 - **Pricing single-source CI guard** preventing price drift across docs.
 - **Trial enforcement** so the trial → paid boundary is real, not aspirational.
 
-What is missing is the **launch motion**: there is no evidence of a live `archlucid.com` (or equivalent) domain, no SEO content or sitemap, no analytics on the marketing pages, no demo-request workflow visible in the repo, no announced product launch, no press / analyst briefings. Billing is also **in progress not GA** (the gitleaks history finding on `sk_test_…` strongly suggests a Stripe integration mid-flight). A 15-minute *business* demo script (as opposed to the technical `demo-quickstart.md`) is still missing.
+What is missing is the **launch motion**: there is no evidence of a live `archlucid.net` (or equivalent) domain, no SEO content or sitemap, no analytics on the marketing pages, no demo-request workflow visible in the repo, no announced product launch, no press / analyst briefings. Billing is also **in progress not GA** (the gitleaks history finding on `sk_test_…` strongly suggests a Stripe integration mid-flight). A 15-minute *business* demo script (as opposed to the technical `demo-quickstart.md`) is still missing.
 
 **Tradeoffs.** Soft-launching to a closed pilot list before the public marketing site is live is a defensible sequencing choice — it avoids spending demand-gen dollars before the funnel can convert. But every week the marketing pages sit in `archlucid-ui/` undeployed is a week of forgone organic discovery.
 
@@ -122,7 +122,7 @@ What is missing is **automated, in-product** customer success instrumentation:
 **Improvement Recommendations (ranked):**
 1. **Auto-populate the Customer Health Scorecard** from `dbo.AuditEvents` (run frequency, governance approval cadence, manifest commits, comparison usage). Surface in the operator UI as a per-tenant CS dashboard.
 2. **Add an in-product feedback widget** (thumbs up/down on findings + free-text) with the responses streamed to a `dbo.ProductFeedback` table.
-3. **Spin out a customer-facing docs site** (`docs.archlucid.com`) from the highest-trafficked internal docs — keep the developer docs separate.
+3. **Spin out a customer-facing docs site** (`docs.archlucid.net`) from the highest-trafficked internal docs — keep the developer docs separate.
 
 ---
 
@@ -636,7 +636,7 @@ A.1 Decide the hosting target via a one-page ADR
 A.2 Terraform (per workspace IaC rule — all infra in Terraform)
    - infra/modules/marketing/ — Front Door route for /, /welcome, /signup,
      /signup/verify, /pricing, /pricing.json with public anonymous access.
-   - Custom domain (parameterized; default: archlucid.com — variable, do
+   - Custom domain (parameterized; default: archlucid.net — variable, do
      not hardcode).
    - Managed certificate.
    - WAF policy: keep block rules; add an allow exception only for the

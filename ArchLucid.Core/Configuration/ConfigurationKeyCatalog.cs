@@ -18,7 +18,7 @@ public static class ConfigurationKeyCatalog
       E("ArchLucid", "ArchLucid:StorageProvider", M("appsettings", "env"), "Sql", "—", "InMemory (tests) or Sql; unset defaults to Sql in product rules.", ConfigKeyRequirementKind.None),
       E("ConnectionStrings", "ConnectionStrings:ArchLucid", M("appsettings", "env", "KeyVault", "user secrets"), "see default dev", "When SQL is active", "Primary SQL connection string (required when using Sql storage).", ConfigKeyRequirementKind.WhenDefaultSqlStorage),
       E("ArchLucid", "ArchLucid:Persistence:AllowRlsBypass", M("appsettings", "env"), "false", "—", "Dev-only: bypass SQL row-level security in tests.", ConfigKeyRequirementKind.None),
-      E("ArchLucid", "ArchLucid:PublicSite:BaseUrl", M("appsettings", "env"), "https://archlucid.com", "—", "Public marketing / operator link base for emails and exports.", ConfigKeyRequirementKind.None),
+      E("ArchLucid", "ArchLucid:PublicSite:BaseUrl", M("appsettings", "env"), "https://archlucid.net", "—", "Public marketing / operator link base for emails and exports.", ConfigKeyRequirementKind.None),
       E("ArchLucid", "ArchLucid:Notifications:TrialLifecycle:Owner", M("appsettings", "env"), "Hosted", "—", "Who runs trial notification emails for this tenant class.", ConfigKeyRequirementKind.None),
       E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:Enabled", M("appsettings", "env"), "true", "—", "Enables quality gate for agent output.", ConfigKeyRequirementKind.None),
       E("ArchLucid", "ArchLucid:AgentOutput:QualityGate:StructuralWarnBelow", M("appsettings", "env"), "0.55", "—", "Quality gate warn threshold (structural).", ConfigKeyRequirementKind.None),

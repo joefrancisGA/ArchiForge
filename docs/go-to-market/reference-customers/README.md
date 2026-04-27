@@ -22,7 +22,7 @@ Every row in the table below moves through these states in order. A CI guard rej
 | `Placeholder` | Empty seat for a future real customer; case-study file uses `<<...>>` placeholders | Real customer name + signed reference agreement |
 | `Drafting` | Real customer named; case study being written internally | Customer-facing copy ready to send |
 | `Customer review` | Customer reviewing the draft for legal / brand approval | Written approval to publish |
-| `Published` | Live on archlucid.com / sales decks / Azure Marketplace listing | (terminal) |
+| `Published` | Live on archlucid.net / sales decks / Azure Marketplace listing | (terminal) |
 
 A row that fails to move from `Customer review` to `Published` within 60 days should be downgraded back to `Drafting` and flagged in the next pricing review.
 

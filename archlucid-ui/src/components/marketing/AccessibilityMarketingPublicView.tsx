@@ -119,12 +119,12 @@ export function AccessibilityMarketingPublicView(props: AccessibilityMarketingPu
           Email{" "}
           <Link
             className="text-blue-700 underline underline-offset-2 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
-            href="mailto:accessibility@archlucid.com"
+            href="mailto:accessibility@archlucid.net"
           >
-            accessibility@archlucid.com
+            accessibility@archlucid.net
           </Link>{" "}
           with the page, assistive technology (if any), and what you expected versus what happened. This alias routes to the same operational
-          custodian as <span className="font-semibold">security@archlucid.com</span>; triage distinguishes accessibility follow-up from
+          custodian as <span className="font-semibold">security@archlucid.net</span>; triage distinguishes accessibility follow-up from
           coordinated security disclosure.
         </p>
       </section>

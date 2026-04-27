@@ -33,7 +33,7 @@ The **When required** column reflects `ConfigurationKeyRequirement` in code (e.g
 | ArchLucid | `ArchLucid:StorageProvider` | appsettings, env | Sql | Optional (not mode-gated) | All (Api, Worker, Combined) | InMemory (tests) or Sql; unset defaults to Sql in product rules. |
 | ConnectionStrings | `ConnectionStrings:ArchLucid` | appsettings, env, KeyVault, user secrets | see default dev | Required — When SQL is active | All (Api, Worker, Combined) | Primary SQL connection string (required when using Sql storage). |
 | ArchLucid | `ArchLucid:Persistence:AllowRlsBypass` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Dev-only: bypass SQL row-level security in tests. |
-| ArchLucid | `ArchLucid:PublicSite:BaseUrl` | appsettings, env | https://archlucid.com | Optional (not mode-gated) | All (Api, Worker, Combined) | Public marketing / operator link base for emails and exports. |
+| ArchLucid | `ArchLucid:PublicSite:BaseUrl` | appsettings, env | https://archlucid.net | Optional (not mode-gated) | All (Api, Worker, Combined) | Public marketing / operator link base for emails and exports. |
 | ArchLucid | `ArchLucid:Notifications:TrialLifecycle:Owner` | appsettings, env | Hosted | Optional (not mode-gated) | All (Api, Worker, Combined) | Who runs trial notification emails for this tenant class. |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:Enabled` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Enables quality gate for agent output. |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:StructuralWarnBelow` | appsettings, env | 0.55 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate warn threshold (structural). |

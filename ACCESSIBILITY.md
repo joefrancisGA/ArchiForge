@@ -63,7 +63,7 @@ None at this time. Document any intentional deviations here with:
 
 ## Review cadence
 
-**Annually.** The next review window is **2027-04-25**. The public attestation surface is the marketing route **`/accessibility`** (source: `archlucid-ui/src/app/(marketing)/accessibility/page.tsx`; live site when published: **https://archlucid.com/accessibility**).
+**Annually.** The next review window is **2027-04-25**. The public attestation surface is the marketing route **`/accessibility`** (source: `archlucid-ui/src/app/(marketing)/accessibility/page.tsx`; live site when published: **https://archlucid.net/accessibility**).
 
 Place the **annual accessibility policy review** on the **same owner calendar** as the independent **quality-assessment** cadence reminder (dated assessment series under `docs/` and prompts such as [`docs/QUALITY_IMPROVEMENT_PROMPTS.md`](docs/library/QUALITY_IMPROVEMENT_PROMPTS.md)).
 

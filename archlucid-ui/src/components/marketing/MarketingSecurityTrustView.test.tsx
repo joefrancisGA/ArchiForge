@@ -29,7 +29,7 @@ describe("MarketingSecurityTrustView", () => {
     expect(text.toLowerCase()).not.toMatch(/customer:\s*[a-z]/);
   });
 
-  it("surfaces the NDA notice and points reviewers at security@archlucid.com", () => {
+  it("surfaces the NDA notice and points reviewers at security@archlucid.net", () => {
     render(<MarketingSecurityTrustView />);
 
     expect(screen.getAllByText(/NDA[- ]only/i).length).toBeGreaterThan(0);

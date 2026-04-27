@@ -22,7 +22,7 @@ Provide a **low-friction conversion path** from self-serve trial to paid Team ti
 - **Route:** `POST /v1/billing/webhooks/stripe` on the API host (see [`BILLING.md`](../library/BILLING.md)).
 - **Verification:** `Stripe-Signature` header + `Billing:Stripe:WebhookSigningSecret` (`whsec_…` from the Dashboard).
 
-## Staging end-to-end — Stripe **TEST** mode (`staging.archlucid.com/signup`)
+## Staging end-to-end — Stripe **TEST** mode (`staging.archlucid.net/signup`)
 
 Use this path **before** live keys exist: Stripe Dashboard in **Test mode**, ArchLucid API configured with **`sk_test_…`** and a **test** webhook signing secret, and marketing signup pointing at the staging API + UI.
 
@@ -46,7 +46,7 @@ Production safety rules intentionally **do not** treat `sk_test_` like `sk_live_
 
 ### 3. Buyer journey on staging UI
 
-1. Open `https://staging.archlucid.com/signup` (or the current staging marketing hostname).
+1. Open `https://staging.archlucid.net/signup` (or the current staging marketing hostname).
 2. Complete trial signup; trigger **Team** conversion using the Stripe **test** checkout / payment link surfaced from `pricing.json` or `POST /v1/tenant/billing/checkout`.
 3. Confirm in SQL (`dbo.BillingWebhookEvents`, `dbo.BillingSubscriptions`) and tenant trial-conversion audits per [`BILLING.md`](../library/BILLING.md).
 

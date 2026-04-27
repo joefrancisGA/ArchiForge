@@ -34,7 +34,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
     summaryAccess: {
       kind: "nda",
       description:
-        "NDA-only — email security@archlucid.com once assessor delivers redacted summary",
+        "NDA-only — email security@archlucid.net once assessor delivers redacted summary",
     },
   },
   {
@@ -80,7 +80,7 @@ export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> 
 ];
 
 export const SECURITY_TRUST_NDA_NOTICE =
-  "Pen-test redacted summaries are available under NDA only. The public Trust Center records engagement existence and high-level posture. To request the most recent redacted summary, email security@archlucid.com.";
+  "Pen-test redacted summaries are available under NDA only. The public Trust Center records engagement existence and high-level posture. To request the most recent redacted summary, email security@archlucid.net.";
 
 export const SECURITY_TRUST_REPO_TRUST_CENTER_URL =
   "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/TRUST_CENTER.md";

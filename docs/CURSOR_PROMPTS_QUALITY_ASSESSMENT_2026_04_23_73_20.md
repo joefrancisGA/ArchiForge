@@ -8,7 +8,7 @@
 
 **DEFERRED markers.** Original Improvements 9 (pen-test publication) and 10 (PGP key drop) were deferred to V1.1 by the sixth-pass owner Q&A on 2026-04-23. No prompts are generated for them. They are replaced here by Improvements 11 and 12.
 
-> **SaaS audience guard (read before running any prompt below).** ArchLucid is a **SaaS** product. Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform. They only ever interact with the public website (`archlucid.com`), the in-product operator UI (after sign-in), and the Azure portal for their own subscription identity / billing. Any customer-facing copy must not assume the customer runs Docker, opens a terminal, or applies Terraform. Tooling like `apply-saas.ps1`, `archlucid try`, `dev up`, `docker compose`, the `.devcontainer/`, and `engineering/INSTALL_ORDER.md` is **internal ArchLucid contributor / operator** tooling. If a prompt seems to require a customer-side install step, **stop and ask the user** rather than inventing one.
+> **SaaS audience guard (read before running any prompt below).** ArchLucid is a **SaaS** product. Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, or Terraform. They only ever interact with the public website (`archlucid.net`), the in-product operator UI (after sign-in), and the Azure portal for their own subscription identity / billing. Any customer-facing copy must not assume the customer runs Docker, opens a terminal, or applies Terraform. Tooling like `apply-saas.ps1`, `archlucid try`, `dev up`, `docker compose`, the `.devcontainer/`, and `engineering/INSTALL_ORDER.md` is **internal ArchLucid contributor / operator** tooling. If a prompt seems to require a customer-side install step, **stop and ask the user** rather than inventing one.
 
 ---
 
@@ -21,7 +21,7 @@ Goal: ship a buyer-facing first-30-minutes path in TWO surfaces — a
 short repo stub at docs/BUYER_FIRST_30_MINUTES.md (for evaluators
 arriving via GitHub) and the full copy on the marketing
 archlucid-ui/src/app/(marketing)/get-started/page.tsx route. The
-journey is: archlucid.com landing page → signed in → vertical picker
+journey is: archlucid.net landing page → signed in → vertical picker
 → first sample run → first finding, with NO local install of any
 kind. Voice is consultative / pragmatic per owner Q1 (2026-04-23
 sixth pass). Vertical-picker labels come from the existing
@@ -110,7 +110,7 @@ Goal: ship the trial signup funnel end-to-end on staging in Stripe
 TEST mode. The V1 commercial motion is SALES-LED — live keys are
 V1.1-deferred per owner Q17 (2026-04-23). This work makes the funnel
 runnable as a sales-engineer-led product evaluation: prospect signs
-up at signup.staging.archlucid.com, lands in the operator UI on a
+up at signup.staging.archlucid.net, lands in the operator UI on a
 trial tenant, sees the Pilot path on the home page, runs the seven-
 step wizard, gets a first committed manifest, reads the value report.
 
@@ -154,8 +154,8 @@ Stop-and-ask boundaries:
   sk_live_ prefix is owner-only and V1.1-gated.
 - Do NOT publish the Marketplace listing. The wiring stays at
   Status: Draft per V1_DEFERRED §6b.
-- Do NOT cut over signup.archlucid.com DNS. Staging only — that's
-  signup.staging.archlucid.com.
+- Do NOT cut over signup.archlucid.net DNS. Staging only — that's
+  signup.staging.archlucid.net.
 
 Update docs/CHANGELOG.md with a 2026-04-23 entry. Update
 PENDING_QUESTIONS.md item 22 to point at this work as the V1

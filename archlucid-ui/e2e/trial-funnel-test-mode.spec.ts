@@ -8,7 +8,7 @@
  *
  * **Skip semantics.** The whole describe block is skipped unless `STRIPE_TEST_KEY`
  * is set in the environment. This is the contract from the prompt — the spec is
- * a sales-engineer-led smoke against `signup.staging.archlucid.com`, not a
+ * a sales-engineer-led smoke against `signup.staging.archlucid.net`, not a
  * unit-style fixture, so it must not fail a developer's local `npm test` run.
  *
  * **What it asserts (happy path):**
@@ -27,7 +27,7 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 
-const STAGING_BASE_URL = process.env.STAGING_BASE_URL ?? "https://signup.staging.archlucid.com";
+const STAGING_BASE_URL = process.env.STAGING_BASE_URL ?? "https://signup.staging.archlucid.net";
 const STAGING_OPERATOR_BASE_URL = process.env.STAGING_OPERATOR_BASE_URL ?? STAGING_BASE_URL;
 const STRIPE_TEST_KEY = (process.env.STRIPE_TEST_KEY ?? "").trim();
 const VERIFICATION_HARNESS_PATH =

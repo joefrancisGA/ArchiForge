@@ -1,4 +1,4 @@
-> **Scope:** Security custodian (owner) generating, exporting, publishing, and rotating the OpenPGP key used for coordinated disclosure to **`security@archlucid.com`**. Not Stripe/Marketplace secrets, not CI automation of private keys.
+> **Scope:** Security custodian (owner) generating, exporting, publishing, and rotating the OpenPGP key used for coordinated disclosure to **`security@archlucid.net`**. Not Stripe/Marketplace secrets, not CI automation of private keys.
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
@@ -7,7 +7,7 @@
 
 ## Purpose
 
-ArchLucid publishes a **public** OpenPGP key so vulnerability reporters can **encrypt** findings to **`security@archlucid.com`** before the public key exists at **`https://archlucid.com/.well-known/pgp-key.txt`**, coordinated disclosure uses **plain email** only (see [SECURITY.md](../../SECURITY.md)).
+ArchLucid publishes a **public** OpenPGP key so vulnerability reporters can **encrypt** findings to **`security@archlucid.net`** before the public key exists at **`https://archlucid.net/.well-known/pgp-key.txt`**, coordinated disclosure uses **plain email** only (see [SECURITY.md](../../SECURITY.md)).
 
 This document is an **executable recipe** for the **owner-self custodian** (decision **2026-04-22**, [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) items **10** / **21**). The **private** key never enters this repository, CI secrets, or Azure Key Vault (Key Vault is for application secrets such as Stripe/Marketplace—not PGP private material).
 
@@ -50,7 +50,7 @@ Use these answers (GnuPG **2.4.x** style menus; if numbering differs, pick the l
 
 4. **Real name:** `ArchLucid Security`
 
-5. **Email address:** `security@archlucid.com`
+5. **Email address:** `security@archlucid.net`
 
 6. **Comment:** leave **empty** (press Enter).
 
@@ -61,7 +61,7 @@ Use these answers (GnuPG **2.4.x** style menus; if numbering differs, pick the l
 Confirm the key exists:
 
 ```bash
-gpg -K security@archlucid.com
+gpg -K security@archlucid.net
 ```
 
 Record the **full fingerprint** (40 hex chars, spaces in groups of 4) in the table at the end of this file.
@@ -80,11 +80,11 @@ gpg --full-generate-key
 
 3. **Expiration:** **`0`** (no expiry) or **`5y`** (same override note as above).
 
-4. **Real name / Email / Comment:** same as ECC: **`ArchLucid Security`**, **`security@archlucid.com`**, empty comment.
+4. **Real name / Email / Comment:** same as ECC: **`ArchLucid Security`**, **`security@archlucid.net`**, empty comment.
 
 5. **Passphrase:** same discipline as ECC.
 
-6. **`gpg -K security@archlucid.com`** and record the fingerprint in the table below.
+6. **`gpg -K security@archlucid.net`** and record the fingerprint in the table below.
 
 ## Generate (non-interactive batch) — optional
 
@@ -94,7 +94,7 @@ If you already have a passphrase file on disk **only for the duration of this co
 
 ```bash
 gpg --batch --pinentry-mode loopback --passphrase-file /path/to/passphrase.txt \
-  --quick-gen-key "ArchLucid Security <security@archlucid.com>" default default 0
+  --quick-gen-key "ArchLucid Security <security@archlucid.net>" default default 0
 ```
 
 The final **`0`** means **no expiration** (use **`5y`** for five years if you chose that policy).
@@ -103,7 +103,7 @@ The final **`0`** means **no expiration** (use **`5y`** for five years if you ch
 
 ```bash
 gpg --batch --pinentry-mode loopback --passphrase-file /path/to/passphrase.txt \
-  --quick-gen-key "ArchLucid Security <security@archlucid.com>" rsa4096 default 0
+  --quick-gen-key "ArchLucid Security <security@archlucid.net>" rsa4096 default 0
 ```
 
 Then **`shred -u /path/to/passphrase.txt`** (Linux) or secure-delete on macOS/Windows.
@@ -115,10 +115,10 @@ If `--quick-gen-key` errors on your version, use the **interactive** section onl
 From the repo root (adjust path if your shell is elsewhere). Prefer export by **UID** once you know the key exists:
 
 ```bash
-gpg --armor --export "security@archlucid.com" > archlucid-ui/public/.well-known/pgp-key.txt
+gpg --armor --export "security@archlucid.net" > archlucid-ui/public/.well-known/pgp-key.txt
 ```
 
-If you have **multiple** keys for that UID, export by **fingerprint** (no spaces in the argument). Copy the **40-character** primary fingerprint from `gpg -K security@archlucid.com` (hex only, no spaces), then:
+If you have **multiple** keys for that UID, export by **fingerprint** (no spaces in the argument). Copy the **40-character** primary fingerprint from `gpg -K security@archlucid.net` (hex only, no spaces), then:
 
 ```bash
 # Replace the placeholder with your real 40-hex fingerprint from gpg (do not commit secrets).
@@ -157,7 +157,7 @@ You must see **`-----BEGIN PGP PUBLIC KEY BLOCK-----`** at the top and **`-----E
 1. Generate a **revocation certificate** immediately after key creation (before you forget):
 
    ```bash
-   gpg --output ~/archlucid-security-revoke-PRIMARY.asc --gen-revoke security@archlucid.com
+   gpg --output ~/archlucid-security-revoke-PRIMARY.asc --gen-revoke security@archlucid.net
    ```
 
    Choose a reason code GnuPG offers (usually **1 = key superseded** or **3 = key compromised** when the time comes). Store **`archlucid-security-revoke-PRIMARY.asc`** in the **same vault** as the passphrase (not in the repo).
@@ -178,7 +178,7 @@ You must see **`-----BEGIN PGP PUBLIC KEY BLOCK-----`** at the top and **`-----E
 
 | Field | Value |
 | ----- | ----- |
-| **UID** | `ArchLucid Security <security@archlucid.com>` |
+| **UID** | `ArchLucid Security <security@archlucid.net>` |
 | **Algorithm** | *(owner: ECC Curve25519 or RSA 4096)* |
 | **Full fingerprint** | *(owner: paste 40 hex chars after generation)* |
 | **Expiration choice** | *(owner: `none` or date from `gpg -K`)* |

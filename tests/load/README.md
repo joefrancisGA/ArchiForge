@@ -52,12 +52,56 @@ On PowerShell, use `$env:K6_LOAD_PROFILE='read'` before `k6 run`.
 
 ---
 
+## Real-mode E2E benchmark (time-to-value)
+
+**Script:** `real-mode-e2e-benchmark.js`
+
+Measures wall-clock time for a complete **real-mode** authority run (create → execute → poll until done → commit → retrieve manifest) against a live API using **actual Azure OpenAI** agent execution. This produces the defensible "time-to-value" figure for marketing, SLA, and buyer conversations.
+
+**Unlike `core-pilot.js`**, this script targets real LLM execution — it is **not** for simulator/in-memory baselines. Run it against a staging or production API with `AgentExecution:Mode=AzureOpenAI`.
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ARCHLUCID_BASE_URL` | `http://127.0.0.1:5001` | API base URL |
+| `ARCHLUCID_API_KEY` | *(unset)* | API key for authentication |
+| `K6_POLL_INTERVAL_MS` | `2000` | Polling interval when waiting for run completion |
+| `K6_POLL_TIMEOUT_MS` | `300000` (5 min) | Max wait before declaring timeout |
+| `K6_ITERATIONS` | `3` | Number of benchmark iterations |
+| `K6_SUMMARY_PATH` | `tests/load/results/real-mode-e2e-benchmark.json` | Output path |
+
+**Run against staging:**
+
+```bash
+ARCHLUCID_BASE_URL=https://staging.archlucid.net \
+ARCHLUCID_API_KEY=<staging-key> \
+k6 run tests/load/real-mode-e2e-benchmark.js
+```
+
+**Custom metrics emitted:**
+
+| Metric | What it measures |
+|--------|-----------------|
+| `e2e_wall_clock_ms` | Total wall-clock time from request creation to manifest retrieval |
+| `step_create_ms` | Time to create the architecture request |
+| `step_execute_ms` | Time for the execute HTTP call to return |
+| `step_poll_wait_ms` | Total time spent polling until run completes |
+| `step_commit_ms` | Time to commit the run |
+| `step_manifest_retrieve_ms` | Time to retrieve the manifest summary |
+
+**Thresholds:**
+
+- `e2e_wall_clock_ms` p50 < 120s, p95 < 180s
+- `e2e_fail_count` < 1 (all iterations must succeed)
+
+---
+
 ## Environment variable matrix
 
 All scripts accept **`ARCHLUCID_BASE_URL`** (preferred) or **`BASE_URL`** (alias) for the API base URL. Default: `http://127.0.0.1:5128`.
 
 | Script | Required env | Optional env | Example one-liner | Summary path |
 |--------|-------------|-------------|-------------------|-------------|
+| **`real-mode-e2e-benchmark.js`** | `ARCHLUCID_BASE_URL` (staging/prod) | `ARCHLUCID_API_KEY`, `K6_POLL_INTERVAL_MS`, `K6_POLL_TIMEOUT_MS`, `K6_ITERATIONS`, `K6_SUMMARY_PATH` | `ARCHLUCID_BASE_URL=https://staging.archlucid.net k6 run tests/load/real-mode-e2e-benchmark.js` | `tests/load/results/real-mode-e2e-benchmark.json` (via `handleSummary`) |
 | **`core-pilot.js`** | — | `K6_LOAD_PROFILE` (`core`\|`read`\|`mixed`), `K6_COMPRESS`, `K6_BASELINE_PATH`, `K6_BASELINE_DATE`, `K6_CORE_VUS`, `K6_READ_VUS`, `K6_MIXED_*` | `k6 run tests/load/core-pilot.js` | `tests/load/results/baseline-*.json` (via `handleSummary`) or merge `record-baseline.ps1` |
 | **`k6-api-smoke.js`** | — | `ARCHLUCID_API_KEY`, `ARCHLUCID_AUTHORITY_PROJECT` (`default`), `K6_SCENARIO` (`smoke`\|`load`), `K6_SUMMARY_PATH` | `k6 run tests/load/k6-api-smoke.js` | `tests/load/results/k6-summary.json` (via `handleSummary`) |
 | **`ci-smoke.js`** | — | — | `k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json` | `--summary-export` arg |

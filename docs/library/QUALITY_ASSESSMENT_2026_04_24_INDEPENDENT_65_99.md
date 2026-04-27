@@ -85,7 +85,7 @@ Qualities ordered from most urgent (highest weighted deficiency) to least urgent
 
 **Improvement Recommendations:**
 - Pre-populate three industry-specific architecture request templates so evaluators skip the "blank page" problem
-- Ensure the demo preview endpoint delivers a compelling first impression at `archlucid.com/demo/preview`
+- Ensure the demo preview endpoint delivers a compelling first impression at `archlucid.net/demo/preview`
 - Reduce the steps between "sign up" and "see my first committed manifest" to under 10 minutes
 
 ---

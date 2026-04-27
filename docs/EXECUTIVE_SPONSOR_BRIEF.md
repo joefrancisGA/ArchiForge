@@ -36,7 +36,7 @@ It helps teams produce:
 
 At a practical level, ArchLucid is an AI-assisted architecture workflow system that coordinates topology, cost, and compliance analysis into outputs that architects, reviewers, and governance stakeholders can use.
 
-**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](adr/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.com` (staging) and `https://archlucid.com` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](library/REFERENCE_SAAS_STACK_ORDER.md).
+**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](adr/0020-azure-primary-platform-permanent.md). **Hosted evaluation:** the public SaaS funnel is served at `https://staging.archlucid.net` (staging) and `https://archlucid.net` (production) when DNS and Front Door custom domains are live—see [REFERENCE_SAAS_STACK_ORDER.md](library/REFERENCE_SAAS_STACK_ORDER.md).
 
 ---
 

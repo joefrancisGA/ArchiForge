@@ -45,7 +45,7 @@ internal static class PackagingTierProblemDetailsFactory
         IConfiguration? configuration = httpContext.RequestServices.GetService<IConfiguration>();
         string? baseUrl = configuration?["ArchLucid:PublicSite:BaseUrl"]?.Trim();
         if (string.IsNullOrEmpty(baseUrl))
-            baseUrl = "https://archlucid.com";
+            baseUrl = "https://archlucid.net";
         return baseUrl.TrimEnd('/') + "/pricing";
     }
 }

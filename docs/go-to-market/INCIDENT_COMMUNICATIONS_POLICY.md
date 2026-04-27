@@ -74,7 +74,7 @@ Blameless review covers: **timeline**, **customer impact**, **root cause**, **re
 
 | Role | Contact |
 |------|---------|
-| Security | `security@archlucid.com` |
+| Security | `security@archlucid.net` |
 | Support | **[TBD]** |
 
 ---

@@ -6,7 +6,7 @@
 
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package and helps teams produce committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
 
-**Try it (buyer / sponsor / evaluator path):** sign up at **`archlucid.com`** — no install, no Docker, no SQL, no .NET. The trial funnel sits you in the in-product operator UI in front of a sample architecture run.
+**Try it (buyer / sponsor / evaluator path):** sign up at **`archlucid.net`** — no install, no Docker, no SQL, no .NET. The trial funnel sits you in the in-product operator UI in front of a sample architecture run.
 
 **Sponsor / buyer narrative:** [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)
 
@@ -25,9 +25,9 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 ## Getting started
 
-> **Audience.** ArchLucid is a **SaaS** product. **Buyers / evaluators / sponsors / customers never install Docker, SQL, .NET, Node, or Terraform** — they sign up at **`archlucid.com`** and use the in-product operator UI. The links in the table below labelled *"contributor / internal operator"* are for engineers on **your** side who want to look at the code; they are **not** required for procurement evaluation.
+> **Audience.** ArchLucid is a **SaaS** product. **Buyers / evaluators / sponsors / customers never install Docker, SQL, .NET, Node, or Terraform** — they sign up at **`archlucid.net`** and use the in-product operator UI. The links in the table below labelled *"contributor / internal operator"* are for engineers on **your** side who want to look at the code; they are **not** required for procurement evaluation.
 
-**Buyer / sponsor / evaluator entry point:** **`archlucid.com`** (in-product trial — no install).
+**Buyer / sponsor / evaluator entry point:** **`archlucid.net`** (in-product trial — no install).
 
 **Canonical install order (contributor / internal operator only):** **[docs/engineering/INSTALL_ORDER.md](docs/engineering/INSTALL_ORDER.md)** — what to install, in what order, for local dev vs Azure pilot.
 
@@ -35,7 +35,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 | You are a... | Start here |
 |---|---|
-| **Buyer / sponsor / evaluator / customer** | **`archlucid.com`** (sign up; no install) — narrative: [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md); architecture poster: [docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md) |
+| **Buyer / sponsor / evaluator / customer** | **`archlucid.net`** (sign up; no install) — narrative: [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md); architecture poster: [docs/ARCHITECTURE_ON_ONE_PAGE.md](docs/ARCHITECTURE_ON_ONE_PAGE.md) |
 | **Contributor / internal operator** (Docker only, no .NET / Node / cloud keys) | **[docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop. Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/CLI_USAGE.md#archlucid-try)). |
 | **Contributor — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/engineering/FIRST_30_MINUTES.md](docs/engineering/FIRST_30_MINUTES.md)) |
 | **Internal operator running a real pilot** (curl, CLI, release smoke) | **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)** |
@@ -67,7 +67,7 @@ Full capability inventory: **[docs/PRODUCT_PACKAGING.md](docs/PRODUCT_PACKAGING.
 
 **Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHLUCID_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
 
-**Hosted SaaS URLs:** staging funnel `https://staging.archlucid.com`; production `https://archlucid.com` when Front Door hostnames are wired (see [docs/REFERENCE_SAAS_STACK_ORDER.md](docs/REFERENCE_SAAS_STACK_ORDER.md), `infra/apply-saas.ps1`). **Public liveness (hosted):** `Invoke-RestMethod https://staging.archlucid.com/health/live` (or `/health/ready`). **`release-smoke.ps1`** still starts a **local** API for the E2E block; use **`-ApiBaseUrl`** / **`-BaseUrl`** only when that process is not on the default `http://localhost:5128` ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)).
+**Hosted SaaS URLs:** staging funnel `https://staging.archlucid.net`; production `https://archlucid.net` when Front Door hostnames are wired (see [docs/REFERENCE_SAAS_STACK_ORDER.md](docs/REFERENCE_SAAS_STACK_ORDER.md), `infra/apply-saas.ps1`). **Public liveness (hosted):** `Invoke-RestMethod https://staging.archlucid.net/health/live` (or `/health/ready`). **`release-smoke.ps1`** still starts a **local** API for the E2E block; use **`-ApiBaseUrl`** / **`-BaseUrl`** only when that process is not on the default `http://localhost:5128` ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)).
 
 **Build / version:** **`GET /version`** on the API, or **`dotnet run --project ArchLucid.Cli -- doctor`**. **Diagnostics:** **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (review before sharing). **Reporting issues:** [docs/PILOT_GUIDE.md#when-you-report-an-issue](docs/PILOT_GUIDE.md#when-you-report-an-issue) (version, correlation ID, logs, bundle).
 

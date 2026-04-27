@@ -34,9 +34,9 @@ export default function OperatorSecurityTrustPage() {
           records engagement existence and high-level posture. To request the most recent redacted summary, email{" "}
           <a
             className="font-medium text-sky-800 underline underline-offset-2 hover:text-sky-950 dark:text-sky-300 dark:hover:text-sky-100"
-            href="mailto:security@archlucid.com"
+            href="mailto:security@archlucid.net"
           >
-            security@archlucid.com
+            security@archlucid.net
           </a>
           . (Owner decision 2026-04-22 — see{" "}
           <Link

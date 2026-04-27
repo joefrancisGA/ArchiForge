@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Dedicated Playwright config for the **staging trial-funnel TEST-mode** spec
  * (`e2e/trial-funnel-test-mode.spec.ts`). Drives a real browser against
- * `signup.staging.archlucid.com` (override with `STAGING_BASE_URL`) — there is
+ * `signup.staging.archlucid.net` (override with `STAGING_BASE_URL`) — there is
  * **no** local Next.js / API webServer because the spec hits staging directly.
  *
  * Skip behaviour: if `STRIPE_TEST_KEY` is unset the spec self-skips, so this
@@ -22,7 +22,7 @@ export default defineConfig({
   workers: 1,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: {
-    baseURL: process.env.STAGING_BASE_URL ?? "https://signup.staging.archlucid.com",
+    baseURL: process.env.STAGING_BASE_URL ?? "https://signup.staging.archlucid.net",
     trace: "retain-on-failure",
     video: "retain-on-failure",
     screenshot: "only-on-failure",

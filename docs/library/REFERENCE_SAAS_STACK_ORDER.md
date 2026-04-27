@@ -65,7 +65,7 @@ CI validates **`terraform validate`** + **Trivy config** across these roots (see
 
 | Variable | Used by | Purpose |
 |----------|---------|---------|
-| **`ARCHLUCID_STAGING_BASE_URL`** | [`.github/workflows/hosted-saas-probe.yml`(../../.github/workflows/hosted-saas-probe.yml) | Public HTTPS origin for scheduled `curl` checks against `/health/live` and `/health/ready` (example: `https://staging.archlucid.com`). When unset, the workflow **skips** probes so forks do not fail. |
+| **`ARCHLUCID_STAGING_BASE_URL`** | [`.github/workflows/hosted-saas-probe.yml`(../../.github/workflows/hosted-saas-probe.yml) | Public HTTPS origin for scheduled `curl` checks against `/health/live` and `/health/ready` (example: `https://staging.archlucid.net`). When unset, the workflow **skips** probes so forks do not fail. |
 | **`ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED`** | [`.github/workflows/golden-cohort-nightly.yml`(../../.github/workflows/golden-cohort-nightly.yml) | When `true`, runs simulator drift after the JSON contract job. |
 | **`ARCHLUCID_GOLDEN_COHORT_REAL_LLM`** | `golden-cohort-nightly.yml` | When `true`, runs the Azure Cost Management budget probe + optional real-LLM gate tests (requires secrets + owner budget approval). |
 

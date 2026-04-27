@@ -2,7 +2,7 @@
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
-> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never run `dotnet build`, `npm ci`, Docker, or local SQL.** This document is the **contributor / internal-engineer** build & test hygiene reference. Customer-facing entry points are **[`START_HERE.md`](../START_HERE.md)** "Audience split" and the website at `archlucid.com`.
+> **Audience banner — read first.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never run `dotnet build`, `npm ci`, Docker, or local SQL.** This document is the **contributor / internal-engineer** build & test hygiene reference. Customer-facing entry points are **[`START_HERE.md`](../START_HERE.md)** "Audience split" and the website at `archlucid.net`.
 
 # Build & project hygiene
 

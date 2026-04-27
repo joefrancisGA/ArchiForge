@@ -32,7 +32,7 @@
 
 ## 0.1 SaaS-framing addendum (added 2026-04-23)
 
-> **SaaS truth.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, Terraform, or any local tool.** The only surfaces a customer ever touches are the **public website** (`archlucid.com` — signup, marketing, demo preview), the **operator UI** (after sign-in), and the **Azure portal** (only for their own subscription identity / billing artefacts that Azure already exposes — they do not run Terraform or `apply-saas.ps1`).
+> **SaaS truth.** ArchLucid is a **SaaS** product. **Customers, evaluators, and sponsors never install Docker, SQL, .NET, Node, Terraform, or any local tool.** The only surfaces a customer ever touches are the **public website** (`archlucid.net` — signup, marketing, demo preview), the **operator UI** (after sign-in), and the **Azure portal** (only for their own subscription identity / billing artefacts that Azure already exposes — they do not run Terraform or `apply-saas.ps1`).
 >
 > Local Docker / SQL / devcontainer / `archlucid try` / `dev up` are **internal contributor tooling**. They live for ArchLucid engineers; they are never asked of a customer.
 
@@ -40,7 +40,7 @@ This rewires three numeric items above. The other 27 quality scores stand.
 
 | Item | Wording in §1 | Why the SaaS framing changes the read | Adjustment |
 |------|---------------|----------------------------------------|------------|
-| **§1.2 Adoption Friction (60/100)** | "Evaluator friction is **low** — `FIRST_30_MINUTES.md` is Docker-only, `archlucid try` is one command." | A SaaS evaluator never installs Docker. The real evaluator path is the **cloud trial funnel** at `archlucid.com/signup → /demo/preview`, which is **not yet live in production**. So evaluator friction is materially **higher** than scored — every prospect either signs a sales call or downloads a contributor toolchain. | Treat §1.2 as **closer to 50/100** under SaaS framing. **Improvement 2** (live trial funnel) is therefore the **single highest-leverage commercial item** — re-prioritise above Improvement 1 if the team has only one slot this quarter. |
+| **§1.2 Adoption Friction (60/100)** | "Evaluator friction is **low** — `FIRST_30_MINUTES.md` is Docker-only, `archlucid try` is one command." | A SaaS evaluator never installs Docker. The real evaluator path is the **cloud trial funnel** at `archlucid.net/signup → /demo/preview`, which is **not yet live in production**. So evaluator friction is materially **higher** than scored — every prospect either signs a sales call or downloads a contributor toolchain. | Treat §1.2 as **closer to 50/100** under SaaS framing. **Improvement 2** (live trial funnel) is therefore the **single highest-leverage commercial item** — re-prioritise above Improvement 1 if the team has only one slot this quarter. |
 | **§1.27 Azure Compatibility & SaaS Deployment Readiness (74/100)** | Recommendation: "Promote `apply-saas.ps1` into a documented '**buyer onboarding path**'…" | A SaaS buyer **does not run Terraform**. `apply-saas.ps1` is the path **ArchLucid itself** uses to deploy our own hosted production subscription. Calling it a "buyer onboarding path" miscasts internal operator tooling as a customer experience. | Replace the recommendation with: "Document `apply-saas.ps1` as the **internal ArchLucid operator path** for standing up new ArchLucid hosting environments (multi-region GA, isolated EU stack, gov-cloud variant). The **buyer onboarding path is the trial funnel** — see Improvement 2." Score unchanged; the artefact is real, only its intended audience is corrected. |
 | **§1.30 Customer Self-Sufficiency (70/100)** | One-line read: "Operator quickstart, doctor, support-bundle, troubleshooting, auto-migrate, runbooks." | These are mostly **contributor** / on-prem-style affordances. A SaaS customer cannot SSH or run a CLI against the host. "Self-sufficiency" for them means: pause / change plan / invite users / rotate API key / see audit log / **download support bundle from the UI**. | Re-define the quality as **in-product self-service**. Today the operator UI does cover plan management, user invites, API-key rotation, and audit log viewing; it does **not** yet expose support-bundle download or trial-pause as in-product flows. Treat §1.30 as **closer to 60/100** under SaaS framing and add an explicit follow-on: surface `archlucid support-bundle` as an authenticated UI download. |
 
@@ -50,7 +50,7 @@ This rewires three numeric items above. The other 27 quality scores stand.
 - Engineering qualities (§1.18–§1.30 for the Engineering bucket) are unaffected — Docker / SQL / Terraform are correct **inside the build and deploy pipelines**; the SaaS framing only forbids those tools from appearing on the **buyer's** path.
 - Internal operator runbooks (e.g., `REFERENCE_SAAS_STACK_ORDER.md`, `apply-saas.ps1`, `engineering/INSTALL_ORDER.md`, `engineering/FIRST_30_MINUTES.md`, `engineering/BUILD.md`, `engineering/CONTAINERIZATION.md`, `engineering/DEVCONTAINER.md`, `engineering/DEPLOYMENT.md`) keep their full Docker / SQL / Terraform content; they were moved to **`docs/engineering/`** on 2026-04-23 (see CHANGELOG) and carry an **Audience banner** clarifying they are for ArchLucid contributors and internal operators, not customers. Stub redirects remain at the old paths (`docs/INSTALL_ORDER.md`, `docs/FIRST_30_MINUTES.md`, `docs/library/BUILD.md`, etc.) so existing bookmarks survive.
 
-**Buyer-facing first-30-minutes doc.** Today there is **no** customer-facing equivalent of `engineering/FIRST_30_MINUTES.md` (i.e., a "30 minutes from `archlucid.com` landing page → signed in → first sample run → first finding" walkthrough that names zero local tools). Drafting the **copy** is owner-controlled (marketing / brand voice). The **wiring** is part of Improvement 2 (`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md` already documents the developer-facing smoke; the customer-facing variant is a stop-and-ask). Logged as PENDING_QUESTIONS item 36 and **resolved 2026-04-23** to **both** repo doc + marketing route, **vertical-picker-first** preset.
+**Buyer-facing first-30-minutes doc.** Today there is **no** customer-facing equivalent of `engineering/FIRST_30_MINUTES.md` (i.e., a "30 minutes from `archlucid.net` landing page → signed in → first sample run → first finding" walkthrough that names zero local tools). Drafting the **copy** is owner-controlled (marketing / brand voice). The **wiring** is part of Improvement 2 (`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md` already documents the developer-facing smoke; the customer-facing variant is a stop-and-ask). Logged as PENDING_QUESTIONS item 36 and **resolved 2026-04-23** to **both** repo doc + marketing route, **vertical-picker-first** preset.
 
 ---
 
@@ -99,7 +99,7 @@ This rewires **five** numeric items in §1. The other 25 quality scores stand. T
 
 ## 0.3 Commerce-un-hold-deferral re-score addendum (added 2026-04-23, after §0.2)
 
-> **Owner deferral.** On 2026-04-23 — same day as the §0.2 reference-customer deferral, fourth scope decision of the day — the owner explicitly deferred the *commerce un-hold* milestone — Stripe **live** API keys flipped on, the Azure Marketplace SaaS offer transitioned to `Published` in Partner Center, and DNS cutover for `signup.archlucid.com` to the production Front Door custom domain — to **V1.1**. See [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b (commerce-un-hold row), [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §3 (new "Out of scope for V1" row), and [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Commerce un-hold scope)**.
+> **Owner deferral.** On 2026-04-23 — same day as the §0.2 reference-customer deferral, fourth scope decision of the day — the owner explicitly deferred the *commerce un-hold* milestone — Stripe **live** API keys flipped on, the Azure Marketplace SaaS offer transitioned to `Published` in Partner Center, and DNS cutover for `signup.archlucid.net` to the production Front Door custom domain — to **V1.1**. See [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b (commerce-un-hold row), [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §3 (new "Out of scope for V1" row), and [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) **Resolved 2026-04-23 (Commerce un-hold scope)**.
 >
 > Per the assessment's own rule, the qualities that were depressed by the absence of live commerce must be **re-scored on V1's real contract** — sales-led adoption with `/pricing` displaying numbers, `ORDER_FORM_TEMPLATE.md` driving quote-to-cash, and the trial funnel running in **Stripe TEST mode on staging** as a sales-engineer-led product evaluation.
 
@@ -169,7 +169,7 @@ For each quality I report the score, the weight, the **gap × weight** improveme
 
 **Trade-off.** No customer-shipped containers means a clean SaaS contract; some prospects will still ask.
 
-**Recommendation.** See **Improvement 2** in §3 — wire the trial funnel end-to-end against Stripe **TEST** mode on `staging.archlucid.com` so a prospect can complete signup → first sample run without a sales call. Owner action then flips Stripe live mode behind a feature flag.
+**Recommendation.** See **Improvement 2** in §3 — wire the trial funnel end-to-end against Stripe **TEST** mode on `staging.archlucid.net` so a prospect can complete signup → first sample run without a sales call. Owner action then flips Stripe live mode behind a feature flag.
 
 ---
 
@@ -536,7 +536,7 @@ The eight biggest improvement-impact items are listed in priority order. Each on
 
 **What I can do today.** Trace the existing happy path end-to-end and document it as a runbook (`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`); add a Playwright spec running the funnel against the deterministic mocks; ship an `archlucid trial smoke` CLI command that runs the funnel in dev and prints PASS/FAIL per step; surface the `baselineReviewCycleHours` capture on the operator dashboard once one run has committed.
 
-**What is owner-only — *and now V1.1-deferred per §0.3*.** Switching from Stripe TEST to live keys; turning off the trial signup feature flag in production; DNS cutover for `signup.archlucid.com`. **All three are explicitly V1.1-deferred** by the **Resolved 2026-04-23 (Commerce un-hold scope)** decision — they are no longer V1 owner-action items. The trial funnel TEST-mode end-to-end work in this improvement **stays a live V1 obligation** and is what the prompt below ships; only the final "flip TEST → live" gate is V1.1.
+**What is owner-only — *and now V1.1-deferred per §0.3*.** Switching from Stripe TEST to live keys; turning off the trial signup feature flag in production; DNS cutover for `signup.archlucid.net`. **All three are explicitly V1.1-deferred** by the **Resolved 2026-04-23 (Commerce un-hold scope)** decision — they are no longer V1 owner-action items. The trial funnel TEST-mode end-to-end work in this improvement **stays a live V1 obligation** and is what the prompt below ships; only the final "flip TEST → live" gate is V1.1.
 
 **Pending question.** Items 9, 22 in `PENDING_QUESTIONS.md` — both **still open** but now release-window-pinned to V1.1, not V1.
 
@@ -576,7 +576,7 @@ The eight biggest improvement-impact items are listed in priority order. Each on
 - Tax profile, payout account, and seller verification in Partner Center (cannot be filed by the assistant).
 - Setting any `sk_live_` Stripe key + production webhook secret rotation.
 - Pressing "Go live" on the Marketplace SaaS offer.
-- DNS cutover for `signup.archlucid.com` to the production Front Door custom domain.
+- DNS cutover for `signup.archlucid.net` to the production Front Door custom domain.
 - Pinning a calendar date inside the V1.1 window (currently unpinned per the **Resolved 2026-04-23 (Commerce un-hold scope)** decision).
 
 ---

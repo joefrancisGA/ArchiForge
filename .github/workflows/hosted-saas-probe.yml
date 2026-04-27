@@ -20,7 +20,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${BASE_URL:-}" ]; then
-            echo "ARCHLUCID_STAGING_BASE_URL is not set — skipping probe (set repo variable to e.g. https://staging.archlucid.com)."
+            echo "ARCHLUCID_STAGING_BASE_URL is not set — skipping probe (set repo variable to e.g. https://staging.archlucid.net)."
             exit 0
           fi
           base="${BASE_URL%/}"

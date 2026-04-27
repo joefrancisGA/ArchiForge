@@ -95,7 +95,7 @@ Anchor metrics to [`PILOT_SUCCESS_SCORECARD.md`](../PILOT_SUCCESS_SCORECARD.md) 
 
 | Channel | Commitment | Limit |
 |---------|------------|-------|
-| Logo on archlucid.com | `<<LOGO_RIGHTS>>` | `<<LOGO_LIMIT>>` |
+| Logo on archlucid.net | `<<LOGO_RIGHTS>>` | `<<LOGO_LIMIT>>` |
 | Reference calls | `<<REFERENCE_CALL_LIMIT>>` | At customer's discretion |
 
 ---

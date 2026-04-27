@@ -16,3 +16,12 @@ export const BUYER_GET_STARTED_VERTICAL_SLUGS = [
 ] as const;
 
 export type BuyerGetStartedVerticalSlug = (typeof BUYER_GET_STARTED_VERTICAL_SLUGS)[number];
+
+export const VERTICAL_DISPLAY_NAMES: Record<BuyerGetStartedVerticalSlug, string> = {
+  "financial-services": "Financial Services",
+  "healthcare": "Healthcare",
+  "public-sector": "Public Sector",
+  "public-sector-us": "Public Sector (US)",
+  "retail": "Retail",
+  "saas": "SaaS",
+};

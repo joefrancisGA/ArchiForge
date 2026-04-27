@@ -70,7 +70,7 @@ public sealed class BillingProductionSafetyRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
-            ["Billing:AzureMarketplace:LandingPageUrl"] = "https://app.archlucid.com/marketplace/landing"
+            ["Billing:AzureMarketplace:LandingPageUrl"] = "https://app.archlucid.net/marketplace/landing"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();

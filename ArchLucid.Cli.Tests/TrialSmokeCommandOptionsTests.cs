@@ -53,7 +53,7 @@ public sealed class TrialSmokeCommandOptionsTests
                 "--baseline-hours", "16.5",
                 "--baseline-source", "team estimate",
                 "--display-name", "Ops User",
-                "--api-base-url", "https://staging.archlucid.com"
+                "--api-base-url", "https://staging.archlucid.net"
             ],
             out string? error);
 
@@ -61,7 +61,7 @@ public sealed class TrialSmokeCommandOptionsTests
         opts!.BaselineReviewCycleHours.Should().Be(16.5m);
         opts.BaselineReviewCycleSource.Should().Be("team estimate");
         opts.AdminDisplayName.Should().Be("Ops User");
-        opts.ApiBaseUrl.Should().Be("https://staging.archlucid.com");
+        opts.ApiBaseUrl.Should().Be("https://staging.archlucid.net");
     }
 
     [Fact]

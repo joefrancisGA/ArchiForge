@@ -39,7 +39,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 - [2026 Q2 — **awarded** SoW (Aeronova Red Team LLC)](../security/pen-test-summaries/2026-Q2-SOW.md)
 - [2026 Q2 — redacted summary working copy](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (assessor narrative — **not** a public artefact)
 
-**NDA-gated pen-test summaries (decision 2026-04-22 — [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 20):** Pen-test redacted summaries are made available **under NDA only**; the public Trust Center records the existence of the engagement and the high-level posture. To request the most recent redacted summary, contact **`security@archlucid.com`**. The discipline folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) remains the **in-repo working surface** for procurement alignment — it does **not** imply public publication of Aeronova deliverables.
+**NDA-gated pen-test summaries (decision 2026-04-22 — [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 20):** Pen-test redacted summaries are made available **under NDA only**; the public Trust Center records the existence of the engagement and the high-level posture. To request the most recent redacted summary, contact **`security@archlucid.net`**. The discipline folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) remains the **in-repo working surface** for procurement alignment — it does **not** imply public publication of Aeronova deliverables.
 
 **Questionnaires (pre-filled):**
 
@@ -54,7 +54,7 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 
 | Engagement | Vendor | Scope | Completed (UTC) | Summary access |
 |------------|--------|-------|-----------------|----------------|
-| 2026-Q2 third-party penetration test | Aeronova Red Team LLC | API, operator UI, hosted SaaS data plane | Engagement awarded 2026-04-21; kickoff 2026-05-06 (in flight — see [`pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)) | NDA-only — email `security@archlucid.com` once assessor delivers redacted summary |
+| 2026-Q2 third-party penetration test | Aeronova Red Team LLC | API, operator UI, hosted SaaS data plane | Engagement awarded 2026-04-21; kickoff 2026-05-06 (in flight — see [`pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)) | NDA-only — email `security@archlucid.net` once assessor delivers redacted summary |
 | Internal owner security self-assessment | ArchLucid (internal CISO ownership) | STRIDE-aligned control review across SOC 2 Common Criteria mapping | 2026-Q2 (latest revision tracked in [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)) | Public summary available at [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md); detailed gap register on request |
 | Accessibility self-attestation review | ArchLucid (accessibility custodian, same operational team as `security@`) | WCAG 2.1 Level AA against operator UI top routes via axe-core + jsx-a11y | 2026-04-22 (annual cadence; next window 2027-04-22 — see [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) "Review cadence") | Public — see marketing route `/accessibility` and root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) |
 | Quarterly staging chaos exercise | ArchLucid Platform / on-call | Staging-only fault injection (SQL pool exhaustion 2026-04-29; subsequent runs 2026-07-29, 2026-10-28) — production chaos out-of-scope per owner decision 2026-04-22 ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 34) | Calendar published 2026-04-22; first run 2026-04-29 (staging) — see [`docs/quality/game-day-log/`](../quality/game-day-log/README.md) | Public — closing reports linked from the game-day calendar |
@@ -134,8 +134,8 @@ Full text: [ORDER_FORM_TEMPLATE.md § 9](ORDER_FORM_TEMPLATE.md).
 
 ## Contact
 
-- **Security inquiries:** `security@archlucid.com` (canonical mailbox — confirmed 2026-04-21; aligns `SECURITY.md`, this Trust Center, and the eventual PGP UID).
-- **Accessibility barriers (non-security):** `accessibility@archlucid.com` — same operational custodian as `security@archlucid.com` (decision 2026-04-22); see [../security/ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) and the public marketing route **`/accessibility`**.
+- **Security inquiries:** `security@archlucid.net` (canonical mailbox — confirmed 2026-04-21; aligns `SECURITY.md`, this Trust Center, and the eventual PGP UID).
+- **Accessibility barriers (non-security):** `accessibility@archlucid.net` — same operational custodian as `security@archlucid.net` (decision 2026-04-22); see [../security/ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) and the public marketing route **`/accessibility`**.
 - **Coordinated disclosure key:** generation procedure: [../security/PGP_KEY_GENERATION_RECIPE.md](../security/PGP_KEY_GENERATION_RECIPE.md) (key publication pending). When published, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../SECURITY.md) PGP). Until that file exists, use plain email.
 
 For support alignment during incidents, clients should include **`X-Correlation-ID`** on API requests where possible ([../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) §8).

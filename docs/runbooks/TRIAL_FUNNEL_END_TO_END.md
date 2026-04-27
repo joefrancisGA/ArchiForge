@@ -27,7 +27,7 @@ Document the **single happy path** a prospect takes through the funnel, with **f
 
 ## 2. Assumptions
 
-- Funnel is exercised **either** locally (`dotnet run --project ArchLucid.Api` + `npm run dev`) **or** against staging (`https://staging.archlucid.com`).
+- Funnel is exercised **either** locally (`dotnet run --project ArchLucid.Api` + `npm run dev`) **or** against staging (`https://staging.archlucid.net`).
 - `Billing:Provider=Noop` (local) **or** `Billing:Provider=Stripe` with **TEST** keys (staging). Live keys are an **owner-only** decision (see § 7).
 - `Auth:Trial:Modes=LocalIdentity` (or `MsaExternalId` when External ID is configured).
 - Operator UI has access to the API via the same-origin proxy (`/api/proxy/v1/...`).
@@ -181,7 +181,7 @@ A cross-tenant audit query for a single funnel run **must** find at least rows 1
 |---------|----------------|----------|
 | **Stripe live keys + webhook secret** | Real money, real chargebacks. Live keys flip behaviour in `BillingWebhookTrialActivator.OnSubscriptionActivatedAsync` and the Marketplace publisher row in customer statements. | `docs/PENDING_QUESTIONS.md` item 9, item 22 |
 | **Marketplace publisher legal entity name** | Appears on customer statements; must match the legal entity on Partner Center. | `docs/PENDING_QUESTIONS.md` item 22 |
-| **DNS cutover for `archlucid.com` / `staging.archlucid.com`** | Front Door custom domain validation + cert provisioning + downstream MX / DKIM. | `docs/PENDING_QUESTIONS.md` Resolved row "DNS / TLS" |
+| **DNS cutover for `archlucid.net` / `staging.archlucid.net`** | Front Door custom domain validation + cert provisioning + downstream MX / DKIM. | `docs/PENDING_QUESTIONS.md` Resolved row "DNS / TLS" |
 | **Trial signup feature flag in production** | Throwing the funnel open to anonymous traffic without rate-limit pre-warming risks SQL pressure on shared catalogs. | `Trial:SignupEnabled` in `appsettings.SaaS.json` overlay |
 | **Soft-required baseline review-cycle field** | Owner approval needed for the UX change + privacy notice. Today the field stays **optional**. | `docs/PENDING_QUESTIONS.md` item 28 |
 | **Reference-customer row → `Published`** | First paying tenant; copy must be approved by the customer; discount re-rate review per `PRICING_PHILOSOPHY.md` § 5.3. | `docs/PENDING_QUESTIONS.md` item 19 |
@@ -197,8 +197,8 @@ A cross-tenant audit query for a single funnel run **must** find at least rows 1
 | **Mock Playwright** | [`archlucid-ui/e2e/trial-funnel.spec.ts`](../../archlucid-ui/e2e/trial-funnel.spec.ts) | Form → mocked `/v1/register` 201 → mocked `/v1/tenant/trial-status` with `firstCommitUtc` → operator dashboard renders Day N badge + `BeforeAfterDeltaPanel` |
 | **Live Playwright** | [`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) | Real SQL, real RegistrationController, Noop checkout, harness-simulated subscription activation |
 | **CLI smoke** | `archlucid trial smoke` ([`ArchLucid.Cli/Commands/TrialSmokeCommand.cs`](../../ArchLucid.Cli/Commands/TrialSmokeCommand.cs)) — pure HTTP loop. Prints **PASS / FAIL** per step against any local or staging API base URL. Tests in `ArchLucid.Cli.Tests/TrialSmokeCommandTests.cs`. |
-| **CLI smoke (staging preset)** | `archlucid trial smoke --staging` — convenience: auto-targets `https://staging.archlucid.com` and emits a **single greppable line** `PASS|FAIL host=… correlation=… tenant=… welcomeRun=… failed=…`. Use this for sales-engineer pre-flight and for the nightly oncall paging payload (see § 9.1.b). Implementation: [`TrialSmokeOneLineSummaryFormatter`](../../ArchLucid.Cli/Commands/TrialSmokeOneLineSummaryFormatter.cs); correlation id is read from the `X-Correlation-ID` header on the first `POST /v1/register` response. |
-| **Staging UI smoke (TEST-mode)** | [`archlucid-ui/e2e/trial-funnel-test-mode.spec.ts`](../../archlucid-ui/e2e/trial-funnel-test-mode.spec.ts) via [`playwright.trial-funnel-test-mode.config.ts`](../../archlucid-ui/playwright.trial-funnel-test-mode.config.ts). Drives a real browser at `signup.staging.archlucid.com` (override with `STAGING_BASE_URL`). Self-skips when `STRIPE_TEST_KEY` is unset so it is safe to run from a developer laptop without staging credentials. Wired into [`.github/workflows/trial-funnel-test-mode.yml`](../../.github/workflows/trial-funnel-test-mode.yml) for the nightly run. |
+| **CLI smoke (staging preset)** | `archlucid trial smoke --staging` — convenience: auto-targets `https://staging.archlucid.net` and emits a **single greppable line** `PASS|FAIL host=… correlation=… tenant=… welcomeRun=… failed=…`. Use this for sales-engineer pre-flight and for the nightly oncall paging payload (see § 9.1.b). Implementation: [`TrialSmokeOneLineSummaryFormatter`](../../ArchLucid.Cli/Commands/TrialSmokeOneLineSummaryFormatter.cs); correlation id is read from the `X-Correlation-ID` header on the first `POST /v1/register` response. |
+| **Staging UI smoke (TEST-mode)** | [`archlucid-ui/e2e/trial-funnel-test-mode.spec.ts`](../../archlucid-ui/e2e/trial-funnel-test-mode.spec.ts) via [`playwright.trial-funnel-test-mode.config.ts`](../../archlucid-ui/playwright.trial-funnel-test-mode.config.ts). Drives a real browser at `signup.staging.archlucid.net` (override with `STAGING_BASE_URL`). Self-skips when `STRIPE_TEST_KEY` is unset so it is safe to run from a developer laptop without staging credentials. Wired into [`.github/workflows/trial-funnel-test-mode.yml`](../../.github/workflows/trial-funnel-test-mode.yml) for the nightly run. |
 | **CI guard** | [`scripts/ci/assert_billing_safety_rules_shipped.py`](../../scripts/ci/assert_billing_safety_rules_shipped.py) — fails the merge if `BillingProductionSafetyRules` is removed or its `sk_live_` / Marketplace landing-page / GA offer-id checks are weakened. Self-test: [`scripts/ci/tests/test_assert_billing_safety_rules_shipped.py`](../../scripts/ci/tests/test_assert_billing_safety_rules_shipped.py). |
 
 > **Note on spec path:** the operator-shell Playwright suite lives under `archlucid-ui/e2e/` (not `archlucid-ui/playwright/tests/` or `archlucid-ui/tests/e2e/`). Both default Playwright configs (`playwright.mock.config.ts` and `playwright.config.ts`) point `testDir` at `e2e/`. The trial-funnel mock spec is `archlucid-ui/e2e/trial-funnel.spec.ts`; the staging TEST-mode spec is `archlucid-ui/e2e/trial-funnel-test-mode.spec.ts` and ships its own dedicated config (no local Next.js webServer — drives staging directly).
@@ -211,17 +211,17 @@ A cross-tenant audit query for a single funnel run **must** find at least rows 1
 # 1. Point the CLI at staging (auto-set when you pass --staging).
 dotnet run --project ArchLucid.Cli -- trial smoke --staging \
   --org "TrialSmoke-$(date +%s)" --email "trial-smoke@example.invalid" --baseline-hours 16
-# One-line output: PASS host=https://staging.archlucid.com correlation=<guid> ...
+# One-line output: PASS host=https://staging.archlucid.net correlation=<guid> ...
 
 # 2. Or, the per-step long form (any base URL):
-export ARCHLUCID_API_URL=https://staging.archlucid.com
+export ARCHLUCID_API_URL=https://staging.archlucid.net
 dotnet run --project ArchLucid.Cli -- trial smoke --org "TrialSmoke-$(date +%s)" \
   --email "trial-smoke@example.invalid" --baseline-hours 16
 
 # 3. Mock-Playwright equivalent (no API):
 cd archlucid-ui && npx playwright test -c playwright.mock.config.ts trial-funnel
 
-# 4. Staging UI smoke (real browser → signup.staging.archlucid.com; self-skips
+# 4. Staging UI smoke (real browser → signup.staging.archlucid.net; self-skips
 #    if STRIPE_TEST_KEY is unset):
 STRIPE_TEST_KEY=<key> npx playwright test -c playwright.trial-funnel-test-mode.config.ts
 ```
@@ -238,7 +238,7 @@ STRIPE_TEST_KEY=<key> npx playwright test -c playwright.trial-funnel-test-mode.c
 
 | Surface | URL (default) | What you do here |
 |---|---|---|
-| **Public signup** | `https://signup.staging.archlucid.com/signup` | Drive the prospect through the form. |
+| **Public signup** | `https://signup.staging.archlucid.net/signup` | Drive the prospect through the form. |
 | **Operator UI** | same host, post-verification | Show the wizard, commit, and the Day-N badge. |
 | **API smoke (no UI)** | `archlucid trial smoke --staging` | Pre-flight check before joining the prospect call — confirms the funnel is alive on staging. One-line **PASS|FAIL** with a **correlation id** to hand to support if anything is off. |
 | **UI smoke (Playwright)** | `npx playwright test -c playwright.trial-funnel-test-mode.config.ts` from `archlucid-ui/` | Same flow as the prospect, end-to-end. Use this if the prospect reports something you cannot reproduce in the API smoke. |
@@ -250,7 +250,7 @@ STRIPE_TEST_KEY=<key> npx playwright test -c playwright.trial-funnel-test-mode.c
 # 1. Confirm staging is alive (under 10 s):
 dotnet run --project ArchLucid.Cli -- trial smoke --staging \
   --org "PreCall-$(date +%s)" --email "se+precall@example.invalid"
-# Expect: PASS host=https://staging.archlucid.com correlation=<guid> ...
+# Expect: PASS host=https://staging.archlucid.net correlation=<guid> ...
 
 # 2. (Optional) end-to-end UI run, if you want to see what the prospect will see:
 cd archlucid-ui && STRIPE_TEST_KEY="$STRIPE_TEST_KEY" \
@@ -263,7 +263,7 @@ If either fails, **do not** start the demo — open the nightly workflow on the 
 
 Keep it consultative. Avoid trial-puffery — the SaaS-on-GitHub posture is the differentiator, not the trial form.
 
-> "I'm going to take you through the same five steps an evaluator sees on `archlucid.com/get-started`. We're on the staging environment so the billing path is in **TEST mode** — no card is charged, no Marketplace listing is involved. After you commit your first run we'll look at the Day-N badge together; that's the smallest unit of value the product produces."
+> "I'm going to take you through the same five steps an evaluator sees on `archlucid.net/get-started`. We're on the staging environment so the billing path is in **TEST mode** — no card is charged, no Marketplace listing is involved. After you commit your first run we'll look at the Day-N badge together; that's the smallest unit of value the product produces."
 
 Then drive the form on `/signup`. Stay on the **model-default** baseline (the radio is preselected) unless the prospect asks for the custom hours field — that field is **optional** and gated behind an `aria-expanded` disclosure (see § 5 Step 1, owner Q28). Telling the prospect the hours field is optional is the right answer: ArchLucid still renders a measured-vs-modeled curve, just from the conservative model defaults.
 
@@ -282,7 +282,7 @@ The trial tenant persists in the staging SQL catalog after the call. Two reset s
 
 - **Live Stripe keys (`sk_live_*`).** SEs **never** touch them. The `BillingProductionSafetyRules` boot guard refuses to start the API in Production with a live key and no webhook signing secret — we ship a CI guard (`scripts/ci/assert_billing_safety_rules_shipped.py`) that fails the merge if those checks are removed or weakened.
 - **Marketplace listing publication.** The Partner Center listing stays at **Status: Draft** for V1 (per `docs/library/V1_DEFERRED.md` § 6b). Do not ask the prospect to "click the marketplace tile" during the demo — there isn't one yet.
-- **DNS cutover.** `archlucid.com/signup` is not the demo URL — `signup.staging.archlucid.com` is. If a prospect already has a tab open on the production hostname, ask them to close it and re-open the staging hostname; the operator UI on production will refuse the trial flow because `Trial:SignupEnabled` is off there.
+- **DNS cutover.** `archlucid.net/signup` is not the demo URL — `signup.staging.archlucid.net` is. If a prospect already has a tab open on the production hostname, ask them to close it and re-open the staging hostname; the operator UI on production will refuse the trial flow because `Trial:SignupEnabled` is off there.
 
 ### 9.1.f When the smoke says PASS but the demo still feels wrong
 

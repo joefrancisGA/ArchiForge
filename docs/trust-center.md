@@ -14,7 +14,7 @@ This page is the **single buyer-facing index** for security questionnaires, self
 
 Procurement teams can pull every artefact below in one ZIP — generated on-demand from the in-repo source files (no third-party tracking, no email gate, anonymous):
 
-> **[⬇ Download evidence pack (ZIP)](https://api.archlucid.com/v1/marketing/trust-center/evidence-pack.zip)**
+> **[⬇ Download evidence pack (ZIP)](https://api.archlucid.net/v1/marketing/trust-center/evidence-pack.zip)**
 
 The ZIP includes the DPA template, subprocessors register, SLA summary, `security.txt`, CAIQ Lite pre-fill, SIG Core pre-fill, owner-led security self-assessment (DRAFT), 2026-Q2 pen-test SoW, and the audit coverage matrix — plus an auto-generated `README.md` index. The HTTP response carries an `ETag` (SHA-256 of the included files' content) and a `Cache-Control: public, max-age=3600` header; resending the same ETag in `If-None-Match` returns `304 Not Modified`. The endpoint **deliberately omits** the redacted pen-test summary (V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10) and the PGP key (also V1.1).
 
@@ -81,4 +81,4 @@ Use the CLI from a repository clone, or follow the email-safe buyer steps:
 
 - [How to request the procurement pack](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md)
 
-Contact **security@archlucid.com** for NDA-gated pen-test materials or to align procurement on a specific diligence list.
+Contact **security@archlucid.net** for NDA-gated pen-test materials or to align procurement on a specific diligence list.
