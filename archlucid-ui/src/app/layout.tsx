@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
@@ -6,6 +6,8 @@ import { getSiteMetadataBaseUrl } from "@/lib/site-metadata-base";
 import "./globals.css";
 
 const siteUrl = getSiteMetadataBaseUrl();
+
+export const viewport: Viewport = { themeColor: "#1E3A5F" };
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
@@ -16,7 +18,6 @@ export const metadata: Metadata = {
   description:
     "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
   manifest: "/manifest.webmanifest",
-  themeColor: "#1E3A5F",
   icons: {
     icon: [{ url: "/logo/favicon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/logo/icon-192.png", sizes: "192x192", type: "image/png" }],

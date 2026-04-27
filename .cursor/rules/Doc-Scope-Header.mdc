@@ -1,0 +1,14 @@
+---
+description: Every active doc under docs/ must start with a Scope blockquote; CI enforces via check_doc_scope_header.py.
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# Doc scope header (merge-blocking CI)
+
+- **Invariant:** The first non-empty line of every `docs/**/*.md` file (except `docs/archive/**`, which CI skips) must be a GFM blockquote starting with `> **Scope:**` followed by a one-line audience, intent, and what the doc is *not*.
+- **Before creating or hand-editing a new markdown file under `docs/`:** Put that line on line 1 (optionally after a BOM or blank lines). Do not start with `#` or plain prose.
+- **Validate locally:** `python scripts/ci/check_doc_scope_header.py`
+- **Batch fix after imports:** `python scripts/ci/backfill_doc_scope_headers.py` (idempotent; use `--dry-run` first)
+
+Root `README.md` uses the HTML form `<!-- **Scope:** ... -->` instead of a blockquote; see `scripts/ci/check_doc_scope_header.py`.

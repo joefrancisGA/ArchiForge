@@ -22,6 +22,11 @@ import {
   fixtureRunDetail,
   fixtureRunExplanationSummary,
 } from "./fixtures/index";
+import {
+  getEmptyGraphViewModelJson,
+  getScreenshotMockFallbackGetJson,
+  isGraphUpstreamPath,
+} from "./screenshot-mock-fallback";
 
 function sendJson(res: http.ServerResponse, status: number, body: unknown): void {
   const payload = JSON.stringify(body);
@@ -63,7 +68,22 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
     void (async () => {
       const u = new URL(req.url ?? "/", `http://${host}`);
 
+      if (req.method === "GET" && u.pathname === "/health/ready") {
+        sendJson(res, 200, { status: "Healthy", entries: [] as { name: string; status: string }[] });
+        return;
+      }
+
+      if (req.method === "GET" && u.pathname === "/version") {
+        sendJson(res, 200, { application: "ArchLucid", informationalVersion: "e2e-mock" });
+        return;
+      }
+
       if (req.method === "GET" && u.pathname === "/health") {
+        const acc = req.headers.accept ?? "";
+        if (acc.includes("application/json")) {
+          sendJson(res, 200, { status: "Healthy", totalDurationMs: 0, entries: [] as { name: string; status: string }[] });
+          return;
+        }
         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
         res.end("ok");
         return;
@@ -296,6 +316,27 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           sendJson(res, 200, []);
         }
 
+        return;
+      }
+
+      if (isGraphUpstreamPath(pathname)) {
+        sendJson(res, 200, getEmptyGraphViewModelJson());
+        return;
+      }
+
+      if (/^\/v1\/pilots\/runs\/[^/]+\/first-value-report$/.test(pathname)) {
+        const accept = req.headers.accept ?? "";
+        if (accept.includes("text/markdown")) {
+          res.writeHead(200, { "Content-Type": "text/markdown; charset=utf-8" });
+          res.end("# Mock first value report\n");
+          return;
+        }
+        sendJson(res, 200, { detail: "Expected Accept: text/markdown" });
+        return;
+      }
+
+      if (pathname.startsWith("/v1/") || pathname.startsWith("/api/authority/") || pathname.startsWith("/api/artifacts/")) {
+        sendJson(res, 200, getScreenshotMockFallbackGetJson(pathname, u.search));
         return;
       }
 
