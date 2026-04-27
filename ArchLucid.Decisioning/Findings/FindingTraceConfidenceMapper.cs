@@ -25,12 +25,12 @@ public static class FindingTraceConfidenceMapper
                 new FindingTraceConfidenceDto
                 {
                     FindingId = f.FindingId,
-                    FindingTitle = f.Title ?? string.Empty,
+                    FindingTitle = f.Title,
                     TraceCompletenessRatio = score.CompletenessRatio,
                     TraceConfidenceLabel = TraceConfidenceLabels.FromCompletenessRatio(score.CompletenessRatio),
                     RuleId = evidence.RuleId,
                     EvidenceRefCount = evidence.EvidenceRefs.Count,
-                    MissingTraceFields = [..score.MissingTraceFields],
+                    MissingTraceFields = [.. score.MissingTraceFields],
                 });
         }
 

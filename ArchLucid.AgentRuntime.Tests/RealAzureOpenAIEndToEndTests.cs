@@ -30,6 +30,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
+// ReSharper disable once InconsistentNaming
 public sealed class RealAzureOpenAIEndToEndTests
 {
     private static bool HasLiveAzureOpenAiCredentials()
