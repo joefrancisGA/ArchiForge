@@ -1,8 +1,6 @@
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
-using FluentAssertions;
-
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Compare;

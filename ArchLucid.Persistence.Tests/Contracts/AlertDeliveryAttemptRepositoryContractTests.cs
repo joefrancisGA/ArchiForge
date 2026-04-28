@@ -1,7 +1,5 @@
 using ArchLucid.Decisioning.Alerts.Delivery;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

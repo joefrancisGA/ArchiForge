@@ -3,8 +3,6 @@ using ArchLucid.Persistence.Configuration;
 
 using Dapper;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Persistence.Tests.Configuration;

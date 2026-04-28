@@ -1,5 +1,3 @@
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests;

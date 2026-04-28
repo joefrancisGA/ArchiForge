@@ -1,7 +1,5 @@
 using ArchLucid.Decisioning.Advisory.Learning;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Advisory;
 
 [Trait("Category", "Unit")]

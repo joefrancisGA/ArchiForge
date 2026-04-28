@@ -1,7 +1,5 @@
 using ArchLucid.Contracts.ProductLearning.Planning;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
 public sealed class ProductLearningPlanningJsonSerializerTests

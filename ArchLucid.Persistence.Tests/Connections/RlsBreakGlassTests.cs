@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Connections;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Persistence.Tests.Connections;

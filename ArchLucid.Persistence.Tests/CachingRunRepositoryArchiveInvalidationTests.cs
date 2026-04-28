@@ -3,8 +3,6 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Options;
 using ArchLucid.Persistence.Repositories;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 

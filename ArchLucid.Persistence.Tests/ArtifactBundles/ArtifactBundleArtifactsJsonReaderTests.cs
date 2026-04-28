@@ -2,8 +2,6 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Persistence.ArtifactBundles;
 using ArchLucid.Persistence.Serialization;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.ArtifactBundles;
 
 public sealed class ArtifactBundleArtifactsJsonReaderTests

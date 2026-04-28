@@ -2,8 +2,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Audit;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

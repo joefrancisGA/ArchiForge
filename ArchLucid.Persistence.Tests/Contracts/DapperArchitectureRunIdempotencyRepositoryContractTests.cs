@@ -1,8 +1,6 @@
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Tests.Support;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.Contracts;

@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Value;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Value;
 
 public sealed class InMemoryValueReportMetricsReaderTests

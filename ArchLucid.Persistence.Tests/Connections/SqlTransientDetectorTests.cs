@@ -2,8 +2,6 @@ using ArchLucid.Persistence.Connections;
 
 using ArchLucid.TestSupport;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.Connections;

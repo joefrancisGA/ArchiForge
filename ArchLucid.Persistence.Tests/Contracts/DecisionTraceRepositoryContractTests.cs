@@ -2,8 +2,6 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

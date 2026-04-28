@@ -1,8 +1,6 @@
 using ArchLucid.Core.Billing;
 using ArchLucid.Persistence.Billing;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Billing;
 
 public sealed class NoopBillingProviderTests

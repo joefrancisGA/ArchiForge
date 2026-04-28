@@ -1,8 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Connections;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>

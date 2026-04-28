@@ -1,6 +1,5 @@
-using ArchLucid.AgentRuntime;
-
 using Microsoft.Extensions.Options;
+
 using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests;
@@ -13,7 +12,10 @@ internal static class AgentSchemaRemediationOptionsMonitorTestFactory
     /// </summary>
     internal static IOptionsMonitor<AgentSchemaRemediationOptions> Create(int maxCompletionAttempts = 1)
     {
-        AgentSchemaRemediationOptions options = new() { MaxCompletionAttempts = maxCompletionAttempts };
+        AgentSchemaRemediationOptions options = new()
+        {
+            MaxCompletionAttempts = maxCompletionAttempts
+        };
         options.Normalize();
 
         Mock<IOptionsMonitor<AgentSchemaRemediationOptions>> mock = new();

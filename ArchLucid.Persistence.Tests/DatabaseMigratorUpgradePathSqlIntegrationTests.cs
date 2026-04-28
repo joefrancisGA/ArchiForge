@@ -3,8 +3,6 @@ using System.Globalization;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.TestSupport;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests;

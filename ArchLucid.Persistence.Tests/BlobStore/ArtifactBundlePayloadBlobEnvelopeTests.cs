@@ -1,7 +1,4 @@
 using ArchLucid.Persistence.ArtifactBundles;
-using ArchLucid.Persistence.BlobStore;
-
-using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.BlobStore;
 

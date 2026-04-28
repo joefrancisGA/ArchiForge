@@ -3,8 +3,6 @@ using System.Text.Json;
 using ArchLucid.Core.Billing.AzureMarketplace;
 using ArchLucid.Core.Tenancy;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Billing;
 
 [Trait("Category", "Unit")]

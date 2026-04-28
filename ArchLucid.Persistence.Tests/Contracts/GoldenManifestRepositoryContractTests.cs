@@ -3,8 +3,6 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

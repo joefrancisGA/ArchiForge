@@ -1,8 +1,6 @@
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Tenancy;
 
 [Trait("Category", "Unit")]

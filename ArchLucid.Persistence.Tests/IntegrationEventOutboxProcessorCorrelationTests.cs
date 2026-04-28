@@ -3,8 +3,6 @@ using System.Diagnostics;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;

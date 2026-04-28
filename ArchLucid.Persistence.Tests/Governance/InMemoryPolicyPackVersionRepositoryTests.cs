@@ -1,8 +1,6 @@
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Governance;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Governance;
 
 public sealed class InMemoryPolicyPackVersionRepositoryTests

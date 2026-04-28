@@ -2,8 +2,6 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.ContextSnapshots;
 using ArchLucid.Persistence.Serialization;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.ContextSnapshots;
 
 public sealed class ContextSnapshotLegacyJsonReaderTests

@@ -2,8 +2,6 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Persistence.Notifications.Email;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Options;
 
 using Moq;

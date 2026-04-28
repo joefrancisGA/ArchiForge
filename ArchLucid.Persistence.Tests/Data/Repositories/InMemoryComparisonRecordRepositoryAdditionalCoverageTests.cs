@@ -1,8 +1,6 @@
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Data.Repositories;
 
 public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests

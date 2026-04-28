@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Data.Infrastructure;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
 [Trait("Category", "Unit")]

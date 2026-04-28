@@ -1,8 +1,6 @@
 using ArchLucid.Persistence.Connections;
 using ArchLucid.TestSupport;
 
-using FluentAssertions;
-
 using Polly;
 using Polly.Simmy;
 using Polly.Simmy.Fault;

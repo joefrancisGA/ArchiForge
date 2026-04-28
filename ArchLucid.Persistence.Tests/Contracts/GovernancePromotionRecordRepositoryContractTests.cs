@@ -1,8 +1,6 @@
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

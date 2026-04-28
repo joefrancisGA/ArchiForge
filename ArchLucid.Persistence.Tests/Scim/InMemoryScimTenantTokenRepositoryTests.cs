@@ -1,8 +1,6 @@
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Persistence.Scim;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Scim;
 
 public sealed class InMemoryScimTenantTokenRepositoryTests

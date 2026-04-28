@@ -1,8 +1,6 @@
 using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

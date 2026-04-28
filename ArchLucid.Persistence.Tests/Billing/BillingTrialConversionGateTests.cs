@@ -2,8 +2,6 @@ using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Options;
 
 using Moq;

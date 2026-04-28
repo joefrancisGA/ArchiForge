@@ -1,7 +1,5 @@
 using ArchLucid.Contracts.ProductLearning;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
 [Trait("Category", "Unit")]

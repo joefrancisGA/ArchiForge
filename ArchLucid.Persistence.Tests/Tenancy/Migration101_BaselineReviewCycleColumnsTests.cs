@@ -2,8 +2,6 @@ using System.Reflection;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Tenancy;
 
 [Trait("Category", "Unit")]

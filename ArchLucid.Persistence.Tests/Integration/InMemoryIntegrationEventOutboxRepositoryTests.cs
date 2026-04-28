@@ -1,7 +1,5 @@
 using System.Data;
 
-using FluentAssertions;
-
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Integration;

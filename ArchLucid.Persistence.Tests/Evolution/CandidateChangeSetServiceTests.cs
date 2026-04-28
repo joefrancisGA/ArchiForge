@@ -1,8 +1,6 @@
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Evolution;
 
 [Trait("Category", "Unit")]

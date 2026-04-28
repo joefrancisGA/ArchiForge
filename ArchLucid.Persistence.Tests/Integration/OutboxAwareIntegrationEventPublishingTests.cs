@@ -2,8 +2,6 @@ using System.Data;
 
 using ArchLucid.Core.Integration;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 

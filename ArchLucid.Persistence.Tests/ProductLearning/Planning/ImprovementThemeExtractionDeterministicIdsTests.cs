@@ -1,7 +1,5 @@
 using ArchLucid.Contracts.ProductLearning;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
 [Trait("ChangeSet", "59R")]

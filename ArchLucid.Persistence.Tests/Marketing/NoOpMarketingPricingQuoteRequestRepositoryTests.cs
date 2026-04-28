@@ -1,8 +1,6 @@
 using ArchLucid.Contracts.Marketing;
 using ArchLucid.Persistence.Marketing;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Marketing;
 
 [Trait("Suite", "Core")]

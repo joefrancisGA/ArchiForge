@@ -10,8 +10,6 @@ using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests;

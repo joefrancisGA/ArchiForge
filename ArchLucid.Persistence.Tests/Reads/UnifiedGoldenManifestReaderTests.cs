@@ -6,8 +6,6 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Reads;
 
-using FluentAssertions;
-
 using Moq;
 
 using Cm = ArchLucid.Contracts.Manifest;

@@ -1,12 +1,9 @@
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
-using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
 using Dapper;
-
-using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging.Abstractions;

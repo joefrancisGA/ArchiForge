@@ -1,5 +1,3 @@
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Value;
 
 /// <summary>

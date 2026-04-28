@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Repositories;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Repositories;
 
 public sealed class RunConcurrencyConflictExceptionTests

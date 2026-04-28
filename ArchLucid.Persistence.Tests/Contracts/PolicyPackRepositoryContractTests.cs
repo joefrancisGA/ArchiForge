@@ -1,7 +1,5 @@
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

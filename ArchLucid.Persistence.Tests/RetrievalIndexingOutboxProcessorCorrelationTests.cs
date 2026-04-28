@@ -5,8 +5,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 

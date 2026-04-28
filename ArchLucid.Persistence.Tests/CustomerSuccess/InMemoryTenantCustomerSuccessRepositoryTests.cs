@@ -1,8 +1,6 @@
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Persistence.CustomerSuccess;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.CustomerSuccess;
 
 [Trait("Suite", "Core")]

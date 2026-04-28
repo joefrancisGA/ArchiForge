@@ -1,8 +1,6 @@
 using ArchLucid.Core.Notifications;
 using ArchLucid.Persistence.Notifications;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Notifications;
 
 public sealed class InMemorySentEmailLedgerTests

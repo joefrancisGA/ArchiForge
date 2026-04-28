@@ -2,8 +2,6 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Persistence.Governance;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>

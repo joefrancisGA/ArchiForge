@@ -18,8 +18,6 @@ using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 

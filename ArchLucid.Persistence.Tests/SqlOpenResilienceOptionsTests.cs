@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Connections;
 
-using FluentAssertions;
-
 using Polly;
 
 namespace ArchLucid.Persistence.Tests;

@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Connections;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests;
 
 [Trait("Category", "Unit")]

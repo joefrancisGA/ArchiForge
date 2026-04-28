@@ -1,7 +1,5 @@
 using ArchLucid.Core.Scoping;
 
-using FluentAssertions;
-
 using Moq;
 
 namespace ArchLucid.Persistence.Tests;

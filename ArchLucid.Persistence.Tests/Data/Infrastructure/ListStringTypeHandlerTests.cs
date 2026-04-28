@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Data.Infrastructure;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;

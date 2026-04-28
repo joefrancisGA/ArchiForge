@@ -8,8 +8,6 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
-using FluentAssertions;
-
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Queries;

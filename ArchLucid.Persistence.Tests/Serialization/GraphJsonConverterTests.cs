@@ -3,8 +3,6 @@ using System.Text.Json;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Serialization;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Serialization;
 
 public sealed class GraphJsonConverterTests

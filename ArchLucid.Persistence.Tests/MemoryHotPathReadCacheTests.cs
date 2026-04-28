@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Options;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 

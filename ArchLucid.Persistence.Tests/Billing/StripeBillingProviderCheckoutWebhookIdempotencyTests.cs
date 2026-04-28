@@ -9,8 +9,6 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Billing.Stripe;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Options;
 
 using Moq;

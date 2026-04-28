@@ -3,8 +3,6 @@ using System.Security.Claims;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Tests.Billing;

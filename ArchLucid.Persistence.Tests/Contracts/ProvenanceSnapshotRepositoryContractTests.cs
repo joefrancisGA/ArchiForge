@@ -2,8 +2,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Provenance;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

@@ -1,4 +1,3 @@
-using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 

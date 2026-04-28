@@ -1,7 +1,5 @@
 using ArchLucid.Decisioning.Alerts.Composite;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Alerts;
 
 [Trait("Category", "Unit")]

@@ -5,8 +5,6 @@ using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Persistence.Tests;

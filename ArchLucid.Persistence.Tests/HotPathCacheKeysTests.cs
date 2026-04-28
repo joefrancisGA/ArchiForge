@@ -1,7 +1,4 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Caching;
-
-using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests;
 

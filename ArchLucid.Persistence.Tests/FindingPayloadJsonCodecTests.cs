@@ -4,8 +4,6 @@ using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Findings;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>

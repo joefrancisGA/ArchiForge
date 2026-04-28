@@ -2,8 +2,6 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Serialization;
 
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Findings;
 
 public sealed class FindingsSnapshotLegacyJsonReaderTests

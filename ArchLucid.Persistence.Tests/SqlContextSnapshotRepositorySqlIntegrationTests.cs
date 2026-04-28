@@ -6,8 +6,6 @@ using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
-using FluentAssertions;
-
 using Microsoft.Data.SqlClient;
 
 using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
