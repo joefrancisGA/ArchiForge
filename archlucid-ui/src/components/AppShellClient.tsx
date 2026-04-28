@@ -16,6 +16,7 @@ import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import { SidebarNav } from "@/components/SidebarNav";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";
 import { TrialBanner } from "@/components/TrialBanner";
@@ -115,6 +116,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
         <AppToaster />
         <RouteAnnouncer />
         <HelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
+        <OnboardingTour />
       </TooltipProvider>
     </OperatorNavAuthorityProvider>
   );

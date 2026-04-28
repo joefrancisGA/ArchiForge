@@ -21,6 +21,7 @@ import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHin
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { countLinksHiddenByProgressiveDisclosure, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
@@ -210,6 +211,7 @@ export function SidebarNav() {
                       <Link
                         key={`pinned-${link.href}`}
                         href={link.href}
+                        data-onboarding={onboardingTourAnchorForHref(link.href)}
                         className={cn(
                           "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                           active
@@ -244,6 +246,7 @@ export function SidebarNav() {
                     <Link
                       key={link.href}
                       href={link.href}
+                      data-onboarding={onboardingTourAnchorForHref(link.href)}
                       className={cn(
                         "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
                         active
@@ -294,6 +297,7 @@ export function SidebarNav() {
           variant="ghost"
           size="sm"
           className="w-full justify-start gap-2 text-xs text-neutral-600 dark:text-neutral-400"
+          data-onboarding="tour-nav-settings"
           onClick={() => {
             setSettingsOpen(true);
           }}

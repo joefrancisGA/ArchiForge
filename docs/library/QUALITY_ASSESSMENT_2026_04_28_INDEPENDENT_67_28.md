@@ -383,7 +383,7 @@ Items explicitly deferred to V1.1 or V2 are **not penalized** in scoring below.
 
 2. **Trial funnel is not live.** The Stripe TEST mode and unpublished Marketplace listing mean no self-serve revenue path exists. Every sale requires manual intervention. This caps revenue velocity at the founder's sales bandwidth.
 
-3. **No measured ROI data to support pricing.** The pricing tiers claim $199–$899/workspace/month, but the ROI model showing $294K annual savings is theoretical. A buyer asking "what results did your other customers see?" gets no answer. This directly undermines price anchoring.
+3. **No measured ROI data to support pricing.** The pricing tiers describe per-workspace platform fees ([PRICING_PHILOSOPHY.md §5](../go-to-market/PRICING_PHILOSOPHY.md#5-locked-list-prices-2026)), but the ROI model showing $294K annual savings is theoretical. A buyer asking "what results did your other customers see?" gets no answer. This directly undermines price anchoring.
 
 4. **No public demo that prospects can explore independently.** The `/demo/preview` and `/showcase` routes exist but require a pre-existing run. No always-available, no-login public preview of the product's output exists. Prospects must either request a demo or set up the product themselves.
 
