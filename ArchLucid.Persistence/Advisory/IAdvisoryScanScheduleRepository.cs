@@ -6,8 +6,9 @@ namespace ArchLucid.Persistence;
 /// Persistence for <see cref="AdvisoryScanSchedule"/> rows (CRUD subset used by API and the advisory scan runner).
 /// </summary>
 /// <remarks>
-/// SQL: <see cref="DapperAdvisoryScanScheduleRepository"/>; in-memory: <see cref="InMemoryAdvisoryScanScheduleRepository"/>.
-/// Primary callers: <c>ArchLucid.Api.Controllers.AdvisorySchedulingController</c>, <c>ArchLucid.Api.Hosted.AdvisoryScanHostedService</c>, <c>ArchLucid.Persistence.Advisory.AdvisoryScanRunner</c>.
+/// SQL: <c>DapperAdvisoryScanScheduleRepository</c>; in-memory: <c>InMemoryAdvisoryScanScheduleRepository</c>.
+/// Primary callers: <c>ArchLucid.Api.Controllers.AdvisorySchedulingController</c>, <c>ArchLucid.Api.Hosted.AdvisoryScanHostedService</c>,
+/// <c>ArchLucid.Application.Advisory.AdvisoryScanRunner</c>.
 /// </remarks>
 public interface IAdvisoryScanScheduleRepository
 {

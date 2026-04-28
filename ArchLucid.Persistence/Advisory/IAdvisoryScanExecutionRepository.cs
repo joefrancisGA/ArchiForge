@@ -6,8 +6,9 @@ namespace ArchLucid.Persistence;
 /// Persistence for <see cref="AdvisoryScanExecution"/> audit/history rows created by <see cref="IAdvisoryScanRunner"/>.
 /// </summary>
 /// <remarks>
-/// SQL: <see cref="DapperAdvisoryScanExecutionRepository"/>; in-memory: <see cref="InMemoryAdvisoryScanExecutionRepository"/>.
-/// Primary callers: <c>ArchLucid.Persistence.Advisory.AdvisoryScanRunner</c>, <c>ArchLucid.Api.Controllers.AdvisorySchedulingController</c> (list by schedule).
+/// SQL: <c>DapperAdvisoryScanExecutionRepository</c>; in-memory: <c>InMemoryAdvisoryScanExecutionRepository</c>.
+/// Primary callers: <c>ArchLucid.Application.Advisory.AdvisoryScanRunner</c>,
+/// <c>ArchLucid.Api.Controllers.AdvisorySchedulingController</c> (list by schedule).
 /// </remarks>
 public interface IAdvisoryScanExecutionRepository
 {

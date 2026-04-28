@@ -8,9 +8,10 @@ namespace ArchLucid.Persistence.Tenancy;
 
 /// <summary>
 ///     After a successful golden manifest commit: pins <see cref="TenantRecord.TrialFirstManifestCommittedUtc" /> for
-///     every tenant via <see cref="ITenantRepository.TryMarkFirstManifestCommittedAsync" />, then records trial-funnel
-///     latency, usage ratio metrics, and <see cref="AuditEventTypes.TrialFirstRunCompleted" /> only when
-///     <see cref="TenantRecord.TrialExpiresUtc" /> is set.
+///     every tenant via <see cref="ITenantRepository.TryMarkFirstManifestCommittedAsync" />, records
+///     <see cref="ArchLucidInstrumentation.RecordTenantTimeToFirstCommitSeconds" /> for any tenant on the one-shot pin,
+///     then records trial-funnel-only latency, usage ratio metrics, and
+///     <see cref="AuditEventTypes.TrialFirstRunCompleted" /> when <see cref="TenantRecord.TrialExpiresUtc" /> is set.
 /// </summary>
 public sealed class SqlTrialFunnelCommitHook(ITenantRepository tenantRepository, IAuditService auditService)
     : ITrialFunnelCommitHook
@@ -39,8 +40,12 @@ public sealed class SqlTrialFunnelCommitHook(ITenantRepository tenantRepository,
         if (tenant is null)
             return;
 
-        // Trial funnel durable audit + histograms only for self-service trials — paid tenants still get the column pin
-        // via TryMarkFirstManifestCommittedAsync above.
+        string tenantKind = tenant.TrialExpiresUtc is null ? "non_trial" : "trial";
+
+        ArchLucidInstrumentation.RecordTenantTimeToFirstCommitSeconds(outcome.SignupToCommitSeconds, tenantKind);
+
+        // Trial funnel durable audit + trial-only histograms only for self-service trials — paid tenants still get the
+        // column pin via TryMarkFirstManifestCommittedAsync above.
         if (tenant.TrialExpiresUtc is null)
             return;
 

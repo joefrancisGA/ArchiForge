@@ -1,5 +1,5 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Diagnostics;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -12,12 +12,14 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
-namespace ArchLucid.Host.Core.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+namespace ArchLucid.Application;
 
 /// <summary>
 /// API-facing orchestration service that coordinates run retrieval, agent result submission,

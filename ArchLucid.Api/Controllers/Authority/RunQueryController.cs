@@ -1,8 +1,9 @@
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application;
+
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Agents;
@@ -34,6 +35,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class RunQueryController(
     IRunDetailQueryService runDetailQueryService,
+    IRunRoiEstimator runRoiEstimator,
     IArchitectureRunProvenanceService architectureRunProvenanceService,
     IRunRepository authorityRunRepository,
     IDecisionNodeRepository decisionNodeRepository,
@@ -73,6 +75,25 @@ public sealed class RunQueryController(
             detail.DecisionTraces);
 
         return Ok(response);
+    }
+
+    /// <summary>Directional analyst-hour estimate for packaging work implied by this run (configured multipliers).</summary>
+    [HttpGet("run/{runId}/roi")]
+    [ProducesResponseType(typeof(RunRoiScorecardDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunRoiEstimate(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+
+        RunRoiScorecardDto estimate = runRoiEstimator.Estimate(detail);
+
+        return Ok(estimate);
     }
 
     /// <summary>

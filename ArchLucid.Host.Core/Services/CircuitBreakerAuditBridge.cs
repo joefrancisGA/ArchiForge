@@ -36,6 +36,16 @@ public sealed class CircuitBreakerAuditBridge(
         {
             try
             {
+                if (_logger.IsEnabled(LogLevel.Information))
+
+                    _logger.LogInformation(
+                        "Circuit breaker audit: transitionType={TransitionType} gate={GateName} fromState={FromState} toState={ToState} probeOutcome={ProbeOutcome}",
+                        entry.TransitionType,
+                        LogSanitizer.Sanitize(entry.GateName),
+                        entry.FromState,
+                        entry.ToState,
+                        entry.ProbeOutcome);
+
                 ScopeContext scope = _scopeProvider.GetCurrentScope();
                 string? correlationCapture = Activity.Current?.Id;
 

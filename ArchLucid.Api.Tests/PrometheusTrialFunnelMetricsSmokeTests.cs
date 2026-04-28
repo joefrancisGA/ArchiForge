@@ -27,6 +27,7 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
         ArchLucidInstrumentation.RecordTrialSignupFailure("smoke", "unit");
         ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
         ArchLucidInstrumentation.RecordTrialFirstRunLatencySeconds(12);
+        ArchLucidInstrumentation.RecordTenantTimeToFirstCommitSeconds(42, "trial");
         ArchLucidInstrumentation.RecordTrialRunsUsedRatio(0.25);
         ArchLucidInstrumentation.RecordTrialConversion("Active", "Standard");
         ArchLucidInstrumentation.RecordTrialExpiration("Active->Expired");
@@ -46,6 +47,7 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
             "archlucid_trial_signup_failures_total",
             "archlucid_trial_signup_baseline_skipped_total",
             "archlucid_trial_first_run_seconds",
+            "archlucid_tenant_time_to_first_commit_seconds",
             "archlucid_trial_runs_used_ratio",
             "archlucid_trial_conversion_total",
             "archlucid_trial_expirations_total",

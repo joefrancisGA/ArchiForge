@@ -201,6 +201,24 @@ public sealed class AuthSafetyGuardTests
     }
 
     [Fact]
+    public void GuardAllDevelopmentBypasses_staging_host_and_development_bypass_all_true_throws()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "JwtBearer",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true"
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Staging);
+
+        Action act = () => AuthSafetyGuard.GuardAllDevelopmentBypasses(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Authentication:ApiKey:DevelopmentBypassAll*");
+    }
+
+    [Fact]
     public void GuardAllDevelopmentBypasses_development_environment_and_development_bypass_all_true_does_not_throw()
     {
         IConfiguration configuration = new ConfigurationBuilder()

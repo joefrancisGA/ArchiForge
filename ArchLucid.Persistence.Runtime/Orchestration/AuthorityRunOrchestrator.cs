@@ -5,6 +5,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
@@ -40,6 +41,7 @@ public sealed class AuthorityRunOrchestrator(
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
+    IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     /// <inheritdoc />
@@ -352,6 +354,8 @@ public sealed class AuthorityRunOrchestrator(
 
 
         string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
+        string publicBaseUrl = NormalizePublicSiteBaseUrl(publicSiteOptions.CurrentValue.BaseUrl);
+        object[] findingLinks = BuildAuthorityRunCompletedFindingLinks(run.RunId, findingsSnapshot.Findings, publicBaseUrl);
         object integrationPayload = new
         {
             schemaVersion = 1,
@@ -359,7 +363,8 @@ public sealed class AuthorityRunOrchestrator(
             manifestId = manifest.ManifestId,
             tenantId = scope.TenantId,
             workspaceId = scope.WorkspaceId,
-            projectId = scope.ProjectId
+            projectId = scope.ProjectId,
+            findings = findingLinks
         };
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
@@ -411,6 +416,42 @@ public sealed class AuthorityRunOrchestrator(
     private static string BuildAuthorityRunCompletedMessageId(Guid runId)
     {
         return $"{runId:D}:{IntegrationEventTypes.AuthorityRunCompletedV1}";
+    }
+
+    private static string NormalizePublicSiteBaseUrl(string? raw)
+    {
+        const string fallback = "https://archlucid.net";
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return fallback;
+
+        string trimmed = raw.Trim().TrimEnd('/');
+
+        return trimmed.Length == 0 ? fallback : trimmed;
+    }
+
+    /// <summary>Per-finding deep links for integration consumers (webhooks, SIEM enrichment).</summary>
+    private static object[] BuildAuthorityRunCompletedFindingLinks(Guid runId, List<Finding> findings, string publicBaseUrl)
+    {
+        if (findings.Count == 0)
+            return [];
+
+        List<object> rows = [];
+
+        foreach (Finding f in findings)
+        {
+            if (f is null)
+                continue;
+
+            if (string.IsNullOrWhiteSpace(f.FindingId))
+                continue;
+
+            string id = f.FindingId.Trim();
+            string deepLink = $"{publicBaseUrl}/runs/{runId:D}/findings/{Uri.EscapeDataString(id)}";
+            rows.Add(new { findingId = id, deepLinkUrl = deepLink });
+        }
+
+        return [.. rows];
     }
 
     private async Task SaveRunAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)

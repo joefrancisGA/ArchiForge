@@ -13,8 +13,8 @@ public static class AuthSafetyGuard
         "DevelopmentBypass auth mode is not allowed outside Development environments. "
         + "Set ArchLucidAuth:Mode to ApiKey or JwtBearer.";
 
-    private const string DevelopmentBypassAllNotAllowedMessage =
-        "Authentication:ApiKey:DevelopmentBypassAll is not permitted in Production environments. "
+    private const string DevelopmentBypassAllNotAllowedOutsideDevelopmentMessage =
+        "Authentication:ApiKey:DevelopmentBypassAll is not permitted outside Development environments. "
         + "Set Authentication:ApiKey:DevelopmentBypassAll to false.";
 
     /// <summary>
@@ -34,8 +34,9 @@ public static class AuthSafetyGuard
     ///         (include <c>ArchLucidAuth:DevUserId</c>); pass <see langword="null" /> in unit tests if not needed.
     ///     </para>
     ///     <para>
-    ///         <c>Authentication:ApiKey:DevelopmentBypassAll=true</c> remains blocked only in production-like
-    ///         environments (same heuristic as before). Call before registering authentication services.
+        ///         <c>Authentication:ApiKey:DevelopmentBypassAll=true</c> remains blocked in any
+        ///         environment where <see cref="IHostEnvironment.IsDevelopment()" /> is <see langword="false" />
+        ///         (Staging, Production, Test, and production-like names). Call before registering authentication services.
     ///     </para>
     /// </remarks>
     public static void GuardAllDevelopmentBypasses(
@@ -64,12 +65,8 @@ public static class AuthSafetyGuard
         }
 
 
-        if (!IsProductionEnvironment(hostEnvironment, configuration))
-            return;
-
-
-        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
-            throw new InvalidOperationException(DevelopmentBypassAllNotAllowedMessage);
+        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false) && !hostEnvironment.IsDevelopment())
+            throw new InvalidOperationException(DevelopmentBypassAllNotAllowedOutsideDevelopmentMessage);
     }
 
     /// <summary>

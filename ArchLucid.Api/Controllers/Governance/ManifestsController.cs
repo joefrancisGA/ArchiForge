@@ -1,6 +1,7 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Exports;
@@ -10,7 +11,6 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;

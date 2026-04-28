@@ -5,7 +5,7 @@ using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 
-namespace ArchLucid.Host.Core.Diagnostics;
+namespace ArchLucid.Application.Diagnostics;
 
 
 /* This gives you a deterministic way to generate:

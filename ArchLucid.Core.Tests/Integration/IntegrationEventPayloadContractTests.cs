@@ -17,14 +17,25 @@ public sealed class IntegrationEventPayloadContractTests
     [Fact]
     public void AuthorityRunCompleted_payload_has_expected_contract()
     {
+        Guid runId = Guid.NewGuid();
+
         object payload = new
         {
             schemaVersion = 1,
-            runId = Guid.NewGuid(),
+            runId,
             manifestId = Guid.NewGuid(),
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
-            projectId = Guid.NewGuid()
+            projectId = Guid.NewGuid(),
+            findings = new[]
+            {
+                new
+                {
+                    findingId = "finding-primary",
+                    deepLinkUrl = new Uri($"https://archlucid.net/runs/{runId:D}/findings/finding-primary")
+                        .ToString()
+                }
+            }
         };
 
         AssertPayloadMatchesCommittedSchema("authority-run-completed.v1.schema.json", payload);

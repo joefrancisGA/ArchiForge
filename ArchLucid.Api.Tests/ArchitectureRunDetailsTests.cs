@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 
@@ -44,5 +45,12 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
         payload.Manifest.Should().NotBeNull();
         payload.Manifest!.SystemName.Should().Be("EnterpriseRag");
         payload.DecisionTraces.Should().NotBeEmpty();
+
+        HttpResponseMessage roiResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/roi");
+        roiResponse.EnsureSuccessStatusCode();
+        using JsonDocument doc = JsonDocument.Parse(await roiResponse.Content.ReadAsStringAsync());
+
+        doc.RootElement.GetProperty("runId").GetString().Should().Be(runId);
+        doc.RootElement.GetProperty("estimatedManualHoursSaved").GetDouble().Should().BeGreaterThan(0);
     }
 }

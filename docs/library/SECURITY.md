@@ -36,14 +36,13 @@ Merge-blocking **Schemathesis light** runs on every PR after full .NET regressio
 
 ## DevelopmentBypass production guard
 
-`ArchLucidAuth:Mode=DevelopmentBypass` and **`Authentication:ApiKey:DevelopmentBypassAll=true`** are for **local and non-production** integration only. The API calls **`AuthSafetyGuard.GuardAllDevelopmentBypasses`** during startup **before** authentication services are registered. It throws **`InvalidOperationException`** when the host is treated as **production-like** — **`IHostEnvironment.IsProduction()`**, or **`ASPNETCORE_ENVIRONMENT`** / **`ARCHLUCID_ENVIRONMENT`** values whose trimmed name **contains `prod`** (case-insensitive), **except** names containing **`non-production`** or **`nonproduction`** (so stacks like “non-production” stay non-prod). This catches misnamed hosts such as **`PreProduction`**, **`production`** (lowercase), or **`staging-prod`**. When that production-like bar is met, the guard throws if **any** of the following is true:
+`ArchLucidAuth:Mode=DevelopmentBypass` is allowed only when **`IHostEnvironment.IsDevelopment()`** is **true** (see **`AuthSafetyGuard`**). **`Authentication:ApiKey:DevelopmentBypassAll=true`** is permitted only in that same **Development** host — it throws **`InvalidOperationException`** in **Staging**, **Production**, **Test**, and other non-Development environment names, even when **`ArchLucidAuth:Mode`** is **`JwtBearer`** or **`ApiKey`**.
 
-- The effective auth mode is **DevelopmentBypass**, or
-- **`Authentication:ApiKey:DevelopmentBypassAll`** is **true** (open API-key access; must stay off in production even when using **JwtBearer** or **ApiKey** mode).
+For **DevelopmentBypass** specifically, misnamed hosts are still blocked when **`ASPNETCORE_ENVIRONMENT`** / **`ARCHLUCID_ENVIRONMENT`** imply production-like deployments (**contains `prod`**, excluding **`non-production`**).
 
-**`AuthSafetyGuard.GuardDevelopmentBypassInProduction`** is a documented alias that delegates to **`GuardAllDevelopmentBypasses`** (same checks).
+This section summarizes **`GuardAllDevelopmentBypasses`**. **`AuthSafetyGuard.GuardDevelopmentBypassInProduction`** remains an alias with the same checks.
 
-This is in addition to **`ArchLucidConfigurationRules.CollectErrors`**, which still surfaces the same misconfiguration in logs when validation runs after the host is built. Use **`JwtBearer`** or **`ApiKey`** in real production environments, with **`DevelopmentBypassAll=false`**.
+This is in addition to **`ArchLucidConfigurationRules.CollectErrors`**, which still surfaces the same misconfiguration in logs when validation runs after the host is built. Use **`JwtBearer`** or **`ApiKey`** in real hosted environments, with **`DevelopmentBypassAll=false`**.
 
 ## Role-based access control (RBAC)
 

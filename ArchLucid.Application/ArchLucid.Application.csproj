@@ -66,7 +66,6 @@
     <ProjectReference Include="..\ArchLucid.Contracts.Abstractions\ArchLucid.Contracts.Abstractions.csproj" />
     <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
-    <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Runtime\ArchLucid.Persistence.Runtime.csproj" />
     <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />

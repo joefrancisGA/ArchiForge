@@ -15,7 +15,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;
 

@@ -5,6 +5,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -160,6 +161,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationOutbox.Object,
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
+            CreatePublicSiteOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -360,6 +362,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationOutbox.Object,
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
+            CreatePublicSiteOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -473,6 +476,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationOutbox.Object,
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
+            CreatePublicSiteOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -658,6 +662,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationOutbox.Object,
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
+            CreatePublicSiteOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -761,6 +766,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationOutbox.Object,
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
+            CreatePublicSiteOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -869,6 +875,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationOutbox.Object,
             integrationEventOpts.Object,
             pipelineOpts.Object,
+            CreatePublicSiteOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -883,6 +890,14 @@ public sealed class AuthorityRunOrchestratorTests
 
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static Mock<IOptionsMonitor<PublicSiteOptions>> CreatePublicSiteOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<PublicSiteOptions>> mock = new();
+        mock.Setup(m => m.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://archlucid.net" });
+
+        return mock;
     }
 
     private static Mock<IOptionsMonitor<IntegrationEventsOptions>> CreateIntegrationEventsOptionsMonitor(

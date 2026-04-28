@@ -18,7 +18,20 @@
     "manifestId": { "type": "string", "format": "uuid" },
     "tenantId": { "type": "string", "format": "uuid" },
     "workspaceId": { "type": "string", "format": "uuid" },
-    "projectId": { "type": "string", "format": "uuid" }
+    "projectId": { "type": "string", "format": "uuid" },
+    "findings": {
+      "type": "array",
+      "description": "Optional per-finding deep links for operators and webhook consumers (additive; absent when no findings).",
+      "items": {
+        "type": "object",
+        "required": ["findingId", "deepLinkUrl"],
+        "properties": {
+          "findingId": { "type": "string" },
+          "deepLinkUrl": { "type": "string", "format": "uri" }
+        },
+        "additionalProperties": false
+      }
+    }
   },
   "additionalProperties": true
 }

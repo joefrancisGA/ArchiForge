@@ -6,8 +6,9 @@ namespace ArchLucid.Persistence;
 /// Persistence for <see cref="ArchitectureDigest"/> rows (<c>dbo.ArchitectureDigests</c> on SQL Server).
 /// </summary>
 /// <remarks>
-/// Implementations: <see cref="DapperArchitectureDigestRepository"/>, <see cref="InMemoryArchitectureDigestRepository"/>.
-/// Writers: <c>AdvisoryScanRunner</c> after digest build. Readers: <c>AdvisorySchedulingController</c> (list/get digests), <c>DigestSubscriptionsController</c> (delivery by digest id).
+/// Implementations: <c>DapperArchitectureDigestRepository</c>, <c>InMemoryArchitectureDigestRepository</c>.
+/// Writers: <c>ArchLucid.Application.Advisory.AdvisoryScanRunner</c> after digest build. Readers:
+/// <c>ArchLucid.Api.Controllers.AdvisorySchedulingController</c> (list/get digests), <c>DigestSubscriptionsController</c> (delivery by digest id).
 /// </remarks>
 public interface IArchitectureDigestRepository
 {

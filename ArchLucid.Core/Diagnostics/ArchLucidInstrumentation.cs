@@ -315,12 +315,29 @@ public static class ArchLucidInstrumentation
             "archlucid_baseline_manual_prep_captured_total",
             description: "Tenant manual baseline fields saved (PUT /v1/tenant/baseline).");
 
-    /// <summary>Seconds from trial anchor to first golden manifest commit (self-service trials).</summary>
+    /// <summary>Seconds from trial anchor (<c>TrialStartUtc</c> when set, otherwise <c>CreatedUtc</c>) to first committed manifest.</summary>
     public static readonly Histogram<double> TrialFirstRunSeconds =
         AppMeter.CreateHistogram(
             "archlucid_trial_first_run_seconds",
             "s",
             "Seconds from tenant trial anchor (TrialStartUtc or CreatedUtc) to first committed manifest.",
+            advice: new InstrumentAdvice<double>
+            {
+                HistogramBucketBoundaries =
+                [
+                    5, 15, 30, 60, 120, 300, 600, 1200, 3600, 7200, 86400
+                ]
+            });
+
+    /// <summary>
+    ///     Seconds from tenant anchor to first golden manifest commit for any tenant (labels: <c>tenant_kind</c>
+    ///     = <c>trial</c> | <c>non_trial</c>).
+    /// </summary>
+    public static readonly Histogram<double> TenantTimeToFirstCommitSeconds =
+        AppMeter.CreateHistogram(
+            "archlucid_tenant_time_to_first_commit_seconds",
+            "s",
+            "Seconds from tenant anchor (TrialStartUtc or CreatedUtc) to first committed manifest (all tenants).",
             advice: new InstrumentAdvice<double>
             {
                 HistogramBucketBoundaries =
@@ -808,6 +825,23 @@ public static class ArchLucidInstrumentation
 
 
         TrialFirstRunSeconds.Record(seconds);
+    }
+
+    /// <summary>
+    ///     Records <see cref="TenantTimeToFirstCommitSeconds" /> for the first successful manifest pin (any tenant).
+    /// </summary>
+    public static void RecordTenantTimeToFirstCommitSeconds(double seconds, string tenantKind)
+    {
+        if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
+            return;
+
+
+        string k = string.IsNullOrWhiteSpace(tenantKind) ? "unknown" : tenantKind.Trim();
+
+        if (k is not ("trial" or "non_trial"))
+            k = "unknown";
+
+        TenantTimeToFirstCommitSeconds.Record(seconds, new TagList { { "tenant_kind", k } });
     }
 
     /// <summary>Records <see cref="TrialRunsUsedRatio" /> clamped to non-negative values.</summary>

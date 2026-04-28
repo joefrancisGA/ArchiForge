@@ -16,6 +16,7 @@ import {
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_MANIFEST_ID,
   FIXTURE_RUN_ID,
+  SHOWCASE_DEMO_RUN_ID,
   fixtureArtifactDescriptorsNonEmpty,
   fixtureManifestSummary,
   fixtureManifestSummaryEmptyArtifacts,
@@ -307,6 +308,16 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      /** Fire-and-forget client telemetry; real API accepts POST — avoid 405 noise in screenshot / mock E2E. */
+      if (
+        req.method === "POST" &&
+        (pathname === "/v1/diagnostics/client-error" || pathname === "/v1/diagnostics/first-tenant-funnel")
+      ) {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
       if (req.method !== "GET") {
         res.writeHead(405);
         res.end();
@@ -334,10 +345,13 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
       if (explainAggregateMatch) {
         const runId = explainAggregateMatch[1];
+        /** `getScreenshotMockFallbackGetJson` measured-roi uses `demoRunId: "demo"` — keep in sync. */
+        const aggregateFixtureRunIds = new Set<string>([FIXTURE_RUN_ID, "demo", SHOWCASE_DEMO_RUN_ID]);
 
-        if (runId === FIXTURE_RUN_ID) {
+        if (aggregateFixtureRunIds.has(runId)) {
           sendJson(res, 200, fixtureRunExplanationSummary());
-        } else {
+        }
+        else {
           sendJson(res, 404, { detail: "Aggregate explanation not found." });
         }
 

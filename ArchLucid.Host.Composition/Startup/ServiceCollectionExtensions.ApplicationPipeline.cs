@@ -1,7 +1,7 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Analysis;
-using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
@@ -133,6 +133,8 @@ public static partial class ServiceCollectionExtensions
         // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.Configure<RunRoiEstimatorOptions>(configuration.GetSection(RunRoiEstimatorOptions.SectionPath));
+        services.AddScoped<IRunRoiEstimator, RunRoiEstimator>();
         services.AddScoped<ITraceabilityBundleBuilder, TraceabilityBundleBuilder>();
         services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();
         services.AddScoped<IFindingLlmAuditService, FindingLlmAuditService>();

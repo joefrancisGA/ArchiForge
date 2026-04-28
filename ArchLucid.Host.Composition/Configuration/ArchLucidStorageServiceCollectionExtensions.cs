@@ -77,6 +77,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
         ArchLucidOptions archLucidOptions)
     {
         services.Configure<EmailNotificationOptions>(configuration.GetSection(EmailNotificationOptions.SectionName));
+        services.Configure<PublicSiteOptions>(configuration.GetSection(PublicSiteOptions.SectionPath));
 
         if (ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
         {
