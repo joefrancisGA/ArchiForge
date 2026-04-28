@@ -1,0 +1,44 @@
+{
+  "requestId": "REQ-TPL-SAAS-001",
+  "systemName": "NorthWind Operations Cloud",
+  "description": "Greenfield architecture for a multi-tenant B2B SaaS operations platform on Azure. Strong tenant isolation via row-level constructs in shared SQL schema plus optional dedicated pools for enterprise tiers; SESSION_CONTEXT-compatible patterns for application-enforced partition keys. Microsoft Entra External ID (or B2B) for customer org onboarding with SCIM provisioning hooks into the product directory. Billing integration with Stripe for subscription lifecycle and usage meters for overage-aligned SKUs exported to finance. CI/CD on GitHub Actions with environment-gated deployments to staging and production AKS or Container Apps, signed containers, SBOM generation, and policy-as-code in Azure Policy. Comprehensive monitoring: Azure Monitor, structured logging, OpenTelemetry exporters, uptime synthetic probes, golden signals dashboards, incident paging via Logic Apps or PagerDuty webhooks tied to SLA tiers.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Tenant data isolation enforced at persistence and API layers with audited cross-tenant guardrails denied by default",
+    "Production changes through approved pipelines — no drift from IaC-approved state without exception record",
+    "SOC 2 preparedness for security and availability narratives even before formal audit",
+    "Cost visibility per tenant and per feature flag for gross margin forecasting",
+    "GDPR-aligned export and deletion paths for subscriber organizations"
+  ],
+  "requiredCapabilities": [
+    "Azure SQL or PostgreSQL-compatible PaaS with tenant partitioning strategy validated",
+    "Container Apps or AKS cluster with ingress TLS, workload identity to Azure RBAC-backed services",
+    "Stripe webhook integration behind verified signatures and replay protection",
+    "Entra-backed authentication with tenant-bound issuer validation and JWKS caching",
+    "Multi-stage GitHub Actions workflows with manual approvals and environment secrets in Key Vault",
+    "Application Insights with custom metrics for signups, active tenants, and job queue depth"
+  ],
+  "assumptions": [
+    "Initial tenants are mid-market with shared infrastructure until scale triggers silo offering",
+    "Background jobs use Azure Service Bus or queue storage with dead-letter triage",
+    "Feature flags control risky modules without redeploying core platform"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Per-tenant backup and restore RPO/RTO published in customer-facing trust documentation",
+    "Rate limits and abuse detection on signup and API authentication endpoints",
+    "Disaster recovery runbook for regional Azure outage with customer communication template"
+  ],
+  "topologyHints": [
+    "Hub-and-spoke network with shared services in hub and tenant-specific secrets in dedicated Key Vaults or namespaces",
+    "Separate runtime cluster or revision for internal admin plane versus tenant-serving data plane",
+    "Outbox pattern for integration events to avoid dual-write anomalies between billing and product state"
+  ],
+  "securityBaselineHints": [
+    "OWASP ASVS-oriented review for public API surface with automated contract tests in CI",
+    "Dependency scanning and base image refresh SLAs for container supply chain",
+    "Penetration test scope includes tenant isolation and authZ bypass attempts"
+  ],
+  "policyReferences": ["Multi-tenant SaaS reference architecture — internal", "NW-SOC2-READINESS-CHECKLIST"]
+}

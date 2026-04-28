@@ -1,0 +1,43 @@
+{
+  "requestId": "REQ-TPL-MICRO-001",
+  "systemName": "Contoso Commerce Mesh",
+  "description": "Review and harden a proposed event-driven microservices decomposition for Contoso's commerce platform on Azure. Five bounded contexts: catalog, cart, checkout, fulfillment notifications, and loyalty points accrual. Inter-service communication prefers asynchronous messaging via Azure Service Bus topics and subscriptions with idempotent handlers; Cosmos DB serves cart and loyalty write models with tunable consistency; Azure API Management fronts external mobile and partner B2B APIs with JWT validation, quotas, and revision-managed OpenAPI specs. Goal: clarify service boundaries, data ownership per aggregate, transactional outbox versus saga patterns for checkout, observability baseline (correlation IDs, metrics, alerting), poison-message handling, and graceful degradation paths when Cosmos or Service Bus throttle.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "At-least-once delivery on Service Bus with idempotent consumers and DLQ playbook",
+    "Cosmos partitioning strategy must avoid hot partitions on regional flash-sale traffic",
+    "API Management throttling and subscription keys rotated per partner segment",
+    "No cross-database two-phase commit — eventual consistency explicitly accepted with compensations",
+    "Cross-cutting authZ via Entra ID and app roles; service-to-service mTLS or managed identity where applicable"
+  ],
+  "requiredCapabilities": [
+    "Azure Service Bus (topics and subscriptions) with duplicate detection where needed",
+    "Azure Cosmos DB with choice of API (SQL) and defined RU/s autoscale policies",
+    "Azure API Management with named values in Key Vault and revision-based deployment",
+    "Application Insights workspace with distributed tracing across APIM backends",
+    "Schema or contract versioning for integration events surfaced to governance"
+  ],
+  "assumptions": [
+    "Peak catalog read traffic is cache-heavy; Cosmos point reads dominate write ratio for carts",
+    "Loyalty accrual can lag seconds behind payment capture if fraud checks complete first",
+    "Operators run Azure-native stacks; Kafka is out of scope for this review cycle"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Define explicit aggregate roots and forbidden cross-database joins across contexts",
+    "SLO table for synchronous versus asynchronous journeys with error budget alerts",
+    "Back-pressure and shedding strategy when Cosmos RU exhaustion or SB quota approached"
+  ],
+  "topologyHints": [
+    "Outbound-only Service Bus connectivity from subnets; no inbound listener on workloads except APIM ingress",
+    "Co-locate write-heavy Cosmos accounts in transaction-heavy regions with failover policy justified",
+    "Prefer dedicated namespaces or topic hierarchy per bounded context with shared governance registry"
+  ],
+  "securityBaselineHints": [
+    "Secrets rotated via Key Vault; APIM backends use managed identity to Azure resources",
+    "Defender CSPM alerts for overly permissive NSGs on spoke subnets hosting services",
+    "PII minimized in telemetry; sampling rules documented for Checkout path"
+  ],
+  "policyReferences": ["Azure Well-Architected — microservices pillar checklist", "API versioning standard — Contoso EA"]
+}

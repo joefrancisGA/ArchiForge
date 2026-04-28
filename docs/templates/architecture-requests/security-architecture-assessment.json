@@ -1,0 +1,44 @@
+{
+  "requestId": "REQ-TPL-FINSEC-001",
+  "systemName": "Fabrikam Payments Insights",
+  "description": "Security-centered architecture assessment for Fabrikam's financial services analytics application on Azure handling payment-adjacent data and aggregated insights for fraud and collections teams. Requires Microsoft Entra ID for workforce and delegated partner access with conditional access policies aligned to MFA and compliant devices. Azure Key Vault for secrets, certificates, and key rotation workflows. Private endpoints for PaaS (SQL, Storage, Cognitive Services inference) with denial of public ingress to data planes. Azure Web Application Firewall on Application Gateway or Front Door in front of HTTPS APIs with OWASP CRS baseline and custom exclusions reviewed by security. Azure DDoS Protection Standard on edge. Data encryption at rest (TDE, storage SSE, Cosmos default) and in transit TLS 1.2 minimum. Objective: PCI-DSS scope reduction where possible via tokenization gateways, segmented networks, centralized logging toward SIEM, and evidence-ready configuration baselines.",
+  "environment": "Production",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "PCI-DSS alignment — minimize cardholder environment scope via tokenization and partner-hosted payment pages where approved",
+    "All database and sensitive storage reachable only via private endpoints from approved subnets",
+    "Administrative access through PIM-privileged roles with justification and ticketing correlation",
+    "Geographic residency for EU cohort in approved Azure regions with no discretionary replication to non-compliant regions",
+    "Security monitoring and audit logs retained per regulated retention schedules"
+  ],
+  "requiredCapabilities": [
+    "Microsoft Entra ID with Conditional Access and PIM-eligible privileged roles",
+    "Azure Key Vault with private endpoints and RBAC-enabled data plane access",
+    "Web Application Firewall on internet-facing entry with managed rule sets",
+    "Azure DDoS Protection Standard protecting public IPs or Front Door SKU",
+    "Microsoft Defender for Cloud enabled at subscription landing zone enrollment",
+    "Centralized immutable audit pipelines for privileged operations and firewall policy changes"
+  ],
+  "assumptions": [
+    "PAN data is tokenized before analytics lake landing; PAN never stored in analytic SQL pools",
+    "Third-party payment processors maintain attested PCI perimeter for capture surfaces",
+    "Security operations consumes alerts via SIEM connectors with SLA for critical severities"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document compensating controls for any CSP exception approvals on network rulesets",
+    "Annual penetration testing scope aligned to cardholder adjacent paths with evidence trail",
+    "Key and secret rotation playbook with blackout windows communicated to dependents"
+  ],
+  "topologyHints": [
+    "Separate spoke for CDE-aligned workloads versus analytics-only subnets with restrictive peering routes",
+    "Ingress path: Front Door regional routing with WAF and origin limited to hardened APIM or App Service ingress",
+    "Break-glass access via isolated Privileged Access Workstations documented in RACI"
+  ],
+  "securityBaselineHints": [
+    "CIS Azure Foundations benchmarks applied with exceptions recorded in centralized GRC tooling",
+    "Encryption key hierarchy with customer-managed keys for sensitive analytics stores where mandated",
+    "Vulnerability remediation SLAs tracked for internet-facing workloads and APIs"
+  ],
+  "policyReferences": ["PCI-DSS v4 segmentation guidance — internal condensed", "FAB-INFOSEC-BASELINE-2026"]
+}

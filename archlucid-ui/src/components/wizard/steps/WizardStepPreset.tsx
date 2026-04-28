@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { applySecondRunPasteToWizard } from "@/lib/second-run-paste";
 import { applyWizardPreset, wizardPresets, type WizardPreset } from "@/lib/wizard-presets";
+import { documentationArchitectureRequestWizardPresets } from "@/lib/docs-architecture-request-presets";
+import { getDocHref } from "@/lib/help-topics";
 import { verticalBriefWizardPresets } from "@/lib/vertical-wizard-presets";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { cn } from "@/lib/utils";
@@ -45,6 +47,11 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
   const { reset, getValues } = useFormContext<WizardFormValues>();
   const [secondRunPaste, setSecondRunPaste] = useState("");
   const [importOpen, setImportOpen] = useState(false);
+
+  const architectureTemplatesDocHref = useMemo(
+    () => getDocHref("docs/templates/architecture-requests/README.md"),
+    [],
+  );
 
   const { heroVerticals, otherVerticals } = useMemo(() => {
     const hero: WizardPreset[] = [];
@@ -114,7 +121,8 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
             manifest, findings, and artifacts.
           </p>
           <p className="m-0">
-            Start from scratch, use an industry starter, or import a prepared request file.
+            Start from scratch, use an industry starter, Quick shapes or documentation-aligned templates, or import a
+            prepared request file.
           </p>
         </div>
       }
@@ -241,6 +249,46 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
                   Use {preset.label.toLowerCase()}
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">Architecture request templates</h3>
+        <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          Opinionated payloads aligned with <code className="text-xs">POST /v1/architecture/request</code> (
+          <code className="text-xs">ArchitectureRequest</code>). Same JSON bodies live under{" "}
+          <code className="break-all text-xs">docs/templates/architecture-requests/</code> for paste-import.
+          {architectureTemplatesDocHref !== null ? (
+            <>
+              {" "}
+              <Link className="text-teal-700 underline" href={architectureTemplatesDocHref} target="_blank" rel="noreferrer">
+                Open template index on GitHub
+              </Link>
+              .
+            </>
+          ) : null}
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {documentationArchitectureRequestWizardPresets.map((preset, index) => (
+            <Card key={preset.id} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-base">{preset.label}</CardTitle>
+                <CardDescription>{preset.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-1" />
+              <CardFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full border-teal-700 text-teal-900 hover:bg-teal-50 dark:border-teal-600 dark:text-teal-100 dark:hover:bg-teal-950/50"
+                  data-testid={index === 0 ? "wizard-docs-architecture-template-first" : undefined}
+                  onClick={() => selectPreset(preset.id, preset.values)}
+                >
+                  Use this template
                 </Button>
               </CardFooter>
             </Card>

@@ -1,0 +1,50 @@
+{
+  "requestId": "REQ-TPL-CLOUD-MIG-001",
+  "systemName": "Contoso Order Management",
+  "description": "Assess a lift-and-shift and selective replatform of the Contoso Order Management 3-tier web application from on-premises datacenters to Azure. Current state: IIS / .NET workloads, SQL Server on-prem clustering, Redis-like session/cache tier, file shares for batch drops. Target: Azure App Service (Linux or Windows containers) for web and API tiers, Azure SQL Database (Business Critical or General Purpose with zone redundancy where approved), Azure Cache for Redis for session/cache, private connectivity via Virtual Network integration and Private Link to PaaS. Business requires 99.95% availability for the storefront path during cutover windows, predictable monthly spend under stakeholder-approved limits, GDPR-aligned retention for EU customer subsets, baseline PCI-DSS segmentation for payment-adjacent components, TLS 1.2+ everywhere, encryption at rest for SQL and Redis, centralized secrets in Key Vault, and auditable deployment and change records.",
+  "environment": "Production",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Minimum 99.95% SLA for storefront order placement path during phased migration windows",
+    "Non-production aggregate monthly cloud spend capped per finance approval letter",
+    "GDPR-aligned data minimization for EU storefront profiles; lawful basis documented",
+    "PCI-DSS network segmentation — cardholder data environment isolated from merchandising analytics",
+    "No public ingress to databases or Redis; Private Link or VNet injection only",
+    "Blue/green or canary rollout with rollback under 30 minutes objective for critical SKU paths"
+  ],
+  "requiredCapabilities": [
+    "Azure App Service with autoscale and deployment slots",
+    "Azure SQL Database with automated backups and geo-redundant backup where policy requires",
+    "Azure Cache for Redis with persistence expectations documented",
+    "Azure Key Vault for application secrets and connection strings",
+    "Private endpoints or App Service VNet integration for SQL and Redis",
+    "Azure Firewall or NGFW-approved patterns between hub spoke segments",
+    "Application Insights distributed tracing correlated to business transaction ids"
+  ],
+  "assumptions": [
+    "Identity migrates from on-prem AD FS to Entra ID with staged app registrations",
+    "Batch interfaces can tolerate bounded dual-write latency during coexistence phase",
+    "Operations team adopts Infrastructure as Code (Bicep or Terraform) aligned to landing zone guardrails",
+    "Read replicas or secondary pools acceptable for analytics after cutover stabilization"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Cold start targets for storefront APIs documented with load test evidence before go-live",
+    "Disaster recovery: RPO and RTO for order header tables agreed with business continuity owner",
+    "Certificate lifecycle for custom domains and internal service-to-service TLS automated"
+  ],
+  "policyReferences": [
+    "Organizational cloud migration standard v3",
+    "Data classification and retention schedule — retail BU"
+  ],
+  "topologyHints": [
+    "Prefer single write plane for order master data during migration; avoid split-brain across SQL targets",
+    "Isolate batch file ingress in a dedicated subnet with controlled SMB or SFTP replacement on Azure Storage",
+    "Front Door or Application Gateway in front of App Service for WAF and TLS termination patterns"
+  ],
+  "securityBaselineHints": [
+    "Defender for Cloud recommendations triaged before production promotion",
+    "SQL Auditing and threat detection aligned to security team severity matrix",
+    "Managed identities for App Service to SQL and Key Vault; no long-lived passwords in configuration"
+  ]
+}
