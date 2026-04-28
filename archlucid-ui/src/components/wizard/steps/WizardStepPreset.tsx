@@ -288,7 +288,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
                   data-testid={index === 0 ? "wizard-docs-architecture-template-first" : undefined}
                   onClick={() => selectPreset(preset.id, preset.values)}
                 >
-                  Use this template
+                  {`Use ${preset.label}`}
                 </Button>
               </CardFooter>
             </Card>

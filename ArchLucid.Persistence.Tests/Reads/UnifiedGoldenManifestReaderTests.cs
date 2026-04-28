@@ -255,7 +255,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         Cm.GoldenManifest? manifest = await sut.ReadByRunIdAsync(scope, runId);
 
         manifest.Should().NotBeNull();
-        manifest!.SystemName.Should().Be("FromAuthority");
+        manifest.SystemName.Should().Be("FromAuthority");
     }
 
     private static Dm.ManifestDocument NewAuthorityRow(ScopeContext scope, Guid runId, Guid? manifestId = null)
