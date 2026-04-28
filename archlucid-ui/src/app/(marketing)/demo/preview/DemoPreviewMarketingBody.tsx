@@ -3,14 +3,14 @@ import Link from "next/link";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 /** Maps API status strings to operator-facing labels (API may still return `Committed`). */
-function manifestStatusForDisplay(status: string): string {
-  const t = status.trim();
+function manifestStatusForDisplay(status: string | undefined | null): string {
+  const t = (status ?? "").trim();
 
   if (/^committed$/i.test(t)) {
     return "Finalized";
   }
 
-  return t;
+  return t.length > 0 ? t : "—";
 }
 
 export function DemoPreviewNotAvailable() {
@@ -37,24 +37,33 @@ export function DemoPreviewNotAvailable() {
 }
 
 function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
+  const runIdLabel = typeof payload.run?.runId === "string" ? payload.run.runId : "—";
+
+  const generatedUtc = typeof payload.generatedUtc === "string" ? payload.generatedUtc : "—";
+
   return (
     <div
       data-testid="demo-preview-status-banner"
       className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
     >
-      <span className="font-semibold">{payload.demoStatusMessage}</span> · run <code>{payload.run.runId}</code> ·
-      generated <code>{payload.generatedUtc}</code>
+      <span className="font-semibold">{payload.demoStatusMessage ?? "Demonstration preview"}</span> · run{" "}
+      <code>{runIdLabel}</code> · generated <code>{generatedUtc}</code>
     </div>
   );
 }
 
 /** Marketing-only commit page projection (no operator CTAs). */
 export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
-  const runEx = payload.runExplanation;
-  const themes = (runEx?.themeSummaries ?? []).slice(0, 5);
-  const citationCount = runEx?.citations?.length ?? 0;
-  const pipelineTimeline = payload.pipelineTimeline ?? [];
-  const artifacts = payload.artifacts ?? [];
+  const chain = payload.authorityChain ?? {};
+  const runEx = payload.runExplanation ?? null;
+  const themeRaw = Array.isArray(runEx?.themeSummaries) ? runEx.themeSummaries : [];
+  const themesDisplay = themeRaw.slice(0, 5).map((t) => (typeof t === "string" ? t : String(t)));
+  const themes = themesDisplay.length > 0 ? themesDisplay.join(" · ") : "—";
+  const citationCount =
+    Array.isArray(runEx?.citations) && runEx.citations !== null ? runEx.citations.length : 0;
+  const pipelineTimeline = Array.isArray(payload.pipelineTimeline) ? payload.pipelineTimeline : [];
+  const artifacts = Array.isArray(payload.artifacts) ? payload.artifacts : [];
+  const manifest = payload.manifest ?? null;
 
   return (
     <div className="space-y-8">
@@ -64,51 +73,63 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Run</h2>
         <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Run ID:</strong>{" "}
-          <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{payload.run.runId}</code>
+          <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">
+            {typeof payload.run?.runId === "string" ? payload.run.runId : "—"}
+          </code>
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Project:</strong> {payload.run.projectId}
+          <strong>Project:</strong> {payload.run?.projectId ?? "—"}
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Description:</strong> {payload.run.description ?? ""}
+          <strong>Description:</strong> {payload.run?.description ?? ""}
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Created (UTC):</strong> {payload.run.createdUtc}
+          <strong>Created (UTC):</strong> {typeof payload.run?.createdUtc === "string" ? payload.run.createdUtc : "—"}
         </p>
       </section>
 
       <section data-testid="demo-preview-authority-chain">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Review trail</h2>
         <ul className="mt-2 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          <li>Context Snapshot: {payload.authorityChain.contextSnapshotId ?? "—"}</li>
-          <li>Graph Snapshot: {payload.authorityChain.graphSnapshotId ?? "—"}</li>
-          <li>Findings Snapshot: {payload.authorityChain.findingsSnapshotId ?? "—"}</li>
-          <li>Reviewed manifest: {payload.authorityChain.goldenManifestId ?? "—"}</li>
-          <li>Decision Trace: {payload.authorityChain.decisionTraceId ?? "—"}</li>
-          <li>Artifact Bundle: {payload.authorityChain.artifactBundleId ?? "—"}</li>
+          <li>Context Snapshot: {chain.contextSnapshotId ?? "—"}</li>
+          <li>Graph Snapshot: {chain.graphSnapshotId ?? "—"}</li>
+          <li>Findings Snapshot: {chain.findingsSnapshotId ?? "—"}</li>
+          <li>Reviewed manifest: {chain.goldenManifestId ?? "—"}</li>
+          <li>Decision Trace: {chain.decisionTraceId ?? "—"}</li>
+          <li>Artifact Bundle: {chain.artifactBundleId ?? "—"}</li>
         </ul>
       </section>
 
       <section data-testid="demo-preview-manifest-summary">
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">Manifest summary</h2>
-        {payload.manifest.operatorSummary ? (
-          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{payload.manifest.operatorSummary}</p>
+        {manifest?.operatorSummary ? (
+          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{manifest.operatorSummary}</p>
         ) : null}
-        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Status:</strong> {manifestStatusForDisplay(payload.manifest.status)}
-        </p>
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Rule set:</strong> {payload.manifest.ruleSetId} {payload.manifest.ruleSetVersion}
-        </p>
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Decisions:</strong> {payload.manifest.decisionCount}
-        </p>
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Warnings:</strong> {payload.manifest.warningCount}
-        </p>
-        <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Unresolved issues:</strong> {payload.manifest.unresolvedIssueCount}
-        </p>
+        {!manifest ? (
+          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Manifest summary unavailable.</p>
+        ) : (
+          <>
+            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <strong>Status:</strong> {manifestStatusForDisplay(manifest.status)}
+            </p>
+            <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+              <strong>Rule set:</strong>{" "}
+              {manifest.ruleSetId ?? "—"} {manifest.ruleSetVersion ?? ""}
+            </p>
+            <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+              <strong>Decisions:</strong>{" "}
+              {typeof manifest.decisionCount === "number" ? manifest.decisionCount : "—"}
+            </p>
+            <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+              <strong>Warnings:</strong>{" "}
+              {typeof manifest.warningCount === "number" ? manifest.warningCount : "—"}
+            </p>
+            <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+              <strong>Unresolved issues:</strong>{" "}
+              {typeof manifest.unresolvedIssueCount === "number" ? manifest.unresolvedIssueCount : "—"}
+            </p>
+          </>
+        )}
       </section>
 
       <section data-testid="demo-preview-aggregate-explanation">
@@ -120,7 +141,7 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
           <strong>Risk posture:</strong> {runEx?.riskPosture ?? "—"}
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-          <strong>Themes (up to 5):</strong> {themes.length ? themes.join(" · ") : "—"}
+          <strong>Themes (up to 5):</strong> {themes}
         </p>
         <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
           <strong>Citation count:</strong> {citationCount}
@@ -133,11 +154,28 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
           First {pipelineTimeline.length} events (oldest first).
         </p>
         <ul className="mt-2 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-          {pipelineTimeline.map((e) => (
-            <li key={e.eventId}>
-              <code>{e.eventType}</code> · {e.occurredUtc} · {e.actorUserName}
-            </li>
-          ))}
+          {pipelineTimeline.map((e, index) => {
+            const key =
+              typeof e.eventId === "string" && e.eventId.trim().length > 0 ? e.eventId : `timeline-${index}`;
+
+            const eventType =
+              typeof e.eventType === "string" ? e.eventType : e.eventType !== undefined ? String(e.eventType) : "—";
+
+            const occurred = typeof e.occurredUtc === "string" ? e.occurredUtc : "—";
+
+            const actor =
+              typeof e.actorUserName === "string"
+                ? e.actorUserName
+                : e.actorUserName !== undefined && e.actorUserName !== null
+                  ? String(e.actorUserName)
+                  : "—";
+
+            return (
+              <li key={key}>
+                <code>{eventType}</code> · {occurred} · {actor}
+              </li>
+            );
+          })}
         </ul>
         <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
           Show the full timeline on an{" "}
@@ -162,15 +200,22 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
               </tr>
             </thead>
             <tbody>
-              {artifacts.map((a) => (
-                <tr key={a.artifactId} className="border-t border-neutral-200 dark:border-neutral-800">
-                  <td className="px-3 py-2">{a.name}</td>
-                  <td className="px-3 py-2">{a.artifactType}</td>
-                  <td className="px-3 py-2">{a.format}</td>
-                  <td className="px-3 py-2">{a.createdUtc}</td>
-                  <td className="px-3 py-2 font-mono text-xs">{a.contentHash}</td>
-                </tr>
-              ))}
+              {artifacts.map((a, index) => {
+                const artifactKey =
+                  typeof a.artifactId === "string" && a.artifactId.trim().length > 0
+                    ? a.artifactId
+                    : `artifact-${index}-${a.name ?? index}`;
+
+                return (
+                  <tr key={artifactKey} className="border-t border-neutral-200 dark:border-neutral-800">
+                    <td className="px-3 py-2">{a.name ?? "—"}</td>
+                    <td className="px-3 py-2">{a.artifactType ?? "—"}</td>
+                    <td className="px-3 py-2">{a.format ?? "—"}</td>
+                    <td className="px-3 py-2">{typeof a.createdUtc === "string" ? a.createdUtc : "—"}</td>
+                    <td className="px-3 py-2 font-mono text-xs">{a.contentHash ?? "—"}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

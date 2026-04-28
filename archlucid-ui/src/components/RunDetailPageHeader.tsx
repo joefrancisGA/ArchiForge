@@ -16,7 +16,7 @@ export type RunDetailPageHeaderProps = {
 };
 
 /**
- * Flagship run detail header: title, pipeline {@link RunStatusBadge}, metadata row, primary commit action.
+ * Flagship run detail header: title, pipeline {@link RunStatusBadge}, metadata row, primary finalize action.
  * Compare / Replay stay in the Actions section per shell layout rules.
  */
 export function RunDetailPageHeader({

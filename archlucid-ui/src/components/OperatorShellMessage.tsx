@@ -23,7 +23,7 @@ export function OperatorErrorCallout({ children }: { children: ReactNode }) {
 }
 
 /**
- * Empty collections or blocked review steps (e.g. run not committed).
+ * Empty collections or blocked review steps (e.g. run not finalized).
  * Use `children` for rich markup, or `description` for plain text (`children` wins when both are set).
  */
 export function OperatorEmptyState({

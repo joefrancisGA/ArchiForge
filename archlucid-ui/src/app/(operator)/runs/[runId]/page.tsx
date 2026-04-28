@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
@@ -56,6 +57,45 @@ import type { RunExplanationSummary } from "@/types/explanation";
 
 const sectionHeadingClass =
   "m-0 text-lg font-semibold tracking-tight text-neutral-900 border-b border-neutral-200 pb-2 dark:border-neutral-700 dark:text-neutral-100";
+
+function ManifestSummarySection({
+  manifestSummary,
+}: {
+  readonly manifestSummary: ManifestSummary;
+}): ReactElement {
+  return (
+    <section id="manifest-summary" className="scroll-mt-24">
+      <Card>
+        <CardHeader>
+          <h3 className={sectionHeadingClass}>Manifest summary</h3>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {manifestSummary.operatorSummary ? (
+            <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              {manifestSummary.operatorSummary}
+            </p>
+          ) : null}
+          <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</dt>
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.status}</dd>
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Rule set</dt>
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
+              {manifestSummary.ruleSetId} {manifestSummary.ruleSetVersion}
+            </dd>
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Decisions</dt>
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.decisionCount}</dd>
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Warnings</dt>
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.warningCount}</dd>
+            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Unresolved issues</dt>
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
+              {manifestSummary.unresolvedIssueCount}
+            </dd>
+          </dl>
+        </CardContent>
+      </Card>
+    </section>
+  );
+}
 
 /** Server-rendered run detail page. Shows run metadata, authority chain, manifest summary, aggregate explanation, artifacts, and downloads. */
 export default async function RunDetailPage({
@@ -219,17 +259,9 @@ export default async function RunDetailPage({
           Runs
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/graph">
-          Graph
-        </Link>
-        {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/compare">
-          Compare two runs
-        </Link>
-        {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href={`/runs/${runId}/provenance`}>
-          Provenance
-        </Link>
+        <span className="font-medium text-neutral-800 dark:text-neutral-200" aria-current="page">
+          {headline}
+        </span>
       </nav>
 
       <RunDetailPageHeader
@@ -248,6 +280,8 @@ export default async function RunDetailPage({
       {manifestId ? <EmailRunToSponsorBanner runId={runId} /> : null}
 
       <RunDetailSectionNav sections={runDetailNavSections} />
+
+      {manifestId && manifestSummary ? <ManifestSummarySection manifestSummary={manifestSummary} /> : null}
 
       <section id="run-metadata" className="scroll-mt-24">
         <Card>
@@ -309,96 +343,100 @@ export default async function RunDetailPage({
         <Card>
           <CardHeader>
             <h3 className={sectionHeadingClass}>Review trail</h3>
-            <CardDescription>Snapshot, manifest, and trace identifiers for this run.</CardDescription>
+            <CardDescription>
+              The reviewed manifest links to the finalized architecture record. Expand audit identifiers for traceability
+              reference.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-0">
-            <ol className="m-0 list-none space-y-0 divide-y divide-neutral-200 p-0 dark:divide-neutral-800">
-              <li className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  <GlossaryTooltip termKey="context_snapshot">Context snapshot</GlossaryTooltip>
-                </span>
-                <span className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:justify-end">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                    {resolvedDetail.run.contextSnapshotId ?? "—"}
-                  </code>
-                  {resolvedDetail.run.contextSnapshotId ? (
-                    <CopyIdButton value={resolvedDetail.run.contextSnapshotId} aria-label="Copy context snapshot ID" />
-                  ) : null}
-                </span>
-              </li>
-              <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  Graph snapshot
-                </span>
-                <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                    {resolvedDetail.run.graphSnapshotId ?? "—"}
-                  </code>
-                  {resolvedDetail.run.graphSnapshotId ? (
-                    <CopyIdButton value={resolvedDetail.run.graphSnapshotId} aria-label="Copy graph snapshot ID" />
-                  ) : null}
-                </span>
-              </li>
-              <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  Findings snapshot
-                </span>
-                <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                    {resolvedDetail.run.findingsSnapshotId ?? "—"}
-                  </code>
-                  {resolvedDetail.run.findingsSnapshotId ? (
-                    <CopyIdButton value={resolvedDetail.run.findingsSnapshotId} aria-label="Copy findings snapshot ID" />
-                  ) : null}
-                </span>
-              </li>
-              <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  Reviewed manifest
-                </span>
-                <span className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
-                  {manifestId ? (
-                    <>
-                      <Link
-                        className="truncate font-mono text-xs text-teal-800 underline dark:text-teal-300"
-                        href={`/manifests/${manifestId}`}
-                      >
-                        {manifestId}
-                      </Link>
-                      <CopyIdButton value={manifestId} aria-label="Copy reviewed manifest ID" />
-                    </>
-                  ) : (
-                    <span className="font-mono text-xs">—</span>
-                  )}
-                </span>
-              </li>
-              <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  <GlossaryTooltip termKey="decision_trace">Decision trace</GlossaryTooltip>
-                </span>
-                <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                    {resolvedDetail.run.decisionTraceId ?? "—"}
-                  </code>
-                  {resolvedDetail.run.decisionTraceId ? (
-                    <CopyIdButton value={resolvedDetail.run.decisionTraceId} aria-label="Copy decision trace ID" />
-                  ) : null}
-                </span>
-              </li>
-              <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                  Artifact bundle
-                </span>
-                <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
-                    {resolvedDetail.run.artifactBundleId ?? "—"}
-                  </code>
-                  {resolvedDetail.run.artifactBundleId ? (
-                    <CopyIdButton value={resolvedDetail.run.artifactBundleId} aria-label="Copy artifact bundle ID" />
-                  ) : null}
-                </span>
-              </li>
-            </ol>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+              <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Reviewed manifest</p>
+              <div className="mt-2 flex min-w-0 flex-wrap items-center justify-end gap-2 sm:justify-start">
+                {manifestId ? (
+                  <>
+                    <Link
+                      className="truncate font-mono text-xs text-teal-800 underline dark:text-teal-300"
+                      href={`/manifests/${manifestId}`}
+                    >
+                      {manifestId}
+                    </Link>
+                    <CopyIdButton value={manifestId} aria-label="Copy reviewed manifest ID" />
+                  </>
+                ) : (
+                  <span className="font-mono text-xs">—</span>
+                )}
+              </div>
+            </div>
+
+            <CollapsibleSection title="Audit identifiers" defaultOpen={false}>
+              <ol className="m-0 list-none space-y-0 divide-y divide-neutral-200 p-0 dark:divide-neutral-800">
+                <li className="flex flex-col gap-2 py-4 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    <GlossaryTooltip termKey="context_snapshot">Context snapshot</GlossaryTooltip>
+                  </span>
+                  <span className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:justify-end">
+                    <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                      {resolvedDetail.run.contextSnapshotId ?? "—"}
+                    </code>
+                    {resolvedDetail.run.contextSnapshotId ? (
+                      <CopyIdButton value={resolvedDetail.run.contextSnapshotId} aria-label="Copy context snapshot ID" />
+                    ) : null}
+                  </span>
+                </li>
+                <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    Graph snapshot
+                  </span>
+                  <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
+                    <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                      {resolvedDetail.run.graphSnapshotId ?? "—"}
+                    </code>
+                    {resolvedDetail.run.graphSnapshotId ? (
+                      <CopyIdButton value={resolvedDetail.run.graphSnapshotId} aria-label="Copy graph snapshot ID" />
+                    ) : null}
+                  </span>
+                </li>
+                <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    Findings snapshot
+                  </span>
+                  <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
+                    <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                      {resolvedDetail.run.findingsSnapshotId ?? "—"}
+                    </code>
+                    {resolvedDetail.run.findingsSnapshotId ? (
+                      <CopyIdButton value={resolvedDetail.run.findingsSnapshotId} aria-label="Copy findings snapshot ID" />
+                    ) : null}
+                  </span>
+                </li>
+                <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    <GlossaryTooltip termKey="decision_trace">Decision trace</GlossaryTooltip>
+                  </span>
+                  <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
+                    <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                      {resolvedDetail.run.decisionTraceId ?? "—"}
+                    </code>
+                    {resolvedDetail.run.decisionTraceId ? (
+                      <CopyIdButton value={resolvedDetail.run.decisionTraceId} aria-label="Copy decision trace ID" />
+                    ) : null}
+                  </span>
+                </li>
+                <li className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="shrink-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                    Artifact bundle
+                  </span>
+                  <span className="flex min-w-0 flex-1 items-center justify-end gap-2">
+                    <code className="truncate font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                      {resolvedDetail.run.artifactBundleId ?? "—"}
+                    </code>
+                    {resolvedDetail.run.artifactBundleId ? (
+                      <CopyIdButton value={resolvedDetail.run.artifactBundleId} aria-label="Copy artifact bundle ID" />
+                    ) : null}
+                  </span>
+                </li>
+              </ol>
+            </CollapsibleSection>
           </CardContent>
         </Card>
       </section>
@@ -435,39 +473,6 @@ export default async function RunDetailPage({
           <strong>Manifest summary response was not usable.</strong>
           <p className="mt-2">{manifestSummaryMalformed}</p>
         </OperatorMalformedCallout>
-      )}
-
-      {manifestSummary && (
-        <section id="manifest-summary" className="scroll-mt-24">
-          <Card>
-            <CardHeader>
-              <h3 className={sectionHeadingClass}>Manifest summary</h3>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {manifestSummary.operatorSummary ? (
-                <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                  {manifestSummary.operatorSummary}
-                </p>
-              ) : null}
-              <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
-                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</dt>
-                <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.status}</dd>
-                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Rule set</dt>
-                <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
-                  {manifestSummary.ruleSetId} {manifestSummary.ruleSetVersion}
-                </dd>
-                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Decisions</dt>
-                <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.decisionCount}</dd>
-                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Warnings</dt>
-                <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.warningCount}</dd>
-                <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Unresolved issues</dt>
-                <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
-                  {manifestSummary.unresolvedIssueCount}
-                </dd>
-              </dl>
-            </CardContent>
-          </Card>
-        </section>
       )}
 
       {manifestId ? <PostCommitAdvancedAnalysisHint runId={runId} /> : null}

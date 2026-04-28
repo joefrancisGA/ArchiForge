@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.Coordination.Backfill;
+
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests;

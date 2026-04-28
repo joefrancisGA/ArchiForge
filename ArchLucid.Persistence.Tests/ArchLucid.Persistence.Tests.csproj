@@ -30,6 +30,7 @@
     <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Coordination\ArchLucid.Persistence.Coordination.csproj" />
   </ItemGroup>
 
   <!-- DbUp does not create AuditEvents / ProvenanceSnapshots / Conversation* tables. We apply a minimal

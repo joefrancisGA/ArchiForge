@@ -17,9 +17,11 @@ describe("AdminUsersPage", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
     render(<AdminUsersPage />);
-    expect(
-      await screen.findByText(/User management API endpoints are required to enable editing/i, {}, { timeout: 5_000 }),
-    ).toBeInTheDocument();
+      expect(
+        await screen.findByText(/User directory unavailable/i, {}, { timeout: 5_000 }),
+      ).toBeInTheDocument();
+
+      expect(screen.getByTestId("admin-users-api-note")).toBeInTheDocument();
   });
 
   it("renders user rows when GET /v1/admin/users succeeds", async () => {
