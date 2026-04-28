@@ -3,6 +3,9 @@ import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 /** Public-marketing slug for demos and screenshots — no fixture-style token. */
 export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
 
+/** Canonical manifest UUID for the static showcase payload (matches operator mock + marketing body). */
+export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
+
 const GENERATED_UTC = "2026-01-15T14:30:00.000Z";
 
 /**
@@ -24,7 +27,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       createdUtc: "2026-01-10T09:15:22.000Z",
     },
     manifest: {
-      manifestId: "a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+      manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
       runId,
       createdUtc: "2026-01-14T22:08:41.000Z",
       manifestHash: "sha256-demo-7f91c4aab3…",
@@ -42,7 +45,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
       contextSnapshotId: "ctx-snapshot-01",
       graphSnapshotId: "graph-snapshot-01",
       findingsSnapshotId: "find-snapshot-01",
-      goldenManifestId: "a1c2e3f4-a5b6-7890-abcd-ef1234567890",
+      goldenManifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
       decisionTraceId: "trace-claims-01",
       artifactBundleId: "bundle-intake-demo-01",
     },

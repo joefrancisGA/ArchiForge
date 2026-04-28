@@ -1,6 +1,34 @@
 import type { ManifestSummary } from "@/types/authority";
 
-import { FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID, FIXTURE_MANIFEST_ID, FIXTURE_RUN_ID } from "./ids";
+import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+
+import {
+  FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
+  FIXTURE_MANIFEST_ID,
+  FIXTURE_RUN_ID,
+} from "./ids";
+
+/** Manifest summary matching the static showcase UUID (same shape as marketing preview). */
+export function fixtureManifestSummaryForShowcase(urlRunId: string = SHOWCASE_STATIC_DEMO_RUN_ID): ManifestSummary {
+  const d = getShowcaseStaticDemoPayload(urlRunId);
+  const m = d.manifest;
+
+  return {
+    manifestId: m.manifestId,
+    runId: m.runId,
+    createdUtc: m.createdUtc,
+    manifestHash: m.manifestHash,
+    ruleSetId: m.ruleSetId,
+    ruleSetVersion: m.ruleSetVersion,
+    decisionCount: m.decisionCount,
+    warningCount: m.warningCount,
+    unresolvedIssueCount: m.unresolvedIssueCount,
+    status: m.status,
+    hasWarnings: m.warningCount > 0,
+    hasUnresolvedIssues: m.unresolvedIssueCount > 0,
+    operatorSummary: m.operatorSummary,
+  };
+}
 
 /** Manifest summary that passes `coerceManifestSummary`. */
 export function fixtureManifestSummary(): ManifestSummary {

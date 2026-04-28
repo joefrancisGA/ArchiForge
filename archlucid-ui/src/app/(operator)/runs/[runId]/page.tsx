@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
@@ -47,6 +48,12 @@ import {
   getRunSummary,
   listArtifacts,
 } from "@/lib/api";
+import {
+  tryStaticDemoArtifacts,
+  tryStaticDemoManifestSummary,
+  tryStaticDemoPipelineTimeline,
+  tryStaticDemoRunDetail,
+} from "@/lib/operator-static-demo";
 import type {
   ArtifactDescriptor,
   ManifestSummary,
@@ -108,11 +115,19 @@ export default async function RunDetailPage({
 
   let runDetailResponse: ApiResponseWithTrace<RunDetail> | null = null;
   let loadFailure: ApiLoadFailureState | null = null;
+  let usedStaticDemoRun = false;
 
   try {
     runDetailResponse = await getRunDetail(runId);
   } catch (e) {
     loadFailure = toApiLoadFailure(e);
+    const fallback = tryStaticDemoRunDetail(runId);
+
+    if (fallback !== null) {
+      runDetailResponse = { data: fallback, traceId: null };
+      loadFailure = null;
+      usedStaticDemoRun = true;
+    }
   }
 
   if (loadFailure || !runDetailResponse) {
@@ -195,6 +210,15 @@ export default async function RunDetailPage({
     pipelineTimeline = await getRunPipelineTimeline(runId);
   } catch (e) {
     pipelineTimelineFailure = toApiLoadFailure(e);
+
+    if (usedStaticDemoRun) {
+      const staticTimeline = tryStaticDemoPipelineTimeline(runId);
+
+      if (staticTimeline !== null && staticTimeline.length > 0) {
+        pipelineTimeline = staticTimeline;
+        pipelineTimelineFailure = null;
+      }
+    }
   }
 
   if (manifestId) {
@@ -209,6 +233,12 @@ export default async function RunDetailPage({
       }
     } catch (e) {
       manifestSummaryFailure = toApiLoadFailure(e);
+      const staticSummary = tryStaticDemoManifestSummary(manifestId);
+
+      if (staticSummary !== null) {
+        manifestSummary = staticSummary;
+        manifestSummaryFailure = null;
+      }
     }
 
     try {
@@ -223,6 +253,12 @@ export default async function RunDetailPage({
       }
     } catch (e) {
       artifactsFailure = toApiLoadFailure(e);
+      const staticArtifacts = tryStaticDemoArtifacts(runId, manifestId);
+
+      if (staticArtifacts !== null) {
+        artifacts = staticArtifacts;
+        artifactsFailure = null;
+      }
     }
 
     try {
@@ -264,6 +300,8 @@ export default async function RunDetailPage({
           {headline}
         </span>
       </nav>
+
+      {usedStaticDemoRun ? <OperatorDemoStaticBanner /> : null}
 
       <RunDetailPageHeader
         runSummary={runSummaryForBadge}

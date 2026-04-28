@@ -227,4 +227,50 @@ public sealed class SqlBillingLedger(
                 commandType: CommandType.StoredProcedure,
                 cancellationToken: cancellationToken));
     }
+
+    public async Task<IReadOnlyList<BillingSubscriptionStateHistoryEntry>> GetSubscriptionStateHistoryAsync(
+        Guid tenantId,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0 || maxRows > 500)
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await _rlsSessionContextApplicator.ApplyAsync(connection, cancellationToken);
+
+        const string sql = """
+                           SELECT TOP (@MaxRows)
+                               HistoryId,
+                               TenantId,
+                               WorkspaceId,
+                               ProjectId,
+                               RecordedUtc,
+                               ChangeKind,
+                               PrevStatus,
+                               NewStatus,
+                               PrevTier,
+                               NewTier,
+                               PrevSeatsPurchased,
+                               NewSeatsPurchased,
+                               PrevWorkspacesPurchased,
+                               NewWorkspacesPurchased,
+                               PrevProvider,
+                               NewProvider,
+                               PrevProviderSubscriptionId,
+                               NewProviderSubscriptionId
+                           FROM dbo.BillingSubscriptionStateHistory
+                           WHERE TenantId = @TenantId
+                           ORDER BY RecordedUtc DESC;
+                           """;
+
+        IEnumerable<BillingSubscriptionStateHistoryEntry> rows =
+            await connection.QueryAsync<BillingSubscriptionStateHistoryEntry>(
+                new CommandDefinition(sql, new { TenantId = tenantId, MaxRows = maxRows },
+                    cancellationToken: cancellationToken));
+
+        return [.. rows];
+    }
 }

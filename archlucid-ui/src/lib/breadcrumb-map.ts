@@ -100,6 +100,10 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
   "e2e-finding-001": "Demonstration finding",
   "e2e-approval-001": "Demonstration approval",
   "e2e-policy-pack-001": "Demonstration policy pack",
+  "phi-minimization-risk": "PHI minimization (demonstration finding)",
+  "claims-intake-modernization-plan": "Claims Intake Modernization (demonstration plan)",
+  "claims-intake-approval-001": "Claims Intake (demonstration approval)",
+  "healthcare-claims-v3-pack": "Healthcare claims policy pack (demonstration)",
 };
 
 function labelForSegment(segment: string, allSegments: string[], index: number): string {

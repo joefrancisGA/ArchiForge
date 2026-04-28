@@ -321,7 +321,7 @@ export function NewRunWizardClient() {
 
   return (
     <FormProvider {...form}>
-      <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4">
+      <div ref={wizardReadyRef} className="mx-auto w-full max-w-4xl space-y-4 pb-24">
           {!wizardModeReady ? (
             <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>
           ) : null}

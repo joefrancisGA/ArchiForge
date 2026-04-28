@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
@@ -14,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/operator-response-guards";
+import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
@@ -41,6 +44,7 @@ export default async function ManifestDetailPage({
   let artifactsFailure: ApiLoadFailureState | null = null;
   let summaryMalformed: string | null = null;
   let artifactsMalformed: string | null = null;
+  let usedStaticDemoManifest = false;
 
   try {
     const rawSummary: unknown = await getManifestSummary(manifestId);
@@ -55,6 +59,16 @@ export default async function ManifestDetailPage({
     summaryFailure = toApiLoadFailure(e);
   }
 
+  const staticSummaryFallback =
+    summary === null ? tryStaticDemoManifestSummary(manifestId) : null;
+
+  if (staticSummaryFallback !== null) {
+    summary = staticSummaryFallback;
+    summaryFailure = null;
+    summaryMalformed = null;
+    usedStaticDemoManifest = true;
+  }
+
   try {
     const rawArtifacts: unknown = await listArtifacts(manifestId);
     const coercedArtifacts = coerceArtifactDescriptorList(rawArtifacts);
@@ -67,6 +81,14 @@ export default async function ManifestDetailPage({
     }
   } catch (e) {
     artifactsFailure = toApiLoadFailure(e);
+    const staticArtifacts =
+      summary !== null ? tryStaticDemoArtifacts(summary.runId, manifestId) : null;
+
+    if (staticArtifacts !== null) {
+      artifacts = staticArtifacts;
+      artifactsFailure = null;
+      artifactsMalformed = null;
+    }
   }
 
   if (summaryFailure) {
@@ -182,6 +204,8 @@ export default async function ManifestDetailPage({
           Run detail
         </Link>
       </nav>
+
+      {usedStaticDemoManifest ? <OperatorDemoStaticBanner /> : null}
 
       <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
         Finalized architecture manifest

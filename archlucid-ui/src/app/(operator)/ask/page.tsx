@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ChevronDown } from "lucide-react";
 
+import { AskRunIdPicker } from "@/components/AskRunIdPicker";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -70,7 +71,7 @@ export default function AskPage() {
     const tid = selectedThreadId.trim();
     if (!tid && !rid) {
       setActionFailure(
-        uiFailureFromMessage("Enter a run ID for a new conversation, or select an existing thread."),
+        uiFailureFromMessage("Choose a run for a new thread, or open an existing thread from the left."),
       );
       return;
     }
@@ -108,15 +109,21 @@ export default function AskPage() {
 
   async function onSelectThread(threadId: string) {
     setSelectedThreadId(threadId);
+    setRunId("");
     await loadMessages(threadId);
   }
+
+  const threadSelected = selectedThreadId.trim().length > 0;
+  const needsRunForNewThread = !threadSelected;
+  const runMissing = needsRunForNewThread && runId.trim().length === 0;
+  const askDisabled = loading || question.trim().length === 0 || runMissing;
 
   return (
     <main className="max-w-5xl">
       <OperatorPageHeader
         title="Ask ArchLucid"
         helpKey="ask-archlucid"
-        subtitle="Multi-turn conversations are scoped to your workspace. First message needs a run ID; follow-ups can use the same thread without resending it."
+        subtitle="Multi-turn conversations stay in your workspace. Pick a run for a new thread; follow-ups stay on the same thread without picking the run again."
       />
 
       {listFailure !== null ? (
@@ -174,19 +181,7 @@ export default function AskPage() {
         <Card className="border-neutral-200 dark:border-neutral-700">
           <CardContent className="space-y-4 p-4">
             <div className="grid gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="ask-run-id">
-                  Run ID {selectedThreadId ? "(optional if thread already anchored)" : "(required for new thread)"}
-                </Label>
-                <Input
-                  id="ask-run-id"
-                  className="font-mono text-sm"
-                  value={runId}
-                  onChange={(e) => setRunId(e.target.value)}
-                  placeholder="00000000-0000-0000-0000-000000000000"
-                  autoComplete="off"
-                />
-              </div>
+              <AskRunIdPicker value={runId} onChange={setRunId} selectedThreadId={selectedThreadId} />
               <Collapsible open={compareOpen} onOpenChange={setCompareOpen}>
                 <div className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
                   <CollapsibleTrigger asChild>
@@ -196,7 +191,7 @@ export default function AskPage() {
                       className="h-auto w-full justify-between gap-2 p-0 font-medium text-neutral-900 hover:bg-transparent dark:text-neutral-100"
                       aria-expanded={compareOpen}
                     >
-                      <span>Optional: compare two runs</span>
+                      <span>Compare against another run</span>
                       <ChevronDown
                         className={cn(
                           "h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400",
@@ -247,7 +242,7 @@ export default function AskPage() {
                 variant="primary"
                 className="w-fit"
                 onClick={() => void onAsk()}
-                disabled={loading || !question.trim()}
+                disabled={askDisabled}
               >
                 {loading ? "Thinking…" : "Ask"}
               </Button>

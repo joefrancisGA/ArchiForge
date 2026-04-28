@@ -62,12 +62,12 @@ export function WizardNavButtons({
           </Button>
         ) : null}
         {showSubmit ? (
-          <Button type="button" variant="default" disabled={primaryDisabled} onClick={onSubmit}>
+          <Button type="button" variant="primary" disabled={primaryDisabled} onClick={onSubmit}>
             {submitting ? submittingLabel : submitLabel}
           </Button>
         ) : null}
         {showNext ? (
-          <Button type="button" variant="default" disabled={primaryDisabled} onClick={onNext}>
+          <Button type="button" variant="primary" disabled={primaryDisabled} onClick={onNext}>
             {nextLabel}
           </Button>
         ) : null}

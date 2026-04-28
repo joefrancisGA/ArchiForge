@@ -1,10 +1,40 @@
 import type { RunDetail } from "@/types/authority";
 
+import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
+
 import {
   FIXTURE_MANIFEST_ID,
   FIXTURE_PROJECT_ID,
   FIXTURE_RUN_ID,
 } from "./ids";
+
+/** Run detail aligned to marketing showcase data (mock API for `claims-intake-*` run URL segments). */
+export function fixtureRunDetailAlignedToShowcase(urlRunId: string): RunDetail {
+  const d = getShowcaseStaticDemoPayload(urlRunId);
+  const manifest = d.manifest;
+  const chain = d.authorityChain;
+
+  return {
+    run: {
+      runId: d.run.runId,
+      projectId: d.run.projectId,
+      description: d.run.description,
+      createdUtc: d.run.createdUtc,
+      contextSnapshotId: chain.contextSnapshotId ?? undefined,
+      graphSnapshotId: chain.graphSnapshotId ?? undefined,
+      findingsSnapshotId: chain.findingsSnapshotId ?? undefined,
+      goldenManifestId: manifest.manifestId,
+      decisionTraceId: chain.decisionTraceId ?? undefined,
+      artifactBundleId: chain.artifactBundleId ?? undefined,
+    },
+    contextSnapshot: { fixture: true },
+    graphSnapshot: { fixture: true },
+    findingsSnapshot: { fixture: true },
+    decisionTrace: { fixture: true },
+    goldenManifest: { fixture: true },
+    artifactBundle: { fixture: true },
+  };
+}
 
 /** Minimal run envelope that passes `coerceRunDetail` and matches operator run page expectations. */
 export function fixtureRunDetail(): RunDetail {

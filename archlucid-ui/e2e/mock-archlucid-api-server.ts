@@ -16,11 +16,16 @@ import {
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_MANIFEST_ID,
   FIXTURE_RUN_ID,
+  SCREENSHOT_RUN_ID,
   SHOWCASE_DEMO_RUN_ID,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  fixtureArtifactDescriptorsForShowcase,
   fixtureArtifactDescriptorsNonEmpty,
   fixtureManifestSummary,
   fixtureManifestSummaryEmptyArtifacts,
+  fixtureManifestSummaryForShowcase,
   fixtureRunDetail,
+  fixtureRunDetailAlignedToShowcase,
   fixtureRunExplanationSummary,
 } from "./fixtures/index";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
@@ -259,11 +264,17 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         sendJson(res, 200, {
           items: [
             {
-              runId: FIXTURE_RUN_ID,
+              runId: SHOWCASE_DEMO_RUN_ID,
               projectId,
               description: "Claims Intake Modernization — sample completed scenario (mock API).",
               createdUtc: "2025-06-01T12:00:00.000Z",
-              goldenManifestId: FIXTURE_MANIFEST_ID,
+              goldenManifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+              hasGoldenManifest: true,
+              hasFindingsSnapshot: true,
+              hasGraphSnapshot: true,
+              hasContextSnapshot: true,
+              hasArtifactBundle: true,
+              hasDecisionTrace: true,
             },
           ],
           totalCount: 1,
@@ -334,6 +345,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
         if (runId === FIXTURE_RUN_ID) {
           sendJson(res, 200, fixtureRunDetail());
+        } else if (runId === SHOWCASE_DEMO_RUN_ID || runId === SCREENSHOT_RUN_ID) {
+          sendJson(res, 200, fixtureRunDetailAlignedToShowcase(runId));
         } else {
           sendJson(res, 404, { detail: "Run not found." });
         }
@@ -346,7 +359,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       if (explainAggregateMatch) {
         const runId = explainAggregateMatch[1];
         /** `getScreenshotMockFallbackGetJson` measured-roi uses `demoRunId: "demo"` — keep in sync. */
-        const aggregateFixtureRunIds = new Set<string>([FIXTURE_RUN_ID, "demo", SHOWCASE_DEMO_RUN_ID]);
+        const aggregateFixtureRunIds = new Set<string>([FIXTURE_RUN_ID, "demo", SHOWCASE_DEMO_RUN_ID, SCREENSHOT_RUN_ID]);
 
         if (aggregateFixtureRunIds.has(runId)) {
           sendJson(res, 200, fixtureRunExplanationSummary());
@@ -367,6 +380,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
         if (manifestId === FIXTURE_MANIFEST_ID) {
           sendJson(res, 200, fixtureManifestSummary());
+        } else if (manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
+          sendJson(res, 200, fixtureManifestSummaryForShowcase(SHOWCASE_DEMO_RUN_ID));
         } else if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
           sendJson(res, 200, fixtureManifestSummaryEmptyArtifacts());
         } else {
@@ -385,6 +400,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
 
         if (manifestId === FIXTURE_MANIFEST_ID) {
           sendJson(res, 200, fixtureArtifactDescriptorsNonEmpty());
+        } else if (manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
+          sendJson(res, 200, fixtureArtifactDescriptorsForShowcase(SHOWCASE_DEMO_RUN_ID));
         } else if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
           sendJson(res, 200, []);
         } else {

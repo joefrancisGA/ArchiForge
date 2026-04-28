@@ -126,4 +126,11 @@ public sealed class BillingLedgerDapperDispatchRecorder(
 
         await _inner.ChangeQuantityAsync(tenantId, seatsPurchased, rawWebhookJson, cancellationToken);
     }
+
+    public Task<IReadOnlyList<BillingSubscriptionStateHistoryEntry>> GetSubscriptionStateHistoryAsync(Guid tenantId,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        return _inner.GetSubscriptionStateHistoryAsync(tenantId, maxRows, cancellationToken);
+    }
 }

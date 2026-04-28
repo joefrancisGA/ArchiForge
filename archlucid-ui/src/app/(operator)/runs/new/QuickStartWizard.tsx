@@ -148,7 +148,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   const isFirstStep = quickStep === 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-24">
       <div className="space-y-1" data-testid="quick-start-progress">
         <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
           Quick start — step {quickStep + 1} of {QUICK_STEPS.length}: {QUICK_STEPS[quickStep].label}

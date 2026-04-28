@@ -56,4 +56,12 @@ public interface IBillingLedger
     /// <summary>Updates <c>SeatsPurchased</c> from a Marketplace <c>ChangeQuantity</c> webhook (GA path only).</summary>
     Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns recent subscription state transitions for <paramref name="tenantId" /> (newest first), capped by
+    ///     <paramref name="maxRows" />.
+    /// </summary>
+    Task<IReadOnlyList<BillingSubscriptionStateHistoryEntry>> GetSubscriptionStateHistoryAsync(Guid tenantId,
+        int maxRows,
+        CancellationToken cancellationToken = default);
 }

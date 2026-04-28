@@ -282,6 +282,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
             "dbo.UsageEvents",
             "dbo.TenantExecDigestPreferences",
             "dbo.SentEmails",
+            "dbo.BillingSubscriptionStateHistory",
             "dbo.BillingSubscriptions",
             "dbo.TenantTrialSeatOccupants",
             "dbo.IntegrationEventOutbox",

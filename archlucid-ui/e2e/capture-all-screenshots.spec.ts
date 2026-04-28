@@ -7,8 +7,12 @@ import {
   fixtureLegacyRunComparisonScreenshot,
   fixtureManifestSummaryScreenshot,
   fixtureRunDetailScreenshot,
+  SCREENSHOT_APPROVAL_ID,
+  SCREENSHOT_FINDING_ID,
   SCREENSHOT_LEFT_RUN_ID,
   SCREENSHOT_MANIFEST_ID,
+  SCREENSHOT_PLAN_ID,
+  SCREENSHOT_POLICY_PACK_ID,
   SCREENSHOT_RIGHT_RUN_ID,
   SCREENSHOT_RUN_ID,
   SHOWCASE_DEMO_RUN_ID,
@@ -24,11 +28,6 @@ const OUT = publicDirUnderUi("screenshots", "all-routes");
 
 /** Per-test cap for visiting every route: default Playwright would time out; 30m for slow cold builds or CI. */
 const ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS = 30 * 60 * 1_000;
-
-const PLAN_ID = "e2e-plan-001";
-const FINDING_ID = "e2e-finding-001";
-const APPROVAL_ID = "e2e-approval-001";
-const POLICY_PACK_ID = "e2e-policy-pack-001";
 
 /** One href per `page.tsx` (63 routes); run/manifest/compare paths use {@link SCREENSHOT_*} for human-readable URLs. Legacy `/onboarding*` aliases omitted — they redirect to `/getting-started`. */
 const HREFS: string[] = [
@@ -56,8 +55,8 @@ const HREFS: string[] = [
   "/governance",
   "/governance/dashboard",
   "/governance/findings",
-  `/governance/approval-requests/${encodeURIComponent(APPROVAL_ID)}/lineage`,
-  `/governance/policy-packs/${encodeURIComponent(POLICY_PACK_ID)}`,
+  `/governance/approval-requests/${encodeURIComponent(SCREENSHOT_APPROVAL_ID)}/lineage`,
+  `/governance/policy-packs/${encodeURIComponent(SCREENSHOT_POLICY_PACK_ID)}`,
   "/governance-resolution",
   "/graph",
   "/help",
@@ -66,7 +65,7 @@ const HREFS: string[] = [
   "/live-demo",
   `/manifests/${encodeURIComponent(SCREENSHOT_MANIFEST_ID)}`,
   "/planning",
-  `/planning/plans/${encodeURIComponent(PLAN_ID)}`,
+  `/planning/plans/${encodeURIComponent(SCREENSHOT_PLAN_ID)}`,
   "/policy-packs",
   "/pricing",
   "/privacy",
@@ -76,8 +75,8 @@ const HREFS: string[] = [
   "/runs?projectId=default",
   "/runs/new",
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}`,
-  `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(FINDING_ID)}`,
-  `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(FINDING_ID)}/inspect`,
+  `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}`,
+  `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/findings/${encodeURIComponent(SCREENSHOT_FINDING_ID)}/inspect`,
   `/runs/${encodeURIComponent(SCREENSHOT_RUN_ID)}/provenance`,
   "/search",
   "/security-trust",
