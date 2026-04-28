@@ -13,8 +13,14 @@ export type SeeItMarketingBodyProps = {
  * Anonymous “30 second” marketing slice — only fields present on `DemoCommitPagePreviewResponse`.
  */
 export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps) {
-  const firstArtifacts = payload.artifacts.slice(0, 3);
-  const manifestVersionLabel = `${payload.manifest.ruleSetId} @ ${payload.manifest.ruleSetVersion}`;
+  const artifactList = Array.isArray(payload.artifacts) ? payload.artifacts : [];
+  const firstArtifacts = artifactList.slice(0, 3);
+  const ruleSetId = payload.manifest?.ruleSetId ?? "";
+  const ruleSetVersion = payload.manifest?.ruleSetVersion ?? "";
+  const manifestVersionLabel = `${ruleSetId} @ ${ruleSetVersion}`;
+  const runExplanation = payload.runExplanation;
+  const findingCount = runExplanation?.findingCount ?? "—";
+  const complianceGapCount = runExplanation?.complianceGapCount ?? "—";
 
   return (
     <div className="space-y-6">
@@ -38,7 +44,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Run id</dt>
             <dd>
-              <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-900">{payload.run.runId}</code>
+              <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-900">{payload.run?.runId ?? "—"}</code>
             </dd>
           </div>
           <div>
@@ -50,8 +56,8 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Finding counts (from run explanation)</dt>
             <dd data-testid="see-it-finding-counts">
-              findingCount={payload.runExplanation.findingCount}, complianceGapCount=
-              {payload.runExplanation.complianceGapCount}
+              findingCount={findingCount}, complianceGapCount=
+              {complianceGapCount}
             </dd>
           </div>
         </dl>

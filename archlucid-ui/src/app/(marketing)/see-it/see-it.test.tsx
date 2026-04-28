@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
+
 import { loadSeeItDemoPreview } from "./load-see-it-demo-preview";
 import { createMinimalDemoPreviewPayload } from "./see-it.fixtures";
 import { SeeItMarketingBody } from "./SeeItMarketingBody";
@@ -107,5 +109,15 @@ describe("SeeItMarketingBody", () => {
     render(<SeeItMarketingBody source="snapshot" payload={payload} />);
 
     expect(screen.getByTestId("see-it-snapshot-notice")).toBeInTheDocument();
+  });
+
+  /** Snapshot JSON or malformed API payloads may omit `artifacts`; avoid `.slice` on undefined (SSR stringify). */
+  it("renders without crashing when artifacts is missing", () => {
+    const payload = createMinimalDemoPreviewPayload();
+    const malformed = { ...payload, artifacts: undefined } as unknown as DemoCommitPagePreviewResponse;
+
+    render(<SeeItMarketingBody source="snapshot" payload={malformed} />);
+
+    expect(screen.getByTestId("see-it-no-artifacts")).toBeInTheDocument();
   });
 });
