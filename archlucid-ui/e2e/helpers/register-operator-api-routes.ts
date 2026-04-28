@@ -220,3 +220,76 @@ export async function registerCompareAndExplainRoutes(page: Page): Promise<void>
     },
   });
 }
+
+/**
+ * Stubs generic `/api/proxy` GETs used by full-route screenshot crawls when no backend is reachable.
+ * Register **after** {@link registerOperatorJourneyApiRoutes} so this handler runs first (Playwright matches last registered routes first).
+ */
+export async function registerScreenshotSuiteProxyRoutes(page: Page): Promise<void> {
+  await page.route("**/*", async (route) => {
+    const req = route.request();
+
+    if (req.method() !== "GET") {
+      await route.fallback();
+
+      return;
+    }
+
+    const url = new URL(req.url());
+    const apiPath = backendApiPath(url);
+
+    if (apiPath === null) {
+      await route.fallback();
+
+      return;
+    }
+
+    if (apiPath === "/health/ready") {
+      await fulfillJson(route, 200, {
+        status: "Healthy",
+        entries: [{ name: "database", status: "Healthy", durationMs: 12 }],
+      });
+
+      return;
+    }
+
+    if (apiPath === "/version") {
+      await fulfillJson(route, 200, {
+        informationalVersion: "e2e-screenshots",
+        commitSha: "e2e000000000000000000000000000000000000",
+      });
+
+      return;
+    }
+
+    if (apiPath === "/health") {
+      await fulfillJson(route, 200, {
+        status: "Healthy",
+        entries: [
+          {
+            name: "circuit_breakers",
+            status: "Healthy",
+            data: {
+              gates: [{ name: "completion", state: "Closed", breakDurationSeconds: 0 }],
+            },
+          },
+        ],
+      });
+
+      return;
+    }
+
+    if (apiPath === "/v1/diagnostics/operator-task-success-rates") {
+      await fulfillJson(route, 200, {
+        windowNote: "E2E screenshot fixture.",
+        firstRunCommittedTotal: 1,
+        firstSessionCompletedTotal: 2,
+        firstRunCommittedPerSessionRatio: 0.5,
+      });
+
+      return;
+    }
+
+    await route.fallback();
+  });
+}

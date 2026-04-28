@@ -5,7 +5,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-29 (item **12** — public `/accessibility` + `accessibility@archlucid.net`; Assessor B thread: only Q3 still open).
+**Last updated:** 2026-04-29 (item **12** — public `/accessibility` + `accessibility@archlucid.net`; **ITSM V1.1 priority** — ServiceNow first; Assessor B thread: only Q3 still open).
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -21,6 +21,12 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | **Unify Error Responses for Hidden UI Features** | **404 Not Found.** Restricted API routes will return 404 instead of 403 to prevent feature and resource enumeration by unauthorized tiers/roles. | `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`, `ArchLucid.Api.Tests/`, Operator UI interpretation logic. |
 
 **Refined 2026-04-28 (Assessor B):** for **tenant-scoped** run/manifest APIs, owner prefers **403** with clear Problem Details for **debuggability**; **404** remains preferred for **admin** surfaces. See **Resolved 2026-04-28** — implementation work reconciles this split with the filter above on a per-route basis.
+
+### Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **First-party ITSM / Atlassian connector build order** | **ServiceNow first.** Among the [V1_DEFERRED.md](library/V1_DEFERRED.md) §6 first-party connectors (ServiceNow, Jira, Confluence), **ServiceNow** is the **priority** target for V1.1 **engineering sequencing** and ADR drafting. **Jira** and **Confluence** follow after ServiceNow in the same V1.1 release window unless a superseding owner entry reorders. Does **not** change release-window pinning (all three remain V1.1); does **not** alter Microsoft-native preference (Teams, Logic Apps, ADO, GitHub) as the primary integration anchor. | [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6, [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), V1.1 planning ADRs |
 
 ---
 
@@ -191,7 +197,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.net`** is canonical. Generation + custodian-naming still owner-only.
 
-11. **Workflow-integration sequencing (rescoped 2026-04-23 — second pass; updated 2026-04-24)** — **ServiceNow** is release-window-pinned to **V1.1** and **Slack** is release-window-pinned to **V2** (see the resolved table in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B): *Resolved 2026-04-23 (ServiceNow + Slack connector scope)*). **Confluence is now release-window-pinned to V1.1** (owner decision 2026-04-24 — all Atlassian suite connectors deferred to V1.1; see Improvement 3 above and [`docs/library/V1_DEFERRED.md` §6](library/V1_DEFERRED.md)). Sequencing preference is unchanged: prefer **Microsoft-native** options (Teams notifications — already shipped in V1, Logic Apps Standard workflows, deeper ADO/GitHub) as the primary surface; Atlassian connectors (Jira, Confluence) follow in V1.1.
+11. **Workflow-integration sequencing — Resolved 2026-04-27 (ITSM priority).** **ServiceNow** is release-window-pinned to **V1.1** and is the **first** first-party ITSM/Atlassian connector to **size and build** in that window — ahead of **Jira** and **Confluence** (see **Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)** above). **Slack** remains **V2** (see [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B): *Resolved 2026-04-23 (ServiceNow + Slack connector scope)*). **Confluence** and **Jira** remain **V1.1** (owner decision 2026-04-24 — Improvement 3 and [`docs/library/V1_DEFERRED.md` §6](library/V1_DEFERRED.md)). Prefer **Microsoft-native** options (Teams — shipped in V1, Logic Apps, ADO, GitHub) as the **primary** surface; among deferred first-party ITSM/Atlassian connectors, **ServiceNow → Jira/Confluence**.
 
 12. **WCAG conformance publication channel — Resolved 2026-04-22 (reconfirmed 2026-04-29).** **Public `/accessibility`** on the marketing site is **canonical** (not Trust Center-only). Use **`accessibility@archlucid.net`** for accessibility reports — **not** `security@` as the advertised channel for WCAG-only follow-up. See **Resolved 2026-04-29** above, [`CHANGELOG.md`](CHANGELOG.md) (2026-04-22), and [`docs/security/ACCESSIBILITY_MAILBOX.md`](security/ACCESSIBILITY_MAILBOX.md).
 

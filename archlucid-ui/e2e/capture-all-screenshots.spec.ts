@@ -14,7 +14,11 @@ import {
   SHOWCASE_DEMO_RUN_ID,
 } from "./fixtures";
 import { comparePairSearchParams } from "./helpers/operator-journey";
-import { FIXTURE_EMPTY_ZIP_BYTES, registerOperatorJourneyApiRoutes } from "./helpers/register-operator-api-routes";
+import {
+  FIXTURE_EMPTY_ZIP_BYTES,
+  registerOperatorJourneyApiRoutes,
+  registerScreenshotSuiteProxyRoutes,
+} from "./helpers/register-operator-api-routes";
 import { publicDirUnderUi } from "./screenshot-output-helpers";
 
 const OUT = publicDirUnderUi("screenshots", "all-routes");
@@ -124,13 +128,15 @@ test.describe("all routes screenshots (mock API)", () => {
         body: fixtureComparisonExplanation(),
       },
     });
+    await registerScreenshotSuiteProxyRoutes(page);
   });
 
   test("writes PNGs for every app route (page.tsx)", async ({ page }) => {
     test.setTimeout(ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS);
 
     for (const href of HREFS) {
-      await page.goto(href, { waitUntil: "networkidle", timeout: 120_000 });
+      // `networkidle` rarely settles on Next.js (open connections); health route proxy GETs must still resolve — see registerScreenshotSuiteProxyRoutes.
+      await page.goto(href, { waitUntil: "load", timeout: 120_000 });
 
       if (href === "/advisory-scheduling")
         await page.waitForURL(/\/advisory\?tab=schedules(?:&[^#]*)?(?:$|#)/, { timeout: 30_000 });

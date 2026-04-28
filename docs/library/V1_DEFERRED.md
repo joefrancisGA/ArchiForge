@@ -77,6 +77,7 @@ These items are **explicitly promoted to V1.1** rather than left as open-ended "
 **Rules:**
 
 - The V1.1 commitment is a **release-window** promise, not a date. Pinning a calendar date requires an owner decision recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+- **First-party implementation priority (Resolved 2026-04-27):** Among **ServiceNow**, **Jira**, and **Confluence**, **ServiceNow** is the **priority** target for V1.1 engineering sequencing (size and build **before** Atlassian suite connectors). See [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) *Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)*. Reordering requires a new owner entry in `PENDING_QUESTIONS.md`.
 - New ITSM connectors **must not** widen this table without their own owner decision — **Azure DevOps Work Items** stays in `[Planned]` until separately promoted.
 - Each connector **must** consume the same Authority-shaped event payloads the existing webhooks ship; no parallel finding-projection schema per ITSM target.
 
