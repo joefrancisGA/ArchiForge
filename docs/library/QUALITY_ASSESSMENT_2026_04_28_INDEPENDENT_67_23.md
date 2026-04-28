@@ -16,7 +16,7 @@ ArchLucid reaches **67.23% weighted readiness** — a product that is architectu
 
 ### Commercial Picture
 
-The commercial story is exhaustively documented (pricing philosophy, buyer personas, competitive landscape, order-form template, trial flow, ROI model) but entirely unvalidated. Zero published reference customers. Stripe TEST mode only. Azure Marketplace not published. The V1 commercial motion is sales-led by necessity (no self-serve checkout available). The pricing tier structure (Team/Professional/Enterprise at $199-$899/workspace/month plus per-seat) is reasonable but competes against tools that are often free (AWS Well-Architected, Azure Advisor) or deeply embedded in enterprise EA toolchains (LeanIX, Ardoq). The value proposition — "reviewable architecture package faster" — is credible but unproven with real customer evidence.
+The commercial story is exhaustively documented (pricing philosophy, buyer personas, competitive landscape, order-form template, trial flow, ROI model) but entirely unvalidated. Zero published reference customers. Stripe TEST mode only. Azure Marketplace not published. The V1 commercial motion is sales-led by necessity (no self-serve checkout available). The pricing tier structure (Team/Professional/Enterprise; locked workspace and per-seat rates per [PRICING_PHILOSOPHY.md §5](../go-to-market/PRICING_PHILOSOPHY.md#5-locked-list-prices-2026)) is reasonable but competes against tools that are often free (AWS Well-Architected, Azure Advisor) or deeply embedded in enterprise EA toolchains (LeanIX, Ardoq). The value proposition — "reviewable architecture package faster" — is credible but unproven with real customer evidence.
 
 ### Enterprise Picture
 
@@ -38,6 +38,8 @@ I located and reviewed the following deferred-scope documents:
 - **`docs/library/V1_DEFERRED.md`** §6c — found. Pen-test publication and PGP key both explicitly V1.1.
 
 Items explicitly deferred to V1.1 or V2 are **not penalized** in scoring.
+
+**Score review confirmation (2026-04-28):** Re-read [V1_DEFERRED.md](V1_DEFERRED.md) against the scores; Marketability, Procurement Readiness, Proof-of-ROI, Trustworthiness, and Adoption Friction weights do **not** include penalties for reference customers, pen-test publication, PGP key drop, commerce live keys, MCP, or first-party ITSM connectors. Scores reflect only in-repo, V1-scope evidence and remaining risks (e.g., self-asserted assurance, no measured pilots).
 
 ---
 
@@ -492,7 +494,7 @@ Items explicitly deferred to V1.1 or V2 are **not penalized** in scoring.
 
 2. **No reference customer for social proof.** Enterprise buyers will not be the first customer without seeing someone else succeed. The reference-customer table has zero rows at `Status: Published`. No case study, no testimonial, no logo permission.
 
-3. **Unproven ROI claim.** The pricing is value-based ($199-$899/workspace/month + per-seat) against a claimed ~$294K savings. Without a single measured pilot, the value claim is a hypothesis, not evidence. Buyers who ask "who else has seen these savings?" get silence.
+3. **Unproven ROI claim.** The pricing is value-based (locked workspace and per-seat rates per [PRICING_PHILOSOPHY.md §5](../go-to-market/PRICING_PHILOSOPHY.md#5-locked-list-prices-2026)) against a claimed ~$294K savings. Without a single measured pilot, the value claim is a hypothesis, not evidence. Buyers who ask "who else has seen these savings?" get silence.
 
 4. **Category creation burden.** "AI Architecture Intelligence" is not an established category. Buyers searching for solutions will find LeanIX, Ardoq, or "just use ChatGPT." ArchLucid must educate before it can sell, which lengthens sales cycles and increases CAC.
 
