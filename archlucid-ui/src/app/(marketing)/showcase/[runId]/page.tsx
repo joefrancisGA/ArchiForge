@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
 import {
@@ -11,6 +12,8 @@ import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 import { ShowcaseWhatThisProves } from "./ShowcaseWhatThisProves";
 
 export const revalidate = 300;
+
+const SHOWCASE_HERO_SUBTITLE = "Sample completed output";
 
 type PageProps = {
   params: Promise<{ runId: string }>;
@@ -50,7 +53,7 @@ function showcaseTitleForRunId(runId: string): string {
   const decoded = decodeURIComponent(runId);
 
   if (decoded === "claims-intake-modernization") {
-    return "Claims Intake Modernization — completed architecture output";
+    return "Claims Intake Modernization: Completed Architecture Output";
   }
 
   return `Completed example (${decoded})`;
@@ -60,12 +63,55 @@ function ShowcaseLead({ children }: { readonly children: ReactNode }) {
   return <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{children}</p>;
 }
 
+function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
+  return (
+    <>
+      <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+        {showcaseTitleForRunId(runId)}
+      </h1>
+      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{SHOWCASE_HERO_SUBTITLE}</p>
+    </>
+  );
+}
+
+/** Bottom conversion — public marketing surface; deep-links to trial and sign-in. */
+function ShowcaseBottomCTA(): ReactElement {
+  return (
+    <section
+      aria-label="Get started with ArchLucid"
+      className="mt-10 rounded-lg border border-neutral-200 bg-neutral-50/80 p-6 dark:border-neutral-800 dark:bg-neutral-900/40"
+      data-testid="showcase-bottom-cta"
+    >
+      <h2 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-50">
+        Create your own architecture output
+      </h2>
+      <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+        Start a new request in your workspace to generate manifests, findings, and exports for your systems.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Link
+          href="/get-started"
+          className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          Start your own analysis
+        </Link>
+        <Link
+          href="/auth/signin"
+          className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+        >
+          Sign in to workspace
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 /** One-line teaser under the hero — caps length for marketing hero layout. */
 function trimLeadDescription(desc: string | undefined | null): string {
   const t = (desc ?? "").trim();
 
   if (t.length === 0) {
-    return "Read-only preview of a finalized architecture analysis — manifest, artifacts, and review trail.";
+    return "Sample output for a finalized architecture analysis — manifest, artifacts, and review trail.";
   }
 
   return t.length <= 80 ? t : `${t.slice(0, 77)}…`;
@@ -92,8 +138,8 @@ function ShowcaseApiUnavailableBanner(): ReactElement {
       role="status"
       data-testid="showcase-api-unavailable-banner"
     >
-      <span className="font-semibold">Live preview unavailable.</span> Showing curated sample results instead — connect an
-      API with marketing showcase enabled for live data.
+      <span className="font-semibold">Live preview unavailable.</span> Showing curated sample results instead —{" "}
+      <span className="font-medium">sample output generated from curated demo data.</span>
     </div>
   );
 }
@@ -117,8 +163,8 @@ function ShowcaseStaticDemoBanner(): ReactElement {
         role="status"
         data-testid="showcase-static-demo-banner"
       >
-        <span className="font-semibold">Sample data preview.</span> Curated results for this scenario; connect a workspace with
-        preview enabled for live data.
+        <span className="font-semibold">Sample data preview.</span> Curated results for this scenario —{" "}
+        <span className="font-medium">sample output generated from curated demo data.</span>
       </div>
     );
   }
@@ -129,8 +175,8 @@ function ShowcaseStaticDemoBanner(): ReactElement {
       role="status"
       data-testid="showcase-static-demo-banner"
     >
-      <span className="font-semibold">Static demo preview.</span> Viewing curated sample results. Connect a workspace with
-      preview enabled to replace this with live data.
+      <span className="font-semibold">Static demo preview.</span> Viewing curated sample results —{" "}
+      <span className="font-medium">sample output generated from curated demo data.</span>
     </div>
   );
 }
@@ -140,7 +186,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
   return {
     title: `ArchLucid · ${showcaseTitleForRunId(runId)}`,
-    description: "Read-only completed architecture output — manifest, findings, artifacts, and review trail.",
+    description: "Completed architecture output — manifest, findings, artifacts, and review trail.",
     robots: { index: true, follow: true },
   };
 }
@@ -174,7 +220,7 @@ async function fetchShowcasePayload(
   }
 }
 
-/** Public read-only projection of finalized run preview (dynamic API path; static fallback when no API URL). */
+/** Public marketing projection of finalized run preview (dynamic API path; static fallback when no API URL). */
 export default async function MarketingShowcasePage(props: PageProps) {
   const { runId } = await props.params;
   const decodedRunId = decodeURIComponent(runId);
@@ -185,15 +231,12 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
-          Claims Intake Modernization — completed architecture output
-        </h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Completed example (read-only marketing preview)</p>
+        <ShowcaseHero runId={runId} />
 
         <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
 
         <div className="mt-6">
-          <ShowcaseWhatThisProves bullets={keyDriversFromPayload(payload)} />
+          <ShowcaseWhatThisProves scenarioBullets={keyDriversFromPayload(payload)} />
         </div>
 
         <ShowcaseStaticDemoBanner />
@@ -201,6 +244,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
         <div className="mt-6">
           <DemoPreviewMarketingBody payload={payload} />
         </div>
+
+        <ShowcaseBottomCTA />
       </main>
     );
   }
@@ -213,16 +258,13 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "not_found": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
-            Claims Intake Modernization — completed architecture output
-          </h1>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Completed example (read-only marketing preview)
-          </p>
+          <ShowcaseHero runId={runId} />
 
           <div className="mt-6">
             <DemoPreviewNotAvailable />
           </div>
+
+          <ShowcaseBottomCTA />
         </main>
       );
     }
@@ -230,40 +272,34 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "ok":
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
-            Claims Intake Modernization — completed architecture output
-          </h1>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Completed example (read-only marketing preview)
-          </p>
+          <ShowcaseHero runId={runId} />
 
           <ShowcaseLead>{trimLeadDescription(bundle.payload.run.description)}</ShowcaseLead>
 
           <div className="mt-6">
-            <ShowcaseWhatThisProves bullets={keyDriversFromPayload(bundle.payload)} />
+            <ShowcaseWhatThisProves scenarioBullets={keyDriversFromPayload(bundle.payload)} />
           </div>
 
           <div className="mt-6">
             <DemoPreviewMarketingBody payload={bundle.payload} />
           </div>
+
+          <ShowcaseBottomCTA />
         </main>
       );
 
     case "bad_json": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
-            Claims Intake Modernization — completed architecture output
-          </h1>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Completed example (read-only marketing preview)
-          </p>
+          <ShowcaseHero runId={runId} />
 
           <ShowcaseLoadFailed />
 
           <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
             The server returned data this page could not read.
           </p>
+
+          <ShowcaseBottomCTA />
         </main>
       );
     }
@@ -271,16 +307,13 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "invalid": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
-            Claims Intake Modernization — completed architecture output
-          </h1>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Completed example (read-only marketing preview)
-          </p>
+          <ShowcaseHero runId={runId} />
 
           <div className="mt-6">
             <DemoPreviewNotAvailable />
           </div>
+
+          <ShowcaseBottomCTA />
         </main>
       );
     }
@@ -291,17 +324,12 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
-            Claims Intake Modernization — completed architecture output
-          </h1>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Completed example (read-only marketing preview)
-          </p>
+          <ShowcaseHero runId={runId} />
 
           <ShowcaseLead>{trimLeadDescription(fallbackPayload.run.description)}</ShowcaseLead>
 
           <div className="mt-6">
-            <ShowcaseWhatThisProves bullets={keyDriversFromPayload(fallbackPayload)} />
+            <ShowcaseWhatThisProves scenarioBullets={keyDriversFromPayload(fallbackPayload)} />
           </div>
 
           <ShowcaseApiUnavailableBanner />
@@ -309,6 +337,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
           <div className="mt-6">
             <DemoPreviewMarketingBody payload={fallbackPayload} />
           </div>
+
+          <ShowcaseBottomCTA />
         </main>
       );
     }

@@ -78,8 +78,24 @@ export function RunsListClient({
 }: RunsListClientProps) {
   const [filterText, setFilterText] = useState("");
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
-  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
+  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(() => (runs.length > 0 ? runs[0] : null));
   const viewportNarrow = useViewportNarrow();
+
+  useEffect(() => {
+    if (runs.length === 0) {
+      setSelectedRun(null);
+
+      return;
+    }
+
+    setSelectedRun((current) => {
+      if (current !== null && runs.some((r) => r.runId === current.runId)) {
+        return current;
+      }
+
+      return runs[0] ?? null;
+    });
+  }, [runs]);
 
   const closeInspector = useCallback(() => {
     setSelectedRun(null);

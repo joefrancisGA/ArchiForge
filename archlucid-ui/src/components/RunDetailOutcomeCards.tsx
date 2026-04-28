@@ -2,11 +2,11 @@ import Link from "next/link";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-
 type RunDetailOutcomeCardsProps = {
   readonly runId: string;
   readonly hasGoldenManifest: boolean;
   readonly findingCountDisplay: number | null;
+  readonly warningCountDisplay: number | null;
   readonly artifactCount: number;
   readonly unresolvedIssueCountDisplay: number | null;
 };
@@ -18,9 +18,11 @@ export function RunDetailOutcomeCards({
   runId,
   hasGoldenManifest,
   findingCountDisplay,
+  warningCountDisplay,
   artifactCount,
   unresolvedIssueCountDisplay,
 }: RunDetailOutcomeCardsProps) {
+
   return (
     <section aria-label="Run outcomes" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Card className="border-neutral-200 dark:border-neutral-800">
@@ -43,21 +45,24 @@ export function RunDetailOutcomeCards({
       <Card className="border-neutral-200 dark:border-neutral-800">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            Findings
+            Warnings &amp; findings
           </CardTitle>
-          <CardDescription>Surfaced recommendations</CardDescription>
+          <CardDescription>From architecture review</CardDescription>
         </CardHeader>
-        <CardContent className="pt-0">
-          <p className="m-0 text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-            {findingCountDisplay === null ? "—" : findingCountDisplay}
+        <CardContent className="pt-0 space-y-1">
+          <p className="m-0 text-sm tabular-nums text-neutral-900 dark:text-neutral-100">
+            <span className="font-medium">Findings:</span>{" "}
+            <span className="text-lg font-semibold">{findingCountDisplay === null ? "—" : findingCountDisplay}</span>
+          </p>
+          <p className="m-0 text-sm tabular-nums text-neutral-900 dark:text-neutral-100">
+            <span className="font-medium">Warnings (manifest):</span>{" "}
+            <span className="text-lg font-semibold">{warningCountDisplay === null ? "—" : warningCountDisplay}</span>
           </p>
           {unresolvedIssueCountDisplay !== null && unresolvedIssueCountDisplay > 0 ? (
             <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
               {unresolvedIssueCountDisplay} unresolved on manifest
             </p>
-          ) : (
-            <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">From aggregate explanation</p>
-          )}
+          ) : null}
         </CardContent>
       </Card>
 

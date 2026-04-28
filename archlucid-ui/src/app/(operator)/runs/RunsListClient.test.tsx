@@ -17,11 +17,11 @@ const sampleRun: RunSummary = {
 };
 
 describe("RunsListClient inspector", () => {
-  it("shows empty inspector copy until a row is selected", () => {
+  it("pre-selects the first run so the inspector shows a preview on load", () => {
     render(
       <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
     );
-    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
   });
 
   it("opens inspector preview when a row is clicked (not the Open run link)", () => {

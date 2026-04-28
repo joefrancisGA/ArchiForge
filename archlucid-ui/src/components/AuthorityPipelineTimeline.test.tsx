@@ -25,15 +25,17 @@ describe("AuthorityPipelineTimeline", () => {
 
     render(<AuthorityPipelineTimeline items={items} />);
 
-    expect(screen.getByText(/RunStarted/)).toBeInTheDocument();
-    expect(screen.getByText(/RunCompleted/)).toBeInTheDocument();
-    expect(screen.getByText(/correlation c1/)).toBeInTheDocument();
+    expect(screen.getByText("Run started")).toBeInTheDocument();
+    expect(screen.getByText("Run completed")).toBeInTheDocument();
+    expect(screen.getAllByText(/RunStarted/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/RunCompleted/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/c1/)).toBeInTheDocument();
   });
 
   it("shows empty guidance when there are no events", () => {
     render(<AuthorityPipelineTimeline items={[]} />);
 
-    expect(screen.getByText(/No audit events/)).toBeInTheDocument();
+    expect(screen.getByText(/No events recorded/)).toBeInTheDocument();
   });
 
   it("shows load error message when provided", () => {

@@ -3,8 +3,7 @@ import Link from "next/link";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { CopyIdButton } from "@/components/CopyIdButton";
+import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
@@ -16,10 +15,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/operator-response-guards";
-import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID } from "@/lib/showcase-static-demo";
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
+
+function manifestScenarioSubtitle(m: ManifestSummary): string | null {
+  if (m.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID) {
+    return "Claims Intake Modernization";
+  }
+
+  const runId = m.runId?.trim() ?? "";
+
+  if (runId === "claims-intake-modernization") {
+    return "Claims Intake Modernization";
+  }
+
+  return null;
+}
 
 /** Server-rendered manifest detail page. Shows manifest summary, artifacts table, and download links. */
 export default async function ManifestDetailPage({
@@ -95,7 +108,7 @@ export default async function ManifestDetailPage({
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Finalized architecture manifest
+          Finalized Architecture Manifest
         </h1>
         <p className="m-0 text-sm font-semibold">Manifest summary could not be loaded.</p>
         <OperatorApiProblem
@@ -128,7 +141,7 @@ export default async function ManifestDetailPage({
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Finalized architecture manifest
+          Finalized Architecture Manifest
         </h1>
         <OperatorMalformedCallout>
           <strong>Manifest summary response was not usable.</strong>
@@ -159,7 +172,7 @@ export default async function ManifestDetailPage({
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Finalized architecture manifest
+          Finalized Architecture Manifest
         </h1>
         <OperatorErrorCallout>
           <strong>Manifest summary missing.</strong>
@@ -180,6 +193,8 @@ export default async function ManifestDetailPage({
     );
   }
 
+  const manifestSubtitle = manifestScenarioSubtitle(summary);
+
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -198,9 +213,26 @@ export default async function ManifestDetailPage({
 
       {usedStaticDemoManifest ? <OperatorDemoStaticBanner /> : null}
 
-      <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-        Finalized architecture manifest
-      </h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+        <div>
+          <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            Finalized Architecture Manifest
+          </h1>
+          {manifestSubtitle ? (
+            <p className="m-0 mt-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              {manifestSubtitle}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/runs/${encodeURIComponent(summary.runId)}`}>Back to run</Link>
+          </Button>
+          <Button variant="default" size="sm" asChild>
+            <a href={getBundleDownloadUrl(manifestId)}>Export manifest bundle</a>
+          </Button>
+        </div>
+      </div>
 
       <p className="m-0 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
         A finalized manifest is the reviewed, versioned architecture record for this run. It captures decisions, findings,
@@ -213,49 +245,7 @@ export default async function ManifestDetailPage({
           <CardDescription>Status, rules, and counts for this manifest.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {summary.operatorSummary ? (
-            <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-              {summary.operatorSummary}
-            </p>
-          ) : null}
-          <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
-              <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100">
-                {manifestStatusForDisplay(summary.status)}
-              </span>
-            </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Rule set</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
-              {summary.ruleSetId} {summary.ruleSetVersion}
-            </dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Decisions</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{summary.decisionCount}</dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Warnings</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{summary.warningCount}</dd>
-            <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Unresolved issues</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
-              {summary.unresolvedIssueCount}
-            </dd>
-          </dl>
-
-          <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
-            <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
-              <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Manifest ID</dt>
-              <dd className="m-0 flex min-w-0 flex-wrap items-center gap-2 text-sm text-neutral-900 dark:text-neutral-100">
-                <code className="min-w-0 break-all font-mono text-xs">{summary.manifestId}</code>
-                <CopyIdButton value={summary.manifestId} aria-label="Copy manifest ID" />
-              </dd>
-              {summary.manifestHash ? (
-                <>
-                  <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Hash</dt>
-                  <dd className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    <span className="font-mono text-[12px]">{summary.manifestHash}</span>
-                  </dd>
-                </>
-              ) : null}
-            </dl>
-          </CollapsibleSection>
+          <ManifestDetailSummaryPanel summary={summary} />
         </CardContent>
       </Card>
 

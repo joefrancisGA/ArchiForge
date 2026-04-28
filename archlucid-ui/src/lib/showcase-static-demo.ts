@@ -6,6 +6,30 @@ export const SHOWCASE_STATIC_DEMO_RUN_ID = "claims-intake-modernization";
 /** Canonical manifest UUID for the static showcase payload (matches operator mock + marketing body). */
 export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
 
+/**
+ * Curated synopses for the static Claims Intake manifest detail page (no list API on summary).
+ * Keep length aligned with `manifest.decisionCount` / `warningCount` in this payload.
+ */
+export const SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES: readonly string[] = [
+  "Intake API remains system-of-record; channel adapters are stateless facades.",
+  "PHI is classified at ingress; audit lineage follows the member correlation ID.",
+  "Peak-load buffering uses bounded queues with explicit back-pressure to adjudication.",
+  "Manual rework queues are capped; overflow routes to a supervised exception path.",
+  "Third-party OCR is optional; human confirm gates apply before downstream commit.",
+  "Adjudication handoff uses signed event envelopes with idempotent consumers.",
+  "Retention aligns to enterprise policy; cold paths avoid negotiable shorter windows.",
+  "Observability spans intake latency, queue depth, and exception-rate SLOs.",
+  "Disaster recovery favors replay-from-journal over dual-active intake writers.",
+  "Feature flags scope rollout by cohort; kill switches are tested each release.",
+  "Data residency constraints are enforced at the storage account boundary.",
+  "Sponsor KPI pack ties modernization outcomes to defensible operational metrics.",
+];
+
+/** Single curated warning matching `manifest.warningCount` for the static showcase. */
+export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [
+  "Unstructured attachments may still bypass the OCR path during peak; monitor exception volume weekly.",
+];
+
 const GENERATED_UTC = "2026-01-15T14:30:00.000Z";
 
 /**

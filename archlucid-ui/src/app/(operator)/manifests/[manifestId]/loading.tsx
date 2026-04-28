@@ -24,7 +24,7 @@ export default function ManifestDetailLoading() {
         </Link>
       </nav>
       <p className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-        Finalized architecture manifest
+        Finalized Architecture Manifest
       </p>
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">Loading manifest record…</p>
     </div>

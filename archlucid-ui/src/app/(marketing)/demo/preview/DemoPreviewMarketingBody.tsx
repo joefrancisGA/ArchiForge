@@ -190,9 +190,9 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
           })}
         </ul>
         <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
-          Show the full timeline on an{" "}
+          Show the full timeline after{" "}
           <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
-            operator install
+            opening in workspace
           </Link>
           .
         </p>

@@ -276,8 +276,8 @@ export default async function RunDetailPage({
   const runDetailNavSections: RunDetailSection[] = [
     { id: "run-metadata", label: "Run", available: true },
     { id: "pipeline-timeline", label: "Timeline", available: true },
-    { id: "agent-forensics", label: "Diagnostics", available: true },
     { id: "authority-chain", label: "Review trail", available: true },
+    { id: "agent-forensics", label: "Diagnostics", available: true },
     { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
     { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
     { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
@@ -321,6 +321,7 @@ export default async function RunDetailPage({
         runId={resolvedDetail.run.runId}
         artifactCount={artifacts.length}
         findingCountDisplay={explanationSummary?.findingCount ?? null}
+        warningCountDisplay={manifestSummary?.warningCount ?? null}
         hasGoldenManifest={Boolean(manifestId)}
         unresolvedIssueCountDisplay={manifestSummary?.unresolvedIssueCount ?? null}
       />
@@ -388,8 +389,6 @@ export default async function RunDetailPage({
           </CardContent>
         </Card>
       </section>
-
-      <RunAgentForensicsSection runId={runId} />
 
       <section id="authority-chain" className="scroll-mt-24">
         <Card>
@@ -492,6 +491,8 @@ export default async function RunDetailPage({
           </CardContent>
         </Card>
       </section>
+
+      <RunAgentForensicsSection runId={runId} />
 
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
