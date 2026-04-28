@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace ArchLucid.Api.Marketing;
 
 /// <summary>
@@ -10,7 +8,7 @@ internal static class RepositoryDocsMarkdownPath
 {
     private const int MaxAncestorsWalk = 10;
 
-    public static string? TryFindFile(Microsoft.AspNetCore.Hosting.IWebHostEnvironment hostEnvironment, params string[] relativeUnderDocs)
+    public static string? TryFindFile(IWebHostEnvironment hostEnvironment, params string[] relativeUnderDocs)
     {
         ArgumentNullException.ThrowIfNull(hostEnvironment);
         if (relativeUnderDocs is null || relativeUnderDocs.Length == 0)
@@ -25,7 +23,7 @@ internal static class RepositoryDocsMarkdownPath
         {
             string candidate = Path.Combine(cursor, "docs", Path.Combine(relativePathParts));
 
-            if (System.IO.File.Exists(candidate))
+            if (File.Exists(candidate))
                 return candidate;
 
             cursor = Directory.GetParent(cursor)?.FullName;

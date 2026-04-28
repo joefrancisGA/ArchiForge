@@ -41,7 +41,8 @@ public sealed class ArtifactExportController(
 {
     private static readonly JsonSerializerOptions ExportJsonOptions = new()
     {
-        WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
     /// <summary>
@@ -62,7 +63,6 @@ public sealed class ArtifactExportController(
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
-
 
         IReadOnlyList<ArtifactDescriptor> artifacts =
             await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
@@ -90,14 +90,12 @@ public sealed class ArtifactExportController(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
 
-
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
             return this.NotFoundProblem(
                 $"Artifact '{artifactId}' was not found for manifest '{manifestId}'.",
                 ProblemTypes.ResourceNotFound);
-
 
         return Ok(ArtifactDescriptorResponse.From(artifact));
     }
@@ -123,7 +121,6 @@ public sealed class ArtifactExportController(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
 
-
         SynthesizedArtifact? artifact =
             await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
@@ -135,7 +132,9 @@ public sealed class ArtifactExportController(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.ArtifactDownloaded, ManifestId = manifestId, ArtifactId = artifactId
+                EventType = AuditEventTypes.ArtifactDownloaded,
+                ManifestId = manifestId,
+                ArtifactId = artifactId
             },
             ct);
 
@@ -163,7 +162,6 @@ public sealed class ArtifactExportController(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
 
-
         IReadOnlyList<SynthesizedArtifact> artifacts =
             await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
         if (artifacts.Count == 0)
@@ -171,7 +169,6 @@ public sealed class ArtifactExportController(
                 $"Manifest '{manifestId}' has no artifact bundle or the bundle contains no artifacts. " +
                 $"The list endpoint GET api/artifacts/manifests/{manifestId} returns an empty JSON array when there are no artifact rows.",
                 ProblemTypes.ResourceNotFound);
-
 
         ArtifactPackage package = artifactPackagingService.BuildBundlePackage(manifestId, artifacts);
 
