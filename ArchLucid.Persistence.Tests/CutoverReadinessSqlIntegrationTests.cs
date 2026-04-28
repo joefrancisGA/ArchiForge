@@ -1,5 +1,6 @@
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
