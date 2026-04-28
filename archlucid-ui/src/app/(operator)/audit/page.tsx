@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { HelpLink } from "@/components/HelpLink";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -111,23 +112,32 @@ export default function AuditPage() {
     void loadTypes();
   }, [loadTypes]);
 
-  const executeSearch = useCallback(async (filters: AuditFilterFields, appendBeforeUtc?: string) => {
-    setFailure(null);
-    const payload = {
-      eventType: filters.eventType || undefined,
-      fromUtc: filters.fromUtc ? new Date(filters.fromUtc).toISOString() : undefined,
-      toUtc: filters.toUtc ? new Date(filters.toUtc).toISOString() : undefined,
-      beforeUtc: appendBeforeUtc,
-      correlationId: filters.correlationId.trim() || undefined,
-      actorUserId: filters.actorUserId.trim() || undefined,
-      runId: filters.runId.trim() || undefined,
-      take: AUDIT_PAGE_SIZE,
-    };
+  const executeSearch = useCallback(
+    async (
+      filters: AuditFilterFields,
+      appendBeforeUtc?: string,
+      appendBeforeEventId?: string,
+    ) => {
+      setFailure(null);
 
-    const data = await searchAuditEvents(payload);
+      const payload = {
+        eventType: filters.eventType || undefined,
+        fromUtc: filters.fromUtc ? new Date(filters.fromUtc).toISOString() : undefined,
+        toUtc: filters.toUtc ? new Date(filters.toUtc).toISOString() : undefined,
+        beforeUtc: appendBeforeUtc,
+        beforeEventId: appendBeforeEventId,
+        correlationId: filters.correlationId.trim() || undefined,
+        actorUserId: filters.actorUserId.trim() || undefined,
+        runId: filters.runId.trim() || undefined,
+        take: AUDIT_PAGE_SIZE,
+      };
 
-    return data;
-  }, []);
+      const data = await searchAuditEvents(payload);
+
+      return data;
+    },
+    [],
+  );
 
   const currentFilters = useCallback(
     (): AuditFilterFields => ({
@@ -187,7 +197,8 @@ export default function AuditPage() {
       return;
     }
 
-    const lastOccurredUtc = events[events.length - 1]?.occurredUtc;
+    const last = events[events.length - 1];
+    const lastOccurredUtc = last?.occurredUtc;
     if (!lastOccurredUtc) {
       return;
     }
@@ -195,7 +206,11 @@ export default function AuditPage() {
     setLoadingMore(true);
     setFailure(null);
     try {
-      const more = await executeSearch(currentFilters(), lastOccurredUtc);
+      const more = await executeSearch(
+        currentFilters(),
+        lastOccurredUtc,
+        last.eventId,
+      );
       setHasMoreResults(more.length === AUDIT_PAGE_SIZE);
       setEvents((prev) => {
         const seen = new Set(prev.map((e) => e.eventId));
@@ -245,7 +260,16 @@ export default function AuditPage() {
   return (
     <main className="max-w-4xl">
       <LayerHeader pageKey="audit" />
-      <OperatorPageHeader title="Audit log" helpKey="audit-log" />
+      <OperatorPageHeader
+        title="Audit log"
+        helpKey="audit-log"
+        actions={
+          <HelpLink
+            docPath="/docs/library/AUDIT_COVERAGE_MATRIX.md"
+            label="Audit coverage matrix documentation on GitHub (new tab)"
+          />
+        }
+      />
       <AuditLogRankCue className="mb-2" />
 
       {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk ? (

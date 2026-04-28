@@ -75,6 +75,7 @@ Formal vendor engagements are listed when awarded or in progress. Redacted findi
 ## Customer-facing artifacts
 
 - [Data Processing Agreement (template)](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/DPA_TEMPLATE.md)
+- [GDPR Data Subject Access Request (operator process)](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/DSAR_PROCESS.md) — PII map, DSAR fulfillment, erasure constraints vs append-only audit.
 - [Subprocessors](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/SUBPROCESSORS.md)
 - [CAIQ Lite pre-fill (2026)](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/CAIQ_LITE_2026.md)
 - [SIG Core pre-fill (2026)](https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/SIG_CORE_2026.md)

@@ -1,0 +1,34 @@
+{
+  "requestId": "template-event-driven-ms-001",
+  "systemName": "ContosoTelemetryInsights",
+  "description": "Replace batch file drops with an event-driven ingestion path: devices and partner systems publish telemetry to Azure Event Hubs or Service Bus; Container Apps workers enrich and project into Azure Data Explorer or SQL for analytics; Power BI serves operations dashboards. Goal: sub-minute lag from ingest to operational visibility with clear cost guardrails.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "At-least-once delivery with idempotent consumers everywhere",
+    "PII minimization: device identifiers hashed or tokenized before hot storage",
+    "Network path must support private Link for data plane where applicable"
+  ],
+  "requiredCapabilities": [
+    "Horizontal scale-out of processors without coordinated stops",
+    "Replay capability for forensic reprocessing within retention policy",
+    "Dead-letter queues for poison messages"
+  ],
+  "assumptions": [
+    "Upstream producers can stagger schema changes behind versioned envelopes",
+    "Operations team adopts Infrastructure as Code for all Azure resources"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Define throughput SLO before peak season (marketing campaign)"
+  ],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Prefer Service Bus topics for fan-out governance rules; Event Hubs for high-volume telemetry spikes"
+  ],
+  "securityBaselineHints": [
+    "Workload identity between Azure resources; deny key-based SAS where managed identity fits"
+  ],
+  "infrastructureDeclarations": []
+}

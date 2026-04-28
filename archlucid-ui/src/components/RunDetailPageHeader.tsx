@@ -2,6 +2,7 @@
 
 import { CommitRunButton } from "@/components/CommitRunButton";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import type { RunSummary } from "@/types/authority";
@@ -31,9 +32,15 @@ export function RunDetailPageHeader({
     <header className="mb-6 space-y-4 border-b border-neutral-200 pb-6 dark:border-neutral-800">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-2">
-          <h1 className="m-0 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl">
-            {headline}
-          </h1>
+          <div className="flex flex-wrap items-start gap-2">
+            <h1 className="m-0 flex-1 text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-2xl">
+              {headline}
+            </h1>
+            <HelpLink
+              docPath="/docs/CORE_PILOT.md"
+              label="Manifest review steps — core pilot guide on GitHub (new tab)"
+            />
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             <RunStatusBadge run={runSummary} />
           </div>

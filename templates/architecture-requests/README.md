@@ -4,6 +4,8 @@ Starter **`ArchitectureRequest`** JSON payloads (same shape as `POST /v1/archite
 
 | File | Scenario | Difficulty |
 |------|----------|------------|
+| [web-app-with-database.json](web-app-with-database.json) | Retail-style three-tier stack on Azure (App Service + **Azure SQL** + CDN + Entra ID) | beginner |
+| [event-driven-microservices.json](event-driven-microservices.json) | Telemetry / microservices ingestion on Azure (events, workers, analytics plane) | intermediate |
 | [greenfield-web-app.json](greenfield-web-app.json) | Three-tier web app on Azure (App Service + SQL + CDN) | beginner |
 | [cloud-migration-lift-shift.json](cloud-migration-lift-shift.json) | Lift-and-shift monolith to Container Apps + managed SQL | intermediate |
 | [microservices-decomposition.json](microservices-decomposition.json) | Decompose a monolith into bounded contexts with messaging | intermediate |

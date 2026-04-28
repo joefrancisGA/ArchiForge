@@ -11,6 +11,7 @@ import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
 import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPanel";
+import { HelpLink } from "@/components/HelpLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 
 export const metadata: Metadata = {
@@ -32,12 +33,19 @@ export default function HomePage() {
 
           <OperationalMetricsGate>
             <section aria-labelledby="operational-metrics-heading">
-              <h3
-                id="operational-metrics-heading"
-                className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
-              >
-                Operational metrics
-              </h3>
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <h3
+                  id="operational-metrics-heading"
+                  className="m-0 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
+                >
+                  Operational metrics
+                </h3>
+
+                <HelpLink
+                  docPath="/docs/CORE_PILOT.md"
+                  label="Open the core pilot guide on GitHub (new tab)"
+                />
+              </div>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <PilotOutcomeCard />
                 <OperatorTaskSuccessTile />

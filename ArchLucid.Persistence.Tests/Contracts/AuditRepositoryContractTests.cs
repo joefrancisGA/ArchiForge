@@ -34,11 +34,12 @@ public abstract class AuditRepositoryContractTests
         Guid? projectId = null,
         string? correlationId = null,
         string? actorUserId = null,
-        Guid? runId = null)
+        Guid? runId = null,
+        Guid? eventId = null)
     {
         return new AuditEvent
         {
-            EventId = Guid.NewGuid(),
+            EventId = eventId ?? Guid.NewGuid(),
             OccurredUtc = occurredUtc ?? DateTime.UtcNow,
             EventType = eventType,
             ActorUserId = actorUserId ?? "actor",
@@ -422,5 +423,63 @@ public abstract class AuditRepositoryContractTests
                 CancellationToken.None);
 
         list.Should().HaveCount(25);
+    }
+
+    /// <summary>Keyset pagination must not skip rows when multiple events share the same <see cref="AuditEvent.OccurredUtc"/>.</summary>
+    [SkippableFact]
+    public async Task GetFilteredAsync_KeysetSameOccurredUtc_WithBeforeEventId_pages_deterministically()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
+        DateTime t = new(2026, 4, 28, 12, 0, 0, DateTimeKind.Utc);
+        Guid idHigh = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        Guid idMid = Guid.Parse("80000000-0000-0000-0000-000000000002");
+        Guid idLow = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+        await repo.AppendAsync(
+            NewEvent("KeysetTie", t, isolatedProjectId, eventId: idHigh),
+            CancellationToken.None);
+        await repo.AppendAsync(
+            NewEvent("KeysetTie", t, isolatedProjectId, eventId: idMid),
+            CancellationToken.None);
+        await repo.AppendAsync(
+            NewEvent("KeysetTie", t, isolatedProjectId, eventId: idLow),
+            CancellationToken.None);
+
+        AuditEventFilter firstFilter = new() { EventType = "KeysetTie", Take = 1 };
+        IReadOnlyList<AuditEvent> firstPage =
+            await repo.GetFilteredAsync(TenantId, WorkspaceId, isolatedProjectId, firstFilter, CancellationToken.None);
+
+        firstPage.Should().ContainSingle();
+        firstPage[0].EventId.Should().Be(idHigh);
+
+        AuditEventFilter secondFilter = new()
+        {
+            EventType = "KeysetTie",
+            Take = 1,
+            BeforeUtc = firstPage[0].OccurredUtc,
+            BeforeEventId = firstPage[0].EventId,
+        };
+
+        IReadOnlyList<AuditEvent> secondPage =
+            await repo.GetFilteredAsync(TenantId, WorkspaceId, isolatedProjectId, secondFilter, CancellationToken.None);
+
+        secondPage.Should().ContainSingle();
+        secondPage[0].EventId.Should().Be(idMid);
+
+        AuditEventFilter thirdFilter = new()
+        {
+            EventType = "KeysetTie",
+            Take = 1,
+            BeforeUtc = secondPage[0].OccurredUtc,
+            BeforeEventId = secondPage[0].EventId,
+        };
+
+        IReadOnlyList<AuditEvent> thirdPage =
+            await repo.GetFilteredAsync(TenantId, WorkspaceId, isolatedProjectId, thirdFilter, CancellationToken.None);
+
+        thirdPage.Should().ContainSingle();
+        thirdPage[0].EventId.Should().Be(idLow);
     }
 }

@@ -1,6 +1,6 @@
 # ArchLucid — Current Assurance Posture
 
-**Date:** 2026-04-27
+**Date:** 2026-04-28
 **Classification:** Buyer-facing (include in procurement pack ZIP)
 
 This document summarizes the security, compliance, and assurance evidence that ArchLucid provides today. Every claim below links to a source artifact in the repository. Items are categorized as **Completed**, **In-flight**, or **Planned** — no over-claiming.

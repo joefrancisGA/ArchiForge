@@ -1,0 +1,35 @@
+{
+  "requestId": "template-web-app-sql-001",
+  "systemName": "NorthwindRetailWeb",
+  "description": "Modernize a line-of-business retailer to a three-tier Azure web stack: browser clients, App Service APIs, Azure SQL transactional data, CDN for static bundles, and Entra ID for staff and customer sign-in. Emphasis on least-privilege RBAC, automated builds, and predictable monthly cost with autoscale on the web tier.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Database must use private connectivity (private endpoint) from App Service",
+    "No public RDP or SMB; operations via DevOps pipelines only",
+    "Encryption at rest for SQL and Blob; TLS 1.2+ on all public edges"
+  ],
+  "requiredCapabilities": [
+    "Session and basket data in SQL; catalog images in Blob behind CDN",
+    "Blue/green deployment slot for zero-downtime releases",
+    "Centralized structured logging and alerting for checkout failures"
+  ],
+  "assumptions": [
+    "Existing monolithic DB can be schema-migrated in phases",
+    "Identity is Microsoft Entra External ID for shoppers and workforce SSO for staff"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document RTO/RPO for the order pipeline and payment handoff"
+  ],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Start with a single primary region; add read replica or secondary only when load tests justify it"
+  ],
+  "securityBaselineHints": [
+    "OWASP ASVS L2 on the public surface",
+    "Secrets from Key Vault references only"
+  ],
+  "infrastructureDeclarations": []
+}

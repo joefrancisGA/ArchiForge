@@ -1044,6 +1044,8 @@ export async function searchAuditEvents(params: {
   toUtc?: string;
   /** Keyset cursor: events strictly older than this ISO-8601 instant (matches API `beforeUtc`). */
   beforeUtc?: string;
+  /** Tie-break when many events share the same `occurredUtc` (matches API `beforeEventId`). */
+  beforeEventId?: string;
   correlationId?: string;
   actorUserId?: string;
   runId?: string;
@@ -1054,6 +1056,7 @@ export async function searchAuditEvents(params: {
   if (params.fromUtc) query.set("fromUtc", params.fromUtc);
   if (params.toUtc) query.set("toUtc", params.toUtc);
   if (params.beforeUtc) query.set("beforeUtc", params.beforeUtc);
+  if (params.beforeEventId) query.set("beforeEventId", params.beforeEventId);
   if (params.correlationId) query.set("correlationId", params.correlationId);
   if (params.actorUserId) query.set("actorUserId", params.actorUserId);
   if (params.runId) query.set("runId", params.runId);

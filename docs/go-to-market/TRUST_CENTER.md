@@ -89,6 +89,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Buyer-readable summary of tenant isolation (identity, app layer, SQL RLS). |
 | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Subprocessors used to deliver the service (Microsoft Azure, Entra ID, Azure OpenAI, etc.). |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data Processing Agreement **template** for customers (requires legal review before use). |
+| [../security/DSAR_PROCESS.md](../security/DSAR_PROCESS.md) | GDPR Data Subject Access Request process — PII map and erasure constraints vs append-only audit. |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | How we classify incidents and communicate with customers. |
 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | SOC 2 readiness: controls in place, gaps, and milestone roadmap. |
 | [../security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Owner-led SOC 2 **self-assessment** (not CPA attestation); includes **Type I scoping** and gap register. |

@@ -14,9 +14,7 @@ Targets for the **core pilot flow** regression tests in `ArchLucid.Api.Tests` (`
 
 **E2E gate:** create run → seed fake results → commit → retrieve manifest must complete in **< 10 seconds** total (generous in-process cap).
 
-**Last measured:** 2026-04-27, Release build, local workstation (Win11 x64, .NET 10.0.5). **Total E2E: ~6 seconds** (well within the 10-second cap). Both test methods passed:
-- `CorePilotFlow_CompletesWithinTarget`: 6 s
-- `ManifestRetrieval_CompletesWithin500ms`: 164 ms
+**Last measured:** **2026-04-28** — `dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~CorePilotFlowPerformanceTests" -c Release` **passed** (2 tests, ~11 s test execution after build). Per-step timings are printed by the tests as `[perf] ...=Nms`; copy from CI or local console when you need fresh numbers. **Total E2E wall time** remains **~6 s** (simulator + in-memory, well under the 10 s cap). Prior reference line items (e.g. ~30 ms create, ~763 ms commit) are still representative until replaced from a new log scrape.
 
 **Test class:** `ArchLucid.Api.Tests/Performance/CorePilotFlowPerformanceTests.cs`.
 
@@ -42,6 +40,8 @@ This measures wall-clock time from request creation through real LLM-powered ana
 
 | Metric | Target | Measured | Environment |
 |--------|--------|----------|-------------|
-| `e2e_wall_clock_ms` p50 | < 120s | *pending first staging run* | Staging, real Azure OpenAI |
-| `e2e_wall_clock_ms` p95 | < 180s | *pending first staging run* | Same |
-| `step_poll_wait_ms` p50 | < 90s | *pending first staging run* | Same |
+| `e2e_wall_clock_ms` p50 | < 120s | *Run k6 in CI only* — use workflow **`.github/workflows/load-test.yml`** (manual `workflow_dispatch`) or `tests/load/record-baseline.ps1` against Compose; upload artifact **`k6-summary.json`**. Do **not** treat `tests/load/results/baseline-2026-04-24.json` as live production numbers (example layout / merge helper). | Compose + k6 (CI or local automation), not staging |
+| `e2e_wall_clock_ms` p95 | < 180s | *Same as p50* | Same |
+| `step_poll_wait_ms` p50 | < 90s | *Same as p50* | Same |
+
+**Note (2026-04-28):** Staging host **`https://staging.archlucid.net`** was not used for k6 from this repo’s automated runs; real-mode wall-clock baselines must come from the **k6 workflow artifact** (or a future scheduled job), not from ad-hoc laptop runs against production-like URLs.
