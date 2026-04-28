@@ -17,7 +17,6 @@ using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Orchestration.Pipeline;
 
 using FluentAssertions;
 
@@ -282,7 +281,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
             UnitOfWork = uow.Object,
             Scope = new ScopeContext
             {
-                TenantId = run.TenantId, WorkspaceId = run.WorkspaceId, ProjectId = run.ScopeProjectId
+                TenantId = run.TenantId,
+                WorkspaceId = run.WorkspaceId,
+                ProjectId = run.ScopeProjectId
             },
             RunActivity = runActivity
         };
@@ -311,7 +312,10 @@ public sealed class AuthorityPipelineStagesExecutorTests
                 .ReturnsAsync(
                     new ContextSnapshot
                     {
-                        SnapshotId = snapshotId, RunId = Guid.Empty, ProjectId = "p1", CreatedUtc = DateTime.UtcNow
+                        SnapshotId = snapshotId,
+                        RunId = Guid.Empty,
+                        ProjectId = "p1",
+                        CreatedUtc = DateTime.UtcNow
                     });
         }
 

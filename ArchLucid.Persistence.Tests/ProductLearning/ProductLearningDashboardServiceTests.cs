@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.ProductLearning;
-using ArchLucid.Persistence.Coordination.ProductLearning;
 
 using FluentAssertions;
 
@@ -33,7 +32,12 @@ public sealed class ProductLearningDashboardServiceTests
             Signal(ProductLearningDispositionValues.Trusted, "ok-pattern", "run-3"),
             CancellationToken.None);
 
-        ProductLearningScope scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
+        ProductLearningScope scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId
+        };
 
         ProductLearningTriageOptions options = new()
         {

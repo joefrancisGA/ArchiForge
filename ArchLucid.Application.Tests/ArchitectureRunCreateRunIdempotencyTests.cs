@@ -1,14 +1,11 @@
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Decisions;
-using ArchLucid.Application.Evidence;
-using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -27,11 +24,11 @@ using Moq;
 namespace ArchLucid.Application.Tests;
 
 /// <summary>
-/// <see cref="ArchitectureRunService.CreateRunAsync"/> idempotency: replay vs fingerprint conflict without coordinating a new run.
+/// <see cref="ArchitectureRunCreateOrchestrator.CreateRunAsync"/> idempotency: replay vs fingerprint conflict without coordinating a new run.
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
-public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
+public sealed class ArchitectureRunCreateRunIdempotencyTests
 {
     private static readonly ScopeContext AuthorityTestScope = new()
     {
@@ -43,7 +40,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
     [Fact]
     public async Task CreateRunAsync_when_idempotency_replay_matches_skips_coordinator_and_marks_replay()
     {
-        Mock<ICoordinatorService> coordinator = new();
+        Mock<IArchitectureRunAuthorityCoordination> coordination = new();
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
@@ -101,8 +98,8 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
         Mock<IActorContext> actorContext = new();
         actorContext.Setup(x => x.GetActor()).Returns("test-actor");
 
-        ArchitectureRunService sut = CreateSut(
-            coordinator.Object,
+        ArchitectureRunCreateOrchestrator sut = CreateCreateSut(
+            coordination.Object,
             idempotencyRepository.Object,
             runRepository,
             scopeProvider,
@@ -125,7 +122,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
         result.EvidenceBundle.EvidenceBundleId.Should().Be("eb-contract");
         result.Tasks.Should().HaveCount(1);
 
-        coordinator.Verify(
+        coordination.Verify(
             x => x.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -133,7 +130,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
     [Fact]
     public async Task CreateRunAsync_when_fingerprint_mismatch_throws_ConflictException_without_coordination()
     {
-        Mock<ICoordinatorService> coordinator = new();
+        Mock<IArchitectureRunAuthorityCoordination> coordination = new();
         Guid tenantId = Guid.NewGuid();
         byte[] keyHash = new byte[32];
         Array.Fill(keyHash, (byte)3);
@@ -157,8 +154,8 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
 
         (IRunRepository runRepository, IScopeContextProvider scopeProvider) = CreateNullRunAuthorityMocks();
 
-        ArchitectureRunService sut = CreateSut(
-            coordinator.Object,
+        ArchitectureRunCreateOrchestrator sut = CreateCreateSut(
+            coordination.Object,
             idempotencyRepository.Object,
             runRepository,
             scopeProvider,
@@ -178,7 +175,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
 
         await act.Should().ThrowAsync<ConflictException>();
 
-        coordinator.Verify(
+        coordination.Verify(
             x => x.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -219,8 +216,8 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
         return (runRepo.Object, scopeProvider.Object);
     }
 
-    private static ArchitectureRunService CreateSut(
-        ICoordinatorService coordinator,
+    private static ArchitectureRunCreateOrchestrator CreateCreateSut(
+        IArchitectureRunAuthorityCoordination coordination,
         IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
         IRunRepository runRepository,
         IScopeContextProvider scopeContextProvider,
@@ -230,41 +227,21 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
     {
         IBaselineMutationAuditService audit = Mock.Of<IBaselineMutationAuditService>();
 
-        return new ArchitectureRunService(
-            new ArchitectureRunCreateOrchestrator(
-                coordinator,
-                Mock.Of<IArchitectureRequestRepository>(),
-                runRepository,
-                scopeContextProvider,
-                evidenceBundleRepository,
-                taskRepository,
-                architectureRunIdempotencyRepository,
-                actorContext,
-                audit,
-                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-                Mock.Of<IUsageMeteringService>(),
-                new NoOpDistributedCreateRunIdempotencyLock(),
-                Options.Create(new ArchitectureRunCreateOptions()),
-                TimeProvider.System,
-                NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
-            new ArchitectureRunExecuteOrchestrator(
-                runRepository,
-                scopeContextProvider,
-                Mock.Of<IArchitectureRequestRepository>(),
-                taskRepository,
-                Mock.Of<IAgentExecutor>(),
-                Mock.Of<IAgentEvaluationService>(),
-                Mock.Of<IAgentResultRepository>(),
-                Mock.Of<IAgentEvaluationRepository>(),
-                Mock.Of<IAgentEvidencePackageRepository>(),
-                Mock.Of<IEvidenceBuilder>(),
-                actorContext,
-                audit,
-                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-                new NoOpAgentOutputTraceEvaluationHook(),
-                NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
-            // ADR 0030 PR A3 (2026-04-24): create/idempotency tests do not exercise commit, so a bare
-            // IArchitectureRunCommitOrchestrator mock is sufficient now that the legacy concrete is gone.
-            Mock.Of<IArchitectureRunCommitOrchestrator>());
+        return new ArchitectureRunCreateOrchestrator(
+            coordination,
+            Mock.Of<IArchitectureRequestRepository>(),
+            runRepository,
+            scopeContextProvider,
+            evidenceBundleRepository,
+            taskRepository,
+            architectureRunIdempotencyRepository,
+            actorContext,
+            audit,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            Mock.Of<IUsageMeteringService>(),
+            new NoOpDistributedCreateRunIdempotencyLock(),
+            Options.Create(new ArchitectureRunCreateOptions()),
+            TimeProvider.System,
+            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

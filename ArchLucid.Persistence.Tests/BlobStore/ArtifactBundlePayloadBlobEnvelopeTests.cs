@@ -25,7 +25,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelopeTests
         ArtifactBundlePayloadBlobEnvelope? back = ArtifactBundlePayloadBlobEnvelope.TryDeserialize(json);
 
         back.Should().NotBeNull();
-        back!.ArtifactsJson.Should().Be("[1]");
+        back.ArtifactsJson.Should().Be("[1]");
         back.TraceJson.Should().Be("{\"t\":true}");
         back.SchemaVersion.Should().Be(ArtifactBundlePayloadBlobEnvelope.CurrentSchemaVersion);
     }

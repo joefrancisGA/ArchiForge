@@ -1,7 +1,3 @@
-using ArchLucid.Persistence.Coordination.Diagnostics;
-
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests.Coordination.Diagnostics;
 
 public sealed class InMemoryOutboxOperationalMetricsReaderTests

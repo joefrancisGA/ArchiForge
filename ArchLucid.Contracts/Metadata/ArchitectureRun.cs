@@ -9,9 +9,7 @@ namespace ArchLucid.Contracts.Metadata;
 ///     through agent execution to manifest commitment.
 /// </summary>
 /// <remarks>
-///     A run is created by <c>ArchitectureRunService.CreateRunAsync</c>, executed by
-///     <c>ExecuteRunAsync</c>, and committed to a <see cref="ArchLucid.Contracts.Manifest.GoldenManifest" />
-///     by <c>CommitRunAsync</c>. Status transitions follow:
+///     HTTP/API layers call create, execute, and commit orchestrators; status transitions follow
 ///     <c>Created → ReadyForCommit → Committed</c> (or <c>Failed</c> on error).
 /// </remarks>
 public sealed class ArchitectureRun

@@ -1,8 +1,4 @@
-using System.Data;
-
 using ArchLucid.Persistence.Data.Infrastructure;
-
-using Dapper;
 
 using FluentAssertions;
 

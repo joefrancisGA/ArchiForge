@@ -4,12 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -65,7 +65,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             CloudProvider = CloudProvider.Azure,
         };
 
-        CoordinationResult coordination = new()
+        CoordinationResult coordinationOutcome = new()
         {
             Run = new ArchitectureRun
             {
@@ -91,13 +91,13 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         };
 
         int coordinatorInvocations = 0;
-        Mock<ICoordinatorService> coordinator = new();
-        coordinator
+        Mock<IArchitectureRunAuthorityCoordination> coordinationMock = new();
+        coordinationMock
             .Setup(c => c.CreateRunAsync(request, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
                 Interlocked.Increment(ref coordinatorInvocations);
-                return coordination;
+                return coordinationOutcome;
             });
 
         string? publishedWinnerRunId = null;
@@ -146,7 +146,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                     return Task.FromResult(true);
                 });
 
-        ArchitectureRun runModel = coordination.Run;
+        ArchitectureRun runModel = coordinationOutcome.Run;
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
@@ -171,18 +171,18 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         Mock<IAgentTaskRepository> taskRepository = new();
         taskRepository
             .Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(coordination.Tasks);
+            .ReturnsAsync(coordinationOutcome.Tasks);
 
         Mock<IEvidenceBundleRepository> evidenceBundleRepository = new();
         evidenceBundleRepository
             .Setup(x => x.GetByIdAsync("eb-conc", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(coordination.EvidenceBundle);
+            .ReturnsAsync(coordinationOutcome.EvidenceBundle);
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("test-actor");
 
         ArchitectureRunCreateOrchestrator sut = new(
-            coordinator.Object,
+            coordinationMock.Object,
             Mock.Of<IArchitectureRequestRepository>(),
             runRepo.Object,
             scopeProvider.Object,
@@ -207,7 +207,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         CreateRunResult[] results = await Task.WhenAll(tasks);
 
         coordinatorInvocations.Should().Be(1);
-        coordinator.Verify(c => c.CreateRunAsync(request, It.IsAny<CancellationToken>()), Times.Once);
+        coordinationMock.Verify(c => c.CreateRunAsync(request, It.IsAny<CancellationToken>()), Times.Once);
 
         results.Should().HaveCount(parallel);
         results.Select(r => r.Run.RunId).Distinct().Should().ContainSingle().Which.Should().Be(runId);
@@ -227,8 +227,8 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         Array.Fill(fingerprint, (byte)44);
 
         int coordinatorInvocations = 0;
-        Mock<ICoordinatorService> coordinator = new();
-        coordinator
+        Mock<IArchitectureRunAuthorityCoordination> coordination = new();
+        coordination
             .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 (ArchitectureRequest req, CancellationToken cancellationToken) =>
@@ -290,7 +290,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             .Returns(Task.CompletedTask);
 
         ArchitectureRunCreateOrchestrator sut = new(
-            coordinator.Object,
+            coordination.Object,
             requestRepository.Object,
             runRepo.Object,
             scopeProvider.Object,

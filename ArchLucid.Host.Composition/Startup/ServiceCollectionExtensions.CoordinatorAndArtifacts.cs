@@ -9,7 +9,7 @@ using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Services;
-using ArchLucid.Coordinator.Services;
+using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Advisory.Analysis;
@@ -36,7 +36,7 @@ public static partial class ServiceCollectionExtensions
         IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddScoped<ICoordinatorService, CoordinatorService>();
+        services.AddScoped<IArchitectureRunAuthorityCoordination, ArchitectureRunAuthorityCoordination>();
         services.AddSchemaValidation(configuration);
         services.AddScoped<DecisionMergeInputGate>();
         services.AddScoped<AgentProposalManifestMerger>();

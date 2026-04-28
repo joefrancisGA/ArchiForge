@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.ProductLearning;
-using ArchLucid.Persistence.Coordination.ProductLearning;
 
 using FluentAssertions;
 
@@ -33,7 +32,9 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
         ProductLearningFeedbackAggregationService svc = new(repo);
         ProductLearningTriageOptions options = new()
         {
-            MinSignalsPerAggregate = 2, MaxFeedbackRollups = 50, MaxArtifactTrends = 50
+            MinSignalsPerAggregate = 2,
+            MaxFeedbackRollups = 50,
+            MaxArtifactTrends = 50
         };
 
         ProductLearningAggregationSnapshot snap =

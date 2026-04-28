@@ -34,10 +34,6 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "Alerts inbox shows deduplicated architecture-risk alerts. Ack, filter by severity, or configure rules via the Rules tab.",
     learnMoreUrl: "/docs/ALERTS.md",
   },
-  "governance-dashboard": {
-    text: "Governance tracks approval requests, promotions, and activations across runs.",
-    learnMoreUrl: "/docs/API_CONTRACTS.md",
-  },
   "compare-runs": {
     text: "Compare diffs two finalized manifests. Enter base and target run IDs from the Runs list.",
     learnMoreUrl: "/docs/COMPARISON_REPLAY.md",

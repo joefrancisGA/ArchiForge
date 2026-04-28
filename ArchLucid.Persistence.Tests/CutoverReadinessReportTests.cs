@@ -1,5 +1,3 @@
-using ArchLucid.Persistence.Coordination.Backfill;
-
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests;
@@ -18,7 +16,9 @@ public sealed class CutoverReadinessReportTests
     {
         CutoverSliceReadiness slice = new()
         {
-            SliceName = "ContextSnapshot.CanonicalObjects", TotalHeaderRows = 100, HeadersWithRelationalRows = 100
+            SliceName = "ContextSnapshot.CanonicalObjects",
+            TotalHeaderRows = 100,
+            HeadersWithRelationalRows = 100
         };
 
         slice.IsReady.Should().BeTrue();
@@ -30,7 +30,9 @@ public sealed class CutoverReadinessReportTests
     {
         CutoverSliceReadiness slice = new()
         {
-            SliceName = "GoldenManifest.Assumptions", TotalHeaderRows = 50, HeadersWithRelationalRows = 42
+            SliceName = "GoldenManifest.Assumptions",
+            TotalHeaderRows = 50,
+            HeadersWithRelationalRows = 42
         };
 
         slice.IsReady.Should().BeFalse();
@@ -42,7 +44,9 @@ public sealed class CutoverReadinessReportTests
     {
         CutoverSliceReadiness slice = new()
         {
-            SliceName = "FindingsSnapshot.Findings", TotalHeaderRows = 0, HeadersWithRelationalRows = 0
+            SliceName = "FindingsSnapshot.Findings",
+            TotalHeaderRows = 0,
+            HeadersWithRelationalRows = 0
         };
 
         slice.IsReady.Should().BeTrue();
@@ -54,7 +58,9 @@ public sealed class CutoverReadinessReportTests
     {
         CutoverSliceReadiness slice = new()
         {
-            SliceName = "ArtifactBundle.Artifacts", TotalHeaderRows = 25, HeadersWithRelationalRows = 0
+            SliceName = "ArtifactBundle.Artifacts",
+            TotalHeaderRows = 25,
+            HeadersWithRelationalRows = 0
         };
 
         slice.IsReady.Should().BeFalse();
@@ -101,7 +107,10 @@ public sealed class CutoverReadinessReportTests
     [Fact]
     public void Report_EmptySlices_IsFullyReady()
     {
-        CutoverReadinessReport report = new() { Slices = [] };
+        CutoverReadinessReport report = new()
+        {
+            Slices = []
+        };
 
         report.IsFullyReady.Should().BeTrue();
         report.SlicesNotReady.Should().BeEmpty();
@@ -221,7 +230,9 @@ public sealed class CutoverReadinessReportTests
     {
         return new CutoverSliceReadiness
         {
-            SliceName = name, TotalHeaderRows = total, HeadersWithRelationalRows = withRelational
+            SliceName = name,
+            TotalHeaderRows = total,
+            HeadersWithRelationalRows = withRelational
         };
     }
 }

@@ -47,6 +47,15 @@ vi.mock("@/lib/api", () => ({
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
+const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
+const WIZARD_DRAFT_STORAGE_KEY = "archlucid_new_run_wizard_draft_v1";
+
+function greenfieldPresetCard(): HTMLElement {
+  const useGreenfield = screen.getByRole("button", { name: "Use greenfield web app" });
+
+  return useGreenfield.closest('[class*="rounded-xl"]') as HTMLElement;
+}
+
 function progressLine(): HTMLElement {
   return screen.getByTestId("new-run-wizard-step-line");
 }
@@ -60,6 +69,24 @@ async function renderNewRunWizard() {
     },
     { timeout: 15_000 },
   );
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Full Wizard (7 steps)" }));
+  });
+
+  await waitFor(
+    () => {
+      expect(screen.getByTestId("new-run-wizard-progress")).toBeInTheDocument();
+    },
+    { timeout: 15_000 },
+  );
+
+  await waitFor(
+    () => {
+      expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 1: Choose starting point/);
+    },
+    { timeout: 15_000 },
+  );
 }
 
 async function clickPrimaryForward() {
@@ -68,9 +95,11 @@ async function clickPrimaryForward() {
   });
 }
 
-describe("NewRunWizardClient", () => {
+describe("NewRunWizardClient", { timeout: 60_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.removeItem(WIZARD_MODE_STORAGE_KEY);
+    window.localStorage.removeItem(WIZARD_DRAFT_STORAGE_KEY);
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: RequestInfo | URL) => {
@@ -111,9 +140,8 @@ describe("NewRunWizardClient", () => {
     expect(progressLine()).toHaveTextContent(/Step 1: Choose starting point/);
     expect(screen.getByTestId("new-run-wizard-stage-line")).toHaveTextContent(/Stage 1 of 3 — Request brief/);
 
-    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
-    expect(greenfieldCard).toBeTruthy();
-    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
+    const greenfieldCard = greenfieldPresetCard();
+    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
 
     expect(progressLine()).toHaveTextContent(/Step 2:/);
 
@@ -159,9 +187,8 @@ describe("NewRunWizardClient", () => {
   it("blocks Next and shows an inline system name error when required field is empty", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
-    expect(greenfieldCard).toBeTruthy();
-    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
+    const greenfieldCard = greenfieldPresetCard();
+    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
 
     expect(progressLine()).toHaveTextContent(/Step 2:/);
 
@@ -178,8 +205,8 @@ describe("NewRunWizardClient", () => {
   it("clears the system name error when the user types", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
-    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
+    const greenfieldCard = greenfieldPresetCard();
+    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
 
     const systemName = screen.getByLabelText("System name");
     fireEvent.change(systemName, { target: { value: "" } });
@@ -195,8 +222,8 @@ describe("NewRunWizardClient", () => {
   it("advances from identity when fields satisfy validation", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
-    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
+    const greenfieldCard = greenfieldPresetCard();
+    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
 
     expect(progressLine()).toHaveTextContent(/Step 2:/);
 
@@ -209,8 +236,8 @@ describe("NewRunWizardClient", () => {
   it("blocks Next on identity when prior manifest version is not a valid UUID", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
-    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
+    const greenfieldCard = greenfieldPresetCard();
+    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
 
     expect(progressLine()).toHaveTextContent(/Step 2:/);
 
@@ -228,8 +255,8 @@ describe("NewRunWizardClient", () => {
   it("blocks Next on description when narrative is shorter than the minimum length", async () => {
     await renderNewRunWizard();
 
-    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
-    fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
+    const greenfieldCard = greenfieldPresetCard();
+    fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
 
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Next" }));

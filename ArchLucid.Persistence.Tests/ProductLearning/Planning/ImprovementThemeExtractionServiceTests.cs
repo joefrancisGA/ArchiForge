@@ -1,7 +1,5 @@
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.Coordination.ProductLearning;
-using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -68,7 +66,10 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope, FeedbackRollups = [], ArtifactTrends = [], RepeatedCommentThemes = []
+            Scope = scope,
+            FeedbackRollups = [],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = []
         };
 
         IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
@@ -107,7 +108,10 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope, FeedbackRollups = [aggregate], ArtifactTrends = [], RepeatedCommentThemes = []
+            Scope = scope,
+            FeedbackRollups = [aggregate],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = []
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -167,7 +171,10 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope, FeedbackRollups = [], ArtifactTrends = [], RepeatedCommentThemes = []
+            Scope = scope,
+            FeedbackRollups = [],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = []
         };
 
         string detail = """{"tags":["alpha"]}""";
@@ -237,7 +244,10 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope, FeedbackRollups = [], ArtifactTrends = [], RepeatedCommentThemes = []
+            Scope = scope,
+            FeedbackRollups = [],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = []
         };
 
         ProductLearningPilotSignalRecord badScope = new()
@@ -283,7 +293,10 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope, FeedbackRollups = [aggregate], ArtifactTrends = [], RepeatedCommentThemes = []
+            Scope = scope,
+            FeedbackRollups = [aggregate],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = []
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -308,7 +321,10 @@ public sealed class ImprovementThemeExtractionServiceTests
                 utc)
         ];
 
-        ImprovementThemeExtractionOptions options = new() { MinSignalsPerAggregateTheme = 2 };
+        ImprovementThemeExtractionOptions options = new()
+        {
+            MinSignalsPerAggregateTheme = 2
+        };
 
         IReadOnlyList<ImprovementThemeWithEvidence> a = await svc.ExtractThemesAsync(
             snapshot,
@@ -353,7 +369,10 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope, FeedbackRollups = [], ArtifactTrends = [trend], RepeatedCommentThemes = []
+            Scope = scope,
+            FeedbackRollups = [],
+            ArtifactTrends = [trend],
+            RepeatedCommentThemes = []
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -393,7 +412,8 @@ public sealed class ImprovementThemeExtractionServiceTests
             null,
             new ImprovementThemeExtractionOptions
             {
-                MinSignalsPerArtifactTrend = 3, MinNegativeOutcomesOnArtifactTrend = 2
+                MinSignalsPerArtifactTrend = 3,
+                MinNegativeOutcomesOnArtifactTrend = 2
             },
             CancellationToken.None);
 
@@ -426,7 +446,10 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         ProductLearningAggregationSnapshot snapshot = new()
         {
-            Scope = scope, FeedbackRollups = [], ArtifactTrends = [], RepeatedCommentThemes = [repeated]
+            Scope = scope,
+            FeedbackRollups = [],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = [repeated]
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -557,7 +580,8 @@ public sealed class ImprovementThemeExtractionServiceTests
             null,
             new ImprovementThemeExtractionOptions
             {
-                MinSignalsPerAggregateTheme = SmallAggregatePilotSignalCount, MaxThemes = 1
+                MinSignalsPerAggregateTheme = SmallAggregatePilotSignalCount,
+                MaxThemes = 1
             },
             CancellationToken.None);
 

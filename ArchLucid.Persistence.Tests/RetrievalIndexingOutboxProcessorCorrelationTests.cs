@@ -2,10 +2,8 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
-using ArchLucid.Retrieval.Indexing;
 
 using FluentAssertions;
 

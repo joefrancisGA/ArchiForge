@@ -1,9 +1,6 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Queries;
-
-using FluentAssertions;
 
 using Moq;
 
@@ -20,17 +17,25 @@ public sealed class AuthorityCompareServiceCompareRunsTests
         Guid manifestId = Guid.NewGuid();
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         RunSummaryDto left = new()
         {
-            RunId = leftRunId, ProjectId = "default", Description = null, GoldenManifestId = manifestId
+            RunId = leftRunId,
+            ProjectId = "default",
+            Description = null,
+            GoldenManifestId = manifestId
         };
 
         RunSummaryDto right = new()
         {
-            RunId = rightRunId, ProjectId = "default", Description = null, GoldenManifestId = null
+            RunId = rightRunId,
+            ProjectId = "default",
+            Description = null,
+            GoldenManifestId = null
         };
 
         Mock<IGoldenManifestRepository> manifests = new();

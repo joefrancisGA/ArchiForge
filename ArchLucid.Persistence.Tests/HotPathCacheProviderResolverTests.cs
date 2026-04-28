@@ -1,7 +1,3 @@
-using ArchLucid.Persistence.Coordination.Caching;
-
-using FluentAssertions;
-
 namespace ArchLucid.Persistence.Tests;
 
 public sealed class HotPathCacheProviderResolverTests
@@ -17,7 +13,9 @@ public sealed class HotPathCacheProviderResolverTests
     {
         HotPathCacheOptions options = new()
         {
-            Provider = provider, ExpectedApiReplicaCount = replicas, RedisConnectionString = redis
+            Provider = provider,
+            ExpectedApiReplicaCount = replicas,
+            RedisConnectionString = redis
         };
 
         HotPathCacheProviderResolver.ResolveEffectiveProvider(options).Should().Be(expected);

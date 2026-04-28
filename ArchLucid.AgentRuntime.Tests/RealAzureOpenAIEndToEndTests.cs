@@ -3,7 +3,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Coordinator.Services;
+using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
@@ -133,11 +133,11 @@ public sealed class RealAzureOpenAIEndToEndTests
         runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
 
-        CoordinatorService coordinator = new(
+        ArchitectureRunAuthorityCoordination coordinator = new(
             new FakeAuthorityRunOrchestratorForLiveAoai(),
             runRepo.Object,
             scopeProvider.Object,
-            NullLogger<CoordinatorService>.Instance);
+            NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
 
         CoordinationResult coordination = await coordinator.CreateRunAsync(request, cancellationToken);
 

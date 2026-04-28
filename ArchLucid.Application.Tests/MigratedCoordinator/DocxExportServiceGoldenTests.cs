@@ -14,7 +14,7 @@ using FluentAssertions;
 
 using Moq;
 
-namespace ArchLucid.Coordinator.Tests;
+namespace ArchLucid.Application.Tests.MigratedCoordinator;
 
 /// <summary>
 /// Golden-style checks on <see cref="DocxExportService"/> output: valid OpenXML package and stable anchor strings from a minimal manifest.

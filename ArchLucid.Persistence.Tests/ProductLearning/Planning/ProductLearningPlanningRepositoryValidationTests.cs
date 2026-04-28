@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 using FluentAssertions;
 
@@ -367,7 +366,11 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
     [Fact]
     public void EnsureRunLink_throws_when_plan_id_empty()
     {
-        ProductLearningImprovementPlanRunLinkRecord link = new() { PlanId = Guid.Empty, ArchitectureRunId = "abc" };
+        ProductLearningImprovementPlanRunLinkRecord link = new()
+        {
+            PlanId = Guid.Empty,
+            ArchitectureRunId = "abc"
+        };
 
         Action act = () => ProductLearningPlanningRepositoryValidation.EnsureRunLink(link);
 
@@ -377,7 +380,11 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
     [Fact]
     public void EnsureRunLink_throws_when_run_id_blank()
     {
-        ProductLearningImprovementPlanRunLinkRecord link = new() { PlanId = Guid.NewGuid(), ArchitectureRunId = "  " };
+        ProductLearningImprovementPlanRunLinkRecord link = new()
+        {
+            PlanId = Guid.NewGuid(),
+            ArchitectureRunId = "  "
+        };
 
         Action act = () => ProductLearningPlanningRepositoryValidation.EnsureRunLink(link);
 

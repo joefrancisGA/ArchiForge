@@ -51,7 +51,7 @@ import {
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
-describe("NewRunWizardClient (example query)", () => {
+describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
   beforeEach(() => {
     window.localStorage.setItem(WIZARD_MODE_STORAGE_KEY, "full");
 
@@ -84,7 +84,15 @@ describe("NewRunWizardClient (example query)", () => {
       expect(screen.queryByText("Loading wizard…")).not.toBeInTheDocument();
     });
 
-    const greenfieldCard = screen.getByText("Greenfield web app").closest('[class*="rounded-xl"]');
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("new-run-wizard-step-line")).toHaveTextContent(/Step 1: Choose starting point/);
+      },
+      { timeout: 15_000 },
+    );
+
+    const useGreenfield = screen.getByRole("button", { name: "Use greenfield web app" });
+    const greenfieldCard = useGreenfield.closest('[class*="rounded-xl"]');
     expect(greenfieldCard).toBeTruthy();
     fireEvent.click(within(greenfieldCard as HTMLElement).getByRole("button", { name: "Use greenfield web app" }));
 

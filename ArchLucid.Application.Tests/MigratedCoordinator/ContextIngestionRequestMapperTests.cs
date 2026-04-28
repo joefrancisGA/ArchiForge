@@ -5,7 +5,7 @@ using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
-namespace ArchLucid.Coordinator.Tests;
+namespace ArchLucid.Application.Tests.MigratedCoordinator;
 
 /// <summary>
 /// <see cref="ContextIngestionRequestMapper.FromArchitectureRequest"/> — the bridge from coordinator/API request to ingestion pipeline input.

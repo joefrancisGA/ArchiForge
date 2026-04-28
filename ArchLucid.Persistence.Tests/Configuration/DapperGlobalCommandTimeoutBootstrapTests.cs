@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.Tests.Configuration;
 [Trait("Category", "Unit")]
 public sealed class DapperGlobalCommandTimeoutBootstrapTests
 {
-    private static readonly object s_commandTimeoutGate = new();
+    private static readonly Lock SCommandTimeoutGate = new();
 
     [Fact]
     public void ApplyIfConfigured_Throws_WhenConfigurationNull()
@@ -25,7 +25,7 @@ public sealed class DapperGlobalCommandTimeoutBootstrapTests
     [Fact]
     public void ApplyIfConfigured_NoOp_WhenSecondsMissingOrNonPositive()
     {
-        lock (s_commandTimeoutGate)
+        lock (SCommandTimeoutGate)
         {
             int? before = SqlMapper.Settings.CommandTimeout;
 
@@ -50,7 +50,7 @@ public sealed class DapperGlobalCommandTimeoutBootstrapTests
     [Fact]
     public void ApplyIfConfigured_SetsSqlMapper_WhenPositive()
     {
-        lock (s_commandTimeoutGate)
+        lock (SCommandTimeoutGate)
         {
             int? before = SqlMapper.Settings.CommandTimeout;
 

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -10,14 +11,25 @@ namespace ArchLucid.Application;
 /// <summary>Creates, executes (simulator), and commits one authority run for trial welcome UX.</summary>
 public sealed class TrialArchitecturePreseedExecutor(
     ITenantRepository tenantRepository,
-    IArchitectureRunService architectureRunService,
+    IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
+    IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
+    IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     ILogger<TrialArchitecturePreseedExecutor> logger)
 {
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
-    private readonly IArchitectureRunService _architectureRunService =
-        architectureRunService ?? throw new ArgumentNullException(nameof(architectureRunService));
+    private readonly IArchitectureRunCreateOrchestrator _architectureRunCreateOrchestrator =
+        architectureRunCreateOrchestrator ??
+        throw new ArgumentNullException(nameof(architectureRunCreateOrchestrator));
+
+    private readonly IArchitectureRunExecuteOrchestrator _architectureRunExecuteOrchestrator =
+        architectureRunExecuteOrchestrator ??
+        throw new ArgumentNullException(nameof(architectureRunExecuteOrchestrator));
+
+    private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
+        architectureRunCommitOrchestrator ??
+        throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
 
     private readonly ILogger<TrialArchitecturePreseedExecutor> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -47,12 +59,13 @@ public sealed class TrialArchitecturePreseedExecutor(
             ArchitectureRequest request = BuildRequest(tenantId);
 
             CreateRunResult created =
-                await _architectureRunService.CreateRunAsync(request, idempotency: null, cancellationToken);
+                await _architectureRunCreateOrchestrator.CreateRunAsync(request, idempotency: null, cancellationToken);
 
             string runId = created.Run.RunId;
 
-            await _architectureRunService.ExecuteRunAsync(runId, cancellationToken);
-            CommitRunResult committed = await _architectureRunService.CommitRunAsync(runId, cancellationToken);
+            await _architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);
+            CommitRunResult committed =
+                await _architectureRunCommitOrchestrator.CommitRunAsync(runId, cancellationToken);
 
             if (!Guid.TryParseExact(runId, "N", out Guid welcomeRunId))
             {

@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -219,7 +218,9 @@ public sealed class ProductLearningPlanningRepositoryTests
         await repo.AddPlanSignalLinkAsync(
             new ProductLearningImprovementPlanSignalLinkRecord
             {
-                PlanId = planId, SignalId = s2, TriageStatusSnapshot = ProductLearningTriageStatusValues.Open
+                PlanId = planId,
+                SignalId = s2,
+                TriageStatusSnapshot = ProductLearningTriageStatusValues.Open
             },
             CancellationToken.None);
 
@@ -264,7 +265,9 @@ public sealed class ProductLearningPlanningRepositoryTests
             Enumerable.Range(1, 21)
                 .Select(i => new ProductLearningImprovementPlanActionStep
                 {
-                    Ordinal = i, ActionType = "T", Description = "D"
+                    Ordinal = i,
+                    ActionType = "T",
+                    Description = "D"
                 })
                 .ToList();
 

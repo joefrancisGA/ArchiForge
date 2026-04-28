@@ -10,11 +10,8 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Orchestration;
-using ArchLucid.Persistence.Orchestration.Pipeline;
 
 using FluentAssertions;
 
@@ -167,7 +164,11 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new() { ProjectId = "proj-orchestrator-test", Description = "d" };
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "proj-orchestrator-test",
+            Description = "d"
+        };
 
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -363,7 +364,11 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new() { ProjectId = "proj-orchestrator-outbox", Description = "d" };
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "proj-orchestrator-outbox",
+            Description = "d"
+        };
 
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -396,7 +401,9 @@ public sealed class AuthorityRunOrchestratorTests
     {
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -470,7 +477,11 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new() { ProjectId = "q", Description = "d" };
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "q",
+            Description = "d"
+        };
 
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None, "evidence-bundle");
 
@@ -513,7 +524,9 @@ public sealed class AuthorityRunOrchestratorTests
         Guid runIdGuid = Guid.NewGuid();
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -649,7 +662,12 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new() { RunId = runIdGuid, ProjectId = "resume-proj", Description = "d" };
+        ContextIngestionRequest request = new()
+        {
+            RunId = runIdGuid,
+            ProjectId = "resume-proj",
+            Description = "d"
+        };
 
         RunRecord result = await sut.CompleteQueuedAuthorityPipelineAsync(request, CancellationToken.None);
 
@@ -675,7 +693,9 @@ public sealed class AuthorityRunOrchestratorTests
     {
         ScopeContext scope = new()
         {
-            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
         };
 
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -745,7 +765,10 @@ public sealed class AuthorityRunOrchestratorTests
             CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new() { ProjectId = "proj-fail" };
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "proj-fail"
+        };
 
         Func<Task> act = async () => await sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -850,7 +873,11 @@ public sealed class AuthorityRunOrchestratorTests
             pipelineOpts.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new() { ProjectId = "proj-timeout", Description = "d" };
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "proj-timeout",
+            Description = "d"
+        };
 
         Func<Task> act = () => sut.ExecuteAsync(request, CancellationToken.None);
 

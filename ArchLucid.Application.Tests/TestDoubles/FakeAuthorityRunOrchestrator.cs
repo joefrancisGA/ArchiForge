@@ -2,7 +2,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
-namespace ArchLucid.Coordinator.Tests;
+namespace ArchLucid.Application.Tests.TestDoubles;
 
 /// <summary>Test double: skips real authority pipeline; returns a run with synthetic snapshot IDs.</summary>
 internal sealed class FakeAuthorityRunOrchestrator : IAuthorityRunOrchestrator

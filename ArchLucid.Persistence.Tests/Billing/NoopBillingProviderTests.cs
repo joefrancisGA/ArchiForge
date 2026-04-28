@@ -1,5 +1,4 @@
 using ArchLucid.Core.Billing;
-using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing;
 
 using FluentAssertions;
@@ -46,7 +45,10 @@ public sealed class NoopBillingProviderTests
     {
         InMemoryBillingLedger ledger = new();
         NoopBillingProvider sut = new(ledger);
-        BillingWebhookInbound inbound = new() { RawBody = "{}" };
+        BillingWebhookInbound inbound = new()
+        {
+            RawBody = "{}"
+        };
 
         BillingWebhookHandleResult r = await sut.HandleWebhookAsync(inbound, CancellationToken.None);
 

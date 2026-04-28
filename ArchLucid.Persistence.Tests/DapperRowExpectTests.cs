@@ -1,7 +1,5 @@
 using ArchLucid.Persistence.Utilities;
 
-using Xunit;
-
 namespace ArchLucid.Persistence.Tests;
 
 public sealed class DapperRowExpectTests

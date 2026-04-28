@@ -291,7 +291,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     /// <summary>
     /// ADR-0012: execute no longer wrote <c>LegacyRunStatus</c>; clients and UIs still expect <see cref="ArchitectureRunStatus.ReadyForCommit"/>
-    /// once all required agent outputs exist (matches commit prerequisites and <c>IArchitectureRunService</c> contract).
+    /// once all required agent outputs exist (matches commit prerequisites and orchestrator contract).
     /// </summary>
     private async Task TryPromoteRunLegacyStatusIfAllResultsPresentAsync(
         string runId,

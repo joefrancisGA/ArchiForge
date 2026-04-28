@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;

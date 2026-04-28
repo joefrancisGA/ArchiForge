@@ -1,5 +1,3 @@
-using ArchLucid.Persistence.Caching;
-using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Options;
 
 using FluentAssertions;

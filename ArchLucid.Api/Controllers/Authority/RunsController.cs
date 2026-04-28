@@ -3,11 +3,11 @@ using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
@@ -43,7 +43,9 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed partial class RunsController(
-    IArchitectureRunService architectureRunService,
+    IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
+    IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
+    IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IReplayRunService replayRunService,
     IArchitectureApplicationService architectureApplicationService,
     IDeterminismCheckService determinismCheckService,
@@ -96,7 +98,7 @@ public sealed partial class RunsController(
         try
         {
             CreateRunResult result =
-                await architectureRunService.CreateRunAsync(request, idempotency, cancellationToken);
+                await architectureRunCreateOrchestrator.CreateRunAsync(request, idempotency, cancellationToken);
 
             CreateArchitectureRunResponse response =
                 RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
@@ -181,7 +183,7 @@ public sealed partial class RunsController(
                     cancellationToken);
             }
 
-            ExecuteRunResult result = await architectureRunService.ExecuteRunAsync(runId, cancellationToken);
+            ExecuteRunResult result = await architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);
 
             ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
@@ -317,7 +319,7 @@ public sealed partial class RunsController(
 
         try
         {
-            CommitRunResult result = await architectureRunService.CommitRunAsync(runId, cancellationToken);
+            CommitRunResult result = await architectureRunCommitOrchestrator.CommitRunAsync(runId, cancellationToken);
 
             CommitRunResponse response = RunResponseMapper.ToCommitRunResponse(
                 result.Manifest,

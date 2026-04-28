@@ -1,6 +1,5 @@
 using System.Reflection;
 
-using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -57,15 +56,6 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
 
         inExpectedNamespace.Should().BeTrue(
             $"authority IDecisionTraceRepository must resolve from ArchLucid.Decisioning or ArchLucid.Persistence; got {concrete.FullName}");
-    }
-
-    [Fact]
-    public void IRunCommitOrchestrator_resolves_to_RunCommitOrchestratorFacade()
-    {
-        using IServiceScope scope = factory.Services.CreateScope();
-        IRunCommitOrchestrator facade = scope.ServiceProvider.GetRequiredService<IRunCommitOrchestrator>();
-
-        facade.Should().BeOfType<RunCommitOrchestratorFacade>();
     }
 
     [Fact]

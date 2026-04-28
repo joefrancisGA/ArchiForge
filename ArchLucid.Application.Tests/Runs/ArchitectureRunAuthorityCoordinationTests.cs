@@ -1,5 +1,6 @@
+using ArchLucid.Application.Runs.Coordination;
+using ArchLucid.Application.Tests.TestDoubles;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -8,14 +9,14 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchLucid.Coordinator.Tests;
+namespace ArchLucid.Application.Tests.Runs;
 
 /// <summary>
-/// Tests for Coordinator Service.
+/// Tests for <see cref="ArchitectureRunAuthorityCoordination"/>.
 /// </summary>
 
 [Trait("Suite", "Core")]
-public sealed class CoordinatorServiceTests
+public sealed class ArchitectureRunAuthorityCoordinationTests
 {
     [Fact]
     public async Task CreateRun_Should_CreateRunAndStarterTasks_When_RequestIsValid()
@@ -39,11 +40,11 @@ public sealed class CoordinatorServiceTests
             ProjectId = Guid.NewGuid()
         });
 
-        CoordinatorService service = new(
+        ArchitectureRunAuthorityCoordination service = new(
             new FakeAuthorityRunOrchestrator(),
             runRepo.Object,
             scopeProvider.Object,
-            NullLogger<CoordinatorService>.Instance);
+            NullLogger<ArchitectureRunAuthorityCoordination>.Instance);
 
         CoordinationResult result = await service.CreateRunAsync(request);
 

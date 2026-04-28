@@ -30,10 +30,11 @@
     <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts.Abstractions\ArchLucid.Contracts.Abstractions.csproj" />
-    <ProjectReference Include="..\ArchLucid.Coordinator\ArchLucid.Coordinator.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchLucid.AgentSimulator\ArchLucid.AgentSimulator.csproj" />
+    <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +44,10 @@
   <ItemGroup>
     <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\cohort.json" />
     <None Include="..\tests\golden-cohort\usage-mtd.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\usage-mtd.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\schemas\*.json" LinkBase="schemas" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

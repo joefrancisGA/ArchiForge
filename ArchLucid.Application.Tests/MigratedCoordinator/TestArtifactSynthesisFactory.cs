@@ -5,7 +5,7 @@ using ArchLucid.ArtifactSynthesis.Services;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchLucid.Coordinator.Tests;
+namespace ArchLucid.Application.Tests.MigratedCoordinator;
 
 internal static class TestArtifactSynthesisFactory
 {

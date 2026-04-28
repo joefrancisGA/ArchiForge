@@ -37,7 +37,7 @@ public sealed class SqlTransientDetectorTests
     [Fact]
     public void IsTransient_SqlExceptionOverload_ReturnsFalse_ForNull()
     {
-        SqlTransientDetector.IsTransient((SqlException?)null).Should().BeFalse();
+        SqlTransientDetector.IsTransient(null).Should().BeFalse();
     }
 
     [Fact]

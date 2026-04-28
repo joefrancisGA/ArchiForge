@@ -11,12 +11,12 @@ public sealed class RlsBreakGlassTests
 {
     private const string EnvName = "ARCHLUCID_ALLOW_RLS_BYPASS";
 
-    private static readonly object s_envGate = new();
+    private static readonly Lock SEnvGate = new();
 
     [Fact]
     public void IsEnabled_ReturnsFalse_WhenConfigFalse_EvenIfEnvTrue()
     {
-        lock (s_envGate)
+        lock (SEnvGate)
         {
             string? previous = Environment.GetEnvironmentVariable(EnvName);
 
@@ -40,7 +40,7 @@ public sealed class RlsBreakGlassTests
     [Fact]
     public void IsEnabled_ReturnsTrue_WhenEnvAndConfigTrue()
     {
-        lock (s_envGate)
+        lock (SEnvGate)
         {
             string? previous = Environment.GetEnvironmentVariable(EnvName);
 

@@ -1,6 +1,5 @@
 using System.Globalization;
 
-using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
@@ -165,13 +164,20 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
             await setup.ExecuteAsync(
                 new CommandDefinition(
                     insertComparison,
-                    new { ComparisonRecordId = comparisonId, LeftRunId = runId },
+                    new
+                    {
+                        ComparisonRecordId = comparisonId,
+                        LeftRunId = runId
+                    },
                     cancellationToken: CancellationToken.None));
 
             await setup.ExecuteAsync(
                 new CommandDefinition(
                     "UPDATE dbo.Runs SET CreatedUtc = DATEADD(day, -400, SYSUTCDATETIME()) WHERE RunId = @RunGuid;",
-                    new { RunGuid = runGuid },
+                    new
+                    {
+                        RunGuid = runGuid
+                    },
                     cancellationToken: CancellationToken.None));
         }
 
@@ -187,7 +193,9 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         await coordinator.RunOnceAsync(
             new DataArchivalOptions
             {
-                RunsRetentionDays = 30, DigestsRetentionDays = 0, ConversationsRetentionDays = 0
+                RunsRetentionDays = 30,
+                DigestsRetentionDays = 0,
+                ConversationsRetentionDays = 0
             },
             CancellationToken.None);
 
@@ -196,7 +204,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         DateTime? archivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.Runs WHERE RunId = @RunGuid;",
-                new { RunGuid = runGuid },
+                new
+                {
+                    RunGuid = runGuid
+                },
                 cancellationToken: CancellationToken.None));
 
         archivedUtc.Should().NotBeNull();
@@ -204,7 +215,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         DateTime? manifestArchivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;",
-                new { ManifestId = manifestId },
+                new
+                {
+                    ManifestId = manifestId
+                },
                 cancellationToken: CancellationToken.None));
 
         manifestArchivedUtc.Should().NotBeNull("bulk run archival cascades ArchivedUtc to dbo.GoldenManifests");
@@ -212,7 +226,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         DateTime? findingsArchivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.FindingsSnapshots WHERE FindingsSnapshotId = @FindingsSnapshotId;",
-                new { FindingsSnapshotId = findingsSnapId },
+                new
+                {
+                    FindingsSnapshotId = findingsSnapId
+                },
                 cancellationToken: CancellationToken.None));
 
         findingsArchivedUtc.Should().NotBeNull("bulk run archival cascades ArchivedUtc to dbo.FindingsSnapshots");
@@ -231,7 +248,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         IReadOnlyList<Guid> adminOrphanList = (await verify.QueryAsync<Guid>(
             new CommandDefinition(
                 AdminStyleOrphanFindingsSnapshotSelect,
-                new { MaxRows = 100 },
+                new
+                {
+                    MaxRows = 100
+                },
                 cancellationToken: CancellationToken.None))).ToList();
         adminOrphanList.Should().BeEmpty("admin-style findings-snapshot orphan select after cascaded archival");
     }

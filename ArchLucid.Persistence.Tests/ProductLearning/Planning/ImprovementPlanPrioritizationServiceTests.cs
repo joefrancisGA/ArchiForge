@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -71,7 +70,10 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             ],
             new ImprovementPlanPrioritizationWeights
             {
-                Frequency = 0.5, Severity = 0.5, TrustImpact = 0.5, Breadth = 0.5
+                Frequency = 0.5,
+                Severity = 0.5,
+                TrustImpact = 0.5,
+                Breadth = 0.5
             },
             CancellationToken.None));
     }

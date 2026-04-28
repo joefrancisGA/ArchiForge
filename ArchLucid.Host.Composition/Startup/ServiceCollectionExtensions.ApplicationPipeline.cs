@@ -131,12 +131,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
-        // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is now the single
-        // implementation behind IArchitectureRunCommitOrchestrator; RunCommitOrchestratorFacade keeps the
-        // public application-layer surface stable for callers that depend on IRunCommitOrchestrator.
+        // + LegacyRunCommitPathOptions were deleted. The authority-driven orchestrator is the single commit implementation.
         services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
-        services.AddScoped<IRunCommitOrchestrator, RunCommitOrchestratorFacade>();
-        services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<ITraceabilityBundleBuilder, TraceabilityBundleBuilder>();
         services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();

@@ -37,8 +37,6 @@
     <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts.Abstractions\ArchLucid.Contracts.Abstractions.csproj" />
-    <ProjectReference Include="..\ArchLucid.Coordinator\ArchLucid.Coordinator.csproj" />
-    <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.Integrations.AzureDevOps\ArchLucid.Integrations.AzureDevOps.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />

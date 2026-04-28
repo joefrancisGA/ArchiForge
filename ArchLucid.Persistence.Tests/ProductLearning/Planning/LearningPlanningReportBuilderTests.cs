@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -78,7 +77,9 @@ public sealed class LearningPlanningReportBuilderTests
         await repo.AddPlanSignalLinkAsync(
             new ProductLearningImprovementPlanSignalLinkRecord
             {
-                PlanId = lowId, SignalId = sig, TriageStatusSnapshot = ProductLearningTriageStatusValues.Open
+                PlanId = lowId,
+                SignalId = sig,
+                TriageStatusSnapshot = ProductLearningTriageStatusValues.Open
             },
             CancellationToken.None);
 

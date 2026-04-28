@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -83,7 +82,8 @@ public sealed class ImprovementPlanningServiceTests
 
         ImprovementPlanningOptions options = new()
         {
-            RuleVersion = "59R-plan-v1", CreatedUtcOverride = new DateTime(2026, 4, 3, 0, 0, 0, DateTimeKind.Utc)
+            RuleVersion = "59R-plan-v1",
+            CreatedUtcOverride = new DateTime(2026, 4, 3, 0, 0, 0, DateTimeKind.Utc)
         };
 
         IReadOnlyList<ImprovementPlan> plans = await svc.BuildPlansAsync(
@@ -145,7 +145,11 @@ public sealed class ImprovementPlanningServiceTests
             2,
             ["b"]);
 
-        ImprovementPlanningOptions options = new() { RuleVersion = "v1", MaxStepsPerPlan = 1 };
+        ImprovementPlanningOptions options = new()
+        {
+            RuleVersion = "v1",
+            MaxStepsPerPlan = 1
+        };
 
         IReadOnlyList<ImprovementPlan> plans = await svc.BuildPlansAsync(
             [unknown, rollup],

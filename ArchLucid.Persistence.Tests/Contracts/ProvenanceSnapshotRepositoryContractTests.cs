@@ -64,12 +64,17 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IProvenanceSnapshotRepository repo = CreateRepository();
-        ScopeContext scope = NewScope();
+
         Guid runId = Guid.NewGuid();
 
         await repo.SaveAsync(NewSnapshot(runId, "{}", DateTime.UtcNow), CancellationToken.None);
 
-        ScopeContext other = new() { TenantId = Guid.NewGuid(), WorkspaceId = WorkspaceId, ProjectId = ScopeProjectId };
+        ScopeContext other = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = WorkspaceId,
+            ProjectId = ScopeProjectId
+        };
 
         DecisionProvenanceSnapshot? loaded = await repo.GetByRunIdAsync(other, runId, CancellationToken.None);
 

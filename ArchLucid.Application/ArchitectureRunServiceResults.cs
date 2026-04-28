@@ -6,7 +6,7 @@ using ArchLucid.Contracts.Metadata;
 namespace ArchLucid.Application;
 
 /// <summary>
-/// Outcome of <see cref="IArchitectureRunService.CreateRunAsync"/> after successful coordination and persistence.
+/// Outcome of <see cref="Runs.Orchestration.IArchitectureRunCreateOrchestrator.CreateRunAsync"/> after successful coordination and persistence.
 /// </summary>
 public sealed class CreateRunResult
 {
@@ -25,7 +25,7 @@ public sealed class CreateRunResult
 }
 
 /// <summary>
-/// Outcome of <see cref="IArchitectureRunService.ExecuteRunAsync"/>: persisted agent outputs for the run.
+/// Outcome of <see cref="Runs.Orchestration.IArchitectureRunExecuteOrchestrator.ExecuteRunAsync"/>: persisted agent outputs for the run.
 /// </summary>
 public sealed class ExecuteRunResult
 {
@@ -36,7 +36,7 @@ public sealed class ExecuteRunResult
 }
 
 /// <summary>
-/// Outcome of <see cref="IArchitectureRunService.CommitRunAsync"/>: committed golden manifest and associated decision traces.
+/// Outcome of <see cref="Runs.Orchestration.IArchitectureRunCommitOrchestrator.CommitRunAsync"/>: committed golden manifest and associated decision traces.
 /// </summary>
 public sealed class CommitRunResult
 {

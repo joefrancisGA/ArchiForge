@@ -14,8 +14,7 @@ public sealed class AuthorityPipelineWorkPayload
     } = null!;
 
     /// <summary>
-    ///     Evidence bundle id persisted during <see cref="Coordinator.Services.CoordinatorService.CreateRunAsync" />
-    ///     before the worker completes.
+    ///     Evidence bundle id persisted during deferred create before the worker completes.
     /// </summary>
     public string EvidenceBundleId
     {
