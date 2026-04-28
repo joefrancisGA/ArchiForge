@@ -44,6 +44,7 @@
 
   <ItemGroup>
     <None Include="..\tests\golden-cohort\cohort.json" CopyToOutputDirectory="PreserveNewest" Link="golden-cohort\cohort.json" />
+    <None Include="..\tests\golden-corpus\agent-output-reference-cases.json" CopyToOutputDirectory="PreserveNewest" Link="golden-corpus\agent-output-reference-cases.json" />
   </ItemGroup>
 
   <ItemGroup>

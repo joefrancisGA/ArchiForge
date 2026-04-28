@@ -6,7 +6,11 @@ public sealed class DataConsistencyEnforcementOptions
     /// <summary>Configuration subsection bound to <c>DataConsistency:Enforcement</c>.</summary>
     public const string SectionName = "DataConsistency:Enforcement";
 
-    /// <summary>Default <see cref="DataConsistencyEnforcementMode.Warn"/> — logs without quarantine.</summary>
+    /// <summary>
+    ///     Host template default <see cref="DataConsistencyEnforcementMode.Warn"/>; reference API deploy
+    ///     (<c>ArchLucid.Api/appsettings.json</c>) sets <see cref="DataConsistencyEnforcementMode.Alert"/> so
+    ///     <c>archlucid_data_consistency_alerts_total</c> can page operators when orphans meet threshold.
+    /// </summary>
     public DataConsistencyEnforcementMode Mode
     {
         get; set;

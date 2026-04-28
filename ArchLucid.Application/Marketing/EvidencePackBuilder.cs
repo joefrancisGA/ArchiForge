@@ -121,7 +121,7 @@ public sealed class EvidencePackBuilder(
         "security.txt" => "RFC 9116 security contact file (`archlucid-ui/public/.well-known/security.txt`).",
         "CAIQ-Lite.md" => "CAIQ Lite pre-fill 2026 (`docs/security/CAIQ_LITE_2026.md`).",
         "SIG-Core.md" => "SIG Core pre-fill 2026 (`docs/security/SIG_CORE_2026.md`).",
-        "OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md" => "Owner-led security self-assessment (DRAFT).",
+        "OWNER_SECURITY_ASSESSMENT_2026_Q2.md" => "Owner-led security self-assessment (owner-conducted, not third-party audited).",
         "PEN_TEST_SOW_2026_Q2.md" => "2026-Q2 pen-test Statement of Work (engagement in flight).",
         "AUDIT_COVERAGE_MATRIX.md" => "Mapping of state-changing workflows to durable audit signals.",
         _ => "(see file).",

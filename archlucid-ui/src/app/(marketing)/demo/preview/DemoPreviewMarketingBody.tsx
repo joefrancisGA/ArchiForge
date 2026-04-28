@@ -1,17 +1,8 @@
 import Link from "next/link";
 
+import { ShowcaseOutcomeStrip } from "@/components/showcase/ShowcaseOutcomeStrip";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
-
-/** Maps API status strings to operator-facing labels (API may still return `Committed`). */
-function manifestStatusForDisplay(status: string | undefined | null): string {
-  const t = (status ?? "").trim();
-
-  if (/^committed$/i.test(t)) {
-    return "Finalized";
-  }
-
-  return t.length > 0 ? t : "—";
-}
+import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 
 export function DemoPreviewNotAvailable() {
   return (
@@ -38,8 +29,24 @@ export function DemoPreviewNotAvailable() {
 
 function DemoStatusBanner({ payload }: { readonly payload: DemoCommitPagePreviewResponse }) {
   const runIdLabel = typeof payload.run?.runId === "string" ? payload.run.runId : "—";
-
   const generatedUtc = typeof payload.generatedUtc === "string" ? payload.generatedUtc : "—";
+  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
+  if (demoMode) {
+    return (
+      <div
+        data-testid="demo-preview-status-banner"
+        className="rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200"
+        role="status"
+      >
+        <span className="font-semibold">Sample data preview</span>
+        {" · "}
+        <span className="text-neutral-600 dark:text-neutral-400">
+          Scenario: {payload.demoStatusMessage ?? "Demonstration"} — generated {generatedUtc}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -67,6 +74,11 @@ export function DemoPreviewMarketingBody({ payload }: { readonly payload: DemoCo
 
   return (
     <div className="space-y-8">
+      <ShowcaseOutcomeStrip
+        runId={typeof payload.run?.runId === "string" ? payload.run.runId : "—"}
+        manifestId={manifest?.manifestId}
+      />
+
       <DemoStatusBanner payload={payload} />
 
       <section data-testid="demo-preview-run">

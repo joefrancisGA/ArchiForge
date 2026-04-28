@@ -76,6 +76,13 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         [FromQuery] int take = 100,
         CancellationToken ct = default)
     {
+        if (beforeEventId.HasValue && !beforeUtc.HasValue)
+        {
+            return this.BadRequestProblem(
+                "beforeEventId requires beforeUtc for stable keyset pagination.",
+                ProblemTypes.ValidationFailed);
+        }
+
         int clampedTake = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
         ScopeContext scope = scopeProvider.GetCurrentScope();
 

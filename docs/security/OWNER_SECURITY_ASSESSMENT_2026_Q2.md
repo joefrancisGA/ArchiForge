@@ -3,7 +3,9 @@
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 
-# Owner-conducted security assessment — Q2 2026 (draft)
+# Owner-conducted security assessment — Q2 2026
+
+**Status:** Owner-conducted assessment **(not third-party audited).** When we say third-party penetration test coverage or SOC 2, read `docs/library/V1_DEFERRED.md` §6c — those artefacts are tracked for V1.1 separately.
 
 **This is not a third-party penetration test and is not a SOC 2 attestation.** It is an **internal security self-assessment** performed by the product owner / engineering team, structured for buyer transparency until a separately funded external assessor delivers a redacted summary under [`pen-test-summaries/`](pen-test-summaries/README.md).
 
@@ -12,6 +14,8 @@
 **Scope in / out:** ArchLucid API surface (ASP.NET Core), operator UI (Next.js), SQL Server persistence layer, Docker container images, Terraform IaC modules, CI pipeline security gates.
 
 **Related templates:** [`PEN_TEST_SOW_TEMPLATE.md`](PEN_TEST_SOW_TEMPLATE.md) (borrow structure for scope), [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md) (buyer index)
+
+**Last reviewed (UTC):** 2026-04-28
 
 ---
 
@@ -46,3 +50,12 @@
 When this document is ready for external readers, move a **sanitized** copy (or this file, fully de-scrubbed) to a buyer-visible path linked from the Trust Center and archive the working notes separately if they contain internal-only detail.
 
 This self-assessment will be superseded by the Aeronova third-party penetration test (SoW awarded 2026-04-21, V1.1 scope). Until then, this document represents the product team's internal security review based on automated CI gates and manual ASVS-oriented checklist review.
+
+---
+
+## Limitations
+
+- This assessment is **owner-conducted** — it has **not** been independently validated by an external auditor or assessor firm.
+- It does **not** substitute for SOC 2 Type II, ISO 27001 certification, or a completed third-party penetration test report.
+- A redacted third-party penetration test summary publication remains **V1.1-scheduled** per [`V1_DEFERRED.md`](../library/V1_DEFERRED.md) §6c and buyer messaging in [`../go-to-market/TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md).
+

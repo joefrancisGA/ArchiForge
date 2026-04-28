@@ -109,7 +109,7 @@ public static class ConfigurationKeyCatalog
       E("DeveloperExperience", "DeveloperExperience:EnableApiExplorer", M("appsettings", "env"), "false", "—", "Exposes extra OpenAPI/Scalar in non-prod (see security note).", ConfigKeyRequirementKind.None),
       E("DataConsistency", "DataConsistency:OrphanProbeEnabled", M("appsettings", "env"), "true", "—", "Background data consistency scan.", ConfigKeyRequirementKind.None),
       E("DataConsistency", "DataConsistency:OrphanProbeIntervalMinutes", M("appsettings", "env"), "60", "—", "Orphan scan cadence.", ConfigKeyRequirementKind.None),
-      E("DataConsistency", "DataConsistency:Enforcement:Mode", M("appsettings", "env"), "Warn", "—", "Warn|Enforce for auto-remediation posture.", ConfigKeyRequirementKind.None),
+      E("DataConsistency", "DataConsistency:Enforcement:Mode", M("appsettings", "env"), "Warn", "ArchLucid.Api: Alert", "Off | Warn | Alert | Quarantine (see `DataConsistencyEnforcementMode`); reference API ships Alert for orphan paging.", ConfigKeyRequirementKind.None),
       E("DataConsistency", "DataConsistency:Enforcement:MaxRowsPerBatch", M("appsettings", "env"), "500", "When enforced", "Safer cap per remediation batch.", ConfigKeyRequirementKind.None),
       E("DataConsistency", "DataConsistency:Enforcement:AlertThreshold", M("appsettings", "env"), "1", "—", "Orphan count threshold to page operators.", ConfigKeyRequirementKind.None),
       E("DataConsistency", "DataConsistency:Enforcement:AutoQuarantine", M("appsettings", "env"), "false", "—", "If true, auto quarantine (must be off until approved).", ConfigKeyRequirementKind.None),

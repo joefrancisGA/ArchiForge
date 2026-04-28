@@ -4,7 +4,7 @@
 
 # Owner-conducted security assessment — procurement excerpt
 
-This document is the **buyer-shareable excerpt** for procurement bundles. It summarizes the **same programme** as the in-repo draft [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md) but **must not** be edited with customer-specific names in the pack — use `PROCUREMENT_PACK_COVER.md` for deal context only.
+This document is the **buyer-shareable excerpt** for procurement bundles. It summarizes the **same programme** as the in-repo canonical file [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) but **must not** be edited with customer-specific names in the pack — use `PROCUREMENT_PACK_COVER.md` for deal context only.
 
 ## What this is (and is not)
 

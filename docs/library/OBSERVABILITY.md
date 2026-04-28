@@ -49,6 +49,8 @@
 | **`archlucid_data_consistency_orphans_quarantined_total`** | Counter | **`table`**, **`column`** | Rows inserted into **`dbo.DataConsistencyQuarantine`** from the orphan probe when **`DataConsistency:Enforcement:Mode`** is **`Quarantine`** or **`AutoQuarantine`** is **true** (golden-manifest orphans only; labels mirror detection). |
 | **`archlucid_explanation_citations_emitted_total`** | Counter | **`kind`** (`CitationKind` string) | Citation references attached to **`GET /v1/explain/runs/{runId}/aggregate`** for UI chips. |
 
+**Data-consistency enforcement (reference API):** `DataConsistencyEnforcementOptions.Mode` defaults to **`Warn`** in code; the committed **`ArchLucid.Api/appsettings.json`** sets **`Alert`** so **`archlucid_data_consistency_alerts_total`** increments when orphan counts meet **`AlertThreshold`**, alongside detection-only **`archlucid_data_consistency_orphans_detected_total`**. Pair **`ArchLucidDataConsistencyOrphansDetected`** and **`ArchLucidDataConsistencyAlertsRaised`** in **`infra/prometheus/archlucid-alerts.yml`**.
+
 For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**.
 
 ---

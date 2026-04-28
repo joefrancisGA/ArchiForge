@@ -43,6 +43,18 @@ public sealed class AuditControllerSearchTests
     }
 
     [Fact]
+    public async Task SearchAudit_WithBeforeEventId_without_BeforeUtc_Returns400()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response =
+            await client.GetAsync($"/v1/audit/search?beforeEventId={Guid.NewGuid():D}");
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task SearchAudit_WithBeforeUtc_PassesFilterToRepo()
     {
         await using AuditControllerSearchApiFactory factory = new();

@@ -290,13 +290,13 @@ Items explicitly deferred to V1.1 or V2 are **not penalized** in scoring.
 
 #### 16. Auditability — Score: 79, Weight: 2, Deficiency: 42
 
-**Justification:** Auditability is strong: 117 audit event type constants in `AuditEventTypes.cs` (verified by CI `assert_audit_const_count.py`), append-only SQL store with database-level `DENY UPDATE/DELETE`, paginated search with keyset cursor, CSV export with UTC range filtering, retention tiering (hot/warm/cold), and correlation ID threading. Governance workflows dual-write to both baseline and durable channels. The CI guard ensures the audit coverage matrix stays in sync with constants. Known gaps are zero for durable-audit omissions in the previously listed mutating areas. However, the audit search uses `OccurredUtc` only for keyset cursor — tie-breaking for identical timestamps is a documented limitation for very large logs.
+**Justification:** Auditability is strong: 117 audit event type constants in `AuditEventTypes.cs` (verified by CI `assert_audit_const_count.py`), append-only SQL store with database-level `DENY UPDATE/DELETE`, filtered search with keyset cursor ordered `OccurredUtc DESC, EventId DESC`, CSV export with UTC range filtering, retention tiering (hot/warm/cold), and correlation ID threading. Governance workflows dual-write to both baseline and durable channels. The CI guard ensures the audit coverage matrix stays in sync with constants. Known gaps are zero for durable-audit omissions in the previously listed mutating areas. **Keyset pagination:** `GET /v1/audit/search` accepts `beforeUtc` with optional `beforeEventId`; the SQL path matches composite ordering so same-instant events paginate deterministically; the API rejects `beforeEventId` without `beforeUtc`.
 
 **Tradeoffs:** Append-only audit with database-level enforcement is stronger than application-only guarantees, at the cost of requiring the `ArchLucidApp` database role for DENY to apply.
 
-**Improvement recommendations:** Add `EventId` tie-breaking to the keyset cursor for audit search.
+**Improvement recommendations:** (Operational) Keep OpenAPI/docs in sync when pagination query rules evolve.
 
-**Fixability:** V1 — SQL and API changes for cursor tie-breaking.
+**Fixability:** N/A — composite keyset behavior is implemented; surface is stable for V1 workloads.
 
 ---
 
@@ -306,9 +306,9 @@ Items explicitly deferred to V1.1 or V2 are **not penalized** in scoring.
 
 **Tradeoffs:** Custom governance model is flexible but requires mapping work by customers who have existing governance frameworks.
 
-**Improvement recommendations:** Create a sample policy pack that maps to a common governance framework (e.g., TOGAF ADM phase gates or AWS Well-Architected review criteria).
+**Improvement recommendations:** Extend the **`templates/policy-packs/togaf-adm-gates`** sample rules with your authoring pipeline and RACI checkpoints.
 
-**Fixability:** V1 — template policy pack creation.
+**Fixability:** V1 — sample pack shipped; tenant-specific tailoring remains bespoke.
 
 ---
 

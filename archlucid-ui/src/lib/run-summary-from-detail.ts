@@ -24,3 +24,30 @@ export function runFromDetailToRunSummary(run: RunDetail["run"]): RunSummary {
     hasArtifactBundle: Boolean(run.artifactBundleId),
   };
 }
+
+/**
+ * Prefer `GET …/runs/{id}/summary` when it matches this run; otherwise fall back to the detail row.
+ * OR-merge pipeline booleans so a malformed or empty summary (common in mock / screenshot stubs) cannot
+ * contradict a finalized run that already lists snapshot IDs on the detail envelope.
+ */
+export function effectiveRunSummaryForPipeline(
+  apiSummary: RunSummary | null,
+  run: RunDetail["run"],
+): RunSummary {
+  const fromDetail = runFromDetailToRunSummary(run);
+
+  if (apiSummary === null || typeof apiSummary.runId !== "string" || apiSummary.runId !== run.runId) {
+    return fromDetail;
+  }
+
+  return {
+    ...fromDetail,
+    ...apiSummary,
+    hasContextSnapshot: apiSummary.hasContextSnapshot === true || fromDetail.hasContextSnapshot === true,
+    hasGraphSnapshot: apiSummary.hasGraphSnapshot === true || fromDetail.hasGraphSnapshot === true,
+    hasFindingsSnapshot: apiSummary.hasFindingsSnapshot === true || fromDetail.hasFindingsSnapshot === true,
+    hasGoldenManifest: apiSummary.hasGoldenManifest === true || fromDetail.hasGoldenManifest === true,
+    hasDecisionTrace: apiSummary.hasDecisionTrace === true || fromDetail.hasDecisionTrace === true,
+    hasArtifactBundle: apiSummary.hasArtifactBundle === true || fromDetail.hasArtifactBundle === true,
+  };
+}

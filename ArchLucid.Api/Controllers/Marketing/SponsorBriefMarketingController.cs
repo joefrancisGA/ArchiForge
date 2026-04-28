@@ -12,44 +12,41 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Marketing;
 
-/// <summary>Anonymous marketing PDF built from <c>docs/go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md</c>.</summary>
+/// <summary>Anonymous marketing artifact: printable PDF from the canonical Executive Sponsor Brief markdown.</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/marketing")]
 [EnableRateLimiting("fixed")]
 [AllowAnonymous]
-public sealed class EnterpriseComparisonMarketingController(
+public sealed class SponsorBriefMarketingController(
     IWebHostEnvironment hostEnvironment,
-    WhyArchLucidPackPdfBuilder pdfBuilder) : ControllerBase
+    ExecutiveSponsorBriefPdfBuilder pdfBuilder) : ControllerBase
 {
+    private readonly ExecutiveSponsorBriefPdfBuilder _pdfBuilder =
+        pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
+
     private readonly IWebHostEnvironment _hostEnvironment =
         hostEnvironment ?? throw new ArgumentNullException(nameof(hostEnvironment));
 
-    private readonly WhyArchLucidPackPdfBuilder _pdfBuilder =
-        pdfBuilder ?? throw new ArgumentNullException(nameof(pdfBuilder));
-
-    /// <summary>Returns a single-page PDF sourced from the repository Markdown file (read-only file IO).</summary>
-    [HttpGet("enterprise-comparison.pdf")]
+    /// <summary>Returns the sponsor brief as PDF — content matches <c>docs/EXECUTIVE_SPONSOR_BRIEF.md</c> on disk.</summary>
+    [HttpGet("sponsor-brief.pdf")]
     [Produces("application/pdf")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
-    public IActionResult GetEnterpriseComparisonPdf()
+    public IActionResult GetSponsorBriefPdf()
     {
-        string? path = RepositoryDocsMarkdownPath.TryFindFile(
-            _hostEnvironment,
-            "go-to-market",
-            "ENTERPRISE_COMPARISON_ONE_PAGE.md");
+        string? path = RepositoryDocsMarkdownPath.TryFindFile(_hostEnvironment, "EXECUTIVE_SPONSOR_BRIEF.md");
 
-        if (string.IsNullOrWhiteSpace(path))
+        if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path))
         {
             return this.NotFoundProblem(
-                $"Enterprise comparison Markdown was not found under docs/go-to-market (started from '{_hostEnvironment.ContentRootPath}').",
+                $"Executive sponsor brief was not found under docs/ (started from '{_hostEnvironment.ContentRootPath}').",
                 ProblemTypes.ResourceNotFound);
         }
 
         string markdown = System.IO.File.ReadAllText(path, Encoding.UTF8);
         byte[] pdf = _pdfBuilder.Build(markdown);
 
-        return File(pdf, "application/pdf", "enterprise-comparison.pdf");
+        return File(pdf, "application/pdf", "sponsor-brief.pdf");
     }
 }

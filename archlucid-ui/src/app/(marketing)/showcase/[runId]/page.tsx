@@ -6,7 +6,7 @@ import {
   DemoPreviewNotAvailable,
 } from "../../demo/preview/DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
-import { getShowcaseStaticDemoPayload, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 
 import { ShowcaseWhatThisProves } from "./ShowcaseWhatThisProves";
 
@@ -47,10 +47,13 @@ function resolveShowcaseApiBase(): string {
 }
 
 function showcaseTitleForRunId(runId: string): string {
-  if (runId === SHOWCASE_STATIC_DEMO_RUN_ID)
-    return "Claims intake modernization";
+  const decoded = decodeURIComponent(runId);
 
-  return runId;
+  if (decoded === "claims-intake-modernization") {
+    return "Claims Intake Modernization — completed architecture output";
+  }
+
+  return `Completed example (${decoded})`;
 }
 
 function ShowcaseLead({ children }: { readonly children: ReactNode }) {
@@ -105,6 +108,21 @@ function ShowcaseLoadFailed(): ReactElement {
 
 /** Shared banner when browsing static baked-in demo preview (API not reachable). */
 function ShowcaseStaticDemoBanner(): ReactElement {
+  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
+  if (demoMode) {
+    return (
+      <div
+        className="mt-4 rounded border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100"
+        role="status"
+        data-testid="showcase-static-demo-banner"
+      >
+        <span className="font-semibold">Sample data preview.</span> Curated results for this scenario; connect a workspace with
+        preview enabled for live data.
+      </div>
+    );
+  }
+
   return (
     <div
       className="mt-4 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-950 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-100"
@@ -121,8 +139,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { runId } = await props.params;
 
   return {
-    title: `ArchLucid · Completed example (${showcaseTitleForRunId(runId)})`,
-    description: "Read-only completed example — manifest, findings, artifacts, and review trail for a healthcare-style run.",
+    title: `ArchLucid · ${showcaseTitleForRunId(runId)}`,
+    description: "Read-only completed architecture output — manifest, findings, artifacts, and review trail.",
     robots: { index: true, follow: true },
   };
 }
@@ -167,7 +185,10 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
     return (
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Claims Intake Modernization — completed architecture output
+        </h1>
+        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">Completed example (read-only marketing preview)</p>
 
         <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
 
@@ -192,7 +213,12 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "not_found": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Claims Intake Modernization — completed architecture output
+          </h1>
+          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            Completed example (read-only marketing preview)
+          </p>
 
           <div className="mt-6">
             <DemoPreviewNotAvailable />
@@ -204,7 +230,12 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "ok":
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Claims Intake Modernization — completed architecture output
+          </h1>
+          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            Completed example (read-only marketing preview)
+          </p>
 
           <ShowcaseLead>{trimLeadDescription(bundle.payload.run.description)}</ShowcaseLead>
 
@@ -221,7 +252,12 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "bad_json": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Claims Intake Modernization — completed architecture output
+          </h1>
+          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            Completed example (read-only marketing preview)
+          </p>
 
           <ShowcaseLoadFailed />
 
@@ -235,7 +271,12 @@ export default async function MarketingShowcasePage(props: PageProps) {
     case "invalid": {
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Claims Intake Modernization — completed architecture output
+          </h1>
+          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            Completed example (read-only marketing preview)
+          </p>
 
           <div className="mt-6">
             <DemoPreviewNotAvailable />
@@ -250,7 +291,12 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
       return (
         <main className="mx-auto max-w-5xl px-4 py-10">
-          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Completed example</h1>
+          <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">
+            Claims Intake Modernization — completed architecture output
+          </h1>
+          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            Completed example (read-only marketing preview)
+          </p>
 
           <ShowcaseLead>{trimLeadDescription(fallbackPayload.run.description)}</ShowcaseLead>
 

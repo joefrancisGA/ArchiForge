@@ -5842,6 +5842,10 @@
           "manifestVersion": {
             "type": "string"
           },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
           "requestComment": {
             "type": [
               "null",
@@ -5898,6 +5902,14 @@
             "type": "string"
           },
           "targetEnvironment": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -6028,7 +6040,19 @@
           "manifestVersion": {
             "type": "string"
           },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
           "runId": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -6240,6 +6264,10 @@
               "string"
             ]
           },
+          "projectId": {
+            "format": "uuid",
+            "type": "string"
+          },
           "promotedBy": {
             "type": "string"
           },
@@ -6257,6 +6285,14 @@
             "type": "string"
           },
           "targetEnvironment": {
+            "type": "string"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "workspaceId": {
+            "format": "uuid",
             "type": "string"
           }
         },
@@ -31762,6 +31798,31 @@
         ]
       }
     },
+    "/v1/marketing/sponsor-brief.pdf": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {}
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "SponsorBriefMarketing"
+        ]
+      }
+    },
     "/v1/marketing/trust-center/evidence-pack.zip": {
       "get": {
         "responses": {
@@ -35442,6 +35503,9 @@
     },
     {
       "name": "SecurityTrustPublication"
+    },
+    {
+      "name": "SponsorBriefMarketing"
     },
     {
       "name": "SupportBundle"

@@ -31,7 +31,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 ## Penetration testing and security assessments
 
-**Owner-conducted (interim):** until a funded third-party engagement completes, ArchLucid may publish an **internal security self-assessment** (not a pen test, not SOC 2). Draft scaffold: [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md).
+**Owner-conducted (interim):** until a funded third-party engagement completes, ArchLucid may publish an **internal security self-assessment** (not a pen test, not SOC 2). Canonical assessment: [`../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md).
 
 **Third-party (procurement-grade):** formal external pen tests are **scheduled per customer / release train**, not implied by CI smoke alone. Procurement-ready templates:
 

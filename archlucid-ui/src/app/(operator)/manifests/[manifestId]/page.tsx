@@ -16,19 +16,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/operator-response-guards";
+import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
-
-function manifestStatusForDisplay(status: string): string {
-  const t = status.trim();
-
-  if (/^committed$/i.test(t)) {
-    return "Finalized";
-  }
-
-  return t;
-}
 
 /** Server-rendered manifest detail page. Shows manifest summary, artifacts table, and download links. */
 export default async function ManifestDetailPage({

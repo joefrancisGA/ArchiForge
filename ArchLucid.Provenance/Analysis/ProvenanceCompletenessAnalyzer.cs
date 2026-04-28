@@ -18,8 +18,8 @@ public static class ProvenanceCompletenessAnalyzer
         ArgumentNullException.ThrowIfNull(graph);
 
         // Deserialization or hand-built graphs can leave list properties null; treat as empty.
-        IReadOnlyList<ProvenanceNode> nodes = graph.Nodes;
-        IReadOnlyList<ProvenanceEdge> edges = graph.Edges;
+        IReadOnlyList<ProvenanceNode> nodes = graph.Nodes ?? [];
+        IReadOnlyList<ProvenanceEdge> edges = graph.Edges ?? [];
 
         Dictionary<Guid, ProvenanceNode> nodeById = nodes.ToDictionary(n => n.Id, n => n);
 

@@ -29,6 +29,7 @@ import {
   fixtureRunExplanationSummary,
 } from "./fixtures/index";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
+import type { RunDetail } from "@/types/authority";
 
 import {
   getEmptyGraphViewModelJson,
@@ -43,6 +44,29 @@ function sendJson(res: http.ServerResponse, status: number, body: unknown): void
     "Content-Length": Buffer.byteLength(payload, "utf8"),
   });
   res.end(payload);
+}
+
+function jsonRunSummaryFromDetail(detail: RunDetail): unknown {
+  const r = detail.run;
+
+  return {
+    runId: r.runId,
+    projectId: r.projectId,
+    description: r.description,
+    createdUtc: r.createdUtc,
+    contextSnapshotId: r.contextSnapshotId,
+    graphSnapshotId: r.graphSnapshotId,
+    findingsSnapshotId: r.findingsSnapshotId,
+    goldenManifestId: r.goldenManifestId,
+    decisionTraceId: r.decisionTraceId,
+    artifactBundleId: r.artifactBundleId,
+    hasContextSnapshot: Boolean(r.contextSnapshotId),
+    hasGraphSnapshot: Boolean(r.graphSnapshotId),
+    hasFindingsSnapshot: Boolean(r.findingsSnapshotId),
+    hasGoldenManifest: Boolean(r.goldenManifestId),
+    hasDecisionTrace: Boolean(r.decisionTraceId),
+    hasArtifactBundle: Boolean(r.artifactBundleId),
+  };
 }
 
 function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
@@ -266,8 +290,8 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
             {
               runId: SHOWCASE_DEMO_RUN_ID,
               projectId,
-              description: "Claims Intake Modernization — sample completed scenario (mock API).",
-              createdUtc: "2025-06-01T12:00:00.000Z",
+              description: "Claims Intake Modernization — sample completed scenario.",
+              createdUtc: "2026-01-10T09:15:22.000Z",
               goldenManifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
               hasGoldenManifest: true,
               hasFindingsSnapshot: true,
@@ -351,6 +375,27 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           sendJson(res, 404, { detail: "Run not found." });
         }
 
+        return;
+      }
+
+      const runSummaryMatchV1 = /^\/v1\/authority\/runs\/([^/]+)\/summary$/.exec(pathname);
+      const runSummaryMatchLegacy = /^\/api\/authority\/runs\/([^/]+)\/summary$/.exec(pathname);
+      const runSummaryMatch = runSummaryMatchV1 ?? runSummaryMatchLegacy;
+
+      if (runSummaryMatch) {
+        const rid = runSummaryMatch[1];
+
+        if (rid === FIXTURE_RUN_ID) {
+          sendJson(res, 200, jsonRunSummaryFromDetail(fixtureRunDetail()));
+          return;
+        }
+
+        if (rid === SHOWCASE_DEMO_RUN_ID || rid === SCREENSHOT_RUN_ID) {
+          sendJson(res, 200, jsonRunSummaryFromDetail(fixtureRunDetailAlignedToShowcase(rid)));
+          return;
+        }
+
+        sendJson(res, 404, { detail: "Run summary not found." });
         return;
       }
 

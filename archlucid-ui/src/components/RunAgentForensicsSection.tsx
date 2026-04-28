@@ -1,5 +1,7 @@
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { getRunAgentEvaluation, getRunTraces } from "@/lib/api";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type {
@@ -55,8 +57,8 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
 
   return (
-    <section id="agent-forensics" className="mb-6" aria-labelledby="agent-forensics-title">
-      <h3 id="agent-forensics-title">Agent traces & output structure</h3>
+    <section id="agent-forensics" className="scroll-mt-24 mb-6" aria-label="Diagnostics — agent traces">
+      <CollapsibleSection title="Diagnostics — agent traces and output structure" defaultOpen={false}>
       <p className="mt-0 max-w-3xl text-sm text-neutral-500 dark:text-neutral-400">
         Prompt/response audit rows and a structural JSON completeness pass over persisted agent outputs (no LLM). Requires
         architecture API access; empty results are normal when tracing is disabled or the run has no agent steps yet.
@@ -102,7 +104,9 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
       ) : null}
 
       {!tracesFailure && traces.length === 0 ? (
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">No execution traces returned for this run (first page).</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          No execution traces in the first page of results — expand when troubleshooting ingestion or agent steps.
+        </p>
       ) : null}
 
       {!tracesFailure && traces.length > 0 ? (
@@ -148,7 +152,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
       {evaluationPayload && !evaluationFailure ? (
         <p className="mt-3 text-[13px] text-neutral-500 dark:text-neutral-400">
-          Evaluated at {new Date(evaluationPayload.evaluatedAtUtc).toLocaleString()} · skipped traces:{" "}
+          Evaluated at {formatInstantForLocale(evaluationPayload.evaluatedAtUtc)} · skipped traces:{" "}
           {evaluationPayload.tracesSkippedCount}
           {evaluationPayload.averageStructuralCompletenessRatio !== null &&
           evaluationPayload.averageStructuralCompletenessRatio !== undefined
@@ -156,6 +160,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
             : ""}
         </p>
       ) : null}
+      </CollapsibleSection>
     </section>
   );
 }

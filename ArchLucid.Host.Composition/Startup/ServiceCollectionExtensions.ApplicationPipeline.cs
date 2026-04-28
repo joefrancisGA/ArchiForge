@@ -150,6 +150,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<WhyArchLucidPackPdfBuilder>();
+        services.AddScoped<ExecutiveSponsorBriefPdfBuilder>();
         services.AddScoped<PilotScorecardBuilder>();
         services.AddScoped<IPilotInProductScorecardService, PilotInProductScorecardService>();
         services.AddScoped<PilotOutcomeSummaryService>();

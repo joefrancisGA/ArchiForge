@@ -125,6 +125,19 @@ groups:
             Investigate missing `dbo.Runs` keys; for comparison rows see `docs/runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`.
             Probe is detection-only.
 
+      - alert: ArchLucidDataConsistencyAlertsRaised
+        expr: |
+          sum(rate(archlucid_data_consistency_alerts_total[1h])) > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Data consistency enforcement signaled orphan threshold
+          description: >-
+            `archlucid_data_consistency_alerts_total` increased — `DataConsistency:Enforcement:Mode` is `Alert` or
+            `Quarantine` on this host and at least one table/column slice met `AlertThreshold`. See
+            `docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`.
+
   - name: archlucid-explainability
     rules:
       - alert: ArchLucidExplanationFaithfulnessFallbackTrend

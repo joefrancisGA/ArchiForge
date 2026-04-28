@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { redirect } from "next/navigation";
 
 import { RunsListClient } from "@/app/(operator)/runs/RunsListClient";
@@ -76,7 +77,8 @@ export default async function RunsPage({
         metadata={<span>Project {projectId}</span>}
       />
       <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Open a run to review its manifest, artifacts, findings, and exports.
+        Open an <GlossaryTooltip termKey="run">architecture run</GlossaryTooltip> to review its manifest, artifacts,
+        findings, and exports.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <div className="inline-flex items-center gap-1.5">

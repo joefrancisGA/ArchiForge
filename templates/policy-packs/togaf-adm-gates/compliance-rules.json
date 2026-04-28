@@ -1,0 +1,57 @@
+{
+  "rulePackId": "togaf-adm-gates-sample-v1",
+  "name": "TOGAF ADM gate mapping — sample scaffolding",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "togaf-adm-prelim-architecture-contract",
+      "controlId": "TOGAF-ADM-P",
+      "controlName": "Preliminary — architecture contract and principles captured",
+      "appliesToCategory": "governance",
+      "requiredNodeType": "ArchitecturalDecision",
+      "requiredEdgeType": "GOVERNED_BY",
+      "severity": "Warning",
+      "description": "Maps ADM preliminary phase checkpoints to explicit architecture principles and stakeholder agreement before iterative cycles."
+    },
+    {
+      "ruleId": "togaf-adm-a-baseline-vs-target-gap",
+      "controlId": "TOGAF-ADM-A",
+      "controlName": "Architecture Vision — baseline vs target and gap surfaced",
+      "appliesToCategory": "topology",
+      "requiredNodeType": "SystemBoundary",
+      "requiredEdgeType": "DEPENDS_ON",
+      "severity": "Warning",
+      "description": "ADM Architecture Vision emphasizes agreed scope statements; graph should surface baseline/current vs target deltas with traceable gap owners."
+    },
+    {
+      "ruleId": "togaf-adm-b-business-capability-architecture-contract",
+      "controlId": "TOGAF-ADM-B",
+      "controlName": "Business Architecture — capability-to-service mapping",
+      "appliesToCategory": "architecture",
+      "requiredNodeType": "Capability",
+      "requiredEdgeType": "REALIZED_BY",
+      "severity": "Info",
+      "description": "Business Architecture checkpoint: capabilities trace to enabling services/platforms when context snapshots expose those layers."
+    },
+    {
+      "ruleId": "togaf-adm-f-migration-contract",
+      "controlId": "TOGAF-ADM-F",
+      "controlName": "Migration Planning — roadmap and dependency ordering",
+      "appliesToCategory": "risk",
+      "requiredNodeType": "WorkPackage",
+      "requiredEdgeType": "PRECEDES",
+      "severity": "Error",
+      "description": "Migration Planning gates require ordered transition increments; finding engines can flag contradictory sequencing hints."
+    },
+    {
+      "ruleId": "togaf-adm-g-governance-compliance-handoff",
+      "controlId": "TOGAF-ADM-G",
+      "controlName": "Implementation Governance — compliance evidence linkage",
+      "appliesToCategory": "compliance",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Aligns TOGAF implementation governance checkpoints with persisted evidence (manifest artifacts, approvals, audits) surfaced in Operator flows."
+    }
+  ]
+}

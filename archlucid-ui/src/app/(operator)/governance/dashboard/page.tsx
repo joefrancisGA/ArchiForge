@@ -1,3 +1,4 @@
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { HelpLink } from "@/components/HelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { FeatureNotAvailable } from "@/components/product/FeatureAvailabilityStates";
@@ -16,6 +17,10 @@ export default function GovernanceDashboardPage() {
           label="Governance workflows documentation on GitHub (new tab)"
         />
       </div>
+      <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Planned <GlossaryTooltip termKey="governance_workflow">governance</GlossaryTooltip> dashboard scope will summarize
+        approval requests and lineage across runs (rebuild in progress).
+      </p>
       <FeatureNotAvailable />
     </main>
   );

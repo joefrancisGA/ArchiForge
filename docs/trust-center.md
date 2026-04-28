@@ -22,7 +22,7 @@ Procurement teams can pull every artefact below in one ZIP — generated on-dema
 
 > **[⬇ Download evidence pack (ZIP)](https://api.archlucid.net/v1/marketing/trust-center/evidence-pack.zip)**
 
-The ZIP includes the DPA template, subprocessors register, SLA summary, `security.txt`, CAIQ Lite pre-fill, SIG Core pre-fill, owner-led security self-assessment (DRAFT), 2026-Q2 pen-test SoW, and the audit coverage matrix — plus an auto-generated `README.md` index. The HTTP response carries an `ETag` (SHA-256 of the included files' content) and a `Cache-Control: public, max-age=3600` header; resending the same ETag in `If-None-Match` returns `304 Not Modified`. The endpoint **deliberately omits** the redacted pen-test summary (V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10) and the PGP key (also V1.1).
+The ZIP includes the DPA template, subprocessors register, SLA summary, `security.txt`, CAIQ Lite pre-fill, SIG Core pre-fill, owner-conducted security self-assessment (not third-party audited), 2026-Q2 pen-test SoW, and the audit coverage matrix — plus an auto-generated `README.md` index. The HTTP response carries an `ETag` (SHA-256 of the included files' content) and a `Cache-Control: public, max-age=3600` header; resending the same ETag in `If-None-Match` returns `304 Not Modified`. The endpoint **deliberately omits** the redacted pen-test summary (V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10) and the PGP key (also V1.1).
 
 ---
 

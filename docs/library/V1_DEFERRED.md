@@ -49,7 +49,7 @@ Operational cleanup is **scheduled and gated**, not “unfinished V1 product.”
 | Item | Doc source |
 |------|------------|
 | **Playwright** operator smoke may use **mocked** `/api/proxy`; it does not replace **SQL-backed** API + UI validation for a given release | [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [V1_SCOPE.md](V1_SCOPE.md) §3 |
-| **Audit search** keyset cursor uses **`OccurredUtc` only**; tie-breaking for identical timestamps is a known limitation for very large logs | Implementation note (API + UI); treat **EventId tie-break** as a future refinement if needed |
+| **Audit search** keyset cursor uses **`OccurredUtc` with optional `EventId` tie-break** (`GET /v1/audit/search?beforeUtc=…&beforeEventId=…`); clients must pass both when continuing past same-second events | [AuditController.cs](../../ArchLucid.Api/Controllers/Admin/AuditController.cs), operator audit UI “Load more” |
 
 ---
 

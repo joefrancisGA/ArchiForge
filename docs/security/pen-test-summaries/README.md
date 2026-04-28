@@ -24,7 +24,7 @@
 | [`2026-Q2-SOW.md`](2026-Q2-SOW.md) | **Awarded** SoW — assessor **Aeronova Red Team LLC**; kickoff **2026-05-06** |
 | [`2026-Q2-REDACTED-SUMMARY.md`](2026-Q2-REDACTED-SUMMARY.md) | Pre-report placeholder — replace severity/remediation tables after assessor redacted delivery |
 | [`2026-Q2-DRAFT.md`](2026-Q2-DRAFT.md) | Legacy placeholder — superseded by SoW + redacted stub above when engaging assessors |
-| [`../OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](../OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md) | **Owner self-assessment** (not third-party) — interim buyer transparency; does not live in this folder once finalized |
+| [`../OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../OWNER_SECURITY_ASSESSMENT_2026_Q2.md) | **Owner self-assessment** (not third-party) — interim buyer transparency |
 
 
 ## Related

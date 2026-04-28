@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listRunsByProjectPaged } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { cn } from "@/lib/utils";
 
 const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
@@ -343,7 +344,7 @@ export function OperatorFirstRunWorkflowPanel() {
             First Manifest Checklist
           </h2>
           <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
-            Create → Run → Finalize → Review
+            Create → <GlossaryTooltip termKey="run">Run</GlossaryTooltip> → Finalize → Review
           </p>
         </div>
         <button
@@ -365,7 +366,8 @@ export function OperatorFirstRunWorkflowPanel() {
         </p>
       ) : null}
       <p className="m-0 mb-2 text-xs leading-snug text-neutral-700 dark:text-neutral-300">
-        Complete these four steps to get from an empty workspace to a reviewed, exportable run.
+        Complete these four steps to get from an empty workspace to a reviewed, exportable{" "}
+        <GlossaryTooltip termKey="run">architecture run</GlossaryTooltip>.
       </p>
       <ol className="m-0 list-none space-y-2 p-0">
         {steps.map((step, index) => {

@@ -84,7 +84,7 @@ ArchLucid runs automated security checks on every pull request and merge to main
 | Engagement | Status | Detail |
 |-----------|--------|--------|
 | 2026-Q2 third-party pen test (Aeronova Red Team LLC) | **In-flight** — SoW awarded 2026-04-21; kickoff 2026-05-06 | API, operator UI, hosted SaaS data plane |
-| Owner-conducted security self-assessment | **Completed** (interim posture) | [`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md) |
+| Owner-conducted security self-assessment | **Completed** (interim posture) | [`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) |
 
 **Access to pen-test results:** Redacted summaries are available **under NDA only**. Contact `security@archlucid.net`.
 

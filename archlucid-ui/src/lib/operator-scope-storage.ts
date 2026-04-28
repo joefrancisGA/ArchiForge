@@ -122,9 +122,12 @@ export function defaultLabelsForScopeIds(
 ): { workspace: string; project: string } {
   const production = process.env.NODE_ENV === "production";
 
+  const productionLike =
+    production || process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
   const ws =
     workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID
-      ? production
+      ? productionLike
         ? "Workspace"
         : "Development workspace"
       : workspaceId.slice(0, 8) + "…";

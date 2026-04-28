@@ -14,7 +14,8 @@ import {
   coerceManifestSummary,
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
-import { runFromDetailToRunSummary } from "@/lib/run-summary-from-detail";
+import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
+import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { ContextualHelp } from "@/components/ContextualHelp";
@@ -85,7 +86,9 @@ function ManifestSummarySection({
           ) : null}
           <dl className="m-0 grid gap-3 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-6">
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</dt>
-            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">{manifestSummary.status}</dd>
+            <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
+              {manifestStatusForDisplay(manifestSummary.status)}
+            </dd>
             <dt className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Rule set</dt>
             <dd className="m-0 text-sm text-neutral-900 dark:text-neutral-100">
               {manifestSummary.ruleSetId} {manifestSummary.ruleSetVersion}
@@ -192,8 +195,10 @@ export default async function RunDetailPage({
     s.hasFindingsSnapshot === true &&
     s.hasGoldenManifest === true;
 
+  const progressForPipelineUi = effectiveRunSummaryForPipeline(progressInitialSummary, resolvedDetail.run);
+
   const showProgressTracker =
-    !manifestId || !pipelineCompleteOnSummary(progressInitialSummary);
+    !manifestId || !pipelineCompleteOnSummary(progressForPipelineUi);
 
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
@@ -271,7 +276,7 @@ export default async function RunDetailPage({
   const runDetailNavSections: RunDetailSection[] = [
     { id: "run-metadata", label: "Run", available: true },
     { id: "pipeline-timeline", label: "Timeline", available: true },
-    { id: "agent-forensics", label: "Agent trace", available: true },
+    { id: "agent-forensics", label: "Diagnostics", available: true },
     { id: "authority-chain", label: "Review trail", available: true },
     { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
     { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
@@ -279,7 +284,7 @@ export default async function RunDetailPage({
     { id: "run-actions", label: "Actions", available: true },
   ];
 
-  const runSummaryForBadge = progressInitialSummary ?? runFromDetailToRunSummary(resolvedDetail.run);
+  const runSummaryForBadge = progressForPipelineUi;
   const descriptionTrimmed = resolvedDetail.run.description?.trim() ?? "";
   const headline =
     descriptionTrimmed.length > 0 ? descriptionTrimmed : `Run ${resolvedDetail.run.runId}`;
@@ -321,7 +326,7 @@ export default async function RunDetailPage({
       />
 
       {showProgressTracker ? (
-        <RunProgressTracker runId={runId} initialSummary={progressInitialSummary} />
+        <RunProgressTracker runId={runId} initialSummary={progressForPipelineUi} />
       ) : null}
 
       {manifestId ? <EmailRunToSponsorBanner runId={runId} /> : null}

@@ -1,0 +1,23 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "togaf-adm-prelim-architecture-contract",
+    "togaf-adm-a-baseline-vs-target-gap",
+    "togaf-adm-b-business-capability-architecture-contract",
+    "togaf-adm-f-migration-contract",
+    "togaf-adm-g-governance-compliance-handoff"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning"
+  },
+  "metadata": {
+    "vertical": "enterprise-architecture",
+    "regulatoryAnchor": "TOGAF ADM phased checkpoints (Architecture Development Method)",
+    "notes": [
+      "Sample mapping scaffold — tighten rule shapes to your authoring pipeline and evidence sources.",
+      "ADM phases referenced: Preliminary / A Vision / B Business / F Migration / G Implementation Governance (subset)."
+    ]
+  }
+}

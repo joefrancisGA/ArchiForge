@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { AlertRoutingContent } from "@/components/alerts/AlertRoutingContent";
 import { AlertRulesContent } from "@/components/alerts/AlertRulesContent";
 import { AlertSimulationTuningSection } from "@/components/alerts/AlertSimulationTuningSection";
@@ -84,6 +85,12 @@ export function AlertsHubClient() {
           })}
         </div>
       </nav>
+
+      <p className="mb-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Inbox and rules evaluate signals against{" "}
+        <GlossaryTooltip termKey="effective_governance">effective governance</GlossaryTooltip> and persisted findings —
+        escalation paths are tenant-specific.
+      </p>
 
       <div
         className="min-w-0"

@@ -124,7 +124,7 @@ The **When required** column reflects `ConfigurationKeyRequirement` in code (e.g
 | DeveloperExperience | `DeveloperExperience:EnableApiExplorer` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Exposes extra OpenAPI/Scalar in non-prod (see security note). |
 | DataConsistency | `DataConsistency:OrphanProbeEnabled` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Background data consistency scan. |
 | DataConsistency | `DataConsistency:OrphanProbeIntervalMinutes` | appsettings, env | 60 | Optional (not mode-gated) | All (Api, Worker, Combined) | Orphan scan cadence. |
-| DataConsistency | `DataConsistency:Enforcement:Mode` | appsettings, env | Warn | Optional (not mode-gated) | All (Api, Worker, Combined) | Warn&#124;Enforce for auto-remediation posture. |
+| DataConsistency | `DataConsistency:Enforcement:Mode` | appsettings, env | Warn | Optional (not mode-gated) | All (Api, Worker, Combined) | Type default **Warn**; **`ArchLucid.Api/appsettings.json`** ships **Alert** for orphan paging signals (see **`DataConsistencyEnforcementMode`**). |
 | DataConsistency | `DataConsistency:Enforcement:MaxRowsPerBatch` | appsettings, env | 500 | Optional (When enforced) | All (Api, Worker, Combined) | Safer cap per remediation batch. |
 | DataConsistency | `DataConsistency:Enforcement:AlertThreshold` | appsettings, env | 1 | Optional (not mode-gated) | All (Api, Worker, Combined) | Orphan count threshold to page operators. |
 | DataConsistency | `DataConsistency:Enforcement:AutoQuarantine` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | If true, auto quarantine (must be off until approved). |

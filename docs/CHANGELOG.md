@@ -7,6 +7,18 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-28 — Quality plan: sponsor PDF, glossary surface, data-consistency alert default, TOGAF pack
+
+**Outcome.** **`GET /v1/marketing/sponsor-brief.pdf`** serves a QuestPDF rendering of **`docs/EXECUTIVE_SPONSOR_BRIEF.md`** (`ExecutiveSponsorBriefPdfBuilder`, `SponsorBriefMarketingController`); **`RepositoryDocsMarkdownPath`** walks parents from **`IWebHostEnvironment.ContentRootPath`** so **`docs/…`** resolves in integration tests (`WebApplicationFactory`) and **`dotnet run`**. **`GET /v1/marketing/enterprise-comparison.pdf`** uses the same resolver. **`OpenApiContractSnapshotTests`** snapshot refreshed after **`sponsor-brief.pdf`** route. **`archlucid-ui`** adds **`src/lib/glossary.ts`** re-export and in-product glossary tooltips (checklist, runs list, governance dashboard shell, alerts hub, policy packs lead). **`ArchLucid.Api/appsettings.json`** keeps **`DataConsistency:Enforcement:Mode=Alert`** with **`ArchLucidDataConsistencyAlertsRaised`** Prometheus rule and **`OBSERVABILITY.md`** note; **`ConfigurationKeyCatalog`** documents Api vs host default. **`GET /v1/audit/search`** rejects **`beforeEventId`** without **`beforeUtc`**. Sample **`templates/policy-packs/togaf-adm-gates/`** (ADM gate mapping README + JSON). **`docs/go-to-market/SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md`** adds throughput/FTE illustration. **`docs/library/V1_DEFERRED.md`** audit-row updated for composite keyset.
+
+---
+
+## 2026-04-28 — Owner security self-assessment finalized (evidence-pack filename)
+
+**Outcome.** **`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`** replaced by **`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`** (owner-conducted; **not** third-party audited; **Limitations** section). Evidence-pack ZIP entry **`OWNER_SECURITY_ASSESSMENT_2026_Q2.md`** embedded in **`ArchLucid.Application`**. Trust Center / procurement mirrored links updated (**`docs/trust-center.md`**, **`go-to-market/TRUST_CENTER.md`**, **`CURRENT_ASSURANCE_POSTURE.md`**, **`dist/procurement-pack/*`**). Tests: **`EmbeddedResourceEvidencePackSourceProviderTests`**.
+
+---
+
 ## 2026-04-27 — Quote inbox notification, onboarding hub trim, healthcare trust pointer
 
 **Outcome.** Successful **`POST /v1/marketing/pricing/quote-request`** (SQL persist) triggers **`IMarketingPricingQuoteSalesNotifier`** → transactional email to **`Email:PricingQuoteSalesInbox`** (default **`sales@archlucid.net`**); **`Noop`** logs **would notify**. Config surface: **`ArchLucid.Api/appsettings.json`** `Email` section; runbook [`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md). **`docs/START_HERE.md`** is the ≤40-line **entry tree**; depth moved to [`docs/library/START_HERE_DEPTH.md`](library/START_HERE_DEPTH.md). **`README.md`** leads with **`START_HERE`**; contributor persona table moved to [`docs/library/CONTRIBUTOR_PERSONA_TABLE.md`](library/CONTRIBUTOR_PERSONA_TABLE.md). **`docs/trust-center.md`** adds **Healthcare and PHI**; **`docs/go-to-market/TENANT_ISOLATION.md`** links to it. **`docs/PENDING_QUESTIONS.md`** item 13 notes inbox wiring.

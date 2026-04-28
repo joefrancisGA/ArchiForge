@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -312,6 +313,8 @@ export default function PolicyPacksPage() {
       <LayerHeader pageKey="policy-packs" />
       <OperatorPageHeader title="Policy packs" helpKey="policy-packs" />
       <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        A <GlossaryTooltip termKey="policy_pack">policy pack</GlossaryTooltip> bundles versioned controls and advisory
+        defaults for your scope —{" "}
         {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
           Governance resolution

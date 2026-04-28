@@ -36,6 +36,17 @@ Contoso Retail is modernizing checkout onto Azure while preserving its existing 
 
 Annualization and payback depend on how many architecture changes your enterprise runs per year; see `PILOT_ROI_MODEL.md` for the guardrails ArchLucid uses in pilot evaluation.
 
+## Illustrative throughput and FTE levers (synthetic)
+
+Assume **six** EA-relevant modernization threads per calendar year matching the **`PILOT_ROI_MODEL.md`** illustrative team sizing (principal + five senior reviewers). Applying the illustrative hour deltas above yields:
+
+| Lever | Synthetic value | Notes |
+|-------|-----------------|-------|
+| Review-cycle hour savings vs baseline | **168 h/year** (6 × 28 h) | Same 28 h/thread delta as §Indicative deltas |
+| Evidence-assembly savings vs baseline | **36 h/year** (6 × 6 h) | From 8 h → 2 h per thread × six threads |
+
+At a **fully loaded blended rate** of **$150/h**, the illustrative **annualized value** lands near **$30.6k/year** from review/evidence deltas alone (**204** professional hours: 168 + 36, × **$150**). This is deliberately conservative versus large-program savings and excludes vendor change costs or cloud spend — it exists to show arithmetic alignment with ROI-model guardrails rather than promised customer outcomes.
+
 ## Disclaimer
 
 These numbers are **not** SQL-backed tenant metrics. Replace them with measured pilot data before external publication. The structured twin lives in `SyntheticCaseStudyDataProvider` for DOCX and sample rendering.

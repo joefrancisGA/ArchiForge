@@ -1,0 +1,38 @@
+[
+  {
+    "caseId": "core-topology-structure",
+    "agentType": "Topology",
+    "minimumStructuralCompleteness": 0.65,
+    "minimumSemanticScore": 0,
+    "minimumFindingCount": 0,
+    "expectedFindingCategories": [],
+    "requiredJsonKeys": ["resultId", "findings"]
+  },
+  {
+    "caseId": "core-cost-structure",
+    "agentType": "Cost",
+    "minimumStructuralCompleteness": 0.65,
+    "minimumSemanticScore": 0,
+    "minimumFindingCount": 0,
+    "expectedFindingCategories": [],
+    "requiredJsonKeys": ["resultId", "findings"]
+  },
+  {
+    "caseId": "core-compliance-structure",
+    "agentType": "Compliance",
+    "minimumStructuralCompleteness": 0.65,
+    "minimumSemanticScore": 0,
+    "minimumFindingCount": 0,
+    "expectedFindingCategories": [],
+    "requiredJsonKeys": ["resultId", "findings"]
+  },
+  {
+    "caseId": "core-critic-structure",
+    "agentType": "Critic",
+    "minimumStructuralCompleteness": 0.65,
+    "minimumSemanticScore": 0,
+    "minimumFindingCount": 0,
+    "expectedFindingCategories": [],
+    "requiredJsonKeys": ["resultId", "findings"]
+  }
+]
