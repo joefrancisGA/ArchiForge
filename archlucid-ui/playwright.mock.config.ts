@@ -6,6 +6,8 @@ import { defineConfig, devices } from "@playwright/test";
  * Merge-blocking live journeys use the default `playwright.config.ts` in CI (`ui-e2e-live`).
  *
  * If `MOCK_E2E_SKIP_NEXT_BUILD=1`, the webServer only runs `start-e2e-with-mock` (assumes `npm run build` already ran).
+ * By default the UI port is **not** reused (avoids screenshot/E2E hitting the wrong process on 3000). Set
+ * `MOCK_E2E_REUSE_SERVER=1` to reuse an existing listener when you intentionally run standalone yourself.
  * After a one-time `npm run build`, prefer `npm run screenshots:all:prebuilt` to avoid the webServer re-running
  * a full build (faster, clearer failures). PNGs for `capture-all` land under `public/screenshots/all-routes/`.
  */
@@ -36,7 +38,7 @@ export default defineConfig({
   webServer: {
     command: mockWebServerCommand,
     url: mockBaseUrl,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: process.env.MOCK_E2E_REUSE_SERVER === "1",
     /** Build + standalone sync can be slow; with skip-build, only the mock + Next need to start. */
     timeout: mockWebServerStartupTimeoutMs,
   },

@@ -6,13 +6,17 @@ Targets for the **core pilot flow** regression tests in `ArchLucid.Api.Tests` (`
 
 | Operation | Target | Measured (CI / local) | Environment |
 |----------|--------|------------------------|-------------|
-| Create run | Contributes to E2E < 10s; per-step ms in test output | *placeholder* | In-process simulator + in-memory |
-| Seed results | Contributes to E2E < 10s; per-step ms in test output | *placeholder* | Same |
-| Commit | Contributes to E2E < 10s; per-step ms in test output | *placeholder* | Same |
-| Retrieve manifest | Contributes to E2E < 10s; per-step ms in test output | *placeholder* | Same |
-| Manifest p95 (10× GET) | < 500ms | *placeholder* | Same |
+| Create run | Contributes to E2E < 10s; per-step ms in test output | ~30 ms | In-process simulator + in-memory |
+| Seed results | Contributes to E2E < 10s; per-step ms in test output | ~37 ms | Same |
+| Commit (incl. findings engine) | Contributes to E2E < 10s; per-step ms in test output | ~763 ms (findings ~221 ms, commit ~305 ms) | Same |
+| Retrieve manifest | Contributes to E2E < 10s; per-step ms in test output | ~74 ms | Same |
+| Manifest p95 (10× GET) | < 500ms | **164 ms** | Same |
 
 **E2E gate:** create run → seed fake results → commit → retrieve manifest must complete in **< 10 seconds** total (generous in-process cap).
+
+**Last measured:** 2026-04-27, Release build, local workstation (Win11 x64, .NET 10.0.5). **Total E2E: ~6 seconds** (well within the 10-second cap). Both test methods passed:
+- `CorePilotFlow_CompletesWithinTarget`: 6 s
+- `ManifestRetrieval_CompletesWithin500ms`: 164 ms
 
 **Test class:** `ArchLucid.Api.Tests/Performance/CorePilotFlowPerformanceTests.cs`.
 

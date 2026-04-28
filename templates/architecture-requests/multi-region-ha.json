@@ -1,0 +1,43 @@
+{
+  "requestId": "contoso-multi-region-001",
+  "systemName": "ContosoGlobalStorefront",
+  "description": "Design a multi-region active-passive architecture for Contoso's global e-commerce storefront with automatic failover. Primary region East US 2, secondary West US 3. Target RTO < 5 minutes, RPO < 30 seconds for transactional data. Stateless API tier with Azure Front Door for global traffic management and health-probe-based failover.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "RPO < 30 seconds for order and payment data (Azure SQL auto-failover group with zone-redundant replicas)",
+    "RTO < 5 minutes measured from health probe failure to traffic cutover completion",
+    "Session state must not be region-affine — use Azure Cache for Redis with geo-replication"
+  ],
+  "requiredCapabilities": [
+    "Azure Front Door Premium with health probes and priority-based routing",
+    "Azure SQL auto-failover group with readable secondary",
+    "Cosmos DB multi-region writes for product catalog (eventual consistency acceptable for reads)",
+    "Automated DR drill runbook executable quarterly"
+  ],
+  "assumptions": [
+    "80% of traffic originates from North America; secondary region serves as warm standby, not active load sharing",
+    "Static assets are globally cached via Azure CDN and do not require regional failover"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document manual failover procedure for planned maintenance, including DNS TTL considerations and cache warming"
+  ],
+  "documents": [
+    {
+      "name": "region-selection-rationale.txt",
+      "contentType": "text/plain",
+      "content": "Fictional rationale: East US 2 chosen for proximity to data center; West US 3 for Azure availability zone support and regulatory redundancy."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Stateless API tier behind Azure Front Door — no server affinity",
+    "Use Azure Traffic Manager as fallback if Front Door itself experiences an outage (edge case)"
+  ],
+  "securityBaselineHints": [
+    "Encrypt cross-region replication channels (Azure SQL failover groups use TLS by default)",
+    "Ensure Key Vault secrets are replicated or accessible from both regions"
+  ],
+  "infrastructureDeclarations": []
+}

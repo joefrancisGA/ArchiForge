@@ -144,7 +144,14 @@ test.describe("all routes screenshots (mock API)", () => {
         await page.waitForURL(/\/digests\?tab=schedule(?:&[^#]*)?(?:$|#)/, { timeout: 30_000 });
 
       /** Wait for hydrated shell ({@link AppShellClient} / {@link ShellReadySurface}); `networkidle` is unreliable on Next.js. */
-      await page.locator("[data-app-ready=\"true\"]").waitFor({ state: "attached", timeout: 20_000 });
+      try {
+        await page.locator("[data-app-ready=\"true\"]").waitFor({ state: "attached", timeout: 60_000 });
+      } catch (e) {
+        throw new Error(
+          `data-app-ready not found for href=${href} (url=${page.url()}). Use a free UI port, run mock webServer (see playwright.mock.config), ` +
+            `and avoid MOCK_E2E_REUSE_SERVER unless the correct standalone app is already listening. ${(e as Error).message}`,
+        );
+      }
 
       await expect(page.locator("body")).toBeVisible({ timeout: 120_000 });
       await page.screenshot({ path: filePathForHref(href), fullPage: true });

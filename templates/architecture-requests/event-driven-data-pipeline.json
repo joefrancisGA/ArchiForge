@@ -1,0 +1,42 @@
+{
+  "requestId": "contoso-data-pipeline-001",
+  "systemName": "ContosoAnalyticsPipeline",
+  "description": "Build an event-driven data pipeline on Azure to ingest retail point-of-sale events from Azure Event Hubs, transform and enrich in Azure Functions, and land in Azure Data Lake Storage Gen2 for Synapse Analytics consumption. Near-real-time dashboard updates via Azure Data Explorer for operational visibility.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Ingestion throughput must sustain 50,000 events/second during peak retail hours",
+    "Event ordering must be preserved per store partition key",
+    "Data lake files must be Parquet-formatted with Delta Lake transactions for ACID semantics"
+  ],
+  "requiredCapabilities": [
+    "Schema registry for event versioning (Avro)",
+    "Dead-letter queue for poison events with alerting",
+    "Cost controls: auto-pause Synapse SQL pool when idle > 30 minutes"
+  ],
+  "assumptions": [
+    "POS systems already emit events to a regional Event Hub namespace",
+    "Data science team consumes from the curated Delta Lake layer, not raw"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document replay strategy: reprocess from Event Hub capture if a transform bug corrupts the curated layer"
+  ],
+  "documents": [
+    {
+      "name": "event-schema-samples.txt",
+      "contentType": "text/plain",
+      "content": "Fictional POS events: sale_completed, sale_voided, inventory_adjustment. Each carries storeId, timestamp, and items[]."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Separate hot path (streaming to dashboards) from cold path (batch to Delta Lake)",
+    "Use managed identity for all data plane access — no connection strings in config"
+  ],
+  "securityBaselineHints": [
+    "Encrypt data lake at rest with customer-managed keys",
+    "Network isolation: Event Hubs and ADLS behind private endpoints"
+  ],
+  "infrastructureDeclarations": []
+}

@@ -118,8 +118,6 @@ export default function DemoExplainPage() {
 
       {state.notFound ? <DemoNotAvailableNotice /> : null}
 
-      {state.notFound ? <DemoNotAvailableNotice /> : null}
-
       {state.payload &&
       state.payload.provenanceGraph &&
       state.payload.runExplanation ? (

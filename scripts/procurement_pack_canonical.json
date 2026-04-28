@@ -99,6 +99,16 @@
       "pack_path": "ENTERPRISE_COMPARISON_ONE_PAGE.md",
       "source_repo_path": "docs/go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md",
       "description": "Enterprise comparison one-pager (Markdown; PDF via GET /v1/marketing/enterprise-comparison.pdf)"
+    },
+    {
+      "pack_path": "DSAR_PROCESS.md",
+      "source_repo_path": "docs/security/DSAR_PROCESS.md",
+      "description": "GDPR Data Subject Access Request process — PII map, fulfillment steps, erasure constraints"
+    },
+    {
+      "pack_path": "CURRENT_ASSURANCE_POSTURE.md",
+      "source_repo_path": "dist/procurement-pack/CURRENT_ASSURANCE_POSTURE.md",
+      "description": "Current assurance posture summary — CI security checks, isolation model, audit, compliance status"
     }
   ],
   "excluded_from_canonical_pack": [

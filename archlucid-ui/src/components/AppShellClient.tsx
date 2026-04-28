@@ -1,7 +1,7 @@
 "use client";
 
 import { HelpCircle } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { ArchLucidWordmarkLink } from "@/components/ArchLucidWordmarkLink";
 import { AppToaster } from "@/components/AppToaster";
@@ -36,7 +36,8 @@ export function AppShellClient({ children }: AppShellClientProps) {
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
 
-  useEffect(() => {
+  /** `useLayoutEffect`: runs before paint so Playwright sees the marker as soon as the shell DOM commits. */
+  useLayoutEffect(() => {
     shellRootRef.current?.setAttribute("data-app-ready", "true");
   }, []);
 

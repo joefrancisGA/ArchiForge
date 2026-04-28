@@ -1,0 +1,42 @@
+{
+  "requestId": "contoso-api-gateway-001",
+  "systemName": "ContosoApiGateway",
+  "description": "Design an API gateway and Backend-for-Frontend (BFF) layer for Contoso's multi-channel commerce platform. The gateway fronts five downstream microservices (catalog, cart, checkout, identity, notifications) and provides client-specific aggregation for web SPA, mobile native, and partner B2B API consumers.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Gateway latency overhead must be < 15ms p99 for pass-through routes",
+    "Rate limiting per API key with configurable burst allowance per partner tier",
+    "Must support gradual traffic shifting for canary deployments of downstream services"
+  ],
+  "requiredCapabilities": [
+    "Azure API Management with self-hosted gateway option for edge locations",
+    "OAuth 2.0 token exchange (external IdP token → internal service token)",
+    "Response caching at gateway for catalog reads (TTL configurable per product category)"
+  ],
+  "assumptions": [
+    "Mobile and web clients authenticate via Entra External ID (B2C replacement)",
+    "Partner B2B clients use client_credentials flow with pre-registered app registrations"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document circuit-breaker behavior: what the client sees when a downstream service is unhealthy"
+  ],
+  "documents": [
+    {
+      "name": "api-inventory.txt",
+      "contentType": "text/plain",
+      "content": "Fictional downstream APIs: Catalog (read-heavy, cacheable), Cart (session-scoped, low latency), Checkout (transactional), Identity (auth flows), Notifications (async, fire-and-forget)."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "BFF pattern: separate aggregation layers for web (SSR-friendly) and mobile (minimal payload)",
+    "Prefer APIM policies over custom code for cross-cutting concerns"
+  ],
+  "securityBaselineHints": [
+    "Validate JWT at the gateway; do not forward raw external tokens to downstream services",
+    "IP allow-listing for partner B2B tier; geo-blocking for sanctioned regions"
+  ],
+  "infrastructureDeclarations": []
+}

@@ -91,6 +91,15 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      if (req.method === "GET" && u.pathname === "/api/auth/me") {
+        sendJson(res, 200, {
+          name: "E2E mock operator",
+          claims: [{ type: "roles", value: "Admin" }],
+        });
+
+        return;
+      }
+
       const pathname = decodeURIComponent(u.pathname);
 
       if (req.method === "GET" && pathname === "/v1/public/demo/sample-run") {

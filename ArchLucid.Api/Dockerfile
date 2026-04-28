@@ -32,7 +32,6 @@ COPY ArchLucid.ArtifactSynthesis.Tests/*.csproj ArchLucid.ArtifactSynthesis.Test
 COPY ArchLucid.Contracts/*.csproj          ArchLucid.Contracts/
 COPY ArchLucid.Contracts.Abstractions/*.csproj ArchLucid.Contracts.Abstractions/
 COPY ArchLucid.ContextIngestion/*.csproj   ArchLucid.ContextIngestion/
-COPY ArchLucid.Coordinator/*.csproj        ArchLucid.Coordinator/
 COPY ArchLucid.Core/*.csproj               ArchLucid.Core/
 COPY ArchLucid.Decisioning/*.csproj        ArchLucid.Decisioning/
 COPY ArchLucid.KnowledgeGraph/*.csproj     ArchLucid.KnowledgeGraph/
@@ -54,7 +53,6 @@ COPY ArchLucid.AgentRuntime.Tests/*.csproj  ArchLucid.AgentRuntime.Tests/
 COPY ArchLucid.Cli.Tests/*.csproj          ArchLucid.Cli.Tests/
 COPY ArchLucid.ContextIngestion.Tests/*.csproj ArchLucid.ContextIngestion.Tests/
 COPY ArchLucid.Contracts.Tests/*.csproj    ArchLucid.Contracts.Tests/
-COPY ArchLucid.Coordinator.Tests/*.csproj  ArchLucid.Coordinator.Tests/
 COPY ArchLucid.Decisioning.Tests/*.csproj  ArchLucid.Decisioning.Tests/
 COPY ArchLucid.KnowledgeGraph.Tests/*.csproj ArchLucid.KnowledgeGraph.Tests/
 COPY ArchLucid.Persistence.Tests/*.csproj  ArchLucid.Persistence.Tests/

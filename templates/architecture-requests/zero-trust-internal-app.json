@@ -1,0 +1,43 @@
+{
+  "requestId": "contoso-zero-trust-001",
+  "systemName": "ContosoHRPortal",
+  "description": "Design a zero-trust internal HR portal on Azure for Contoso's 5,000-employee workforce. The application handles sensitive PII (employee records, compensation, performance reviews) and must comply with internal data classification policy (Level 3 — Confidential). No internet exposure; all access via Entra ID Conditional Access with device compliance checks.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No public endpoints — all traffic via Private Link and Azure Front Door with private origins",
+    "Data at rest must use customer-managed keys (Azure Key Vault HSM-backed)",
+    "Conditional Access: require compliant device + MFA for all users; block legacy auth protocols"
+  ],
+  "requiredCapabilities": [
+    "Entra ID Conditional Access with named locations and device compliance",
+    "Azure Confidential Computing or Always Encrypted for compensation data columns",
+    "Data loss prevention (DLP) integration for bulk export controls"
+  ],
+  "assumptions": [
+    "All employees are provisioned in Entra ID via HR-driven provisioning from Workday",
+    "Corporate devices are Intune-managed with compliance policies enforced"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document break-glass access path for HR admins when Conditional Access blocks during an emergency"
+  ],
+  "documents": [
+    {
+      "name": "data-classification.txt",
+      "contentType": "text/plain",
+      "content": "Fictional classification: Level 1 (Public), Level 2 (Internal), Level 3 (Confidential — PII, compensation), Level 4 (Restricted — board materials)."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "App Service Environment (ASE) or Container Apps with VNet injection for full network isolation",
+    "Separate read and write databases: read replica for reporting, primary for transactions"
+  ],
+  "securityBaselineHints": [
+    "CIS Azure Foundations Benchmark Level 2 compliance",
+    "Enable Microsoft Defender for Cloud on all resource types",
+    "Audit all data access via diagnostic settings to Log Analytics"
+  ],
+  "infrastructureDeclarations": []
+}

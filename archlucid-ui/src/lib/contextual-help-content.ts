@@ -88,6 +88,30 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "System health shows API readiness checks, circuit breaker state, and onboarding milestone rates. For full metrics, connect Prometheus or Application Insights — see docs/library/OBSERVABILITY.md.",
     learnMoreUrl: "/docs/library/OBSERVABILITY.md",
   },
+  "digests-page": {
+    text: "Executive digests summarize architecture activity across your workspace. Configure delivery in Settings → Executive Digest.",
+    learnMoreUrl: "/docs/operator-shell.md",
+  },
+  "compare-page": {
+    text: "Side-by-side manifest comparison. Select two finalized runs to see structural diffs, cost deltas, and compliance changes.",
+    learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
+  },
+  "planning-page": {
+    text: "Planning surfaces improvement themes extracted from product learning signals. Plans link themes to actionable roadmap items.",
+    learnMoreUrl: "/docs/operator-shell.md",
+  },
+  "evolution-review": {
+    text: "Evaluate candidate change sets from evolution simulations before committing to a production architecture change.",
+    learnMoreUrl: "/docs/operator-shell.md",
+  },
+  "value-report": {
+    text: "Per-tenant ROI and value report. Quantifies time saved, findings resolved, and governance maturity improvements.",
+    learnMoreUrl: "/docs/PILOT_ROI_MODEL.md",
+  },
+  "compliance-journey": {
+    text: "Maps your current compliance posture against control frameworks. Evidence links point to CAIQ, SIG, and DPA artifacts.",
+    learnMoreUrl: "/docs/security/COMPLIANCE_MATRIX.md",
+  },
 };
 
 /**

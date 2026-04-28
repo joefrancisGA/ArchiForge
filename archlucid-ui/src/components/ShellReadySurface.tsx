@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type HTMLAttributes } from "react";
+import { useLayoutEffect, useRef, type HTMLAttributes } from "react";
 
 /**
  * Sets `data-app-ready="true"` after mount so screenshot/E2E can wait past React hydration
@@ -9,7 +9,7 @@ import { useEffect, useRef, type HTMLAttributes } from "react";
 export function ShellReadySurface({ children, ...rest }: HTMLAttributes<HTMLDivElement>) {
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     ref.current?.setAttribute("data-app-ready", "true");
   }, []);
 
