@@ -23,6 +23,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
+import { RunDetailOutcomeCards } from "@/components/RunDetailOutcomeCards";
 import { RunDetailPageHeader } from "@/components/RunDetailPageHeader";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
@@ -271,6 +272,14 @@ export default async function RunDetailPage({
         createdLabel={createdLabel}
         headline={headline}
         hasGoldenManifest={Boolean(manifestId)}
+      />
+
+      <RunDetailOutcomeCards
+        runId={resolvedDetail.run.runId}
+        artifactCount={artifacts.length}
+        findingCountDisplay={explanationSummary?.findingCount ?? null}
+        hasGoldenManifest={Boolean(manifestId)}
+        unresolvedIssueCountDisplay={manifestSummary?.unresolvedIssueCount ?? null}
       />
 
       {showProgressTracker ? (

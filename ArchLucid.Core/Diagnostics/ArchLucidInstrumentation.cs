@@ -254,6 +254,12 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_result_schema_validations_total",
             description: "Schema validation of raw AgentResult LLM output (labels: agent_type, outcome).");
 
+    /// <summary>Follow-up LLM attempts after an <c>AgentResult</c> schema violation (label: <c>agent_type</c>).</summary>
+    public static readonly Counter<long> AgentSchemaRemediationRetriesTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid.agent.schema_remediation_retries_total",
+            description: "Remediation LLM attempts after AgentResult schema validation failed (label: agent_type).");
+
     /// <summary>
     ///     Schema validation of explanation LLM JSON (labels: <c>explanation_type</c>, <c>outcome</c>
     ///     =valid|invalid|skipped).
@@ -712,6 +718,15 @@ public static class ArchLucidInstrumentation
         TagList tags = new() { { "agent_type", agentType }, { "outcome", outcome } };
 
         AgentResultSchemaValidationsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="AgentSchemaRemediationRetriesTotal" />.</summary>
+    public static void RecordAgentSchemaRemediationRetry(string agentTypeLabel)
+    {
+        string t = string.IsNullOrWhiteSpace(agentTypeLabel) ? "unknown" : agentTypeLabel.Trim();
+        TagList tags = new() { { "agent_type", t } };
+
+        AgentSchemaRemediationRetriesTotal.Add(1, tags);
     }
 
     /// <summary>Increments <c>archlucid_explanation_schema_validations_total</c> (outcome: valid, invalid, or skipped).</summary>

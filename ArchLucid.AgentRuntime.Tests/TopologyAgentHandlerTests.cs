@@ -110,7 +110,8 @@ public sealed class TopologyAgentHandlerTests
             traceRecorder,
             catalog,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
 
         ArchitectureRequest request = new()
         {

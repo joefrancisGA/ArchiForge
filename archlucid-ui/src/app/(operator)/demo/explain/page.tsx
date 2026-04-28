@@ -118,7 +118,11 @@ export default function DemoExplainPage() {
 
       {state.notFound ? <DemoNotAvailableNotice /> : null}
 
-      {state.payload ? (
+      {state.notFound ? <DemoNotAvailableNotice /> : null}
+
+      {state.payload &&
+      state.payload.provenanceGraph &&
+      state.payload.runExplanation ? (
         <section
           aria-label="Provenance and explanation"
           className="grid grid-cols-1 gap-6 lg:grid-cols-2"
@@ -128,6 +132,10 @@ export default function DemoExplainPage() {
         </section>
       ) : !state.error && !state.notFound && state.loading ? (
         <p className="text-sm text-neutral-500">Loading demo explain payload…</p>
+      ) : !state.error && !state.notFound && !state.loading && state.payload ? (
+        <p className="text-sm text-neutral-600 dark:text-neutral-400" role="status">
+          The demo response was incomplete — provenance or explanation is missing. Try again after the API is ready.
+        </p>
       ) : null}
     </main>
   );

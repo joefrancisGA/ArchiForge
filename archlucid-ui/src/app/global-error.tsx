@@ -1,37 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, type CSSProperties } from "react";
+import { useEffect } from "react";
 
 import "./globals.css";
 
-const shell: CSSProperties = {
-  padding: 24,
-  fontFamily: "system-ui, Arial, sans-serif",
-};
-
-const callout: CSSProperties = {
-  borderRadius: 8,
-  padding: "12px 16px",
-  marginBottom: 16,
-  maxWidth: 720,
-  border: "1px solid #b91c1c",
-  background: "#fef2f2",
-  color: "#7f1d1d",
-};
-
-const buttonStyle: CSSProperties = {
-  cursor: "pointer",
-  padding: "8px 14px",
-  fontSize: 14,
-  borderRadius: 6,
-  border: "1px solid #cbd5e1",
-  background: "#fff",
-};
+import { Button } from "@/components/ui/button";
 
 /**
  * Replaces the entire root layout when layout.tsx fails. Must define html/body.
- * Keeps styling self-contained so it still renders if layout imports break.
  */
 export default function GlobalError({
   error,
@@ -44,38 +21,34 @@ export default function GlobalError({
     console.error("Operator shell global error:", error);
   }, [error]);
 
+  const digest = error.digest?.trim() ?? "";
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
     <html lang="en">
-      <body>
-        <div style={shell}>
-          <h1 style={{ margin: "0 0 12px", fontSize: 26 }}>ArchLucid</h1>
-          <div role="alert" style={callout}>
-            <strong>The operator shell could not load.</strong>
-            <p style={{ margin: "8px 0 0" }}>
-              A critical error occurred in the app shell. Try reloading the page or return home.
+      <body className="min-h-screen bg-neutral-50 p-8 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+        <h1 className="m-0 text-2xl font-semibold">ArchLucid</h1>
+        <div className="mt-4 max-w-lg rounded-lg border border-red-200 bg-red-50 px-4 py-3 dark:border-red-900 dark:bg-red-950/40">
+          <strong className="text-red-950 dark:text-red-100">The app shell could not load</strong>
+          <p className="mt-2 text-sm text-red-900 dark:text-red-100/95">
+            {isDev ? error.message : "A critical error occurred. Try reloading, open Help, or return home."}
+          </p>
+          {digest.length > 0 ? (
+            <p className="mt-3 text-xs text-red-900/85 dark:text-red-100/80">
+              Reference ID: <code className="rounded bg-red-100/80 px-1 py-0.5 font-mono dark:bg-red-900/60">{digest}</code>
             </p>
-            {process.env.NODE_ENV === "development" ? (
-              <pre
-                style={{
-                  marginTop: 12,
-                  fontSize: 12,
-                  overflow: "auto",
-                  maxHeight: 160,
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {error.message}
-              </pre>
-            ) : null}
-          </div>
-          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-            <button type="button" onClick={() => reset()} style={buttonStyle}>
-              Try again
-            </button>
-            <Link href="/" style={{ fontSize: 14 }}>
-              Home
-            </Link>
-          </div>
+          ) : null}
+        </div>
+        <div className="mt-6 flex flex-wrap gap-2">
+          <Button type="button" variant="primary" onClick={() => reset()}>
+            Retry
+          </Button>
+          <Button type="button" variant="outline" asChild>
+            <Link href="/">Home</Link>
+          </Button>
+          <Button type="button" variant="outline" asChild>
+            <Link href="/help">Help</Link>
+          </Button>
         </div>
       </body>
     </html>

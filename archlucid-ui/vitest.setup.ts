@@ -2,6 +2,8 @@ import { afterEach, vi } from "vitest";
 
 import "@testing-library/jest-dom/vitest";
 
+process.env.NEXT_PUBLIC_OPERATOR_NAV_SHOW_PRE_RELEASE_ROUTES = "1";
+
 /** Radix Select uses pointer capture APIs not implemented in jsdom. */
 if (typeof Element !== "undefined") {
   Element.prototype.hasPointerCapture = function () {

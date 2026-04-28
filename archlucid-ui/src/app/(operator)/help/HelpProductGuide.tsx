@@ -50,10 +50,6 @@ export function HelpProductGuide() {
           </Link>
           .
         </li>
-        <li>
-          <strong>Shortcuts</strong> — Use the command bar (search) in the header where available; keyboard hints appear on
-          supported pages.
-        </li>
       </ol>
     </section>
   );

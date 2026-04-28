@@ -45,6 +45,16 @@ export function isGraphUpstreamPath(pathname: string): boolean {
 export function getScreenshotMockFallbackGetJson(pathname: string, search: string): unknown {
   const u = new URL(`http://x${search}`);
 
+  /** Threads list is `GET /v1/conversations?take=…` — pathname has no query; must return an array. */
+  if (pathname === "/v1/conversations") {
+    return [] as unknown[];
+  }
+
+  /** `GET /v1/conversations/:threadId/messages?take=…` */
+  if (/^\/v1\/conversations\/[^/]+\/messages$/.test(pathname)) {
+    return [] as unknown[];
+  }
+
   if (pathname === "/v1/governance/dashboard") {
     return { pendingApprovals: [], recentDecisions: [], recentChanges: [], pendingCount: 0 };
   }
@@ -187,7 +197,15 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
   }
 
   if (pathname === "/v1/tenant/cost-estimate") {
-    return { currency: "USD", monthlyTotalLow: 0, monthlyTotalHigh: 0, lineItems: [] as unknown[] };
+    return {
+      currency: "USD",
+      tier: "Standard",
+      estimatedMonthlyUsdLow: 1200,
+      estimatedMonthlyUsdHigh: 1800,
+      factors: ["Pilot workspace", "Typical run volume (mock)"],
+      methodologyNote:
+        "Non-authoritative band from list-price configuration. Reconcile with Azure Cost Management and invoices before quoting.",
+    };
   }
 
   if (pathname === "/v1/tenant/exec-digest-preferences") {
@@ -309,10 +327,6 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     }
   }
 
-  if (pathname.startsWith("/v1/conversations/") || pathname.includes("/ask/")) {
-    return [] as unknown[];
-  }
-
   if (pathname === "/v1/recommendation-learning/latest") {
     return {
       tenantId: "t1",
@@ -419,7 +433,7 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     return [] as unknown[];
   }
 
-  if (pathname.match(/^\/v1\/(replay|conversations|threads)/) || pathname.includes("/replay")) {
+  if (pathname.match(/^\/v1\/replay/) || pathname.startsWith("/v1/threads")) {
     return { runId: "r1", events: [] as unknown[], textExport: null } as unknown;
   }
 

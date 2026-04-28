@@ -200,13 +200,17 @@ public sealed class RealRuntimeMixedModeTests
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
+        IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediation =
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create();
+
         TopologyAgentHandler topologyHandler = new(
             new StubAgentCompletionClient(topologyJson),
             parser,
             traceRecorder,
             promptCatalog,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            schemaRemediation);
 
         ComplianceAgentHandler complianceHandler = new(
             new StubAgentCompletionClient(complianceJson),
@@ -214,7 +218,8 @@ public sealed class RealRuntimeMixedModeTests
             traceRecorder,
             promptCatalog,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            schemaRemediation);
 
         CostAgentHandler costHandler = new();
 
@@ -224,7 +229,8 @@ public sealed class RealRuntimeMixedModeTests
             traceRecorder,
             promptCatalog,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            schemaRemediation);
 
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
             new AgentExecutionResilienceOptions { MaxConcurrentHandlers = 0, PerHandlerTimeoutSeconds = 0 });

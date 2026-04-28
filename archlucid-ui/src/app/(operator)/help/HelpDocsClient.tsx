@@ -145,6 +145,10 @@ export function HelpDocsClient() {
 
   return (
     <div className="space-y-4">
+      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <strong>Shortcuts</strong> — Use the command palette or search in the shell header where available; shortcut hints appear
+        on nav items when configured.
+      </p>
       {loadError !== null ? (
         <p className="text-sm text-amber-800 dark:text-amber-200" role="status">
           Full documentation index could not be refreshed ({loadError}). Quick links below are always available.

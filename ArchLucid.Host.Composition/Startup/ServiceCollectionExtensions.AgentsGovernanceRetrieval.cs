@@ -142,6 +142,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();
         services.Configure<AgentResultSchemaValidationOptions>(
             configuration.GetSection(AgentResultSchemaValidationOptions.SectionPath));
+        services.Configure<AgentSchemaRemediationOptions>(
+            configuration.GetSection(AgentSchemaRemediationOptions.SectionPath));
+        services.PostConfigure<AgentSchemaRemediationOptions>(static o => o.Normalize());
 
         string? agentMode = configuration["AgentExecution:Mode"];
         string? completionClientRaw = configuration["AgentExecution:CompletionClient"]?.Trim();

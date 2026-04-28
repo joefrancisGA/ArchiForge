@@ -78,13 +78,17 @@ public sealed class RealAzureOpenAIEndToEndTests
                 ProjectId = ScopeIds.DefaultProject
             });
 
+        IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediation =
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create();
+
         TopologyAgentHandler topology = new(
             completion,
             parser,
             traceSpy,
             promptCatalog,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            schemaRemediation);
 
         ComplianceAgentHandler compliance = new(
             completion,
@@ -92,7 +96,8 @@ public sealed class RealAzureOpenAIEndToEndTests
             traceSpy,
             promptCatalog,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            schemaRemediation);
 
         CostAgentHandler cost = new();
 

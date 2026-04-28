@@ -8,6 +8,8 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
@@ -20,7 +22,8 @@ public sealed class ComplianceAgentHandler(
     IAgentExecutionTraceRecorder traceRecorder,
     IAgentSystemPromptCatalog systemPromptCatalog,
     IAuditService auditService,
-    IScopeContextProvider scopeContextProvider)
+    IScopeContextProvider scopeContextProvider,
+    IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions)
     : IAgentHandler
 {
     private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
@@ -48,22 +51,25 @@ public sealed class ComplianceAgentHandler(
         string systemPrompt = systemResolved.Text;
         AgentPromptActivityTags.Apply(systemResolved);
         AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
-        string userPrompt = BuildUserPrompt(runId, request, evidence, task);
 
-        string rawJson = string.Empty;
+        string baseUserPrompt = BuildUserPrompt(runId, request, evidence, task);
+
+        string lastCompletionJson = string.Empty;
 
         try
         {
-            rawJson = await completionClient.CompleteJsonAsync(
-                systemPrompt,
-                userPrompt,
-                cancellationToken);
-
-            AgentResult parsed = resultParser.ParseAndValidate(
-                rawJson,
+            (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
+                completionClient,
+                resultParser,
+                schemaRemediationOptions,
+                AgentType.Compliance,
                 runId,
                 task.TaskId,
-                AgentType.Compliance);
+                systemPrompt,
+                baseUserPrompt,
+                cancellationToken);
+
+            lastCompletionJson = rawJson;
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
@@ -75,7 +81,7 @@ public sealed class ComplianceAgentHandler(
                 task.TaskId,
                 AgentType.Compliance,
                 systemPrompt,
-                userPrompt,
+                baseUserPrompt,
                 rawJson,
                 parsedJson,
                 true,
@@ -111,8 +117,8 @@ public sealed class ComplianceAgentHandler(
                 task.TaskId,
                 AgentType.Compliance,
                 systemPrompt,
-                userPrompt,
-                rawJson,
+                baseUserPrompt,
+                lastCompletionJson,
                 null,
                 false,
                 ex.Message,

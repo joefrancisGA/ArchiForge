@@ -105,6 +105,33 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      if (req.method === "GET" && pathname === "/v1/demo/explain") {
+        const runExplanation = fixtureRunExplanationSummary();
+        sendJson(res, 200, {
+          generatedUtc: "2026-01-15T14:30:00.000Z",
+          runId: "claims-intake-modernization",
+          manifestVersion: "3.4.1",
+          isDemoData: true,
+          demoStatusMessage: "Demonstration — Claims Intake Modernization",
+          runExplanation,
+          provenanceGraph: {
+            nodes: [
+              { id: "n1", label: "Request intake", type: "Context" },
+              { id: "n2", label: "Policy evaluation", type: "Decision" },
+              { id: "n3", label: "Finalized manifest", type: "Manifest" },
+            ],
+            edges: [
+              { source: "n1", target: "n2", type: "derives" },
+              { source: "n2", target: "n3", type: "finalizes" },
+            ],
+            nodeCount: 3,
+            edgeCount: 2,
+            isEmpty: false,
+          },
+        });
+        return;
+      }
+
       if (req.method === "GET" && pathname === "/v1/policy-packs") {
         sendJson(res, 200, listMockPacks());
         return;
@@ -224,7 +251,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
             {
               runId: FIXTURE_RUN_ID,
               projectId,
-              description: "E2E fixture run (mock API).",
+              description: "Claims Intake Modernization — sample completed scenario (mock API).",
               createdUtc: "2025-06-01T12:00:00.000Z",
               goldenManifestId: FIXTURE_MANIFEST_ID,
             },
@@ -256,6 +283,17 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           page: pageNum,
           pageSize,
           hasMore: false,
+        });
+        return;
+      }
+
+      if (req.method === "POST" && pathname === "/v1/ask") {
+        sendJson(res, 200, {
+          threadId: randomUUID(),
+          answer: "Mock answer from E2E stub.",
+          referencedDecisions: [] as string[],
+          referencedFindings: [] as string[],
+          referencedArtifacts: [] as string[],
         });
         return;
       }

@@ -1,6 +1,7 @@
 import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
+import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 
 /** One nav group after **tier → authority** filtering, only emitted when at least one link remains. */
 export type NavGroupWithVisibleLinks = {
@@ -76,11 +77,8 @@ export function listNavGroupsVisibleInOperatorShell(
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
-    const visibleLinks = filterNavLinksForOperatorShell(
-      group.links,
-      showExtended,
-      showAdvanced,
-      callerAuthorityRank,
+    const visibleLinks = filterNavLinksByPublishReadiness(
+      filterNavLinksForOperatorShell(group.links, showExtended, showAdvanced, callerAuthorityRank),
     );
 
     if (visibleLinks.length === 0) {

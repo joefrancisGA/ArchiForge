@@ -87,7 +87,8 @@ public sealed class CriticAgentHandlerTests
             traceRecorder,
             catalog,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
 
         ArchitectureRequest request = new()
         {

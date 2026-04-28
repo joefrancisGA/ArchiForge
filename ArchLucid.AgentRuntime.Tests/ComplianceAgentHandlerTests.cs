@@ -91,7 +91,8 @@ public sealed class ComplianceAgentHandlerTests
             traceRecorder,
             catalog,
             audit.Object,
-            scopeProvider.Object);
+            scopeProvider.Object,
+            AgentSchemaRemediationOptionsMonitorTestFactory.Create());
 
         ArchitectureRequest request = new()
         {
