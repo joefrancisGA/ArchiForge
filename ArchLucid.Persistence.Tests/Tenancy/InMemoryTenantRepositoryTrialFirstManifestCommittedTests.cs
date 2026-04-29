@@ -39,7 +39,7 @@ public sealed class InMemoryTenantRepositoryTrialFirstManifestCommittedTests
         TenantRecord? row = await sut.GetByIdAsync(tenantId, CancellationToken.None);
 
         row.Should().NotBeNull();
-        row!.TrialFirstManifestCommittedUtc.Should().Be(committed);
+        row.TrialFirstManifestCommittedUtc.Should().Be(committed);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public sealed class InMemoryTenantRepositoryTrialFirstManifestCommittedTests
         TenantRecord? row = await sut.GetByIdAsync(tenantId, CancellationToken.None);
 
         row.Should().NotBeNull();
-        row!.TrialFirstManifestCommittedUtc.Should().Be(committed);
+        row.TrialFirstManifestCommittedUtc.Should().Be(committed);
         row.TrialExpiresUtc.Should().BeNull();
     }
 }

@@ -25,7 +25,7 @@ public sealed class InMemoryScimUserRepositoryTests
         ScimUserRecord? byExt = await sut.GetByExternalIdAsync(tenantId, "EXT-1", CancellationToken.None);
 
         byId.Should().NotBeNull();
-        byId!.UserName.Should().Be("alice");
+        byId.UserName.Should().Be("alice");
         byExt.Should().BeEquivalentTo(byId);
     }
 

@@ -84,8 +84,8 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
     <div className="space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-700">
       <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Explain this finding (LLM audit)</h4>
       <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-        Redacted AI reasoning log for this finding. Pair with deterministic finding explainability ("View trace") when
-        available on the architecture run&apos;s explanation table.
+        Redacted AI reasoning log for this finding. Pair with deterministic finding explainability (&quot;View trace&quot;)
+        when available on the architecture run&apos;s explanation table.
       </p>
 
       {!loading && failure === null && evidenceChain !== null ? (

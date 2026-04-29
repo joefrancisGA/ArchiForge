@@ -22,7 +22,7 @@ public sealed class Migration115_StructuredBaselineColumnsTests
 
         stream.Should().NotBeNull();
 
-        using StreamReader reader = new(stream!);
+        using StreamReader reader = new(stream);
         string sql = reader.ReadToEnd();
 
         sql.Should().Contain("BaselineManualPrepHoursPerReview");

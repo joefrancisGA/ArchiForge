@@ -17,7 +17,7 @@ public sealed class InMemoryScimTenantTokenRepositoryTests
         ScimTokenRow? found = await sut.FindActiveByPublicLookupKeyAsync("pub-key", CancellationToken.None);
 
         found.Should().NotBeNull();
-        found!.Id.Should().Be(id);
+        found.Id.Should().Be(id);
         found.SecretHash.Should().BeEquivalentTo(hash);
 
         IReadOnlyList<ScimTokenSummaryRow> list = await sut.ListForTenantAsync(tenantId, CancellationToken.None);

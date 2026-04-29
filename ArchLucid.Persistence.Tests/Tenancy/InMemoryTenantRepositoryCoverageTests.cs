@@ -80,7 +80,7 @@ public sealed class InMemoryTenantRepositoryCoverageTests
             DateTimeOffset.UtcNow,
             CancellationToken.None);
         o.Should().NotBeNull();
-        o!.TrialRunUsageRatio.Should().BeGreaterThanOrEqualTo(0);
+        o.TrialRunUsageRatio.Should().BeGreaterThanOrEqualTo(0);
 
         await sut.E2eHarnessSetTrialExpiresUtcAsync(
             tenantId,
