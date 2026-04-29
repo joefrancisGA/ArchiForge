@@ -20,7 +20,9 @@ import {
   getDecisionSubgraph,
   getNodeNeighborhood,
   getProvenanceGraph,
+  mergeArchitectureGraphPages,
 } from "@/lib/graph-api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import type { GraphViewModel } from "@/types/graph";
@@ -57,6 +59,7 @@ export default function GraphPage() {
   const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState("");
+  const [architectureGraphNote, setArchitectureGraphNote] = useState<string | null>(null);
 
   const loadGenRef = useRef(0);
 
@@ -75,6 +78,7 @@ export default function GraphPage() {
     setLoading(true);
     setLoadFailure(null);
     setMalformedMessage(null);
+    setArchitectureGraphNote(null);
 
     const tryStaticProvenance = (): void => {
       if (gen !== loadGenRef.current) {
@@ -112,7 +116,23 @@ export default function GraphPage() {
           raw = await getNodeNeighborhood(runId, nodeId, depth);
           break;
         case "architecture":
-          raw = await getArchitectureGraph(runId);
+          try {
+            raw = await getArchitectureGraph(runId);
+          } catch (err) {
+            const rid = runId.trim();
+
+            if (
+              !isApiRequestError(err) ||
+              err.httpStatus !== 413 ||
+              rid.length === 0
+            )
+              throw err;
+
+            raw = await mergeArchitectureGraphPages(rid);
+            setArchitectureGraphNote(
+              "Full graph response exceeded the API size limit; loaded all pages via the paginated endpoint. Edges appear only when both endpoints fall on the same page — some cross-page links may be missing from this view.",
+            );
+          }
           break;
         default:
           throw new Error("Unsupported graph mode.");
@@ -138,6 +158,9 @@ export default function GraphPage() {
 
       setGraph(coerced.value);
       setTypeFilter("");
+      if (mode !== "architecture") {
+        setArchitectureGraphNote(null);
+      }
     } catch (err) {
       if (gen !== loadGenRef.current) {
         return;
@@ -313,6 +336,15 @@ export default function GraphPage() {
       )}
 
       {showIdleCard ? <EmptyState {...graphIdlePreset} /> : null}
+
+      {architectureGraphNote && (
+        <div
+          className="mb-4 max-w-4xl rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+          role="status"
+        >
+          <strong>Large graph.</strong> {architectureGraphNote}
+        </div>
+      )}
 
       {graph && (
         <>

@@ -13,6 +13,16 @@ export type GraphEdgeVm = {
   type: string;
 };
 
+/** Paginated architecture graph (GET /v1/graph/runs/{runId}/nodes). */
+export type GraphNodesPageResponse = {
+  page: number;
+  pageSize: number;
+  totalNodes: number;
+  hasMore: boolean;
+  nodes: GraphNodeVm[];
+  edges: GraphEdgeVm[];
+};
+
 /** Complete graph view model returned by provenance and architecture graph endpoints. */
 export type GraphViewModel = {
   nodes: GraphNodeVm[];

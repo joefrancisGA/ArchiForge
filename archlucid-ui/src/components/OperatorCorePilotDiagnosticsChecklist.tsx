@@ -21,10 +21,17 @@ export function OperatorCorePilotDiagnosticsChecklist() {
 
   const [ratesError, setRatesError] = useState<string | null>(null);
 
+  /** Avoid reading localStorage until after mount so SSR and the first client paint match (hydration-safe). */
+  const [checklistStorageHydrated, setChecklistStorageHydrated] = useState(false);
+
   const [, rerenderAfterChecklist] = useState(0);
 
   const bumpChecklist = useCallback(() => {
     rerenderAfterChecklist((n) => n + 1);
+  }, []);
+
+  useEffect(() => {
+    setChecklistStorageHydrated(true);
   }, []);
 
   useEffect(() => {
@@ -64,7 +71,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
   }, [bumpChecklist]);
 
   function isStorageDone(index: number): boolean {
-    if (typeof window === "undefined") {
+    if (!checklistStorageHydrated) {
       return false;
     }
 
