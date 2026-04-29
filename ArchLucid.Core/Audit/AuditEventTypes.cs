@@ -30,6 +30,12 @@ public static class AuditEventTypes
     public const string ArtifactsGenerated = "ArtifactsGenerated";
     public const string ReplayExecuted = "ReplayExecuted";
 
+    /// <summary>Internal QA: POST <c>…/internal/architecture/runs/{{runId}}/determinism-check</c> completed.</summary>
+    public const string InternalArchitectureDeterminismCheckExecuted = "InternalArchitectureDeterminismCheckExecuted";
+
+    /// <summary>Internal dev: POST <c>…/internal/architecture/runs/{{runId}}/seed-fake-results</c> succeeded.</summary>
+    public const string InternalArchitectureFakeResultsSeeded = "InternalArchitectureFakeResultsSeeded";
+
     /// <summary>
     ///     Demo seed or replay commit persisted the authority SQL FK chain (context / graph / findings / decision trace +
     ///     golden manifest) outside the main pipeline executor.

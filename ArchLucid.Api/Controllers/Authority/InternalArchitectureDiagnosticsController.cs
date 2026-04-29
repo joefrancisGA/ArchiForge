@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -5,7 +7,9 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -30,6 +34,8 @@ public sealed class InternalArchitectureDiagnosticsController(
     IArchitectureApplicationService architectureApplicationService,
     IDeterminismCheckService determinismCheckService,
     IActorContext actorContext,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider,
     ILogger<InternalArchitectureDiagnosticsController> logger)
     : ControllerBase
 {
@@ -69,6 +75,34 @@ public sealed class InternalArchitectureDiagnosticsController(
                 result.Manifest,
                 result.DecisionTraces,
                 result.Warnings);
+
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            string auditActor = actorContext.GetActor();
+            Guid? auditRunId = Guid.TryParse(result.OriginalRunId, out Guid originalParsed) ? originalParsed : null;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ReplayExecuted,
+                    ActorUserId = auditActor,
+                    ActorUserName = auditActor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = auditRunId,
+                    CorrelationId = correlationId,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        internalArchitectureRoute = true,
+                        result.OriginalRunId,
+                        result.ReplayRunId,
+                        resolvedExecutionMode = result.ExecutionMode,
+                        requestedExecutionMode = request.ExecutionMode,
+                        request.CommitReplay,
+                        request.ManifestVersionOverride,
+                    }),
+                },
+                cancellationToken);
 
             logger.LogInformation(
                 "Run replayed (internal): OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}",
@@ -114,6 +148,31 @@ public sealed class InternalArchitectureDiagnosticsController(
         {
             DeterminismCheckResult result = await determinismCheckService.RunAsync(request, cancellationToken);
 
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            string auditActor = actorContext.GetActor();
+            Guid? auditRunId = Guid.TryParse(runId, out Guid rid) ? rid : null;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.InternalArchitectureDeterminismCheckExecuted,
+                    ActorUserId = auditActor,
+                    ActorUserName = auditActor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = auditRunId,
+                    CorrelationId = HttpContext.TraceIdentifier,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        result.IsDeterministic,
+                        result.Iterations,
+                        result.ExecutionMode,
+                        result.BaselineReplayRunId,
+                    }),
+                },
+                cancellationToken);
+
             return Ok(new DeterminismCheckResponse { Result = result });
         }
         catch (InvalidOperationException ex)
@@ -140,8 +199,28 @@ public sealed class InternalArchitectureDiagnosticsController(
 
         SeedFakeResultsResult result =
             await architectureApplicationService.SeedFakeResultsAsync(runId, pilot, cancellationToken);
+
         if (!result.Success)
             return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string auditActor = actorContext.GetActor();
+        Guid? auditRunId = Guid.TryParse(runId, out Guid rid) ? rid : null;
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.InternalArchitectureFakeResultsSeeded,
+                ActorUserId = auditActor,
+                ActorUserName = auditActor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = auditRunId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(new { result.ResultCount, pilotTryRealModeFellBack }),
+            },
+            cancellationToken);
 
         logger.LogInformation(
             "Fake results seeded (internal): RunId={RunId}, ResultCount={ResultCount}",

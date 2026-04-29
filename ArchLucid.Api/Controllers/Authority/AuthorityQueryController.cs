@@ -105,6 +105,8 @@ public sealed class AuthorityQueryController(
                 : RunPagination.ClampTake(take);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        (IReadOnlyList<RunSummaryDto> items, bool hasMore) =
             await queryService.ListRunsByProjectKeysetAsync(scope, projectId, cu, rid, effectiveTake, ct);
 
         string? nextCursor =
