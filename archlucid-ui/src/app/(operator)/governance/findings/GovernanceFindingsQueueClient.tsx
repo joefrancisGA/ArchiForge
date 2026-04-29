@@ -284,6 +284,7 @@ export default function GovernanceFindingsQueueClient() {
                       <Link href={inspectHref(row.runId, row.findingId)}>Open finding</Link>
                     </Button>
                   </div>
+                </CardContent>
               </Card>
             ))}
           </div>
