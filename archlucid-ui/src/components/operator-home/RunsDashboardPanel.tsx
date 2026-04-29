@@ -13,6 +13,7 @@ import { listRunsByProjectPaged } from "@/lib/api";
 import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
+  OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -47,14 +48,16 @@ const TAB_LABEL: Record<TabId, string> = {
   outcomes: "Outcomes",
 };
 
-function runIsClaimsIntakeStory(run: RunSummary): boolean {
+function runIsShowcaseHomeExampleStory(run: RunSummary): boolean {
   const id = run.runId.trim();
 
   if (id === SHOWCASE_STATIC_DEMO_RUN_ID) {
     return true;
   }
 
-  return (run.description ?? "").toLowerCase().includes("claims intake");
+  return (run.description ?? "")
+    .toLowerCase()
+    .includes(OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN.toLowerCase());
 }
 
 /**
@@ -127,8 +130,8 @@ export function RunsDashboardPanel() {
     return items;
   }, [items, phase]);
 
-  const claimsStoryRun = useMemo(
-    () => effectiveItems.find((r) => runIsClaimsIntakeStory(r)),
+  const showcaseDemoRun = useMemo(
+    () => effectiveItems.find((r) => runIsShowcaseHomeExampleStory(r)),
     [effectiveItems],
   );
 
@@ -202,13 +205,13 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {phase === "ready" && claimsStoryRun ? (
+              {phase === "ready" && showcaseDemoRun ? (
                 <div
                   className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"
-                  data-testid="operator-home-claims-demo-banner"
+                  data-testid="operator-home-showcase-demo-banner"
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    Claims Intake — completed example run
+                    Environmental reporting analysis — completed example run
                   </p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
                     Open the proof path: run detail, finalized manifest, primary finding, or the read-only marketing
@@ -216,18 +219,18 @@ export function RunsDashboardPanel() {
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button asChild variant="primary" size="sm" className="h-8">
-                      <Link href={`/runs/${encodeURIComponent(claimsStoryRun.runId)}`}>Run detail</Link>
+                      <Link href={`/runs/${encodeURIComponent(showcaseDemoRun.runId)}`}>Run detail</Link>
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link
-                        href={`/manifests/${encodeURIComponent(claimsStoryRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
+                        href={`/manifests/${encodeURIComponent(showcaseDemoRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
                       >
                         Finalized manifest
                       </Link>
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link
-                        href={`/runs/${encodeURIComponent(claimsStoryRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+                        href={`/runs/${encodeURIComponent(showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
                       >
                         Primary finding
                       </Link>
