@@ -12212,6 +12212,27 @@
         },
         "type": "object"
       },
+      "TenantLinkEntraRequest": {
+        "properties": {
+          "entraOid": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "entraTenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "localEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "TenantMeasuredRoiResponse": {
         "properties": {
           "disclaimer": {
@@ -12615,6 +12636,9 @@
               "null",
               "string"
             ]
+          },
+          "identityHandoffPending": {
+            "type": "boolean"
           },
           "status": {
             "type": "string"
@@ -31429,6 +31453,26 @@
               }
             },
             "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Payload Too Large"
           }
         },
         "tags": [
@@ -38164,6 +38208,58 @@
         },
         "tags": [
           "TenantExecDigestPreferences"
+        ]
+      }
+    },
+    "/v1/tenant/link-entra": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantLinkEntraRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantLinkEntraRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantLinkEntraRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "tags": [
+          "TenantTrial"
         ]
       }
     },

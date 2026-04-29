@@ -25,4 +25,11 @@ public interface ITrialIdentityUserRepository
         CancellationToken cancellationToken);
 
     Task ResetAccessFailedAsync(string normalizedEmail, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Sets <c>LinkedEntraOid</c> / <c>LinkedUtc</c> when unset or idempotent same OID. No-op when the email is missing
+    ///     or already linked to another OID.
+    /// </summary>
+    /// <returns><c>true</c> when the row was updated or already matched <paramref name="entraOid" />.</returns>
+    Task<bool> TryLinkLocalIdentityToEntraAsync(string normalizedEmail, string entraOid, CancellationToken cancellationToken);
 }

@@ -56,4 +56,18 @@ public sealed class InMemoryNoTrialIdentityUserRepository : ITrialIdentityUserRe
     {
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task<bool> TryLinkLocalIdentityToEntraAsync(
+        string normalizedEmail,
+        string entraOid,
+        CancellationToken cancellationToken)
+    {
+        _ = normalizedEmail;
+        _ = entraOid;
+        _ = cancellationToken;
+
+        throw new NotSupportedException(
+            "Trial local identity requires ArchLucid:StorageProvider=Sql and migration 077 (dbo.IdentityUsers).");
+    }
 }

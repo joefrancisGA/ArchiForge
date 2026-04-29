@@ -3,6 +3,7 @@ using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -40,7 +41,7 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -81,7 +82,7 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -127,7 +128,7 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -177,7 +178,7 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -188,6 +189,104 @@ public sealed class TenantTrialControllerTests
         TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
         body.Status.Should().Be(TrialLifecycleStatus.Active);
         body.FirstCommitUtc.Should().Be(committed);
+    }
+
+    [Fact]
+    public async Task GetTrialStatusAsync_identity_handoff_pending_true_when_converted_and_entra_unbound()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-1111-2222-3333-444444444444"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-1111-2222-3333-555555555555"),
+            ProjectId = Guid.Parse("cccccccc-1111-2222-3333-666666666666")
+        };
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = DateTimeOffset.UtcNow,
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = TrialLifecycleStatus.Converted,
+            EntraTenantId = null
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(
+                tenants.Object,
+                scopeProvider.Object,
+                audit.Object,
+                gate.Object,
+                NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.IdentityHandoffPending.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetTrialStatusAsync_identity_handoff_pending_false_when_converted_and_entra_bound()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("dddddddd-1111-2222-3333-777777777777"),
+            WorkspaceId = Guid.Parse("eeeeeeee-1111-2222-3333-888888888888"),
+            ProjectId = Guid.Parse("ffffffff-1111-2222-3333-999999999999")
+        };
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = DateTimeOffset.UtcNow,
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = TrialLifecycleStatus.Converted,
+            EntraTenantId = Guid.Parse("99999999-9999-9999-9999-999999999999")
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(
+                tenants.Object,
+                scopeProvider.Object,
+                audit.Object,
+                gate.Object,
+                NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.IdentityHandoffPending.Should().BeFalse();
     }
 
     [Fact]
@@ -225,7 +324,7 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -239,4 +338,6 @@ public sealed class TenantTrialControllerTests
         body.DaysRemaining.Should().NotBeNull();
         body.DaysRemaining!.Value.Should().BeGreaterOrEqualTo(8).And.BeLessOrEqualTo(10);
     }
+
+    private static ITrialIdentityUserRepository NoopTrialIdentityUsers() => Mock.Of<ITrialIdentityUserRepository>();
 }

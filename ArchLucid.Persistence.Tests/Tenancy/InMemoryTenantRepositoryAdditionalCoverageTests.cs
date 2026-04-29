@@ -107,6 +107,96 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
     }
 
     [Fact]
+    public async Task UpdateEntraTenantIdAsync_true_when_null_then_entra_lookup_round_trips()
+    {
+        InMemoryTenantRepository sut = new();
+        Guid id = Guid.NewGuid();
+        Guid entraNew = Guid.NewGuid();
+        await sut.InsertTenantAsync(
+            id,
+            "E",
+            "ent-bind-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            CancellationToken.None);
+
+        (await sut.UpdateEntraTenantIdAsync(id, entraNew, CancellationToken.None)).Should().BeTrue();
+        TenantRecord? r = await sut.GetByIdAsync(id, CancellationToken.None);
+        r!.EntraTenantId.Should().Be(entraNew);
+        (await sut.GetByEntraTenantIdAsync(entraNew, CancellationToken.None))!.Id.Should().Be(id);
+    }
+
+    [Fact]
+    public async Task UpdateEntraTenantIdAsync_false_when_tenant_missing()
+    {
+        InMemoryTenantRepository sut = new();
+
+        (await sut.UpdateEntraTenantIdAsync(Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None)).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task UpdateEntraTenantIdAsync_false_when_already_bound_to_different_directory()
+    {
+        InMemoryTenantRepository sut = new();
+        Guid id = Guid.NewGuid();
+        Guid first = Guid.NewGuid();
+        Guid second = Guid.NewGuid();
+        await sut.InsertTenantAsync(
+            id,
+            "D",
+            "ent-diff-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            first,
+            CancellationToken.None);
+
+        (await sut.UpdateEntraTenantIdAsync(id, second, CancellationToken.None)).Should().BeFalse();
+        (await sut.GetByIdAsync(id, CancellationToken.None))!.EntraTenantId.Should().Be(first);
+    }
+
+    [Fact]
+    public async Task UpdateEntraTenantIdAsync_true_idempotent_when_same_directory()
+    {
+        InMemoryTenantRepository sut = new();
+        Guid id = Guid.NewGuid();
+        Guid entra = Guid.NewGuid();
+        await sut.InsertTenantAsync(
+            id,
+            "I",
+            "ent-idem-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            entra,
+            CancellationToken.None);
+
+        (await sut.UpdateEntraTenantIdAsync(id, entra, CancellationToken.None)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateEntraTenantIdAsync_false_when_directory_id_held_by_other_tenant()
+    {
+        InMemoryTenantRepository sut = new();
+        Guid entra = Guid.NewGuid();
+        Guid a = Guid.NewGuid();
+        Guid b = Guid.NewGuid();
+        await sut.InsertTenantAsync(
+            a,
+            "A",
+            "a-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            entra,
+            CancellationToken.None);
+        await sut.InsertTenantAsync(
+            b,
+            "B",
+            "b-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            CancellationToken.None);
+
+        (await sut.UpdateEntraTenantIdAsync(b, entra, CancellationToken.None)).Should().BeFalse();
+        (await sut.GetByIdAsync(b, CancellationToken.None))!.EntraTenantId.Should().BeNull();
+    }
+
+    [Fact]
     public async Task TryMarkFirstManifestCommitted_second_invocation_returns_null()
     {
         InMemoryTenantRepository sut = new();

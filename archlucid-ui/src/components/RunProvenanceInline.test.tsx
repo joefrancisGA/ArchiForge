@@ -15,7 +15,7 @@ const minimalRun = (overrides: Partial<RunSummary> = {}): RunSummary => ({
 describe("RunProvenanceInline", () => {
   it("renders four stage markers", () => {
     render(<RunProvenanceInline run={minimalRun({ hasContextSnapshot: true })} />);
-    const list = screen.getByRole("list", { name: /pipeline artifact progress/i });
+    const list = screen.getByRole("list", { name: /review trail status/i });
 
     expect(list.querySelectorAll("li")).toHaveLength(4);
   });

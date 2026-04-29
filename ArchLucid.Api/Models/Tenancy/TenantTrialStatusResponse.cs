@@ -94,4 +94,14 @@ public sealed class TenantTrialStatusResponse
         get;
         init;
     }
+
+    /// <summary>
+    ///     When <c>true</c>, this tenant is converted to paid but <c>dbo.Tenants.EntraTenantId</c> is not yet bound; call
+    ///     <c>POST /v1/tenant/link-entra</c>.
+    /// </summary>
+    public bool IdentityHandoffPending
+    {
+        get;
+        init;
+    }
 }

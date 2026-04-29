@@ -226,6 +226,40 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 cancellationToken: ct));
     }
 
+    /// <inheritdoc />
+    public async Task<bool> UpdateEntraTenantIdAsync(Guid tenantId, Guid entraTenantId, CancellationToken ct)
+    {
+        TenantRecord? tenant = await GetByIdAsync(tenantId, ct);
+
+        if (tenant is null)
+            return false;
+
+        if (tenant.EntraTenantId is Guid existing && existing != entraTenantId)
+            return false;
+
+        if (tenant.EntraTenantId == entraTenantId)
+            return true;
+
+        TenantRecord? holder = await GetByEntraTenantIdAsync(entraTenantId, ct);
+
+        if (holder is not null && holder.Id != tenantId)
+            return false;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                           UPDATE dbo.Tenants
+                           SET EntraTenantId = @EntraTenantId
+                           WHERE Id = @Id
+                             AND (EntraTenantId IS NULL OR EntraTenantId = @EntraTenantId);
+                           """;
+
+        int rows = await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { Id = tenantId, EntraTenantId = entraTenantId }, cancellationToken: ct));
+
+        return rows == 1;
+    }
+
     public async Task InsertTenantAsync(
         Guid tenantId,
         string name,

@@ -3371,10 +3371,23 @@ BEGIN
         AccessFailedCount             INT              NOT NULL CONSTRAINT DF_IdentityUsers_AccessFailedCount2 DEFAULT (0),
         EmailConfirmationTokenHash    NVARCHAR(128)    NULL,
         EmailConfirmationExpiresUtc   DATETIMEOFFSET   NULL,
-        CreatedUtc                    DATETIMEOFFSET   NOT NULL CONSTRAINT DF_IdentityUsers_CreatedUtc2 DEFAULT (SYSUTCDATETIME())
+        CreatedUtc                    DATETIMEOFFSET   NOT NULL CONSTRAINT DF_IdentityUsers_CreatedUtc2 DEFAULT (SYSUTCDATETIME()),
+        LinkedEntraOid                NVARCHAR(128)    NULL,
+        LinkedUtc                     DATETIMEOFFSET   NULL
     );
 
     CREATE UNIQUE INDEX UX_IdentityUsers_NormalizedEmail2 ON dbo.IdentityUsers (NormalizedEmail);
+END;
+GO
+
+-- 131 parity: add handoff columns on existing IdentityUsers (greenfield CREATE above already includes them).
+IF OBJECT_ID(N'dbo.IdentityUsers', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.IdentityUsers', N'LinkedEntraOid') IS NULL
+        ALTER TABLE dbo.IdentityUsers ADD LinkedEntraOid NVARCHAR(128) NULL;
+
+    IF COL_LENGTH(N'dbo.IdentityUsers', N'LinkedUtc') IS NULL
+        ALTER TABLE dbo.IdentityUsers ADD LinkedUtc DATETIMEOFFSET NULL;
 END;
 GO
 

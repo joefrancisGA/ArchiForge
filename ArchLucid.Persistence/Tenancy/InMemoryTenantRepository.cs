@@ -381,6 +381,62 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
+    public Task<bool> UpdateEntraTenantIdAsync(Guid tenantId, Guid entraTenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_byId.TryGetValue(tenantId, out TenantRecord? tenant))
+            return Task.FromResult(false);
+
+        if (tenant.EntraTenantId is Guid existing && existing != entraTenantId)
+            return Task.FromResult(false);
+
+        if (tenant.EntraTenantId == entraTenantId)
+            return Task.FromResult(true);
+
+        if (_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid holderTenantId) && holderTenantId != tenantId)
+            return Task.FromResult(false);
+
+        _entraTenantIdToTenantId[entraTenantId] = tenantId;
+
+        _byId[tenantId] = new TenantRecord
+        {
+            Id = tenant.Id,
+            Name = tenant.Name,
+            Slug = tenant.Slug,
+            Tier = tenant.Tier,
+            EntraTenantId = entraTenantId,
+            CreatedUtc = tenant.CreatedUtc,
+            SuspendedUtc = tenant.SuspendedUtc,
+            TrialStartUtc = tenant.TrialStartUtc,
+            TrialExpiresUtc = tenant.TrialExpiresUtc,
+            TrialRunsLimit = tenant.TrialRunsLimit,
+            TrialRunsUsed = tenant.TrialRunsUsed,
+            TrialSeatsLimit = tenant.TrialSeatsLimit,
+            TrialSeatsUsed = tenant.TrialSeatsUsed,
+            TrialStatus = tenant.TrialStatus,
+            TrialSampleRunId = tenant.TrialSampleRunId,
+            TrialArchitecturePreseedEnqueuedUtc = tenant.TrialArchitecturePreseedEnqueuedUtc,
+            TrialWelcomeRunId = tenant.TrialWelcomeRunId,
+            TrialFirstManifestCommittedUtc = tenant.TrialFirstManifestCommittedUtc,
+            BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
+            BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
+            BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
+            BaselineManualPrepHoursPerReview = tenant.BaselineManualPrepHoursPerReview,
+            BaselinePeoplePerReview = tenant.BaselinePeoplePerReview,
+            BaselineManualPrepCapturedUtc = tenant.BaselineManualPrepCapturedUtc,
+            CompanySize = tenant.CompanySize,
+            ArchitectureTeamSize = tenant.ArchitectureTeamSize,
+            IndustryVertical = tenant.IndustryVertical,
+            IndustryVerticalOther = tenant.IndustryVerticalOther,
+            EnterpriseSeatsLimit = tenant.EnterpriseSeatsLimit,
+            EnterpriseSeatsUsed = tenant.EnterpriseSeatsUsed
+        };
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
     public Task TryIncrementActiveTrialRunAsync(
         Guid tenantId,
         CancellationToken ct,

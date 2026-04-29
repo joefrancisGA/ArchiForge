@@ -389,4 +389,70 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         await sut.DecrementEnterpriseScimSeatAsync(tenantId, CancellationToken.None);
         (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.EnterpriseSeatsUsed.Should().Be(0);
     }
+
+    [SkippableFact]
+    public async Task UpdateEntraTenantIdAsync_binds_after_trial_convert_and_is_idempotent()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = new(factory);
+        Guid tenantId = Guid.NewGuid();
+        Guid corpEntra = Guid.NewGuid();
+        string slug = "hand-" + Guid.NewGuid().ToString("N")[..8];
+        await sut.InsertTenantAsync(
+            tenantId,
+            "Handoff T",
+            slug,
+            TenantTier.Standard,
+            null,
+            CancellationToken.None);
+        await sut.CommitSelfServiceTrialAsync(
+            tenantId,
+            DateTimeOffset.UtcNow,
+            DateTimeOffset.UtcNow.AddDays(3),
+            5,
+            2,
+            Guid.NewGuid(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+        await sut.MarkTrialConvertedAsync(tenantId, TenantTier.Standard, CancellationToken.None);
+        TenantRecord? converted = await sut.GetByIdAsync(tenantId, CancellationToken.None);
+        converted!.TrialStatus.Should().Be(TrialLifecycleStatus.Converted);
+        converted.EntraTenantId.Should().BeNull();
+
+        (await sut.UpdateEntraTenantIdAsync(tenantId, corpEntra, CancellationToken.None)).Should().BeTrue();
+        (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.EntraTenantId.Should().Be(corpEntra);
+
+        (await sut.UpdateEntraTenantIdAsync(tenantId, corpEntra, CancellationToken.None)).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task UpdateEntraTenantIdAsync_noop_when_row_has_different_entra()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        TestSqlConnectionFactory factory = new(fixture.ConnectionString);
+        DapperTenantRepository sut = new(factory);
+        Guid tenantId = Guid.NewGuid();
+        Guid first = Guid.NewGuid();
+        Guid second = Guid.NewGuid();
+        string slug = "lock-" + Guid.NewGuid().ToString("N")[..8];
+        await sut.InsertTenantAsync(
+            tenantId,
+            "Locked",
+            slug,
+            TenantTier.Standard,
+            first,
+            CancellationToken.None);
+
+        (await sut.UpdateEntraTenantIdAsync(tenantId, second, CancellationToken.None)).Should().BeFalse();
+        (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.EntraTenantId.Should().Be(first);
+    }
 }

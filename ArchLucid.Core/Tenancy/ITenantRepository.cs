@@ -66,6 +66,14 @@ public interface ITenantRepository
     Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct);
 
     /// <summary>
+    ///     Binds <c>dbo.Tenants.EntraTenantId</c> to the corporate Entra directory (<c>tid</c>) for paid access.
+    ///     No-op when the tenant is missing, when <paramref name="entraTenantId" /> is already held by another tenant,
+    ///     or when this tenant is already bound to a different directory. Idempotent when the same value is supplied.
+    /// </summary>
+    /// <returns><c>true</c> when the directory id is now stored for this tenant; otherwise <c>false</c>.</returns>
+    Task<bool> UpdateEntraTenantIdAsync(Guid tenantId, Guid entraTenantId, CancellationToken ct);
+
+    /// <summary>
     ///     When the tenant is on an active trial with a run limit, increments <see cref="TenantRecord.TrialRunsUsed" /> once
     ///     under <see cref="TenantRecord.TrialRunsLimit" /> and before <see cref="TenantRecord.TrialExpiresUtc" />.
     ///     No-op when the tenant row is missing or not on a metered active trial. Must run in the same SQL transaction as

@@ -80,4 +80,18 @@ public sealed class TrialIdentityUserRecord
         get;
         init;
     }
+
+    /// <summary>Entra user object id (<c>oid</c>) after trial-to-paid handoff; null until linked.</summary>
+    public string? LinkedEntraOid
+    {
+        get;
+        init;
+    }
+
+    /// <summary>When <see cref="LinkedEntraOid" /> was set.</summary>
+    public DateTimeOffset? LinkedUtc
+    {
+        get;
+        init;
+    }
 }

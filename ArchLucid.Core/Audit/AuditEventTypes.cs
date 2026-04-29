@@ -273,6 +273,15 @@ public static class AuditEventTypes
     public const string TenantTrialConverted = "TenantTrialConverted";
 
     /// <summary>
+    ///     Commercial Entra directory (<c>tid</c>) bound to an ArchLucid tenant after paid conversion
+    ///     (<c>POST /v1/tenant/link-entra</c>).
+    /// </summary>
+    public const string TenantEntraDirectoryBound = "TenantEntraDirectoryBound";
+
+    /// <summary>Optional: trial local <c>dbo.IdentityUsers</c> row linked to an Entra <c>oid</c> during handoff.</summary>
+    public const string TrialLocalIdentityLinkedToEntra = "TrialLocalIdentityLinkedToEntra";
+
+    /// <summary>
     ///     Automated trial lifecycle state transition (Worker scheduler; SQL row in <c>dbo.TenantLifecycleTransitions</c>
     ///     ).
     /// </summary>

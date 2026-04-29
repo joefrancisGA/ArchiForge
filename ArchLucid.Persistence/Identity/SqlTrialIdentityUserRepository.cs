@@ -36,7 +36,9 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
                                LockoutEnabled,
                                AccessFailedCount,
                                EmailConfirmationTokenHash,
-                               EmailConfirmationExpiresUtc
+                               EmailConfirmationExpiresUtc,
+                               LinkedEntraOid,
+                               LinkedUtc
                            FROM dbo.IdentityUsers
                            WHERE NormalizedEmail = @NormalizedEmail;
                            """;
@@ -193,6 +195,57 @@ public sealed class SqlTrialIdentityUserRepository(ISqlConnectionFactory connect
             await connection.ExecuteAsync(
                 new CommandDefinition(sql, new { NormalizedEmail = normalizedEmail },
                     cancellationToken: cancellationToken));
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TryLinkLocalIdentityToEntraAsync(
+        string normalizedEmail,
+        string entraOid,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(normalizedEmail);
+        ArgumentException.ThrowIfNullOrWhiteSpace(entraOid);
+
+        string oid = entraOid.Trim();
+
+        if (oid.Length > 128)
+            throw new ArgumentException("Entra OID must be at most 128 characters.", nameof(entraOid));
+
+        TrialIdentityUserRecord? row = await GetByNormalizedEmailAsync(normalizedEmail, cancellationToken);
+
+        if (row is null)
+            return false;
+
+        if (row.LinkedEntraOid is string linked && linked != oid)
+            return false;
+
+        if (string.Equals(row.LinkedEntraOid, oid, StringComparison.Ordinal))
+            return true;
+
+        using (SqlRowLevelSecurityBypassAmbient.Enter())
+        {
+            await using SqlConnection connection =
+                await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+            DateTimeOffset linkedUtc = DateTimeOffset.UtcNow;
+
+            const string sql = """
+                               UPDATE dbo.IdentityUsers
+                               SET LinkedEntraOid = @Oid,
+                                   LinkedUtc = @LinkedUtc,
+                                   ConcurrencyStamp = NEWID()
+                               WHERE NormalizedEmail = @NormalizedEmail
+                                 AND (LinkedEntraOid IS NULL OR LinkedEntraOid = @Oid);
+                               """;
+
+            int rows = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    sql,
+                    new { NormalizedEmail = normalizedEmail, Oid = oid, LinkedUtc = linkedUtc },
+                    cancellationToken: cancellationToken));
+
+            return rows == 1;
         }
     }
 }
