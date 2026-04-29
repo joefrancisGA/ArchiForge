@@ -366,7 +366,7 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 
 **Tradeoffs:** API-first interoperability (flexible but requires integration effort) vs. pre-built connectors (easier but more to maintain).
 
-**Recommendations:** Validate SCIM provisioning end-to-end with Okta or Azure AD. *V1.1.*
+**Recommendations:** Validate SCIM provisioning end-to-end with Okta or Microsoft Entra ID. *V1.1.*
 
 ---
 
@@ -1080,11 +1080,11 @@ Acceptance criteria:
 
 ### Improvement 10 (DEFERRED): Validate SCIM v2 provisioning end-to-end with a real IdP
 
-**Title:** DEFERRED — Validate SCIM provisioning with Okta or Azure AD
+**Title:** DEFERRED — Validate SCIM provisioning with Okta or Microsoft Entra ID
 
-**Reason:** SCIM v2 service provider code exists (ADR 0032, ScimPatchOpEvaluatorTests, ScimFilterParserTests), but end-to-end validation requires an external IdP (Okta or Azure AD) configured for SCIM provisioning against ArchLucid's SCIM endpoint. This requires IdP account access and configuration that is not available in the codebase.
+**Reason:** SCIM v2 service provider code exists (ADR 0032, ScimPatchOpEvaluatorTests, ScimFilterParserTests), but end-to-end validation requires an external IdP (Okta or Microsoft Entra ID) configured for SCIM provisioning against ArchLucid's SCIM endpoint. This requires IdP account access and configuration that is not available in the codebase.
 
-**Information needed:** (1) Whether an Okta or Azure AD test tenant is available. (2) The SCIM endpoint URL path configured in the API. (3) Whether the SCIM endpoint requires a bearer token or API key for the provisioning agent.
+**Information needed:** (1) Whether an Okta or Microsoft Entra ID test tenant is available. (2) The SCIM endpoint URL path configured in the API. (3) Whether the SCIM endpoint requires a bearer token or API key for the provisioning agent.
 
 ---
 
