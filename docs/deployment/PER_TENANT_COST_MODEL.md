@@ -48,6 +48,18 @@ Give sponsors a **defensible order-of-magnitude** for monthly Azure + LLM spend 
 - **Throttle** LLM with quotas (`OPERATIONS_LLM_QUOTA.md` patterns) before **scaling SQL** for pilot noise.
 - **Monthly review:** follow [../CAPACITY_AND_COST_PLAYBOOK.md](../library/CAPACITY_AND_COST_PLAYBOOK.md) cadence.
 
+## Wizard preview (`GET /v1/agent-execution/cost-preview`)
+
+The operator new-run wizard calls this endpoint for an **illustrative** USD band before starting a run in **Real** mode.
+
+- **Low:** one LLM completion assumed at **8192** input tokens and the host `AzureOpenAI:MaxCompletionTokens` output cap — a minimal-context floor for comparison only.
+- **High:** a **starter run** multiplies **four** parallel agents (Topology, Cost, Compliance, Critic), each modeled at up to `LlmDailyTenantBudget:AssumedMaxTotalTokensPerRequest` (default **65536**) input tokens and the same output cap — aligned with the daily-budget reservation heuristic, not a measured prompt size.
+- **Retries** (for example JSON schema remediation) add **extra** completions that are **not** included in the band.
+
+**Configure** `AgentExecution:LlmCostEstimation:InputUsdPerMillionTokens` and `OutputUsdPerMillionTokens` to match your Azure OpenAI **deployment model list price**. Until those values are overridden, the API sets `pricingUsesIllustrativeUsdRates` to **true** (shipped defaults are placeholders).
+
+This preview is **not** a bill or entitlement; **±40%** or wider drift versus Azure Cost Management is normal until you tune rates and observe token meters — see the worked example below.
+
 ## Worked example (illustrative only)
 
 **Inputs:** 50 runs/month, ~8 LLM calls/run median, modest prompts. **Pilot profile:** single-region SQL Basic, Container Apps with `minReplicas=0`, **no** Front Door, App Insights sampling 25%. **Math:** sum Container Apps hours × tariff + SQL DTU hours + (**tokens**/1e6)×($/M input+$/M output from your Azure OpenAI list price) + log GB × ingestion rate.

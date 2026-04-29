@@ -7,16 +7,29 @@ export type AgentExecutionCostPreviewPayload = {
   mode: string;
   maxCompletionTokens: number;
   estimatedCostUsd: number | null;
+  estimatedCostUsdLow: number | null;
+  estimatedCostUsdHigh: number | null;
+  estimatedCostBasis: string;
+  pricingUsesIllustrativeUsdRates: boolean;
   deploymentName: string | null;
 };
 
 const DOCS_URL =
-  "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/PER_TENANT_COST_MODEL.md";
+  "https://github.com/joefrancisGA/ArchLucid/blob/main/docs/deployment/PER_TENANT_COST_MODEL.md";
 
 export type RunWizardCostPreviewCardProps = {
   /** Defaults to same-origin BFF proxy path. */
   previewUrl?: string;
 };
+
+function formatUsd(value: number): string {
+  return value.toLocaleString(undefined, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
 
 /**
  * Host-level AOAI cost preview for the review step; hidden when API reports Simulator mode.
@@ -85,15 +98,19 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
     return null;
   }
 
-  const dollars =
-    data.estimatedCostUsd === null || Number.isNaN(data.estimatedCostUsd)
-      ? null
-      : data.estimatedCostUsd.toLocaleString(undefined, {
-          style: "currency",
-          currency: "USD",
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
+  const low = data.estimatedCostUsdLow;
+  const high = data.estimatedCostUsdHigh ?? data.estimatedCostUsd;
+  const hasBand =
+    typeof low === "number" &&
+    !Number.isNaN(low) &&
+    typeof high === "number" &&
+    !Number.isNaN(high);
+
+  const bandLabel = hasBand ? `${formatUsd(low)}–${formatUsd(high)}` : null;
+
+  const headlineAmount =
+    bandLabel ??
+    (typeof high === "number" && !Number.isNaN(high) ? formatUsd(high) : null);
 
   return (
     <div
@@ -102,13 +119,14 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
     >
       <p className="m-0 font-medium" data-testid="run-cost-preview-headline">
         Estimated Azure OpenAI cost for this run:{" "}
-        {dollars !== null ? (
-          <span data-testid="run-cost-preview-amount">{dollars}</span>
+        {headlineAmount !== null ? (
+          <span data-testid="run-cost-preview-amount">{headlineAmount}</span>
         ) : (
           <span data-testid="run-cost-preview-amount">—</span>
         )}{" "}
-        (based on <code className="rounded bg-amber-100/80 px-1 text-xs dark:bg-amber-900/60">MaxCompletionTokens</code>
-        ={data.maxCompletionTokens} cap)
+        (band: low = small assumed prompt, high = four parallel agents at configured token ceiling;{" "}
+        <code className="rounded bg-amber-100/80 px-1 text-xs dark:bg-amber-900/60">MaxCompletionTokens</code>
+        ={data.maxCompletionTokens})
         {data.deploymentName ? (
           <>
             {" "}
@@ -116,10 +134,18 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
           </>
         ) : null}
       </p>
+      {data.pricingUsesIllustrativeUsdRates ? (
+        <p className="mt-2 mb-0 text-xs font-medium text-amber-950 dark:text-amber-50">
+          Illustrative USD rates are still set from defaults — override{" "}
+          <code className="rounded bg-amber-100/80 px-1 dark:bg-amber-900/60">AgentExecution:LlmCostEstimation</code> to match
+          your deployment&apos;s list price.
+        </p>
+      ) : null}
+      <p className="mt-2 mb-0 text-xs text-amber-900/90 dark:text-amber-100/90">{data.estimatedCostBasis}</p>
       <p className="mt-2 mb-0 text-xs text-amber-900/90 dark:text-amber-100/90">
         Methodology:{" "}
         <Link className="font-medium text-amber-950 underline dark:text-amber-50" href={DOCS_URL}>
-          docs/library/PER_TENANT_COST_MODEL.md
+          docs/deployment/PER_TENANT_COST_MODEL.md
         </Link>
       </p>
     </div>

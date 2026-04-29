@@ -112,6 +112,11 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
               mode: "Simulator",
               maxCompletionTokens: 4096,
               estimatedCostUsd: null,
+              estimatedCostUsdLow: null,
+              estimatedCostUsdHigh: null,
+              estimatedCostBasis:
+                "Starter run = 4 parallel agents (Topology, Cost, Compliance, Critic). Low = one completion at 8192 assumed input tokens.",
+              pricingUsesIllustrativeUsdRates: true,
               deploymentName: null,
             }),
           };

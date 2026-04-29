@@ -3,6 +3,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RunWizardCostPreviewCard } from "./RunWizardCostPreviewCard";
 
+const simulatorPayload = {
+  mode: "Simulator",
+  maxCompletionTokens: 4096,
+  estimatedCostUsd: null,
+  estimatedCostUsdLow: null,
+  estimatedCostUsdHigh: null,
+  estimatedCostBasis:
+    "Starter run = 4 parallel agents (Topology, Cost, Compliance, Critic). Low = one completion at 8192 assumed input tokens.",
+  pricingUsesIllustrativeUsdRates: true,
+  deploymentName: null,
+};
+
 describe("RunWizardCostPreviewCard", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -18,12 +30,7 @@ describe("RunWizardCostPreviewCard", () => {
       "fetch",
       vi.fn(async () => ({
         ok: true,
-        json: async () => ({
-          mode: "Simulator",
-          maxCompletionTokens: 4096,
-          estimatedCostUsd: null,
-          deploymentName: null,
-        }),
+        json: async () => simulatorPayload,
       })),
     );
 
@@ -36,7 +43,7 @@ describe("RunWizardCostPreviewCard", () => {
     expect(container.querySelector('[data-testid="run-cost-preview-card"]')).toBeNull();
   });
 
-  it("shows dollar estimate and max tokens when mode is Real", async () => {
+  it("shows USD band and max tokens when mode is Real", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => ({
@@ -44,7 +51,11 @@ describe("RunWizardCostPreviewCard", () => {
         json: async () => ({
           mode: "Real",
           maxCompletionTokens: 1024,
-          estimatedCostUsd: 0.42,
+          estimatedCostUsd: 0.137216,
+          estimatedCostUsdLow: 0.005632,
+          estimatedCostUsdHigh: 0.137216,
+          estimatedCostBasis: "Starter run = 4 parallel agents.",
+          pricingUsesIllustrativeUsdRates: true,
           deploymentName: "gpt-test",
         }),
       })),
@@ -56,10 +67,12 @@ describe("RunWizardCostPreviewCard", () => {
       expect(screen.getByTestId("run-cost-preview-card")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.42");
+    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.01");
+    expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("$0.14");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("MaxCompletionTokens");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("=1024");
     expect(screen.getByTestId("run-cost-preview-headline")).toHaveTextContent("gpt-test");
+    expect(screen.getByText(/Illustrative USD rates are still set from defaults/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /PER_TENANT_COST_MODEL/i })).toHaveAttribute(
       "href",
       expect.stringContaining("PER_TENANT_COST_MODEL.md"),

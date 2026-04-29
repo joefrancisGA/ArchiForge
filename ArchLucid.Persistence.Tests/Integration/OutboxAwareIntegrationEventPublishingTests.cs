@@ -216,7 +216,8 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
         Mock<ILogger> logger = new();
         logger.Setup(l => l.IsEnabled(LogLevel.Warning)).Returns(true);
 
-        Func<int> payload = () => 1;
+        object[] cycleReferencePayload = new object[1];
+        cycleReferencePayload[0] = cycleReferencePayload;
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             outbox.Object,
@@ -224,7 +225,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             new IntegrationEventsOptions { TransactionalOutboxEnabled = true },
             logger.Object,
             IntegrationEventTypes.AlertFiredV1,
-            payload,
+            cycleReferencePayload,
             null,
             null,
             Guid.NewGuid(),

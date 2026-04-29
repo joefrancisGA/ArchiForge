@@ -19,7 +19,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
     };
 
     [Fact]
-    public async Task GetCostPreview_when_mode_is_simulator_returns_null_estimate()
+    public async Task GetCostPreview_when_mode_is_simulator_returns_null_estimates_and_basis()
     {
         await using OpenApiContractWebAppFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -29,14 +29,18 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         AgentExecutionCostPreviewDto? body = await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
         body.Should().NotBeNull();
-        body.Mode.Should().Be("Simulator");
+        body!.Mode.Should().Be("Simulator");
         body.MaxCompletionTokens.Should().Be(4096);
         body.EstimatedCostUsd.Should().BeNull();
+        body.EstimatedCostUsdLow.Should().BeNull();
+        body.EstimatedCostUsdHigh.Should().BeNull();
         body.DeploymentName.Should().BeNull();
+        body.EstimatedCostBasis.Should().NotBeNullOrWhiteSpace();
+        body.PricingUsesIllustrativeUsdRates.Should().BeTrue();
     }
 
     [Fact]
-    public async Task GetCostPreview_when_mode_is_real_returns_estimate_and_deployment()
+    public async Task GetCostPreview_when_mode_is_real_returns_range_estimate_and_deployment()
     {
         await using RealModeOpenApiContractWebAppFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -46,12 +50,21 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         AgentExecutionCostPreviewDto? body = await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
         body.Should().NotBeNull();
-        body.Mode.Should().Be("Real");
+        body!.Mode.Should().Be("Real");
         body.MaxCompletionTokens.Should().Be(1024);
         body.DeploymentName.Should().Be("gpt-test-deploy");
         body.EstimatedCostUsd.Should().NotBeNull();
-        // Default LlmCostEstimation rates: 8192 in @ 0.5/M + 1024 out @ 1.5/M
-        body.EstimatedCostUsd!.Value.Should().BeApproximately(0.005632, 0.000001);
+        body.EstimatedCostUsdLow.Should().NotBeNull();
+        body.EstimatedCostUsdHigh.Should().NotBeNull();
+        body.EstimatedCostUsd.Should().Be(body.EstimatedCostUsdHigh);
+        body.EstimatedCostBasis.Should().Contain("65536");
+        body.PricingUsesIllustrativeUsdRates.Should().BeTrue();
+
+        // Default LlmCostEstimation rates: low = one completion at 8192 in @ 0.5/M + 1024 out @ 1.5/M
+        body.EstimatedCostUsdLow!.Value.Should().BeApproximately(0.005632, 0.000001);
+
+        // High = 4 × (65536 in @ 0.5/M + 1024 out @ 1.5/M)
+        body.EstimatedCostUsdHigh!.Value.Should().BeApproximately(0.137216, 0.000001);
     }
 
     private sealed class AgentExecutionCostPreviewDto
@@ -69,6 +82,30 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         }
 
         public double? EstimatedCostUsd
+        {
+            get;
+            init;
+        }
+
+        public double? EstimatedCostUsdLow
+        {
+            get;
+            init;
+        }
+
+        public double? EstimatedCostUsdHigh
+        {
+            get;
+            init;
+        }
+
+        public string EstimatedCostBasis
+        {
+            get;
+            init;
+        } = "";
+
+        public bool PricingUsesIllustrativeUsdRates
         {
             get;
             init;

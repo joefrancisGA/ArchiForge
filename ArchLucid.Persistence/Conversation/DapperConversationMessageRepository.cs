@@ -92,6 +92,4 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
             new CommandDefinition(sql, new { ThreadId = threadId, Take = take }, cancellationToken: ct));
         return rows.ToList();
     }
-
-    private sealed record ConversationThreadDenormScopeRow(Guid? TenantId, Guid? WorkspaceId, Guid? ProjectId);
 }
