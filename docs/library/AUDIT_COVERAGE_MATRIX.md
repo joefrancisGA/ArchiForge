@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:126 -->
+<!-- audit-core-const-count:140 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -167,7 +167,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 125 (see CI marker above; includes nested `Baseline` and nested `Run`) |
+| **Core `AuditEventTypes` `public const string` rows** | 140 (see CI marker above; includes nested `Baseline` and nested `Run`) |
 | **`await *auditService.LogAsync` production call sites** | ~44 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
@@ -189,7 +189,20 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `FindingsListAccessed` | `FindingsListAccessed` | — (constant catalogued for `GET /v1/runs/{runId}/findings`; durable `LogAsync` not wired yet) |
 | `GovernanceApprovalRequested` | `GovernanceApprovalRequested` | `GovernanceController` (`POST /v1/governance/approval-requests`) |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |
+| `ArtifactSynthesisFailed` | `ArtifactSynthesisFailed` | — (constant catalogued; hard-failure path — durable `LogAsync` not yet wired) |
+| `ArtifactSynthesisPartial` | `ArtifactSynthesisPartial` | — (constant catalogued; degraded-bundle path — durable `LogAsync` not yet wired) |
+| `RequestCreated` | `Request.Created` | — (constant catalogued for architecture request draft / import persist — durable `LogAsync` not yet wired) |
+| `RequestLocked` | `Request.Locked` | — (constant catalogued; request locked by non-terminal run — durable `LogAsync` not yet wired) |
+| `RequestReleased` | `Request.Released` | — (constant catalogued; request released after all referencing runs reach terminal state — durable `LogAsync` not yet wired) |
+| `ManifestSuperseded` | `ManifestSuperseded` | — (constant catalogued; policy- or admin-driven manifest supersession — durable `LogAsync` not yet wired) |
+| `ManifestArchived` | `ManifestArchived` | — (constant catalogued; golden manifest soft-archived (`ArchivedUtc` set) — durable `LogAsync` not yet wired) |
+| `FindingsSnapshotSealed` | `FindingsSnapshotSealed` | — (constant catalogued; findings snapshot sealed terminal generation — durable `LogAsync` not yet wired) |
+| `FindingReviewApproved` | `FindingReviewApproved` | — (constant catalogued; human reviewer approved finding — durable `LogAsync` not yet wired) |
+| `FindingReviewRejected` | `FindingReviewRejected` | — (constant catalogued; human reviewer rejected finding — durable `LogAsync` not yet wired) |
+| `FindingReviewOverridden` | `FindingReviewOverridden` | — (constant catalogued; privileged override after rejection — durable `LogAsync` not yet wired) |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
+| `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/determinism-check`) |
+| `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/seed-fake-results`) |
 | `AuthorityCommittedChainPersisted` | `AuthorityCommittedChainPersisted` | `DemoSeedService`, `ReplayRunService` |
 | `ArtifactDownloaded` | `ArtifactDownloaded` | `ArtifactExportController` |
 | `BundleDownloaded` | `BundleDownloaded` | `ArtifactExportController` |
@@ -303,6 +316,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunExecuteSucceeded`) |
 | `Run.CommitCompleted` | `Run.CommitCompleted` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunCompleted`) |
 | `Run.Failed` | `Run.Failed` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunFailed`) |
+| `Run.RetryRequested` | `Run.RetryRequested` | — (constant catalogued; operator / API retry of a failed run — durable `LogAsync` not yet wired) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 

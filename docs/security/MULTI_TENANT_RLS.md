@@ -82,6 +82,7 @@ flowchart LR
 
 - **Scalability:** Predicate simplicity keeps plans stable; indexes already lead with scope columns on most advisory/alert tables.
 - **Reliability:** Connection resiliency (`ResilientSqlConnectionFactory`) re-applies session context when **SessionContextSqlConnectionFactory** wraps the connection.
+- **Pool recycling safety:** `SessionContextSqlConnectionFactory` re-applies all `al_*` `SESSION_CONTEXT` keys on every `CreateOpenConnectionAsync` call. Physical connections returned to the ADO.NET pool retain stale context, but the next checkout overwrites those values before the connection reaches the caller. `ArchLucid.Persistence.Tests/PoolRecyclingSqlConnectionIsolationTests.cs` verifies this with `Max Pool Size=1` to force physical connection reuse (cross-tenant and bypass-to-tenant). **Operational risk:** If `ApplySessionContext` is toggled to **false** at runtime while the RLS policy remains **ON**, pool connections will carry their last-set context values until they age out; turn the security policy **OFF** first, or drain the pool (`SqlConnection.ClearAllPools()`) before disabling context application.
 - **Cost:** Minimal SQL overhead; engineering cost for migration, testing, and runbooks.
 - **Terraform / IaC:** RLS is **DDL**; shipped via DbUp migrations and mirrored at the end of `ArchLucid.Persistence/Scripts/ArchLucid.sql` for greenfield parity.
 
@@ -128,6 +129,6 @@ When **`096`** has run, these tables use **tenant id only** (no workspace/projec
 
 Pilot **`rls.RunsScopeFilter`** / `runs_scope_predicate` (DbUp 030) is **superseded** by **036**: single function **`rls.archiforge_scope_predicate`** and policy **`rls.ArchiforgeTenantScope`**. Brownfield databases receive 036 via DbUp after 030. **DbUp 108 (2026-04-21)** then drops both objects and replaces them with **`rls.archlucid_scope_predicate`** + **`rls.archlucid_tenant_predicate`** under policy **`rls.ArchLucidTenantScope`**, switching SESSION_CONTEXT keys from `af_*` to `al_*`. The cutover is atomic — there is **no dual-read shim**, so the application (`RlsSessionContextApplicator`, `SqlTenantHardPurgeService`, `DevelopmentDefaultScopeTenantBootstrap`) and the policy state must be deployed together.
 
-Integration tests: `ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs` (SQL Server container) assert cross-tenant isolation on **`dbo.Runs`**, **`dbo.AuditEvents`**, and **`dbo.ContextSnapshots`** with the policy temporarily set to `STATE = ON`.
+Integration tests: `ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs` (SQL Server container) assert cross-tenant isolation on **`dbo.Runs`**, **`dbo.AuditEvents`**, and **`dbo.ContextSnapshots`** with the policy temporarily set to `STATE = ON`. `ArchLucid.Persistence.Tests/PoolRecyclingSqlConnectionIsolationTests.cs` additionally forces ADO.NET pool reuse (`Max Pool Size=1`) so recycled connections must overwrite stale tenant or bypass session context before queries run.
 
 Later, consider **separate database per tenant** only if compliance or noisy-neighbor isolation demands it (higher ops cost).

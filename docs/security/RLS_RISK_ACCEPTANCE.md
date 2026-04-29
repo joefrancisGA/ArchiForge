@@ -31,7 +31,7 @@ Record **explicit acceptance** of residual risks when **SQL Server RLS** is enab
 
 | Risk area | Control | Residual risk |
 |-----------|---------|----------------|
-| Missing `SESSION_CONTEXT` on pooled connection | Deny-by-default predicates when policy **ON** | Misconfigured host strand legitimate traffic or leak rows if bypass used |
+| Stale `SESSION_CONTEXT` on a recycled pooled connection | **Primary:** `SessionContextSqlConnectionFactory` unconditionally re-applies all four context keys (`@read_only=0`) on every `CreateOpenConnectionAsync` call; any failure disposes the connection and throws (no silent leak). **Secondary (backstop):** Deny-by-default predicate when policy **ON** returns zero rows if context is NULL. | Misconfigured host (`ApplySessionContext=false` while policy is **ON**) strands legitimate traffic or leaks rows from the recycled connection’s prior tenant. |
 | Uncovered child tables | Code review + parameterized queries | Higher blast radius on SQL injection or query omission |
 | Predicate complexity | Simple `rls.archiforge_scope_predicate` plus tenant-only **`rls.archiforge_tenant_predicate`** (DbUp **096**) on additional tables | Future schema drift may delay RLS coverage on new tables; two predicate shapes must stay in sync with session context keys |
 
