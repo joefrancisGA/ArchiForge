@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-29 — Governance SoD: Entra JWT `tid`/`oid` actor keys (ADR 0034, migration 130)
+
+**Outcome.** Eliminates segregation-of-duty **dual-display** bypass against Entra JWTs: **`IActorContext.GetActorId()`** canonicalizes **`jwt:{tid}:{oid}`** (`ActorContext`). **`dbo.GovernanceApprovalRequests`** additive **`RequestedByActorKey`** / **`ReviewedByActorKey`** (**`130_GovernanceApprovalRequests_ActorKeys.sql`** + **`ArchLucid.sql`** / rollback **R130**); **`GovernanceSegregationRules`** compares JWT keys when present. **`GovernanceWorkflowService`** + HTTP **`GovernanceController`** thread keys; **`GovernanceSelfApprovalBlocked`** carries actor-key fields for audit. Decision: [**ADR 0034**](adr/0034-segregation-of-duties-entra-oid-actor-keys.md); owner row [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) (**item 13**, Option **B**). Tests: **`ActorContextTests`**, **`GovernanceSegregationRulesTests`**, **`GovernanceWorkflowSegregationAndPromotionPropertyTests`** (same JWT key / different displays).
+
+---
+
 ## 2026-04-29 — ADR 0030 PR A4: drop `dbo.GoldenManifestVersions` (migration 111)
 
 **Outcome.** **Shipped PR A4** of [ADR 0030 — Coordinator → Authority pipeline unification](adr/0030-coordinator-authority-pipeline-unification.md): **`ArchLucid.Persistence/Migrations/111_DropGoldenManifestVersions_Legacy.sql`** hard-drops legacy **`dbo.GoldenManifestVersions`** (owner **`docs/PENDING_QUESTIONS.md`** item **35d** — no historical Coordinator-shape rows preserved; merge-time **no-rollback** acknowledgement). **`ArchLucid.sql`** already documented removal (ADR § Lifecycle § PR A4); rollback **`Rollback/R111_DropGoldenManifestVersions_Legacy.sql`** recreates an empty shell only. **`docs/architecture/COORDINATOR_STRANGLER_INVENTORY.md`** updated post PR A3/A4; ADR 0030 **§ Component breakdown** + **§ Lifecycle** mark PR A4 **DONE 2026-04-29**.

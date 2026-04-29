@@ -39,6 +39,7 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         string approvalRequestId,
         string newStatus,
         string reviewedBy,
+        string? reviewedByActorKey,
         string? reviewComment,
         DateTime reviewedUtc,
         CancellationToken cancellationToken = default)
@@ -64,6 +65,7 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
 
             row.Status = newStatus;
             row.ReviewedBy = reviewedBy;
+            row.ReviewedByActorKey = reviewedByActorKey;
             row.ReviewComment = reviewComment;
             row.ReviewedUtc = reviewedUtc;
         }

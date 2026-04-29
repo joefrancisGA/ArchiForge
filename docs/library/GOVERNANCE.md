@@ -9,9 +9,13 @@ ArchLucid governance covers **approval requests**, **manifest promotions** betwe
 
 ## Segregation of duties (approve / reject)
 
-A reviewer **must not** approve or reject a governance approval request they **submitted**. `GovernanceApprovalRequest.RequestedBy` (set at submission) is compared to the review identity (`reviewedBy` on `ApproveAsync` / `RejectAsync`) using **ordinal, case-insensitive** matching.
+A reviewer **must not** approve or reject a governance approval request they **submitted**.
 
-- **Violation:** `GovernanceWorkflowService` emits a durable `IAuditService` event with type **`GovernanceSelfApprovalBlocked`** and `DataJson` `{ approvalRequestId, requestedBy, attemptedReviewerBy }`, then throws **`GovernanceSelfApprovalException`** (subclass of `InvalidOperationException`) with a message naming the actor and request id.
+**JWT (Entra / OIDC) paths.** The server derives a **canonical segregation key** from `tid` + `oid` (`IActorContext.GetActorId()`, shape `jwt:{tenantId}:{objectId}`, or `jwt:{objectId}` when `tid` is absent — see [**ADR 0034**](../adr/0034-segregation-of-duties-entra-oid-actor-keys.md)). At persistence time the API stores **`RequestedByActorKey`** / **`ReviewedByActorKey`** on `dbo.GovernanceApprovalRequests` (additive columns alongside human-readable **`RequestedBy`** / approved-by display strings).
+
+`GovernanceSegregationRules` compares **JWT-prefixed** keys ordinally when **both** the stored submission key and the reviewer key match the JWT canonical pattern; otherwise it falls back to **ordinal, case-insensitive** comparison of display strings (API-key-only traffic, mixed legacy rows, or missing keys).
+
+- **Violation:** `GovernanceWorkflowService` emits a durable `IAuditService` event with type **`GovernanceSelfApprovalBlocked`** and `DataJson` including `approvalRequestId`, `requestedBy`, `requestedByActorKey`, `attemptedReviewerBy`, `attemptedReviewerActorKey`, then throws **`GovernanceSelfApprovalException`** (subclass of `InvalidOperationException`) with a message naming the actor and request id.
 - **HTTP API:** `GovernanceController` maps that exception to **400 Bad Request** with RFC 9457 problem type **`ProblemTypes.GovernanceSelfApproval`** (`https://archlucid.example.org/errors#governance-self-approval`).
 - **Promotion (`PromoteAsync`)** is unchanged; prod promotion continues to validate the approval chain separately.
 

@@ -34,7 +34,9 @@ public sealed class GovernanceApprovalRequestRepository(
                                TargetEnvironment,
                                Status,
                                RequestedBy,
+                               RequestedByActorKey,
                                ReviewedBy,
+                               ReviewedByActorKey,
                                RequestComment,
                                ReviewComment,
                                RequestedUtc,
@@ -54,7 +56,9 @@ public sealed class GovernanceApprovalRequestRepository(
                                @TargetEnvironment,
                                @Status,
                                @RequestedBy,
+                               @RequestedByActorKey,
                                @ReviewedBy,
+                               @ReviewedByActorKey,
                                @RequestComment,
                                @ReviewComment,
                                @RequestedUtc,
@@ -80,7 +84,9 @@ public sealed class GovernanceApprovalRequestRepository(
                 item.TargetEnvironment,
                 item.Status,
                 item.RequestedBy,
+                item.RequestedByActorKey,
                 item.ReviewedBy,
+                item.ReviewedByActorKey,
                 item.RequestComment,
                 item.ReviewComment,
                 item.RequestedUtc,
@@ -96,6 +102,7 @@ public sealed class GovernanceApprovalRequestRepository(
         string approvalRequestId,
         string newStatus,
         string reviewedBy,
+        string? reviewedByActorKey,
         string? reviewComment,
         DateTime reviewedUtc,
         CancellationToken cancellationToken = default)
@@ -119,6 +126,7 @@ public sealed class GovernanceApprovalRequestRepository(
                                  SET
                                      Status = @NewStatus,
                                      ReviewedBy = @ReviewedBy,
+                                     ReviewedByActorKey = @ReviewedByActorKey,
                                      ReviewComment = @ReviewComment,
                                      ReviewedUtc = @ReviewedUtc
                                  WHERE ApprovalRequestId = @ApprovalRequestId
@@ -129,6 +137,7 @@ public sealed class GovernanceApprovalRequestRepository(
         transitionParams.Add("ApprovalRequestId", approvalRequestId);
         transitionParams.Add("NewStatus", newStatus);
         transitionParams.Add("ReviewedBy", reviewedBy);
+        transitionParams.Add("ReviewedByActorKey", reviewedByActorKey);
         transitionParams.Add("ReviewComment", reviewComment);
         transitionParams.Add("ReviewedUtc", reviewedUtc);
         transitionParams.Add("Draft", GovernanceApprovalStatus.Draft);
@@ -225,7 +234,9 @@ public sealed class GovernanceApprovalRequestRepository(
                                TargetEnvironment,
                                Status,
                                RequestedBy,
+                               RequestedByActorKey,
                                ReviewedBy,
+                               ReviewedByActorKey,
                                RequestComment,
                                ReviewComment,
                                RequestedUtc,
@@ -269,7 +280,9 @@ public sealed class GovernanceApprovalRequestRepository(
                           TargetEnvironment,
                           Status,
                           RequestedBy,
+                          RequestedByActorKey,
                           ReviewedBy,
+                          ReviewedByActorKey,
                           RequestComment,
                           ReviewComment,
                           RequestedUtc,
@@ -318,7 +331,9 @@ public sealed class GovernanceApprovalRequestRepository(
                                TargetEnvironment,
                                Status,
                                RequestedBy,
+                               RequestedByActorKey,
                                ReviewedBy,
+                               ReviewedByActorKey,
                                RequestComment,
                                ReviewComment,
                                RequestedUtc,
@@ -370,7 +385,9 @@ public sealed class GovernanceApprovalRequestRepository(
                                TargetEnvironment,
                                Status,
                                RequestedBy,
+                               RequestedByActorKey,
                                ReviewedBy,
+                               ReviewedByActorKey,
                                RequestComment,
                                ReviewComment,
                                RequestedUtc,
@@ -420,7 +437,9 @@ public sealed class GovernanceApprovalRequestRepository(
                                TargetEnvironment,
                                Status,
                                RequestedBy,
+                               RequestedByActorKey,
                                ReviewedBy,
+                               ReviewedByActorKey,
                                RequestComment,
                                ReviewComment,
                                RequestedUtc,

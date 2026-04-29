@@ -36,6 +36,7 @@ public sealed class GovernanceControllerDryRunTests
                 "dev",
                 "test",
                 "actor-1",
+                "actor-1",
                 null,
                 true,
                 It.IsAny<CancellationToken>()))
@@ -51,6 +52,7 @@ public sealed class GovernanceControllerDryRunTests
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("actor-1");
+        actor.Setup(a => a.GetActorId()).Returns("actor-1");
 
         GovernanceController sut = new(
             workflow.Object,
@@ -113,6 +115,7 @@ public sealed class GovernanceControllerDryRunTests
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("promoter");
+        actor.Setup(a => a.GetActorId()).Returns("promoter");
 
         GovernanceController sut = new(
             workflow.Object,

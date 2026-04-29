@@ -23,6 +23,7 @@ public interface IGovernanceApprovalRequestRepository
         string approvalRequestId,
         string newStatus,
         string reviewedBy,
+        string? reviewedByActorKey,
         string? reviewComment,
         DateTime reviewedUtc,
         CancellationToken cancellationToken = default);

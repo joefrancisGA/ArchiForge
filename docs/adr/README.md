@@ -5,7 +5,7 @@
 
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-04-24
+**Last reviewed:** 2026-04-29
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
 
@@ -39,6 +39,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0031](0031-cross-tenant-pattern-library.md) | Cross-tenant pattern library — anonymised vertical guidance (**Status: Proposed** — owner sign-off pending) |
 | [0032](0032-scim-v2-service-provider.md) | SCIM 2.0 inbound provisioning (Enterprise automation) |
 | [0033](0033-first-real-value-single-env-var-flip.md) | First real value — `archlucid try --real` + **`ARCHLUCID_REAL_AOAI`** gate |
+| [0034](0034-segregation-of-duties-entra-oid-actor-keys.md) | Segregation of duties — Entra JWT `tid`/`oid` canonical actor keys + additive DB columns (**Status: Accepted**) |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.
 

@@ -261,7 +261,28 @@
               "string"
             ]
           },
+          "estimatedCostBasis": {
+            "type": "string"
+          },
           "estimatedCostUsd": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "estimatedCostUsdHigh": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "estimatedCostUsdLow": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
             "type": [
@@ -276,10 +297,14 @@
           },
           "mode": {
             "type": "string"
+          },
+          "pricingUsesIllustrativeUsdRates": {
+            "type": "boolean"
           }
         },
         "required": [
-          "mode"
+          "mode",
+          "estimatedCostBasis"
         ],
         "type": "object"
       },
@@ -310,6 +335,12 @@
             "type": [
               "null",
               "number",
+              "string"
+            ]
+          },
+          "failureReasonCode": {
+            "type": [
+              "null",
               "string"
             ]
           },
@@ -1874,6 +1905,9 @@
             "format": "uuid",
             "type": "string"
           },
+          "status": {
+            "$ref": "#/components/schemas/ArtifactBundleStatus"
+          },
           "tenantId": {
             "format": "uuid",
             "type": "string"
@@ -1887,6 +1921,9 @@
           }
         },
         "type": "object"
+      },
+      "ArtifactBundleStatus": {
+        "type": "integer"
       },
       "ArtifactDescriptorResponse": {
         "properties": {
@@ -5994,6 +6031,9 @@
             "format": "uuid",
             "type": "string"
           },
+          "generationStatus": {
+            "$ref": "#/components/schemas/FindingsSnapshotGenerationStatus"
+          },
           "graphSnapshotId": {
             "format": "uuid",
             "type": "string"
@@ -6008,6 +6048,9 @@
           }
         },
         "type": "object"
+      },
+      "FindingsSnapshotGenerationStatus": {
+        "type": "integer"
       },
       "FirstTenantFunnelEventRequest": {
         "properties": {
@@ -6111,6 +6154,12 @@
           "requestedBy": {
             "type": "string"
           },
+          "requestedByActorKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "requestedUtc": {
             "format": "date-time",
             "type": "string"
@@ -6122,6 +6171,12 @@
             ]
           },
           "reviewedBy": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewedByActorKey": {
             "type": [
               "null",
               "string"
@@ -11363,6 +11418,12 @@
           "isPublicShowcase": {
             "type": "boolean"
           },
+          "lastFailureReason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "legacyRunStatus": {
             "type": [
               "null",
@@ -11386,6 +11447,10 @@
           },
           "realModeFellBackToSimulator": {
             "type": "boolean"
+          },
+          "retryCount": {
+            "format": "int32",
+            "type": "integer"
           },
           "rowVersion": {
             "format": "byte",
@@ -11920,9 +11985,15 @@
           "runId": {
             "format": "uuid",
             "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SynthesizedArtifactGenerationStatus"
           }
         },
         "type": "object"
+      },
+      "SynthesizedArtifactGenerationStatus": {
+        "type": "integer"
       },
       "TeamsIncomingWebhookConnectionResponse": {
         "properties": {

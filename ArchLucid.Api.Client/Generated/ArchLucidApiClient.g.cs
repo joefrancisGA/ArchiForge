@@ -34241,9 +34241,21 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("deploymentName")]
         public string? DeploymentName { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedCostBasis")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string EstimatedCostBasis { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsd")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? EstimatedCostUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsdHigh")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? EstimatedCostUsdHigh { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsdLow")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? EstimatedCostUsdLow { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("maxCompletionTokens")]
         public int? MaxCompletionTokens { get; set; } = default!;
@@ -34251,6 +34263,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("mode")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string Mode { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("pricingUsesIllustrativeUsdRates")]
+        public bool? PricingUsesIllustrativeUsdRates { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
@@ -34282,6 +34297,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("estimatedCostUsd")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? EstimatedCostUsd { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("failureReasonCode")]
+        public string? FailureReasonCode { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("fullResponseBlobKey")]
         public string? FullResponseBlobKey { get; set; } = default!;
@@ -35678,6 +35696,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        public int? Status { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("tenantId")]
         public System.Guid? TenantId { get; set; } = default!;
@@ -39879,6 +39900,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotId")]
         public System.Guid? FindingsSnapshotId { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("generationStatus")]
+        public int? GenerationStatus { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotId")]
         public System.Guid? GraphSnapshotId { get; set; } = default!;
 
@@ -40006,6 +40030,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("requestedBy")]
         public string? RequestedBy { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("requestedByActorKey")]
+        public string? RequestedByActorKey { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("requestedUtc")]
         public System.DateTimeOffset? RequestedUtc { get; set; } = default!;
 
@@ -40014,6 +40041,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedBy")]
         public string? ReviewedBy { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("reviewedByActorKey")]
+        public string? ReviewedByActorKey { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("reviewedUtc")]
         public System.DateTimeOffset? ReviewedUtc { get; set; } = default!;
@@ -45328,6 +45358,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("isPublicShowcase")]
         public bool? IsPublicShowcase { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("lastFailureReason")]
+        public string? LastFailureReason { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("legacyRunStatus")]
         public string? LegacyRunStatus { get; set; } = default!;
 
@@ -45342,6 +45375,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("realModeFellBackToSimulator")]
         public bool? RealModeFellBackToSimulator { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("retryCount")]
+        public int? RetryCount { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("rowVersion")]
         public byte[]? RowVersion { get; set; } = default!;
@@ -45929,6 +45965,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("runId")]
         public System.Guid? RunId { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("status")]
+        public int? Status { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 

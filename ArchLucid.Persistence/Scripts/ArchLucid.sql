@@ -2331,6 +2331,17 @@ IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
     ALTER TABLE dbo.GovernanceApprovalRequests ADD SlaBreachNotifiedUtc DATETIME2 NULL;
 GO
 
+/* ---- DbUp 130 parity: SoD canonical JWT actor keys (see ADR governance SoD oid) ---- */
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernanceApprovalRequests', N'RequestedByActorKey') IS NULL
+    ALTER TABLE dbo.GovernanceApprovalRequests ADD RequestedByActorKey NVARCHAR(256) NULL;
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernanceApprovalRequests', N'ReviewedByActorKey') IS NULL
+    ALTER TABLE dbo.GovernanceApprovalRequests ADD ReviewedByActorKey NVARCHAR(256) NULL;
+GO
+
 /* ---- DbUp 059 parity: SLA breach monitoring + blob upload failure indexes ---- */
 
 IF NOT EXISTS (

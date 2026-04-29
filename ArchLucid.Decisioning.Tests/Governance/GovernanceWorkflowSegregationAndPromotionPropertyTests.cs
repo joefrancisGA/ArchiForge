@@ -46,7 +46,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
 
         GovernanceWorkflowService sut = CreateSutWithSubmittedRequest(requestedBy: actor);
 
-        Action act = () => sut.ApproveAsync("ar1", actor, null, CancellationToken.None).GetAwaiter().GetResult();
+        Action act = () => sut.ApproveAsync("ar1", actor, actor, null, CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().Throw<GovernanceSelfApprovalException>()
             .Which.ApprovalRequestId.Should().Be("ar1");
@@ -65,7 +65,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
 
         GovernanceWorkflowService sut = CreateSutWithSubmittedRequest(requestedBy: actor);
 
-        Action act = () => sut.RejectAsync("ar1", actor, null, CancellationToken.None).GetAwaiter().GetResult();
+        Action act = () => sut.RejectAsync("ar1", actor, actor, null, CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().Throw<GovernanceSelfApprovalException>();
     }
@@ -90,9 +90,26 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
 
         GovernanceWorkflowService sut = CreateSutWithSubmittedRequest(requestedBy: submitter);
 
-        Action act = () => sut.ApproveAsync("ar1", reviewer, null, CancellationToken.None).GetAwaiter().GetResult();
+        Action act = () => sut.ApproveAsync("ar1", reviewer, reviewer, null, CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().NotThrow();
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void ApproveAsync_throws_when_entra_jwt_actor_key_matches_but_display_names_differ()
+    {
+        const string sharedKey = "jwt:aaa11111-aaaa-aaaa-aaaa-aaaaaaaaaaaa:bbb22222-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+        GovernanceWorkflowService sut = CreateSutWithSubmittedRequest(
+            requestedBy: "alice@contoso.com",
+            requestedByActorKey: sharedKey);
+
+        Action act = () =>
+            sut.ApproveAsync("ar1", "ci-sp-display-name", sharedKey, null, CancellationToken.None).GetAwaiter()
+                .GetResult();
+
+        act.Should().Throw<GovernanceSelfApprovalException>();
     }
 
     [Fact]
@@ -221,7 +238,9 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             .WithMessage("*not 'run1'*");
     }
 
-    private static GovernanceWorkflowService CreateSutWithSubmittedRequest(string requestedBy)
+    private static GovernanceWorkflowService CreateSutWithSubmittedRequest(
+        string requestedBy,
+        string? requestedByActorKey = null)
     {
         Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
         GovernanceApprovalRequest request = new()
@@ -230,6 +249,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             Status = GovernanceApprovalStatus.Submitted,
             RunId = "run1",
             RequestedBy = requestedBy,
+            RequestedByActorKey = requestedByActorKey,
         };
 
         approvalRepo.Setup(r => r.GetByIdAsync("ar1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
@@ -239,6 +259,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
                     "ar1",
                     It.IsAny<string>(),
                     It.IsAny<string>(),
+                    It.IsAny<string?>(),
                     It.IsAny<string?>(),
                     It.IsAny<DateTime>(),
                     It.IsAny<CancellationToken>()))

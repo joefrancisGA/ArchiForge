@@ -77,6 +77,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
             approvalId,
             GovernanceApprovalStatus.Approved,
             "r1",
+            "r1",
             "ok",
             reviewedUtc,
             CancellationToken.None);
@@ -84,6 +85,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         bool second = await repo.TryTransitionFromReviewableAsync(
             approvalId,
             GovernanceApprovalStatus.Approved,
+            "r2",
             "r2",
             "dup",
             reviewedUtc.AddMinutes(1),
@@ -121,6 +123,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
             tasks[i] = repo.TryTransitionFromReviewableAsync(
                 approvalId,
                 GovernanceApprovalStatus.Approved,
+                $"r{reviewerIndex}",
                 $"r{reviewerIndex}",
                 "parallel",
                 reviewedUtc.AddTicks(reviewerIndex),

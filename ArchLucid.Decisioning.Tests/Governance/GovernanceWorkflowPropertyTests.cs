@@ -38,7 +38,7 @@ public sealed class GovernanceWorkflowPropertyTests
     {
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateForApprove(sample.Status);
 
-        Action act = () => sut.ApproveAsync("ar1", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
+        Action act = () => sut.ApproveAsync("ar1", "reviewer", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
 
         bool legal = sample.Status is GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted;
 
@@ -57,7 +57,7 @@ public sealed class GovernanceWorkflowPropertyTests
     {
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateForApprove(sample.Status);
 
-        Action act = () => sut.RejectAsync("ar1", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
+        Action act = () => sut.RejectAsync("ar1", "reviewer", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
 
         bool legal = sample.Status is GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted;
 
@@ -92,16 +92,17 @@ public sealed class GovernanceWorkflowPropertyTests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<string?>(),
+                    It.IsAny<string?>(),
                     It.IsAny<DateTime>(),
                     It.IsAny<CancellationToken>()))
             .Callback(
-                (string _, string newStatus, string _, string? _, DateTime _, CancellationToken _) =>
+                (string _, string newStatus, string _, string? _, string? _, DateTime _, CancellationToken _) =>
                     transitionedTo = newStatus)
             .ReturnsAsync(true);
 
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateWithApprovalRepo(approvalRepo);
 
-        sut.ApproveAsync("ar1", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
+        sut.ApproveAsync("ar1", "reviewer", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
 
         transitionedTo.Should().Be(GovernanceApprovalStatus.Approved);
     }
@@ -127,16 +128,17 @@ public sealed class GovernanceWorkflowPropertyTests
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<string?>(),
+                    It.IsAny<string?>(),
                     It.IsAny<DateTime>(),
                     It.IsAny<CancellationToken>()))
             .Callback(
-                (string _, string newStatus, string _, string? _, DateTime _, CancellationToken _) =>
+                (string _, string newStatus, string _, string? _, string? _, DateTime _, CancellationToken _) =>
                     transitionedTo = newStatus)
             .ReturnsAsync(true);
 
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateWithApprovalRepo(approvalRepo);
 
-        sut.RejectAsync("ar1", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
+        sut.RejectAsync("ar1", "reviewer", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
 
         transitionedTo.Should().Be(GovernanceApprovalStatus.Rejected);
     }
@@ -255,6 +257,7 @@ internal static class GovernanceWorkflowTestFactory
                     "ar1",
                     It.IsAny<string>(),
                     It.IsAny<string>(),
+                    It.IsAny<string?>(),
                     It.IsAny<string?>(),
                     It.IsAny<DateTime>(),
                     It.IsAny<CancellationToken>()))

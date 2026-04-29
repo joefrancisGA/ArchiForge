@@ -93,6 +93,7 @@ public sealed class GovernanceController(
             return idempotencyError;
 
         string requestedBy = actorContext.GetActor();
+        string requestedByActorKey = actorContext.GetActorId();
 
         try
         {
@@ -102,6 +103,7 @@ public sealed class GovernanceController(
                 request.SourceEnvironment,
                 request.TargetEnvironment,
                 requestedBy,
+                requestedByActorKey,
                 request.RequestComment,
                 dryRun,
                 cancellationToken);
@@ -135,12 +137,14 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string reviewedBy = actorContext.GetActor();
+        string reviewedByActorKey = actorContext.GetActorId();
 
         try
         {
             GovernanceApprovalRequest result = await workflowService.ApproveAsync(
                 approvalRequestId,
                 reviewedBy,
+                reviewedByActorKey,
                 request.ReviewComment,
                 cancellationToken);
 
@@ -186,12 +190,14 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string reviewedBy = actorContext.GetActor();
+        string reviewedByActorKey = actorContext.GetActorId();
 
         try
         {
             GovernanceApprovalRequest result = await workflowService.RejectAsync(
                 approvalRequestId,
                 reviewedBy,
+                reviewedByActorKey,
                 request.ReviewComment,
                 cancellationToken);
 
@@ -255,6 +261,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
 
         string reviewedBy = actorContext.GetActor();
+        string reviewedByActorKey = actorContext.GetActorId();
 
         List<GovernanceBatchReviewItemResult> results = [];
         List<string> distinctIds = body.ApprovalRequestIds
@@ -272,6 +279,7 @@ public sealed class GovernanceController(
                     _ = await workflowService.ApproveAsync(
                         approvalRequestId,
                         reviewedBy,
+                        reviewedByActorKey,
                         body.ReviewComment,
                         cancellationToken);
 
@@ -280,6 +288,7 @@ public sealed class GovernanceController(
                     _ = await workflowService.RejectAsync(
                         approvalRequestId,
                         reviewedBy,
+                        reviewedByActorKey,
                         body.ReviewComment,
                         cancellationToken);
 

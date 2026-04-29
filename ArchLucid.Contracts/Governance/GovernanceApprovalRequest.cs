@@ -76,8 +76,27 @@ public sealed class GovernanceApprovalRequest
         set;
     } = string.Empty;
 
+    /// <summary>
+    ///     Canonical segregation-of-duties key for the submitter when available (typically
+    ///     <c>jwt:{tid}:{oid}</c> from Entra). Null for legacy rows submitted before this column existed.
+    /// </summary>
+    public string? RequestedByActorKey
+    {
+        get;
+        set;
+    }
+
     /// <summary>Identity of the reviewer, or <see langword="null" /> when not yet reviewed.</summary>
     public string? ReviewedBy
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    ///     Canonical segregation-of-duties key for the reviewer when reviewed; null until a decision is recorded.
+    /// </summary>
+    public string? ReviewedByActorKey
     {
         get;
         set;

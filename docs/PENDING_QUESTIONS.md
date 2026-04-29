@@ -5,7 +5,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-29 (item **12** — public `/accessibility` + `accessibility@archlucid.net`; **ITSM V1.1 priority** — ServiceNow first; Assessor B thread: only Q3 still open).
+**Last updated:** 2026-04-29 (items **12**–**13** — **12** public `/accessibility` + `accessibility@archlucid.net`; **13** governance SoD OID columns; **ITSM V1.1 priority** — ServiceNow first; Assessor B thread: only Q3 still open).
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -47,6 +47,13 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 |---|---|---|
 | **WCAG conformance publication surface** | **Public marketing route** (`/accessibility`) **is canonical** — not Trust Center-only. Buyer-facing narrative and tooling live on **`archlucid-ui/src/app/(marketing)/accessibility/page.tsx`** (pipeline from root **`ACCESSIBILITY.md`** per **`CHANGELOG.md` 2026-04-22**). **`docs/go-to-market/TRUST_CENTER.md`** may cross-link. | Aligns backlog item **12** with shipped UI; WCAG clause level in policy text follows root **`ACCESSIBILITY.md`**. |
 | **Mailbox** | **`accessibility@archlucid.net`** — **use this alias** for accessibility/WCAG reports; **do not** advertise **`security@`** as the sole contact for accessibility-only topics. Custodian routing is documented in [`docs/security/ACCESSIBILITY_MAILBOX.md`](security/ACCESSIBILITY_MAILBOX.md). | Reconfirmed by owner **2026-04-29**; UI mailto on [`AccessibilityMarketingPublicView`](../archlucid-ui/src/components/marketing/AccessibilityMarketingPublicView.tsx); backlog question’s `accessibility@archlucid.dev` hypothetical **superseded** by **`.net`**. |
+
+### Resolved 2026-04-29 (Governance SoD — dual display identity vs Entra `oid`)
+
+| Sub-decision | Decision | Affects / notes |
+|---|---|---|
+| **Schema for canonical SoD keys** | **Option B (additive columns).** **`RequestedByActorKey`** and **`ReviewedByActorKey`** on **`dbo.GovernanceApprovalRequests`** store canonical keys; **`RequestedBy`** / review display fields stay human-readable. | [`ArchLucid.Persistence/Migrations/130_GovernanceApprovalRequests_ActorKeys.sql`](../ArchLucid.Persistence/Migrations/130_GovernanceApprovalRequests_ActorKeys.sql); [`ArchLucid.Application/Common/ActorContext.cs`](../ArchLucid.Application/Common/ActorContext.cs); [**ADR 0034**](adr/0034-segregation-of-duties-entra-oid-actor-keys.md) |
+| **Residual risk (organization-level)** | **Accepted with documentation.** A single natural person who holds **two Entra principals** (e.g. **user** + **separate** service principal) still has **two `oid` values** — SoD cannot merge those without org policy (e.g. privileged-access reviews) or future product work. **API-key-only** hosts keep **display-string** SoD only (no `oid`). | Compensating controls and scope called out in ADR 0034. |
 
 ### Still open — same assessment thread (Assessor B §9)
 

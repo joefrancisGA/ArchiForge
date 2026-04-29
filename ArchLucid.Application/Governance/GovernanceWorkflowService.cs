@@ -50,6 +50,7 @@ public sealed class GovernanceWorkflowService(
         string sourceEnvironment,
         string targetEnvironment,
         string requestedBy,
+        string? requestedByActorKey,
         string? requestComment,
         bool dryRun = false,
         CancellationToken cancellationToken = default)
@@ -79,6 +80,7 @@ public sealed class GovernanceWorkflowService(
             TargetEnvironment = targetEnvironment,
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = requestedBy,
+            RequestedByActorKey = requestedByActorKey,
             RequestComment = requestComment,
             RequestedUtc = DateTime.UtcNow,
             SlaDeadlineUtc = ComputeSlaDeadlineUtc(),
@@ -138,16 +140,23 @@ public sealed class GovernanceWorkflowService(
     public async Task<GovernanceApprovalRequest> ApproveAsync(
         string approvalRequestId,
         string reviewedBy,
+        string reviewedByActorKey,
         string? reviewComment,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByActorKey);
 
         GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
-        await EnforceSegregationOfDutiesForReviewAsync(request, approvalRequestId, reviewedBy, cancellationToken);
+        await EnforceSegregationOfDutiesForReviewAsync(
+            request,
+            approvalRequestId,
+            reviewedBy,
+            reviewedByActorKey,
+            cancellationToken);
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
 
@@ -161,6 +170,7 @@ public sealed class GovernanceWorkflowService(
             approvalRequestId,
             GovernanceApprovalStatus.Approved,
             reviewedBy,
+            reviewedByActorKey,
             reviewComment,
             reviewedUtc,
             cancellationToken);
@@ -188,6 +198,7 @@ public sealed class GovernanceWorkflowService(
 
         request.Status = GovernanceApprovalStatus.Approved;
         request.ReviewedBy = reviewedBy;
+        request.ReviewedByActorKey = reviewedByActorKey;
         request.ReviewComment = reviewComment;
         request.ReviewedUtc = reviewedUtc;
 
@@ -234,16 +245,23 @@ public sealed class GovernanceWorkflowService(
     public async Task<GovernanceApprovalRequest> RejectAsync(
         string approvalRequestId,
         string reviewedBy,
+        string reviewedByActorKey,
         string? reviewComment,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByActorKey);
 
         GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
-        await EnforceSegregationOfDutiesForReviewAsync(request, approvalRequestId, reviewedBy, cancellationToken);
+        await EnforceSegregationOfDutiesForReviewAsync(
+            request,
+            approvalRequestId,
+            reviewedBy,
+            reviewedByActorKey,
+            cancellationToken);
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
 
@@ -257,6 +275,7 @@ public sealed class GovernanceWorkflowService(
             approvalRequestId,
             GovernanceApprovalStatus.Rejected,
             reviewedBy,
+            reviewedByActorKey,
             reviewComment,
             reviewedUtc,
             cancellationToken);
@@ -284,6 +303,7 @@ public sealed class GovernanceWorkflowService(
 
         request.Status = GovernanceApprovalStatus.Rejected;
         request.ReviewedBy = reviewedBy;
+        request.ReviewedByActorKey = reviewedByActorKey;
         request.ReviewComment = reviewComment;
         request.ReviewedUtc = reviewedUtc;
 
@@ -592,11 +612,13 @@ public sealed class GovernanceWorkflowService(
     private async Task EnforceSegregationOfDutiesForReviewAsync(
         GovernanceApprovalRequest request,
         string approvalRequestId,
-        string reviewedBy,
+        string reviewedByDisplay,
+        string reviewedByActorKey,
         CancellationToken cancellationToken)
     {
-        if (!string.Equals(request.RequestedBy, reviewedBy, StringComparison.OrdinalIgnoreCase))
+        if (!GovernanceSegregationRules.IsSameActorForReview(request, reviewedByDisplay, reviewedByActorKey))
             return;
+
 
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
         await LogGovernanceDurableWithRetryAsync(
@@ -609,14 +631,16 @@ public sealed class GovernanceWorkflowService(
                     {
                         approvalRequestId,
                         requestedBy = request.RequestedBy,
-                        attemptedReviewerBy = reviewedBy,
+                        requestedByActorKey = request.RequestedByActorKey,
+                        attemptedReviewerBy = reviewedByDisplay,
+                        attemptedReviewerActorKey = reviewedByActorKey,
                     },
                     AuditJsonSerializationOptions.Instance),
             },
             $"GovernanceSelfApprovalBlocked:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
 
-        throw new GovernanceSelfApprovalException(approvalRequestId, reviewedBy);
+        throw new GovernanceSelfApprovalException(approvalRequestId, reviewedByDisplay);
     }
 
     /// <summary>

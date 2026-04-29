@@ -151,7 +151,7 @@ public sealed class GovernanceWorkflowServiceTests
             .Returns(Task.CompletedTask);
 
         GovernanceApprovalRequest result = await _sut.SubmitApprovalRequestAsync(
-            "run-1", "v1", "dev", "test", "alice", null);
+            "run-1", "v1", "dev", "test", "alice", null, null);
 
         result.Status.Should().Be(GovernanceApprovalStatus.Submitted);
         result.RunId.Should().Be("run-1");
@@ -187,7 +187,7 @@ public sealed class GovernanceWorkflowServiceTests
             .ReturnsAsync(DetailForRun("run-1"));
 
         GovernanceApprovalRequest result = await _sut.SubmitApprovalRequestAsync(
-            "run-1", "v1", "dev", "test", "alice", null, true);
+            "run-1", "v1", "dev", "test", "alice", null, null, true);
 
         result.Status.Should().Be(GovernanceApprovalStatus.Submitted);
         result.RunId.Should().Be("run-1");
@@ -217,7 +217,7 @@ public sealed class GovernanceWorkflowServiceTests
             .ReturnsAsync(DetailForRun("run-1"));
 
         Func<Task<GovernanceApprovalRequest>> act = () => _sut.SubmitApprovalRequestAsync(
-            "run-1", "v1", "dev", GovernanceEnvironment.Prod, "alice", null);
+            "run-1", "v1", "dev", GovernanceEnvironment.Prod, "alice", null, null);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*environment ordering*");
@@ -238,7 +238,7 @@ public sealed class GovernanceWorkflowServiceTests
         _approvalRepo.Setup(r => r.CreateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        await _sut.SubmitApprovalRequestAsync("run-1", "v1", "dev", "test", "alice", null);
+        await _sut.SubmitApprovalRequestAsync("run-1", "v1", "dev", "test", "alice", null, null);
 
         _durableAudit.Verify(
             a => a.LogAsync(
@@ -271,7 +271,7 @@ public sealed class GovernanceWorkflowServiceTests
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         Func<Task<GovernanceApprovalRequest>> act = () => _sut.SubmitApprovalRequestAsync(
-            "missing-run", "v1", "dev", "test", "alice", null);
+            "missing-run", "v1", "dev", "test", "alice", null, null);
 
         await act.Should().ThrowAsync<RunNotFoundException>()
             .WithMessage("*missing-run*");
@@ -311,12 +311,13 @@ public sealed class GovernanceWorkflowServiceTests
                 "apr-1",
                 GovernanceApprovalStatus.Approved,
                 "bob",
+                "bob",
                 "LGTM",
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        GovernanceApprovalRequest result = await _sut.ApproveAsync("apr-1", "bob", "LGTM");
+        GovernanceApprovalRequest result = await _sut.ApproveAsync("apr-1", "bob", "bob", "LGTM");
 
         result.Status.Should().Be(GovernanceApprovalStatus.Approved);
         result.ReviewedBy.Should().Be("bob");
@@ -327,6 +328,7 @@ public sealed class GovernanceWorkflowServiceTests
             r => r.TryTransitionFromReviewableAsync(
                 "apr-1",
                 GovernanceApprovalStatus.Approved,
+                "bob",
                 "bob",
                 "LGTM",
                 It.IsAny<DateTime>(),
@@ -370,12 +372,13 @@ public sealed class GovernanceWorkflowServiceTests
                 "apr-draft",
                 GovernanceApprovalStatus.Approved,
                 "bob",
+                "bob",
                 null,
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        GovernanceApprovalRequest result = await _sut.ApproveAsync("apr-draft", "bob", null);
+        GovernanceApprovalRequest result = await _sut.ApproveAsync("apr-draft", "bob", "bob", null);
 
         result.Status.Should().Be(GovernanceApprovalStatus.Approved);
 
@@ -398,7 +401,7 @@ public sealed class GovernanceWorkflowServiceTests
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-rejected", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
-        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-rejected", "bob", null);
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-rejected", "bob", "bob", null);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*cannot be approved*");
@@ -431,7 +434,7 @@ public sealed class GovernanceWorkflowServiceTests
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-sod", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
-        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-sod", "bob", null);
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-sod", "bob", "bob", null);
 
         ExceptionAssertions<GovernanceSelfApprovalException> selfApprovalThrown =
             await act.Should().ThrowAsync<GovernanceSelfApprovalException>();
@@ -457,6 +460,7 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<string?>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()),
@@ -485,7 +489,7 @@ public sealed class GovernanceWorkflowServiceTests
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-sod-ci", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
-        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-sod-ci", "alice", null);
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-sod-ci", "alice", "alice", null);
 
         await act.Should().ThrowAsync<GovernanceSelfApprovalException>();
 
@@ -500,6 +504,7 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<string?>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()),
@@ -545,12 +550,13 @@ public sealed class GovernanceWorkflowServiceTests
                 "apr-race",
                 GovernanceApprovalStatus.Approved,
                 "bob",
+                "bob",
                 null,
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-race", "bob", null);
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-race", "bob", "bob", null);
 
         await act.Should().ThrowAsync<GovernanceApprovalReviewConflictException>();
 
@@ -589,12 +595,13 @@ public sealed class GovernanceWorkflowServiceTests
                 "apr-2",
                 GovernanceApprovalStatus.Rejected,
                 "carol",
+                "carol",
                 "Needs more detail",
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        GovernanceApprovalRequest result = await _sut.RejectAsync("apr-2", "carol", "Needs more detail");
+        GovernanceApprovalRequest result = await _sut.RejectAsync("apr-2", "carol", "carol", "Needs more detail");
 
         result.Status.Should().Be(GovernanceApprovalStatus.Rejected);
         result.ReviewedBy.Should().Be("carol");
@@ -628,7 +635,7 @@ public sealed class GovernanceWorkflowServiceTests
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-approved", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
-        Func<Task<GovernanceApprovalRequest>> act = () => _sut.RejectAsync("apr-approved", "carol", null);
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.RejectAsync("apr-approved", "carol", "carol", null);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*cannot be rejected*");
@@ -660,7 +667,7 @@ public sealed class GovernanceWorkflowServiceTests
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-rej-sod", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
 
-        Func<Task<GovernanceApprovalRequest>> act = () => _sut.RejectAsync("apr-rej-sod", "dana", "no");
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.RejectAsync("apr-rej-sod", "dana", "dana", "no");
 
         ExceptionAssertions<GovernanceSelfApprovalException> selfApprovalThrown =
             await act.Should().ThrowAsync<GovernanceSelfApprovalException>();
@@ -680,6 +687,7 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<string?>(),
                 It.IsAny<string?>(),
                 It.IsAny<DateTime>(),
                 It.IsAny<CancellationToken>()),

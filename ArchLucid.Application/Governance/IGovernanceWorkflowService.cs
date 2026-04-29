@@ -15,7 +15,8 @@ public interface IGovernanceWorkflowService
     /// <param name="manifestVersion">The specific manifest version to be reviewed.</param>
     /// <param name="sourceEnvironment">The environment the manifest is being promoted from.</param>
     /// <param name="targetEnvironment">The environment the manifest is being promoted to.</param>
-    /// <param name="requestedBy">Identity of the user or system submitting the request.</param>
+    /// <param name="requestedBy">Human-readable identity of the user or system submitting the request (<see cref="Application.Common.IActorContext.GetActor"/>).</param>
+    /// <param name="requestedByActorKey">Canonical segregation key (<see cref="Application.Common.IActorContext.GetActorId"/>); persists as <see cref="GovernanceApprovalRequest.RequestedByActorKey"/>.</param>
     /// <param name="requestComment">Optional comment explaining the reason for promotion.</param>
     /// <param name="dryRun">
     /// When <see langword="true"/>, validates inputs and run existence and returns the request shape without persisting,
@@ -30,6 +31,7 @@ public interface IGovernanceWorkflowService
         string sourceEnvironment,
         string targetEnvironment,
         string requestedBy,
+        string? requestedByActorKey,
         string? requestComment,
         bool dryRun = false,
         CancellationToken cancellationToken = default);
@@ -38,7 +40,8 @@ public interface IGovernanceWorkflowService
     /// Marks an approval request as <c>Approved</c>.
     /// </summary>
     /// <param name="approvalRequestId">Identifier of the approval request to approve.</param>
-    /// <param name="reviewedBy">Identity of the reviewer approving the request.</param>
+    /// <param name="reviewedBy">Human-readable reviewer identity (<see cref="Application.Common.IActorContext.GetActor"/>).</param>
+    /// <param name="reviewedByActorKey">Canonical reviewer key (<see cref="Application.Common.IActorContext.GetActorId"/>).</param>
     /// <param name="reviewComment">Optional comment from the reviewer.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The updated <see cref="GovernanceApprovalRequest"/>.</returns>
@@ -48,6 +51,7 @@ public interface IGovernanceWorkflowService
     Task<GovernanceApprovalRequest> ApproveAsync(
         string approvalRequestId,
         string reviewedBy,
+        string reviewedByActorKey,
         string? reviewComment,
         CancellationToken cancellationToken = default);
 
@@ -55,7 +59,8 @@ public interface IGovernanceWorkflowService
     /// Marks an approval request as <c>Rejected</c>.
     /// </summary>
     /// <param name="approvalRequestId">Identifier of the approval request to reject.</param>
-    /// <param name="reviewedBy">Identity of the reviewer rejecting the request.</param>
+    /// <param name="reviewedBy">Human-readable reviewer identity (<see cref="Application.Common.IActorContext.GetActor"/>).</param>
+    /// <param name="reviewedByActorKey">Canonical reviewer key (<see cref="Application.Common.IActorContext.GetActorId"/>).</param>
     /// <param name="reviewComment">Optional comment from the reviewer.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The updated <see cref="GovernanceApprovalRequest"/>.</returns>
@@ -65,6 +70,7 @@ public interface IGovernanceWorkflowService
     Task<GovernanceApprovalRequest> RejectAsync(
         string approvalRequestId,
         string reviewedBy,
+        string reviewedByActorKey,
         string? reviewComment,
         CancellationToken cancellationToken = default);
 
