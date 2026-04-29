@@ -63,7 +63,7 @@ public static partial class ServiceCollectionExtensions
         RegisterRunExplanationSummaryService(services, configuration);
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IAskService, AskService>();
-        services.AddScoped<IAgentEvaluationService, DefaultAgentEvaluationService>();
+        services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
 

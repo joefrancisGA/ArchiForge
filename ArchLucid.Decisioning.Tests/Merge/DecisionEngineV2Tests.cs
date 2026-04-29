@@ -4,6 +4,8 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Merge;
 
+using EvalTypes = ArchLucid.Contracts.Decisions.EvaluationTypes;
+
 using FluentAssertions;
 
 namespace ArchLucid.Decisioning.Tests.Merge;
@@ -98,6 +100,66 @@ public sealed class DecisionEngineV2Tests
         DecisionNode node = decisions.Single(d => d.Topic == "TopologyAcceptance");
         node.SelectedOptionId.Should().Be(node.Options.Single(o => o.Description == "Reject topology proposal").OptionId);
         node.OpposingEvaluationIds.Should().Contain(evals[0].EvaluationId);
+    }
+
+    /// <summary>
+    ///     Cumulative opposition from a single Critical Compliance finding maps to
+    ///     <c>ConfidenceDelta = -0.30</c> in <c>FindingsBackedAgentEvaluationService</c>; that weight must flip
+    ///     acceptance when topology confidence is only moderate.
+    /// </summary>
+    [Fact]
+    public async Task ResolveAsync_when_critical_compliance_opposition_outweighs_topology_confidence_selects_reject()
+    {
+        List<AgentResult> results =
+        [
+            new()
+            {
+                RunId = "RUN-CRIT",
+                TaskId = "T-topo",
+                AgentType = AgentType.Topology,
+                Confidence = 0.69,
+                ProposedChanges = new ManifestDeltaProposal
+                {
+                    SourceAgent = AgentType.Topology,
+                    AddedDatastores =
+                    [
+                        new() { DatastoreName = "blob" }
+                    ]
+                }
+            }
+        ];
+
+        List<AgentEvaluation> evals =
+        [
+            new()
+            {
+                RunId = "RUN-CRIT",
+                TargetAgentTaskId = "T-topo",
+                EvaluationType = EvalTypes.Oppose,
+                ConfidenceDelta = -0.30,
+                Rationale = "Public storage without private endpoint (Critical Compliance finding)."
+            }
+        ];
+
+        IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(
+            "RUN-CRIT",
+            new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
+            tasks:
+            [
+                new()
+                {
+                    TaskId = "T-topo",
+                    RunId = "RUN-CRIT",
+                    AgentType = AgentType.Topology,
+                    Status = AgentTaskStatus.Completed
+                }
+            ],
+            results,
+            evals);
+
+        DecisionNode topologyNode = decisions.Single(d => d.Topic == "TopologyAcceptance");
+        topologyNode.SelectedOptionId.Should()
+            .Be(topologyNode.Options.Single(o => o.Description == "Reject topology proposal").OptionId);
     }
 
     [Fact]

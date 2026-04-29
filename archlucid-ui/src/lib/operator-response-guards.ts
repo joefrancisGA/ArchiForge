@@ -41,7 +41,17 @@ export function coerceRunSummaryList(
   return { ok: true, items };
 }
 
-function isLegacyOffsetPagedRunEnvelope(data: Record<string, unknown>): boolean {
+/** Narrowed envelope without `Record<string, unknown>` — an index signature would keep paging fields typed as unknown. */
+type LegacyOffsetPagedRunEnvelope = {
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+};
+
+function isLegacyOffsetPagedRunEnvelope(
+  data: Record<string, unknown>,
+): data is LegacyOffsetPagedRunEnvelope {
   return (
     typeof data.totalCount === "number" &&
     Number.isFinite(data.totalCount) &&
@@ -53,7 +63,14 @@ function isLegacyOffsetPagedRunEnvelope(data: Record<string, unknown>): boolean 
   );
 }
 
-function isCursorPagedRunEnvelope(data: Record<string, unknown>): boolean {
+type CursorPagedRunEnvelope = {
+  requestedTake: number;
+  hasMore: boolean;
+  /** Optional keyset token — validated in `coerceRunSummaryPaged`. */
+  nextCursor?: unknown;
+};
+
+function isCursorPagedRunEnvelope(data: Record<string, unknown>): data is CursorPagedRunEnvelope {
   return typeof data.requestedTake === "number" && Number.isFinite(data.requestedTake) && typeof data.hasMore === "boolean";
 }
 
