@@ -64,6 +64,8 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
 
   recommendedAction: string | null;
 
+  statusLabel: string | null;
+
 } {
 
   return {
@@ -99,6 +101,14 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
       typedPayloadLookupString(payload, "RecommendedAction") ??
 
       typedPayloadLookupString(payload, "remediationSuggestion"),
+
+    statusLabel:
+
+      typedPayloadLookupString(payload, "status") ??
+
+      typedPayloadLookupString(payload, "Status") ??
+
+      typedPayloadLookupString(payload, "findingStatus"),
 
   };
 

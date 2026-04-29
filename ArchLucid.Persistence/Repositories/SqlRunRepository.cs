@@ -1,6 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Pagination;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -155,69 +157,68 @@ public sealed class SqlRunRepository(
         return rows.ToList();
     }
 
-    public async Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
+    public async Task<RunListPage> ListByProjectKeysetAsync(
         ScopeContext scope,
         string projectId,
-        int skip,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
 
-        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
-        int safeSkip = Math.Max(skip, 0);
+        int safeTake = RunPagination.ClampTake(take);
+        int fetch = safeTake + 1;
 
-        // NOLOCK: paged list + count for dashboards; same staleness trade-off as ListRecentInScopeAsync.
-        const string countSql = """
-                                SELECT COUNT(1)
-                                FROM dbo.Runs WITH (NOLOCK)
-                                WHERE ProjectId = @ProjectSlug
-                                  AND TenantId = @TenantId
-                                  AND WorkspaceId = @WorkspaceId
-                                  AND ScopeProjectId = @ScopeProjectId
-                                  AND ArchivedUtc IS NULL;
-                                """;
-
-        const string pageSql = """
-                               SELECT
-                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
-                               FROM dbo.Runs WITH (NOLOCK)
-                               WHERE ProjectId = @ProjectSlug
-                                 AND TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ScopeProjectId = @ScopeProjectId
-                                 AND ArchivedUtc IS NULL
-                               ORDER BY CreatedUtc DESC
-                               OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
-                               """;
-
-        object scopeParams = new
-        {
-            ProjectSlug = projectId, scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId
-        };
-
-        object pageParams = new
-        {
-            ProjectSlug = projectId,
-            scope.TenantId,
-            scope.WorkspaceId,
-            ScopeProjectId = scope.ProjectId,
-            Skip = safeSkip,
-            Take = safeTake
-        };
+        // NOLOCK: same dashboard-grade tolerance as unpaged lists.
+        const string sql = """
+                           SELECT TOP (@Fetch)
+                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                               GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                               ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
+                           FROM dbo.Runs WITH (NOLOCK)
+                           WHERE ProjectId = @ProjectSlug
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND ArchivedUtc IS NULL
+                             AND (
+                                 (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
+                                 OR CreatedUtc < @CursorCreatedUtc
+                                 OR (CreatedUtc = @CursorCreatedUtc AND RunId < @CursorRunId)
+                             )
+                           ORDER BY CreatedUtc DESC, RunId DESC;
+                           """;
 
         await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
-        int total = await connection.QuerySingleAsync<int>(new CommandDefinition(countSql, scopeParams,
-            cancellationToken: ct));
 
-        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
-            new CommandDefinition(pageSql, pageParams, cancellationToken: ct));
+        IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ProjectSlug = projectId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    Fetch = fetch,
+                    CursorCreatedUtc = cursorCreatedUtc,
+                    CursorRunId = cursorRunId
+                },
+                cancellationToken: ct));
 
-        return (rows.ToList(), total);
+        List<RunRecord> rows = rowsEnumerable.ToList();
+        bool hasMore = rows.Count > safeTake;
+
+        if (hasMore)
+
+            rows.RemoveAt(rows.Count - 1);
+
+
+        return new RunListPage(rows, hasMore);
     }
 
     /// <inheritdoc />
@@ -259,64 +260,63 @@ public sealed class SqlRunRepository(
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListRecentInScopePagedAsync(
+    public async Task<RunListPage> ListRecentInScopeKeysetAsync(
         ScopeContext scope,
-        int skip,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
 
-        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
-        int safeSkip = Math.Max(skip, 0);
+        int safeTake = RunPagination.ClampTake(take);
+        int fetch = safeTake + 1;
 
-        const string countSql = """
-                                SELECT COUNT(1)
-                                FROM dbo.Runs WITH (NOLOCK)
-                                WHERE TenantId = @TenantId
-                                  AND WorkspaceId = @WorkspaceId
-                                  AND ScopeProjectId = @ScopeProjectId
-                                  AND ArchivedUtc IS NULL;
-                                """;
-
-        const string pageSql = """
-                               SELECT
-                                   RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                                   ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                                   GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                                   ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                                   IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
-                               FROM dbo.Runs WITH (NOLOCK)
-                               WHERE TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ScopeProjectId = @ScopeProjectId
-                                 AND ArchivedUtc IS NULL
-                               ORDER BY CreatedUtc DESC
-                               OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
-                               """;
-
-        object scopeParams = new
-        {
-            scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId
-        };
-
-        object pageParams = new
-        {
-            scope.TenantId,
-            scope.WorkspaceId,
-            ScopeProjectId = scope.ProjectId,
-            Skip = safeSkip,
-            Take = safeTake
-        };
+        const string sql = """
+                           SELECT TOP (@Fetch)
+                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                               GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                               ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
+                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot
+                           FROM dbo.Runs WITH (NOLOCK)
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND ArchivedUtc IS NULL
+                             AND (
+                                 (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
+                                 OR CreatedUtc < @CursorCreatedUtc
+                                 OR (CreatedUtc = @CursorCreatedUtc AND RunId < @CursorRunId)
+                             )
+                           ORDER BY CreatedUtc DESC, RunId DESC;
+                           """;
 
         await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
-        int total = await connection.QuerySingleAsync<int>(new CommandDefinition(countSql, scopeParams,
-            cancellationToken: ct));
+        IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    Fetch = fetch,
+                    CursorCreatedUtc = cursorCreatedUtc,
+                    CursorRunId = cursorRunId
+                },
+                cancellationToken: ct));
 
-        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
-            new CommandDefinition(pageSql, pageParams, cancellationToken: ct));
+        List<RunRecord> rows = rowsEnumerable.ToList();
+        bool hasMore = rows.Count > safeTake;
 
-        return (rows.ToList(), total);
+        if (hasMore)
+
+            rows.RemoveAt(rows.Count - 1);
+
+
+        return new RunListPage(rows, hasMore);
     }
 
     public async Task UpdateAsync(
@@ -699,6 +699,13 @@ public sealed class SqlRunRepository(
             Failed = failed,
             ChildCascade = childCascade
         };
+    }
+
+    private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
+    {
+        if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)
+            throw new ArgumentException(
+                "Run keyset cursor requires both CreatedUtc and RunId together, or both omitted for the first page.");
     }
 
     private static async Task ApplyUpdateAsync(

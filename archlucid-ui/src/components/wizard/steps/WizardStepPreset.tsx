@@ -141,16 +141,18 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       {featuredSampleRunId !== null && featuredSampleRunId !== undefined && featuredSampleRunId.length > 0 ? (
         <Card className="mb-6 border-teal-200 bg-teal-50/80 dark:border-teal-900 dark:bg-teal-950/40">
           <CardHeader>
-            <CardTitle className="text-base text-teal-950 dark:text-teal-50">Trial sample run (pre-seeded)</CardTitle>
+            <CardTitle className="text-base text-teal-950 dark:text-teal-50">
+              Claims Intake Modernization (example)
+            </CardTitle>
             <CardDescription className="text-teal-900/90 dark:text-teal-100/90">
-              Open the governed demo pipeline we created for your workspace, or continue below to author a brand-new
+              Open the governed example pipeline we provisioned for your workspace, or continue below to author a brand-new
               architecture request.
             </CardDescription>
           </CardHeader>
           <CardFooter>
             <Button asChild type="button" className="w-full sm:w-auto">
               <Link href={`/runs/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
-                Open sample run
+                Open example run
               </Link>
             </Button>
           </CardFooter>

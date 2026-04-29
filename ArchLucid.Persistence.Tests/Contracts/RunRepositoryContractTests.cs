@@ -108,12 +108,12 @@ public abstract class RunRepositoryContractTests
     }
 
     [SkippableFact]
-    public async Task ListByProjectPagedAsync_returns_total_and_page_slice_newest_first()
+    public async Task ListByProjectKeysetAsync_returns_slices_newest_first()
     {
         SkipIfSqlServerUnavailable();
         IRunRepository repo = CreateRepository();
         ScopeContext scope = NewScope();
-        string slug = "paged_proj_" + Guid.NewGuid().ToString("N");
+        string slug = "keyset_proj_" + Guid.NewGuid().ToString("N");
         DateTime t0 = DateTime.UtcNow.AddMinutes(-30);
         DateTime t1 = DateTime.UtcNow.AddMinutes(-20);
         DateTime t2 = DateTime.UtcNow.AddMinutes(-10);
@@ -126,20 +126,23 @@ public abstract class RunRepositoryContractTests
         await repo.SaveAsync(b, CancellationToken.None);
         await repo.SaveAsync(c, CancellationToken.None);
 
-        (IReadOnlyList<RunRecord> page1, int total1) =
-            await repo.ListByProjectPagedAsync(scope, slug, 0, 2, CancellationToken.None);
+        RunListPage page1 =
+            await repo.ListByProjectKeysetAsync(scope, slug, null, null, 2, CancellationToken.None);
 
-        total1.Should().Be(3);
-        page1.Should().HaveCount(2);
-        page1[0].RunId.Should().Be(c.RunId);
-        page1[1].RunId.Should().Be(b.RunId);
+        page1.HasMore.Should().BeTrue();
+        page1.Items.Should().HaveCount(2);
+        page1.Items[0].RunId.Should().Be(c.RunId);
+        page1.Items[1].RunId.Should().Be(b.RunId);
 
-        (IReadOnlyList<RunRecord> page2, int total2) =
-            await repo.ListByProjectPagedAsync(scope, slug, 2, 2, CancellationToken.None);
+        RunRecord cursorRow = page1.Items[1];
+        RunListPage page2 =
+            await repo.ListByProjectKeysetAsync(scope, slug, cursorRow.CreatedUtc, cursorRow.RunId, 2,
 
-        total2.Should().Be(3);
-        page2.Should().HaveCount(1);
-        page2[0].RunId.Should().Be(a.RunId);
+                CancellationToken.None);
+
+        page2.HasMore.Should().BeFalse();
+        page2.Items.Should().HaveCount(1);
+        page2.Items[0].RunId.Should().Be(a.RunId);
     }
 
     [SkippableFact]

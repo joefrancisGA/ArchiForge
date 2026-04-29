@@ -42,11 +42,11 @@ describe("ScopeSwitcher", () => {
     vi.clearAllMocks();
   });
 
-  it("shows development workspace labels on the trigger when effective scope is dev defaults", () => {
+  it("shows neutral workspace labels on the trigger when effective scope is dev defaults", () => {
     render(<ScopeSwitcher />);
     const trigger = screen.getByTestId("operator-scope-switcher-trigger");
 
-    expect(trigger).toHaveTextContent("Development workspace");
+    expect(trigger).toHaveTextContent("Workspace");
     expect(trigger).toHaveTextContent("Default project");
   });
 

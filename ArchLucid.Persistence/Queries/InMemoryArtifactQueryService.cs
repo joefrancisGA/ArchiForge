@@ -18,8 +18,12 @@ public sealed class InMemoryArtifactQueryService(IArtifactBundleRepository artif
         Guid manifestId,
         CancellationToken ct)
     {
-        IReadOnlyList<SynthesizedArtifact> artifacts = await GetArtifactsByManifestIdAsync(scope, manifestId, ct);
-        return ArtifactDescriptorMapper.ToDescriptorList(artifacts);
+        ArtifactBundle? bundle = await artifactBundleRepository.GetByManifestIdAsync(scope, manifestId,
+            loadArtifactBodies: false, ct);
+        IReadOnlyList<SynthesizedArtifact> raw = bundle?.Artifacts ?? [];
+
+        IReadOnlyList<SynthesizedArtifact> sorted = ArtifactDescriptorMapper.OrderSynthesizedArtifacts(raw);
+        return ArtifactDescriptorMapper.ToDescriptorList(sorted);
     }
 
     /// <inheritdoc />
@@ -29,8 +33,10 @@ public sealed class InMemoryArtifactQueryService(IArtifactBundleRepository artif
         Guid artifactId,
         CancellationToken ct)
     {
-        IReadOnlyList<SynthesizedArtifact> artifacts = await GetArtifactsByManifestIdAsync(scope, manifestId, ct);
-        return artifacts.FirstOrDefault(x => x.ArtifactId == artifactId);
+        ArtifactBundle? bundle = await artifactBundleRepository.GetByManifestIdAsync(scope, manifestId,
+            loadArtifactBodies: true, ct);
+
+        return bundle?.Artifacts.FirstOrDefault(x => x.ArtifactId == artifactId);
     }
 
     /// <inheritdoc />
@@ -39,7 +45,8 @@ public sealed class InMemoryArtifactQueryService(IArtifactBundleRepository artif
         Guid manifestId,
         CancellationToken ct)
     {
-        ArtifactBundle? bundle = await artifactBundleRepository.GetByManifestIdAsync(scope, manifestId, ct);
+        ArtifactBundle? bundle = await artifactBundleRepository.GetByManifestIdAsync(scope, manifestId,
+            loadArtifactBodies: true, ct);
         IReadOnlyList<SynthesizedArtifact> raw = bundle?.Artifacts ?? [];
 
         return ArtifactDescriptorMapper.OrderSynthesizedArtifacts(raw);

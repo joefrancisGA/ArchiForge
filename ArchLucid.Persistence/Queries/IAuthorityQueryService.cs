@@ -33,12 +33,15 @@ public interface IAuthorityQueryService
         CancellationToken ct);
 
     /// <summary>
-    ///     Lists a page of runs for <paramref name="projectId" /> (newest first) with total count for pagination.
+    ///     Keyset page of runs for <paramref name="projectId" /> (newest first). When
+    ///     <paramref name="cursorCreatedUtc" /> and <paramref name="cursorRunId" /> are both <see langword="null" />, returns
+    ///     the first page.
     /// </summary>
-    Task<(IReadOnlyList<RunSummaryDto> Items, int TotalCount)> ListRunsByProjectPagedAsync(
+    Task<(IReadOnlyList<RunSummaryDto> Items, bool HasMore)> ListRunsByProjectKeysetAsync(
         ScopeContext scope,
         string projectId,
-        int skip,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct);
 

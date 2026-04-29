@@ -119,7 +119,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
     body: (
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">
-          Finalize commits the golden manifest and synthesizes artifacts — nothing comparable until this succeeds via the Architecture run commit route on your API host.
+          Finalize commits the reviewed manifest and synthesizes artifacts — nothing comparable until this succeeds via the Architecture run commit route on your API host.
         </p>
         <p className="m-0">
           <Link

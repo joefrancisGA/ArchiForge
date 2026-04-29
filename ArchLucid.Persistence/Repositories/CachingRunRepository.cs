@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Interfaces;
@@ -13,22 +14,13 @@ namespace ArchLucid.Persistence.Repositories;
 /// </summary>
 public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache hotPathReadCache) : IRunRepository
 {
+    /// <summary>Short TTL match for dashboard lists (does not invalidate on unrelated writes).</summary>
+    private const int ListAbsoluteExpirationSeconds = 15;
+
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
 
     private readonly IRunRepository _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-
-    /// <inheritdoc />
-    public async Task SaveAsync(
-        RunRecord run,
-        CancellationToken ct,
-        IDbConnection? connection = null,
-        IDbTransaction? transaction = null)
-    {
-        await _inner.SaveAsync(run, ct, connection, transaction);
-
-        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, ScopeForRun(run), run.RunId, ct);
-    }
 
     /// <inheritdoc />
     public Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
@@ -43,42 +35,110 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
+    public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,
         int take,
         CancellationToken ct)
-    {
-        return _inner.ListByProjectAsync(scope, projectId, take, ct);
-    }
-
-    /// <inheritdoc />
-    public Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
-        ScopeContext scope,
-        string projectId,
-        int skip,
-        int take,
-        CancellationToken ct)
-    {
-        return _inner.ListByProjectPagedAsync(scope, projectId, skip, take, ct);
-    }
-
-    /// <inheritdoc />
-    public Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        return _inner.ListRecentInScopeAsync(scope, take, ct);
+        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
+        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, safeTake);
+
+        IReadOnlyList<RunRecord>? cached = await _hotPathReadCache.GetOrCreateAsync(
+            key,
+            async innerCt => await _inner.ListByProjectAsync(scope, projectId, safeTake, innerCt),
+            ct,
+            absoluteExpirationSecondsOverride: ListAbsoluteExpirationSeconds);
+
+        return cached ?? [];
     }
 
     /// <inheritdoc />
-    public Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListRecentInScopePagedAsync(
+    public async Task<RunListPage> ListByProjectKeysetAsync(
         ScopeContext scope,
-        int skip,
+        string projectId,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct)
     {
-        return _inner.ListRecentInScopePagedAsync(scope, skip, take, ct);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (cursorCreatedUtc.HasValue || cursorRunId.HasValue)
+            return await _inner.ListByProjectKeysetAsync(scope, projectId, cursorCreatedUtc, cursorRunId, take, ct);
+
+        int clampedTake = RunPagination.ClampTake(take);
+        string key = HotPathCacheKeys.RunListByProjectFirstPage(scope, projectId, clampedTake);
+
+        RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
+            key,
+            async innerCt =>
+                await _inner.ListByProjectKeysetAsync(scope, projectId, null, null, clampedTake, innerCt),
+            ct,
+            absoluteExpirationSecondsOverride: ListAbsoluteExpirationSeconds);
+
+        if (cached is null) throw new InvalidOperationException("Run list cache returned null unexpectedly.");
+
+        return cached;
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        int safeTake = Math.Clamp(take <= 0 ? 200 : take, 1, 200);
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, safeTake);
+
+        IReadOnlyList<RunRecord>? cached = await _hotPathReadCache.GetOrCreateAsync(
+            key,
+            async innerCt => await _inner.ListRecentInScopeAsync(scope, safeTake, innerCt),
+            ct,
+            absoluteExpirationSecondsOverride: ListAbsoluteExpirationSeconds);
+
+        return cached ?? [];
+    }
+
+    /// <inheritdoc />
+    public async Task<RunListPage> ListRecentInScopeKeysetAsync(
+        ScopeContext scope,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
+        int take,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (cursorCreatedUtc.HasValue || cursorRunId.HasValue)
+            return await _inner.ListRecentInScopeKeysetAsync(scope, cursorCreatedUtc, cursorRunId, take, ct);
+
+        int clampedTake = RunPagination.ClampTake(take);
+        string key = HotPathCacheKeys.RunListRecentInScopeFirstPage(scope, clampedTake);
+
+        RunListPage? cached = await _hotPathReadCache.GetOrCreateAsync(
+            key,
+            async innerCt =>
+                await _inner.ListRecentInScopeKeysetAsync(scope, null, null, clampedTake, innerCt),
+            ct,
+            absoluteExpirationSecondsOverride: ListAbsoluteExpirationSeconds);
+
+        if (cached is null) throw new InvalidOperationException("Run list cache returned null unexpectedly.");
+
+        return cached;
+    }
+
+    /// <inheritdoc />
+    public async Task SaveAsync(
+        RunRecord run,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        await _inner.SaveAsync(run, ct, connection, transaction);
+
+        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, ScopeForRun(run), run.RunId, ct);
     }
 
     /// <inheritdoc />

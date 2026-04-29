@@ -215,20 +215,34 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
-    ///     Lists runs visible in the current scope with pagination.
+    ///     Lists runs visible in the current scope (keyset pagination with <paramref name="cursor" />). Legacy
+    ///     <paramref name="page" /> is limited to page <c>1</c> without a cursor.
     /// </summary>
     [HttpGet("runs")]
     [HttpGet("/v{version:apiVersion}/runs")]
-    [ProducesResponseType(typeof(PagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CursorPagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRuns(
+        [FromQuery] string? cursor = null,
+        [FromQuery] int take = RunPagination.DefaultTake,
         [FromQuery] int page = PaginationDefaults.DefaultPage,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+        if (page > 1 && string.IsNullOrWhiteSpace(cursor))
 
-        (IReadOnlyList<RunSummary> summaries, int total) =
-            await runDetailQueryService.ListRunSummariesPagedAsync(safePage, safePageSize, cancellationToken);
+            return this.BadRequestProblem(
+                "Paging beyond page 1 requires the nextCursor token from the prior response.",
+                ProblemTypes.ValidationFailed);
+
+        (_, int normalizedPageSize) = PaginationDefaults.Normalize(page, pageSize);
+
+        int effectiveTake =
+            string.IsNullOrWhiteSpace(cursor)
+                ? RunPagination.ClampTake(normalizedPageSize)
+                : RunPagination.ClampTake(take);
+
+        (IReadOnlyList<RunSummary> summaries, bool hasMore, string? nextCursor) =
+            await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
 
         List<RunListItemResponse> mapped = summaries
             .Select(r => new RunListItemResponse
@@ -243,8 +257,22 @@ public sealed class RunQueryController(
             })
             .ToList();
 
-        return Ok(PagedResponseBuilder.FromDatabasePage(mapped, total, safePage, safePageSize));
+        return Ok(
+            new CursorPagedResponse<RunListItemResponse>
+
+            {
+
+                Items = mapped,
+
+                NextCursor = nextCursor,
+
+                HasMore = hasMore,
+
+                RequestedTake = effectiveTake
+
+            });
     }
+
 
     /// <summary>
     ///     Returns persisted artifact pointers for one finding (manifest snapshot ids, graph nodes, agent trace ids).

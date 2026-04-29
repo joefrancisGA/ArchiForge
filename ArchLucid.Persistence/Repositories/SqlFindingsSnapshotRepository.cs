@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
@@ -120,6 +121,101 @@ public sealed class SqlFindingsSnapshotRepository(
             await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
         FindingsSnapshotMigrator.Apply(snapshot);
         return snapshot;
+    }
+
+    /// <inheritdoc />
+    public async Task<FindingRecordMetadataPage> ListFindingRecordsKeysetAsync(
+        Guid findingsSnapshotId,
+        int? cursorSortOrder,
+        Guid? cursorFindingRecordId,
+        string? severity,
+        string? category,
+        string? findingType,
+        int take,
+        CancellationToken ct)
+    {
+        if (cursorSortOrder.HasValue ^ cursorFindingRecordId.HasValue)
+            throw new ArgumentException("Cursor requires both sortOrder and findingRecordId, or neither for the first page.");
+
+        int cappedTake = Math.Clamp(take <= 0 ? FindingPagination.DefaultTake : take, 1, FindingPagination.MaxTake);
+        int fetchLimit = cappedTake + 1;
+
+        const string sql = """
+                             SELECT TOP (@Limit)
+                                    FindingRecordId, SortOrder, FindingId, FindingType, Category, EngineType, Severity, Title
+                             FROM dbo.FindingRecords
+                             WHERE FindingsSnapshotId = @FsId
+                               AND (@Severity IS NULL OR Severity = @Severity)
+                               AND (@Category IS NULL OR Category = @Category)
+                               AND (@FindingType IS NULL OR FindingType = @FindingType)
+                               AND (
+                                 @HasCursor = 0
+                                 OR (
+                                   SortOrder > @CurSo OR (SortOrder = @CurSo AND FindingRecordId > @CurFrid)
+                                 )
+                               )
+                             ORDER BY SortOrder ASC, FindingRecordId ASC;
+                             """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        bool hasCursor = cursorSortOrder.HasValue && cursorFindingRecordId.HasValue;
+
+        List<FindingMetaSqlRow> rows = (
+            await connection.QueryAsync<FindingMetaSqlRow>(
+                new CommandDefinition(
+                    sql,
+                    new
+                    {
+                        FsId = findingsSnapshotId,
+                        Severity = OptionalEqualityFilter(severity),
+                        Category = OptionalEqualityFilter(category),
+                        FindingType = OptionalEqualityFilter(findingType),
+                        HasCursor = hasCursor ? 1 : 0,
+                        CurSo = cursorSortOrder ?? 0,
+                        CurFrid = cursorFindingRecordId ?? Guid.Empty,
+                        Limit = fetchLimit
+                    },
+                    cancellationToken: ct))).ToList();
+
+        bool hasMore = rows.Count > cappedTake;
+
+        if (hasMore)
+
+            rows.RemoveAt(rows.Count - 1);
+
+        FindingRecordMetadataRow[] mapped =
+            rows.ConvertAll(static r =>
+                new FindingRecordMetadataRow(
+                    r.FindingRecordId,
+                    r.SortOrder,
+                    r.FindingId,
+                    r.FindingType,
+                    r.Category,
+                    r.EngineType,
+                    r.Severity,
+                    r.Title)).ToArray();
+
+        return new FindingRecordMetadataPage(mapped, hasMore);
+    }
+
+    private sealed class FindingMetaSqlRow
+    {
+        public Guid FindingRecordId { get; init; }
+
+        public int SortOrder { get; init; }
+
+        public string FindingId { get; init; } = null!;
+
+        public string FindingType { get; init; } = null!;
+
+        public string Category { get; init; } = null!;
+
+        public string EngineType { get; init; } = null!;
+
+        public string Severity { get; init; } = null!;
+
+        public string Title { get; init; } = null!;
     }
 
     private async Task SaveCoreAsync(
@@ -422,4 +518,7 @@ public sealed class SqlFindingsSnapshotRepository(
         FindingsSnapshotMigrator.Apply(snapshot);
         await InsertFindingsRelationalFromSnapshotAsync(snapshot, connection, transaction, ct);
     }
+
+    private static string? OptionalEqualityFilter(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

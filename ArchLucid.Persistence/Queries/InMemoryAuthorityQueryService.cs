@@ -3,6 +3,8 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Pagination;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -39,17 +41,18 @@ public sealed class InMemoryAuthorityQueryService(
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyList<RunSummaryDto> Items, int TotalCount)> ListRunsByProjectPagedAsync(
+    public async Task<(IReadOnlyList<RunSummaryDto> Items, bool HasMore)> ListRunsByProjectKeysetAsync(
         ScopeContext scope,
         string projectId,
-        int skip,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct)
     {
-        (IReadOnlyList<RunRecord> runs, int total) =
-            await runRepository.ListByProjectPagedAsync(scope, projectId, skip, take, ct);
+        RunListPage page =
+            await runRepository.ListByProjectKeysetAsync(scope, projectId, cursorCreatedUtc, cursorRunId, take, ct);
 
-        return (runs.Select(MapSummary).ToList(), total);
+        return (page.Items.Select(MapSummary).ToList(), page.HasMore);
     }
 
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
@@ -81,7 +84,7 @@ public sealed class InMemoryAuthorityQueryService(
             ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<ManifestDocument?>(null);
         Task<ArtifactBundle?> bundleTask = run.GoldenManifestId.HasValue
-            ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct)
+            ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, loadArtifactBodies: true, ct)
             : Task.FromResult<ArtifactBundle?>(null);
 
         await Task.WhenAll(contextTask, graphTask, findingsTask, traceTask, manifestTask, bundleTask);

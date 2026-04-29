@@ -18,6 +18,7 @@ internal static class ArtifactBundleRelationalRead
         SqlConnection connection,
         ArtifactBundleStorageRow row,
         IArtifactBlobStore blobStore,
+        bool loadArtifactBodies,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(blobStore);
@@ -65,7 +66,7 @@ internal static class ArtifactBundleRelationalRead
             ct);
 
         List<SynthesizedArtifact> artifacts = artifactCount > 0
-            ? await LoadArtifactsRelationalAsync(connection, bundleId, ct)
+            ? await LoadArtifactsRelationalAsync(connection, bundleId, loadArtifactBodies, ct)
             : ArtifactBundleArtifactsJsonReader.DeserializeArtifacts(row.ArtifactsJson);
 
         SynthesisTrace trace = ArtifactBundleTraceJsonReader.DeserializeTraceBase(row.TraceJson);
@@ -129,15 +130,38 @@ internal static class ArtifactBundleRelationalRead
     private static async Task<List<SynthesizedArtifact>> LoadArtifactsRelationalAsync(
         SqlConnection connection,
         Guid bundleId,
+        bool loadArtifactBodies,
         CancellationToken ct)
     {
-        const string artifactsSql = """
-                                    SELECT SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
-                                           ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
-                                    FROM dbo.ArtifactBundleArtifacts
-                                    WHERE BundleId = @BundleId
-                                    ORDER BY SortOrder;
-                                    """;
+        string artifactsSql = loadArtifactBodies
+            ? """
+
+              SELECT SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
+                     ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
+
+              FROM dbo.ArtifactBundleArtifacts
+
+              WHERE BundleId = @BundleId
+
+              ORDER BY SortOrder;
+
+              """
+            : """
+
+              SELECT SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
+
+                     ArtifactType, Name, Format, CAST(NULL AS NVARCHAR(MAX)) AS Content,
+
+                     ContentHash, ContentBlobUri
+
+              FROM dbo.ArtifactBundleArtifacts
+
+              WHERE BundleId = @BundleId
+
+              ORDER BY SortOrder;
+
+              """;
+
 
         List<ArtifactSliceRow> artifactRows = (await connection.QueryAsync<ArtifactSliceRow>(
             new CommandDefinition(

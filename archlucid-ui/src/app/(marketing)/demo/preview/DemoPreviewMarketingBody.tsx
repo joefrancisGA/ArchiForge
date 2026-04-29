@@ -7,6 +7,41 @@ import type { PipelineTimelineItem } from "@/types/authority";
 import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 
+/**
+ * Customer-safe fallback when the demo preview route cannot load (no API routing, network error, or HTTP error).
+ * Avoids env var names, internal URLs, and localhost hints — operators see diagnostics in server logs instead.
+ */
+export function DemoPreviewFriendlyUnavailable() {
+  return (
+    <div
+      data-testid="demo-preview-friendly-unavailable"
+      role="status"
+      className="rounded border border-neutral-300 bg-neutral-50 p-4 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+    >
+      <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">
+        This preview is not available right now.
+      </p>
+      <p className="mt-2 m-0 text-neutral-600 dark:text-neutral-400">
+        You can still explore a completed example output without signing in, or start from the product home.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Link
+          href="/showcase/claims-intake-modernization"
+          className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+        >
+          View example output
+        </Link>
+        <Link
+          href="/get-started"
+          className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+        >
+          Get started
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export function DemoPreviewNotAvailable() {
   return (
     <div

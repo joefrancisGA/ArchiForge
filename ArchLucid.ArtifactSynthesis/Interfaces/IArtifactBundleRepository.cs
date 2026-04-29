@@ -32,6 +32,14 @@ public interface IArtifactBundleRepository
     /// </summary>
     /// <param name="scope">Tenant/workspace/project boundary enforced by the implementation.</param>
     /// <param name="manifestId">The golden manifest whose bundle is requested.</param>
+    /// <param name="loadArtifactBodies">
+    ///     When <see langword="false" />, relational reads omit artifact <c>Content</c> payloads (descriptor/list paths).
+    ///     Export and download flows pass <see langword="true" />.
+    /// </param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
-    Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct);
+    Task<ArtifactBundle?> GetByManifestIdAsync(
+        ScopeContext scope,
+        Guid manifestId,
+        bool loadArtifactBodies,
+        CancellationToken ct);
 }

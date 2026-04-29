@@ -326,6 +326,7 @@ export default async function RunDetailPage({
 
       <RunDetailOutcomeCards
         runId={resolvedDetail.run.runId}
+        manifestId={manifestId}
         artifactCount={artifacts.length}
         findingCountDisplay={explanationSummary?.findingCount ?? null}
         warningCountDisplay={manifestSummary?.warningCount ?? null}

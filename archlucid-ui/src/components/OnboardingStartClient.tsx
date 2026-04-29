@@ -126,7 +126,7 @@ export function OnboardingStartClient() {
             {hasSample ? (
               <Button asChild variant="outline">
                 <Link href={`/runs/${sampleId}`} data-testid="onboarding-open-sample-run">
-                  Open seeded sample run
+                  Open example run
                 </Link>
               </Button>
             ) : null}

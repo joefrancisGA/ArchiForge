@@ -78,7 +78,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       </div>
 
       <div className="flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
-        <Button size="sm" className="w-full sm:w-auto" asChild>
+        <Button variant="primary" size="sm" className="w-full sm:w-auto" asChild>
           <Link href={`/runs/${run.runId}`}>Open run detail</Link>
         </Button>
         <div className="flex flex-wrap gap-2">

@@ -31,4 +31,19 @@ public interface IFindingsSnapshotRepository
     /// <param name="findingsSnapshotId">Primary key of the snapshot.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
     Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct);
+
+    /// <summary>
+    ///     Stable keyset page over relational <c>dbo.FindingRecords</c> (metadata projection only — no payloads). Pass
+    ///     <paramref name="cursorSortOrder" /> and <paramref name="cursorFindingRecordId" /> together after the last item on
+    ///     the previous page; both <see langword="null" /> requests the first page.
+    /// </summary>
+    Task<FindingRecordMetadataPage> ListFindingRecordsKeysetAsync(
+        Guid findingsSnapshotId,
+        int? cursorSortOrder,
+        Guid? cursorFindingRecordId,
+        string? severity,
+        string? category,
+        string? findingType,
+        int take,
+        CancellationToken ct);
 }

@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 type RunDetailOutcomeCardsProps = {
   readonly runId: string;
+  /** When finalized, links the manifest outcome card to manifest detail. */
+  readonly manifestId?: string | null;
   readonly hasGoldenManifest: boolean;
   readonly findingCountDisplay: number | null;
   readonly warningCountDisplay: number | null;
@@ -16,6 +18,7 @@ type RunDetailOutcomeCardsProps = {
  */
 export function RunDetailOutcomeCards({
   runId,
+  manifestId,
   hasGoldenManifest,
   findingCountDisplay,
   warningCountDisplay,
@@ -39,6 +42,14 @@ export function RunDetailOutcomeCards({
           <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
             {hasGoldenManifest ? "Architecture manifest is pinned to this run." : "Finalize from the finalize control when ready."}
           </p>
+          {hasGoldenManifest && manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0 ? (
+            <Link
+              className="mt-2 inline-block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+              href={`/manifests/${encodeURIComponent(manifestId.trim())}`}
+            >
+              Open manifest detail
+            </Link>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -94,6 +105,12 @@ export function RunDetailOutcomeCards({
             href={`/runs/${encodeURIComponent(runId)}/provenance`}
           >
             Open review trail
+          </Link>
+          <Link
+            className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+            href={`/showcase/${encodeURIComponent(runId)}`}
+          >
+            Completed output (public showcase)
           </Link>
           <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
             Timeline and trace details stay below — start here for the proof path.

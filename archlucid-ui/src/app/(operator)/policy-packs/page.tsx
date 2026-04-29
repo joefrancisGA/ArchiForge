@@ -8,6 +8,9 @@ import { CollapsibleJsonTree } from "@/components/CollapsibleJsonTree";
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useNavSurface } from "@/lib/use-nav-surface";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -307,6 +310,7 @@ export default function PolicyPacksPage() {
 
   const compareLeftVersion = packVersions.find((v) => v.policyPackVersionId === compareLeftId);
   const compareRightVersion = packVersions.find((v) => v.policyPackVersionId === compareRightId);
+  const selectedPackSummary = packs.find((p) => p.policyPackId === selectedPackId);
 
   return (
     <main className="max-w-5xl">
@@ -327,6 +331,40 @@ export default function PolicyPacksPage() {
         .
       </p>
       <EnterpriseControlsExecutePageHint className="mb-3" />
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Registered packs</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="m-0 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">{packs.length}</p>
+            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">Visible in this workspace</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Effective layers</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="m-0 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+              {effective?.packs.length ?? 0}
+            </p>
+            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">Resolved for current scope</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Selected pack</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              {selectedPackSummary !== undefined ? selectedPackSummary.name : "—"}
+            </p>
+            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">Inspect versions and JSON below</p>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
         <Button type="button" variant="secondary" size="sm" onClick={() => void load()} disabled={loading}>
@@ -544,31 +582,46 @@ export default function PolicyPacksPage() {
           <section className="mb-8">
             <h4 className="mt-0 mb-2">Create pack</h4>
             <div className="grid gap-2.5 max-w-3xl">
-              <label>
-                Name
-                <input
+              <div className="space-y-2">
+                <label htmlFor="policy-pack-create-name" className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  Name
+                </label>
+                <Input
+                  id="policy-pack-create-name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                  }}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  className="block w-full p-2 mt-1"
+                  className="mt-1"
                 />
-              </label>
-              <label>
-                Description
-                <input
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="policy-pack-create-description"
+                  className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                >
+                  Description
+                </label>
+                <Input
+                  id="policy-pack-create-description"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) => {
+                    setDescription(e.target.value);
+                  }}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  className="block w-full p-2 mt-1"
+                  className="mt-1"
                 />
-              </label>
+              </div>
               <label>
                 Pack type
                 <select
                   value={packType}
-                  onChange={(e) => setPackType(e.target.value)}
+                  onChange={(e) => {
+                    setPackType(e.target.value);
+                  }}
                   disabled={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   className="block w-full p-2 mt-1"
@@ -580,17 +633,25 @@ export default function PolicyPacksPage() {
                   ))}
                 </select>
               </label>
-              <label>
-                Initial content (JSON)
-                <textarea
+              <div className="space-y-2">
+                <label
+                  htmlFor="policy-pack-create-json"
+                  className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                >
+                  Initial content (JSON)
+                </label>
+                <Textarea
+                  id="policy-pack-create-json"
                   value={createJson}
-                  onChange={(e) => setCreateJson(e.target.value)}
+                  onChange={(e) => {
+                    setCreateJson(e.target.value);
+                  }}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   rows={12}
-                  className="block w-full font-mono text-xs mt-1"
+                  className="mt-1 font-mono text-xs"
                 />
-              </label>
+              </div>
               <button
                 type="button"
                 onClick={() => void onCreate()}
@@ -612,27 +673,43 @@ export default function PolicyPacksPage() {
               Creates a published version row and marks the pack Active. Use a new semantic version when content changes.
             </p>
             <div className="grid gap-2.5 max-w-3xl">
-              <label>
-                Version label
-                <input
+              <div className="space-y-2">
+                <label
+                  htmlFor="policy-pack-publish-version"
+                  className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                >
+                  Version label
+                </label>
+                <Input
+                  id="policy-pack-publish-version"
                   value={publishVersion}
-                  onChange={(e) => setPublishVersion(e.target.value)}
+                  onChange={(e) => {
+                    setPublishVersion(e.target.value);
+                  }}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  className="block w-full p-2 mt-1"
+                  className="mt-1"
                 />
-              </label>
-              <label>
-                Content (JSON)
-                <textarea
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="policy-pack-publish-json"
+                  className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                >
+                  Content (JSON)
+                </label>
+                <Textarea
+                  id="policy-pack-publish-json"
                   value={publishJson}
-                  onChange={(e) => setPublishJson(e.target.value)}
+                  onChange={(e) => {
+                    setPublishJson(e.target.value);
+                  }}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   rows={12}
-                  className="block w-full font-mono text-xs mt-1"
+                  className="mt-1 font-mono text-xs"
                 />
-              </label>
+              </div>
               <button
                 type="button"
                 onClick={() => void onPublish()}
@@ -654,16 +731,24 @@ export default function PolicyPacksPage() {
               Assignment must reference an existing version string for that pack (e.g. the one you published).
             </p>
             <div className="flex gap-3 flex-wrap items-end">
-              <label>
-                Version
-                <input
+              <div className="space-y-2">
+                <label
+                  htmlFor="policy-pack-assign-version"
+                  className="text-sm font-medium text-neutral-800 dark:text-neutral-200"
+                >
+                  Version
+                </label>
+                <Input
+                  id="policy-pack-assign-version"
                   value={assignVersion}
-                  onChange={(e) => setAssignVersion(e.target.value)}
+                  onChange={(e) => {
+                    setAssignVersion(e.target.value);
+                  }}
                   readOnly={!canMutatePacks}
                   title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-                  className="block p-2 mt-1 w-40"
+                  className="mt-1 w-40"
                 />
-              </label>
+              </div>
               <label>
                 Scope level
                 <select

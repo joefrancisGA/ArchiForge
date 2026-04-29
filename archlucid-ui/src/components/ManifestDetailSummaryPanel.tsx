@@ -6,6 +6,7 @@ import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import {
   SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
@@ -21,7 +22,9 @@ export function ManifestDetailSummaryPanel({
   summary,
 }: ManifestDetailSummaryPanelProps) {
   const isCuratedDemo = summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
-  const decisionLines = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES] : [];
+  const decisionLinesAll = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES] : [];
+  const decisionLinesPreview = decisionLinesAll.slice(0, 3);
+  const decisionRestCount = Math.max(0, decisionLinesAll.length - decisionLinesPreview.length);
   const warningLines = isCuratedDemo ? [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES] : [];
 
   return (
@@ -92,14 +95,14 @@ export function ManifestDetailSummaryPanel({
         </dl>
       </CollapsibleSection>
 
-      <details className="rounded-lg border border-neutral-200 dark:border-neutral-800">
+      <details className="rounded-lg border border-neutral-200 dark:border-neutral-800" open>
         <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
           Decisions recorded ({summary.decisionCount})
         </summary>
         <div className="border-t border-neutral-200 px-3 py-3 dark:border-neutral-800">
-          {decisionLines.length > 0 ? (
+          {decisionLinesPreview.length > 0 ? (
             <ol className="m-0 list-decimal space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
-              {decisionLines.map((line, index) => (
+              {decisionLinesPreview.map((line, index) => (
                 <li key={`decision-${index}`}>{line}</li>
               ))}
             </ol>
@@ -114,10 +117,16 @@ export function ManifestDetailSummaryPanel({
           ) : (
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No decisions recorded for this manifest.</p>
           )}
+          {decisionRestCount > 0 ? (
+            <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+              … and {decisionRestCount} more decisions in the governed export — open run detail or download the manifest
+              bundle for the full list.
+            </p>
+          ) : null}
         </div>
       </details>
 
-      <details className="rounded-lg border border-neutral-200 dark:border-neutral-800">
+      <details className="rounded-lg border border-neutral-200 dark:border-neutral-800" open>
         <summary className="cursor-pointer select-none px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
           Warnings ({summary.warningCount})
         </summary>
@@ -141,6 +150,29 @@ export function ManifestDetailSummaryPanel({
           )}
         </div>
       </details>
+
+      {isCuratedDemo ? (
+        <section
+          aria-labelledby="manifest-related-finding-heading"
+          className="rounded-lg border border-teal-200/80 bg-teal-50/50 p-4 dark:border-teal-900/50 dark:bg-teal-950/30"
+        >
+          <h3
+            id="manifest-related-finding-heading"
+            className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+          >
+            Related finding
+          </h3>
+          <p className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+            <Link
+              className="font-medium text-teal-800 underline dark:text-teal-300"
+              href={`/runs/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+            >
+              PHI Minimization Risk
+            </Link>
+            <span className="text-neutral-600 dark:text-neutral-400"> — open the product-facing finding detail.</span>
+          </p>
+        </section>
+      ) : null}
     </>
   );
 }

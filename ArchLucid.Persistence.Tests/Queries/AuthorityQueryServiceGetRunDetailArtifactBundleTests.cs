@@ -50,7 +50,8 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         Mock<IGoldenManifestRepository> manifests = new();
         Mock<IArtifactBundleRepository> bundles = new();
         bundles
-            .Setup(b => b.GetByManifestIdAsync(scope, manifestId, It.IsAny<CancellationToken>()))
+            .Setup(b =>
+                b.GetByManifestIdAsync(scope, manifestId, It.Is<bool>(v => v), It.IsAny<CancellationToken>()))
             .ReturnsAsync(bundle);
 
         IAuthorityQueryService sut = CreateQueryService(
@@ -67,7 +68,9 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
 
         detail.Should().NotBeNull();
         detail.ArtifactBundle.Should().BeSameAs(bundle);
-        bundles.Verify(b => b.GetByManifestIdAsync(scope, manifestId, It.IsAny<CancellationToken>()), Times.Once);
+        bundles.Verify(
+            b => b.GetByManifestIdAsync(scope, manifestId, It.Is<bool>(v => v), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Theory]
@@ -117,7 +120,12 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         detail.Should().NotBeNull();
         detail.ArtifactBundle.Should().BeNull();
         bundles.Verify(
-            b => b.GetByManifestIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            b =>
+                b.GetByManifestIdAsync(
+                    It.IsAny<ScopeContext>(),
+                    It.IsAny<Guid>(),
+                    It.Is<bool>(static v => v),
+                    It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

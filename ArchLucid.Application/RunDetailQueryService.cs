@@ -10,6 +10,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 
@@ -137,19 +138,27 @@ public sealed class RunDetailQueryService(
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyList<RunSummary> Items, int TotalCount)> ListRunSummariesPagedAsync(
-        int page,
-        int pageSize,
+    public async Task<(IReadOnlyList<RunSummary> Items, bool HasMore, string? NextCursor)> ListRunSummariesKeysetAsync(
+        string? cursor,
+        int take,
         CancellationToken cancellationToken = default)
     {
-        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
-        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        (IReadOnlyList<Persistence.Models.RunRecord> records, int total) =
-            await runRepository.ListRecentInScopePagedAsync(scope, skip, safePageSize, cancellationToken);
 
-        IReadOnlyList<RunSummary> items = records
+        DateTime? cursorUtc = null;
+        Guid? cursorRunId = null;
+        (DateTime CreatedUtc, Guid RunId)? decoded = RunCursorCodec.TryDecode(cursor);
+
+        if (decoded.HasValue)
+        {
+            cursorUtc = decoded.Value.CreatedUtc;
+            cursorRunId = decoded.Value.RunId;
+        }
+
+        RunListPage page =
+            await runRepository.ListRecentInScopeKeysetAsync(scope, cursorUtc, cursorRunId, take, cancellationToken);
+
+        IReadOnlyList<RunSummary> items = page.Items
             .Select(r => new RunSummary
             {
                 RunId = r.RunId.ToString("N"),
@@ -162,7 +171,16 @@ public sealed class RunDetailQueryService(
             })
             .ToList();
 
-        return (items, total);
+        string? next = null;
+
+        if (page.HasMore && page.Items.Count > 0)
+        {
+            RunRecord last = page.Items[^1];
+
+            next = RunCursorCodec.Encode(last.CreatedUtc, last.RunId);
+        }
+
+        return (items, page.HasMore, next);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

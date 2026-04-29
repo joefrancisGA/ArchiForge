@@ -26,10 +26,11 @@ public interface IRunDetailQueryService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Paged run summaries for the current scope (newest first).
+    ///     Keyset-paged run summaries for the current scope (newest first). Provide <paramref name="cursor" /> from the prior
+    ///     response&apos;s next cursor token.
     /// </summary>
-    Task<(IReadOnlyList<RunSummary> Items, int TotalCount)> ListRunSummariesPagedAsync(
-        int page,
-        int pageSize,
+    Task<(IReadOnlyList<RunSummary> Items, bool HasMore, string? NextCursor)> ListRunSummariesKeysetAsync(
+        string? cursor,
+        int take,
         CancellationToken cancellationToken = default);
 }

@@ -46,20 +46,30 @@ public sealed class AuthorityQueryController(
     IAuditService auditService,
     IActorContext actorContext) : ControllerBase
 {
-    /// <summary>Lists runs for an authority project slug (e.g. <c>default</c>) with a paged envelope.</summary>
+    /// <summary>
+    ///     Lists runs for an authority project slug (e.g. <c>default</c>). Prefer <paramref name="cursor" /> +
+    ///     <paramref name="take" /> (stable keyset). Legacy <paramref name="page" />/<paramref name="pageSize" /> is kept
+    ///     only for page 1.
+    /// </summary>
     /// <param name="projectId">Path segment: authority project id/slug, not the scope GUID.</param>
-    /// <param name="take">Used as <c>pageSize</c> when <paramref name="page" /> is omitted (default 20, clamped 1–200).</param>
-    /// <param name="page">One-based page (default 1 when omitted).</param>
-    /// <param name="pageSize">Page size when <paramref name="page" /> is set (clamped 1–200; default 50).</param>
-    /// <returns>Newest-first <see cref="PagedResponse{T}" /> of <see cref="RunSummaryResponse" />.</returns>
+    /// <param name="cursor">Opaque next-cursor token from the previous response.</param>
+    /// <param name="take">Max rows when using cursor mode (default per <see cref="RunPagination.DefaultTake" />).</param>
+    /// <param name="page">
+    ///     Legacy only: must be <c>1</c>. Page <c>&gt;</c><c>1</c> requires passing <paramref name="cursor" />.
+    /// </param>
+    /// <param name="pageSize">
+    ///     Legacy page size when <paramref name="page" /> is set (ignored when <paramref name="cursor" /> is supplied).
+    /// </param>
+    /// <returns>Newest-first <see cref="CursorPagedResponse{T}" /> of <see cref="RunSummaryResponse" />.</returns>
     [HttpGet("projects/{projectId}/runs")]
-    [ProducesResponseType(typeof(PagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CursorPagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ListRunsByProject(
         string projectId,
-        [FromQuery] int take = 20,
+        [FromQuery] string? cursor = null,
+        [FromQuery] int take = RunPagination.DefaultTake,
         [FromQuery] int? page = null,
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken ct = default)
@@ -67,21 +77,55 @@ public sealed class AuthorityQueryController(
         if (string.IsNullOrWhiteSpace(projectId))
             return this.BadRequestProblem("projectId is required.", ProblemTypes.BadRequest);
 
+        if (page is int beyondFirst && beyondFirst > 1 && string.IsNullOrWhiteSpace(cursor))
+
+            return this.BadRequestProblem(
+                "Paging beyond page 1 requires the nextCursor token from the prior response.",
+                ProblemTypes.BadRequest);
+
+        DateTime? cu = null;
+        Guid? rid = null;
+
+        if (!string.IsNullOrWhiteSpace(cursor))
+        {
+            (DateTime CreatedUtc, Guid RunId)? decoded = RunCursorCodec.TryDecode(cursor.Trim());
+
+            if (!decoded.HasValue)
+
+                return this.BadRequestProblem("cursor is invalid.", ProblemTypes.ValidationFailed);
+
+            cu = decoded.Value.CreatedUtc;
+
+            rid = decoded.Value.RunId;
+        }
+
+        int effectiveTake =
+            string.IsNullOrWhiteSpace(cursor) && page.HasValue
+                ? RunPagination.ClampTake(pageSize)
+                : RunPagination.ClampTake(take);
+
         ScopeContext scope = scopeProvider.GetCurrentScope();
+            await queryService.ListRunsByProjectKeysetAsync(scope, projectId, cu, rid, effectiveTake, ct);
 
-        int effectivePage = page ?? 1;
-        int effectivePageSize = page.HasValue
-            ? pageSize
-            : Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
-
-        (int safePage, int safePageSize) = PaginationDefaults.Normalize(effectivePage, effectivePageSize);
-        int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
-        (IReadOnlyList<RunSummaryDto> items, int total) =
-            await queryService.ListRunsByProjectPagedAsync(scope, projectId, skip, safePageSize, ct);
+        string? nextCursor =
+            hasMore && items.Count > 0 ? RunCursorCodec.Encode(items[^1].CreatedUtc, items[^1].RunId) : null;
 
         IReadOnlyList<RunSummaryResponse> mapped = items.Select(ToRunSummaryResponse).ToList();
 
-        return Ok(PagedResponseBuilder.FromDatabasePage(mapped, total, safePage, safePageSize));
+        return Ok(
+            new CursorPagedResponse<RunSummaryResponse>
+
+            {
+
+                Items = mapped,
+
+                NextCursor = nextCursor,
+
+                HasMore = hasMore,
+
+                RequestedTake = effectiveTake
+
+            });
     }
 
     [HttpGet("runs/{runId:guid}/summary")]

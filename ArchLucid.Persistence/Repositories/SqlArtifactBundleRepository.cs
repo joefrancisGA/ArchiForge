@@ -58,7 +58,11 @@ public sealed class SqlArtifactBundleRepository(
         }
     }
 
-    public async Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
+    public async Task<ArtifactBundle?> GetByManifestIdAsync(
+        ScopeContext scope,
+        Guid manifestId,
+        bool loadArtifactBodies,
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -88,7 +92,8 @@ public sealed class SqlArtifactBundleRepository(
 
         try
         {
-            return await ArtifactBundleRelationalRead.HydrateBundleAsync(connection, row, blobStore, ct);
+            return await ArtifactBundleRelationalRead.HydrateBundleAsync(connection, row, blobStore, loadArtifactBodies,
+                ct);
         }
         catch (InvalidOperationException ex)
         {
@@ -402,7 +407,8 @@ public sealed class SqlArtifactBundleRepository(
 
         row = await ApplyBundleBlobOverlayIfPresentAsync(row, ct);
 
-        return await ArtifactBundleRelationalRead.HydrateBundleAsync(sqlConnection, row, blobStore, ct);
+        return await ArtifactBundleRelationalRead.HydrateBundleAsync(sqlConnection, row, blobStore, loadArtifactBodies: true,
+            ct);
     }
 
     /// <summary>

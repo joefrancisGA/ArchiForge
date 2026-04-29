@@ -13,6 +13,16 @@ export const SHOWCASE_STATIC_DEMO_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef12345
 export const SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID = "phi-minimization-risk";
 
 /**
+ * Canonical counts for the static Claims Intake demo spine — Run detail, manifest summary, and showcase should
+ * reflect the same numbers when serving this payload (see {@link getShowcaseStaticDemoPayload}).
+ */
+export const SHOWCASE_STATIC_DEMO_SPINE_COUNTS = {
+  findingCount: 9,
+  warningCount: 1,
+  decisionCount: 12,
+} as const;
+
+/**
  * Curated synopses for the static Claims Intake manifest detail page (no list API on summary).
  * Keep length aligned with `manifest.decisionCount` / `warningCount` in this payload.
  */

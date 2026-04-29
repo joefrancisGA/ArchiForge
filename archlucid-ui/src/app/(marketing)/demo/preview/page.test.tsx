@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { DemoPreviewMarketingBody, DemoPreviewNotAvailable } from "./DemoPreviewMarketingBody";
+import {
+  DemoPreviewFriendlyUnavailable,
+  DemoPreviewMarketingBody,
+  DemoPreviewNotAvailable,
+} from "./DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 const fixture: DemoCommitPagePreviewResponse = {
@@ -98,6 +102,15 @@ describe("Demo preview marketing body", () => {
   it("renders the not-available notice", () => {
     render(<DemoPreviewNotAvailable />);
     expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
+  });
+
+  it("renders customer-safe friendly unavailable with example links", () => {
+    render(<DemoPreviewFriendlyUnavailable />);
+    expect(screen.getByTestId("demo-preview-friendly-unavailable")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /view example output/i })).toHaveAttribute(
+      "href",
+      "/showcase/claims-intake-modernization",
+    );
   });
 
   it("does not render sponsor email banner or finalize controls", () => {

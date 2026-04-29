@@ -28,6 +28,28 @@ function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
 }
 
+function runRowOutputReadinessLine(run: RunSummary): string {
+  const tokens: string[] = [];
+
+  if (run.hasFindingsSnapshot) {
+    tokens.push("Findings captured");
+  }
+
+  if (run.hasGoldenManifest) {
+    tokens.push("Manifest finalized");
+  }
+
+  if (run.hasArtifactBundle) {
+    tokens.push("Artifacts bundled");
+  }
+
+  if (tokens.length === 0) {
+    return "Output: in progress";
+  }
+
+  return tokens.join(" · ");
+}
+
 function inspectorTitle(run: RunSummary | null): string {
   if (run === null) {
     return "Run preview";
@@ -305,6 +327,12 @@ export function RunsListClient({
                                 <div className="mt-1.5">
                                   <RunProvenanceInline run={run} />
                                 </div>
+                                <p
+                                  className="m-0 mt-1 text-[11px] text-neutral-600 dark:text-neutral-400"
+                                  data-testid={`runs-row-readiness-${run.runId}`}
+                                >
+                                  {runRowOutputReadinessLine(run)}
+                                </p>
                               </td>
                               <td
                                 className="whitespace-nowrap px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400"

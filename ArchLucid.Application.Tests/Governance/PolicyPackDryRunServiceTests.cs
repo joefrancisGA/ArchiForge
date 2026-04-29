@@ -298,11 +298,11 @@ public sealed class PolicyPackDryRunServiceTests
         public Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult<IReadOnlyList<RunSummary>>([]);
 
-        public Task<(IReadOnlyList<RunSummary> Items, int TotalCount)> ListRunSummariesPagedAsync(
-            int page,
-            int pageSize,
+        public Task<(IReadOnlyList<RunSummary> Items, bool HasMore, string? NextCursor)> ListRunSummariesKeysetAsync(
+            string? cursor,
+            int take,
             CancellationToken cancellationToken = default) =>
-            Task.FromResult<(IReadOnlyList<RunSummary>, int)>(([], 0));
+            Task.FromResult<(IReadOnlyList<RunSummary>, bool, string?)>(([], false, null));
     }
 
     /// <summary>

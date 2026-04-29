@@ -39,7 +39,7 @@ const STEPS: TourStep[] = [
     id: "runs",
     title: "Review your runs",
     body:
-      "Committed runs produce a golden manifest. Track recent activity here and open the full runs list when you need every run in the workspace.",
+      "Committed runs produce a reviewed manifest. Track recent activity here and open the full runs list when you need every run in the workspace.",
     targetSelector: '[data-onboarding="tour-runs-dashboard"]',
   },
   {

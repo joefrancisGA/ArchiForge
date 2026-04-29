@@ -30,6 +30,7 @@ describe("AuthorityPipelineTimeline", () => {
     expect(screen.getAllByText(/RunStarted/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/RunCompleted/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/c1/)).toBeInTheDocument();
+    expect(screen.getByText(/11111111-1111-1111-1111-111111111111/)).toBeInTheDocument();
   });
 
   it("shows empty guidance when there are no events", () => {

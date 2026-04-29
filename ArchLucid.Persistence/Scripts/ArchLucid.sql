@@ -806,6 +806,14 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_FindingRecords_FindingsSnapshotId
         ON dbo.FindingRecords (FindingsSnapshotId);
+
+    CREATE NONCLUSTERED INDEX IX_FindingRecords_Snapshot_Severity
+        ON dbo.FindingRecords (FindingsSnapshotId, Severity, SortOrder)
+        INCLUDE (FindingRecordId, FindingId, Category, EngineType, Title);
+
+    CREATE NONCLUSTERED INDEX IX_FindingRecords_Snapshot_Category
+        ON dbo.FindingRecords (FindingsSnapshotId, Category, SortOrder)
+        INCLUDE (FindingRecordId, Severity, FindingType, Title);
 END;
 GO
 
@@ -1686,6 +1694,19 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'IX_AuditEvents_Scope_EventType_OccurredUtc'
+          AND object_id = OBJECT_ID(N'dbo.AuditEvents'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_AuditEvents_Scope_EventType_OccurredUtc
+        ON dbo.AuditEvents (TenantId, WorkspaceId, ProjectId, EventType, OccurredUtc DESC)
+        INCLUDE (EventId, ActorUserId, RunId);
+END;
+GO
+
 /* Append-only enforcement: see Migration 051. */
 IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL
    AND OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
@@ -2494,7 +2515,9 @@ BEGIN
             CompletedUtc,
             CurrentManifestVersion,
             OtelTraceId,
-            ArchivedUtc)
+            IsPublicShowcase,
+            RealModeFellBackToSimulator,
+            PilotAoaiDeploymentSnapshot)
         WHERE ArchivedUtc IS NULL;
 END;
 GO
@@ -2808,6 +2831,19 @@ IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_BackgroundJobs_State')
     ALTER TABLE dbo.BackgroundJobs ADD CONSTRAINT CK_BackgroundJobs_State
         CHECK (State IN (N'Pending', N'Running', N'Succeeded', N'Failed'));
+GO
+
+IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE name = N'IX_BackgroundJobs_State_StartedUtc_Running'
+         AND object_id = OBJECT_ID(N'dbo.BackgroundJobs'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_BackgroundJobs_State_StartedUtc_Running
+        ON dbo.BackgroundJobs (StartedUtc DESC)
+        WHERE State = N'Running';
+END;
 GO
 
 /* ---- Host leader leases (singleton hosted services; see Migrations/035_AuditProvenanceConversationTables.sql) ---- */

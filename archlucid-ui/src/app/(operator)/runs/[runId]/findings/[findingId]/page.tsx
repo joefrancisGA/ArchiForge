@@ -63,31 +63,32 @@ export default async function RunFindingExplainPage({
         </Link>
       </nav>
 
-      <header className="space-y-2">
+      <header className="space-y-3">
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{pageTitle}</h1>
 
-        <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">Finding</span>
-          <code className="max-w-full break-all rounded bg-neutral-100 px-1.5 py-0.5 text-xs font-mono dark:bg-neutral-800">
-            {decodedFindingId}
-          </code>
-          <CopyIdButton value={decodedFindingId} aria-label="Copy finding ID" />
-          {labels?.severityLabel ? (
-            <Badge variant="secondary" className="font-normal">
-              {labels.severityLabel}
-            </Badge>
-          ) : null}
-
-          {labels?.categoryLabel ? (
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">{labels.categoryLabel}</span>
-          ) : null}
-        </p>
-
-        {labels?.impactedAreaLabel ? (
-          <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-            <span className="font-medium text-neutral-800 dark:text-neutral-100">Impacted area: </span>
-            {labels.impactedAreaLabel}
-          </p>
+        {labels !== null ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {labels.severityLabel ? (
+              <Badge variant="secondary" className="font-normal">
+                {labels.severityLabel}
+              </Badge>
+            ) : null}
+            {labels.categoryLabel ? (
+              <Badge variant="outline" className="font-normal">
+                {labels.categoryLabel}
+              </Badge>
+            ) : null}
+            {labels.statusLabel ? (
+              <Badge variant="outline" className="font-normal">
+                {labels.statusLabel}
+              </Badge>
+            ) : null}
+            {labels.impactedAreaLabel ? (
+              <Badge variant="outline" className="max-w-full whitespace-normal text-left font-normal">
+                Impacted: {labels.impactedAreaLabel}
+              </Badge>
+            ) : null}
+          </div>
         ) : null}
 
         {inspectPayload !== null ? (
@@ -98,12 +99,34 @@ export default async function RunFindingExplainPage({
 
         {inspectPayload !== null ? (
           <div className="pt-1">
-            <CopyFindingAsWorkItemButton
-              findingId={decodedFindingId}
-              payload={inspectPayload}
-              runId={runId}
-            />
+            <CopyFindingAsWorkItemButton findingId={decodedFindingId} payload={inspectPayload} runId={runId} />
           </div>
+        ) : null}
+
+        {inspectPayload !== null ? (
+          <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
+            <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200">
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Finding id
+                </dt>
+                <dd className="m-0 mt-1 flex flex-wrap items-center gap-2">
+                  <code className="max-w-full break-all rounded bg-neutral-100 px-1.5 py-0.5 text-xs font-mono dark:bg-neutral-800">
+                    {decodedFindingId}
+                  </code>
+                  <CopyIdButton value={decodedFindingId} aria-label="Copy finding ID" />
+                </dd>
+              </div>
+              {inspectPayload.manifestVersion ? (
+                <div>
+                  <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                    Manifest version
+                  </dt>
+                  <dd className="m-0 mt-1 font-mono text-xs">{inspectPayload.manifestVersion}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </CollapsibleSection>
         ) : null}
       </header>
 

@@ -2,8 +2,9 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
 
-using ArchLucid.Core.Scoping;
-using ArchLucid.Core.Tenancy;
+using ArchLucid.Core.Pagination;
+
+using ArchLucid.Core.Scoping;using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Tenancy;
@@ -77,29 +78,42 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult<IReadOnlyList<RunRecord>>(list);
     }
 
-    public Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
+    public Task<RunListPage> ListByProjectKeysetAsync(
         ScopeContext scope,
         string projectId,
-        int skip,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
-        int safeSkip = Math.Max(skip, 0);
+        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
 
-        List<RunRecord> ordered = _store.Values
+        int safeTake = RunPagination.ClampTake(take);
+        int fetch = safeTake + 1;
+
+        List<RunRecord> filtered = _store.Values
             .Where(r =>
                 MatchesScope(r, scope) &&
                 !r.ArchivedUtc.HasValue &&
                 string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))
+            .Where(r =>
+                !cursorRunId.HasValue ||
+                (r.CreatedUtc < cursorCreatedUtc!.Value
+                 || (r.CreatedUtc == cursorCreatedUtc.Value && r.RunId < cursorRunId!.Value)))
             .OrderByDescending(r => r.CreatedUtc)
+            .ThenByDescending(r => r.RunId)
+            .Take(fetch)
             .ToList();
 
-        int total = ordered.Count;
-        IReadOnlyList<RunRecord> page = ordered.Skip(safeSkip).Take(safeTake).ToList();
+        bool hasMore = filtered.Count > safeTake;
 
-        return Task.FromResult<(IReadOnlyList<RunRecord>, int)>((page, total));
+        if (hasMore)
+
+            filtered.RemoveAt(filtered.Count - 1);
+
+
+        return Task.FromResult(new RunListPage(filtered, hasMore));
     }
 
     /// <inheritdoc />
@@ -121,29 +135,41 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     }
 
     /// <inheritdoc />
-    public Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListRecentInScopePagedAsync(
+    public Task<RunListPage> ListRecentInScopeKeysetAsync(
         ScopeContext scope,
-        int skip,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
         ct.ThrowIfCancellationRequested();
+        ValidateRunKeysetCursor(cursorCreatedUtc, cursorRunId);
 
-        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
-        int safeSkip = Math.Max(skip, 0);
+        int safeTake = RunPagination.ClampTake(take);
+        int fetch = safeTake + 1;
 
-        List<RunRecord> ordered = _store.Values
+        List<RunRecord> filtered = _store.Values
             .Where(r =>
                 MatchesScope(r, scope) &&
                 !r.ArchivedUtc.HasValue)
+            .Where(r =>
+                !cursorRunId.HasValue ||
+                (r.CreatedUtc < cursorCreatedUtc!.Value
+                 || (r.CreatedUtc == cursorCreatedUtc.Value && r.RunId < cursorRunId!.Value)))
             .OrderByDescending(r => r.CreatedUtc)
+            .ThenByDescending(r => r.RunId)
+            .Take(fetch)
             .ToList();
 
-        int total = ordered.Count;
-        IReadOnlyList<RunRecord> page = ordered.Skip(safeSkip).Take(safeTake).ToList();
+        bool hasMore = filtered.Count > safeTake;
 
-        return Task.FromResult<(IReadOnlyList<RunRecord>, int)>((page, total));
+        if (hasMore)
+
+            filtered.RemoveAt(filtered.Count - 1);
+
+
+        return Task.FromResult(new RunListPage(filtered, hasMore));
     }
 
     public Task UpdateAsync(
@@ -256,6 +282,13 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             ArchivedRuns = archived,
             Failed = failed
         });
+    }
+
+    private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)
+    {
+        if (cursorCreatedUtc.HasValue != cursorRunId.HasValue)
+            throw new ArgumentException(
+                "Run keyset cursor requires both CreatedUtc and RunId together, or both omitted for the first page.");
     }
 
     private static bool MatchesScope(RunRecord r, ScopeContext scope)

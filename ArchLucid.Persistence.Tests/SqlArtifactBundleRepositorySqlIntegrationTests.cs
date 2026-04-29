@@ -134,7 +134,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
 
         ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
 
-        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
+        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.BundleId.Should().Be(bundleId);
         loaded.Artifacts.Should().ContainSingle();
@@ -273,7 +273,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
-        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
+        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Artifacts.Should().ContainSingle();
@@ -435,7 +435,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
-        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
+        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Artifacts.Should().HaveCount(2);
@@ -572,7 +572,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
-        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
+        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Artifacts.Should().BeEmpty();
@@ -678,7 +678,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
 
         SqlArtifactBundleRepository
             repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
-        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
+        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, loadArtifactBodies: true, CancellationToken.None);
 
         loaded.Should().NotBeNull();
         loaded.Artifacts.Should().BeEmpty();

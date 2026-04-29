@@ -9,7 +9,11 @@ import {
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 
-import { ShowcaseWhatThisProves, showcaseOutcomeSnapshotFromPayload } from "./ShowcaseWhatThisProves";
+import {
+  ShowcaseOutcomeCards,
+  ShowcaseWhatThisProves,
+  showcaseOutcomeSnapshotFromPayload,
+} from "./ShowcaseWhatThisProves";
 export const revalidate = 300;
 
 const SHOWCASE_HERO_SUBTITLE =
@@ -63,6 +67,20 @@ function ShowcaseLead({ children }: { readonly children: ReactNode }) {
   return <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{children}</p>;
 }
 
+function ShowcaseOutcomeStripAboveBody({ payload }: { readonly payload: DemoCommitPagePreviewResponse }): ReactElement {
+  return (
+    <section aria-labelledby="showcase-outcome-strip-heading" className="mb-6 space-y-3">
+      <h2
+        id="showcase-outcome-strip-heading"
+        className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50"
+      >
+        At a glance
+      </h2>
+      <ShowcaseOutcomeCards snapshot={showcaseOutcomeSnapshotFromPayload(payload)} />
+    </section>
+  );
+}
+
 function ShowcaseHero({ runId }: { readonly runId: string }): ReactElement {
   return (
     <>
@@ -93,7 +111,13 @@ function ShowcaseBottomCTA(): ReactElement {
           href="/get-started"
           className="inline-flex rounded-md bg-teal-700 px-4 py-2 text-sm font-medium text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
         >
-          Start your own analysis
+          Create your own request
+        </Link>
+        <Link
+          href="/signup"
+          className="inline-flex rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-900 no-underline hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+        >
+          Start free trial
         </Link>
         <Link
           href="/auth/signin"
@@ -130,8 +154,12 @@ function keyDriversFromPayload(payload: DemoCommitPagePreviewResponse): string[]
     .slice(0, 4);
 }
 
-/** Served when preview API responds with an error — still renders curated demo data. */
-function ShowcaseApiUnavailableBanner(): ReactElement {
+/** Served when preview API responds with an error — still renders curated demo data. Hidden in demo mode (single disclosure in body banner). */
+function ShowcaseApiUnavailableBanner(): ReactElement | null {
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+    return null;
+  }
+
   return (
     <div
       className="mt-4 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-100"
@@ -228,10 +256,13 @@ export default async function MarketingShowcasePage(props: PageProps) {
           <ShowcaseWhatThisProves
             scenarioBullets={keyDriversFromPayload(payload)}
             outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(payload)}
+            showOutcomeCards={false}
           />
         </div>
 
         <ShowcaseStaticDemoBanner />
+
+        <ShowcaseOutcomeStripAboveBody payload={payload} />
 
         <div className="mt-6">
           <DemoPreviewMarketingBody payload={payload} />
@@ -272,8 +303,11 @@ export default async function MarketingShowcasePage(props: PageProps) {
             <ShowcaseWhatThisProves
               scenarioBullets={keyDriversFromPayload(bundle.payload)}
               outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(bundle.payload)}
+              showOutcomeCards={false}
             />
           </div>
+
+          <ShowcaseOutcomeStripAboveBody payload={bundle.payload} />
 
           <div className="mt-6">
             <DemoPreviewMarketingBody payload={bundle.payload} />
@@ -327,10 +361,13 @@ export default async function MarketingShowcasePage(props: PageProps) {
             <ShowcaseWhatThisProves
               scenarioBullets={keyDriversFromPayload(fallbackPayload)}
               outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(fallbackPayload)}
+              showOutcomeCards={false}
             />
           </div>
 
           <ShowcaseApiUnavailableBanner />
+
+          <ShowcaseOutcomeStripAboveBody payload={fallbackPayload} />
 
           <div className="mt-6">
             <DemoPreviewMarketingBody payload={fallbackPayload} />

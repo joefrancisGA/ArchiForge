@@ -54,15 +54,15 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
-    ///     Returns a page of runs for <paramref name="projectId" /> within <paramref name="scope" />, ordered by
-    ///     <c>CreatedUtc</c> descending, plus the total matching row count (excluding archived).
+    ///     Stable keyset page of runs for <paramref name="projectId" /> within <paramref name="scope" />, newest first.
+    ///     Pass both <paramref name="cursorCreatedUtc" /> and <paramref name="cursorRunId" /> after the last item of the
+    ///     previous page; both <see langword="null" /> means the first page (no OFFSET).
     /// </summary>
-    /// <param name="skip">Zero-based offset (number of rows to skip after ordering).</param>
-    /// <param name="take">Maximum rows on this page (clamped by the implementation, typically 1–200).</param>
-    Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
+    Task<RunListPage> ListByProjectKeysetAsync(
         ScopeContext scope,
         string projectId,
-        int skip,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct);
 
@@ -73,11 +73,13 @@ public interface IRunRepository
     Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct);
 
     /// <summary>
-    ///     Paged runs within <paramref name="scope" /> (all project slugs), newest first, plus total count for dashboards.
+    ///     Stable keyset page within <paramref name="scope" /> (all project slugs), newest first — see
+    ///     <see cref="ListByProjectKeysetAsync" /> for cursor semantics.
     /// </summary>
-    Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListRecentInScopePagedAsync(
+    Task<RunListPage> ListRecentInScopeKeysetAsync(
         ScopeContext scope,
-        int skip,
+        DateTime? cursorCreatedUtc,
+        Guid? cursorRunId,
         int take,
         CancellationToken ct);
 
