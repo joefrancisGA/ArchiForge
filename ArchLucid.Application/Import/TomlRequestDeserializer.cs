@@ -44,7 +44,7 @@ public static class TomlRequestDeserializer
 
         Dictionary<string, JsonElement> props = new(StringComparer.OrdinalIgnoreCase);
 
-        foreach (KeyValuePair<string, object?> kv in table)
+        foreach (KeyValuePair<string, object> kv in table)
         {
             if (string.IsNullOrWhiteSpace(kv.Key))
                 continue;
