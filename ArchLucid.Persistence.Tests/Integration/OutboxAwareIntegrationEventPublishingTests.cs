@@ -216,8 +216,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
         Mock<ILogger> logger = new();
         logger.Setup(l => l.IsEnabled(LogLevel.Warning)).Returns(true);
 
-        CyclePayload payload = new();
-        payload.Child = payload;
+        Func<int> payload = () => 1;
 
         await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
             outbox.Object,
@@ -257,8 +256,4 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             Times.AtLeastOnce);
     }
 
-    /// <summary>JsonSerializer cannot serialize a self-reference; used to force the serialization catch path.</summary>
-    private sealed class CyclePayload
-    {
-    }
 }
