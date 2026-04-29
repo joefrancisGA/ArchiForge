@@ -37,12 +37,17 @@ public sealed class LlmDailyTenantBudgetTracker(IOptionsMonitor<LlmDailyTenantBu
             ResetIfNewUtcDayLocked(state, today);
 
             if (state.TotalTokens + assumed > max)
+            {
+                DateTimeOffset retryAfterUtc = new DateTimeOffset(DateTime.UtcNow.Date.AddDays(1), TimeSpan.Zero);
+
                 throw new LlmTokenQuotaExceededException(
                     string.Format(
                         CultureInfo.InvariantCulture,
                         "LLM daily token budget exceeded for tenant (UTC day cap {0}, used ~{1}).",
                         max,
-                        state.TotalTokens));
+                        state.TotalTokens),
+                    retryAfterUtc);
+            }
         }
     }
 

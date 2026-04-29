@@ -1,10 +1,12 @@
 > **Scope:** Independent first-principles quality assessment — weighted readiness model; not a roadmap, not derived from prior assessments.
 
-# ArchLucid Assessment -- Weighted Readiness 65.38%
+# ArchLucid Assessment -- Weighted Readiness 66.70%
 
-**Date:** 2026-04-29
+**Date:** 2026-04-29 (corrected 09:40 UTC-4)
 **Assessor:** Independent first-principles (no prior assessment referenced)
 **Codebase snapshot:** Git working tree as of 2026-04-29 08:00 UTC-4
+
+**Correction (09:40):** Initial assessment incorrectly treated `staging.archlucid.net` as DNS-unreachable based on a stale `STAGING_TRIAL_FUNNEL_STATUS.md` snapshot from 2026-04-28. The staging environment DNS resolves and some endpoints are operational (partial). Stripe TEST checkout remains unvalidated. Affected scores adjusted: Marketability 52->58, Time-to-Value 60->64, Adoption Friction 55->58, Executive Value Visibility 65->67, Azure Compat & SaaS Deploy 55->64, Reliability 68->70, Availability 62->66, Deployability 60->66. Weighted readiness moved from 65.38% to 66.70%.
 
 ---
 
@@ -12,7 +14,7 @@
 
 ### Overall Readiness
 
-ArchLucid is a genuinely novel product at an intermediate stage of commercial maturity. The core engineering -- multi-agent architecture pipeline, manifest lifecycle, audit trail, governance workflow -- is structurally sound and internally coherent. The product has a credible first-pilot story and substantial documentation depth. However, the hosted SaaS funnel is not yet reachable from the development network, commercial enforcement is incomplete, and coverage/testing gaps remain in key persistence and API layers. The weighted readiness of **65.38%** reflects a product that can demonstrate value in controlled settings but has material gaps before unattended revenue generation.
+ArchLucid is a genuinely novel product at an intermediate stage of commercial maturity. The core engineering -- multi-agent architecture pipeline, manifest lifecycle, audit trail, governance workflow -- is structurally sound and internally coherent. The product has a credible first-pilot story and substantial documentation depth. However, the hosted SaaS funnel is not yet reachable from the development network, commercial enforcement is incomplete, and coverage/testing gaps remain in key persistence and API layers. The weighted readiness of **66.70%** reflects a product that can demonstrate value in controlled settings but has material gaps before unattended revenue generation.
 
 ### Commercial Picture
 
@@ -33,44 +35,44 @@ Architecture is well-decomposed across ~50 .NET projects with clear layering (Co
 Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (100 - score) / total weight), most urgent first.
 
 ### 2.1 Marketability
-- **Score:** 52
+- **Score:** 58
 - **Weight:** 8
-- **Weighted contribution:** 4.16 / 8.00
-- **Weighted deficiency:** 3.84
+- **Weighted contribution:** 4.64 / 8.00
+- **Weighted deficiency:** 3.36
 
-**Justification:** The product has clear positioning, a competitive landscape doc, elevator pitches, and buyer personas. However, zero live customers exist. The staging funnel does not resolve DNS. No completed pen-test or SOC 2 report is available for procurement. The marketing site is not reachable. Without a functioning self-service path or a single reference customer, marketability is severely constrained regardless of how good the internal artifacts are.
+**Justification:** The product has clear positioning, a competitive landscape doc, elevator pitches, and buyer personas. The staging environment (`staging.archlucid.net`) resolves and partially serves traffic, which is a meaningful proof point. However, zero live customers exist. Not all endpoints are operational. No completed pen-test or SOC 2 report is available for procurement. Without a single reference customer, marketability remains constrained.
 
-**Tradeoffs:** Building more marketing collateral vs. making the funnel actually work. The team has invested heavily in docs and positioning -- the bottleneck is now operational proof.
+**Tradeoffs:** Building more marketing collateral vs. completing the funnel end-to-end. The staging deployment is a real step forward but needs the remaining endpoints wired.
 
-**Recommendations:** Fix DNS/Front Door for staging.archlucid.net. Complete a single real customer pilot with publishable results. Shift effort from doc polish to funnel operationalization. *V1 fixable.*
+**Recommendations:** Complete the remaining staging endpoint wiring (pricing, checkout). Complete a single real customer pilot with publishable results. *V1 fixable.*
 
 ---
 
 ### 2.2 Time-to-Value
-- **Score:** 60
+- **Score:** 64
 - **Weight:** 7
-- **Weighted contribution:** 4.20 / 7.00
-- **Weighted deficiency:** 2.80
+- **Weighted contribution:** 4.48 / 7.00
+- **Weighted deficiency:** 2.52
 
-**Justification:** The `archlucid try` CLI command promises a 60-second first experience. The Core Pilot wizard and in-product checklist are well-designed. Real-mode benchmarks show ~2 minutes to committed manifest with Azure OpenAI. But the hosted trial path is broken (DNS not resolving). The Docker-only path requires .NET 10 SDK + Docker -- not a quick start for non-developers. The simulator mode works but produces deterministic/fake outputs that may underwhelm a buyer evaluating AI quality.
+**Justification:** The `archlucid try` CLI command promises a 60-second first experience. The Core Pilot wizard and in-product checklist are well-designed. Real-mode benchmarks show ~2 minutes to committed manifest with Azure OpenAI. The hosted staging environment resolves and partially serves traffic, so the SaaS path is closer to functional than previously assumed. The Docker-only path requires .NET 10 SDK + Docker -- not a quick start for non-developers. The simulator mode works but produces deterministic/fake outputs that may underwhelm a buyer evaluating AI quality.
 
 **Tradeoffs:** Simulator-first approach gives deterministic testing and zero LLM cost but undermines the "wow" moment for prospects who expect real AI output.
 
-**Recommendations:** Get the hosted trial funnel working. Ensure the first-run experience uses real AOAI (even with a budget cap) so prospects see genuine analysis, not canned responses. *V1 fixable.*
+**Recommendations:** Complete the remaining staging funnel endpoints. Ensure the first-run experience uses real AOAI (even with a budget cap) so prospects see genuine analysis, not canned responses. *V1 fixable.*
 
 ---
 
 ### 2.3 Adoption Friction
-- **Score:** 55
+- **Score:** 58
 - **Weight:** 6
-- **Weighted contribution:** 3.30 / 6.00
-- **Weighted deficiency:** 2.70
+- **Weighted contribution:** 3.48 / 6.00
+- **Weighted deficiency:** 2.52
 
-**Justification:** For hosted SaaS buyers, the intended friction is low (sign up, see pre-seeded data, run wizard). But this path does not work today. For self-hosted evaluators, the requirements are substantial: .NET 10 SDK, Docker, SQL Server, Node 22. The configuration reference has 60+ keys. The documentation volume (522 markdown files under docs/) is overwhelming -- the five-doc spine helps but the sheer mass creates cognitive overhead for new contributors or evaluators.
+**Justification:** For hosted SaaS buyers, the intended friction is low (sign up, see pre-seeded data, run wizard). The staging environment is partially operational, which means the hosted path is closer to usable. For self-hosted evaluators, the requirements are substantial: .NET 10 SDK, Docker, SQL Server, Node 22. The configuration reference has 60+ keys. The documentation volume (522 markdown files under docs/) is overwhelming -- the five-doc spine helps but the sheer mass creates cognitive overhead for new contributors or evaluators.
 
 **Tradeoffs:** Comprehensive documentation vs. discoverability. The team has tried to solve this with layered entry points (START_HERE, FIRST_5_DOCS, NAVIGATOR), but the volume itself signals complexity.
 
-**Recommendations:** Reduce the number of prerequisites for first evaluation. Consider a hosted demo that requires zero local setup. *V1 fixable.*
+**Recommendations:** Complete the remaining hosted funnel endpoints. Reduce the number of prerequisites for self-hosted first evaluation. *V1 fixable.*
 
 ---
 
@@ -103,16 +105,16 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 ---
 
 ### 2.6 Executive Value Visibility
-- **Score:** 65
+- **Score:** 67
 - **Weight:** 4
-- **Weighted contribution:** 2.60 / 4.00
-- **Weighted deficiency:** 1.40
+- **Weighted contribution:** 2.68 / 4.00
+- **Weighted deficiency:** 1.32
 
-**Justification:** The Executive Sponsor Brief is well-crafted and appropriately cautious. The first-value report, sponsor one-pager PDF, and value report features exist. The "why ArchLucid" evidence pack and procurement-facing proof surfaces are implemented. The `/demo/explain` route for provenance visualization is a strong proof point. However, no executive has actually used these materials. The value report builder produces output but has no external validation.
+**Justification:** The Executive Sponsor Brief is well-crafted and appropriately cautious. The first-value report, sponsor one-pager PDF, and value report features exist. The "why ArchLucid" evidence pack and procurement-facing proof surfaces are implemented. The `/demo/explain` route for provenance visualization is a strong proof point. The staging environment is partially operational, so demo links can potentially reach live infrastructure. However, no executive has actually used these materials. The value report builder produces output but has no external validation.
 
 **Tradeoffs:** Building executive-facing materials before having executives to show them to.
 
-**Recommendations:** Get the demo/explain route working on a reachable URL. Validate sponsor brief with at least one actual sponsor. *V1 fixable.*
+**Recommendations:** Validate that the demo/explain route works on staging. Validate sponsor brief with at least one actual sponsor. *V1 fixable.*
 
 ---
 
@@ -215,16 +217,16 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 ---
 
 ### 2.14 Reliability
-- **Score:** 68
+- **Score:** 70
 - **Weight:** 2
-- **Weighted contribution:** 1.36 / 2.00
-- **Weighted deficiency:** 0.64
+- **Weighted contribution:** 1.40 / 2.00
+- **Weighted deficiency:** 0.60
 
-**Justification:** Circuit breaker pattern implemented with audit integration. Health checks (live/ready/full). Data consistency orphan probe with configurable enforcement modes (Warn/Alert/Quarantine). Idempotency hashing for run creation. Transactional manifest finalization with SQL error code handling. Simmy chaos testing in CI. However: staging environment is not reachable, so production reliability is unproven. RTO/RPO targets are documented but not tested. SQL failover Terraform exists but is not validated. No incident history exists (because no production exists).
+**Justification:** Circuit breaker pattern implemented with audit integration. Health checks (live/ready/full). Data consistency orphan probe with configurable enforcement modes (Warn/Alert/Quarantine). Idempotency hashing for run creation. Transactional manifest finalization with SQL error code handling. Simmy chaos testing in CI. The staging environment is partially operational, which provides some evidence of deployment reliability. RTO/RPO targets are documented but not tested. SQL failover Terraform exists but is not validated. No incident history exists (because no production traffic exists).
 
-**Tradeoffs:** Infrastructure for reliability (circuit breakers, health checks, chaos tests) without operational proof.
+**Tradeoffs:** Infrastructure for reliability (circuit breakers, health checks, chaos tests) with partial operational proof from staging.
 
-**Recommendations:** Get staging environment running and validate failover. *V1 fixable.*
+**Recommendations:** Validate failover and DR scenarios against staging. *V1 fixable.*
 
 ---
 
@@ -285,16 +287,16 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 ---
 
 ### 2.19 Azure Compatibility and SaaS Deployment Readiness
-- **Score:** 55
+- **Score:** 64
 - **Weight:** 2
-- **Weighted contribution:** 1.10 / 2.00
-- **Weighted deficiency:** 0.90
+- **Weighted contribution:** 1.28 / 2.00
+- **Weighted deficiency:** 0.72
 
-**Justification:** Extensive Terraform: 14 root modules (container-apps, sql-failover, edge/Front Door, keyvault, monitoring, openai, entra, servicebus, storage, private networking, otel-collector, logic-apps, orchestrator, pilot). Azure Container Apps with secondary region. Grafana dashboards in Terraform. Prometheus SLO rules. Application Insights. Front Door with marketing routes. But: staging.archlucid.net does not resolve. The full SaaS stack (Front Door -> Container Apps -> SQL -> blob) has not been validated end-to-end from an external network. `apply-saas.ps1` exists but its execution status is unknown. The gap between infrastructure code and operational proof is the critical issue.
+**Justification:** Extensive Terraform: 14 root modules (container-apps, sql-failover, edge/Front Door, keyvault, monitoring, openai, entra, servicebus, storage, private networking, otel-collector, logic-apps, orchestrator, pilot). Azure Container Apps with secondary region. Grafana dashboards in Terraform. Prometheus SLO rules. Application Insights. Front Door with marketing routes. The staging environment (`staging.archlucid.net`) resolves and partially serves traffic, which proves the core SaaS stack (Front Door -> Container Apps) is deployed. Not all endpoints are operational, and Stripe checkout is not validated, so the full funnel is incomplete.
 
-**Tradeoffs:** Comprehensive IaC (which is correct) without operational validation (which is required).
+**Tradeoffs:** Infrastructure is deployed and partially proven; remaining gap is endpoint completeness and checkout validation.
 
-**Recommendations:** Execute apply-saas.ps1 against staging and validate the full funnel. *V1 fixable -- critical path.*
+**Recommendations:** Wire remaining staging endpoints (pricing, checkout). Validate the full buyer funnel end-to-end. *V1 fixable.*
 
 ---
 
@@ -388,7 +390,7 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 - **Weighted contribution:** 1.16 / 2.00
 - **Weighted deficiency:** 0.84
 
-**Justification:** Three pricing tiers defined (Team $199/mo, Professional $899/mo, Enterprise custom). Trial parameters specified (14 days, 3 seats, 10 runs). Stripe integration code exists. Azure Marketplace SaaS offer documented. Billing provider abstraction (ADR 0016). `BillingProductionSafetyRules` CI guard. BUT: tier enforcement uses 404 masking (no upgrade prompt). No metering infrastructure validated. Stripe webhook handling exists in tests but not against live Stripe. The marketplace listing guard exists but no listing is published. Quote request flow exists but the email routing (CRM) is unresolved.
+**Justification:** Three pricing tiers defined per the [locked list prices in PRICING_PHILOSOPHY.md](../go-to-market/PRICING_PHILOSOPHY.md#5-locked-list-prices-2026) (Team, Professional, Enterprise). Trial parameters specified (14 days, 3 seats, 10 runs). Stripe integration code exists. Azure Marketplace SaaS offer documented. Billing provider abstraction (ADR 0016). `BillingProductionSafetyRules` CI guard. BUT: tier enforcement uses 404 masking (no upgrade prompt). No metering infrastructure validated. Stripe webhook handling exists in tests but not against live Stripe. The marketplace listing guard exists but no listing is published. Quote request flow exists but the email routing (CRM) is unresolved.
 
 **Tradeoffs:** Building billing infrastructure before having billing customers.
 
@@ -397,14 +399,14 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 ---
 
 ### 2.27 Availability
-- **Score:** 62
+- **Score:** 66
 - **Weight:** 1
-- **Weighted contribution:** 0.62 / 1.00
-- **Weighted deficiency:** 0.38
+- **Weighted contribution:** 0.66 / 1.00
+- **Weighted deficiency:** 0.34
 
-**Justification:** 99.9% monthly availability target documented. Health endpoints (live/ready/full). Synthetic probes in GitHub Actions. SQL failover Terraform. Container Apps with secondary region. Front Door for edge routing. BUT: staging is not DNS-reachable. No production deployment exists. RTO/RPO targets are documented but untested. Availability is designed but not demonstrated.
+**Justification:** 99.9% monthly availability target documented. Health endpoints (live/ready/full). Synthetic probes in GitHub Actions. SQL failover Terraform. Container Apps with secondary region. Front Door for edge routing. Staging DNS resolves and some endpoints are operational, providing partial availability proof. No production deployment with customer traffic exists. RTO/RPO targets are documented but untested.
 
-**Recommendations:** Validate synthetic probes against a running staging environment. *V1 fixable.*
+**Recommendations:** Validate synthetic probes against the running staging environment. Test health endpoints under load. *V1 fixable.*
 
 ---
 
@@ -457,14 +459,14 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 ---
 
 ### 2.32 Deployability
-- **Score:** 60
+- **Score:** 66
 - **Weight:** 1
-- **Weighted contribution:** 0.60 / 1.00
-- **Weighted deficiency:** 0.40
+- **Weighted contribution:** 0.66 / 1.00
+- **Weighted deficiency:** 0.34
 
-**Justification:** Docker images with multi-stage builds. docker-compose with profiles (dev, full-stack, demo). Terraform modules for Azure. DbUp automatic migrations. CI builds and publishes images. Package-release scripts. BUT: the deployment has not been validated end-to-end on Azure. apply-saas.ps1 exists but its success is unknown. No documented deployment runbook beyond Terraform plan/apply.
+**Justification:** Docker images with multi-stage builds. docker-compose with profiles (dev, full-stack, demo). Terraform modules for Azure. DbUp automatic migrations. CI builds and publishes images. Package-release scripts. The staging environment is deployed and partially operational, which validates the core deployment pipeline. Not all endpoints are wired, suggesting some deployment steps remain incomplete or untested.
 
-**Recommendations:** Execute a complete deployment to staging and document the steps as a runbook. *V1 fixable.*
+**Recommendations:** Document the staging deployment as a reproducible runbook. Wire remaining endpoints. *V1 fixable.*
 
 ---
 
@@ -644,11 +646,11 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 
 | Quality | Score | Weight | Weighted |
 |---------|-------|--------|----------|
-| Marketability | 52 | 8 | 4.16 |
-| Time-to-Value | 60 | 7 | 4.20 |
-| Adoption Friction | 55 | 6 | 3.30 |
+| Marketability | 58 | 8 | 4.64 |
+| Time-to-Value | 64 | 7 | 4.48 |
+| Adoption Friction | 58 | 6 | 3.48 |
 | Proof-of-ROI Readiness | 62 | 5 | 3.10 |
-| Executive Value Visibility | 65 | 4 | 2.60 |
+| Executive Value Visibility | 67 | 4 | 2.68 |
 | Differentiability | 70 | 4 | 2.80 |
 | Correctness | 72 | 4 | 2.88 |
 | Architectural Integrity | 78 | 3 | 2.34 |
@@ -657,12 +659,12 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 | Usability | 68 | 3 | 2.04 |
 | Workflow Embeddedness | 58 | 3 | 1.74 |
 | Trustworthiness | 60 | 3 | 1.80 |
-| Reliability | 68 | 2 | 1.36 |
+| Reliability | 70 | 2 | 1.40 |
 | Data Consistency | 70 | 2 | 1.40 |
 | Maintainability | 72 | 2 | 1.44 |
 | Explainability | 76 | 2 | 1.52 |
 | AI/Agent Readiness | 72 | 2 | 1.44 |
-| Azure Compat & SaaS Deploy | 55 | 2 | 1.10 |
+| Azure Compat & SaaS Deploy | 64 | 2 | 1.28 |
 | Auditability | 82 | 2 | 1.64 |
 | Policy & Governance Alignment | 74 | 2 | 1.48 |
 | Compliance Readiness | 58 | 2 | 1.16 |
@@ -670,12 +672,12 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 | Interoperability | 65 | 2 | 1.30 |
 | Decision Velocity | 68 | 2 | 1.36 |
 | Commercial Packaging Readiness | 58 | 2 | 1.16 |
-| Availability | 62 | 1 | 0.62 |
+| Availability | 66 | 1 | 0.66 |
 | Performance | 70 | 1 | 0.70 |
 | Scalability | 62 | 1 | 0.62 |
 | Supportability | 72 | 1 | 0.72 |
 | Manageability | 68 | 1 | 0.68 |
-| Deployability | 60 | 1 | 0.60 |
+| Deployability | 66 | 1 | 0.66 |
 | Observability | 78 | 1 | 0.78 |
 | Testability | 70 | 1 | 0.70 |
 | Stickiness | 65 | 1 | 0.65 |
@@ -698,7 +700,7 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 
 ## 3. Top 10 Most Important Weaknesses
 
-1. **The hosted SaaS funnel is not operational.** staging.archlucid.net does not resolve. This blocks all self-service acquisition, trial conversion, and live product demonstration. Every marketing, sales, and GTM investment is wasted until this works. This is not a code quality issue -- it is an infrastructure/operations gap.
+1. **The hosted SaaS funnel is partially operational but incomplete.** staging.archlucid.net resolves and some endpoints serve traffic, but not all buyer-facing surfaces (pricing, checkout) are wired. Self-service trial conversion is not yet possible end-to-end. This is an infrastructure completion gap, not a design or code quality issue.
 
 2. **Zero real customers or reference deployments exist.** All evidence is synthetic (Contoso demo), self-assessed, or modeled. No buyer, operator, or auditor has validated the product in real use. This makes every quality claim unfalsifiable and every ROI figure theoretical.
 
@@ -712,7 +714,7 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 
 7. **Documentation volume creates cognitive overhead.** 522 markdown files is extraordinary for a pre-GA product. While individually well-structured, the mass itself is a burden: contributors struggle to find the right doc, naming conventions are complex, and staleness risk is high. The five-doc spine and CI guards help but do not eliminate the problem.
 
-8. **First-run experience depends on infrastructure that is not validated.** The intended buyer path (sign up at archlucid.net -> trial -> wizard -> first run) is designed but not functional. The fallback path (Docker + .NET SDK) requires developer tooling that enterprise architects may not have.
+8. **First-run experience depends on infrastructure that is partially validated.** The intended buyer path (sign up at archlucid.net -> trial -> wizard -> first run) is designed and staging DNS resolves, but the full funnel is not operational end-to-end. The fallback path (Docker + .NET SDK) requires developer tooling that enterprise architects may not have.
 
 9. **Role-aware UI shaping is over-engineered for V1.** The shaping system (two disclosure tiers, three authority ranks, four shaping surfaces, deprecated shim names, 15+ regression test files) is enterprise-grade complexity for a product with zero users. This complexity slows feature development and increases maintenance burden without providing proportional V1 value.
 
@@ -722,7 +724,7 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 
 ## 4. Top 5 Monetization Blockers
 
-1. **Self-service trial funnel is broken.** staging.archlucid.net does not resolve. Without a working hosted trial, the product cannot acquire customers without manual sales intervention. This is the #1 revenue blocker.
+1. **Self-service trial funnel is incomplete.** staging.archlucid.net resolves but not all buyer-facing surfaces are wired (pricing, checkout). Without a complete self-service trial path including payment, the product cannot acquire customers without manual sales intervention. This is the #1 revenue blocker.
 
 2. **Stripe checkout is untested end-to-end.** The billing code exists (BillingProductionSafetyRules, webhook handlers, Marketplace abstraction) but has never processed a real or test payment through a reachable endpoint. No checkout = no revenue.
 
@@ -764,25 +766,25 @@ Total weight pool: 102. Qualities ordered by **weighted deficiency** (weight x (
 
 ## 7. Most Important Truth
 
-**ArchLucid has built the infrastructure for a commercially viable enterprise product but has not yet proven it works outside its own development environment.** The engineering is mature, the documentation is exhaustive, and the architectural decisions are sound. But the staging environment does not resolve, no customer has used the product, no auditor has reviewed it, and no payment has been processed. The gap is not capability -- it is operational proof. The single highest-leverage action is making the hosted SaaS funnel work and getting one real customer through a complete pilot.
+**ArchLucid has built the infrastructure for a commercially viable enterprise product and has deployed it to a partially operational staging environment, but has not yet proven it works with a real customer.** The engineering is mature, the documentation is exhaustive, the architectural decisions are sound, and the staging deployment resolves and serves traffic. But no customer has used the product, no auditor has reviewed it, and no payment has been processed. The gap is not capability or even deployment -- it is completing the last-mile buyer funnel (checkout, trial provisioning) and getting one real customer through a complete pilot.
 
 ---
 
 ## 8. Top Improvement Opportunities
 
-### Improvement 1: Make staging.archlucid.net resolvable and validate the full SaaS funnel
+### Improvement 1: Complete the staging SaaS funnel (wire remaining endpoints)
 
-**Why it matters:** Every commercial, enterprise, and trust metric depends on having a reachable product. Zero progress on customer acquisition, trial conversion, or procurement evidence is possible while the hosted environment is unreachable.
+**Why it matters:** The staging environment resolves and partially serves traffic, but not all buyer-facing surfaces are operational. Completing the funnel (pricing page, trial signup, checkout flow) unblocks self-service acquisition and validates the full buyer journey. This is the highest-leverage remaining infrastructure work.
 
-**Expected impact:** Unblocks trial signups, demo links, synthetic probe monitoring, and Stripe checkout validation. Directly improves Marketability (+15-20 pts), Time-to-Value (+10-15 pts), Adoption Friction (+10 pts), Azure Compat & SaaS Deploy (+15-20 pts), Deployability (+10 pts), Availability (+10 pts). Weighted readiness impact: +3.0-5.0%.
+**Expected impact:** Unblocks trial signups, Stripe checkout validation, and full synthetic probe monitoring. Directly improves Marketability (+5-8 pts), Time-to-Value (+3-5 pts), Commercial Packaging Readiness (+5-8 pts), Azure Compat & SaaS Deploy (+3-5 pts). Weighted readiness impact: +0.8-1.5%.
 
-**Affected qualities:** Marketability, Time-to-Value, Adoption Friction, Azure Compatibility and SaaS Deployment Readiness, Deployability, Availability, Commercial Packaging Readiness, Executive Value Visibility.
+**Affected qualities:** Marketability, Time-to-Value, Commercial Packaging Readiness, Azure Compatibility and SaaS Deployment Readiness, Adoption Friction.
 
 **Status:** DEFERRED
 
-**Reason:** This requires Azure subscription access, DNS configuration, and Front Door custom domain setup. The specific Azure subscription, resource group, and DNS zone are not visible in the codebase -- only referenced in Terraform variables and `apply-saas.ps1`.
+**Reason:** Completing the remaining staging endpoints requires knowledge of which specific endpoints are non-operational and why (configuration, missing Container Apps revision, Front Door route gap, or application-level issue). Diagnosing this requires running the full `TRIAL_FUNNEL_END_TO_END.md` checklist against the live staging environment, which needs the staging API key or admin credential.
 
-**Information needed:** (1) Which Azure subscription and resource group host the staging environment. (2) What DNS provider manages archlucid.net. (3) Whether `infra/apply-saas.ps1` has ever been successfully executed and what blocked it. (4) Whether Azure Container Apps are deployed and what image registry they pull from.
+**Information needed:** (1) Which specific endpoints on staging return errors or are not wired. (2) Whether the staging Container Apps revision is current with the latest image. (3) Whether Stripe TEST keys are configured in staging Key Vault.
 
 ---
 
@@ -1100,16 +1102,14 @@ No scoring penalty was applied for these deferred items.
 
 ## 10. Pending Questions for Later
 
-### Improvement 1 (Staging Funnel)
-- Has `infra/apply-saas.ps1` ever been executed successfully?
-- What Azure subscription hosts the staging resources?
-- What DNS provider manages archlucid.net?
-- Are Container Apps deployed? What image do they pull?
+### Improvement 1 (Staging Funnel Completion)
+- Which specific endpoints on staging are non-operational and why?
+- Is the staging Container Apps revision current with the latest CI image?
 
 ### Improvement 3 (Stripe Checkout)
 - Does a Stripe account exist with TEST mode enabled?
 - Are `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` configured in staging Key Vault?
-- Has the `/pricing` page ever rendered in a browser against a live backend?
+- Has the `/pricing` page ever rendered in a browser against the live staging backend?
 
 ### General
 - What is the current CI status on the main branch? Are the coverage gates being enforced or bypassed?

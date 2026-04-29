@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -81,12 +82,19 @@ public sealed class LlmCompletionAccountingClient(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         string providerKind = _inner.Descriptor.ProviderKind;
 
-        if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
-            _dailyTenantBudgetTracker.EnsureWithinBudgetBeforeCall(scope.TenantId, providerKind);
+        try
+        {
+            if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
+                _dailyTenantBudgetTracker.EnsureWithinBudgetBeforeCall(scope.TenantId, providerKind);
 
-        if (_quotaOptions.CurrentValue.Enabled)
-
-            _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
+            if (_quotaOptions.CurrentValue.Enabled)
+                _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
+        }
+        catch (LlmTokenQuotaExceededException)
+        {
+            ArchLucidInstrumentation.LlmQuotaExceededTotal.Add(1);
+            throw;
+        }
 
 
         LlmPromptRedactionOptions redactionOpts = _redactionOptions.CurrentValue;

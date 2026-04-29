@@ -38,16 +38,26 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
 
             if (opts.MaxPromptTokensPerTenantPerWindow > 0 &&
                 promptSum + opts.AssumedMaxPromptTokensPerRequest > opts.MaxPromptTokensPerTenantPerWindow)
+            {
+                DateTimeOffset retryAfter =
+                    ComputeSlidingWindowRetryAfterUtcLocked(window, utcNow, windowLength);
 
                 throw new LlmTokenQuotaExceededException(
-                    $"LLM prompt token quota exceeded for tenant (window {opts.WindowMinutes}m, limit {opts.MaxPromptTokensPerTenantPerWindow}).");
+                    $"LLM prompt token quota exceeded for tenant (window {opts.WindowMinutes}m, limit {opts.MaxPromptTokensPerTenantPerWindow}).",
+                    retryAfter);
+            }
 
 
             if (opts.MaxCompletionTokensPerTenantPerWindow > 0 &&
                 completionSum + opts.AssumedMaxCompletionTokensPerRequest > opts.MaxCompletionTokensPerTenantPerWindow)
+            {
+                DateTimeOffset retryAfter =
+                    ComputeSlidingWindowRetryAfterUtcLocked(window, utcNow, windowLength);
 
                 throw new LlmTokenQuotaExceededException(
-                    $"LLM completion token quota exceeded for tenant (window {opts.WindowMinutes}m, limit {opts.MaxCompletionTokensPerTenantPerWindow}).");
+                    $"LLM completion token quota exceeded for tenant (window {opts.WindowMinutes}m, limit {opts.MaxCompletionTokensPerTenantPerWindow}).",
+                    retryAfter);
+            }
         }
     }
 
@@ -73,6 +83,23 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
             PruneLocked(window, utcNow, windowLength);
             window.Events.Add((utcNow, Math.Max(0, promptTokens), Math.Max(0, completionTokens)));
         }
+    }
+
+    /// <summary>
+    ///     Oldest in-window usage drops out after <paramref name="windowLength" />; empty window uses
+    ///     <paramref name="utcNow" /> + window as a conservative hint.
+    /// </summary>
+    private static DateTimeOffset ComputeSlidingWindowRetryAfterUtcLocked(
+        TenantWindow window,
+        DateTime utcNow,
+        TimeSpan windowLength)
+    {
+        if (window.Events.Count == 0)
+            return new DateTimeOffset(utcNow, TimeSpan.Zero).Add(windowLength);
+
+        DateTime oldestUtc = window.Events.Min(e => e.Utc);
+
+        return new DateTimeOffset(oldestUtc, TimeSpan.Zero).Add(windowLength);
     }
 
     private static void PruneLocked(TenantWindow window, DateTime utcNow, TimeSpan windowLength)

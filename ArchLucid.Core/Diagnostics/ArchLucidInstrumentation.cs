@@ -129,6 +129,15 @@ public static class ArchLucidInstrumentation
             "archlucid_circuit_breaker_rejections_total",
             description: "Calls rejected because the circuit was open or a probe was in flight (label: gate).");
 
+    /// <summary>
+    ///     LLM completions rejected by per-tenant sliding-window token quota or UTC-day budget (pre-call, in
+    ///     <c>LlmCompletionAccountingClient</c>).
+    /// </summary>
+    public static readonly Counter<long> LlmQuotaExceededTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_quota_exceeded_total",
+            description: "LLM calls rejected by tenant token quota or daily budget before outbound completion.");
+
     /// <summary>Half-open probe results (labels: <c>gate</c>, <c>outcome</c>=success|failure|cancelled).</summary>
     public static readonly Counter<long> CircuitBreakerProbeOutcomes =
         AppMeter.CreateCounter<long>(

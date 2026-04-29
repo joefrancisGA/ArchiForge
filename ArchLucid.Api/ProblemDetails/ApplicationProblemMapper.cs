@@ -107,7 +107,13 @@ public static class ApplicationProblemMapper
                 quotaEx.Message,
                 ProblemTypes.LlmTokenQuotaExceeded,
                 instance,
-                httpContext);
+                httpContext,
+                details =>
+                {
+                    if (quotaEx.RetryAfterUtc is { } until)
+                        details.Extensions["retryAfterUtc"] = until;
+                });
+
             return true;
         }
 

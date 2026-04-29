@@ -30,8 +30,8 @@ public sealed class CreateRunResult
 /// <remarks>
 ///     On failure, <see cref="Runs.Orchestration.IArchitectureRunExecuteOrchestrator.ExecuteRunAsync"/> throws before returning.
 ///     Baseline mutation audit (<c>Baseline.Architecture.RunFailed</c>) then records exception type, or
-///     <c>CircuitBreakerOpenException:CircuitBreakerRejected</c> when the root cause is an open LLM circuit (see
-///     <see cref="AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected" /> on execution traces).
+///     <c>CircuitBreakerOpenException:CircuitBreakerRejected</c> / <c>LlmTokenQuotaExceededException:LlmTokenQuotaExceeded</c>
+///     when the root cause maps to <see cref="AgentExecutionTraceFailureReasonCodes" /> (see execution traces).
 /// </remarks>
 public sealed class ExecuteRunResult
 {

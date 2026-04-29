@@ -78,6 +78,21 @@ public sealed class ApplicationProblemMapperTests
         result!.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
         MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.LlmTokenQuotaExceeded);
+        p.Extensions.ContainsKey("retryAfterUtc").Should().BeFalse();
+    }
+
+    [Fact]
+    public void TryMapUnhandledException_LlmTokenQuotaExceeded_with_retry_includes_extension()
+    {
+        DateTimeOffset retry = new(2026, 5, 1, 12, 0, 0, TimeSpan.Zero);
+        LlmTokenQuotaExceededException ex = new("quota", retry);
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-429-retry");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        MvcProblemDetails p = result!.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Extensions["retryAfterUtc"].Should().Be(retry);
     }
 
     [Fact]

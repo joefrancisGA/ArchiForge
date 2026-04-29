@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Resilience;
@@ -436,6 +437,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         if (root is CircuitBreakerOpenException)
             return $"{root.GetType().Name}:{AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected}";
+
+        if (root is LlmTokenQuotaExceededException)
+            return $"{root.GetType().Name}:{AgentExecutionTraceFailureReasonCodes.LlmTokenQuotaExceeded}";
 
         return root.GetType().Name;
     }
