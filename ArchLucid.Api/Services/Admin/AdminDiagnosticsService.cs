@@ -2,6 +2,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.Text.Json;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
@@ -27,10 +28,14 @@ public sealed class AdminDiagnosticsService(
     IRunRepository runRepository,
     IDbConnectionFactory connectionFactory,
     IOptions<ArchLucidOptions> archLucidOptions,
+    IActorContext actorContext,
     IAuditService auditService) : IAdminDiagnosticsService
 {
     private readonly IOptions<ArchLucidOptions> _archLucidOptions =
         archLucidOptions ?? throw new ArgumentNullException(nameof(archLucidOptions));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -385,19 +390,69 @@ public sealed class AdminDiagnosticsService(
     }
 
     /// <inheritdoc />
-    public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
+    public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
         DateTimeOffset createdBeforeUtc,
         CancellationToken cancellationToken = default)
     {
-        return _runRepository.ArchiveRunsCreatedBeforeAsync(createdBeforeUtc, cancellationToken);
+        RunArchiveBatchResult result =
+            await _runRepository.ArchiveRunsCreatedBeforeAsync(createdBeforeUtc, cancellationToken);
+
+        if (result.UpdatedCount > 0)
+
+            await LogManifestArchivedBatchAsync(
+                $"createdBefore:{createdBeforeUtc.UtcDateTime:o}",
+                result.ArchivedRuns.Count,
+                result.ArchivedRuns.Select(static r => r.RunId.ToString("D")).ToList(),
+                result.ChildCascade,
+                cancellationToken);
+
+        return result;
     }
 
     /// <inheritdoc />
-    public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
+    public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
         IReadOnlyList<Guid> runIds,
         CancellationToken cancellationToken = default)
     {
-        return _runRepository.ArchiveRunsByIdsAsync(runIds, cancellationToken);
+        RunArchiveByIdsResult result = await _runRepository.ArchiveRunsByIdsAsync(runIds, cancellationToken);
+
+        if (result.SucceededRunIds.Count > 0)
+
+            await LogManifestArchivedBatchAsync(
+                "byIds",
+                result.SucceededRunIds.Count,
+                result.SucceededRunIds.Select(static r => r.ToString("D")).ToList(),
+                result.ChildCascade,
+                cancellationToken);
+
+        return result;
+    }
+
+    private async Task LogManifestArchivedBatchAsync(
+        string kind,
+        int updatedCount,
+        List<string> archivedRunIdsSample,
+        RunArchiveChildCascadeCounts childCascade,
+        CancellationToken cancellationToken)
+    {
+        string actor = _actorContext.GetActor();
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ManifestArchived,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        kind,
+                        updatedRuns = updatedCount,
+                        sampleRunIds = archivedRunIdsSample.Take(64).ToList(),
+                        childCascade,
+                    }),
+            },
+            cancellationToken);
     }
 
     private static async Task<long> ExecuteCountAsync(

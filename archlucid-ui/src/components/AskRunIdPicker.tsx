@@ -209,6 +209,34 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }
 
   if (items.length === 0) {
+    const demoMode =
+      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+
+    if (demoMode && preferAutoPick) {
+      return (
+        <div className="space-y-2">
+          <Label htmlFor={selectControlId}>
+            {labelText} {optionalCopy}
+          </Label>
+          <Select
+            disabled={disabled}
+            value={value.trim().length > 0 ? value : SHOWCASE_STATIC_DEMO_RUN_ID}
+            onValueChange={onChange}
+          >
+            <SelectTrigger id={selectControlId} className="font-mono text-sm">
+              <SelectValue placeholder="Choose demo run" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={SHOWCASE_STATIC_DEMO_RUN_ID}>Claims Intake Modernization Run</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+            Runs list unavailable — demo mode uses the Claims Intake sample run.
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-2">
         <Label htmlFor={selectControlId}>

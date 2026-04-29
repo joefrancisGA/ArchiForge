@@ -32,7 +32,7 @@ export function RunProvenanceInline({ run }: RunProvenanceInlineProps) {
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
       <ul
         className="m-0 flex list-none items-center gap-1.5 p-0"
-        aria-label="Pipeline artifact progress"
+        aria-label="Review trail status"
         data-testid="run-provenance-inline"
       >
         {stages.map((stage) => (
@@ -52,7 +52,7 @@ export function RunProvenanceInline({ run }: RunProvenanceInlineProps) {
         className="text-[11px] text-neutral-600 dark:text-neutral-400"
         data-testid="run-provenance-inline-summary"
       >
-        Pipeline stages {presentCount}/{stages.length} complete — dots map Context → Graph → Findings → Reviewed manifest (hover each dot for detail).
+        Review trail: {presentCount}/{stages.length} stages complete — hover each dot for detail.
       </span>
     </div>
   );

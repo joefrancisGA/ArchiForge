@@ -134,9 +134,9 @@ export default function GraphPage() {
             onChange={(e) => setMode(e.target.value as GraphMode)}
             className="p-2 w-full max-w-[420px]"
           >
-            <option value="provenance-full">Full review-trail graph</option>
-            <option value="decision-subgraph">Decision subgraph</option>
-            <option value="node-neighborhood">Node neighborhood</option>
+            <option value="provenance-full">Review trail graph</option>
+            <option value="decision-subgraph">Decision focus</option>
+            <option value="node-neighborhood">Node connections</option>
             <option value="architecture">Architecture graph</option>
           </select>
         </div>
@@ -145,7 +145,7 @@ export default function GraphPage() {
           <input
             value={decisionId}
             onChange={(e) => setDecisionId(e.target.value)}
-            placeholder="Decision ID (node GUID or reference id)"
+            placeholder="Decision ID"
             className="p-2"
           />
         )}
@@ -155,7 +155,7 @@ export default function GraphPage() {
             <input
               value={nodeId}
               onChange={(e) => setNodeId(e.target.value)}
-              placeholder="Provenance node ID (GUID)"
+              placeholder="Node ID"
               className="p-2"
             />
             <label className="flex items-center gap-2">
@@ -205,7 +205,7 @@ export default function GraphPage() {
           />
           <OperatorTryNext>
             This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed JSON body.
-            Confirm the run ID exists in <Link href="/runs?projectId=default">Runs</Link>, retry{" "}
+            Confirm the run exists in <Link href="/runs?projectId=default">Runs</Link>, retry{" "}
             <strong>Load graph</strong>, and check the browser network tab for the failing{" "}
             <code>/v1/…/graph</code> call.
           </OperatorTryNext>
@@ -224,7 +224,7 @@ export default function GraphPage() {
           </OperatorMalformedCallout>
           <OperatorTryNext>
             Compare <code>GET /version</code> on the API with your UI deployment. Try another run from{" "}
-            <Link href="/runs?projectId=default">Runs</Link> in case this run has legacy or partial graph storage.
+            <Link href="/runs?projectId=default">Runs</Link> if this run has partial graph data.
           </OperatorTryNext>
         </>
       )}

@@ -248,7 +248,7 @@ export function OperatorFirstRunWorkflowPanel() {
           aria-controls="first-run-workflow-panel"
           className="auth-panel-focus w-full cursor-pointer rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-left text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
         >
-          Show First Manifest Checklist
+          Show First Manifest Guide
         </button>
       </div>
     );
@@ -305,11 +305,54 @@ export function OperatorFirstRunWorkflowPanel() {
       className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
       aria-labelledby="first-run-workflow-heading"
     >
+      {hasAnyRun ? (
+        <div className="mb-3 rounded-md border border-teal-200 bg-teal-50/70 px-3 py-2.5 dark:border-teal-800 dark:bg-teal-950/40">
+          <h2 id="first-run-workflow-heading" className="m-0 text-sm font-semibold text-teal-900 dark:text-teal-100">
+            Explore completed output
+          </h2>
+          <p className="m-0 mt-0.5 text-xs text-teal-800 dark:text-teal-300">
+            A run has completed. Jump into the outputs below.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <Link
+              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              href="/runs?projectId=default"
+            >
+              Runs
+            </Link>
+            <Link
+              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              href="/governance/findings"
+            >
+              Findings
+            </Link>
+            <Link
+              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              href="/ask"
+            >
+              Ask
+            </Link>
+            <Link
+              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              href="/compare"
+            >
+              Compare
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            First Manifest Checklist
-          </h2>
+          {!hasAnyRun ? (
+            <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              First Manifest Guide
+            </h2>
+          ) : (
+            <h2 className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              First Manifest Guide
+            </h2>
+          )}
           <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
             Create → <GlossaryTooltip termKey="run">Run</GlossaryTooltip> → Finalize → Review
           </p>

@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 type RunIdPickerProps = {
   value: string;
   onChange: (runId: string) => void;
+  /** Called when the user explicitly selects a run from the dropdown (not on every keystroke). */
+  onSelect?: (runId: string) => void;
   placeholder: string;
   label: string;
   projectId?: string;
@@ -34,6 +36,7 @@ function truncate(text: string, max: number): string {
 export function RunIdPicker({
   value,
   onChange,
+  onSelect,
   placeholder,
   label,
   projectId = "default",
@@ -150,6 +153,7 @@ export function RunIdPicker({
                   onClick={() => {
                     setQuery(r.runId);
                     onChange(r.runId);
+                    onSelect?.(r.runId);
                     setOpen(false);
                   }}
                 >

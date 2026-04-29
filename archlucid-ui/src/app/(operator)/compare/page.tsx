@@ -311,8 +311,7 @@ function CompareForm() {
         <OperatorLoadingNotice>
           <strong>Comparing runs.</strong>
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-            Legacy compare API first, then structured golden-manifest compare (same pair). Sections below
-            are ordered for review: structured first, then legacy.
+            Comparing runs — this may take a few seconds. Results appear below when ready.
           </p>
         </OperatorLoadingNotice>
       )}
@@ -468,7 +467,7 @@ function CompareForm() {
             )}
             {result !== null && (
               <li>
-                <a href="#compare-legacy">Legacy authority diff</a>
+                <a href="#compare-legacy">Run-level diff</a>
               </li>
             )}
             {aiExplanation !== null && (
@@ -482,7 +481,18 @@ function CompareForm() {
 
       {golden !== null && <StructuredComparisonView golden={golden} />}
 
-      {result !== null && <LegacyRunComparisonView result={result} />}
+      {result !== null && (
+        golden !== null ? (
+          <details className="mt-6">
+            <summary className="cursor-pointer text-sm font-semibold text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100">
+              Show run-level diff
+            </summary>
+            <LegacyRunComparisonView result={result} />
+          </details>
+        ) : (
+          <LegacyRunComparisonView result={result} />
+        )
+      )}
 
       {aiExplanation !== null && <AiComparisonExplanationView explanation={aiExplanation} />}
     </main>

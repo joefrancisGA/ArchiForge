@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -191,6 +192,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             idempotencyRepository.Object,
             actor.Object,
             Mock.Of<IBaselineMutationAuditService>(),
+            Mock.Of<IAuditService>(),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new NoOpDistributedCreateRunIdempotencyLock(),
@@ -299,6 +301,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             idempotencyRepository.Object,
             actor.Object,
             Mock.Of<IBaselineMutationAuditService>(),
+            Mock.Of<IAuditService>(),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
             new NoOpDistributedCreateRunIdempotencyLock(),

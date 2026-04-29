@@ -561,9 +561,14 @@ function GovernanceWorkflowPageInner() {
                 <RunIdPicker
                   inputId="gov-query-run"
                   label="Run"
-                  placeholder="Choose or type a run ID"
+                  placeholder="Select a run"
                   value={queryRunId}
                   onChange={setQueryRunId}
+                  onSelect={(id) => {
+                    setQueryRunId(id);
+                    setActiveRunId(id);
+                    void loadLists(id);
+                  }}
                 />
               </div>
               <div className="flex flex-wrap gap-2">

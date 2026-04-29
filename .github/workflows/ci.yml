@@ -316,6 +316,14 @@ jobs:
           cd scripts/ci
           python -m unittest test_assert_controller_mutations_have_audit -q
 
+      - name: Layered audit wiring — echo marker CI tripwire
+        run: python scripts/ci/assert_layered_audit_wiring_echo.py
+
+      - name: Layered audit wiring echo — unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_assert_layered_audit_wiring_echo -q
+
       - name: "PGP public key — validate armored key when present; warn when pending"
         continue-on-error: true
         # Missing key: script exits 0 (stderr notice). Invalid committed key: exits 1 — then fix or set merge-blocking.

@@ -11,6 +11,7 @@ using ArchLucid.Application.Evolution;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs.Finalization;
@@ -162,6 +163,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<BoardPackPdfBuilder>();
         services.TryAddSingleton<IInstrumentationCounterSnapshotProvider, MeterListenerCounterSnapshotProvider>();
         services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
+        services.AddScoped<IFindingReviewTrailAppendService, FindingReviewTrailAppendService>();
         services.AddScoped<ISponsorEvidencePackService, SponsorEvidencePackService>();
         services.AddScoped<ITenantMeasuredRoiService, TenantMeasuredRoiService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();

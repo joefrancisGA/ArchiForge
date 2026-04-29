@@ -21,6 +21,7 @@ import { getApprovalRequestLineage } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 export default function GovernanceApprovalLineagePage() {
@@ -55,7 +56,7 @@ export default function GovernanceApprovalLineagePage() {
     void load();
   }, [load]);
 
-  if (!approvalRequestId) {
+  if (!approvalRequestId || isInvalidDynamicRouteToken(approvalRequestId)) {
     return (
       <OperatorEmptyState title="Missing approval id">
         <p className="text-sm">
@@ -250,12 +251,6 @@ export default function GovernanceApprovalLineagePage() {
       </Card>
 
       <Separator />
-      <p className="text-xs text-muted-foreground">
-        Per-finding explainability (no LLM):{" "}
-        <span className="font-mono">
-          GET /v1/explain/runs/{"{runId}"}/findings/{"{findingId}"}/explainability
-        </span>
-      </p>
     </div>
   );
 }

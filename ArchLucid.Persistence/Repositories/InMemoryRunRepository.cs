@@ -2,6 +2,8 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
 
+using ArchLucid.Contracts.Common;
+
 using ArchLucid.Core.Pagination;
 
 using ArchLucid.Core.Scoping;using ArchLucid.Core.Tenancy;
@@ -282,6 +284,43 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             ArchivedRuns = archived,
             Failed = failed
         });
+    }
+
+    /// <inheritdoc />
+    public Task<int> CountActiveRunsForArchitectureRequestAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(architectureRequestId))
+            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
+
+        string key = architectureRequestId.Trim();
+
+        List<RunRecord> matches =
+        [
+            .. _store.Values.Where(r =>
+                MatchesScope(r, scope) &&
+                !r.ArchivedUtc.HasValue &&
+                string.Equals(r.ArchitectureRequestId, key, StringComparison.OrdinalIgnoreCase)),
+        ];
+
+        return Task.FromResult(matches.Count(r => LegacyRunStatusIsNonTerminal(r.LegacyRunStatus)));
+    }
+
+    private static bool LegacyRunStatusIsNonTerminal(string? legacyRunStatus)
+    {
+        // Null/empty statuses are treated as active — safer than falsely releasing lifecycle while status is uninitialized.
+        if (string.IsNullOrWhiteSpace(legacyRunStatus))
+            return true;
+
+        if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return !string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase);
     }
 
     private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)

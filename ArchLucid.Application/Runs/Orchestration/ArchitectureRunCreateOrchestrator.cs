@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Coordination;
@@ -13,6 +14,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -36,6 +38,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
+    IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IUsageMeteringService usageMetering,
     IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock,
@@ -56,6 +59,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         architectureRunIdempotencyRepository ?? throw new ArgumentNullException(nameof(architectureRunIdempotencyRepository));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
     private readonly IDistributedCreateRunIdempotencyLock _distributedCreateRunIdempotencyLock =
@@ -220,6 +224,56 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 $"RequestId={request.RequestId}; Environment={request.Environment}; SystemName={request.SystemName}",
                 cancellationToken);
 
+        ScopeContext scopeCtx = _scopeContextProvider.GetCurrentScope();
+
+        if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runGuid))
+            runGuid = Guid.Empty;
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RequestCreated,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scopeCtx.TenantId,
+                WorkspaceId = scopeCtx.WorkspaceId,
+                ProjectId = scopeCtx.ProjectId,
+                RunId = runGuid == Guid.Empty ? null : runGuid,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        requestId = request.RequestId,
+                        runId = coordination.Run.RunId,
+                        systemName = request.SystemName,
+                        environment = request.Environment.ToString(),
+                        cloudProvider = request.CloudProvider.ToString(),
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RequestLocked,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scopeCtx.TenantId,
+                WorkspaceId = scopeCtx.WorkspaceId,
+                ProjectId = scopeCtx.ProjectId,
+                RunId = runGuid == Guid.Empty ? null : runGuid,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        requestId = request.RequestId,
+                        runId = coordination.Run.RunId,
+                        rationale =
+                            "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle.",
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
         if (_logger.IsEnabled(LogLevel.Information))
 
             _logger.LogInformation(
@@ -239,6 +293,11 @@ public sealed class ArchitectureRunCreateOrchestrator(
             EvidenceBundle = coordination.EvidenceBundle,
             Tasks = coordination.Tasks,
         };
+    }
+
+    private static bool TryParseCoordinationRunGuid(string runId, out Guid runGuid)
+    {
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 
     private static string BuildIdempotencyGateKey(CreateRunIdempotencyState idempotency)

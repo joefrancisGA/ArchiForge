@@ -32,7 +32,7 @@ export const GRAPH_IDLE: EmptyStateProps = {
   icon: Network,
   title: "No graph loaded yet",
   description:
-    "Enter a run ID from Runs (or run detail), choose a graph mode, then use Load graph. An empty node list after a successful load appears in the viewer below.",
+    "Select a run, choose a graph mode, and click Load graph. Each graph is made up of nodes (decisions, findings, artifacts, review events, architecture components) connected by edges that show how they relate to each other.",
   actions: [{ label: "View runs list", href: "/runs?projectId=default", variant: "outline" }],
 };
 

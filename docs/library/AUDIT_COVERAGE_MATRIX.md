@@ -147,19 +147,27 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-**Last reviewed:** 2026-04-23.
+**Last reviewed:** 2026-04-29.
 
-**Open gaps: 0** as of 2026-04-23. Architecture coordinator durable rows are emitted from `BaselineMutationAuditService` (not necessarily in the same file as each `RecordAsync`). Other `RecordAsync` call sites remain paired with a sibling durable call in-file **or** are explicitly allowed in `BaselineMutationAuditDualWritePairingTests`. The pairing rule is asserted by the test below.
+**Open gaps: 1.** `ManifestSuperseded` remains **catalogued-only** — there is currently no production mutation path that persists a golden manifest with `GoldenManifestLifecycleStatus.Superseded` in this repository; if/when supersession is implemented, wire `IAuditService.LogAsync` in the **application/orchestrator layer** that performs the write (not inside Dapper repositories).
 
-**2026-04-23 addendum (implicit gap closed).** `IAuthorityCommittedManifestChainWriter.PersistCommittedChainAsync` (demo trusted-baseline seed + replay commit) previously wrote authority SQL rows without a durable audit row; it now emits **`AuthorityCommittedChainPersisted`** from `DemoSeedService` / `ReplayRunService` after successful persistence (replay: after `IArchLucidUnitOfWork.CommitAsync`). See `docs/CHANGELOG.md` § 2026-04-23 — durable audit for authority committed manifest chain.
+**Layered enforcement shipped 2026-04-29**
+
+| Layer | Mechanism |
+|-------|-----------|
+| Pairing (#2) | `ArchLucid.Application.Tests/Audit/BaselineMutationAuditDualWritePairingTests.cs` — every `RecordAsync(` usage in `ArchLucid.Application` must pair with durable `LogAsync`/`TryLogAsync` unless file allowlisted |
+| Wiring echo CI (#3) | `scripts/ci/assert_layered_audit_wiring_echo.py` — asserts critical `AuditEventTypes.*` substrings survive refactors (`Request.*`, retry, finding-review façade, artifact synthesis, admin archival) |
+| Controllers (#existing) | `scripts/ci/assert_controller_mutations_have_audit.py` unchanged |
 
 | Surface previously flagged | Resolution | Verification |
 |---------------------------|-----------|--------------|
-| `ConversationController` | Read-only (GET endpoints only); no state to audit | Controller surface review |
-| `GovernanceController` | All POST actions delegate to `GovernanceWorkflowService`, which already dual-writes | Five `RecordAsync` ↔ `LogAsync` pairs in `GovernanceWorkflowService.cs` |
-| Coordinator orchestrators (`Create`, `Execute`, `Commit`) | Architecture durable `Run.*` echo centralized in `BaselineMutationAuditService`; commit orchestrators still emit pre-commit governance rows directly | `BaselineMutationAuditService.cs`, `BaselineMutationAuditArchitectureDurableWriter.cs`, orchestrator `RecordAsync` call sites |
+| `FindingReviewApproved` / `FindingReviewRejected` / `FindingReviewOverridden` | `FindingReviewTrailAppendService` delegates `IFindingReviewTrailRepository.AppendAsync` and emits durable audits | Pairing passes for orchestrators touching `FindingReview`/trail only via façade when API lands |
+| `ManifestArchived` cascades (`dbo.GoldenManifests.ArchivedUtc` via bulk run archival) | `AdminDiagnosticsService` logs `AuditEventTypes.ManifestArchived` after successful `ArchiveRuns*` calls | Wiring echo CI + orchestration review |
+| `RequestCreated` / `RequestLocked` / `RequestReleased` | `ArchitectureRunCreateOrchestrator`, `AuthorityDrivenArchitectureRunCommitOrchestrator` + `IRunRepository.CountActiveRunsForArchitectureRequestAsync` | Wiring echo CI |
+| Pipeline synthesis / findings sealing | `AuthorityPipelineStagesExecutor` | Wiring echo CI |
+| Run retry durability | `ArchitectureRunExecuteOrchestrator` emits `AuditEventTypes.Run.RetryRequested` | Wiring echo CI |
 
-**Future-drift signal.** Most `RecordAsync` call sites must still show an obvious durable sibling **or** be listed in `BaselineMutationAuditDualWritePairingTests.AllowedBaselineOnlyFiles`. Architecture coordinator create/execute orchestrators are exempt: durable rows are centralized in `BaselineMutationAuditService` + `BaselineMutationAuditArchitectureDurableWriter`. Governance and commit orchestrators retain in-file `LogAsync` where applicable. The pairing test is a static assertion against `ArchLucid.Application` source.
+**Future-drift signal.** Governance repository writes should continue to funnel through audited application services wherever possible; pairing + layering scripts are regression tripwires, not substitutes for semantic tests.
 
 ---
 

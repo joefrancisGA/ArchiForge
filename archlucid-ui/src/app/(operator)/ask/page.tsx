@@ -31,6 +31,8 @@ const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Explain the PHI minimization risk.",
   "Summarize the finalized manifest for a sponsor.",
   "What evidence supports this finding?",
+  "What evidence supports the PHI minimization risk?",
+  "Summarize this for an executive sponsor.",
 ];
 
 export default function AskPage() {
@@ -117,7 +119,25 @@ export default function AskPage() {
 
   async function onSelectThread(threadId: string) {
     setSelectedThreadId(threadId);
-    setRunId("");
+
+    const thread = threads.find((t) => t.threadId === threadId);
+
+    if (thread?.runId) {
+      setRunId(thread.runId);
+    } else {
+      setRunId("");
+    }
+
+    if (thread?.baseRunId) {
+      setBaseRunId(thread.baseRunId);
+      setTargetRunId(thread.targetRunId ?? "");
+      setCompareOpen(true);
+    } else {
+      setBaseRunId("");
+      setTargetRunId("");
+      setCompareOpen(false);
+    }
+
     await loadMessages(threadId);
   }
 

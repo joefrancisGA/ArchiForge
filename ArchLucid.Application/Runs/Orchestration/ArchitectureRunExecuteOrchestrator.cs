@@ -125,6 +125,30 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             throw new RunNotFoundException(runId);
 
 
+        if (run.Status == ArchitectureRunStatus.Failed)
+        {
+            ScopeContext retryScope = _scopeContextProvider.GetCurrentScope();
+
+            if (TryParseRunGuid(runId, out Guid failedRunGuid))
+
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.Run.RetryRequested,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = retryScope.TenantId,
+                        WorkspaceId = retryScope.WorkspaceId,
+                        ProjectId = retryScope.ProjectId,
+                        RunId = failedRunGuid,
+                        DataJson = JsonSerializer.Serialize(
+                            new { runId, previousStatus = nameof(ArchitectureRunStatus.Failed) },
+                            AuditJsonSerializationOptions.Instance),
+                    },
+                    cancellationToken);
+
+        }
+
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 
         if (idempotent is not null)

@@ -165,6 +165,28 @@ public sealed class AuthorityPipelineStagesExecutor(
 
             run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
             await UpdateRunAsync(run, uow, token);
+
+            if (findingsSnapshot.GenerationStatus == FindingsSnapshotGenerationStatus.Complete)
+
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.FindingsSnapshotSealed,
+                        RunId = run.RunId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ProjectId = scope.ProjectId,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                findingsSnapshotId = findingsSnapshot.FindingsSnapshotId.ToString("D"),
+                                findingsSnapshot.SchemaVersion,
+                                findingsCount = findingsSnapshot.Findings.Count,
+                                generationStatus = findingsSnapshot.GenerationStatus.ToString(),
+                            },
+                            AuditJsonSerializationOptions.Instance),
+                    },
+                    token);
         }, ct);
 
         await ExecuteStageAsync(ctx, "authority.decisioning", "decisioning", async (_, token) =>
@@ -211,7 +233,47 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         await ExecuteStageAsync(ctx, "authority.artifacts", "artifacts", async (_, token) =>
         {
-            ArtifactBundle artifactBundle = await _artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, token);
+            ArtifactBundle artifactBundle;
+            try
+            {
+                artifactBundle = await _artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, token);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.ArtifactSynthesisFailed,
+                        RunId = run.RunId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ProjectId = scope.ProjectId,
+                        ManifestId = ctx.Manifest!.ManifestId,
+                        DataJson = JsonSerializer.Serialize(
+                            new { reason = ex.GetType().Name },
+                            AuditJsonSerializationOptions.Instance),
+                    },
+                    token);
+
+                throw;
+            }
+
+            if (artifactBundle.Status == ArtifactBundleStatus.Partial)
+
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.ArtifactSynthesisPartial,
+                        RunId = run.RunId,
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ProjectId = scope.ProjectId,
+                        ManifestId = ctx.Manifest!.ManifestId,
+                        DataJson = JsonSerializer.Serialize(
+                            new { artifactBundle.BundleId, artifactBundle.Trace.TraceId },
+                            AuditJsonSerializationOptions.Instance),
+                    },
+                    token);
 
             if (_logger.IsEnabled(LogLevel.Information))
 

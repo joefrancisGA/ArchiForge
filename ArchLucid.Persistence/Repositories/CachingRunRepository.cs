@@ -130,6 +130,17 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
+    public Task<int> CountActiveRunsForArchitectureRequestAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return _inner.CountActiveRunsForArchitectureRequestAsync(scope, architectureRequestId, ct);
+    }
+
+    /// <inheritdoc />
     public async Task SaveAsync(
         RunRecord run,
         CancellationToken ct,

@@ -20,7 +20,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-
+using ArchLucid.Persistence.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -419,6 +419,41 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         // Pins dbo.Tenants.TrialFirstManifestCommittedUtc for every tenant on first commit; trial-funnel audit/metrics stay inside the hook.
         await _trialFunnelCommitHook.OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken);
         await _firstSessionLifecycleHook.OnSuccessfulManifestCommitAsync(commitScope.TenantId, cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(run.RequestId))
+
+        {
+
+            int remainingActiveRuns = await _runRepository.CountActiveRunsForArchitectureRequestAsync(
+                commitScope,
+                run.RequestId,
+                cancellationToken);
+
+            if (remainingActiveRuns == 0)
+
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.RequestReleased,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = commitScope.TenantId,
+                        WorkspaceId = commitScope.WorkspaceId,
+                        ProjectId = commitScope.ProjectId,
+                        RunId = runGuid,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                architectureRequestId = run.RequestId,
+                                remainingActiveRunsAfterCommit = remainingActiveRuns,
+                                trigger = "commit",
+                            },
+                            AuditJsonSerializationOptions.Instance),
+                    },
+                    cancellationToken);
+
+        }
+
 
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation(

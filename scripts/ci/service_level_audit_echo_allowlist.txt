@@ -1,0 +1,2 @@
+# Reserved for layered audit CI — same spirit as controller_action_audit_allowlist.txt but for
+# service/repo surfaces that legitimately relocate durable audit emission (prefer wiring LogAsync nearby).

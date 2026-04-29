@@ -1,6 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Contracts.Common;
+
 using ArchLucid.Core.Pagination;
 
 using ArchLucid.Core.Scoping;
@@ -708,6 +710,49 @@ public sealed class SqlRunRepository(
             Failed = failed,
             ChildCascade = childCascade
         };
+    }
+
+    /// <inheritdoc />
+    public async Task<int> CountActiveRunsForArchitectureRequestAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (string.IsNullOrWhiteSpace(architectureRequestId))
+            throw new ArgumentException("Architecture request id is required.", nameof(architectureRequestId));
+
+        const string sql = """
+                           SELECT COUNT(1)
+                           FROM dbo.Runs
+                           WHERE TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ScopeProjectId = @ScopeProjectId
+                             AND ArchitectureRequestId = @ArchitectureRequestId
+                             AND ArchivedUtc IS NULL
+                             AND (
+                                 LegacyRunStatus IS NULL
+                                 OR LegacyRunStatus NOT IN (@CommittedStatus, @FailedStatus));
+                           """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        int count = await connection.QuerySingleAsync<int>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ArchitectureRequestId = architectureRequestId.Trim(),
+                    CommittedStatus = nameof(ArchitectureRunStatus.Committed),
+                    FailedStatus = nameof(ArchitectureRunStatus.Failed),
+                },
+                cancellationToken: ct));
+
+        return count;
     }
 
     private static void ValidateRunKeysetCursor(DateTime? cursorCreatedUtc, Guid? cursorRunId)

@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
@@ -110,4 +111,14 @@ public interface IRunRepository
     ///     <see cref="RunArchiveByIdsResult.Failed" /> without failing the whole operation.
     /// </summary>
     Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct);
+
+    /// <summary>
+    ///     Counts runs in <paramref name="scope" /> for <paramref name="architectureRequestId" /> that are not archived
+    ///     and whose <see cref="RunRecord.LegacyRunStatus" /> is not terminal (<see cref="ArchitectureRunStatus.Committed" />
+    ///     or <see cref="ArchitectureRunStatus.Failed" />).
+    /// </summary>
+    Task<int> CountActiveRunsForArchitectureRequestAsync(
+        ScopeContext scope,
+        string architectureRequestId,
+        CancellationToken ct);
 }

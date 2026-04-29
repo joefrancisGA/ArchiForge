@@ -68,11 +68,11 @@ COPY ArchLucid.Worker/*.csproj             ArchLucid.Worker/
 COPY ArchLucid.Jobs.Cli/*.csproj           ArchLucid.Jobs.Cli/
 
 # RID must match publish (-r linux-musl-x64) or assets lack the musl target (NETSDK1047).
-# PublishReadyToRun=true on restore pulls R2R/crossgen packages into the graph; publish no longer uses --no-restore so Alpine
-# can reconcile any remaining packages (dotnet/sdk#22706-class issues when R2R + --no-restore interact badly).
-RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 /p:PublishReadyToRun=true \
-    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64 /p:PublishReadyToRun=true \
-    && dotnet restore ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj -r linux-musl-x64 /p:PublishReadyToRun=true
+# Omit PublishReadyToRun here and in publish: crossgen/R2R on linux-musl-x64 often yields NETSDK1095 in Alpine SDK builds
+# (dotnet/runtime#62219, dotnet/sdk#22706). Implicit restore on publish still reconciles packs without --no-restore.
+RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
+    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64 \
+    && dotnet restore ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj -r linux-musl-x64
 
 # ── Stage 2: publish ────────────────────────────────────────────────
 FROM restore AS publish
@@ -87,28 +87,28 @@ RUN test -f ArchLucid.Persistence/Pilots/IPilotBaselineRepository.cs \
     && test -f ArchLucid.Persistence/Pilots/DapperPilotBaselineRepository.cs \
     || (echo "FATAL: ArchLucid.Persistence/Pilots sources missing from Docker context. Use repo root as context (docker build -f ArchLucid.Api/Dockerfile .) and ensure Pilots/*.cs are committed." >&2; exit 1)
 # Re-restore after full sources land: restore stage only had .csproj stubs; full tree must match assets before publish.
-# Publish omits --no-restore so ReadyToRun/crossgen can reconcile packages on Alpine (dotnet/sdk#22706-style failures with --no-restore+R2R).
-RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 /p:PublishReadyToRun=true \
-    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64 /p:PublishReadyToRun=true \
-    && dotnet restore ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj -r linux-musl-x64 /p:PublishReadyToRun=true \
+# Publish omits --no-restore so implicit restore can reconcile graph on Alpine without crossgen mismatch.
+RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
+    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64 \
+    && dotnet restore ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj -r linux-musl-x64 \
     && dotnet publish ArchLucid.Api/ArchLucid.Api.csproj \
         -c Release \
         -r linux-musl-x64 \
         --self-contained false \
         -o /app \
-        /p:PublishReadyToRun=true \
+        /p:PublishReadyToRun=false \
     && dotnet publish ArchLucid.Worker/ArchLucid.Worker.csproj \
         -c Release \
         -r linux-musl-x64 \
         --self-contained false \
         -o /app \
-        /p:PublishReadyToRun=true \
+        /p:PublishReadyToRun=false \
     && dotnet publish ArchLucid.Jobs.Cli/ArchLucid.Jobs.Cli.csproj \
         -c Release \
         -r linux-musl-x64 \
         --self-contained false \
         -o /app \
-        /p:PublishReadyToRun=true
+        /p:PublishReadyToRun=false
 
 # ── Stage 3: runtime ───────────────────────────────────────────────
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23 AS runtime
