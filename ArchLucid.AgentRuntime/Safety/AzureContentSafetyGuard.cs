@@ -42,7 +42,6 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
         return await AnalyzeAsync(text, "input", cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<ContentSafetyResult> CheckOutputAsync(string text, CancellationToken cancellationToken)
     {
         return await AnalyzeAsync(text, "output", cancellationToken);
@@ -56,7 +55,10 @@ public sealed class AzureContentSafetyGuard : IContentSafetyGuard
             return Allowed;
 
 
-        AnalyzeTextOptions request = new(text) { OutputType = AnalyzeTextOutputType.FourSeverityLevels };
+        AnalyzeTextOptions request = new(text)
+        {
+            OutputType = AnalyzeTextOutputType.FourSeverityLevels
+        };
 
         try
         {

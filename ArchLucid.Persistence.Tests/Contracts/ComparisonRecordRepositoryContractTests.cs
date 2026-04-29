@@ -105,6 +105,7 @@ public abstract class ComparisonRecordRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IComparisonRecordRepository repo = CreateRepository();
+        // ReSharper disable once InconsistentNaming
         ComparisonRecord e2e = CreateRecord("cmp_e2e_" + Guid.NewGuid().ToString("N"));
         ComparisonRecord diff = CreateRecord("cmp_diff_" + Guid.NewGuid().ToString("N"), "export-record-diff");
 

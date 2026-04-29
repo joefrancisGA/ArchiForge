@@ -21,7 +21,6 @@ public sealed class ContentSafetyEnabledButUnconfiguredGuard : IContentSafetyGua
         throw new InvalidOperationException(Message);
     }
 
-    /// <inheritdoc />
     public Task<ContentSafetyResult> CheckOutputAsync(string text, CancellationToken cancellationToken)
     {
         _ = text;

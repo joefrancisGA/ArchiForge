@@ -16,7 +16,6 @@ public sealed class NullContentSafetyGuard : IContentSafetyGuard
         return Task.FromResult(Allowed);
     }
 
-    /// <inheritdoc />
     public Task<ContentSafetyResult> CheckOutputAsync(string text, CancellationToken cancellationToken)
     {
         _ = text;

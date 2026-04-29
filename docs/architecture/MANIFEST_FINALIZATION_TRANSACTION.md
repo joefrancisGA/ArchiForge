@@ -14,7 +14,7 @@ Persist the **decision trace** and **golden manifest**, then atomically **finali
 
 ## Database artifacts
 
-- **Filtered unique index** `UQ_GoldenManifests_RunId_Active` — at most one non-archived golden manifest per `RunId` (implemented in [`ArchLucid.sql`](../ArchLucid.Persistence/Scripts/ArchLucid.sql) and DbUp `120_ManifestFinalizationSpAndIndex.sql`).
+- **Filtered unique index** `UQ_GoldenManifests_RunId_Active` — at most one non-archived golden manifest per `RunId` (implemented in [`ArchLucid.sql`](../../ArchLucid.Persistence/Scripts/ArchLucid.sql) and DbUp `120_ManifestFinalizationSpAndIndex.sql`).
 - **`dbo.sp_FinalizeManifest`** — run header + audit + outbox only; manifest rows must already exist in the same transaction.
 
 ## In-memory / legacy path
@@ -25,12 +25,12 @@ When `IArchLucidUnitOfWork.SupportsExternalTransaction` is false, `ManifestFinal
 
 | Component | Location |
 |-----------|----------|
-| Orchestration entry | [`AuthorityDrivenArchitectureRunCommitOrchestrator`](../ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs) |
-| Service | [`ManifestFinalizationService`](../ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.cs) |
-| DI registration | [`ServiceCollectionExtensions.ApplicationPipeline.cs`](../ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs) |
+| Orchestration entry | [`AuthorityDrivenArchitectureRunCommitOrchestrator`](../../ArchLucid.Application/Runs/Orchestration/AuthorityDrivenArchitectureRunCommitOrchestrator.cs) |
+| Service | [`ManifestFinalizationService`](../../ArchLucid.Application/Runs/Finalization/ManifestFinalizationService.cs) |
+| DI registration | [`ServiceCollectionExtensions.ApplicationPipeline.cs`](../../ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.ApplicationPipeline.cs) |
 | Audit constant | `AuditEventTypes.ManifestFinalized` |
 | Integration type | `IntegrationEventTypes.ManifestFinalizedV1` |
-| JSON Schema | [`schemas/integration-events/manifest-finalized.v1.schema.json`](../schemas/integration-events/manifest-finalized.v1.schema.json) |
+| JSON Schema | [`schemas/integration-events/manifest-finalized.v1.schema.json`](../../schemas/integration-events/manifest-finalized.v1.schema.json) |
 
 ## Security, reliability, cost
 

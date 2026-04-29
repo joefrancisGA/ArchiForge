@@ -138,18 +138,18 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     await renderNewRunWizard();
 
     expect(progressLine()).toHaveTextContent(/Step 1: Choose starting point/);
-    expect(screen.getByTestId("new-run-wizard-stage-line")).toHaveTextContent(/Stage 1 of 3 — Request brief/);
+    expect(screen.getByTestId("new-run-wizard-stage-line")).toHaveTextContent(/Stage 1 of 4 — Request brief/);
 
     const greenfieldCard = greenfieldPresetCard();
     fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
 
     expect(progressLine()).toHaveTextContent(/Step 2:/);
 
-    for (let i = 0; i < 4; i += 1) {
+    for (let i = 0; i < 3; i += 1) {
       await clickPrimaryForward();
     }
 
-    expect(progressLine()).toHaveTextContent(/Step 6:/);
+    expect(progressLine()).toHaveTextContent(/Step 5:/);
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
 
     await act(async () => {
@@ -258,16 +258,13 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     const greenfieldCard = greenfieldPresetCard();
     fireEvent.click(within(greenfieldCard).getByRole("button", { name: "Use greenfield web app" }));
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    });
-    expect(progressLine()).toHaveTextContent(/Step 3:/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
 
     const description = screen.getByLabelText("Description");
     fireEvent.change(description, { target: { value: "short" } });
     fireEvent.blur(description);
 
-    expect(progressLine()).toHaveTextContent(/Step 3:/);
+    expect(progressLine()).toHaveTextContent(/Step 2:/);
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
     expect(await screen.findByRole("alert")).toHaveTextContent(/at least 10 characters/i);
   });

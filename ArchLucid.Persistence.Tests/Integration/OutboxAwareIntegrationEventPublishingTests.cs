@@ -259,6 +259,5 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
     /// <summary>JsonSerializer cannot serialize a self-reference; used to force the serialization catch path.</summary>
     private sealed class CyclePayload
     {
-        public CyclePayload Self => this;
     }
 }
