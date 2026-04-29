@@ -402,8 +402,7 @@ export default async function RunDetailPage({
           <CardHeader>
             <h3 className={sectionHeadingClass}>Review trail</h3>
             <CardDescription>
-              The reviewed manifest links to the finalized architecture record. Expand audit identifiers for traceability
-              reference.
+              The reviewed manifest anchors the authoritative record. Recent pipeline milestones summarize how snapshots converged toward finalization.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -425,6 +424,23 @@ export default async function RunDetailPage({
                 )}
               </div>
             </div>
+
+            <section aria-labelledby="review-trail-timeline-heading" className="space-y-2">
+              <h4 id="review-trail-timeline-heading" className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                Recorded milestone trail
+              </h4>
+              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                Same audit events as Pipeline timeline above; scroll here without leaving the reviewed manifest context.
+              </p>
+              {pipelineTimelineFailure ? (
+                <>
+                  <AuthorityPipelineTimeline items={null} loadErrorMessage={pipelineTimelineFailure.message} />
+                  <OperatorSectionRetryButton label="Retry loading review trail timeline" />
+                </>
+              ) : (
+                <AuthorityPipelineTimeline items={pipelineTimeline} />
+              )}
+            </section>
 
             <CollapsibleSection title="Audit identifiers" defaultOpen={false}>
               <ol className="m-0 list-none space-y-0 divide-y divide-neutral-200 p-0 dark:divide-neutral-800">

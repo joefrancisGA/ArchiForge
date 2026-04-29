@@ -6,6 +6,7 @@ import { ProvenanceGraphDiagram } from "@/components/ProvenanceGraphDiagram";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import { type ApiResponseWithTrace, getArchitectureRunProvenance } from "@/lib/api";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
@@ -33,6 +34,15 @@ export default async function RunProvenancePage({
     provenanceResponse = await getArchitectureRunProvenance(runId);
   } catch (e) {
     loadFailure = toApiLoadFailure(e);
+  }
+
+  if (loadFailure !== null || provenanceResponse === null) {
+    const demoGraph = tryStaticDemoProvenanceGraph(runId);
+
+    if (demoGraph !== null) {
+      provenanceResponse = { data: demoGraph, traceId: null };
+      loadFailure = null;
+    }
   }
 
   if (loadFailure || !provenanceResponse) {

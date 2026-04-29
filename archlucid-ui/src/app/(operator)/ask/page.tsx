@@ -11,7 +11,6 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -24,6 +23,12 @@ import {
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
+
+const ASK_EXAMPLE_PROMPTS: readonly string[] = [
+  "Summarize the PHI risk for this run.",
+  "What should the sponsor review before sign-off?",
+  "Explain the finalized manifest in plain language.",
+];
 
 export default function AskPage() {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
@@ -181,7 +186,12 @@ export default function AskPage() {
         <Card className="border-neutral-200 dark:border-neutral-700">
           <CardContent className="space-y-4 p-4">
             <div className="grid gap-3">
-              <AskRunIdPicker value={runId} onChange={setRunId} selectedThreadId={selectedThreadId} />
+              <AskRunIdPicker
+                value={runId}
+                onChange={setRunId}
+                selectedThreadId={selectedThreadId}
+                fieldId="ask-run-primary"
+              />
               <Collapsible open={compareOpen} onOpenChange={setCompareOpen}>
                 <div className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-200">
                   <CollapsibleTrigger asChild>
@@ -202,26 +212,22 @@ export default function AskPage() {
                     </Button>
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-3 grid gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="ask-base-run">Base run ID</Label>
-                      <Input
-                        id="ask-base-run"
-                        className="font-mono text-sm"
-                        value={baseRunId}
-                        onChange={(e) => setBaseRunId(e.target.value)}
-                        autoComplete="off"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="ask-target-run">Target run ID</Label>
-                      <Input
-                        id="ask-target-run"
-                        className="font-mono text-sm"
-                        value={targetRunId}
-                        onChange={(e) => setTargetRunId(e.target.value)}
-                        autoComplete="off"
-                      />
-                    </div>
+                    <AskRunIdPicker
+                      value={baseRunId}
+                      onChange={setBaseRunId}
+                      selectedThreadId={selectedThreadId}
+                      preferAutoPick={false}
+                      label="Base run"
+                      fieldId="ask-compare-base"
+                    />
+                    <AskRunIdPicker
+                      value={targetRunId}
+                      onChange={setTargetRunId}
+                      selectedThreadId={selectedThreadId}
+                      preferAutoPick={false}
+                      label="Compare run"
+                      fieldId="ask-compare-target"
+                    />
                   </CollapsibleContent>
                 </div>
               </Collapsible>
@@ -235,6 +241,20 @@ export default function AskPage() {
                   placeholder="Ask about your architecture..."
                   rows={4}
                 />
+                <div className="flex flex-wrap gap-2" role="group" aria-label="Example prompts">
+                  {ASK_EXAMPLE_PROMPTS.map((line) => (
+                    <Button
+                      key={line}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-auto max-w-full whitespace-normal py-1.5 text-left text-xs font-normal"
+                      onClick={() => setQuestion(line)}
+                    >
+                      {line}
+                    </Button>
+                  ))}
+                </div>
               </div>
 
               <Button

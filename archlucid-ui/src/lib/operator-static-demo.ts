@@ -4,6 +4,7 @@ import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail } from "@/types/authority";
+import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 const DEMO_RUN_IDS_FOR_STATIC_FALLBACK = new Set<string>([
@@ -156,4 +157,132 @@ export function tryStaticDemoExplanationSummary(runId: string): RunExplanationSu
   }
 
   return getShowcaseStaticDemoPayload(runId).runExplanation;
+}
+
+/** Curated linkage graph aligned with Claims Intake static showcase payloads (demo static operator mode only). */
+export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): ArchitectureRunProvenanceGraph {
+
+  const d = getShowcaseStaticDemoPayload(urlRunId);
+
+  const rid = d.run.runId;
+
+  const manifest = d.manifest;
+
+  const chain = d.authorityChain;
+
+  const timeline = d.pipelineTimeline.map((row) => ({
+    timestampUtc: row.occurredUtc,
+    kind: row.eventType,
+    label: row.eventType.replaceAll(".", " "),
+    referenceId: row.correlationId ?? null,
+  }));
+
+  return {
+
+    runId: rid,
+
+    nodes: [
+
+      { id: "n-run", type: "ArchitectureRun", referenceId: rid, name: "Architecture run" },
+
+      {
+
+        id: "n-ctx",
+
+        type: "ContextSnapshot",
+
+        referenceId: chain.contextSnapshotId ?? "ctx-demo",
+
+        name: "Context snapshot",
+
+      },
+
+      {
+
+        id: "n-graph",
+
+        type: "GraphSnapshot",
+
+        referenceId: chain.graphSnapshotId ?? "graph-demo",
+
+        name: "Graph snapshot",
+
+      },
+
+      {
+
+        id: "n-find",
+
+        type: "FindingsSnapshot",
+
+        referenceId: chain.findingsSnapshotId ?? "find-demo",
+
+        name: "Findings snapshot",
+
+      },
+
+      {
+
+        id: "n-manifest",
+
+        type: "GoldenManifest",
+
+        referenceId: manifest.manifestId,
+
+        name: "Reviewed manifest",
+
+      },
+
+      {
+
+        id: "n-bundle",
+
+        type: "ArtifactBundle",
+
+        referenceId: chain.artifactBundleId ?? "bundle-demo",
+
+        name: "Artifact bundle",
+
+      },
+
+    ],
+
+    edges: [
+
+      { id: "e-run-ctx", type: "produced", fromNodeId: "n-run", toNodeId: "n-ctx" },
+
+      { id: "e-ctx-graph", type: "next", fromNodeId: "n-ctx", toNodeId: "n-graph" },
+
+      { id: "e-graph-find", type: "next", fromNodeId: "n-graph", toNodeId: "n-find" },
+
+      { id: "e-find-manifest", type: "materialized", fromNodeId: "n-find", toNodeId: "n-manifest" },
+
+      { id: "e-manifest-bundle", type: "packaged", fromNodeId: "n-manifest", toNodeId: "n-bundle" },
+
+    ],
+
+    timeline,
+
+    traceabilityGaps: [],
+
+  };
+
+}
+
+export function tryStaticDemoProvenanceGraph(runId: string): ArchitectureRunProvenanceGraph | null {
+
+  if (!isOperatorDemoStaticMode()) {
+
+    return null;
+
+  }
+
+  if (!isDemoRunIdEligibleForStaticFallback(runId)) {
+
+    return null;
+
+  }
+
+  return buildStaticDemoProvenanceGraphFromShowcase(runId);
+
 }

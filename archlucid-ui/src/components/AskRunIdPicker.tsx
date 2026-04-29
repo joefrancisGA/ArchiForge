@@ -21,6 +21,14 @@ export type AskRunIdPickerProps = {
   readonly value: string;
   readonly onChange: (runId: string) => void;
   readonly selectedThreadId: string;
+  /**
+   * When false, do not auto-select the demo / first listed run while `value` is empty — use for paired compare/base pickers.
+   * Defaults to true.
+   */
+  readonly preferAutoPick?: boolean;
+  readonly label?: string;
+  /** Stable DOM id suffix so multiple pickers avoid duplicate ids (defaults to primary run field). */
+  readonly fieldId?: string;
 };
 
 /**
@@ -28,10 +36,22 @@ export type AskRunIdPickerProps = {
  * Falls back to manual entry when the list endpoint fails or returns no rows.
  */
 export function AskRunIdPicker(props: AskRunIdPickerProps) {
-  const { value, onChange, selectedThreadId } = props;
+  const {
+    value,
+    onChange,
+    selectedThreadId,
+    preferAutoPick = true,
+    label,
+    fieldId,
+  } = props;
   const [items, setItems] = useState<RunSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+
+  const labelText = label ?? "Run";
+  const controlIdPrefix = fieldId ?? "ask-run-primary";
+  const selectControlId = `${controlIdPrefix}-select`;
+  const inputControlId = `${controlIdPrefix}-input`;
 
   useEffect(() => {
     let cancelled = false;
@@ -63,6 +83,10 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }, []);
 
   useEffect(() => {
+    if (!preferAutoPick) {
+      return;
+    }
+
     if (loading) {
       return;
     }
@@ -88,7 +112,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     if (demoMode && demoPreferred !== undefined) {
       onChange(demoPreferred.runId);
     }
-  }, [loading, items, value, onChange]);
+  }, [loading, items, value, onChange, preferAutoPick]);
 
   const optionalCopy =
     selectedThreadId.trim().length > 0 ? "(optional if thread already anchored)" : "(required for new thread)";
@@ -96,12 +120,14 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   if (loadError) {
     return (
       <div className="space-y-2">
-        <Label htmlFor="ask-run-id">Run ID {optionalCopy}</Label>
+        <Label htmlFor={inputControlId}>
+          {labelText} ID {optionalCopy}
+        </Label>
         <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
           Could not load runs — enter a run ID manually.
         </p>
         <Input
-          id="ask-run-id"
+          id={inputControlId}
           className="font-mono text-sm"
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -115,9 +141,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   if (loading) {
     return (
       <div className="space-y-2">
-        <Label htmlFor="ask-run-picker">Run</Label>
+        <Label htmlFor={selectControlId}>{labelText}</Label>
         <Select disabled>
-          <SelectTrigger id="ask-run-picker" className="font-mono text-sm">
+          <SelectTrigger id={selectControlId} className="font-mono text-sm">
             <SelectValue placeholder="Loading runs…" />
           </SelectTrigger>
         </Select>
@@ -128,9 +154,11 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   if (items.length === 0) {
     return (
       <div className="space-y-2">
-        <Label htmlFor="ask-run-id">Run ID {optionalCopy}</Label>
+        <Label htmlFor={inputControlId}>
+          {labelText} ID {optionalCopy}
+        </Label>
         <Input
-          id="ask-run-id"
+          id={inputControlId}
           className="font-mono text-sm"
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -146,9 +174,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="ask-run-picker">Run</Label>
+      <Label htmlFor={selectControlId}>{labelText}</Label>
       <Select value={selectValue} onValueChange={onChange}>
-        <SelectTrigger id="ask-run-picker" className="font-mono text-sm">
+        <SelectTrigger id={selectControlId} className="font-mono text-sm">
           <SelectValue placeholder="Choose a run" />
         </SelectTrigger>
         <SelectContent>

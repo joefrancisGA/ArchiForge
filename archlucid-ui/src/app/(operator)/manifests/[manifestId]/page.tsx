@@ -249,6 +249,28 @@ export default async function ManifestDetailPage({
         </CardContent>
       </Card>
 
+      {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Related findings</CardTitle>
+            <CardDescription>
+              Warnings or unresolved issues on this manifest correspond to surfaced findings on the originating run.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="m-0 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+              Open the aggregate architecture review summary on run detail — per-finding links appear when trace confidence
+              rows are available.
+            </p>
+            <div className="mt-4">
+              <Button variant="secondary" size="sm" asChild>
+                <Link href={`/runs/${encodeURIComponent(summary.runId)}#run-explanation`}>Review findings on run</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-semibold">Generated artifacts</CardTitle>

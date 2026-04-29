@@ -74,12 +74,16 @@ export function FindingInspectView({
           href={`/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}
           className="text-sky-700 underline dark:text-sky-300"
         >
-          Explain page (LLM audit)
+          Finding detail
         </Link>
       </div>
 
-      <header>
+      <header className="space-y-3">
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Why this finding?</h1>
+        <p className="m-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          This view surfaces decision-rule linkage, citations, typed payload, and audit correlation for reviewers who need
+          full traceability. Use Finding detail first for summaries and narrative; come here for structured inspection.
+        </p>
         <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
           Finding <span className="font-mono text-xs">{decodedFindingId}</span> — manifest{" "}
           <span className="font-mono text-xs">{payload.manifestVersion ?? "—"}</span>

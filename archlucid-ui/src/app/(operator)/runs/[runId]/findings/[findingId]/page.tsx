@@ -11,7 +11,11 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { findingInspectPrimaryLabels } from "@/lib/finding-display-from-inspect";
+import {
+  findingDetailHeadingTitle,
+  findingDetailLeadSentence,
+  findingInspectPrimaryLabels,
+} from "@/lib/finding-display-from-inspect";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
@@ -38,6 +42,9 @@ export default async function RunFindingExplainPage({
 
   const labels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
 
+  const pageTitle =
+    inspectPayload !== null ? findingDetailHeadingTitle(inspectPayload) : "Finding detail";
+
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-6">
       <nav className="flex flex-wrap items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
@@ -52,12 +59,12 @@ export default async function RunFindingExplainPage({
           href={`/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
           className="text-teal-800 underline decoration-neutral-300 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-neutral-600 dark:hover:text-teal-200"
         >
-          Open structured inspector (Why?)
+          Technical inspection trail
         </Link>
       </nav>
 
       <header className="space-y-2">
-        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Finding details</h1>
+        <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{pageTitle}</h1>
 
         <p className="m-0 flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
           <span className="font-medium text-neutral-800 dark:text-neutral-200">Finding</span>
@@ -83,10 +90,11 @@ export default async function RunFindingExplainPage({
           </p>
         ) : null}
 
-        <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-          Evidence and decision rule context load first. Supplemental AI audit text is optional — expand when you need prompt
-          and completion excerpts.
-        </p>
+        {inspectPayload !== null ? (
+          <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+            {findingDetailLeadSentence(inspectPayload)}
+          </p>
+        ) : null}
 
         {inspectPayload !== null ? (
           <div className="pt-1">

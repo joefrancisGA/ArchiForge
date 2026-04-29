@@ -569,14 +569,11 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-
-            // codeql[cs/log-forging]: Structured LogInformation; every string placeholder is LogSanitizer.Sanitize(...) before the sink (params object[] boxing hides that from the query; see SanitizedLoggerInformationExtensions and docs/CODEQL_TRIAGE.md).
-            logger.LogInformation(
-                "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
-                LogSanitizer.Sanitize(activation.ActivationId),
-                LogSanitizer.Sanitize(activation.RunId),
-                LogSanitizer.Sanitize(activation.ManifestVersion),
-                LogSanitizer.Sanitize(activation.Environment));
+            logger.LogInformationGovernanceEnvironmentActivated(
+                activation.ActivationId,
+                activation.RunId,
+                activation.ManifestVersion,
+                activation.Environment);
 
 
         if (!enqueuePromotionInSqlTx)

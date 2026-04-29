@@ -9,8 +9,7 @@ import {
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import { getShowcaseStaticDemoPayload } from "@/lib/showcase-static-demo";
 
-import { ShowcaseWhatThisProves } from "./ShowcaseWhatThisProves";
-
+import { ShowcaseWhatThisProves, showcaseOutcomeSnapshotFromPayload } from "./ShowcaseWhatThisProves";
 export const revalidate = 300;
 
 const SHOWCASE_HERO_SUBTITLE =
@@ -226,7 +225,10 @@ export default async function MarketingShowcasePage(props: PageProps) {
         <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
 
         <div className="mt-6">
-          <ShowcaseWhatThisProves scenarioBullets={keyDriversFromPayload(payload)} />
+          <ShowcaseWhatThisProves
+            scenarioBullets={keyDriversFromPayload(payload)}
+            outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(payload)}
+          />
         </div>
 
         <ShowcaseStaticDemoBanner />
@@ -267,7 +269,10 @@ export default async function MarketingShowcasePage(props: PageProps) {
           <ShowcaseLead>{trimLeadDescription(bundle.payload.run.description)}</ShowcaseLead>
 
           <div className="mt-6">
-            <ShowcaseWhatThisProves scenarioBullets={keyDriversFromPayload(bundle.payload)} />
+            <ShowcaseWhatThisProves
+              scenarioBullets={keyDriversFromPayload(bundle.payload)}
+              outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(bundle.payload)}
+            />
           </div>
 
           <div className="mt-6">
@@ -319,7 +324,10 @@ export default async function MarketingShowcasePage(props: PageProps) {
           <ShowcaseLead>{trimLeadDescription(fallbackPayload.run.description)}</ShowcaseLead>
 
           <div className="mt-6">
-            <ShowcaseWhatThisProves scenarioBullets={keyDriversFromPayload(fallbackPayload)} />
+            <ShowcaseWhatThisProves
+              scenarioBullets={keyDriversFromPayload(fallbackPayload)}
+              outcomeSnapshot={showcaseOutcomeSnapshotFromPayload(fallbackPayload)}
+            />
           </div>
 
           <ShowcaseApiUnavailableBanner />

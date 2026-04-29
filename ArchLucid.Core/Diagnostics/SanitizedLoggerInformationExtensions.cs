@@ -85,6 +85,32 @@ public static class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>
+    ///     Logs successful governance environment activation with four user-derived string placeholders sanitized before the sink.
+    /// </summary>
+    public static void LogInformationGovernanceEnvironmentActivated(
+        this ILogger logger,
+        string activationId,
+        string runId,
+        string manifestVersion,
+        string environment)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeActivationId = LogSanitizer.Sanitize(activationId);
+        string safeRunId = LogSanitizer.Sanitize(runId);
+        string safeManifestVersion = LogSanitizer.Sanitize(manifestVersion);
+        string safeEnvironment = LogSanitizer.Sanitize(environment);
+
+        // codeql[cs/log-forging]: all four string placeholders sanitized immediately above (params boxing breaks custom barrier at call sites).
+        logger.LogInformation(
+            "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
+            safeActivationId,
+            safeRunId,
+            safeManifestVersion,
+            safeEnvironment);
+    }
+
+    /// <summary>
     ///     Logs a successful comparison replay with four externally influenced string placeholders sanitized before the sink.
     /// </summary>
     public static void LogInformationComparisonReplaySucceeded(
