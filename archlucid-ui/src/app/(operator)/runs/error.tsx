@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 
+import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
@@ -42,9 +43,11 @@ export default function RunsSegmentError({
             {error.message}
           </pre>
         ) : null}
+        <OperatorErrorUiReferenceLine />
         {digest.length > 0 ? (
-          <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
-            Reference ID: <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{digest}</code>
+          <p className="mt-2 font-mono text-[11px] text-neutral-600 dark:text-neutral-400">
+            Next.js digest (optional):{" "}
+            <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono dark:bg-neutral-800">{digest}</code>
           </p>
         ) : null}
       </OperatorErrorCallout>

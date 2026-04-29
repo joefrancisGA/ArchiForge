@@ -196,6 +196,10 @@ function CompareForm() {
 
   const leftTrim = leftRunId.trim();
   const rightTrim = rightRunId.trim();
+  const isDemoClaimsIntakeComparePair =
+    isNextPublicDemoMode() &&
+    leftTrim === "claims-intake-run-v1" &&
+    rightTrim === "claims-intake-run-v2";
   const pairAligned =
     lastComparedPair !== null &&
     lastComparedPair.left === leftTrim &&
@@ -283,7 +287,8 @@ function CompareForm() {
 
       <div className="grid max-w-3xl gap-3">
         <RunIdPicker
-          label="Baseline run"
+          preferAutoPick={false}
+          label={isDemoClaimsIntakeComparePair ? "Claims Intake baseline run" : "Baseline run"}
           placeholder="Choose a baseline run"
           value={leftRunId}
           onChange={setLeftRunId}
@@ -291,7 +296,8 @@ function CompareForm() {
           forCompare
         />
         <RunIdPicker
-          label="Updated run"
+          preferAutoPick={false}
+          label={isDemoClaimsIntakeComparePair ? "Claims Intake updated run" : "Updated run"}
           placeholder="Choose an updated run"
           value={rightRunId}
           onChange={setRightRunId}
@@ -318,7 +324,7 @@ function CompareForm() {
             onClick={() => void loadAiExplanation()}
             disabled={aiLoading || !leftTrim || !rightTrim}
           >
-            {aiLoading ? "Summarizing…" : "Summarize comparison for sponsor"}
+            {aiLoading ? "Summarizing…" : "Summarize comparison"}
           </button>
         </div>
       </div>
@@ -500,7 +506,7 @@ function CompareForm() {
             )}
             {result !== null && (
               <li>
-                <a href="#compare-legacy">Supplementary run-level diff</a>
+                <a href="#compare-technical">Technical details (supplementary diff)</a>
               </li>
             )}
             {aiExplanation !== null && (
@@ -514,18 +520,19 @@ function CompareForm() {
 
       {golden !== null && <StructuredComparisonView golden={golden} />}
 
-      {result !== null && (
-        golden !== null ? (
-          <details className="mt-6">
-            <summary className="cursor-pointer text-sm font-semibold text-neutral-700 hover:text-neutral-900 dark:text-neutral-300 dark:hover:text-neutral-100">
-              Show run-level diff
+      {result !== null ? (
+          <details
+            id="compare-technical"
+            className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
+          >
+            <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+              Technical details — supplementary run-level comparison
             </summary>
-            <LegacyRunComparisonView result={result} />
+            <div className="mt-4">
+              <LegacyRunComparisonView result={result} />
+            </div>
           </details>
-        ) : (
-          <LegacyRunComparisonView result={result} />
-        )
-      )}
+        ) : null}
 
       {aiExplanation !== null && <AiComparisonExplanationView explanation={aiExplanation} />}
     </main>

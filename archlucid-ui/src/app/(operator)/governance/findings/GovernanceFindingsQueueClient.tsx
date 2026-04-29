@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRunExplanationSummary, listRunsByProjectPaged } from "@/lib/api";
 import {
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
@@ -19,6 +20,8 @@ import type { RunSummary } from "@/types/authority";
 export type GovernanceFindingQueueRow = {
   runId: string;
   runLabel: string;
+  /** Canonical manifest UUID when known, or "—". */
+  manifestId: string;
   findingId: string;
   title: string;
   severity: string;
@@ -35,6 +38,7 @@ function demoPhiRow(): GovernanceFindingQueueRow {
   return {
     runId: SHOWCASE_STATIC_DEMO_RUN_ID,
     runLabel: "Claims Intake Modernization",
+    manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
     findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
     title: "PHI Minimization Risk",
     severity: "High",
@@ -73,10 +77,12 @@ function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceDto[]): 
     .map((t) => {
       const findingId = t.findingId.trim();
       const titleRaw = (t.findingTitle ?? findingId).trim();
+      const manifestRaw = (run.goldenManifestId ?? "").trim();
 
       return {
         runId: run.runId,
         runLabel: ((run.description ?? "").trim().length > 0 ? run.description : run.runId) ?? run.runId,
+        manifestId: manifestRaw.length > 0 ? manifestRaw : "—",
         findingId,
         title: titleRaw.length > 0 ? titleRaw : findingId,
         severity: severityFromTrace(t.traceConfidenceLabel),
@@ -107,6 +113,10 @@ function dedupeRows(rows: GovernanceFindingQueueRow[]): GovernanceFindingQueueRo
 
 function inspectHref(runId: string, findingId: string): string {
   return `/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`;
+}
+
+function manifestHref(manifestId: string): string {
+  return `/manifests/${encodeURIComponent(manifestId)}`;
 }
 
 /**
@@ -192,7 +202,7 @@ export default function GovernanceFindingsQueueClient() {
 
   return (
     <>
-      <LayerHeader pageKey="governance-findings" />
+      <LayerHeader pageKey="governance-findings" density="compact" />
       <OperatorPageHeader title="Findings" />
 
       <div className="mt-4 space-y-4">
@@ -223,6 +233,38 @@ export default function GovernanceFindingsQueueClient() {
                   <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
                     {row.runLabel} · {row.findingId}
                   </p>
+                  <div className="mt-2 grid gap-3 border-t border-neutral-100 pt-2 text-xs sm:grid-cols-3 dark:border-neutral-800">
+                    <div>
+                      <div className="font-medium text-neutral-600 dark:text-neutral-400">Manifest</div>
+                      <div className="mt-0.5">
+                        {row.manifestId !== "—" ? (
+                          <Link
+                            className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                            href={manifestHref(row.manifestId)}
+                          >
+                            Open manifest
+                          </Link>
+                        ) : (
+                          <span className="text-neutral-500 dark:text-neutral-400">—</span>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-neutral-600 dark:text-neutral-400">Run</div>
+                      <div className="mt-0.5">
+                        <Link
+                          className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                          href={`/runs/${encodeURIComponent(row.runId)}`}
+                        >
+                          {row.runLabel}
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="sm:col-span-1">
+                      <div className="font-medium text-neutral-600 dark:text-neutral-400">Recommended action</div>
+                      <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.recommended}</p>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="grid gap-2 pt-0 text-sm sm:grid-cols-2">
                   <div>
@@ -237,16 +279,11 @@ export default function GovernanceFindingsQueueClient() {
                     <span className="font-medium text-neutral-700 dark:text-neutral-300">Status</span>
                     <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.status}</p>
                   </div>
-                  <div>
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">Recommended action</span>
-                    <p className="m-0 mt-0.5 text-neutral-600 dark:text-neutral-400">{row.recommended}</p>
-                  </div>
                   <div className="sm:col-span-2">
                     <Button asChild variant="outline" size="sm" className="h-9 border-teal-300 dark:border-teal-700">
                       <Link href={inspectHref(row.runId, row.findingId)}>Open finding</Link>
                     </Button>
                   </div>
-                </CardContent>
               </Card>
             ))}
           </div>

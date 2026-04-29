@@ -51,7 +51,7 @@ export default function GovernanceResolutionPage() {
 
   return (
     <main className="max-w-6xl">
-      <LayerHeader pageKey="governance-resolution" />
+      <LayerHeader pageKey="governance-resolution" density="compact" />
       <OperatorPageHeader
         title="Governance resolution"
         subtitle={canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}

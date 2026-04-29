@@ -26,6 +26,8 @@ import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import { countLinksHiddenByProgressiveDisclosure, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
@@ -120,6 +122,7 @@ export function SidebarNav() {
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const demoUi = isNextPublicDemoMode();
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
     showExtended,
@@ -165,6 +168,10 @@ export function SidebarNav() {
         shellShowAdvanced,
         callerAuthorityRank,
       ).map(({ group, visibleLinks }) => {
+        const linksAfterDemoFilter = demoUi
+          ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi))
+          : visibleLinks;
+
         const isOpen = !mounted || openByGroup[group.id] !== false;
         const hiddenByDisclosure = countLinksHiddenByProgressiveDisclosure(
           group,
@@ -201,11 +208,12 @@ export function SidebarNav() {
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
                 aria-label="Governance — pinned links"
               >
-                {visibleLinks
+                {linksAfterDemoFilter
                   .filter((link) => GOVERNANCE_PINNED_HREFS.has(link.href))
                   .map((link) => {
                     const active = isNavLinkActive(pathname, link.href);
                     const Icon = link.icon;
+                    const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi);
 
                     return (
                       <Link
@@ -217,8 +225,13 @@ export function SidebarNav() {
                           active
                             ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
                             : "text-neutral-800 dark:text-neutral-200",
+                          advancedDemo ? "opacity-60" : null,
                         )}
-                        title={link.title}
+                        title={
+                          advancedDemo
+                            ? `${link.title} (Advanced — optional in demo mode)`
+                            : link.title
+                        }
                         aria-current={active ? "page" : undefined}
                         aria-keyshortcuts={
                           link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
@@ -236,11 +249,12 @@ export function SidebarNav() {
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
                 aria-label={group.label}
               >
-                {visibleLinks
+                {linksAfterDemoFilter
                   .filter((link) => !GOVERNANCE_PINNED_HREFS.has(link.href))
                   .map((link) => {
                   const active = isNavLinkActive(pathname, link.href);
                   const Icon = link.icon;
+                  const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi);
 
                   return (
                     <Link
@@ -252,8 +266,13 @@ export function SidebarNav() {
                         active
                           ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
                           : "text-neutral-800 dark:text-neutral-200",
+                        advancedDemo ? "opacity-60" : null,
                       )}
-                      title={link.title}
+                      title={
+                        advancedDemo
+                          ? `${link.title} (Advanced — optional in demo mode)`
+                          : link.title
+                      }
                       aria-current={active ? "page" : undefined}
                       aria-keyshortcuts={
                         link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined

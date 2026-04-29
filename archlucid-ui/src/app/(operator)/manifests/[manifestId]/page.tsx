@@ -8,6 +8,7 @@ import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
 import { ManifestTopDecisionsCard } from "@/components/ManifestTopDecisionsCard";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import {
   OperatorEmptyState,
   OperatorErrorCallout,
@@ -192,6 +193,7 @@ export default async function ManifestDetailPage({
             The response did not include manifest details. Try reloading once, or return from run detail instead
             of a pasted link.
           </p>
+          <OperatorErrorUiReferenceLine />
         </OperatorErrorCallout>
         <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
           If this continues, try reloading, or return to the run list and open a run, then the manifest.

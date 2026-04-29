@@ -3,6 +3,7 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { operatorCopyForProblem } from "@/lib/api-problem-copy";
 import { OperatorErrorCallout, OperatorWarningCallout } from "@/components/OperatorShellMessage";
+import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 
 type OperatorApiProblemProps = {
   problem: ApiProblemDetails | null;
@@ -33,6 +34,7 @@ export function OperatorApiProblem({
       {hint ? (
         <p className="mt-2.5 text-sm leading-normal">{hint}</p>
       ) : null}
+      <OperatorErrorUiReferenceLine />
       {trimmedCorrelation && trimmedCorrelation.length > 0 ? (
         <p className="mt-2.5 font-mono text-xs text-neutral-600 dark:text-neutral-400">
           Reference (correlation ID — use with API logs and support bundle): {trimmedCorrelation}

@@ -84,6 +84,8 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { cn } from "@/lib/utils";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type {
   GovernanceApprovalRequest,
   GovernanceEnvironmentActivation,
@@ -144,6 +146,8 @@ function GovernanceWorkflowPageInner() {
 
   const [activateBusyId, setActivateBusyId] = useState<string | null>(null);
 
+  const demoPrefillRanRef = useRef(false);
+
   useEffect(() => {
     if (toast === null) {
       return;
@@ -175,6 +179,7 @@ function GovernanceWorkflowPageInner() {
   }, [searchParams]);
 
   const loadLists = useCallback(async (runId: string) => {
+
     setListsLoading(true);
     setListFailure(null);
 
@@ -223,6 +228,35 @@ function GovernanceWorkflowPageInner() {
       await loadLists(activeRunId);
     }
   }, [activeRunId, loadLists]);
+
+  useEffect(() => {
+    if (!isNextPublicDemoMode()) {
+      return;
+    }
+
+    if (demoPrefillRanRef.current) {
+      return;
+    }
+
+    const fromSearch = searchParams.get("runId")?.trim() ?? "";
+
+    if (fromSearch.length > 0) {
+      demoPrefillRanRef.current = true;
+
+      return;
+    }
+
+    if (queryRunId.trim().length > 0) {
+      demoPrefillRanRef.current = true;
+
+      return;
+    }
+
+    demoPrefillRanRef.current = true;
+    setQueryRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+    setActiveRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+    void loadLists(SHOWCASE_STATIC_DEMO_RUN_ID);
+  }, [searchParams, queryRunId, loadLists]);
 
   async function onSubmitApproval() {
     if (!canMutateWorkflow) {
@@ -396,6 +430,13 @@ function GovernanceWorkflowPageInner() {
         title="Governance workflow"
         subtitle={canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
       />
+
+      {isNextPublicDemoMode() ? (
+        <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
+          <strong>Governance approval workflow</strong>
+          {" — "}for full demo walkthrough, contact your account team.
+        </div>
+      ) : null}
 
       {toast ? (
         <div

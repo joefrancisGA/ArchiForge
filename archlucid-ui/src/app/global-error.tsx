@@ -5,6 +5,7 @@ import { useEffect } from "react";
 
 import "./globals.css";
 
+import { OperatorErrorUiReferenceLine } from "@/components/OperatorErrorUiReferenceLine";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -33,9 +34,11 @@ export default function GlobalError({
           <p className="mt-2 text-sm text-red-900 dark:text-red-100/95">
             {isDev ? error.message : "A critical error occurred. Try reloading, open Help, or return home."}
           </p>
+          <OperatorErrorUiReferenceLine paragraphClassName="mt-3 text-red-900/90 dark:text-red-100/85" />
           {digest.length > 0 ? (
-            <p className="mt-3 text-xs text-red-900/85 dark:text-red-100/80">
-              Reference ID: <code className="rounded bg-red-100/80 px-1 py-0.5 font-mono dark:bg-red-900/60">{digest}</code>
+            <p className="mt-2 text-xs text-red-900/85 dark:text-red-100/80">
+              Next.js digest (optional):{" "}
+              <code className="rounded bg-red-100/80 px-1 py-0.5 font-mono dark:bg-red-900/60">{digest}</code>
             </p>
           ) : null}
         </div>

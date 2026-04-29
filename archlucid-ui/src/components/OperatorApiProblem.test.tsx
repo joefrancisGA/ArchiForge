@@ -37,6 +37,12 @@ describe("OperatorApiProblem", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows a client UI reference id for support triage", () => {
+    render(<OperatorApiProblem problem={null} fallbackMessage="Plain error" />);
+
+    expect(screen.getByText(/^Reference: ERR-/)).toBeInTheDocument();
+  });
+
   it("uses warning callout when variant is warning", () => {
     render(
       <OperatorApiProblem

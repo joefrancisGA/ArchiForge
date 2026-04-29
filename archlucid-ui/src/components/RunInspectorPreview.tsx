@@ -5,6 +5,13 @@ import Link from "next/link";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import {
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+  SHOWCASE_STATIC_DEMO_SPINE_COUNTS,
+} from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 function snapshotLabel(ok: boolean | undefined): string {
@@ -23,9 +30,19 @@ export type RunInspectorPreviewProps = {
  * Read-only run preview for list inspectors — uses only {@link RunSummary} fields from the list payload.
  */
 export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
+  const demo = isNextPublicDemoMode();
   const createdLabel = new Date(run.createdUtc).toLocaleString();
   const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
+  const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
+  const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
+  const findingHref = `/runs/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
+  const artifactNote =
+    showcaseStory && demo
+      ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings (demo totals)`
+      : run.hasArtifactBundle
+        ? "Artifact bundle attached — see run detail"
+        : "Artifact bundle not reported in list payload";
 
   return (
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
@@ -47,9 +64,10 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Output readiness
+          Pipeline output
         </p>
-        <ul className="m-0 mt-1.5 list-none space-y-1 p-0 text-xs">
+        <p className="m-0 mt-1 text-xs text-neutral-700 dark:text-neutral-200">{artifactNote}</p>
+        <ul className="m-0 mt-2 list-none space-y-1 p-0 text-xs">
           <li className="flex justify-between gap-2">
             <span>Context captured</span>
             <span aria-label={run.hasContextSnapshot ? "Context snapshot present" : "Context snapshot missing"}>
@@ -75,6 +93,25 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </span>
           </li>
         </ul>
+      </div>
+
+      <div>
+        <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          Quick navigation
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="h-8" asChild>
+            <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Finalized manifest</Link>
+          </Button>
+          {showcaseStory ? (
+            <Button variant="outline" size="sm" className="h-8" asChild>
+              <Link href={findingHref}>Primary finding</Link>
+            </Button>
+          ) : null}
+          <Button variant="outline" size="sm" className="h-8" asChild>
+            <Link href={`/replay?runId=${encodeURIComponent(run.runId)}`}>Review trail (replay)</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">

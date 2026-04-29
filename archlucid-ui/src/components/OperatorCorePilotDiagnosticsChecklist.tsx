@@ -82,7 +82,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
   return (
     <details className="group rounded-lg border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-900">
       <summary className="cursor-pointer select-none text-sm font-semibold text-neutral-900 marker:text-neutral-400 dark:text-neutral-100">
-        Guided first manifest checklist (signals + checklist)
+        First manifest guide (signals + checklist)
       </summary>
       <div className="mt-3 space-y-4 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <section aria-labelledby="core-pilot-signals-heading">

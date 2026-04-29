@@ -13,6 +13,7 @@ import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from
 import { GRAPH_IDLE } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import {
   getArchitectureGraph,
@@ -172,6 +173,21 @@ export default function GraphPage() {
   const showIdleCard =
     !graph && !loading && loadFailure === null && malformedMessage === null;
 
+  const demoUi = isNextPublicDemoMode();
+
+  const graphIdlePreset = useMemo(() => {
+    if (demoUi && showIdleCard) {
+      return {
+        ...GRAPH_IDLE,
+        title: "Graph preview pending",
+        description:
+          "Pick **Load graph** above after selecting a run. Demo builds substitute a sample review-trail layout when the API has no graph bundle yet — if this message persists, graph data may not be deployed for your route.",
+      };
+    }
+
+    return GRAPH_IDLE;
+  }, [demoUi, showIdleCard]);
+
   return (
     <main>
       <LayerHeader pageKey="graph" />
@@ -296,7 +312,7 @@ export default function GraphPage() {
         </>
       )}
 
-      {showIdleCard ? <EmptyState {...GRAPH_IDLE} /> : null}
+      {showIdleCard ? <EmptyState {...graphIdlePreset} /> : null}
 
       {graph && (
         <>

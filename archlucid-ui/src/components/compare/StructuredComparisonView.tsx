@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
 import { compareRunHeadingLabel } from "@/lib/compare-run-display";
@@ -11,8 +13,53 @@ const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 da
 function EmptySectionNote({ label }: { label: string }) {
   return (
     <OperatorEmptyState title={label}>
-      <p className="m-0 text-sm">No rows in this section for this pair of runs.</p>
+      <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">No changes in this section for this pair.</p>
     </OperatorEmptyState>
+  );
+}
+
+/**
+ * Prefer dollar + monthly framing when the payload is numeric (demo-friendly “100 vs 120” deltas).
+ */
+function formatCostEstimateCell(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+
+  const s = String(value).trim();
+
+  if (s.length === 0) {
+    return "—";
+  }
+
+  if (/^[$€£]/.test(s)) {
+    return `${s}/mo (est.)`;
+  }
+
+  if (/^\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
+    return `~$${s.replace(/,/g, "")}/mo (est.)`;
+  }
+
+  return s;
+}
+
+/** Card-style collapsible bucket for structured compare output. */
+function ComparisonFoldSection(props: {
+  title: string;
+  countBadge: number;
+  defaultOpen: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <details className={sectionBoxCls} open={props.defaultOpen}>
+      <summary className="cursor-pointer list-none text-[15px] font-semibold text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden">
+        <span className="mr-2 inline-flex items-center rounded-full bg-neutral-200 px-2 py-0 text-[11px] font-bold text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200">
+          {props.countBadge}
+        </span>
+        {props.title}
+      </summary>
+      <div className="mt-3">{props.children}</div>
+    </details>
   );
 }
 
@@ -33,6 +80,10 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
   return (
     <section id="compare-structured" className="mt-7">
       <h3 className="mb-2">Manifest comparison</h3>
+      <p className="mb-3 max-w-3xl text-sm font-medium leading-relaxed text-neutral-800 dark:text-neutral-100">
+        Compare finalized manifests to understand what changed between runs — each card below summarizes one category.
+        Prefer this narrative before supplementary diffs further down.
+      </p>
       <div className="mb-3 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
         <span>
           <strong>Baseline run:</strong> {compareRunHeadingLabel(golden.baseRunId)}
@@ -58,8 +109,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
         </a>
       </p>
 
-      <div className={sectionBoxCls}>
-        <h4 className="mb-2 mt-0 text-[15px]">Summary highlights</h4>
+      <ComparisonFoldSection title="Summary highlights" countBadge={golden.summaryHighlights.length} defaultOpen>
         {golden.summaryHighlights.length === 0 ? (
           <EmptySectionNote label="No summary highlights" />
         ) : (
@@ -69,10 +119,9 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
             ))}
           </ul>
         )}
-      </div>
+      </ComparisonFoldSection>
 
-      <div className={sectionBoxCls}>
-        <h4 className="mb-2 mt-0 text-[15px]">Decision changes</h4>
+      <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen={golden.decisionChanges.length > 0}>
         {golden.decisionChanges.length === 0 ? (
           <EmptySectionNote label="No decision changes" />
         ) : (
@@ -97,10 +146,13 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
             </tbody>
           </table>
         )}
-      </div>
+      </ComparisonFoldSection>
 
-      <div className={sectionBoxCls}>
-        <h4 className="mb-2 mt-0 text-[15px]">Requirement changes</h4>
+      <ComparisonFoldSection
+        title="Requirement changes"
+        countBadge={golden.requirementChanges.length}
+        defaultOpen={golden.requirementChanges.length > 0}
+      >
         {golden.requirementChanges.length === 0 ? (
           <EmptySectionNote label="No requirement changes" />
         ) : (
@@ -121,10 +173,9 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
             </tbody>
           </table>
         )}
-      </div>
+      </ComparisonFoldSection>
 
-      <div className={sectionBoxCls}>
-        <h4 className="mb-2 mt-0 text-[15px]">Security posture delta</h4>
+      <ComparisonFoldSection title="Finding / posture delta" countBadge={golden.securityChanges.length} defaultOpen={golden.securityChanges.length > 0}>
         {golden.securityChanges.length === 0 ? (
           <EmptySectionNote label="No security control changes" />
         ) : (
@@ -147,10 +198,9 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
             </tbody>
           </table>
         )}
-      </div>
+      </ComparisonFoldSection>
 
-      <div className={sectionBoxCls}>
-        <h4 className="mb-2 mt-0 text-[15px]">Topology changes</h4>
+      <ComparisonFoldSection title="Topology / footprint" countBadge={golden.topologyChanges.length} defaultOpen={golden.topologyChanges.length > 0}>
         {golden.topologyChanges.length === 0 ? (
           <EmptySectionNote label="No topology changes" />
         ) : (
@@ -171,33 +221,32 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
             </tbody>
           </table>
         )}
-      </div>
+      </ComparisonFoldSection>
 
-      <div className={sectionBoxCls}>
-        <h4 className="mb-2 mt-0 text-[15px]">Cost delta</h4>
+      <ComparisonFoldSection title="Estimated cost delta" countBadge={golden.costChanges.length} defaultOpen={golden.costChanges.length > 0}>
         {golden.costChanges.length === 0 ? (
-          <OperatorEmptyState title="No cost line items">
-            <p className="m-0 text-sm">Max monthly cost unchanged or not modeled as a delta row.</p>
+          <OperatorEmptyState title="No modeled cost deltas">
+            <p className="m-0 text-sm">Estimated max monthly cost unchanged or not surfaced as numeric delta rows.</p>
           </OperatorEmptyState>
         ) : (
           <table className="mt-2 w-full border-collapse text-sm">
             <thead>
               <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                <th className={cellCls}>Base (max monthly)</th>
-                <th className={cellCls}>Target (max monthly)</th>
+                <th className={cellCls}>Baseline (est. max monthly)</th>
+                <th className={cellCls}>Updated (est. max monthly)</th>
               </tr>
             </thead>
             <tbody>
               {golden.costChanges.map((c, i) => (
-                <tr key={`${c.baseCost ?? "n"}-${c.targetCost ?? "n"}-${i}`}>
-                  <td className={cellCls}>{c.baseCost ?? "—"}</td>
-                  <td className={cellCls}>{c.targetCost ?? "—"}</td>
+                <tr key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
+                  <td className={cellCls}>{formatCostEstimateCell(c.baseCost)}</td>
+                  <td className={cellCls}>{formatCostEstimateCell(c.targetCost)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-      </div>
+      </ComparisonFoldSection>
     </section>
   );
 }

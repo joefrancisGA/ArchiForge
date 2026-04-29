@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 export type LayerHeaderProps = {
   pageKey: LayerGuidancePageKey;
   className?: string;
+  /** `compact` drops the accent rail for lighter-weight detail pages */
+  density?: "default" | "compact";
 };
 
 /**
@@ -23,23 +25,34 @@ export type LayerHeaderProps = {
  * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Operate slice contract.
  * @see `operate-authority-ui-shaping.test.tsx` — mutation hook → **`disabled`** / **`readOnly`** on representative pages.
  */
-export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
+export function LayerHeader({ pageKey, className, density = "default" }: LayerHeaderProps) {
   const surface = useNavSurface(pageKey);
   const block = surface.layerGuidance;
   const operateExecuteRankCue = surface.contextHints.layerHeaderEnterpriseRankCue;
   const demoUi = isNextPublicDemoMode();
   const usesOperateGovernanceFootnote =
     block.enterpriseFootnote !== null && block.enterpriseFootnote !== undefined;
+  const compact = density === "compact";
 
   return (
     <aside
-      className={
-        className ??
-        "mb-4 max-w-3xl border-l-4 border-teal-700 py-1 pl-3 dark:border-teal-500"
-      }
+      className={cn(
+        !className &&
+          (compact
+            ? "mb-3 max-w-3xl rounded-md bg-neutral-100/70 py-2 pl-0 text-xs dark:bg-neutral-900/60"
+            : "mb-4 max-w-3xl border-l-4 border-teal-700 py-1 pl-3 dark:border-teal-500"),
+        className,
+      )}
       aria-label={`${block.layerBadge}: ${block.headline}`}
     >
-      <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+      <p
+        className={cn(
+          "m-0 font-semibold uppercase tracking-wide",
+          compact
+            ? "text-[10px] text-neutral-500 dark:text-neutral-400"
+            : "text-[11px] text-teal-900 dark:text-teal-200",
+        )}
+      >
         {block.layerBadge}
       </p>
       <p className="m-0 mt-0.5 text-sm font-medium text-neutral-900 dark:text-neutral-100">{block.headline}</p>
@@ -53,7 +66,7 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
       >
         {block.useWhen}
       </p>
-      {block.firstPilotNote ? (
+      {!compact && block.firstPilotNote ? (
         <p className="m-0 mt-1.5 text-xs text-neutral-500 dark:text-neutral-500">{block.firstPilotNote}</p>
       ) : null}
       {block.enterpriseFootnote ? (

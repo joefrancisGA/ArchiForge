@@ -14,9 +14,11 @@ import {
   OPERATOR_HOME_EXAMPLE_DESCRIPTION,
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
 } from "@/lib/operator-home-example-request";
+import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -44,6 +46,16 @@ const TAB_LABEL: Record<TabId, string> = {
   attention: "Needs attention",
   outcomes: "Outcomes",
 };
+
+function runIsClaimsIntakeStory(run: RunSummary): boolean {
+  const id = run.runId.trim();
+
+  if (id === SHOWCASE_STATIC_DEMO_RUN_ID) {
+    return true;
+  }
+
+  return (run.description ?? "").toLowerCase().includes("claims intake");
+}
 
 /**
  * Single home-column runs snapshot: recent list, attention runs, and outcome medians in one card with tab segments
@@ -97,7 +109,30 @@ export function RunsDashboardPanel() {
     };
   }, []);
 
-  const attentionRuns = useMemo(() => items.filter(isRunNeedingAttention), [items]);
+  const effectiveItems = useMemo(() => {
+    if (items.length > 0) {
+      return items;
+    }
+
+    if (phase !== "ready") {
+      return items;
+    }
+
+    const fallback = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID);
+
+    if (fallback !== null && fallback.items.length > 0) {
+      return fallback.items;
+    }
+
+    return items;
+  }, [items, phase]);
+
+  const claimsStoryRun = useMemo(
+    () => effectiveItems.find((r) => runIsClaimsIntakeStory(r)),
+    [effectiveItems],
+  );
+
+  const attentionRuns = useMemo(() => effectiveItems.filter(isRunNeedingAttention), [effectiveItems]);
   const attentionPreview = useMemo(() => attentionRuns.slice(0, 3), [attentionRuns]);
 
   const runListError = phase === "error" && failure !== null;
@@ -167,7 +202,44 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {phase === "ready" && items.length === 0 ? (
+              {phase === "ready" && claimsStoryRun ? (
+                <div
+                  className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"
+                  data-testid="operator-home-claims-demo-banner"
+                >
+                  <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                    Claims Intake — completed example run
+                  </p>
+                  <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+                    Open the proof path: run detail, finalized manifest, primary finding, or the read-only marketing
+                    showcase.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button asChild variant="primary" size="sm" className="h-8">
+                      <Link href={`/runs/${encodeURIComponent(claimsStoryRun.runId)}`}>Run detail</Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm" className="h-8">
+                      <Link
+                        href={`/manifests/${encodeURIComponent(claimsStoryRun.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}
+                      >
+                        Finalized manifest
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm" className="h-8">
+                      <Link
+                        href={`/runs/${encodeURIComponent(claimsStoryRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+                      >
+                        Primary finding
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="sm" className="h-8">
+                      <Link href="/showcase/claims-intake-modernization">Showcase (read-only)</Link>
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
+              {phase === "ready" && effectiveItems.length === 0 ? (
                 <div
                   className="space-y-3 rounded-lg border border-teal-200 bg-teal-50/60 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/30"
                   data-testid="operator-home-getting-started"
@@ -182,7 +254,7 @@ export function RunsDashboardPanel() {
                       <Link href="/runs/new">Create your first request</Link>
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href="/getting-started">First manifest checklist</Link>
+                      <Link href="/getting-started">First manifest guide</Link>
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link href="/help">Operator help</Link>
@@ -191,9 +263,9 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {phase === "ready" && items.length > 0 ? (
+              {phase === "ready" && effectiveItems.length > 0 ? (
                 <ul className="m-0 list-none space-y-2 p-0" data-testid="recent-runs-home-panel">
-                  {items.map((run) => (
+                  {effectiveItems.map((run) => (
                     <li
                       key={run.runId}
                       className="flex flex-wrap items-start justify-between gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
@@ -308,7 +380,7 @@ export function RunsDashboardPanel() {
         </CardContent>
       </Card>
 
-      {phase === "ready" && items.length === 0 ? (
+      {phase === "ready" && effectiveItems.length === 0 ? (
         <Card
           className="mt-3 border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           data-testid="example-request-panel"

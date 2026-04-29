@@ -7,7 +7,7 @@ import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
 import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
-import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
+import { HomeFirstRunWorkflowGate } from "@/components/HomeFirstRunWorkflowGate";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { TrialWelcomeRunDeepLink } from "@/components/TrialWelcomeRunDeepLink";
 import { OperationalMetricsGate } from "@/components/operator-home/OperationalMetricsGate";
@@ -89,9 +89,9 @@ export default function HomePage() {
 
         <aside
           className="min-w-0 space-y-3 pt-0 lg:sticky lg:top-20 lg:self-start"
-          aria-label="First manifest checklist and guidance"
+          aria-label="Explore completed output and first-manifest guide"
         >
-          <OperatorFirstRunWorkflowPanel />
+          <HomeFirstRunWorkflowGate />
         </aside>
       </div>
     </main>

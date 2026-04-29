@@ -29,7 +29,9 @@ describe("RunIdPicker", () => {
     });
 
     const onChange = vi.fn();
-    render(<RunIdPicker value="" onChange={onChange} label="Run" placeholder="Run ID" />);
+    render(
+      <RunIdPicker preferAutoPick={false} value="" onChange={onChange} label="Run" placeholder="Run ID" />,
+    );
 
     fireEvent.focus(screen.getByPlaceholderText("Run ID"));
 
@@ -55,7 +57,9 @@ describe("RunIdPicker", () => {
     });
 
     const onChange = vi.fn();
-    render(<RunIdPicker value="" onChange={onChange} label="Run" placeholder="Pick" />);
+    render(
+      <RunIdPicker preferAutoPick={false} value="" onChange={onChange} label="Run" placeholder="Pick" />,
+    );
 
     fireEvent.focus(screen.getByPlaceholderText("Pick"));
 

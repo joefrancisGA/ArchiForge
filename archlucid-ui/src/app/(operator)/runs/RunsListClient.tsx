@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -85,6 +87,18 @@ function activateRowKeyboard(e: React.KeyboardEvent<HTMLTableRowElement>, run: R
 
   e.preventDefault();
   select(run);
+}
+
+function displayRelativeCreated(run: RunSummary): string {
+  if (isNextPublicDemoMode() && run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID) {
+    const synthetic = new Date();
+
+    synthetic.setDate(synthetic.getDate() - 3);
+
+    return formatRelativeTime(synthetic.toISOString());
+  }
+
+  return formatRelativeTime(run.createdUtc);
 }
 
 /**
@@ -338,7 +352,7 @@ export function RunsListClient({
                                 className="whitespace-nowrap px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400"
                                 title={createdLabel}
                               >
-                                {formatRelativeTime(run.createdUtc)}
+                                {displayRelativeCreated(run)}
                               </td>
                               <td className="whitespace-nowrap px-3 py-2 align-top">
                                 <Link

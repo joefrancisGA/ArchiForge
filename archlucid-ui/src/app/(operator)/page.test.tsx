@@ -22,8 +22,8 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("@/components/OperatorFirstRunWorkflowPanel", () => ({
-  OperatorFirstRunWorkflowPanel: () => (
+vi.mock("@/components/HomeFirstRunWorkflowGate", () => ({
+  HomeFirstRunWorkflowGate: () => (
     <div data-testid="first-run-panel-mock" aria-hidden>
       First-run panel mock
     </div>

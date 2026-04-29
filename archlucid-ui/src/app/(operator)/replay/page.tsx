@@ -68,7 +68,7 @@ function ReplayForm() {
 
   return (
     <main>
-      <LayerHeader pageKey="replay" />
+      <LayerHeader pageKey="replay" density="compact" />
       <OperatorPageHeader title="Replay" helpKey="replay-run" />
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>

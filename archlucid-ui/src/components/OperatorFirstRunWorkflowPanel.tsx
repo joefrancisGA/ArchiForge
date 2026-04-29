@@ -42,7 +42,8 @@ const corePilotSteps: WorkflowStep[] = CORE_PILOT_STEPS.map((s, index) =>
  * Collapsible first-manifest checklist. Persists "minimized" in localStorage. Compact for a side column; step actions are
  * outline buttons so they do not compete with the main home CTAs.
  */
-export function OperatorFirstRunWorkflowPanel() {
+export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: boolean } = {}) {
+  const exploreCompletedOutput = props.exploreCompletedOutput === true;
   const autoGraduateBlockedRef = useRef(false);
   const [hydrated, setHydrated] = useState(false);
   const [minimized, setMinimized] = useState(false);
@@ -344,7 +345,15 @@ export function OperatorFirstRunWorkflowPanel() {
 
       <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          {!hasAnyRun ? (
+          {exploreCompletedOutput ? (
+            <>
+              <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Explore completed output</h2>
+              <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                Claims Intake is the guided story — run detail, manifest, and showcase are the proof path. The checklist
+                below is optional.
+              </p>
+            </>
+          ) : !hasAnyRun ? (
             <h2 id="first-run-workflow-heading" className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
               First Manifest Guide
             </h2>
@@ -353,9 +362,11 @@ export function OperatorFirstRunWorkflowPanel() {
               First Manifest Guide
             </h2>
           )}
-          <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
-            Create → <GlossaryTooltip termKey="run">Run</GlossaryTooltip> → Finalize → Review
-          </p>
+          {!exploreCompletedOutput ? (
+            <p className="m-0 mt-0.5 text-xs font-medium tracking-wide text-neutral-600 dark:text-neutral-400">
+              Create → <GlossaryTooltip termKey="run">Run</GlossaryTooltip> → Finalize → Review
+            </p>
+          ) : null}
         </div>
         <button
           type="button"
@@ -422,7 +433,7 @@ export function OperatorFirstRunWorkflowPanel() {
                     Step {index + 1} — {step.title}
                     {highlightNext ? (
                       <span className="ml-1.5 inline-flex align-middle rounded-full bg-teal-100 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-teal-900 dark:bg-teal-900/70 dark:text-teal-100">
-                        Start here
+                        {exploreCompletedOutput ? "Next step" : "Start here"}
                       </span>
                     ) : null}
                     {done ? <span className="ml-1 text-[10px] font-normal text-teal-700 dark:text-teal-400">(done)</span> : null}

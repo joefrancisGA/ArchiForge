@@ -1,12 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { cn } from "@/lib/utils";
+
+/** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
+const DEMO_RUN_PREF_ID = "claims-intake-modernization";
 
 type RunIdPickerProps = {
   value: string;
@@ -19,6 +24,11 @@ type RunIdPickerProps = {
   inputId?: string;
   /** When true, empty/failed run lists use the two-row Compare demo pair when demo spine fallback is enabled. */
   forCompare?: boolean;
+  /**
+   * When true (default), loads runs on mount and auto-selects the demo / first run when `value` is empty —
+   * use `false` for paired Compare pickers when the parent prefills both sides.
+   */
+  preferAutoPick?: boolean;
 };
 
 function truncate(text: string, max: number): string {
@@ -44,6 +54,7 @@ export function RunIdPicker({
   projectId = "default",
   inputId,
   forCompare = false,
+  preferAutoPick = true,
 }: RunIdPickerProps) {
   const generatedId = useId();
   const controlId = inputId ?? `run-id-picker-${generatedId}`;
@@ -52,6 +63,7 @@ export function RunIdPicker({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const autoPickAppliedRef = useRef(false);
 
   useEffect(() => {
     setQuery(value);
@@ -60,7 +72,7 @@ export function RunIdPicker({
   const loadRuns = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
-  
+
     try {
       const merged = await loadProjectRunsMergedWithDemoFallback(projectId, { forCompare });
       setRuns(merged.items ?? []);
@@ -72,6 +84,91 @@ export function RunIdPicker({
       setLoading(false);
     }
   }, [projectId, forCompare]);
+
+  useEffect(() => {
+    if (!preferAutoPick) {
+      return;
+    }
+
+    void loadRuns();
+  }, [preferAutoPick, loadRuns]);
+
+  useEffect(() => {
+    if (!preferAutoPick) {
+      return;
+    }
+
+    if (loading) {
+      return;
+    }
+
+    if (value.trim().length > 0) {
+      return;
+    }
+
+    const demoMode = isNextPublicDemoMode();
+
+    if (loadError !== null) {
+      if (!demoMode) {
+        return;
+      }
+
+      if (autoPickAppliedRef.current) {
+        return;
+      }
+
+      autoPickAppliedRef.current = true;
+      setQuery(SHOWCASE_STATIC_DEMO_RUN_ID);
+      onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
+      onSelect?.(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+      return;
+    }
+
+    if (runs.length === 0) {
+      if (!demoMode) {
+        return;
+      }
+
+      if (autoPickAppliedRef.current) {
+        return;
+      }
+
+      autoPickAppliedRef.current = true;
+      setQuery(SHOWCASE_STATIC_DEMO_RUN_ID);
+      onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
+      onSelect?.(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+      return;
+    }
+
+    const demoPreferred = runs.find((r) => r.runId === DEMO_RUN_PREF_ID);
+    const firstItem = runs[0];
+
+    if (runs.length === 1 && firstItem !== undefined) {
+      if (autoPickAppliedRef.current) {
+        return;
+      }
+
+      autoPickAppliedRef.current = true;
+      setQuery(firstItem.runId);
+      onChange(firstItem.runId);
+      onSelect?.(firstItem.runId);
+
+      return;
+    }
+
+    if (demoMode && demoPreferred !== undefined) {
+      if (autoPickAppliedRef.current) {
+        return;
+      }
+
+      autoPickAppliedRef.current = true;
+      setQuery(demoPreferred.runId);
+      onChange(demoPreferred.runId);
+      onSelect?.(demoPreferred.runId);
+    }
+  }, [preferAutoPick, loading, loadError, runs, value, onChange, onSelect]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
