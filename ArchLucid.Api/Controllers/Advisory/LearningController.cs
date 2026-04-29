@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Learning;
 using ArchLucid.Api.Models.Learning;
 using ArchLucid.Api.ProblemDetails;
@@ -9,6 +10,7 @@ using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 using Asp.Versioning;
@@ -27,6 +29,7 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/learning")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class LearningController(
     ILearningPlanningReadService learningReadService,
     IScopeContextProvider scopeProvider)

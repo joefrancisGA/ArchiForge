@@ -1,9 +1,11 @@
 using System.Security.Claims;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Alerts;
 
 using Asp.Versioning;
@@ -28,6 +30,7 @@ namespace ArchLucid.Api.Controllers.Alerts;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/alerts")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AlertsController(
     IScopeContextProvider scopeProvider,
     IAlertRecordRepository alertRepository,

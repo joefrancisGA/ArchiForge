@@ -6,6 +6,9 @@ public static class AuditEventTypes
     public const string RunCompleted = "RunCompleted";
 
     public const string ManifestGenerated = "ManifestGenerated";
+
+    /// <summary>Durable audit when a run's golden manifest is finalized (committed) in one atomic transaction with outbox.</summary>
+    public const string ManifestFinalized = "ManifestFinalized";
     public const string ArtifactsGenerated = "ArtifactsGenerated";
     public const string ReplayExecuted = "ReplayExecuted";
 
@@ -285,6 +288,13 @@ public static class AuditEventTypes
 
     /// <summary>Pilot <c>archlucid try --real</c>: development seed path recorded simulator substitution after AOAI failure.</summary>
     public const string FirstRealValueRunFellBackToSimulator = "FirstRealValueRunFellBackToSimulator";
+
+    /// <summary>
+    ///     After execute, coordinator promoted <c>dbo.Runs.LegacyRunStatus</c> to <c>ReadyForCommit</c> when Topology,
+    ///     Cost, Compliance, and Critic each contributed exactly one persisted agent result (ADR-0012; distinct from golden
+    ///     manifest finalize at commit).
+    /// </summary>
+    public const string RunLegacyReadyForCommitPromoted = "RunLegacyReadyForCommitPromoted";
 
     /// <summary>
     ///     Canonical durable <c>dbo.AuditEvents</c> event types for architecture run-stage semantics (create, execute,

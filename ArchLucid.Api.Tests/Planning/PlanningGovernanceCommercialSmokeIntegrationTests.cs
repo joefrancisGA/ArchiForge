@@ -1,37 +1,27 @@
 using System.Net;
 
+using ArchLucid.Api.Tests;
+
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
-
-using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Api.Tests.Planning;
 
 /// <summary>
 ///     Covers authenticated Planning (<see cref="ArchLucid.Api.Controllers.Planning.GraphController" />) and Governance
-///     (<see cref="ArchLucid.Api.Controllers.Governance.GovernanceController" />) surfaces behind commercial-tier gates —
-///     complements Moq-only <see cref="CommercialTenantTierFilterTests" /> with HTTP routing smoke against SQL-backed tier rows.
+///     (<see cref="ArchLucid.Api.Controllers.Governance.GovernanceController" />) commercial-tier gated routes —
+///     complements <see cref="CommercialTenantTierFilterTests" /> against the default DevelopmentBypass scoped host.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
-public sealed class PlanningGovernanceCommercialSmokeIntegrationTests : IClassFixture<ArchLucidApiFactory>, IAsyncLifetime
+public sealed class PlanningGovernanceCommercialSmokeIntegrationTests : IClassFixture<ArchLucidApiFactory>
 {
     private readonly ArchLucidApiFactory _factory;
 
     public PlanningGovernanceCommercialSmokeIntegrationTests(ArchLucidApiFactory factory)
     {
         _factory = factory;
-    }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
-    }
-
-    public async Task InitializeAsync()
-    {
-        await UpsertCommercialTenantAsync(_factory.SqlConnectionString);
     }
 
     [Fact]
@@ -58,32 +48,5 @@ public sealed class PlanningGovernanceCommercialSmokeIntegrationTests : IClassFi
             await client.GetAsync("/v1/governance/dashboard");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    private static async Task UpsertCommercialTenantAsync(string connectionString)
-    {
-        await using SqlConnection connection = new(connectionString);
-        await connection.OpenAsync();
-
-        await using (SqlCommand bypass = connection.CreateCommand())
-        {
-            bypass.CommandText = "EXEC sys.sp_set_session_context @key, @value, @read_only;";
-            bypass.Parameters.AddWithValue("@key", "al_rls_bypass");
-            bypass.Parameters.AddWithValue("@value", 1);
-            bypass.Parameters.AddWithValue("@read_only", 0);
-            await bypass.ExecuteNonQueryAsync();
-        }
-
-        await using SqlCommand cmd = connection.CreateCommand();
-        cmd.CommandText =
-            """
-            IF EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = @Tid)
-                UPDATE dbo.Tenants SET Tier = N'Standard' WHERE Id = @Tid;
-            ELSE
-                INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
-                VALUES (@Tid, N'Standard-tier smoke tenant', N'standard-tier-smoke', N'Standard', NULL);
-            """;
-        cmd.Parameters.AddWithValue("@Tid", ScopeIds.DefaultTenant);
-        await cmd.ExecuteNonQueryAsync();
     }
 }

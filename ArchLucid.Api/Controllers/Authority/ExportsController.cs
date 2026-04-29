@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -9,6 +10,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Serialization;
 
@@ -31,6 +33,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ExportsController(
     IRunDetailQueryService runDetailQueryService,
     IRunExportRecordRepository runExportRecordRepository,

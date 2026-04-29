@@ -1,6 +1,8 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Diagnostics;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -18,6 +20,7 @@ namespace ArchLucid.Api.Controllers.Diagnostics;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class OperatorTaskSuccessDiagnosticsController(
     IInstrumentationCounterSnapshotProvider counterSnapshotProvider) : ControllerBase
 {

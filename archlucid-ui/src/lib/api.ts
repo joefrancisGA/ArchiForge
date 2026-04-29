@@ -570,6 +570,60 @@ export type TenantMeasuredRoiPayload = {
   disclaimer: string;
 };
 
+/** GET `/v1/pilots/sponsor-evidence-pack` — aggregated sponsor-facing proof bundle (Standard tier). */
+export async function getSponsorEvidencePack(): Promise<SponsorEvidencePackPayload> {
+  return apiGet<SponsorEvidencePackPayload>(
+    `/${ApiV1Routes.pilotsSponsorEvidencePack}`,
+  );
+}
+
+export type ExplainabilityTraceEngineCompletenessPack = {
+  engineType: string;
+  findingCount: number;
+  completenessRatio: number;
+  graphNodeIdsPopulatedCount: number;
+  rulesAppliedPopulatedCount: number;
+  decisionsTakenPopulatedCount: number;
+  alternativePathsPopulatedCount: number;
+  notesPopulatedCount: number;
+};
+
+export type ExplainabilityTraceCompletenessPack = {
+  totalFindings: number;
+  overallCompletenessRatio: number;
+  byEngine: ExplainabilityTraceEngineCompletenessPack[];
+};
+
+export type SponsorEvidenceGovernanceOutcomesPack = {
+  pendingApprovalCount: number;
+  recentTerminalDecisionCount: number;
+  recentPolicyPackChangeCount: number;
+};
+
+/** Proof-of-ROI slice for the demo run (camelCase JSON from PilotRunDeltasResponse). */
+export type DemoRunPilotDeltaPack = {
+  timeToCommittedManifestTotalSeconds?: number | null;
+  manifestCommittedUtc?: string | null;
+  runCreatedUtc: string;
+  findingsBySeverity: { severity: string; count: number }[];
+  auditRowCount: number;
+  auditRowCountTruncated: boolean;
+  llmCallCount: number;
+  topFindingSeverity?: string | null;
+  topFindingId?: string | null;
+  topFindingEvidenceChain?: unknown | null;
+  isDemoTenant: boolean;
+};
+
+export type SponsorEvidencePackPayload = {
+  generatedUtc: string;
+  demoRunId: string;
+  processInstrumentation: WhyArchLucidSnapshot;
+  explainabilityTrace: ExplainabilityTraceCompletenessPack;
+  demoRunValueReportDelta?: DemoRunPilotDeltaPack | null;
+  governanceOutcomes: SponsorEvidenceGovernanceOutcomesPack;
+};
+
 /** GETs `/v1/tenant/measured-roi` (operator proof page — combines snapshot + cost context). */
 export async function getTenantMeasuredRoi(): Promise<TenantMeasuredRoiPayload> {
   return apiGet<TenantMeasuredRoiPayload>(`/${ApiV1Routes.tenantMeasuredRoi}`);
@@ -597,8 +651,11 @@ export async function getDemoExplain(): Promise<DemoExplainResponse | null> {
 }
 
 /** Read-model inspector: typed payload, rules, evidence citations, audit correlation (ReadAuthority). */
-export async function getFindingInspect(findingId: string): Promise<FindingInspectPayload> {
-  return apiGet<FindingInspectPayload>(`/v1/findings/${encodeURIComponent(findingId)}/inspect`);
+/** Run-scoped: GET /v1/architecture/run/{runId}/findings/{findingId}/inspect */
+export async function getFindingInspect(runId: string, findingId: string): Promise<FindingInspectPayload> {
+  return apiGet<FindingInspectPayload>(
+    `/v1/architecture/run/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`,
+  );
 }
 
 /** Persisted explainability trace + narrative for a single finding (no LLM). */

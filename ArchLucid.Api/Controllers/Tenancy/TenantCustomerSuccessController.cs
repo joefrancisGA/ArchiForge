@@ -1,8 +1,10 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.CustomerSuccess;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -16,6 +18,7 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [Authorize]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/tenant/customer-success")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class TenantCustomerSuccessController(
     ITenantCustomerSuccessRepository customerSuccessRepository,
     IScopeContextProvider scopeProvider) : ControllerBase

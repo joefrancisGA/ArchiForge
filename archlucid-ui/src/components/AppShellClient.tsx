@@ -12,6 +12,7 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { HelpPanel } from "@/components/HelpPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { LayerContextFromRoute } from "@/components/LayerContextFromRoute";
+import { CorePilotWizardLauncher } from "@/components/CorePilotWizard";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
@@ -116,6 +117,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
         <AppToaster />
         <RouteAnnouncer />
         <HelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
+        <CorePilotWizardLauncher />
         <OnboardingTour />
       </TooltipProvider>
     </OperatorNavAuthorityProvider>

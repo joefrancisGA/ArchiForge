@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/manifest-finalized.v1.schema.json",
+  "title": "com.archlucid.manifest.finalized.v1",
+  "description": "Transactional outbox payload after a golden manifest is finalized (committed) for an authority run.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "runId",
+    "manifestId",
+    "decisionTraceId",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "findingsSnapshotId"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "runId": { "type": "string", "format": "uuid" },
+    "manifestId": { "type": "string", "format": "uuid" },
+    "decisionTraceId": { "type": "string", "format": "uuid" },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "findingsSnapshotId": { "type": "string", "format": "uuid" },
+    "artifactBundleId": { "type": "string", "format": "uuid" },
+    "manifestVersion": { "type": "string" }
+  },
+  "additionalProperties": true
+}

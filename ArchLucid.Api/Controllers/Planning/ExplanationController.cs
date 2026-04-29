@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Explanation;
@@ -6,6 +7,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
@@ -33,6 +35,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/explain")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ExplanationController(
     IAuthorityQueryService query,
     IComparisonService comparison,

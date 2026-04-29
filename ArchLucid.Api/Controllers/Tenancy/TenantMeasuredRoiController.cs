@@ -1,7 +1,9 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -17,6 +19,7 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/tenant/measured-roi")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class TenantMeasuredRoiController(
     ITenantMeasuredRoiService measuredRoiService,
     IScopeContextProvider scopeProvider) : ControllerBase

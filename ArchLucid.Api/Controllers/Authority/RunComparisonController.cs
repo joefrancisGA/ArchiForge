@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -7,6 +8,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -27,6 +29,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class RunComparisonController(
     IRunDetailQueryService runDetailQueryService,
     IAgentResultDiffService agentResultDiffService,

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.IO.Compression;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -12,6 +13,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -43,6 +45,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ComparisonsController(
     IRunDetailQueryService runDetailQueryService,
     IRunExportRecordRepository runExportRecordRepository,

@@ -47,6 +47,7 @@ public sealed class WhyArchLucidSnapshotService(
                 WhyArchLucidSnapshotResponse.AuditRowCountCap,
                 cancellationToken);
 
+            auditCount = events.Count;
             truncated = events.Count >= WhyArchLucidSnapshotResponse.AuditRowCountCap;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

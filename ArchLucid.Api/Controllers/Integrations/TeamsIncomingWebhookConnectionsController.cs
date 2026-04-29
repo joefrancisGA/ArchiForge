@@ -1,11 +1,13 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Notifications.Teams;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -22,6 +24,7 @@ namespace ArchLucid.Api.Controllers.Integrations;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/integrations/teams")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class TeamsIncomingWebhookConnectionsController(
     IScopeContextProvider scopeProvider,
     ITenantTeamsIncomingWebhookConnectionRepository connectionRepository,

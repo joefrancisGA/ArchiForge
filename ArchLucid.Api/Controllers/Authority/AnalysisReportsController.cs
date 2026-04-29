@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -11,6 +12,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -44,6 +46,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AnalysisReportsController(
     IRunDetailQueryService runDetailQueryService,
     IArchitectureAnalysisService architectureAnalysisService,

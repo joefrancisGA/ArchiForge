@@ -299,14 +299,15 @@ export function SignupForm() {
 
         <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
           <p id="signup-baseline-heading" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            Review-cycle baseline (recommended)
+            Baseline review hours (recommended)
           </p>
           <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-            Default keeps signup fast; we still compute a measured-vs-baseline curve after your first finalized run using
-            the conservative model from <code className="text-[0.85em]">docs/PILOT_ROI_MODEL.md</code> when you do not
-            override.{" "}
-            <strong>Supplying your own hours</strong> tightens the &quot;before&quot; anchor to your team&apos;s median
-            review time. See the{" "}
+            Supplying <strong className="font-semibold text-neutral-800 dark:text-neutral-200">baseline review hours</strong> tightens your
+            ROI &quot;before&quot; anchors. Default signup stays fast; pick <em>I will enter our median review-cycle hours</em>{" "}
+            to unlock the baseline review hours field. We still compute a measured-vs-baseline curve after your first
+            finalized run using the conservative model from{" "}
+            <code className="text-[0.85em]">docs/PILOT_ROI_MODEL.md</code>{" "}
+            when you leave the modeled default — see also the{" "}
             <a
               className="text-teal-800 underline dark:text-teal-300"
               href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md"
@@ -375,7 +376,7 @@ export function SignupForm() {
                 Overriding produces a measured-vs-baseline curve on the operator dashboard once a run finalizes.
               </p>
               <div>
-                <Label htmlFor="signup-baseline-hours">Baseline review cycle (hours)</Label>
+                <Label htmlFor="signup-baseline-hours">Baseline review hours (median hours per cycle)</Label>
                 <Input
                   id="signup-baseline-hours"
                   type="number"

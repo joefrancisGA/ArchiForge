@@ -537,7 +537,7 @@ export default async function RunDetailPage({
 
       {manifestId && (
         <section id="run-explanation" className="scroll-mt-24">
-          <CollapsibleSection title="Architecture review explanation" defaultOpen={false}>
+          <CollapsibleSection title="Architecture review summary" defaultOpen={false}>
             {explanationFailure && (
               <>
                 <p className="m-0 mb-2 text-sm font-semibold text-neutral-800 dark:text-neutral-200">

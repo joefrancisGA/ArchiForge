@@ -1,12 +1,14 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.ProductLearning;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Coordination.ProductLearning;
 
 using Asp.Versioning;
@@ -30,6 +32,7 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/product-learning")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ProductLearningController(
     IProductLearningDashboardService dashboardService,
     IScopeContextProvider scopeProvider)

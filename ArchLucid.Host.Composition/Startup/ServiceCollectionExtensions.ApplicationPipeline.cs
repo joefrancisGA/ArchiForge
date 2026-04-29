@@ -13,6 +13,7 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Marketing;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Application.Support;
@@ -127,6 +128,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ArchitectureRunCreateOptions>(
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
+        services.AddScoped<IManifestFinalizationService, ManifestFinalizationService>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         // ADR 0030 PR A3 (2026-04-24): the legacy ArchitectureRunCommitOrchestrator + RunCommitPathSelector
@@ -158,6 +160,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<BoardPackPdfBuilder>();
         services.TryAddSingleton<IInstrumentationCounterSnapshotProvider, MeterListenerCounterSnapshotProvider>();
         services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
+        services.AddScoped<ISponsorEvidencePackService, SponsorEvidencePackService>();
         services.AddScoped<ITenantMeasuredRoiService, TenantMeasuredRoiService>();
         services.AddScoped<IDemoSeedRunResolver, DemoSeedRunResolver>();
         services.AddScoped<IDemoReadModelClient, DemoReadModelClient>();

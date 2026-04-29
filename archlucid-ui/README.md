@@ -71,7 +71,7 @@ The default experience is the **Pilot** path — four steps from an empty worksp
 New run (wizard) → pipeline runs → Commit → Artifacts
 ```
 
-**First-time operators:** open **Home** (`/`) and use the collapsible **Core Pilot checklist** panel (in-product label; step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The sidebar **Pilot** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default; **Show analysis & investigation tools** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard).
+**First-time operators:** open **Home** (`/`) and use the collapsible **Core Pilot checklist** panel (in-product label; step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. A **Core Pilot wizard** (Compass floating button) guides the V1 pilot path with resumable steps stored under `archlucid.corePilotWizard.v1` — experts can close anytime or opt out of the launcher. The sidebar **Pilot** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default; **Show analysis & investigation tools** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard).
 
 **End-to-end path:** Home → **New run** or **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two runs** / **Replay a run** / **Graph** (enable via **Show analysis & investigation tools**).
 

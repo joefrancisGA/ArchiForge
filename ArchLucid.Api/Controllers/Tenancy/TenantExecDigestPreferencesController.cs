@@ -1,10 +1,12 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -21,6 +23,7 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/tenant")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class TenantExecDigestPreferencesController(
     IScopeContextProvider scopeProvider,
     ITenantExecDigestPreferencesRepository preferencesRepository,

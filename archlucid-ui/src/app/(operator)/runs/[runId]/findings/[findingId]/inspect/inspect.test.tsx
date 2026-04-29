@@ -32,7 +32,7 @@ describe("FindingInspectView", () => {
     const view = within(container);
 
     expect(view.getByRole("heading", { name: "Why this finding?" })).toBeTruthy();
-    expect(view.getByRole("heading", { name: "Payload" })).toBeTruthy();
+    expect(view.getByRole("heading", { name: "Typed payload (structured trace)" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Decision rule" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Evidence" })).toBeTruthy();
     expect(view.getByRole("heading", { name: "Audit" })).toBeTruthy();

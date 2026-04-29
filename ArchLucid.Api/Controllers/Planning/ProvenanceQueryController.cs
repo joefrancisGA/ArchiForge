@@ -1,7 +1,9 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Provenance;
 
@@ -18,6 +20,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/authority")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ProvenanceQueryController(
     IProvenanceSnapshotRepository repo,
     IProvenanceQueryService graphQuery,

@@ -13,7 +13,9 @@
       Phase 3 — Commit:   POST /v1/architecture/run/{runId}/commit
 
     The script records wall-clock milliseconds for each phase and total end-to-end, then emits a
-    JSON summary to stdout (and optionally to -OutputFile).
+    versioned JSON summary to stdout. By default it also writes artifacts/benchmark-real-mode-latest.json
+    under the repository root (UTF-8, no BOM — gitignored folder). Override with -ArtifactPath or
+    suppress with -SkipArtifact.
 
     Prerequisites:
       - ArchLucid API running in real mode (AgentExecution__Mode=Real) with Azure OpenAI env vars
@@ -33,13 +35,19 @@
 .PARAMETER PollIntervalSeconds
     Seconds between status polls (default 3).
 
+.PARAMETER ArtifactPath
+    Canonical JSON artifact path (default <repo>/artifacts/benchmark-real-mode-latest.json).
+
+.PARAMETER SkipArtifact
+    Do not write the canonical artifact file (stdout JSON only unless -OutputFile is used).
+
 .PARAMETER OutputFile
-    Optional path to write the JSON summary (parent directories created automatically).
+    Optional additional path to write the same JSON (e.g. CI upload staging).
 
 .EXAMPLE
     pwsh ./scripts/benchmark-real-mode-e2e.ps1
-    pwsh ./scripts/benchmark-real-mode-e2e.ps1 -BaseUrl http://127.0.0.1:5000 -OutputFile results/real-bench.json
-    pwsh ./scripts/benchmark-real-mode-e2e.ps1 -TimeoutSeconds 600
+    pwsh ./scripts/benchmark-real-mode-e2e.ps1 -BaseUrl http://127.0.0.1:5000 -OutputFile results/extra-copy.json
+    pwsh ./scripts/benchmark-real-mode-e2e.ps1 -TimeoutSeconds 600 -SkipArtifact
 #>
 param(
     [string] $BaseUrl = $env:ARCHLUCID_API_BASE_URL,
@@ -50,11 +58,21 @@ param(
     [ValidateRange(1, 30)]
     [int] $PollIntervalSeconds = 3,
 
+    [string] $ArtifactPath,
+
+    [switch] $SkipArtifact,
+
     [string] $OutputFile
 )
 
 Set-StrictMode -Version 3.0
 $ErrorActionPreference = "Stop"
+
+$RepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
+
+if ([string]::IsNullOrWhiteSpace($ArtifactPath)) {
+    $ArtifactPath = Join-Path $RepoRoot "artifacts" "benchmark-real-mode-latest.json"
+}
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -102,6 +120,45 @@ function Invoke-JsonPost {
     return Invoke-WebRequest @splat
 }
 
+function Get-BenchmarkEnvironmentBlock {
+    param(
+        [string] $BaseUrlResolved,
+        [int] $TimeoutSec,
+        [int] $PollSec
+    )
+    $rawAoai = [Environment]::GetEnvironmentVariable("ARCHLUCID_REAL_AOAI")
+    $realAoai = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($rawAoai)) {
+        $realAoai = $rawAoai
+    }
+
+    [ordered]@{
+        baseUrl              = $BaseUrlResolved
+        timeoutSeconds       = $TimeoutSec
+        pollIntervalSeconds  = $PollSec
+        archLucidRealAoai    = $realAoai
+        apiKeyEnvPresent     = -not [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable("ARCHLUCID_API_KEY"))
+    }
+}
+
+function Write-StableBenchmarkJson {
+    param(
+        $OrderedDocument,
+
+        [Parameter(Mandatory)][string]$DestinationPath
+    )
+    $json = ConvertTo-Json -Depth 30 -Compress -InputObject $OrderedDocument
+
+    [string] $directory = Split-Path -Parent $DestinationPath
+    if (-not [string]::IsNullOrWhiteSpace($directory) -and -not (Test-Path -LiteralPath $directory)) {
+        New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    }
+
+    [System.IO.File]::WriteAllText($DestinationPath, $json, [System.Text.UTF8Encoding]::new($false))
+    Write-Host "JSON written to $DestinationPath"
+}
+
 function Test-ApiReachable {
     param([string] $Base, [hashtable] $Headers)
     try {
@@ -137,24 +194,36 @@ Write-Host ""
 
 # Graceful fallback when the API is not reachable
 if (-not (Test-ApiReachable -Base $resolvedBase -Headers $headersPlain)) {
-    $fallback = [pscustomobject]@{
-        status    = "api_unreachable"
-        baseUrl   = $resolvedBase
-        message   = "ArchLucid API is not reachable at $resolvedBase. Start the real-AOAI stack first (see docs/library/FIRST_REAL_VALUE.md)."
-        timestamp = [DateTimeOffset]::UtcNow.ToString("o")
+    $fallback = [ordered]@{
+        schemaVersion = "1.0.0"
+        kind          = "archlucid.benchmark.realModeE2e.v1"
+        status        = "api_unreachable"
+        environment   = Get-BenchmarkEnvironmentBlock -BaseUrlResolved $resolvedBase `
+            -TimeoutSec $TimeoutSeconds -PollSec $PollIntervalSeconds
+        error = [ordered]@{
+            message = "ArchLucid API is not reachable at $resolvedBase. Start the real-AOAI stack first (see docs/library/FIRST_REAL_VALUE.md)."
+        }
+        meta = [ordered]@{
+            timestampUtc = [DateTimeOffset]::UtcNow.ToString("o")
+        }
     }
-    $json = $fallback | ConvertTo-Json -Depth 5 -Compress
-    Write-Warning $fallback.message
-    Write-Host $json
+
+    $jsonOutFallback = ConvertTo-Json -Depth 30 -Compress -InputObject $fallback
+    Write-Warning $fallback.error.message
+    Write-Host $jsonOutFallback
+
+    [System.Collections.ArrayList]$destinationList = @()
+
+    if (-not $SkipArtifact) {
+        [void]$destinationList.Add($ArtifactPath)
+    }
 
     if ($OutputFile) {
-        $dir = Split-Path -Parent $OutputFile
+        [void]$destinationList.Add($OutputFile)
+    }
 
-        if (-not [string]::IsNullOrWhiteSpace($dir) -and -not (Test-Path -LiteralPath $dir)) {
-            New-Item -ItemType Directory -Path $dir -Force | Out-Null
-        }
-
-        $json | Set-Content -LiteralPath $OutputFile -Encoding utf8
+    foreach ($destination in (($destinationList.ToArray()) | Select-Object -Unique)) {
+        Write-StableBenchmarkJson -OrderedDocument $fallback -DestinationPath $destination
     }
 
     exit 0
@@ -309,32 +378,47 @@ Write-Host "  Commit   : $commitMs ms"
 Write-Host ""
 Write-Host "Total E2E  : $totalMs ms ($([math]::Round($totalMs / 1000, 2)) s)"
 
-# --- JSON summary ----------------------------------------------------------
-$summary = [pscustomobject]@{
-    status      = "completed"
-    mode        = "Real"
-    baseUrl     = $resolvedBase
-    runId       = $runId
-    totalMs     = $totalMs
-    createMs    = $createMs
-    executeMs   = $executeMs
-    commitMs    = $commitMs
-    totalSec    = [math]::Round($totalMs / 1000, 2)
-    targetMet   = ($totalMs -le 300000)
-    timestamp   = [DateTimeOffset]::UtcNow.ToString("o")
+# --- JSON summary (stable schema archlucid.benchmark.realModeE2e.v1) -----------------
+$completed = [ordered]@{
+    schemaVersion = "1.0.0"
+    kind          = "archlucid.benchmark.realModeE2e.v1"
+    status        = "completed"
+    environment   = Get-BenchmarkEnvironmentBlock -BaseUrlResolved $resolvedBase `
+        -TimeoutSec $TimeoutSeconds -PollSec $PollIntervalSeconds
+    run = [ordered]@{
+        runId         = [string]$runId
+        executionMode = "Real"
+        pilotRealHeaderApplied = $true
+    }
+    timings = [ordered]@{
+        createMs  = $createMs
+        executeMs = $executeMs
+        commitMs  = $commitMs
+        totalMs   = $totalMs
+        totalSec  = [math]::Round($totalMs / 1000, 2)
+    }
+    targets = [ordered]@{
+        totalWallClockUnderFiveMinutes = ($totalMs -le 300000)
+    }
+    meta = [ordered]@{
+        timestampUtc = [DateTimeOffset]::UtcNow.ToString("o")
+    }
 }
 
-$jsonOut = $summary | ConvertTo-Json -Depth 10 -Compress
+$jsonOut = ConvertTo-Json -Depth 30 -Compress -InputObject $completed
+
+[System.Collections.ArrayList]$completedDestinations = @()
+
+if (-not $SkipArtifact) {
+    [void]$completedDestinations.Add($ArtifactPath)
+}
 
 if ($OutputFile) {
-    $dir = Split-Path -Parent $OutputFile
+    [void]$completedDestinations.Add($OutputFile)
+}
 
-    if (-not [string]::IsNullOrWhiteSpace($dir) -and -not (Test-Path -LiteralPath $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-    }
-
-    $jsonOut | Set-Content -LiteralPath $OutputFile -Encoding utf8
-    Write-Host "JSON written to $OutputFile"
+foreach ($destination in (($completedDestinations.ToArray()) | Select-Object -Unique)) {
+    Write-StableBenchmarkJson -OrderedDocument $completed -DestinationPath $destination
 }
 
 Write-Host ""

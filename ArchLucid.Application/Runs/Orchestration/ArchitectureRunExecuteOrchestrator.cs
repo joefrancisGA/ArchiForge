@@ -1,7 +1,9 @@
-using ArchLucid.Contracts.Abstractions.Agents;
+using System.Text.Json;
+
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
@@ -14,6 +16,7 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 
@@ -33,6 +36,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IEvidenceBuilder evidenceBuilder,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
+    IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
@@ -53,6 +57,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook =
         outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
@@ -319,14 +327,41 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             return;
         }
 
-        if (string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase)
-            || string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
+        string previousLegacyRunStatus = header.LegacyRunStatus ?? "";
+
+        if (string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
 
             return;
 
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
         await _runRepository.UpdateAsync(header, cancellationToken);
+
+        string actor = _actorContext.GetActor();
+
+        await DurableAuditLogRetry.TryLogAsync(
+            async ct =>
+            {
+                AuditEvent auditEvent = new()
+                {
+                    EventType = AuditEventTypes.RunLegacyReadyForCommitPromoted,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = runGuid,
+                    DataJson = JsonSerializer.Serialize(
+                        new { runId, previousLegacyRunStatus, newLegacyRunStatus = header.LegacyRunStatus },
+                        AuditJsonSerializationOptions.Instance),
+                };
+
+                await _auditService.LogAsync(auditEvent, ct);
+            },
+            _logger,
+            $"{AuditEventTypes.RunLegacyReadyForCommitPromoted}:{LogSanitizer.Sanitize(runId)}",
+            cancellationToken);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)

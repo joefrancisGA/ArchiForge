@@ -39,6 +39,7 @@ public sealed class PilotsController(
     PilotOutcomeSummaryService pilotOutcomeSummaryService,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
+    ISponsorEvidencePackService sponsorEvidencePackService,
     IRunDetailQueryService runDetailQueryService,
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     IRecentPilotRunDeltasService recentPilotRunDeltasService,
@@ -59,6 +60,23 @@ public sealed class PilotsController(
         WhyArchLucidSnapshotResponse snapshot = await whyArchLucidSnapshotService.BuildAsync(cancellationToken);
 
         return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     Sponsor evidence pack: explainability completeness for the demo findings snapshot, live process counters,
+    ///     value-report pilot deltas for the demo run, and governance headline counts. Standard tier (commercial floor
+    ///     aligned with <see cref="ArchLucid.Api.Controllers.Tenancy.TenantMeasuredRoiController" />).
+    /// </summary>
+    [HttpGet("sponsor-evidence-pack")]
+    [RequiresCommercialTenantTier(TenantTier.Standard)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(SponsorEvidencePackResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<SponsorEvidencePackResponse>> GetSponsorEvidencePack(
+        CancellationToken cancellationToken)
+    {
+        SponsorEvidencePackResponse pack = await sponsorEvidencePackService.BuildAsync(cancellationToken);
+
+        return Ok(pack);
     }
 
     /// <summary>

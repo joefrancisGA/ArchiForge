@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -42,6 +43,7 @@ public sealed class RunQueryController(
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IFindingEvidenceChainService findingEvidenceChainService,
+    IFindingInspectReadRepository findingInspectReadRepository,
     IScopeContextProvider scopeContextProvider,
     ITraceabilityBundleBuilder traceabilityBundleBuilder) : ControllerBase
 {
@@ -256,6 +258,46 @@ public sealed class RunQueryController(
         return Ok(chain);
     }
 
+    /// <summary>
+    ///     Same payload as <c>GET /v1/findings/{findingId}/inspect</c>; returns <c>404</c> when the finding&apos;s persisted
+    ///     run identifier does not match <paramref name="runId" /> (prevents cross-run ambiguity in deep links).
+    /// </summary>
+    [HttpGet("run/{runId}/findings/{findingId}/inspect")]
+    [ProducesResponseType(typeof(FindingInspectResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFindingInspectForRun(
+        [FromRoute] string runId,
+        [FromRoute] string findingId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            return this.BadRequestProblem("Finding id is required.", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        FindingInspectResponse? body =
+            await findingInspectReadRepository.GetInspectAsync(scope, findingId.Trim(), cancellationToken);
+
+        if (body is null)
+        {
+            return this.NotFoundProblem(
+                $"Finding '{findingId.Trim()}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (!SameAuthorityRunIdentifier(runId.Trim(), body.RunId))
+        {
+            return this.NotFoundProblem(
+                $"Finding '{findingId.Trim()}' was not found for run '{runId.Trim()}'.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(body);
+    }
+
     /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>
     [HttpGet("run/{runId}/traceability-bundle.zip")]
     [Produces("application/zip")]
@@ -304,5 +346,17 @@ public sealed class RunQueryController(
     private static bool TryParseRunId(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+    }
+
+    /// <summary>Hyphen/format-insensitive GUID comparison (aligned with UI <c>sameAuthorityRunId</c>).</summary>
+    private static bool SameAuthorityRunIdentifier(string routeRunId, Guid payloadRunId)
+    {
+        static string Norm(string value) =>
+            value.Replace("-", string.Empty, StringComparison.Ordinal).Trim().ToUpperInvariant();
+
+        return string.Equals(
+            Norm(routeRunId),
+            Norm(payloadRunId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)),
+            StringComparison.Ordinal);
     }
 }

@@ -16,6 +16,8 @@ export const ApiV1Routes = {
   tenantExecDigestPreferences: "v1/tenant/exec-digest-preferences",
   tenantCostEstimate: "v1/tenant/cost-estimate",
   tenantMeasuredRoi: "v1/tenant/measured-roi",
+  /** Sponsor evidence bundle (Standard tier): explainability completeness, deltas, governance counts. */
+  pilotsSponsorEvidencePack: "v1/pilots/sponsor-evidence-pack",
   teamsIncomingWebhookConnections: "v1/integrations/teams/connections",
   teamsNotificationTriggerCatalog: "v1/integrations/teams/triggers",
   /** Pilot / product feedback rollups (58R). */

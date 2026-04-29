@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -7,6 +8,7 @@ using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
@@ -31,6 +33,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/artifacts")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class ArtifactExportController(
     IArtifactQueryService artifactQueryService,
     IAuthorityQueryService authorityQueryService,

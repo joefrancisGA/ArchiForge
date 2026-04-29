@@ -14,6 +14,15 @@
       "description": "Emitted when an authority run completes successfully."
     },
     {
+      "eventType": "com.archlucid.manifest.finalized.v1",
+      "schemaVersion": 1,
+      "schemaFile": "manifest-finalized.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/manifest-finalized.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
+      "description": "Emitted when a golden manifest is finalized (committed) for a run in the same transaction as the run header update."
+    },
+    {
       "eventType": "com.archlucid.governance.approval.submitted",
       "schemaVersion": 1,
       "schemaFile": "governance-approval-submitted.v1.schema.json",

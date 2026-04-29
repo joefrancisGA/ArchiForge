@@ -1,7 +1,9 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -23,6 +25,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/ask")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AskController(
     IAskService ask,
     IScopeContextProvider scopeProvider,

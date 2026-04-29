@@ -250,8 +250,27 @@ export function getScreenshotMockFallbackGetJson(pathname: string, search: strin
     return { runId: m?.[1] ?? "r1", nodes: [] as unknown[], edges: [] as unknown[], timeline: [] as unknown[], traceabilityGaps: [] as string[] };
   }
 
-  if (/^\/v1\/findings\/[^/]+\/inspect$/.test(pathname)) {
-    const id = pathname.split("/")[3] ?? "f1";
+  const scopedInspect = /^\/v1\/architecture\/run\/([^/]+)\/findings\/([^/]+)\/inspect$/u.exec(pathname);
+
+  if (scopedInspect !== null) {
+    const urlRunId = scopedInspect[1] ?? "";
+    const findingIdSegment = scopedInspect[2] ?? "";
+
+    return {
+      findingId: findingIdSegment,
+      typedPayload: null,
+      decisionRuleId: null,
+      decisionRuleName: null,
+      evidence: [] as unknown[],
+      auditRowId: null,
+      runId: urlRunId,
+      manifestVersion: null,
+    };
+  }
+
+  if (/^\/v1\/findings\/[^/]+\/inspect$/u.test(pathname)) {
+    const segments = pathname.split("/");
+    const id = segments.length > 4 ? segments[3] ?? "f1" : "f1";
 
     return {
       findingId: id,

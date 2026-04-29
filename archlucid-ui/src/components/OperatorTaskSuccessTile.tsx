@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-
-type Rates = {
-  windowNote: string;
-  firstRunCommittedTotal: number;
-  firstSessionCompletedTotal: number;
-  firstRunCommittedPerSessionRatio: number;
-};
+import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
+import { fetchOperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 
 /** Small operator-home tile for pilot adoption counters (process lifetime; resets on API restart). */
 export function OperatorTaskSuccessTile() {
-  const [data, setData] = useState<Rates | null>(null);
+  const [data, setData] = useState<OperatorTaskSuccessRates | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,19 +15,11 @@ export function OperatorTaskSuccessTile() {
 
     void (async () => {
       try {
-        const res = await fetch(
-          "/api/proxy/v1/diagnostics/operator-task-success-rates",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!res.ok) {
-          throw new Error(String(res.status));
-        }
-
-        const json = (await res.json()) as Rates;
+        const json = await fetchOperatorTaskSuccessRates();
 
         if (!cancelled) {
           setData(json);
+          setError(null);
         }
       } catch {
         if (!cancelled) {

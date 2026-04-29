@@ -1,5 +1,7 @@
 > **Scope:** Readers picking the right next doc from a task-oriented index — not step-by-step procedures (those live in the linked files).
 
+> **Hub:** Persona onboarding (buyer / contributor / security) routes through **[`START_HERE.md`](START_HERE.md)** — this page is a task lookup once you know your lane.
+
 # ArchLucid Doc Navigator
 
 | I want to... | Start here | Time |

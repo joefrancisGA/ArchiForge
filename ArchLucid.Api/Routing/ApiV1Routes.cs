@@ -22,6 +22,9 @@ public static class ApiV1Routes
 
     public const string TenantMeasuredRoi = "v1/tenant/measured-roi";
 
+    /// <summary>Single JSON sponsor evidence bundle aligned with measured ROI (Standard tier).</summary>
+    public const string PilotsSponsorEvidencePack = "v1/pilots/sponsor-evidence-pack";
+
     public const string TeamsIncomingWebhookConnections = "v1/integrations/teams/connections";
 
     public const string TeamsNotificationTriggerCatalog = "v1/integrations/teams/triggers";

@@ -44,16 +44,20 @@ public sealed class ArchitectureRunOrchestrationAuditTests
         actor.Setup(a => a.GetActor()).Returns("audit-actor");
 
         Mock<IBaselineMutationAuditService> audit = new();
+        Mock<IAuditService> durableAudit = new();
 
         ArchitectureRunExecuteOrchestrator sut = CreateExecuteOrchestrator(
             runRepo.Object,
             scopeProvider.Object,
             actor.Object,
-            audit.Object);
+            audit.Object,
+            durableAudit.Object);
 
         Func<Task> act = () => sut.ExecuteRunAsync("missing");
 
         await act.Should().ThrowAsync<RunNotFoundException>();
+
+        durableAudit.Verify(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
 
         audit.Verify(
             a => a.RecordAsync(
@@ -79,7 +83,8 @@ public sealed class ArchitectureRunOrchestrationAuditTests
         IRunRepository runRepository,
         IScopeContextProvider scopeContextProvider,
         IActorContext actorContext,
-        IBaselineMutationAuditService baselineMutationAudit)
+        IBaselineMutationAuditService baselineMutationAudit,
+        IAuditService auditService)
     {
         return new ArchitectureRunExecuteOrchestrator(
             runRepository,
@@ -94,6 +99,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             Mock.Of<IEvidenceBuilder>(),
             actorContext,
             baselineMutationAudit,
+            auditService,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);

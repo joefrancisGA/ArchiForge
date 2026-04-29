@@ -1,10 +1,12 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Alerts.Delivery;
 
 using Asp.Versioning;
@@ -28,6 +30,7 @@ namespace ArchLucid.Api.Controllers.Alerts;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/alert-routing-subscriptions")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class AlertRoutingSubscriptionsController(
     IScopeContextProvider scopeProvider,
     IAlertRoutingSubscriptionRepository subscriptionRepository,

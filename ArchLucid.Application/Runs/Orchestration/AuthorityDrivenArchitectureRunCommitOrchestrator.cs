@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Governance;
@@ -11,7 +12,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -46,7 +46,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     DecisioningIGoldenManifestRepository goldenManifestRepository,
     IManifestHashService manifestHashService,
     IAuthorityCommitProjectionBuilder projectionBuilder,
-    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IManifestFinalizationService manifestFinalizationService,
     IPreCommitGovernanceGate preCommitGovernanceGate,
     IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     IActorContext actorContext,
@@ -90,8 +90,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
         projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
 
-    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory
-        ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+    private readonly IManifestFinalizationService _manifestFinalizationService = manifestFinalizationService
+        ?? throw new ArgumentNullException(nameof(manifestFinalizationService));
 
     private readonly IPreCommitGovernanceGate _preCommitGovernanceGate = preCommitGovernanceGate
         ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
@@ -343,17 +343,51 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw;
         }
 
-        Dm.ManifestDocument persisted;
+        ManifestFinalizationResult finalization;
 
         try
         {
-            persisted = await PersistAuthorityAsync(manifestModel, contract, trace, cancellationToken);
-            await TryMarkRunHeaderCommittedForAuthorityAsync(
-                runId,
-                contract.Metadata.ManifestVersion,
-                persisted.ManifestId,
-                trace.RequireRuleAudit().DecisionTraceId,
+            finalization = await _manifestFinalizationService.FinalizeAsync(
+                new ManifestFinalizationRequest
+                {
+                    RunId = runGuid,
+                    ExpectedFindingsSnapshotId = runRecord.FindingsSnapshotId!.Value,
+                    ExpectedArtifactBundleId = runRecord.ArtifactBundleId,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    CorrelationId = null,
+                    ManifestModel = manifestModel,
+                    Contract = contract,
+                    Keying = BuildSaveContractsManifestOptions(manifestModel, trace),
+                    Trace = trace
+                },
                 cancellationToken);
+
+            if (finalization.WasIdempotentReturn)
+            {
+                CommitRunResult? idempotentReplay =
+                    await TryReturnAuthorityCommittedIdempotentAsync(run, runId, cancellationToken);
+
+                if (idempotentReplay is null)
+                {
+                    ArchitectureRun? runReloaded = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+                        _runRepository,
+                        _scopeContextProvider,
+                        _taskRepository,
+                        runId,
+                        cancellationToken);
+
+                    if (runReloaded is not null)
+                        idempotentReplay =
+                            await TryReturnAuthorityCommittedIdempotentAsync(runReloaded, runId, cancellationToken);
+                }
+
+                if (idempotentReplay is null)
+                    throw new ConflictException(
+                        $"Run '{runId}' was finalized idempotently but the committed manifest could not be reloaded.");
+
+                return idempotentReplay;
+            }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -367,6 +401,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
             throw;
         }
+
+        Dm.ManifestDocument persisted = finalization.PersistedManifest
+            ?? throw new InvalidOperationException("Manifest finalization returned no persisted model.");
 
         await _baselineMutationAudit
             .RecordAsync(
@@ -396,62 +433,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             DecisionTraces = [trace],
             Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings]
         };
-    }
-
-    private async Task<Dm.ManifestDocument> PersistAuthorityAsync(
-        Dm.ManifestDocument manifestModel,
-        Cm.GoldenManifest contract,
-        DecisionTrace trace,
-        CancellationToken cancellationToken)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        SaveContractsManifestOptions keying = BuildSaveContractsManifestOptions(manifestModel, trace);
-
-        await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
-
-        try
-        {
-            if (uow.SupportsExternalTransaction)
-            {
-                await _decisionTraceRepository.SaveAsync(
-                    trace,
-                    cancellationToken,
-                    uow.Connection,
-                    uow.Transaction);
-
-                Dm.ManifestDocument persisted = await _goldenManifestRepository.SaveAsync(
-                    contract,
-                    scope,
-                    keying,
-                    _manifestHashService,
-                    cancellationToken,
-                    uow.Connection,
-                    uow.Transaction,
-                    authorityPersistBody: manifestModel);
-
-                await uow.CommitAsync(cancellationToken);
-
-                return persisted;
-            }
-
-            await _decisionTraceRepository.SaveAsync(trace, cancellationToken);
-            Dm.ManifestDocument persistedNoTx = await _goldenManifestRepository.SaveAsync(
-                contract,
-                scope,
-                keying,
-                _manifestHashService,
-                cancellationToken,
-                authorityPersistBody: manifestModel);
-
-            await uow.CommitAsync(cancellationToken);
-
-            return persistedNoTx;
-        }
-        catch
-        {
-            await uow.RollbackAsync(cancellationToken);
-            throw;
-        }
     }
 
     private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(
@@ -538,35 +519,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             DecisionTraces = [trace],
             Warnings = manifestModel.Warnings.Count == 0 ? [] : [.. manifestModel.Warnings]
         };
-    }
-
-    private async Task TryMarkRunHeaderCommittedForAuthorityAsync(
-        string runId,
-        string manifestVersion,
-        Guid goldenManifestId,
-        Guid decisionTraceId,
-        CancellationToken cancellationToken)
-    {
-        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
-            return;
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (header is null)
-            return;
-
-        header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
-
-        if (!string.IsNullOrWhiteSpace(manifestVersion))
-            header.CurrentManifestVersion = manifestVersion;
-
-        header.GoldenManifestId = goldenManifestId;
-        header.DecisionTraceId = decisionTraceId;
-
-        header.CompletedUtc ??= DateTime.UtcNow;
-
-        await _runRepository.UpdateAsync(header, cancellationToken);
     }
 
     private async Task EnsureCommitPrerequisitesAsync(string runId, CancellationToken cancellationToken)

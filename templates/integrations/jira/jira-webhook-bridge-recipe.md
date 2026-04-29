@@ -5,7 +5,8 @@
 
 **Contracts:** [catalog.json](../../../schemas/integration-events/catalog.json) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) · [jira-webhook-receiver.md](jira-webhook-receiver.md) (short form, `alert.fired` only)
 
-**Event catalog (code):** [ArchLucid.Core/Integration/IntegrationEventTypes.cs](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs)
+**Runnable bridge:** [`scripts/integrations/jira/jira-webhook-bridge.mjs`](../../../scripts/integrations/jira/jira-webhook-bridge.mjs) / [`jira-webhook-bridge.ps1`](../../../scripts/integrations/jira/jira-webhook-bridge.ps1) — narrative **[`JIRA_WEBHOOK_BRIDGE.md`](../../../docs/integrations/JIRA_WEBHOOK_BRIDGE.md)**.
+
 
 ---
 

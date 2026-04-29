@@ -1,4 +1,4 @@
-/** GET /v1/findings/{findingId}/inspect */
+/** GET /v1/architecture/run/{runId}/findings/{findingId}/inspect */
 export type FindingInspectEvidence = {
   artifactId: string | null;
   lineRange: string | null;

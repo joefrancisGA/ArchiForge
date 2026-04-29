@@ -56,9 +56,8 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
         Per-finding explainability
       </h3>
       <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400">
-        Open the trace captured for each finding (structured evidence, rules, graph nodes, narrative). Uses{" "}
-        <code className="rounded bg-neutral-200 px-1 text-[0.7rem] dark:bg-neutral-800">GET /v1/explain/runs/…/findings/…/explainability</code>
-        . Long lists are virtualized for smoother scrolling.
+        Open the trace captured for each finding (structured evidence, rules, graph nodes, narrative). Long lists are
+        virtualized for smoother scrolling.
       </p>
       <div
         ref={parentRef}

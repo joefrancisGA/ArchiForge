@@ -5,6 +5,7 @@ import { BarChart3, Search, Shield } from "lucide-react";
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
 import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
+import { OperatorCorePilotDiagnosticsChecklist } from "@/components/OperatorCorePilotDiagnosticsChecklist";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
@@ -29,6 +30,7 @@ export default function HomePage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
         <div className="min-w-0 space-y-6">
           <RunsDashboardPanel />
+          <OperatorCorePilotDiagnosticsChecklist />
           <AfterCorePilotChecklistHint />
 
           <OperationalMetricsGate>

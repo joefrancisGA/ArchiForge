@@ -21,7 +21,7 @@ export default async function FindingInspectPage({
   let failure: ApiLoadFailureState | null = null;
 
   try {
-    payload = await getFindingInspect(decodedFindingId);
+    payload = await getFindingInspect(runId, decodedFindingId);
   } catch (e) {
     failure = toApiLoadFailure(e);
   }

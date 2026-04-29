@@ -1,0 +1,21 @@
+{
+  "specversion": "1.0",
+  "type": "com.archlucid.alert.fired",
+  "source": "/archlucid/webhook/digest",
+  "id": "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12",
+  "time": "2026-04-24T12:00:01.000Z",
+  "datacontenttype": "application/json",
+  "data": {
+    "schemaVersion": 1,
+    "tenantId": "323e4567-e89b-12d3-a456-426614174002",
+    "workspaceId": "423e4567-e89b-12d3-a456-426614174003",
+    "projectId": "523e4567-e89b-12d3-a456-426614174004",
+    "alertId": "623e4567-e89b-12d3-a456-426614174005",
+    "ruleId": "723e4567-e89b-12d3-a456-426614174006",
+    "category": "policy",
+    "severity": "high",
+    "title": "Policy breach detected in committed manifest",
+    "deduplicationKey": "tenant:323e4567:rule:723e4567",
+    "runId": "123e4567-e89b-12d3-a456-426614174000"
+  }
+}

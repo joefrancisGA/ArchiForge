@@ -1,7 +1,9 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
 
 using Asp.Versioning;
@@ -20,6 +22,7 @@ namespace ArchLucid.Api.Controllers.Findings;
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class FindingInspectController(
     IFindingInspectReadRepository findingInspectReadRepository,
     IScopeContextProvider scopeContextProvider) : ControllerBase

@@ -1,10 +1,12 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence;
@@ -31,6 +33,7 @@ namespace ArchLucid.Api.Controllers.Advisory;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/digest-subscriptions")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class DigestSubscriptionsController(
     IScopeContextProvider scopeProvider,
     IDigestSubscriptionRepository subscriptionRepository,

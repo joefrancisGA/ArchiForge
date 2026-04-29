@@ -418,7 +418,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                     ComputeDaysRemaining(t.TrialExpiresUtc));
 
 
-            _byId[tenantId] = CopyTenant(t, t.TrialRunsUsed + 1);
+            _byId[tenantId] = CopyTenant(t, trialRunsUsed: t.TrialRunsUsed + 1);
         }
 
         return Task.CompletedTask;
@@ -686,6 +686,21 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             new TenantWorkspaceLink { WorkspaceId = row.Id, DefaultProjectId = row.DefaultProjectId });
     }
 
+    /// <summary>
+    ///     Integration test hosts using the in-memory tenant registry; mutates tier for commercial gate HTTP assertions.
+    /// </summary>
+    internal Task SetCommercialTierForIntegrationTestsAsync(Guid tenantId, TenantTier tier, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+            throw new InvalidOperationException($"Tenant '{tenantId:D}' is missing from the in-memory registry.");
+
+        _byId[tenantId] = CopyTenant(existing, commercialTier: tier);
+
+        return Task.CompletedTask;
+    }
+
     private void TrySeedDefaultDevelopmentTenant()
     {
         if (_byId.ContainsKey(ScopeIds.DefaultTenant))
@@ -735,6 +750,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
     private static TenantRecord CopyTenant(
         TenantRecord source,
+        TenantTier? commercialTier = null,
         int? trialRunsUsed = null,
         int? trialSeatsUsed = null,
         string? trialStatus = null,
@@ -749,7 +765,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             Id = source.Id,
             Name = source.Name,
             Slug = source.Slug,
-            Tier = source.Tier,
+            Tier = commercialTier ?? source.Tier,
             EntraTenantId = source.EntraTenantId,
             CreatedUtc = source.CreatedUtc,
             SuspendedUtc = source.SuspendedUtc,

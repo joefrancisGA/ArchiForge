@@ -2,9 +2,9 @@
 
 # ArchLucid
 
-[![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
+**Repository entry:** **[docs/START_HERE.md](docs/START_HERE.md)** — buyer / evaluator (`archlucid.net` + sponsor brief + Core Pilot), contributor (`INSTALL_ORDER`, `FIRST_30_MINUTES`, `ARCHITECTURE_INDEX`), security (`trust-center.md`). Contributor persona detail: **[docs/library/CONTRIBUTOR_PERSONA_TABLE.md](docs/library/CONTRIBUTOR_PERSONA_TABLE.md)**.
 
-**New here?** **[docs/START_HERE.md](docs/START_HERE.md)** is the only entry point (decision tree: buyer → archlucid.net + §2, contributor → §3, security → trust center). Contributor persona detail: **[docs/library/CONTRIBUTOR_PERSONA_TABLE.md](docs/library/CONTRIBUTOR_PERSONA_TABLE.md)**.
+[![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
 
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package, helping teams ship committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
 

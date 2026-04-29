@@ -6,6 +6,9 @@ public static class IntegrationEventTypes
 {
     public const string AuthorityRunCompletedV1 = "com.archlucid.authority.run.completed";
 
+    /// <summary>Review-trail / webhook payload when a golden manifest row is finalized for a run.</summary>
+    public const string ManifestFinalizedV1 = "com.archlucid.manifest.finalized.v1";
+
     public const string GovernanceApprovalSubmittedV1 = "com.archlucid.governance.approval.submitted";
 
     public const string GovernancePromotionActivatedV1 = "com.archlucid.governance.promotion.activated";

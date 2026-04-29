@@ -6,7 +6,9 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   getFirstValueReportMarkdown,
   getRunExplanationSummary,
+  getSponsorEvidencePack,
   getTenantMeasuredRoi,
+  type SponsorEvidencePackPayload,
   type WhyArchLucidSnapshot,
 } from "@/lib/api";
 import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
@@ -30,6 +32,8 @@ type WhyArchLucidPageState = {
   reportError: SectionError | null;
   explanation: RunExplanationSummary | null;
   explanationError: SectionError | null;
+  sponsorPack: SponsorEvidencePackPayload | null;
+  sponsorPackError: SectionError | null;
   loading: boolean;
 };
 
@@ -43,6 +47,8 @@ const initialState: WhyArchLucidPageState = {
   reportError: null,
   explanation: null,
   explanationError: null,
+  sponsorPack: null,
+  sponsorPackError: null,
   loading: true,
 };
 
@@ -64,6 +70,7 @@ function toSectionError(e: unknown, fallback: string): SectionError {
  *   - `GET /v1/tenant/measured-roi`                     — process counters + optional monthly cost band
  *   - `GET /v1/pilots/runs/{runId}/first-value-report`  — sponsor first-value Markdown
  *   - `GET /v1/explain/runs/{runId}/aggregate`          — executive aggregate explanation + citations
+ *   - `GET /v1/pilots/sponsor-evidence-pack`              — single-bundle sponsor proof (Standard tier)
  */
 export default function WhyArchLucidPage() {
   const [state, setState] = useState<WhyArchLucidPageState>(initialState);
@@ -76,14 +83,31 @@ export default function WhyArchLucidPage() {
       let snapshotError: SectionError | null = null;
       let monthlyCostEstimate: TenantCostEstimateResponse | null = null;
       let measuredDisclaimer: string | null = null;
+      let sponsorPack: SponsorEvidencePackPayload | null = null;
+      let sponsorPackError: SectionError | null = null;
 
-      try {
-        const bundle = await getTenantMeasuredRoi();
-        snapshot = bundle.snapshot;
-        monthlyCostEstimate = bundle.monthlyCostEstimate;
-        measuredDisclaimer = bundle.disclaimer;
-      } catch (e: unknown) {
-        snapshotError = toSectionError(e, "Could not load measured ROI / telemetry bundle.");
+      const [bundleOutcome, sponsorOutcome] = await Promise.allSettled([
+        getTenantMeasuredRoi(),
+        getSponsorEvidencePack(),
+      ]);
+
+      if (bundleOutcome.status === "fulfilled") {
+        snapshot = bundleOutcome.value.snapshot;
+        monthlyCostEstimate = bundleOutcome.value.monthlyCostEstimate;
+        measuredDisclaimer = bundleOutcome.value.disclaimer;
+      }
+
+      if (bundleOutcome.status === "rejected") {
+        snapshotError = toSectionError(bundleOutcome.reason, "Could not load measured ROI / telemetry bundle.");
+      }
+
+      if (sponsorOutcome.status === "fulfilled") sponsorPack = sponsorOutcome.value;
+
+      if (sponsorOutcome.status === "rejected") {
+        sponsorPackError = toSectionError(
+          sponsorOutcome.reason,
+          "Could not load the sponsor evidence pack bundle.",
+        );
       }
 
       const runId = snapshot?.demoRunId?.trim() ?? "";
@@ -126,6 +150,8 @@ export default function WhyArchLucidPage() {
         reportError,
         explanation,
         explanationError,
+        sponsorPack,
+        sponsorPackError,
         loading: false,
       });
     }
@@ -153,12 +179,14 @@ export default function WhyArchLucidPage() {
       </header>
 
       <SnapshotSection state={state} />
+      <SponsorEvidencePackSection state={state} />
       <MeasuredContextSection state={state} />
       <FirstValueReportSection state={state} />
       <RunExplanationSection state={state} />
 
       <footer className="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
         Sources: <code>GET /v1/tenant/measured-roi</code>,{" "}
+        <code>GET /v1/pilots/sponsor-evidence-pack</code>,{" "}
         <code>GET /v1/pilots/runs/{state.snapshot?.demoRunId ?? "{runId}"}/first-value-report</code>,{" "}
         <code>GET /v1/explain/runs/{state.snapshot?.demoRunId ?? "{runId}"}/aggregate</code>. See repo{" "}
         <code>docs/SPONSOR_ONE_PAGER.md</code> and <code>docs/go-to-market/POSITIONING.md</code> for narrative context.
@@ -246,6 +274,146 @@ function CounterGrid({ snapshot }: { readonly snapshot: WhyArchLucidSnapshot }) 
         Snapshot generated {snapshot.generatedUtc} · demo run <code>{snapshot.demoRunId}</code>
       </p>
     </div>
+  );
+}
+
+function SponsorEvidencePackSection({ state }: { readonly state: WhyArchLucidPageState }) {
+  const pct = (ratio: number) =>
+    Number.isFinite(ratio) ? `${(ratio * 100).toFixed(1)}%` : "0%";
+
+  return (
+    <section
+      aria-labelledby="why-archlucid-sponsor-pack-heading"
+      data-testid="why-archlucid-sponsor-pack"
+      className="space-y-3 rounded border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40"
+    >
+      <div>
+        <h2
+          id="why-archlucid-sponsor-pack-heading"
+          className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+        >
+          Sponsor evidence pack (live bundle)
+        </h2>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Aggregated sponsor-facing proof from <code className="text-xs">GET /v1/pilots/sponsor-evidence-pack</code> —
+          complements the seeded Contoso run below without replacing it.
+        </p>
+      </div>
+
+      {state.sponsorPackError ? (
+        <OperatorApiProblem
+          problem={state.sponsorPackError.problem}
+          fallbackMessage={state.sponsorPackError.message}
+          correlationId={state.sponsorPackError.correlationId}
+        />
+      ) : null}
+
+      {state.sponsorPack && !state.loading ? (
+        <div className="space-y-4">
+          <p className="text-xs text-neutral-500">
+            Generated {state.sponsorPack.generatedUtc} · demo run <code>{state.sponsorPack.demoRunId}</code> · telemetry
+            slice matches the process counters ({state.sponsorPack.processInstrumentation.runsCreatedTotal}{" "}
+            runs tracked).
+          </p>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900/60">
+              <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Explainability trace</p>
+              <p className="mt-2 text-2xl font-semibold tabular-nums">
+                {pct(state.sponsorPack.explainabilityTrace.overallCompletenessRatio)}
+              </p>
+              <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                {state.sponsorPack.explainabilityTrace.totalFindings} findings in persisted snapshot
+              </p>
+            </div>
+
+            <div className="rounded border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900/60">
+              <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Governance outcomes</p>
+              <dl className="mt-2 space-y-1 text-xs">
+                <div className="flex justify-between gap-2">
+                  <dt className="text-neutral-500">Pending approvals</dt>
+                  <dd className="tabular-nums font-medium">{state.sponsorPack.governanceOutcomes.pendingApprovalCount}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-neutral-500">Recent decisions</dt>
+                  <dd className="tabular-nums font-medium">
+                    {state.sponsorPack.governanceOutcomes.recentTerminalDecisionCount}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-neutral-500">Policy pack rows</dt>
+                  <dd className="tabular-nums font-medium">
+                    {state.sponsorPack.governanceOutcomes.recentPolicyPackChangeCount}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          {state.sponsorPack.demoRunValueReportDelta ? (
+            <div className="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/50">
+              <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Value-report delta</p>
+              <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
+                <div>
+                  <dt className="text-neutral-500">Wall to commit</dt>
+                  <dd className="font-mono tabular-nums">
+                    {state.sponsorPack.demoRunValueReportDelta.timeToCommittedManifestTotalSeconds != null
+                      ? state.sponsorPack.demoRunValueReportDelta.timeToCommittedManifestTotalSeconds.toFixed(1)
+                      : "—"}{" "}
+                    s
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-neutral-500">LLM calls</dt>
+                  <dd className="tabular-nums">{state.sponsorPack.demoRunValueReportDelta.llmCallCount}</dd>
+                </div>
+                <div>
+                  <dt className="text-neutral-500">Audit rows</dt>
+                  <dd className="tabular-nums">
+                    {state.sponsorPack.demoRunValueReportDelta.auditRowCount}
+                    {state.sponsorPack.demoRunValueReportDelta.auditRowCountTruncated ? "+" : ""}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-neutral-500">Demo watermark</dt>
+                  <dd className="text-neutral-700 dark:text-neutral-300">
+                    {state.sponsorPack.demoRunValueReportDelta.isDemoTenant ? "Contoso seeded" : "Live tenant"}
+                  </dd>
+                </div>
+              </dl>
+
+              {(state.sponsorPack.demoRunValueReportDelta.findingsBySeverity?.length ?? 0) > 0 ? (
+                <div className="mt-3">
+                  <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Demo run histogram</p>
+                  <ul className="mt-2 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                    {state.sponsorPack.demoRunValueReportDelta.findingsBySeverity.map((row) => (
+                      <li
+                        key={row.severity}
+                        className="rounded border border-neutral-200 bg-white px-2 py-1 dark:border-neutral-800 dark:bg-neutral-950"
+                      >
+                        <span className="font-medium">{row.severity}</span> · {row.count}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-xs text-neutral-500">
+              Value-report deltas are unavailable until the canonical demo run is present in-scope (seed Contoso Retail or
+              run <code>pilot up</code>).
+            </p>
+          )}
+        </div>
+      ) : state.loading ? (
+        <div className="space-y-2" aria-busy aria-label="Loading sponsor evidence pack">
+          <div className="h-4 max-w-xl animate-pulse rounded bg-neutral-100 dark:bg-neutral-900/80" />
+          <div className="h-28 animate-pulse rounded border border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950/70" />
+        </div>
+      ) : (
+        <p className="text-sm text-neutral-500">Evidence pack unavailable.</p>
+      )}
+    </section>
   );
 }
 

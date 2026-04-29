@@ -4922,6 +4922,69 @@
         },
         "type": "object"
       },
+      "ExplainabilityTraceCompletenessPack": {
+        "properties": {
+          "byEngine": {
+            "items": {
+              "$ref": "#/components/schemas/ExplainabilityTraceEngineCompletenessPack"
+            },
+            "type": "array"
+          },
+          "overallCompletenessRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "totalFindings": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "ExplainabilityTraceEngineCompletenessPack": {
+        "properties": {
+          "alternativePathsPopulatedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "completenessRatio": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          },
+          "decisionsTakenPopulatedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "findingCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "graphNodeIdsPopulatedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "notesPopulatedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "rulesAppliedPopulatedCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "ExplanationProvenance": {
         "properties": {
           "agentType": {
@@ -11505,6 +11568,54 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "SponsorEvidenceGovernanceOutcomes": {
+        "properties": {
+          "pendingApprovalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "recentPolicyPackChangeCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "recentTerminalDecisionCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "SponsorEvidencePackResponse": {
+        "properties": {
+          "demoRunId": {
+            "type": "string"
+          },
+          "demoRunValueReportDelta": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PilotRunDeltasResponse"
+              }
+            ]
+          },
+          "explainabilityTrace": {
+            "$ref": "#/components/schemas/ExplainabilityTraceCompletenessPack"
+          },
+          "generatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "governanceOutcomes": {
+            "$ref": "#/components/schemas/SponsorEvidenceGovernanceOutcomes"
+          },
+          "processInstrumentation": {
+            "$ref": "#/components/schemas/WhyArchLucidSnapshotResponse"
           }
         },
         "type": "object"
@@ -22475,6 +22586,113 @@
         ]
       }
     },
+    "/v1/architecture/run/{runId}/findings/{findingId}/inspect": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "findingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingInspectResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "RunQuery"
+        ]
+      }
+    },
     "/v1/architecture/run/{runId}/replay": {
       "post": {
         "parameters": [
@@ -32727,6 +32945,45 @@
               "application/json": {}
             },
             "description": "No Content"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      }
+    },
+    "/v1/pilots/sponsor-evidence-pack": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SponsorEvidencePackResponse"
+                }
+              }
+            },
+            "description": "OK"
           },
           "401": {
             "content": {

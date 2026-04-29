@@ -1,8 +1,10 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -19,6 +21,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/explain")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class FindingFeedbackController(
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,

@@ -42,6 +42,26 @@ public sealed class IntegrationEventPayloadContractTests
     }
 
     [Fact]
+    public void ManifestFinalized_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            runId = Guid.NewGuid(),
+            manifestId = Guid.NewGuid(),
+            decisionTraceId = Guid.NewGuid(),
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            findingsSnapshotId = Guid.NewGuid(),
+            artifactBundleId = Guid.NewGuid(),
+            manifestVersion = "v1"
+        };
+
+        AssertPayloadMatchesCommittedSchema("manifest-finalized.v1.schema.json", payload);
+    }
+
+    [Fact]
     public void GovernanceApprovalSubmitted_payload_has_expected_contract()
     {
         object payload = new
@@ -237,6 +257,7 @@ public sealed class IntegrationEventPayloadContractTests
         Dictionary<string, string> expectedFileToEventType = new(StringComparer.Ordinal)
         {
             ["authority-run-completed.v1.schema.json"] = IntegrationEventTypes.AuthorityRunCompletedV1,
+            ["manifest-finalized.v1.schema.json"] = IntegrationEventTypes.ManifestFinalizedV1,
             ["governance-approval-submitted.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalSubmittedV1,
             ["governance-promotion-activated.v1.schema.json"] =
                 IntegrationEventTypes.GovernancePromotionActivatedV1,

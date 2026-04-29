@@ -180,6 +180,226 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
     </div>
   </section>
   <section
+    aria-labelledby="why-archlucid-sponsor-pack-heading"
+    class="space-y-3 rounded border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40"
+    data-testid="why-archlucid-sponsor-pack"
+  >
+    <div>
+      <h2
+        class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+        id="why-archlucid-sponsor-pack-heading"
+      >
+        Sponsor evidence pack (live bundle)
+      </h2>
+      <p
+        class="text-sm text-neutral-600 dark:text-neutral-400"
+      >
+        Aggregated sponsor-facing proof from 
+        <code
+          class="text-xs"
+        >
+          GET /v1/pilots/sponsor-evidence-pack
+        </code>
+         — complements the seeded Contoso run below without replacing it.
+      </p>
+    </div>
+    <div
+      class="space-y-4"
+    >
+      <p
+        class="text-xs text-neutral-500"
+      >
+        Generated 
+        2026-04-28T01:02:03.456Z
+         · demo run 
+        <code>
+          6e8c4a102b1f4c9a9d3e10b2a4f0c501
+        </code>
+         · telemetry slice matches the process counters (
+        7
+         
+        runs tracked).
+      </p>
+      <div
+        class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+      >
+        <div
+          class="rounded border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900/60"
+        >
+          <p
+            class="text-xs font-medium uppercase tracking-wide text-neutral-500"
+          >
+            Explainability trace
+          </p>
+          <p
+            class="mt-2 text-2xl font-semibold tabular-nums"
+          >
+            42.0%
+          </p>
+          <p
+            class="mt-1 text-xs text-neutral-600 dark:text-neutral-400"
+          >
+            2
+             findings in persisted snapshot
+          </p>
+        </div>
+        <div
+          class="rounded border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-900/60"
+        >
+          <p
+            class="text-xs font-medium uppercase tracking-wide text-neutral-500"
+          >
+            Governance outcomes
+          </p>
+          <dl
+            class="mt-2 space-y-1 text-xs"
+          >
+            <div
+              class="flex justify-between gap-2"
+            >
+              <dt
+                class="text-neutral-500"
+              >
+                Pending approvals
+              </dt>
+              <dd
+                class="tabular-nums font-medium"
+              >
+                0
+              </dd>
+            </div>
+            <div
+              class="flex justify-between gap-2"
+            >
+              <dt
+                class="text-neutral-500"
+              >
+                Recent decisions
+              </dt>
+              <dd
+                class="tabular-nums font-medium"
+              >
+                1
+              </dd>
+            </div>
+            <div
+              class="flex justify-between gap-2"
+            >
+              <dt
+                class="text-neutral-500"
+              >
+                Policy pack rows
+              </dt>
+              <dd
+                class="tabular-nums font-medium"
+              >
+                0
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      <div
+        class="rounded border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900/50"
+      >
+        <p
+          class="text-xs font-medium uppercase tracking-wide text-neutral-500"
+        >
+          Value-report delta
+        </p>
+        <dl
+          class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4"
+        >
+          <div>
+            <dt
+              class="text-neutral-500"
+            >
+              Wall to commit
+            </dt>
+            <dd
+              class="font-mono tabular-nums"
+            >
+              812.3
+               
+              s
+            </dd>
+          </div>
+          <div>
+            <dt
+              class="text-neutral-500"
+            >
+              LLM calls
+            </dt>
+            <dd
+              class="tabular-nums"
+            >
+              3
+            </dd>
+          </div>
+          <div>
+            <dt
+              class="text-neutral-500"
+            >
+              Audit rows
+            </dt>
+            <dd
+              class="tabular-nums"
+            >
+              5
+            </dd>
+          </div>
+          <div>
+            <dt
+              class="text-neutral-500"
+            >
+              Demo watermark
+            </dt>
+            <dd
+              class="text-neutral-700 dark:text-neutral-300"
+            >
+              Contoso seeded
+            </dd>
+          </div>
+        </dl>
+        <div
+          class="mt-3"
+        >
+          <p
+            class="text-xs font-medium text-neutral-600 dark:text-neutral-400"
+          >
+            Demo run histogram
+          </p>
+          <ul
+            class="mt-2 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4"
+          >
+            <li
+              class="rounded border border-neutral-200 bg-white px-2 py-1 dark:border-neutral-800 dark:bg-neutral-950"
+            >
+              <span
+                class="font-medium"
+              >
+                High
+              </span>
+               · 
+              1
+            </li>
+            <li
+              class="rounded border border-neutral-200 bg-white px-2 py-1 dark:border-neutral-800 dark:bg-neutral-950"
+            >
+              <span
+                class="font-medium"
+              >
+                Medium
+              </span>
+               · 
+              2
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section
     aria-labelledby="why-archlucid-measured-context-heading"
     class="space-y-3 rounded border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
     data-testid="why-archlucid-measured-context"
@@ -445,6 +665,11 @@ Demo body.
     Sources: 
     <code>
       GET /v1/tenant/measured-roi
+    </code>
+    ,
+     
+    <code>
+      GET /v1/pilots/sponsor-evidence-pack
     </code>
     ,
      

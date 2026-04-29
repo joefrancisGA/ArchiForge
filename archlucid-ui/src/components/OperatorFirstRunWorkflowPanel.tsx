@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
+import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { cn } from "@/lib/utils";
@@ -24,52 +25,18 @@ type WorkflowStep = {
   secondary?: ReactNode;
 };
 
-/**
- * Core Pilot path — the four steps every first pilot must complete.
- * Long copy lives in expandables so the home column stays a cockpit, not a manual.
- */
-const corePilotSteps: WorkflowStep[] = [
-  {
-    title: "Create an architecture request",
-    shortBody: "Capture system identity, requirements, and constraints.",
-    detail:
-      "The new-request wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the run and tracks the pipeline in real time.",
-    primaryHref: "/runs/new",
-    primaryLabel: "Start new request",
-  },
-  {
-    title: "Track run progress",
-    shortBody: "Watch progress in the wizard or open the run from the runs list when ready.",
-    detail:
-      "The coordinator fills snapshots and pipeline steps. You can use the wizard’s last step or open run detail anytime.",
-    primaryHref: "/runs?projectId=default",
-    primaryLabel: "Open runs list",
-    secondary: (
-      <>
-        From the final wizard step, use <strong>Open run detail</strong> for the new run ID.
-      </>
-    ),
-  },
-  {
-    title: "Finalize the reviewed manifest",
-    shortBody: "On run detail, finalize when the run is ready, or use the API/CLI for automation.",
-    detail:
-      "Until finalization, there is no manifest link or artifact exports. See docs/OPERATOR_QUICKSTART.md in the repo for CLI/API examples.",
-    primaryHref: "/runs?projectId=default",
-    primaryLabel: "Choose run → open detail",
-  },
-  {
-    title: "Review manifest and artifacts",
-    shortBody: "After finalization, review the manifest summary, artifact table, and export links on run detail.",
-    detail:
-      "Open the reviewed manifest link from run detail for the full page; use artifact actions for download and review.",
-    primaryHref: "/runs?projectId=default",
-    primaryLabel: "Open a finalized run",
-  },
-];
-
-// Alias for localStorage key stability (step indices 0–3 map to corePilotSteps).
-const steps = corePilotSteps;
+const corePilotSteps: WorkflowStep[] = CORE_PILOT_STEPS.map((s, index) =>
+  index === 1
+    ? {
+        ...s,
+        secondary: (
+          <>
+            From the final wizard step, use <strong>Open run detail</strong> for the new run ID.
+          </>
+        ),
+      }
+    : s,
+);
 
 /**
  * Collapsible first-manifest checklist. Persists "minimized" in localStorage. Compact for a side column; step actions are
@@ -80,14 +47,14 @@ export function OperatorFirstRunWorkflowPanel() {
   const [hydrated, setHydrated] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [graduated, setGraduated] = useState(false);
-  const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => steps.map(() => false));
+  const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => corePilotSteps.map(() => false));
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [hasAnyRun, setHasAnyRun] = useState(false);
 
   useEffect(() => {
     const nextDone: boolean[] = [];
 
-    for (let i = 0; i < steps.length; i++) {
+    for (let i = 0; i < corePilotSteps.length; i++) {
       try {
         if (typeof window !== "undefined" && window.localStorage.getItem(corePilotStepDoneStorageKey(i)) === "1") {
           nextDone.push(true);
@@ -101,7 +68,7 @@ export function OperatorFirstRunWorkflowPanel() {
 
     setDoneByIndex(nextDone);
 
-    const allDoneFromStorage = nextDone.length === steps.length && nextDone.every(Boolean);
+    const allDoneFromStorage = nextDone.length === corePilotSteps.length && nextDone.every(Boolean);
 
     try {
       if (typeof window !== "undefined" && window.localStorage.getItem(minimizedStorageKey) === "1") {
@@ -159,7 +126,7 @@ export function OperatorFirstRunWorkflowPanel() {
   }, []);
 
   const doneCount = useMemo(() => doneByIndex.filter(Boolean).length, [doneByIndex]);
-  const allDone = doneCount === steps.length;
+  const allDone = doneCount === corePilotSteps.length;
 
   const firstUndoneIndex = useMemo(() => doneByIndex.findIndex((d) => !d), [doneByIndex]);
 
@@ -358,7 +325,7 @@ export function OperatorFirstRunWorkflowPanel() {
         </button>
       </div>
       <p className="m-0 mb-2 text-xs font-medium text-neutral-800 dark:text-neutral-200" aria-live="polite">
-        {doneCount} of {steps.length} steps complete
+        {doneCount} of {corePilotSteps.length} steps complete
       </p>
       {allDone ? (
         <p className="m-0 mb-2 rounded border border-teal-200/80 bg-teal-50/80 px-2 py-1.5 text-xs text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
@@ -370,7 +337,7 @@ export function OperatorFirstRunWorkflowPanel() {
         <GlossaryTooltip termKey="run">architecture run</GlossaryTooltip>.
       </p>
       <ol className="m-0 list-none space-y-2 p-0">
-        {steps.map((step, index) => {
+        {corePilotSteps.map((step, index) => {
           const done = doneByIndex[index] === true;
           const expanded = expandedIndex === index;
           const isActiveUndone = index === firstUndoneIndex && firstUndoneIndex >= 0;

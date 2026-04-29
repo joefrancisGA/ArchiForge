@@ -1,6 +1,8 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Retrieval.Models;
 using ArchLucid.Retrieval.Queries;
 
@@ -24,6 +26,7 @@ namespace ArchLucid.Api.Controllers.Planning;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/retrieval")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class RetrievalController(
     IRetrievalQueryService retrievalQueryService,
     IScopeContextProvider scopeProvider)

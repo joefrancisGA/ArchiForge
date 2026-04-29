@@ -1,5 +1,7 @@
 > **Scope:** Buyer-facing first-30-minutes path — sign in on the cloud, pick a vertical, run a sample, read the first finding. No local install. The full marketing page with screenshots lives at `archlucid.net/get-started`; this stub is for evaluators arriving via GitHub.
 
+> **Hub:** Buyer tree — **[`START_HERE.md`](START_HERE.md)** · buyer branches (`EXECUTIVE_SPONSOR_BRIEF`, `CORE_PILOT`); this doc is hosted SaaS steps only.
+
 > **Audience banner:** Prospective buyers and evaluators arriving via GitHub. **For internal contributor onboarding see [`docs/engineering/FIRST_30_MINUTES.md`](engineering/FIRST_30_MINUTES.md)** — that path is Docker / SQL / .NET / Node and is **not** for buyers.
 
 # Your first 30 minutes with ArchLucid

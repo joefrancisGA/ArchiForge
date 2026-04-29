@@ -350,7 +350,9 @@ When V1.1 ships, migrate by:
 | [INTEGRATION_EVENT_CATALOG.md](../../library/INTEGRATION_EVENT_CATALOG.md) | Full event type catalog |
 | [V1_DEFERRED.md §6](../../library/V1_DEFERRED.md) | V1.1 Jira connector commitment |
 | [INTEGRATION_CATALOG.md §2](../../go-to-market/INTEGRATION_CATALOG.md) | Connector roadmap and status |
-| [jira-webhook-bridge-recipe.md](../../../templates/integrations/jira/jira-webhook-bridge-recipe.md) | Developer-oriented bridge (custom code, Azure Function) |
+| [JIRA_WEBHOOK_BRIDGE.md](../JIRA_WEBHOOK_BRIDGE.md) | Runnable Node + PowerShell bridges under `scripts/integrations/jira/` (this repo) |
+
+| [jira-webhook-bridge-recipe.md](../../../templates/integrations/jira/jira-webhook-bridge-recipe.md) | Long-form developer-oriented bridge (Azure Function sketch) |
 | [Recipes README](README.md) | Index of all no-code recipes |
 
 ---

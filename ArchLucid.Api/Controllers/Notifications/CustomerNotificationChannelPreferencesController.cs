@@ -1,10 +1,12 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -28,6 +30,7 @@ namespace ArchLucid.Api.Controllers.Notifications;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/notifications")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class CustomerNotificationChannelPreferencesController(
     IScopeContextProvider scopeProvider,
     ITenantNotificationChannelPreferencesRepository preferencesRepository,

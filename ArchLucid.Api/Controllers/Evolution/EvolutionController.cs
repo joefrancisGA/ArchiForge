@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Learning;
 using ArchLucid.Api.Models.Evolution;
 using ArchLucid.Api.ProblemDetails;
@@ -10,6 +11,7 @@ using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Coordination.Evolution;
 
 using Asp.Versioning;
@@ -27,6 +29,7 @@ namespace ArchLucid.Api.Controllers.Evolution;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/evolution")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 public sealed class EvolutionController(
     IEvolutionSimulationService evolutionSimulationService,
     IEvolutionCandidateChangeSetRepository candidateRepository,

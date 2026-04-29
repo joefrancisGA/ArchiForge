@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:117 -->
+<!-- audit-core-const-count:119 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -128,6 +128,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Pilot `try --real` execute started (Development; real AOAI path) | `RunsController` (`POST .../execute`) when pilot real headers present | `FirstRealValueRunStarted` | RunId | pilot / real-mode context (JSON) |
 | Pilot `try --real` execute completed without fallback | `RunsController` | `FirstRealValueRunCompleted` | RunId | completion summary (JSON) |
 | Pilot `try --real` seed after AOAI fallback | `ArchitectureApplicationService` (`SeedFakeResultsAsync` with `PilotSeedFakeResultsOptions.MarkRealModeFellBackToSimulator`) | `FirstRealValueRunFellBackToSimulator` | RunId | marks run row + deployment snapshot; see [`docs/library/FIRST_REAL_VALUE.md`](FIRST_REAL_VALUE.md) |
+| Legacy run header promoted post-execute (`dbo.Runs.LegacyRunStatus` → `ReadyForCommit` when Topology/Cost/Compliance/Critic each yielded one result — ADR-0012) | `ArchitectureRunExecuteOrchestrator.TryPromoteRunLegacyStatusIfAllResultsPresentAsync` | `RunLegacyReadyForCommitPromoted` | RunId | `{ runId, previousLegacyRunStatus, newLegacyRunStatus }` — direct `IAuditService` (distinct from coordinator `Run.*` durable echo baseline path; applies when promotion mutates SQL) |
 
 ---
 
@@ -165,8 +166,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 117 (see CI marker above; includes nested `Baseline` and nested `Run`) |
-| **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
+| **Core `AuditEventTypes` `public const string` rows** | 119 (see CI marker above; includes nested `Baseline` and nested `Run`) |
+| **`await *auditService.LogAsync` production call sites** | ~44 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
 
@@ -179,6 +180,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `RunStarted` | `RunStarted` | `AuthorityRunOrchestrator` |
 | `RunCompleted` | `RunCompleted` | `AuthorityRunOrchestrator` |
 | `ManifestGenerated` | `ManifestGenerated` | `AuthorityPipelineStagesExecutor` |
+| `ManifestFinalized` | `ManifestFinalized` | `ManifestFinalizationService` (`sp_FinalizeManifest` transactional path — see `MANIFEST_FINALIZATION_TRANSACTION.md`) |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |
 | `ReplayExecuted` | `ReplayExecuted` | `AuthorityReplayController` |
 | `AuthorityCommittedChainPersisted` | `AuthorityCommittedChainPersisted` | `DemoSeedService`, `ReplayRunService` |
@@ -278,6 +280,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `FirstRealValueRunStarted` | `FirstRealValueRunStarted` | `RunsController` (pilot real execute) |
 | `FirstRealValueRunCompleted` | `FirstRealValueRunCompleted` | `RunsController` (pilot real execute success) |
 | `FirstRealValueRunFellBackToSimulator` | `FirstRealValueRunFellBackToSimulator` | `ArchitectureApplicationService` (pilot seed after real-mode fallback) |
+| `RunLegacyReadyForCommitPromoted` | `RunLegacyReadyForCommitPromoted` | `ArchitectureRunExecuteOrchestrator` (post-execute LegacyRunStatus promotion — ADR-0012) |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
 
@@ -318,4 +321,4 @@ When adding a `Baseline` constant, add a row here and bump `audit-core-const-cou
 
 ## Quality assessment verification (2026-04-28)
 
-Independent quality readiness review (weighted score **66.25%**) re-traced this matrix against orchestrator call sites. **No net-new durable audit gaps** were opened beyond the intentional baseline-vs-durable dual-channel split documented above — coordinator durable echoes remain on the critical path (`BaselineMutationAuditArchitectureDurableWriter`) with retry policy per design notes.
+Independent quality readiness review (weighted score **66.25%**) re-traced this matrix against orchestrator call sites. **No net-new durable audit gaps** were opened beyond the intentional baseline-vs-durable dual-channel split documented above — coordinator durable echoes remain on the critical path (`BaselineMutationAuditArchitectureDurableWriter`), and **explicit** `dbo.AuditEvents` rows for **silent** coordinator SQL mutations (`RunLegacyReadyForCommitPromoted` on `dbo.Runs.LegacyRunStatus` promotion) are layered per ADR-0012 traceability.
