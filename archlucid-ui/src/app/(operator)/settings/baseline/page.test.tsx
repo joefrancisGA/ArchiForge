@@ -6,7 +6,7 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn()
 }));
 
-import BaselineSettingsPage from "./page";
+import { BaselineSettingsClient } from "./BaselineSettingsClient";
 
 describe("BaselineSettingsPage", () => {
   it("renders form after load and submits valid values", async () => {
@@ -36,7 +36,7 @@ describe("BaselineSettingsPage", () => {
       }
     );
     vi.stubGlobal("fetch", fetchMock);
-    render(<BaselineSettingsPage />);
+    render(<BaselineSettingsClient />);
     expect(await screen.findByTestId("baseline-manual-prep")).toBeInTheDocument();
     fireEvent.change(screen.getByTestId("baseline-manual-prep"), { target: { value: "2" } });
     fireEvent.change(screen.getByTestId("baseline-people"), { target: { value: "3" } });

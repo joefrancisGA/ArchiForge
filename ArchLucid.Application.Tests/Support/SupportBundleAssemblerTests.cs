@@ -5,15 +5,27 @@ using ArchLucid.Application.Support;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Options;
+
+using Moq;
+
 namespace ArchLucid.Application.Tests.Support;
 
 [Trait("Category", "Unit")]
 public sealed class SupportBundleAssemblerTests
 {
+    private static IOptionsMonitor<SupportBundleOptions> StubOptions(int retentionDays = 30)
+    {
+        Mock<IOptionsMonitor<SupportBundleOptions>> mock = new();
+        mock.Setup(m => m.CurrentValue).Returns(new SupportBundleOptions { BundleRetentionDays = retentionDays });
+
+        return mock.Object;
+    }
+
     [Fact]
     public async Task AssembleAsync_NullRequest_Throws()
     {
-        SupportBundleAssembler assembler = new(TimeProvider.System);
+        SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
 
         Func<Task> act = () => assembler.AssembleAsync(null!);
 
@@ -23,7 +35,7 @@ public sealed class SupportBundleAssemblerTests
     [Fact]
     public async Task AssembleAsync_ContainsCanonicalEntryNames()
     {
-        SupportBundleAssembler assembler = new(new FakeTimeProvider(new DateTimeOffset(2026, 4, 24, 10, 15, 30, TimeSpan.Zero)));
+        SupportBundleAssembler assembler = new(new FakeTimeProvider(new DateTimeOffset(2026, 4, 24, 10, 15, 30, TimeSpan.Zero)), StubOptions());
 
         SupportBundleArtifact artifact = await assembler.AssembleAsync(new SupportBundleRequest("op@example.com", "Acme"));
 
@@ -39,33 +51,34 @@ public sealed class SupportBundleAssemblerTests
     public async Task AssembleAsync_FileNameUsesGeneratedTimestamp()
     {
         FakeTimeProvider time = new(new DateTimeOffset(2026, 4, 24, 10, 15, 30, TimeSpan.Zero));
-        SupportBundleAssembler assembler = new(time);
+        SupportBundleAssembler assembler = new(time, StubOptions());
 
         SupportBundleArtifact artifact = await assembler.AssembleAsync(new SupportBundleRequest("op@example.com", "Acme"));
 
         artifact.FileName.Should().Be("archlucid-support-bundle-20260424-101530Z.zip");
         artifact.ContentType.Should().Be("application/zip");
         artifact.GeneratedUtc.Should().Be(time.GetUtcNow());
+        artifact.RetentionDiscardAfterUtc.Should().Be(time.GetUtcNow().AddDays(30));
     }
 
     [Fact]
-    public async Task AssembleAsync_ReadmeIncludesRequesterAndTenantDisplay()
+    public async Task AssembleAsync_ReadmeRedactsEmailRequester_and_keeps_tenant_display()
     {
-        SupportBundleAssembler assembler = new(TimeProvider.System);
+        SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
 
         SupportBundleArtifact artifact = await assembler.AssembleAsync(
             new SupportBundleRequest("alice@example.com", "Acme Inc"));
 
         string readme = ReadEntryAsText(artifact.Bytes, SupportBundleAssembler.ReadmeFileName);
 
-        readme.Should().Contain("alice@example.com");
+        readme.Should().Contain("[REDACTED_EMAIL]");
         readme.Should().Contain("Acme Inc");
     }
 
     [Fact]
     public async Task AssembleAsync_NullRequesterAndTenant_FallBackToPlaceholders()
     {
-        SupportBundleAssembler assembler = new(TimeProvider.System);
+        SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
 
         SupportBundleArtifact artifact = await assembler.AssembleAsync(new SupportBundleRequest(null, null));
 
@@ -78,7 +91,7 @@ public sealed class SupportBundleAssemblerTests
     [Fact]
     public async Task AssembleAsync_ManifestDeclaresServerSourceAndBundleFormatVersion()
     {
-        SupportBundleAssembler assembler = new(TimeProvider.System);
+        SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
 
         SupportBundleArtifact artifact = await assembler.AssembleAsync(new SupportBundleRequest("op", "tenant"));
 
@@ -91,7 +104,7 @@ public sealed class SupportBundleAssemblerTests
     [Fact]
     public async Task AssembleAsync_CancellationTokenAlreadyCancelled_ThrowsOperationCanceled()
     {
-        SupportBundleAssembler assembler = new(TimeProvider.System);
+        SupportBundleAssembler assembler = new(TimeProvider.System, StubOptions());
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 

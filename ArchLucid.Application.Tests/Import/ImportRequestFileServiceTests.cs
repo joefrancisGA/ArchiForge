@@ -1,3 +1,4 @@
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Import;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Requests;
@@ -88,7 +89,8 @@ public sealed class ImportRequestFileServiceTests
         ImportRequestFileResult result = await sut.ImportAsync(file, CancellationToken.None);
 
         result.Succeeded.Should().BeFalse();
-        result.FailureDetail.Should().Contain(".toml", StringComparison.OrdinalIgnoreCase);
+        result.FailureDetail.Should().NotBeNull();
+        result.FailureDetail!.Should().Contain(".toml");
     }
 
     private static ImportRequestFileService CreateSut(

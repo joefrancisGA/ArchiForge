@@ -34,7 +34,7 @@ public sealed class ImportRequestFileController(
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [RequestSizeLimit(MaxMultipartBodyBytes)]
-    public async Task<IActionResult> ImportAsync(IFormFile? file, CancellationToken cancellationToken)
+    public async Task<IActionResult> ImportAsync([FromForm] IFormFile? file, CancellationToken cancellationToken)
     {
         ImportRequestFileResult result =
             await importRequestFileService.ImportAsync(file, cancellationToken, HttpContext.TraceIdentifier);
