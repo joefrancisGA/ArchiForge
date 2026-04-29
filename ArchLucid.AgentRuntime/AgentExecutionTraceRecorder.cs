@@ -92,6 +92,7 @@ public sealed class AgentExecutionTraceRecorder(
         string? modelDeploymentName = null,
         string? modelVersion = null,
         bool isSimulatorExecution = false,
+        string? failureReasonCode = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -151,6 +152,7 @@ public sealed class AgentExecutionTraceRecorder(
             ParsedResultJson = parsedResultJson,
             ParseSucceeded = parseSucceeded,
             ErrorMessage = errorMessage,
+            FailureReasonCode = failureReasonCode,
             PromptTemplateId = promptRepro?.TemplateId,
             PromptTemplateVersion = promptRepro?.TemplateVersion,
             SystemPromptContentSha256 = promptRepro?.SystemPromptContentSha256Hex,

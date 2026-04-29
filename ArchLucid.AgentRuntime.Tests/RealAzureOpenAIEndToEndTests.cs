@@ -219,6 +219,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             string? modelDeploymentName = null,
             string? modelVersion = null,
             bool isSimulatorExecution = false,
+            string? failureReasonCode = null,
             CancellationToken cancellationToken = default)
         {
             RawResponses.Add(rawResponse);

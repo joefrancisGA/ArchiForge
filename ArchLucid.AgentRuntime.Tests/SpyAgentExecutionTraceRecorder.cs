@@ -7,7 +7,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorder
 {
     public List<(string RunId, string TaskId, AgentType AgentType, string? ModelDeploymentName, string? ModelVersion,
-            bool IsSimulatorExecution)>
+            bool IsSimulatorExecution, string? FailureReasonCode)>
         Calls
     {
         get;
@@ -30,9 +30,10 @@ public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorde
         string? modelDeploymentName = null,
         string? modelVersion = null,
         bool isSimulatorExecution = false,
+        string? failureReasonCode = null,
         CancellationToken cancellationToken = default)
     {
-        Calls.Add((runId, taskId, agentType, modelDeploymentName, modelVersion, isSimulatorExecution));
+        Calls.Add((runId, taskId, agentType, modelDeploymentName, modelVersion, isSimulatorExecution, failureReasonCode));
 
         return Task.CompletedTask;
     }

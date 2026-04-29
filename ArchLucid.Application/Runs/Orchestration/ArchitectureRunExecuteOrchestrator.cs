@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
@@ -228,7 +229,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     runId,
-                    ex.GetType().Name,
+                    FormatExecuteRunFailureAuditDetails(ex),
                     cancellationToken);
 
             throw;
@@ -424,5 +425,31 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await _resultRepository.CreateManyAsync(results, cancellationToken);
             await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
         }
+    }
+
+    private static string FormatExecuteRunFailureAuditDetails(Exception ex)
+    {
+        if (ex is null)
+            throw new ArgumentNullException(nameof(ex));
+
+        Exception root = UnwrapSingleFailure(ex);
+
+        if (root is CircuitBreakerOpenException)
+            return $"{root.GetType().Name}:{AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected}";
+
+        return root.GetType().Name;
+    }
+
+    private static Exception UnwrapSingleFailure(Exception ex)
+    {
+        if (ex is AggregateException agg)
+        {
+            IReadOnlyCollection<Exception> inners = agg.Flatten().InnerExceptions;
+
+            if (inners.Count == 1)
+                return inners.First();
+        }
+
+        return ex;
     }
 }

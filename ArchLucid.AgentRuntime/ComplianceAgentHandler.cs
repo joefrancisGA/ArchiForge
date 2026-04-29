@@ -127,6 +127,7 @@ public sealed class ComplianceAgentHandler(
                 outTok,
                 modelDeploy,
                 modelVer,
+                failureReasonCode: AgentHandlerExecutionFailureReason.ResolveFailureReasonCode(ex),
                 cancellationToken: cancellationToken);
 
             throw;

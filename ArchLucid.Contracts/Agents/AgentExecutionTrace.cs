@@ -101,6 +101,16 @@ public sealed class AgentExecutionTrace
         set;
     }
 
+    /// <summary>
+    ///     Optional machine-readable failure discriminator (e.g. <see cref="AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected" />)
+    ///     when <see cref="ParseSucceeded" /> is <see langword="false" />; persisted inside <c>TraceJson</c>.
+    /// </summary>
+    public string? FailureReasonCode
+    {
+        get;
+        set;
+    }
+
     /// <summary>Stable catalog id for the system prompt template (e.g. <c>topology-system</c>).</summary>
     public string? PromptTemplateId
     {

@@ -38,6 +38,10 @@ public interface IAgentExecutionTraceRecorder
     ///     truncated columns on the trace row remain the forensic surface. Real LLM handlers pass <see langword="false" />
     ///     (default).
     /// </param>
+    /// <param name="failureReasonCode">
+    ///     Optional stable code (e.g. <see cref="AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected" />) for
+    ///     operator alerting; persisted on <see cref="AgentExecutionTrace.FailureReasonCode" />.
+    /// </param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that completes when the trace is stored.</returns>
     Task RecordAsync(
@@ -56,5 +60,6 @@ public interface IAgentExecutionTraceRecorder
         string? modelDeploymentName = null,
         string? modelVersion = null,
         bool isSimulatorExecution = false,
+        string? failureReasonCode = null,
         CancellationToken cancellationToken = default);
 }

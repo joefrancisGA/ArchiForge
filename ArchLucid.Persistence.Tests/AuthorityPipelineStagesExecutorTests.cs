@@ -6,7 +6,9 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -55,7 +57,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         parent.Should().NotBeNull();
 
-        AuthorityPipelineStagesExecutor sut = CreateExecutor();
+        (AuthorityPipelineStagesExecutor sut, _) = CreateExecutor();
         AuthorityPipelineContext ctx = CreateContext(parent, Guid.NewGuid());
 
         await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
@@ -141,7 +143,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
         meterListener.Start();
 
-        AuthorityPipelineStagesExecutor sut = CreateExecutor();
+        (AuthorityPipelineStagesExecutor sut, _) = CreateExecutor();
         AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
 
         await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
@@ -202,7 +204,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Setup(s => s.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("ingest failed"));
 
-        AuthorityPipelineStagesExecutor sut = CreateExecutor(ingest);
+        AuthorityPipelineStagesExecutor sut = CreateExecutor(ingest).Executor;
         AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
@@ -226,12 +228,146 @@ public sealed class AuthorityPipelineStagesExecutorTests
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
 
-        AuthorityPipelineStagesExecutor sut = CreateExecutor();
+        (AuthorityPipelineStagesExecutor sut, _) = CreateExecutor();
         AuthorityPipelineContext ctx = CreateContext(null, Guid.NewGuid());
 
         Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task ExecuteAfterRunPersistedAsync_aborts_decisioning_when_findings_generation_failed()
+    {
+        _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
+
+        DateTime utc = DateTime.UtcNow;
+        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision) = CreateExecutor(
+            configureFindings: s =>
+            {
+                s.GenerationStatus = FindingsSnapshotGenerationStatus.Failed;
+                s.EngineFailures.Add(
+                    new FindingEngineFailure
+                    {
+                        EngineType = "test",
+                        Category = "Test",
+                        ErrorMessage = "all engines failed",
+                        ExceptionType = nameof(InvalidOperationException),
+                        DurationMs = 1,
+                        OccurredUtc = utc
+                    });
+            });
+
+        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+
+        Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*failed for all engines*");
+
+        decision.Verify(
+            d => d.DecideAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteAfterRunPersistedAsync_aborts_decisioning_when_findings_partial_and_halt_enabled()
+    {
+        _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
+
+        DateTime utc = DateTime.UtcNow;
+        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision) = CreateExecutor(
+            configureFindings: s =>
+            {
+                s.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
+                s.EngineFailures.Add(
+                    new FindingEngineFailure
+                    {
+                        EngineType = "llm-engine",
+                        Category = "Test",
+                        ErrorMessage = "circuit",
+                        ExceptionType = nameof(InvalidOperationException),
+                        DurationMs = 1,
+                        OccurredUtc = utc
+                    });
+                s.Findings.Add(
+                    new Finding
+                    {
+                        FindingType = "RequirementFinding",
+                        Category = "Requirement",
+                        Title = "partial",
+                        Rationale = "r",
+                        EngineType = "requirement",
+                        Severity = FindingSeverity.Info
+                    });
+            },
+            authorityPipelineOptions: new AuthorityPipelineOptions { HaltOnPartialFindings = true });
+
+        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+
+        Func<Task> act = async () => await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*only partially complete*");
+
+        decision.Verify(
+            d => d.DecideAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteAfterRunPersistedAsync_runs_decisioning_when_findings_partial_and_halt_disabled()
+    {
+        _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
+
+        DateTime utc = DateTime.UtcNow;
+        (AuthorityPipelineStagesExecutor sut, Mock<IDecisionEngine> decision) = CreateExecutor(
+            configureFindings: s =>
+            {
+                s.GenerationStatus = FindingsSnapshotGenerationStatus.PartiallyComplete;
+                s.EngineFailures.Add(
+                    new FindingEngineFailure
+                    {
+                        EngineType = "llm-engine",
+                        Category = "Test",
+                        ErrorMessage = "circuit",
+                        ExceptionType = nameof(InvalidOperationException),
+                        DurationMs = 1,
+                        OccurredUtc = utc
+                    });
+                s.Findings.Add(
+                    new Finding
+                    {
+                        FindingType = "RequirementFinding",
+                        Category = "Requirement",
+                        Title = "partial",
+                        Rationale = "r",
+                        EngineType = "requirement",
+                        Severity = FindingSeverity.Info
+                    });
+            },
+            authorityPipelineOptions: new AuthorityPipelineOptions { HaltOnPartialFindings = false });
+
+        AuthorityPipelineContext ctx = CreateContext(runId: Guid.NewGuid());
+
+        await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
+
+        decision.Verify(
+            d => d.DecideAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static AuthorityPipelineContext CreateContext(Activity? runActivity = null, Guid? runId = null)
@@ -265,7 +401,10 @@ public sealed class AuthorityPipelineStagesExecutorTests
         };
     }
 
-    private static AuthorityPipelineStagesExecutor CreateExecutor(Mock<IContextIngestionService>? ingestMock = null)
+    private static (AuthorityPipelineStagesExecutor Executor, Mock<IDecisionEngine> Decision) CreateExecutor(
+        Mock<IContextIngestionService>? ingestMock = null,
+        Action<FindingsSnapshot>? configureFindings = null,
+        AuthorityPipelineOptions? authorityPipelineOptions = null)
     {
         Guid snapshotId = Guid.NewGuid();
         Guid graphId = Guid.NewGuid();
@@ -321,21 +460,24 @@ public sealed class AuthorityPipelineStagesExecutorTests
             .Returns(Task.CompletedTask);
 
         Mock<IFindingsOrchestrator> findingsOrch = new();
+        FindingsSnapshot findingsReturn = new()
+        {
+            FindingsSnapshotId = findingsId,
+            RunId = Guid.Empty,
+            ContextSnapshotId = snapshotId,
+            GraphSnapshotId = graphId,
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        configureFindings?.Invoke(findingsReturn);
+
         findingsOrch
             .Setup(f => f.GenerateFindingsSnapshotAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<GraphSnapshot>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new FindingsSnapshot
-                {
-                    FindingsSnapshotId = findingsId,
-                    RunId = Guid.Empty,
-                    ContextSnapshotId = snapshotId,
-                    GraphSnapshotId = graphId,
-                    CreatedUtc = DateTime.UtcNow
-                });
+            .ReturnsAsync(findingsReturn);
 
         Mock<IFindingsSnapshotRepository> findingsRepo = new();
         findingsRepo
@@ -419,7 +561,10 @@ public sealed class AuthorityPipelineStagesExecutorTests
         Mock<IOptionsMonitor<CosmosDbOptions>> cosmosDb = new();
         cosmosDb.SetupGet(m => m.CurrentValue).Returns(new CosmosDbOptions());
 
-        return new AuthorityPipelineStagesExecutor(
+        Mock<IOptionsMonitor<AuthorityPipelineOptions>> apPipeline = new();
+        apPipeline.Setup(m => m.CurrentValue).Returns(authorityPipelineOptions ?? new AuthorityPipelineOptions());
+
+        return (new AuthorityPipelineStagesExecutor(
             runRepo.Object,
             ingest.Object,
             ctxRepo.Object,
@@ -435,7 +580,8 @@ public sealed class AuthorityPipelineStagesExecutorTests
             bundleRepo.Object,
             audit.Object,
             cosmosDb.Object,
-            NullLogger<AuthorityPipelineStagesExecutor>.Instance);
+            apPipeline.Object,
+            NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision);
     }
 
     private sealed record HistogramMeasurement([UsedImplicitly] double Value, List<KeyValuePair<string, object?>> Tags);

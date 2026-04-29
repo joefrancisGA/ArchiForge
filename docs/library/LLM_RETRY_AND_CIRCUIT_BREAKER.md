@@ -170,6 +170,15 @@ See also **`docs/OBSERVABILITY.md`** (Health JSON).
 
 To add a scenario: follow `LlmCallRetrySimmyTests`, `LlmCallChaosEndToEndTests`, `SqlOpenResilienceSimmyTests`, or `BlobStoreSimmyChaosTests` — compose **retry outside chaos** (or match production order documented in those tests) and assert inner call counts and breaker state.
 
+## Known limitations (multi-tenant, coordinator runs, authority pipeline)
+
+| Topic | Behavior | Mitigation / follow-up |
+|------|-----------|-------------------------|
+| **Per-tenant circuit isolation** | Named gates such as **`OpenAiCompletion`** are process-wide singletons. One tenant opening the circuit impacts **all** tenants until the break duration elapses or half-open probe succeeds. Per-tenant accounting/quota does **not** isolate breaker state. | Tune thresholds and break duration; optional **model-level fallback** (`ArchLucid:FallbackLlm`) uses a **separate** gate. Longer-term: keyed gate factory (significant DI/design work). |
+| **Cosmos graph snapshots vs SQL UoW** | When **`CosmosDb:GraphSnapshotsEnabled`** is true, graph snapshots are written **outside** the SQL authority transaction. A failure after that write (e.g. later stage) can leave a **Cosmos row** without a committed SQL run — distinct from “inconsistent manifest merge” but still orphaned operational data. | Align with transactional outbox / compensating patterns; see **`AuthorityPipelineStagesExecutor.SaveGraphAsync`** and retrieval indexing outbox precedent. |
+| **Partial findings and decisioning** | **`AuthorityPipeline:HaltOnPartialFindings`** (default **`true`**) stops the pipeline before **`IDecisionEngine.DecideAsync`** when the findings snapshot is **`PartiallyComplete`** or **`Failed`**. Set to **`false`** only when product accepts manifests built from partial engine output ( **`FindingsSnapshot.EngineFailures`** remains on the snapshot). | Configure explicitly per environment; monitor **`GenerationStatus`** and engine failure lists. |
+| **Execute-run baseline audit** | On coordinator **`ExecuteRun`**, baseline mutation audit **`RunFailed`** details use **`ExceptionTypeName`** or, when the root failure is **`CircuitBreakerOpenException`**, **`CircuitBreakerOpenException:CircuitBreakerRejected`** so log-based alerts can key off **`CircuitBreakerRejected`**. | Pair with **`AgentExecutionTrace.FailureReasonCode`** (`**CircuitBreakerRejected**`) on persisted trace rows. |
+
 ## References
 
 - `docs/RESILIENCE_CONFIGURATION.md` — broader resilience and circuit breaker options.

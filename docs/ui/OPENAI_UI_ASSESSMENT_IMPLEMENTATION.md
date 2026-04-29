@@ -1,3 +1,5 @@
+> **Scope:** For engineers maintaining ArchLucid UI demo/showcase flows; summarizes what shipped for the OpenAI UI assessment path; not a product spec, roadmap, or buyer-facing guarantee.
+
 # OpenAI UI Assessment — Implementation Notes
 
 This note captures what was implemented for the OpenAI UI assessment demo path (operator + marketing). **Do not treat this as a product spec** — it is engineering bookkeeping.

@@ -8,6 +8,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -46,6 +47,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     IArtifactBundleRepository artifactBundleRepository,
     IAuditService auditService,
     IOptionsMonitor<CosmosDbOptions> cosmosDbOptionsMonitor,
+    IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
     private readonly IArtifactBundleRepository _artifactBundleRepository =
@@ -53,6 +55,9 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IArtifactSynthesisService _artifactSynthesisService =
         artifactSynthesisService ?? throw new ArgumentNullException(nameof(artifactSynthesisService));
+
+    private readonly IOptionsMonitor<AuthorityPipelineOptions> _authorityPipelineOptions =
+        authorityPipelineOptions ?? throw new ArgumentNullException(nameof(authorityPipelineOptions));
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
@@ -164,6 +169,8 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         await ExecuteStageAsync(ctx, "authority.decisioning", "decisioning", async (_, token) =>
         {
+            EnforceFindingsReadyForDecisioning(ctx.FindingsSnapshot!, run.RunId);
+
             (ManifestDocument manifest, DecisionTrace trace) = await _decisionEngine.DecideAsync(
                 run.RunId,
                 ctx.ContextSnapshot!.SnapshotId,
@@ -239,6 +246,31 @@ public sealed class AuthorityPipelineStagesExecutor(
             run.ArtifactBundleId = artifactBundle.BundleId;
             await UpdateRunAsync(run, uow, token);
         }, ct);
+    }
+
+    private void EnforceFindingsReadyForDecisioning(FindingsSnapshot snapshot, Guid runId)
+    {
+        if (snapshot is null)
+            throw new ArgumentNullException(nameof(snapshot));
+
+        AuthorityPipelineOptions opts = _authorityPipelineOptions.CurrentValue;
+
+        if (snapshot.GenerationStatus == FindingsSnapshotGenerationStatus.Failed)
+            throw new InvalidOperationException(
+                $"Findings snapshot generation failed for all engines (RunId={runId:D}); aborting authority decisioning.");
+
+        if (snapshot.GenerationStatus == FindingsSnapshotGenerationStatus.PartiallyComplete && opts.HaltOnPartialFindings)
+            throw new InvalidOperationException(
+                $"Findings snapshot is only partially complete (RunId={runId:D}); authority pipeline halts before decisioning when AuthorityPipeline:HaltOnPartialFindings is true.");
+
+        if (snapshot.GenerationStatus == FindingsSnapshotGenerationStatus.PartiallyComplete
+            && !opts.HaltOnPartialFindings
+            && _logger.IsEnabled(LogLevel.Warning))
+
+            _logger.LogWarning(
+                "Authority pipeline continuing decisioning with partially complete findings: RunId={RunId}, FailedEngineCount={FailedEngineCount}",
+                runId,
+                snapshot.EngineFailures.Count);
     }
 
     private async Task ExecuteStageAsync(

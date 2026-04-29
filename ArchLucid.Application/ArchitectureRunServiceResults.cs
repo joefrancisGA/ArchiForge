@@ -27,6 +27,12 @@ public sealed class CreateRunResult
 /// <summary>
 /// Outcome of <see cref="Runs.Orchestration.IArchitectureRunExecuteOrchestrator.ExecuteRunAsync"/>: persisted agent outputs for the run.
 /// </summary>
+/// <remarks>
+///     On failure, <see cref="Runs.Orchestration.IArchitectureRunExecuteOrchestrator.ExecuteRunAsync"/> throws before returning.
+///     Baseline mutation audit (<c>Baseline.Architecture.RunFailed</c>) then records exception type, or
+///     <c>CircuitBreakerOpenException:CircuitBreakerRejected</c> when the root cause is an open LLM circuit (see
+///     <see cref="AgentExecutionTraceFailureReasonCodes.CircuitBreakerRejected" /> on execution traces).
+/// </remarks>
 public sealed class ExecuteRunResult
 {
     /// <summary>Same run id passed to execute.</summary>

@@ -34,6 +34,7 @@ COPY ArchLucid.Contracts.Abstractions/*.csproj ArchLucid.Contracts.Abstractions/
 COPY ArchLucid.ContextIngestion/*.csproj   ArchLucid.ContextIngestion/
 COPY ArchLucid.Core/*.csproj               ArchLucid.Core/
 COPY ArchLucid.Decisioning/*.csproj        ArchLucid.Decisioning/
+COPY ArchLucid.Integrations.AzureDevOps/*.csproj ArchLucid.Integrations.AzureDevOps/
 COPY ArchLucid.KnowledgeGraph/*.csproj     ArchLucid.KnowledgeGraph/
 COPY ArchLucid.Persistence/*.csproj        ArchLucid.Persistence/
 COPY ArchLucid.Persistence.Coordination/*.csproj ArchLucid.Persistence.Coordination/
