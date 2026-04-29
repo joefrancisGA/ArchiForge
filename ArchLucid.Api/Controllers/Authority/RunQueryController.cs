@@ -286,6 +286,9 @@ public sealed class RunQueryController(
         if (string.IsNullOrWhiteSpace(findingId))
             return this.BadRequestProblem("Finding id is required.", ProblemTypes.ValidationFailed);
 
+        if (findingId.Trim().Length > 64)
+            return this.BadRequestProblem("Finding id exceeds maximum length (64).", ProblemTypes.ValidationFailed);
+
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         FindingInspectResponse? body =

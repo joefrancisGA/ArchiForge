@@ -81,7 +81,7 @@ public sealed class PilotRunDeltaComputer(
             AuditRowCountTruncated = auditTruncated,
             LlmCallCount = llmCallCount,
             TopFindingId = topFinding?.FindingId,
-            TopFindingSeverity = topFinding?.Severity,
+            TopFindingSeverity = topFinding?.Severity.ToString(),
             TopFindingEvidenceChain = chain,
             IsDemoTenant = isDemo,
         };
@@ -94,7 +94,7 @@ public sealed class PilotRunDeltaComputer(
             .SelectMany(static r => r.Findings)
             .Where(_ => true)
             .GroupBy(
-                f => string.IsNullOrWhiteSpace(f.Severity) ? "Unknown" : f.Severity.Trim(),
+                static f => f.Severity.ToString(),
                 StringComparer.OrdinalIgnoreCase)
             .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
             .OrderByDescending(static p => p.Value)
@@ -107,25 +107,8 @@ public sealed class PilotRunDeltaComputer(
             .Where(_ => true)
             .SelectMany(static r => r.Findings)
             .Where(_ => true)
-            .OrderByDescending(f => SeverityRank(f.Severity))
+            .OrderByDescending(static f => (int)f.Severity)
             .FirstOrDefault();
-
-    /// <summary>
-    /// Maps the free-form severity string used on <see cref="ArchitectureFinding.Severity"/> to a stable integer
-    /// rank so the "top severity" pick is deterministic across calls. Unknown values land at <c>0</c>.
-    /// </summary>
-    private static int SeverityRank(string? severity) =>
-        (severity ?? string.Empty).Trim().ToLowerInvariant() switch
-        {
-            "critical" => 100,
-            "high" => 90,
-            "error" => 80,
-            "warning" => 60,
-            "medium" => 50,
-            "low" => 30,
-            "info" => 10,
-            _ => 0,
-        };
 
     private async Task<int> TryCountLlmCallsAsync(string runId, CancellationToken cancellationToken)
     {

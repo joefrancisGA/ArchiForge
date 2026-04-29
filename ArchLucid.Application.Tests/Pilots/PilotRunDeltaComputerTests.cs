@@ -330,9 +330,9 @@ public sealed class PilotRunDeltaComputerTests
             AgentType = AgentType.Topology,
             Findings =
             [
-                new ArchitectureFinding { FindingId = "warn-1", Severity = "Warning", Message = "m1" },
-                new ArchitectureFinding { FindingId = "warn-2", Severity = "warning", Message = "m2" },
-                new ArchitectureFinding { FindingId = "top-finding", Severity = "Error", Message = "m3" },
+                new ArchitectureFinding { FindingId = "warn-1", Severity = FindingSeverity.Warning, Message = "m1" },
+                new ArchitectureFinding { FindingId = "warn-2", Severity = FindingSeverity.Warning, Message = "m2" },
+                new ArchitectureFinding { FindingId = "top-finding", Severity = FindingSeverity.Error, Message = "m3" },
             ],
         };
 

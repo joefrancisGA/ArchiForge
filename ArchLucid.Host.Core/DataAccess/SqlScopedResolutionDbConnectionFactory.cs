@@ -24,8 +24,8 @@ public sealed class SqlScopedResolutionDbConnectionFactory(
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
-    private readonly string _connectionString =
-        connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+    private readonly string _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(
+        connectionString ?? throw new ArgumentNullException(nameof(connectionString)));
 
     /// <inheritdoc />
     public IDbConnection CreateConnection()

@@ -220,7 +220,7 @@ public sealed class RunRationaleService(
         {
             FindingId = f.FindingId,
             Title = message,
-            Severity = f.Severity,
+            Severity = f.Severity.ToString(),
             Rationale = message,
             Category = f.Category,
             EngineType = f.SourceAgent.ToString(),

@@ -205,13 +205,21 @@ public sealed class SqlFindingsSnapshotRepository(
                            (
                                FindingRecordId, FindingsSnapshotId, SortOrder,
                                FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                               Severity, Title, Rationale, PayloadType, PayloadJson
+                               Severity, Title, Rationale, PayloadType, PayloadJson,
+                               RequestInputRef, RunIdRef, AgentExecutionTraceId,
+                               ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
+                               ConfidenceScore, PolicyRuleId,
+                               HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes
                            )
                            VALUES
                            (
                                @FindingRecordId, @FindingsSnapshotId, @SortOrder,
                                @FindingId, @FindingSchemaVersion, @FindingType, @Category, @EngineType,
-                               @Severity, @Title, @Rationale, @PayloadType, @PayloadJson
+                               @Severity, @Title, @Rationale, @PayloadType, @PayloadJson,
+                               @RequestInputRef, @RunIdRef, @AgentExecutionTraceId,
+                               @ModelDeploymentName, @ModelVersion, @PromptTemplateId, @PromptTemplateVersion,
+                               @ConfidenceScore, @PolicyRuleId,
+                               @HumanReviewStatus, @ReviewedByUserId, @ReviewedAtUtc, @ReviewNotes
                            );
                            """;
 
@@ -229,7 +237,20 @@ public sealed class SqlFindingsSnapshotRepository(
             finding.Title,
             finding.Rationale,
             finding.PayloadType,
-            PayloadJson = FindingPayloadJsonCodec.SerializePayload(finding.Payload)
+            PayloadJson = FindingPayloadJsonCodec.SerializePayload(finding.Payload),
+            RequestInputRef = finding.RequestInputRef,
+            RunIdRef = finding.RunIdRef,
+            AgentExecutionTraceId = finding.AgentExecutionTraceId ?? finding.Trace.SourceAgentExecutionTraceId,
+            finding.ModelDeploymentName,
+            finding.ModelVersion,
+            finding.PromptTemplateId,
+            finding.PromptTemplateVersion,
+            finding.ConfidenceScore,
+            finding.PolicyRuleId,
+            HumanReviewStatus = finding.HumanReviewStatus.ToString(),
+            finding.ReviewedByUserId,
+            ReviewedAtUtc = finding.ReviewedAtUtc,
+            finding.ReviewNotes
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));

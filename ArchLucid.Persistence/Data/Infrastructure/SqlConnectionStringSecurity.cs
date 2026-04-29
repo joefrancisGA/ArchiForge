@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.Data.Infrastructure;
 ///     that looks for an explicit client-side encryption setting. <c>TrustServerCertificate</c> (e.g. local dev) is unchanged
 ///     when already present.
 /// </remarks>
-internal static class SqlConnectionStringSecurity
+public static class SqlConnectionStringSecurity
 {
     /// <summary>
     ///     Returns a connection string that requires encrypted transport to SQL Server.

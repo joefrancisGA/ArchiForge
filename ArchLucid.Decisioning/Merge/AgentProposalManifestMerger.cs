@@ -287,7 +287,7 @@ public sealed class AgentProposalManifestMerger
                 {
                     ["findingId"] = finding.FindingId,
                     ["agentType"] = result.AgentType.ToString(),
-                    ["severity"] = finding.Severity,
+                    ["severity"] = finding.Severity.ToString(),
                     ["category"] = finding.Category
                 });
         }

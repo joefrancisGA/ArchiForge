@@ -946,6 +946,88 @@ BEGIN
 END;
 GO
 
+/* Brownfield: finding provenance + human review (121) and imported request drafts (122). */
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'RequestInputRef') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD RequestInputRef NVARCHAR(64) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'RunIdRef') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD RunIdRef NVARCHAR(64) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'AgentExecutionTraceId') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD AgentExecutionTraceId NVARCHAR(32) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ModelDeploymentName') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD ModelDeploymentName NVARCHAR(200) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ModelVersion') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD ModelVersion NVARCHAR(200) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'PromptTemplateId') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD PromptTemplateId NVARCHAR(200) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'PromptTemplateVersion') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD PromptTemplateVersion NVARCHAR(100) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ConfidenceScore') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD ConfidenceScore FLOAT NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'PolicyRuleId') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD PolicyRuleId NVARCHAR(500) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'HumanReviewStatus') IS NULL
+    ALTER TABLE dbo.FindingRecords
+        ADD HumanReviewStatus NVARCHAR(50) NOT NULL CONSTRAINT DF_FindingRecords_HumanReview_Master DEFAULT (N'NotRequired');
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ReviewedByUserId') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD ReviewedByUserId NVARCHAR(256) NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ReviewedAtUtc') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD ReviewedAtUtc DATETIME2 NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ReviewNotes') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD ReviewNotes NVARCHAR(MAX) NULL;
+GO
+
+IF OBJECT_ID(N'dbo.FindingReviewEvents', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.FindingReviewEvents
+    (
+        EventId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_FindingReviewEvents PRIMARY KEY,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        FindingId NVARCHAR(200) NOT NULL,
+        ReviewerUserId NVARCHAR(256) NOT NULL,
+        Action NVARCHAR(50) NOT NULL,
+        Notes NVARCHAR(MAX) NULL,
+        OccurredAtUtc DATETIME2 NOT NULL,
+        RunId UNIQUEIDENTIFIER NULL
+    );
+    CREATE NONCLUSTERED INDEX IX_FindingReviewEvents_Tenant_Finding
+        ON dbo.FindingReviewEvents (TenantId, FindingId, OccurredAtUtc DESC);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ImportedArchitectureRequests', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ImportedArchitectureRequests
+    (
+        ImportId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_ImportedArchitectureRequests PRIMARY KEY,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL,
+        SourceFileName NVARCHAR(400) NOT NULL,
+        Format NVARCHAR(16) NOT NULL,
+        Status NVARCHAR(32) NOT NULL CONSTRAINT DF_ImportedArchitectureRequests_Status_Master DEFAULT (N'Draft'),
+        RequestJson NVARCHAR(MAX) NULL,
+        CONSTRAINT CH_ImportedArchitectureRequests_Format CHECK (Format IN (N'toml', N'json'))
+    );
+    CREATE NONCLUSTERED INDEX IX_ImportedArchitectureRequests_Scope_Created
+        ON dbo.ImportedArchitectureRequests (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+END;
+GO
+
 IF OBJECT_ID('dbo.DecisioningTraces', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.DecisioningTraces

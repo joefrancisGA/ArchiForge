@@ -16,11 +16,18 @@ public sealed class ArchitectureFinding
         set;
     }
 
-    public string Severity
+    public FindingSeverity Severity
     {
         get;
         set;
-    } = "Info";
+    } = FindingSeverity.Info;
+
+    /// <summary>Optional self-rated confidence from the producing agent when mapped from <c>AgentResult</c>.</summary>
+    public double? ConfidenceScore
+    {
+        get;
+        set;
+    }
 
     public string Category
     {

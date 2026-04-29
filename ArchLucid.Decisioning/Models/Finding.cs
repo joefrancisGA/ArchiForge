@@ -86,4 +86,87 @@ public class Finding
         get;
         set;
     } = new();
+
+    /// <summary><see cref="ArchLucid.Contracts.Requests.ArchitectureRequest.RequestId" /> for the run input.</summary>
+    public string? RequestInputRef
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Run identifier (string form) that produced this finding.</summary>
+    public string? RunIdRef
+    {
+        get;
+        set;
+    }
+
+    /// <summary>FK to <c>dbo.AgentExecutionTraces.TraceId</c> when the finding is AI-sourced.</summary>
+    public string? AgentExecutionTraceId
+    {
+        get;
+        set;
+    }
+
+    public string? ModelDeploymentName
+    {
+        get;
+        set;
+    }
+
+    public string? ModelVersion
+    {
+        get;
+        set;
+    }
+
+    public string? PromptTemplateId
+    {
+        get;
+        set;
+    }
+
+    public string? PromptTemplateVersion
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Parent agent self-reported confidence in [0,1] when applicable.</summary>
+    public double? ConfidenceScore
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Deterministic policy / rule identifier when available.</summary>
+    public string? PolicyRuleId
+    {
+        get;
+        set;
+    }
+
+    public FindingHumanReviewStatus HumanReviewStatus
+    {
+        get;
+        set;
+    }
+
+    public string? ReviewedByUserId
+    {
+        get;
+        set;
+    }
+
+    public DateTimeOffset? ReviewedAtUtc
+    {
+        get;
+        set;
+    }
+
+    public string? ReviewNotes
+    {
+        get;
+        set;
+    }
 }

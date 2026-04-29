@@ -12,7 +12,7 @@ public sealed class FindingsSnapshotMigratorTests
     [Fact]
     public void FindingsSchema_CurrentVersions_AreIntConstants()
     {
-        FindingsSchema.CurrentFindingVersion.Should().Be(1);
+        FindingsSchema.CurrentFindingVersion.Should().Be(2);
         FindingsSchema.CurrentSnapshotVersion.Should().Be(2);
     }
 

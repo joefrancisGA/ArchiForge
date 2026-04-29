@@ -57,7 +57,7 @@ public static class FakeScenarioFactory
                 {
                     FindingId = StableHexId(runId, taskId, "topology-finding-0"),
                     SourceAgent = AgentType.Topology,
-                    Severity = "Info",
+                    Severity = FindingSeverity.Info,
                     Category = "Topology",
                     Message = "Simple managed-service topology selected for initial implementation.",
                     EvidenceRefs = ["request"]
@@ -174,7 +174,7 @@ public static class FakeScenarioFactory
                 {
                     FindingId = StableHexId(runId, taskId, "cost-finding-0"),
                     SourceAgent = AgentType.Cost,
-                    Severity = "Info",
+                    Severity = FindingSeverity.Info,
                     Category = "Cost",
                     Message = "Managed services selected for predictable operational cost.",
                     EvidenceRefs = ["pricing-profile"]
@@ -235,7 +235,7 @@ public static class FakeScenarioFactory
                 {
                     FindingId = StableHexId(runId, taskId, "compliance-finding-0"),
                     SourceAgent = AgentType.Compliance,
-                    Severity = "High",
+                    Severity = FindingSeverity.Critical,
                     Category = "Compliance",
                     Message = "PrivateNetworkingRequired",
                     EvidenceRefs = ["policy-pack:enterprise-default"]
@@ -244,7 +244,7 @@ public static class FakeScenarioFactory
                 {
                     FindingId = StableHexId(runId, taskId, "compliance-finding-1"),
                     SourceAgent = AgentType.Compliance,
-                    Severity = "High",
+                    Severity = FindingSeverity.Critical,
                     Category = "Compliance",
                     Message = "ManagedIdentityRequired",
                     EvidenceRefs = ["policy-pack:azure-security-baseline"]
@@ -292,7 +292,7 @@ public static class FakeScenarioFactory
                 {
                     FindingId = StableHexId(runId, taskId, "critic-finding-0"),
                     SourceAgent = AgentType.Critic,
-                    Severity = "Info",
+                    Severity = FindingSeverity.Info,
                     Category = "Critic",
                     Message = "Starter architecture is coherent for an MVP.",
                     EvidenceRefs = ["critic-checklist"]

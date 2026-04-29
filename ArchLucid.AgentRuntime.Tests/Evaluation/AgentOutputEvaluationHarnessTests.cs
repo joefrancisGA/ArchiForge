@@ -70,7 +70,7 @@ public sealed class AgentOutputEvaluationHarnessTests
             Confidence = 0.5,
             Findings =
             [
-                new ArchitectureFinding { Category = "other", Message = "m", Severity = "Info" }
+                new ArchitectureFinding { Category = "other", Message = "m", Severity = FindingSeverity.Info }
             ]
         };
 
@@ -96,7 +96,7 @@ public sealed class AgentOutputEvaluationHarnessTests
             Confidence = 0.5,
             Findings =
             [
-                new ArchitectureFinding { Category = "topology-gap", Message = "m", Severity = "Warning" }
+                new ArchitectureFinding { Category = "topology-gap", Message = "m", Severity = FindingSeverity.Warning }
             ]
         };
 

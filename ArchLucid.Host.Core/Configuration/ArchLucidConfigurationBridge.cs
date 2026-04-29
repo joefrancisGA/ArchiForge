@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.Data.Infrastructure;
+
 namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
@@ -11,12 +13,20 @@ public static class ArchLucidConfigurationBridge
 
     public const string PrimarySqlConnectionName = "ArchLucid";
 
-    /// <summary>SQL connection string: <c>ConnectionStrings:ArchLucid</c> only.</summary>
+    /// <summary>
+    /// SQL connection string: <c>ConnectionStrings:ArchLucid</c> only, normalized with mandatory TLS to SQL Server
+    /// (<see cref="SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory" />).
+    /// </summary>
     public static string? ResolveSqlConnectionString(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        return configuration.GetConnectionString(PrimarySqlConnectionName);
+        string? raw = configuration.GetConnectionString(PrimarySqlConnectionName);
+
+        if (raw is null)
+            return null;
+
+        return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw);
     }
 
     /// <summary>

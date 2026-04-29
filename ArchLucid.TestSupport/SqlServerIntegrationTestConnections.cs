@@ -60,6 +60,7 @@ public static class SqlServerIntegrationTestConnections
             DataSource = "localhost",
             InitialCatalog = databaseName,
             IntegratedSecurity = true,
+            Encrypt = SqlConnectionEncryptOption.Mandatory,
             TrustServerCertificate = true,
             MultipleActiveResultSets = true
         };
@@ -76,7 +77,11 @@ public static class SqlServerIntegrationTestConnections
         if (string.IsNullOrWhiteSpace(raw))
             throw new ArgumentException("Connection string is required.", nameof(raw));
 
-        SqlConnectionStringBuilder builder = new(raw.Trim()) { TrustServerCertificate = true };
+        SqlConnectionStringBuilder builder = new(raw.Trim())
+        {
+            Encrypt = SqlConnectionEncryptOption.Mandatory,
+            TrustServerCertificate = true
+        };
 
         if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
             builder.InitialCatalog = defaultCatalog;
@@ -88,7 +93,10 @@ public static class SqlServerIntegrationTestConnections
     {
         SqlConnectionStringBuilder builder = new(templateConnectionString.Trim())
         {
-            TrustServerCertificate = true, InitialCatalog = databaseName, MultipleActiveResultSets = true
+            Encrypt = SqlConnectionEncryptOption.Mandatory,
+            TrustServerCertificate = true,
+            InitialCatalog = databaseName,
+            MultipleActiveResultSets = true
         };
 
         return builder.ConnectionString;

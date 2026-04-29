@@ -1,12 +1,15 @@
 using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Decisioning.Configuration;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Decisioning.Services;
 
@@ -14,9 +17,13 @@ public partial class FindingsOrchestrator(
     IEnumerable<IFindingEngine> engines,
     IFindingPayloadValidator validator,
     ILogger<FindingsOrchestrator> logger,
+    IOptions<HumanReviewFindingOptions> humanReviewOptions,
     TimeProvider? timeProvider = null)
     : IFindingsOrchestrator
 {
+    private readonly IOptions<HumanReviewFindingOptions> _humanReviewOptions =
+        humanReviewOptions ?? throw new ArgumentNullException(nameof(humanReviewOptions));
+
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
     /// <summary>
@@ -27,10 +34,15 @@ public partial class FindingsOrchestrator(
     ///     Prefer the primary constructor with an explicit <see cref="IFindingPayloadValidator" />
     ///     injected from the DI container.
     /// </remarks>
-    [Obsolete("Use the primary constructor that accepts IFindingPayloadValidator and ILogger<FindingsOrchestrator>. " +
-              "This overload silently skips payload validation.")]
+    [Obsolete("Use the primary constructor that accepts IFindingPayloadValidator, ILogger<FindingsOrchestrator>, " +
+              "IOptions<HumanReviewFindingOptions>, and optional TimeProvider.")]
     public FindingsOrchestrator(IEnumerable<IFindingEngine> engines)
-        : this(engines, new NoOpFindingPayloadValidator(), SilentLogger.Instance, TimeProvider.System)
+        : this(
+            engines,
+            new NoOpFindingPayloadValidator(),
+            SilentLogger.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            TimeProvider.System)
     {
     }
 
@@ -41,12 +53,12 @@ public partial class FindingsOrchestrator(
     ///     No structured logging is emitted when using this overload.
     ///     Prefer the primary constructor that also accepts <see cref="ILogger{TCategoryName}" />.
     /// </remarks>
-    [Obsolete("Use the primary constructor that also accepts ILogger<FindingsOrchestrator>. " +
-              "This overload discards all log output.")]
+    [Obsolete("Use the primary constructor that also accepts ILogger<FindingsOrchestrator> " +
+              "and IOptions<HumanReviewFindingOptions>.")]
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingPayloadValidator validator)
-        : this(engines, validator, SilentLogger.Instance, TimeProvider.System)
+        : this(engines, validator, SilentLogger.Instance, Options.Create(new HumanReviewFindingOptions()), TimeProvider.System)
     {
     }
 
@@ -136,6 +148,8 @@ public partial class FindingsOrchestrator(
             EngineFailures = engineFailures,
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion
         };
+
+        FindingHumanReviewInitializer.Apply(snapshot.Findings, _humanReviewOptions.Value);
 
         FindingsSnapshotMigrator.Apply(snapshot);
 

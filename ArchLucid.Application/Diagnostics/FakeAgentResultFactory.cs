@@ -50,7 +50,7 @@ public static class FakeAgentResultFactory
                 {
                     FindingId = Guid.NewGuid().ToString("N"),
                     SourceAgent = AgentType.Topology,
-                    Severity = "Info",
+                    Severity = FindingSeverity.Info,
                     Category = "Topology",
                     Message = "A simple App Service-based topology is appropriate for the initial implementation.",
                     EvidenceRefs = ["request"]
@@ -170,7 +170,7 @@ public static class FakeAgentResultFactory
                 {
                     FindingId = Guid.NewGuid().ToString("N"),
                     SourceAgent = AgentType.Cost,
-                    Severity = "Info",
+                    Severity = FindingSeverity.Info,
                     Category = "Cost",
                     Message = "App Service minimizes operational complexity for initial deployment.",
                     EvidenceRefs = ["pricing-profile"]
@@ -233,7 +233,7 @@ public static class FakeAgentResultFactory
                     {
                         FindingId = Guid.NewGuid().ToString("N"),
                         SourceAgent = AgentType.Compliance,
-                        Severity = "High",
+                        Severity = FindingSeverity.Critical,
                         Category = "Compliance",
                         Message = "PrivateNetworkingRequired",
                         EvidenceRefs = ["policy-pack:enterprise-default"]
@@ -242,7 +242,7 @@ public static class FakeAgentResultFactory
                     {
                         FindingId = Guid.NewGuid().ToString("N"),
                         SourceAgent = AgentType.Compliance,
-                        Severity = "High",
+                        Severity = FindingSeverity.Critical,
                         Category = "Compliance",
                         Message = "ManagedIdentityRequired",
                         EvidenceRefs = ["policy-pack:azure-security-baseline"]
@@ -294,7 +294,7 @@ public static class FakeAgentResultFactory
                 {
                     FindingId = Guid.NewGuid().ToString("N"),
                     SourceAgent = AgentType.Compliance,
-                    Severity = "High",
+                    Severity = FindingSeverity.Critical,
                     Category = "Compliance",
                     Message = "PrivateNetworkingRequired",
                     EvidenceRefs = ["policy-pack:enterprise-default"]
@@ -303,7 +303,7 @@ public static class FakeAgentResultFactory
                 {
                     FindingId = Guid.NewGuid().ToString("N"),
                     SourceAgent = AgentType.Compliance,
-                    Severity = "High",
+                    Severity = FindingSeverity.Critical,
                     Category = "Compliance",
                     Message = "ManagedIdentityRequired",
                     EvidenceRefs = ["policy-pack:azure-security-baseline"]
@@ -357,7 +357,7 @@ public static class FakeAgentResultFactory
                 {
                     FindingId = Guid.NewGuid().ToString("N"),
                     SourceAgent = AgentType.Critic,
-                    Severity = "Info",
+                    Severity = FindingSeverity.Info,
                     Category = "Review",
                     Message = "No critical omissions or contradictions detected in the proposed architecture.",
                     EvidenceRefs = ["request", "policy-pack:enterprise-default"]

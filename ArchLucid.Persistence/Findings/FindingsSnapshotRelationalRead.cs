@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Models;
 
 using Dapper;
@@ -20,7 +21,11 @@ internal static class FindingsSnapshotRelationalRead
         const string recordsSql = """
                                   SELECT
                                       FindingRecordId, SortOrder, FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
-                                      Severity, Title, Rationale, PayloadType, PayloadJson
+                                      Severity, Title, Rationale, PayloadType, PayloadJson,
+                                      RequestInputRef, RunIdRef, AgentExecutionTraceId,
+                                      ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
+                                      ConfidenceScore, PolicyRuleId,
+                                      HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes
                                   FROM dbo.FindingRecords
                                   WHERE FindingsSnapshotId = @FindingsSnapshotId
                                   ORDER BY SortOrder;
@@ -150,8 +155,22 @@ internal static class FindingsSnapshotRelationalRead
                 Properties =
                     propsByRecord.GetValueOrDefault(rec.FindingRecordId) ??
                     new Dictionary<string, string>(StringComparer.Ordinal),
+                RequestInputRef = rec.RequestInputRef,
+                RunIdRef = rec.RunIdRef,
+                AgentExecutionTraceId = rec.AgentExecutionTraceId,
+                ModelDeploymentName = rec.ModelDeploymentName,
+                ModelVersion = rec.ModelVersion,
+                PromptTemplateId = rec.PromptTemplateId,
+                PromptTemplateVersion = rec.PromptTemplateVersion,
+                ConfidenceScore = rec.ConfidenceScore,
+                PolicyRuleId = rec.PolicyRuleId,
+                HumanReviewStatus = ParseHumanReviewStatus(rec.HumanReviewStatus),
+                ReviewedByUserId = rec.ReviewedByUserId,
+                ReviewedAtUtc = rec.ReviewedAtUtc is { } ra ? new DateTimeOffset(DateTime.SpecifyKind(ra, DateTimeKind.Utc)) : null,
+                ReviewNotes = rec.ReviewNotes,
                 Trace = new ExplainabilityTrace
                 {
+                    SourceAgentExecutionTraceId = rec.AgentExecutionTraceId,
                     GraphNodeIdsExamined = traceNodesByRecord.GetValueOrDefault(rec.FindingRecordId) ?? [],
                     RulesApplied = traceRulesByRecord.GetValueOrDefault(rec.FindingRecordId) ?? [],
                     DecisionsTaken = traceDecisionsByRecord.GetValueOrDefault(rec.FindingRecordId) ?? [],
@@ -174,6 +193,14 @@ internal static class FindingsSnapshotRelationalRead
             SchemaVersion = row.SchemaVersion,
             Findings = findings
         };
+    }
+
+    private static FindingHumanReviewStatus ParseHumanReviewStatus(string? raw)
+    {
+        if (!string.IsNullOrWhiteSpace(raw) && Enum.TryParse(raw.Trim(), true, out FindingHumanReviewStatus st))
+            return st;
+
+        return FindingHumanReviewStatus.NotRequired;
     }
 
     private static async Task<Dictionary<Guid, List<string>>> LoadOrderedPairsAsync(
@@ -313,6 +340,84 @@ internal static class FindingsSnapshotRelationalRead
         }
 
         public string? PayloadJson
+        {
+            get;
+            init;
+        }
+
+        public string? RequestInputRef
+        {
+            get;
+            init;
+        }
+
+        public string? RunIdRef
+        {
+            get;
+            init;
+        }
+
+        public string? AgentExecutionTraceId
+        {
+            get;
+            init;
+        }
+
+        public string? ModelDeploymentName
+        {
+            get;
+            init;
+        }
+
+        public string? ModelVersion
+        {
+            get;
+            init;
+        }
+
+        public string? PromptTemplateId
+        {
+            get;
+            init;
+        }
+
+        public string? PromptTemplateVersion
+        {
+            get;
+            init;
+        }
+
+        public double? ConfidenceScore
+        {
+            get;
+            init;
+        }
+
+        public string? PolicyRuleId
+        {
+            get;
+            init;
+        }
+
+        public string? HumanReviewStatus
+        {
+            get;
+            init;
+        }
+
+        public string? ReviewedByUserId
+        {
+            get;
+            init;
+        }
+
+        public DateTime? ReviewedAtUtc
+        {
+            get;
+            init;
+        }
+
+        public string? ReviewNotes
         {
             get;
             init;

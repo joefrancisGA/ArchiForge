@@ -210,7 +210,7 @@ public sealed class PolicyPackDryRunService(
     private static double ComputeActualForKey(string key, PilotRunDeltas deltas) => key switch
     {
         PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings => CountForSeverity(deltas, "critical"),
-        PolicyPackDryRunSupportedThresholdKeys.MaxHighFindings => CountForSeverity(deltas, "high"),
+        PolicyPackDryRunSupportedThresholdKeys.MaxHighFindings => CountForSeverity(deltas, "error"),
         PolicyPackDryRunSupportedThresholdKeys.MaxTotalFindings => deltas.FindingsBySeverity.Sum(p => p.Value),
         PolicyPackDryRunSupportedThresholdKeys.MaxTimeToCommitMinutes => deltas.TimeToCommittedManifest?.TotalMinutes ?? 0d,
         _ => 0d,

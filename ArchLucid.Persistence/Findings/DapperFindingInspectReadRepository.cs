@@ -38,6 +38,10 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                            SELECT TOP 1
                                fr.FindingId,
                                fr.PayloadJson,
+                               fr.ModelDeploymentName,
+                               fr.PromptTemplateVersion,
+                               fr.ConfidenceScore,
+                               fr.HumanReviewStatus,
                                r.RunId,
                                r.CurrentManifestVersion,
                                r.GoldenManifestId,
@@ -143,6 +147,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
 
         (string? ruleId, string? ruleName) = ResolveRuleFields(row.AppliedRuleIdsJson, firstRuleText);
 
+        FindingHumanReviewStatus humanReview = FindingInspectReadModelMapper.ParseHumanReview(row.HumanReviewStatus);
+
         List<FindingInspectEvidenceItem> evidence = relatedNodes
             .Where(static n => !string.IsNullOrWhiteSpace(n))
             .Select(static n =>
@@ -160,7 +166,11 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             Evidence = evidence,
             AuditRowId = auditRowId,
             RunId = row.RunId,
-            ManifestVersion = row.CurrentManifestVersion
+            ManifestVersion = row.CurrentManifestVersion,
+            ModelDeploymentName = row.ModelDeploymentName,
+            PromptTemplateVersion = row.PromptTemplateVersion,
+            ConfidenceScore = row.ConfidenceScore,
+            HumanReviewStatus = humanReview
         };
     }
 
@@ -241,6 +251,30 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         }
 
         public string? AppliedRuleIdsJson
+        {
+            get;
+            init;
+        }
+
+        public string? ModelDeploymentName
+        {
+            get;
+            init;
+        }
+
+        public string? PromptTemplateVersion
+        {
+            get;
+            init;
+        }
+
+        public double? ConfidenceScore
+        {
+            get;
+            init;
+        }
+
+        public string? HumanReviewStatus
         {
             get;
             init;

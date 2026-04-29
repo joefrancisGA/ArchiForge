@@ -50,6 +50,7 @@ public sealed class FindingInspectResponse
         init;
     }
 
+    /// <summary>Authority run that owns the findings snapshot row.</summary>
     public Guid RunId
     {
         get;
@@ -57,6 +58,33 @@ public sealed class FindingInspectResponse
     }
 
     public string? ManifestVersion
+    {
+        get;
+        init;
+    }
+
+    /// <summary>OpenAI / Azure OpenAI deployment name used when the finding was produced (when captured).</summary>
+    public string? ModelDeploymentName
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Prompt template semantic version from the agent catalog when captured.</summary>
+    public string? PromptTemplateVersion
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Agent self-rated confidence for the parent result when bridged into persistence.</summary>
+    public double? ConfidenceScore
+    {
+        get;
+        init;
+    }
+
+    public FindingHumanReviewStatus HumanReviewStatus
     {
         get;
         init;

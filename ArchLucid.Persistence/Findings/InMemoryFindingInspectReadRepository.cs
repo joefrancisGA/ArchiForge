@@ -96,7 +96,11 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             Evidence = evidence,
             AuditRowId = null,
             RunId = runId,
-            ManifestVersion = detail.Run.CurrentManifestVersion
+            ManifestVersion = detail.Run.CurrentManifestVersion,
+            ModelDeploymentName = match.ModelDeploymentName,
+            PromptTemplateVersion = match.PromptTemplateVersion,
+            ConfidenceScore = match.ConfidenceScore,
+            HumanReviewStatus = match.HumanReviewStatus
         };
     }
 

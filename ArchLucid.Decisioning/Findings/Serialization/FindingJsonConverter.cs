@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -36,6 +37,30 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         };
 
         finding.Trace = ReadTrace(root, options, finding);
+
+        finding.RequestInputRef = ReadOptionalString(root, "requestInputRef");
+        finding.RunIdRef = ReadOptionalString(root, "runIdRef");
+        finding.AgentExecutionTraceId = ReadOptionalString(root, "agentExecutionTraceId")
+                                        ?? finding.Trace.SourceAgentExecutionTraceId;
+        finding.ModelDeploymentName = ReadOptionalString(root, "modelDeploymentName");
+        finding.ModelVersion = ReadOptionalString(root, "modelVersion");
+        finding.PromptTemplateId = ReadOptionalString(root, "promptTemplateId");
+        finding.PromptTemplateVersion = ReadOptionalString(root, "promptTemplateVersion");
+        finding.PolicyRuleId = ReadOptionalString(root, "policyRuleId");
+        finding.ReviewedByUserId = ReadOptionalString(root, "reviewedByUserId");
+        finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
+
+        if (root.TryGetProperty("confidenceScore", out JsonElement confEl) && confEl.ValueKind == JsonValueKind.Number &&
+            confEl.TryGetDouble(out double conf))
+            finding.ConfidenceScore = conf;
+
+        if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl) &&
+            Enum.TryParse(hrsEl.GetString(), true, out FindingHumanReviewStatus hrs))
+            finding.HumanReviewStatus = hrs;
+
+        if (root.TryGetProperty("reviewedAtUtc", out JsonElement raEl) && raEl.ValueKind == JsonValueKind.String &&
+            DateTimeOffset.TryParse(raEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTimeOffset ra))
+            finding.ReviewedAtUtc = ra;
 
         if (!root.TryGetProperty("payload", out JsonElement payloadEl) || payloadEl.ValueKind == JsonValueKind.Null)
             return finding;
@@ -85,6 +110,29 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             JsonSerializer.Serialize(writer, value.Payload, value.Payload.GetType(), options);
         writer.WritePropertyName("trace");
         JsonSerializer.Serialize(writer, value.Trace, options);
+        WriteOptionalString(writer, "requestInputRef", value.RequestInputRef);
+        WriteOptionalString(writer, "runIdRef", value.RunIdRef);
+        WriteOptionalString(writer, "agentExecutionTraceId", value.AgentExecutionTraceId);
+        WriteOptionalString(writer, "modelDeploymentName", value.ModelDeploymentName);
+        WriteOptionalString(writer, "modelVersion", value.ModelVersion);
+        WriteOptionalString(writer, "promptTemplateId", value.PromptTemplateId);
+        WriteOptionalString(writer, "promptTemplateVersion", value.PromptTemplateVersion);
+        WriteOptionalString(writer, "policyRuleId", value.PolicyRuleId);
+
+        if (value.ConfidenceScore is { } score)
+            writer.WriteNumber("confidenceScore", score);
+        else
+            writer.WriteNull("confidenceScore");
+
+        writer.WriteString("humanReviewStatus", value.HumanReviewStatus.ToString());
+        WriteOptionalString(writer, "reviewedByUserId", value.ReviewedByUserId);
+
+        if (value.ReviewedAtUtc is { } ra)
+            writer.WriteString("reviewedAtUtc", ra.ToString("O", CultureInfo.InvariantCulture));
+        else
+            writer.WriteNull("reviewedAtUtc");
+
+        WriteOptionalString(writer, "reviewNotes", value.ReviewNotes);
         writer.WriteEndObject();
     }
 
@@ -111,10 +159,31 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         }
     }
 
+    private static string? ReadOptionalString(JsonElement root, string name)
+    {
+        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind is JsonValueKind.Null)
+            return null;
+
+        return el.GetString();
+    }
+
+    private static void WriteOptionalString(Utf8JsonWriter writer, string name, string? value)
+    {
+        if (value is null)
+        {
+            writer.WriteNull(name);
+
+            return;
+        }
+
+        writer.WriteString(name, value);
+    }
+
     private static List<string> ReadStringList(JsonElement root, string name)
     {
         if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
             return [];
+
         return el.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
     }
 

@@ -157,9 +157,9 @@ public sealed class FirstValueReportBuilderTests
             AgentType = AgentType.Topology,
             Findings =
             [
-                new ArchitectureFinding { Severity = "Warning", Message = "m1" },
-                new ArchitectureFinding { Severity = "warning", Message = "m2" },
-                new ArchitectureFinding { Severity = "Error", Message = "m3" },
+                new ArchitectureFinding { Severity = FindingSeverity.Warning, Message = "m1" },
+                new ArchitectureFinding { Severity = FindingSeverity.Warning, Message = "m2" },
+                new ArchitectureFinding { Severity = FindingSeverity.Error, Message = "m3" },
             ],
         };
 

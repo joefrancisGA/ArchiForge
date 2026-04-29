@@ -19,6 +19,7 @@
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="QuestPDF" />
     <PackageReference Include="RazorLight" />
+    <PackageReference Include="Tomlyn" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Notifications\Email\Templates\*.cshtml" />

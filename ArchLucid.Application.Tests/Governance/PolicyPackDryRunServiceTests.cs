@@ -279,11 +279,11 @@ public sealed class PolicyPackDryRunServiceTests
             List<ArchitectureFinding> findings = [];
 
             for (int i = 0; i < critical; i++)
-                findings.Add(new ArchitectureFinding { FindingId = $"f-c-{i}", Severity = "Critical" });
+                findings.Add(new ArchitectureFinding { FindingId = $"f-c-{i}", Severity = FindingSeverity.Critical });
             for (int i = 0; i < high; i++)
-                findings.Add(new ArchitectureFinding { FindingId = $"f-h-{i}", Severity = "High" });
+                findings.Add(new ArchitectureFinding { FindingId = $"f-h-{i}", Severity = FindingSeverity.Error });
             for (int i = 0; i < medium; i++)
-                findings.Add(new ArchitectureFinding { FindingId = $"f-m-{i}", Severity = "Medium" });
+                findings.Add(new ArchitectureFinding { FindingId = $"f-m-{i}", Severity = FindingSeverity.Warning });
 
             _byId[runId] = new ArchitectureRunDetail
             {
@@ -312,7 +312,7 @@ public sealed class PolicyPackDryRunServiceTests
 
             List<KeyValuePair<string, int>> bySeverity = detail.Results
                 .SelectMany(r => r.Findings)
-                .GroupBy(f => string.IsNullOrWhiteSpace(f.Severity) ? "Unknown" : f.Severity.Trim(), StringComparer.OrdinalIgnoreCase)
+                .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase)
                 .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
                 .ToList();
 

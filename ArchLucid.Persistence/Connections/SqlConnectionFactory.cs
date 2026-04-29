@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Persistence.Data.Infrastructure;
+
 using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Connections;
@@ -12,7 +14,7 @@ public sealed class SqlConnectionFactory : ISqlConnectionFactory
     public SqlConnectionFactory(string connectionString)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
-        _connectionString = connectionString;
+        _connectionString = SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(connectionString);
     }
 
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)

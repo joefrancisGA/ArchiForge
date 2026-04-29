@@ -218,7 +218,7 @@ public sealed class ArchitectureRunProvenanceService(
                         Name = finding.Message.Length > 160 ? finding.Message[..160] + "…" : finding.Message,
                         Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                         {
-                            ["severity"] = finding.Severity,
+                            ["severity"] = finding.Severity.ToString(),
                             ["category"] = finding.Category,
                             ["sourceAgent"] = finding.SourceAgent.ToString()
                         }

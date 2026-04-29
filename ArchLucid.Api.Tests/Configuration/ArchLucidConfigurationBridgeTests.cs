@@ -2,6 +2,7 @@ using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests.Configuration;
@@ -70,7 +71,11 @@ public sealed class ArchLucidConfigurationBridgeTests
 
         string? cs = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
 
-        cs.Should().Be("Server=.;Database=x;");
+        cs.Should().NotBeNull();
+        SqlConnectionStringBuilder parsed = new(cs!);
+        parsed.Encrypt.Should().Be(SqlConnectionEncryptOption.Mandatory);
+        parsed.DataSource.Should().Be(".");
+        parsed.InitialCatalog.Should().Be("x");
     }
 
     [Fact]
