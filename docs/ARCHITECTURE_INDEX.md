@@ -142,6 +142,8 @@
 
 - **HTTP contracts** – status codes, validation, problem details  
   - `docs/API_CONTRACTS.md`
+- **Tenant tier vs route probing (404 anti-enumeration)** – buyers/integrators; `CommercialTenantTierFilter`, Pilot vs Operate playbook  
+  - `docs/library/TENANT_TIER_AND_ROUTE_ENUMERATION.md`
 - **Audit retention and export tiers** – hot/warm/cold lifecycle, `GET /v1/audit/export`, Migration **051** append-only, blob archival guidance  
   - `docs/AUDIT_RETENTION_POLICY.md`
 - **Alerts** – rules, evaluation, delivery, persistence  

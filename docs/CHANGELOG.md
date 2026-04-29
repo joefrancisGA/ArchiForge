@@ -7,6 +7,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-29 — Docs: `TENANT_TIER_AND_ROUTE_ENUMERATION.md` — buyer/integrator playbook for tier-gated **404** (anti-enumeration), linked from **`ARCHITECTURE_INDEX.md`**.
+
+---
+
 ## 2026-04-29 — Tests: findings recommended-actions hydration, replay export branches, commit guards
 
 **Outcome.** Added **`FindingsSnapshotRelationalReadOrderedRecommendedActionsDirectSqlIntegrationTests`** (SQL container: `FindingRecommendedActions` **`ORDER BY` SortOrder** via `FindingsSnapshotRelationalRead`). Added **`EndToEndReplayComparisonExportServiceExecutiveAndRelationshipDiffTests`** (executive Markdown/HTML, null report guard, manifest relationship subsections, PDF pre-render cancellation). Added **`AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsyncGuardTests`** (`CommitRunAsync` null/whitespace, malformed run id, missing **`RunRecord`** → **`RunNotFoundException`** + baseline audit). **`COVERAGE_GAP_ANALYSIS.md`** not refreshed (no Cobertura merge).
