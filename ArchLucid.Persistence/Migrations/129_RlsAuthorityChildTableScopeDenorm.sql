@@ -931,11 +931,14 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'ConversationMessages')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+    /* Dynamic SQL: batch compile must not bind dbo.ConversationMessages when the table is absent on older DbUp-only DBs. */
+    DECLARE @archlucidRlsConversationMessages NVARCHAR(MAX) = N'
+ALTER SECURITY POLICY rls.ArchLucidTenantScope
         ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationMessages,
         ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationMessages AFTER INSERT,
         ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationMessages AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationMessages BEFORE DELETE;
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationMessages BEFORE DELETE;';
+    EXEC sys.sp_executesql @archlucidRlsConversationMessages;
 END;
 GO
 

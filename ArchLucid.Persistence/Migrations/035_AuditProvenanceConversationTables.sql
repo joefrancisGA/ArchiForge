@@ -60,6 +60,22 @@ BEGIN
 END;
 GO
 
+-- ConversationMessages: same shape as ArchLucid.Persistence/Scripts/ArchLucid.sql (FK to threads added in 093).
+IF OBJECT_ID(N'dbo.ConversationMessages', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ConversationMessages
+    (
+        MessageId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        ThreadId UNIQUEIDENTIFIER NOT NULL,
+        Role NVARCHAR(50) NOT NULL,
+        Content NVARCHAR(MAX) NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL,
+        MetadataJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_ConversationMessages_ThreadId_CreatedUtc NONCLUSTERED (ThreadId, CreatedUtc ASC)
+    );
+END;
+GO
+
 /* Formerly 035_HostLeaderLeases.sql — merged under one 035_* prefix (DbUp lexical uniqueness). */
 /* Distributed leader leases for singleton hosted services (advisory scan, archival, retrieval outbox). */
 IF OBJECT_ID(N'dbo.HostLeaderLeases', N'U') IS NULL
