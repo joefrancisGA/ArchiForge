@@ -37,7 +37,6 @@ import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorVa
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
-import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
