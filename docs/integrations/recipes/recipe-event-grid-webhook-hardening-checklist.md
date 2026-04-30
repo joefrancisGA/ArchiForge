@@ -23,7 +23,7 @@
 | **A — ArchLucid → your HTTPS URL** | ArchLucid tenant config | §3 HMAC, §5 TLS/network, §6 Idempotency |
 | **B — ArchLucid → APIM/Function → Logic Apps** | Same as A | §3–§6; verify **raw body** at edge before transforms |
 | **C — Custom Event Grid topic → push to subscriber URL** | Event Grid | §2 Subscription validation, §4 Event Grid headers, §6 |
-| **D — Service Bus → Event Grid / Functions** (enterprise relay) | Azure AD / RBAC on SB | §6 message `MessageId` duplicate detection + §3 if ArchLucid path still signs webhooks upstream |
+| **D — Service Bus → Event Grid / Functions** (enterprise relay) | Microsoft Entra ID / RBAC on SB | §6 message `MessageId` duplicate detection + §3 if ArchLucid path still signs webhooks upstream |
 
 Mixing **C** with **A**: if Event Grid **republishes** the same JSON ArchLucid signed, HMAC may break when intermediaries re-serialize JSON — prefer verifying HMAC **before** Event Grid or verify at **first hop** only.
 

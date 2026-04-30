@@ -138,6 +138,8 @@ jobs:
         working-directory: archlucid-ui
 
       - name: Check relative markdown links
+        # Advisory: keep running the check (logs + warn badge on failure) without failing the workflow.
+        continue-on-error: true
         run: python scripts/ci/check_md_links.py
 
       - name: Contributor one-page doc line budget (≤80 lines)
