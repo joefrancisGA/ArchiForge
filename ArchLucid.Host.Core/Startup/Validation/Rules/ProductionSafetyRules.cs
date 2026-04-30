@@ -6,6 +6,33 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ProductionSafetyRules
 {
+    /// <summary>
+    /// Ephemeral in-memory persistence must not run under Production-like hosts (matches Content Safety / RLS guardrails).
+    /// </summary>
+    public static void CollectEphemeralStorageDisallowedInProductionLike(
+        IConfiguration configuration,
+        IHostEnvironment environment,
+        ArchLucidOptions archLucidOptions,
+        List<string> errors)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(environment);
+        ArgumentNullException.ThrowIfNull(archLucidOptions);
+        ArgumentNullException.ThrowIfNull(errors);
+
+        if (!HostEnvironmentClassification.IsProductionOrStagingLike(environment, configuration))
+            return;
+
+
+        if (!ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.StorageProvider))
+            return;
+
+
+        errors.Add(
+            "Production-like hosts (ASP.NET Environment Production or Staging, or ARCHLUCID_ENVIRONMENT=Production|Staging) "
+            + "must not use ArchLucid:StorageProvider=InMemory; use Sql with ConnectionStrings:ArchLucid (durable persistence).");
+    }
+
     /// <summary>Stripe billing requires a configured secret API key in Production when selected as the provider.</summary>
     public static void CollectBillingStripeSecret(IConfiguration configuration, List<string> errors)
     {

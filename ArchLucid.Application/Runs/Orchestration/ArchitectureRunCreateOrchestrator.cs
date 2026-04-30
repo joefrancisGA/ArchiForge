@@ -159,14 +159,11 @@ public sealed class ArchitectureRunCreateOrchestrator(
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
-
-            _logger.LogInformation(
-                "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
-                LogSanitizer.Sanitize(coordination.Run.RunId),
-                LogSanitizer.Sanitize(request.RequestId),
-                LogSanitizer.Sanitize(request.SystemName),
-                LogSanitizer.Sanitize(request.Environment));
-
+            _logger.LogInformationCreatingArchitectureRun(
+                coordination.Run.RunId,
+                request.RequestId,
+                request.SystemName,
+                request.Environment);
 
         bool inserted;
 

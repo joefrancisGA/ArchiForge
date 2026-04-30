@@ -206,4 +206,30 @@ public static class SanitizedLoggerInformationExtensions
             agentType,
             newStatus);
     }
+
+    /// <summary>
+    ///     Logs architecture run creation coordination success with four user-derived string placeholders sanitized before the sink.
+    /// </summary>
+    public static void LogInformationCreatingArchitectureRun(
+        this ILogger logger,
+        string userRunId,
+        string userRequestId,
+        string userSystemName,
+        string userEnvironment)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeRequestId = LogSanitizer.Sanitize(userRequestId);
+        string safeSystemName = LogSanitizer.Sanitize(userSystemName);
+        string safeEnvironment = LogSanitizer.Sanitize(userEnvironment);
+
+        // codeql[cs/log-forging]: all four string placeholders sanitized immediately above (params boxing breaks custom barrier at call sites).
+        logger.LogInformation(
+            "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
+            safeRunId,
+            safeRequestId,
+            safeSystemName,
+            safeEnvironment);
+    }
 }
