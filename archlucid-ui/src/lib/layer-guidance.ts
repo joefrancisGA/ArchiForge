@@ -139,7 +139,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen: "Pick one run and move from submission through approval, promotion, and activation.",
     firstPilotNote:
       "Operate · governance — after Pilot proof when your team promotes finalized manifests through governed stages.",
-    enterpriseFootnote: "Workflow actions respect role checks on the API.",
+    enterpriseFootnote: "Approvals and promotions follow the governance stages configured for your tenant.",
   },
   "policy-packs": {
     layerBadge: "Operate",

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
+import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -22,6 +23,8 @@ import {
   listConversationThreads,
 } from "@/lib/conversation-api";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 
@@ -29,7 +32,6 @@ const ASK_EXAMPLE_PROMPTS: readonly string[] = [
   "Summarize the PHI risk for this run.",
   "What should the sponsor review before sign-off?",
   "Explain the finalized manifest in plain language.",
-  "Explain the PHI minimization risk.",
   "Summarize the finalized manifest for a sponsor.",
   "What evidence supports the PHI minimization risk?",
   "Summarize this for an executive sponsor.",
@@ -80,6 +82,22 @@ export default function AskPage() {
 
     setRunId(fromWorkspace);
   }, [workspaceRun?.activeRunId, selectedThreadId, runId]);
+
+  useEffect(() => {
+    if (!isNextPublicDemoMode()) {
+      return;
+    }
+
+    if (selectedThreadId.trim().length > 0) {
+      return;
+    }
+
+    if (runId.trim().length > 0) {
+      return;
+    }
+
+    setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
+  }, [selectedThreadId, runId]);
 
   async function loadMessages(threadId: string) {
     setActionFailure(null);
@@ -190,10 +208,12 @@ export default function AskPage() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(220px,280px)_1fr]">
         <Card className="h-fit border-neutral-200 dark:border-neutral-700">
           <CardHeader className="p-4 pb-2">
-            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">Threads</CardTitle>
+            <CardTitle className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+              Your conversation history
+            </CardTitle>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              Live workspace threads for your signed-in user — not seeded sample dialogs. Pick a thread to continue, or{" "}
-              start <strong>New conversation</strong> and choose a run.
+              Threads for your signed-in workspace user. They are not marketing sample dialogs — start{" "}
+              <strong>New conversation</strong> and pick a run, or open a thread to continue with its saved run context.
             </p>
           </CardHeader>
           <CardContent className="space-y-3 p-4 pt-0">
@@ -348,7 +368,13 @@ export default function AskPage() {
                   >
                     <CardContent className="space-y-1 p-3">
                       <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{message.role}</div>
-                      <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">{message.content}</p>
+                      {message.role.toLowerCase() === "assistant" ? (
+                        <AskAssistantMessageBody content={message.content} />
+                      ) : (
+                        <p className="m-0 whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-200">
+                          {message.content}
+                        </p>
+                      )}
                     </CardContent>
                   </Card>
                 ))}

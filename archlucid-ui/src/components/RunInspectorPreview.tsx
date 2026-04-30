@@ -103,6 +103,11 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <Button variant="outline" size="sm" className="h-8" asChild>
             <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Finalized manifest</Link>
           </Button>
+          {run.hasFindingsSnapshot === true || showcaseStory ? (
+            <Button variant="outline" size="sm" className="h-8" asChild>
+              <Link href={`/runs/${encodeURIComponent(run.runId)}#run-explanation`}>Findings &amp; explanation</Link>
+            </Button>
+          ) : null}
           {showcaseStory ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
               <Link href={findingHref}>Primary finding</Link>
@@ -114,14 +119,17 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </Button>
           ) : null}
           <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={`/replay?runId=${encodeURIComponent(run.runId)}`}>Review trail (replay)</Link>
+            <Link href={`/runs/${encodeURIComponent(run.runId)}#pipeline-timeline`}>Review trail timeline</Link>
+          </Button>
+          <Button variant="outline" size="sm" className="h-8" asChild>
+            <Link href={`/runs/${encodeURIComponent(run.runId)}/provenance`}>Review trail graph</Link>
           </Button>
         </div>
       </div>
 
       <div className="flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button variant="primary" size="sm" className="w-full sm:w-auto" asChild>
-          <Link href={`/runs/${run.runId}`}>Open run detail</Link>
+          <Link href={`/runs/${encodeURIComponent(run.runId)}`}>Open run detail</Link>
         </Button>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" asChild>

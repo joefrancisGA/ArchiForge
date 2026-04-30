@@ -50,7 +50,7 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
                   href={`/runs/${encodeURIComponent(run.runId)}`}
                   className="font-medium text-teal-800 underline dark:text-teal-300"
                 >
-                  Open run
+                  Open run detail
                 </Link>
               </td>
             </tr>

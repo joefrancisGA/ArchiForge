@@ -26,6 +26,8 @@ export function BeforeAfterDeltaTopPanel({ count = 5 }: BeforeAfterDeltaTopPanel
 
   if (status !== "ready" || data === null) return null;
   if (data.returnedCount === 0) return null;
+  // Malformed proxy JSON (missing `items`) must not throw during `.map` — degrade to hidden panel.
+  if (!Array.isArray(data.items)) return null;
 
   return (
     <section

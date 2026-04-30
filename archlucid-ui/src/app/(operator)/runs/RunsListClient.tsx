@@ -8,6 +8,7 @@ import { RunInspectorPreview } from "@/components/RunInspectorPreview";
 import { RunProvenanceInline } from "@/components/RunProvenanceInline";
 import { RunTableRowErrorBoundary } from "@/components/RunTableRowErrorBoundary";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
@@ -33,14 +34,49 @@ function totalPages(totalCount: number, pageSize: number): number {
   return Math.max(1, Math.ceil(totalCount / pageSize));
 }
 
-function runRowExplicitCountsLine(run: RunSummary): string | null {
-  if (!isNextPublicDemoMode() || run.runId.trim() !== SHOWCASE_STATIC_DEMO_RUN_ID) {
+function runRowNumericCountsLine(run: RunSummary): string | null {
+  const fc = run.findingCount;
+  const wc = run.warningCount;
+  const ac = run.artifactCount;
+  const hasFinding = typeof fc === "number" && Number.isFinite(fc);
+  const hasWarning = typeof wc === "number" && Number.isFinite(wc);
+  const hasArtifact = typeof ac === "number" && Number.isFinite(ac);
+
+  if (!hasFinding && !hasWarning && !hasArtifact) {
     return null;
   }
 
-  const c = SHOWCASE_STATIC_DEMO_SPINE_COUNTS;
+  const tokens: string[] = [];
 
-  return `${c.findingCount} findings · ${c.warningCount} warnings · manifest ${run.hasGoldenManifest ? "finalized" : "pending"}`;
+  if (hasFinding) {
+    tokens.push(`${fc} findings`);
+  }
+
+  if (hasWarning) {
+    tokens.push(`${wc} warnings`);
+  }
+
+  if (hasArtifact) {
+    tokens.push(`${ac} artifacts`);
+  }
+
+  return tokens.join(" · ");
+}
+
+function runRowExplicitCountsLine(run: RunSummary): string | null {
+  if (isNextPublicDemoMode() && run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID) {
+    const c = SHOWCASE_STATIC_DEMO_SPINE_COUNTS;
+
+    return `${c.findingCount} findings · ${c.warningCount} warnings · manifest ${run.hasGoldenManifest ? "finalized" : "pending"}`;
+  }
+
+  const numeric = runRowNumericCountsLine(run);
+
+  if (numeric !== null) {
+    return `${numeric} · manifest ${run.hasGoldenManifest ? "finalized" : "pending"}`;
+  }
+
+  return null;
 }
 
 function runRowOutputReadinessLine(run: RunSummary): string {
@@ -58,11 +94,24 @@ function runRowOutputReadinessLine(run: RunSummary): string {
     tokens.push("Artifacts bundled");
   }
 
+  const reviewTrailSummary =
+    run.hasContextSnapshot === true &&
+    run.hasGraphSnapshot === true &&
+    run.hasFindingsSnapshot === true &&
+    run.hasGoldenManifest === true
+      ? "Review trail complete"
+      : run.hasContextSnapshot === true ||
+          run.hasGraphSnapshot === true ||
+          run.hasFindingsSnapshot === true ||
+          run.hasGoldenManifest === true
+        ? "Review trail partial"
+        : "Review trail: not started";
+
   if (tokens.length === 0) {
-    return "Output: in progress";
+    return `Output: in progress · ${reviewTrailSummary}`;
   }
 
-  return tokens.join(" · ");
+  return `${tokens.join(" · ")} · ${reviewTrailSummary}`;
 }
 
 function inspectorTitle(run: RunSummary | null): string {
@@ -126,26 +175,40 @@ export function RunsListClient({
   totalCount,
   nextCursor = null,
 }: RunsListClientProps) {
+  const safeRuns = useMemo(() => {
+    return runs.filter((run) => {
+      if (typeof run.runId !== "string" || run.runId.trim().length === 0) {
+        return false;
+      }
+
+      if (typeof run.createdUtc !== "string" || run.createdUtc.trim().length === 0) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [runs]);
+
   const [filterText, setFilterText] = useState("");
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
-  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(() => (runs.length > 0 ? runs[0] : null));
+  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(() => (safeRuns.length > 0 ? safeRuns[0] : null));
   const viewportNarrow = useViewportNarrow();
 
   useEffect(() => {
-    if (runs.length === 0) {
+    if (safeRuns.length === 0) {
       setSelectedRun(null);
 
       return;
     }
 
     setSelectedRun((current) => {
-      if (current !== null && runs.some((r) => r.runId === current.runId)) {
+      if (current !== null && safeRuns.some((r) => r.runId === current.runId)) {
         return current;
       }
 
-      return runs[0] ?? null;
+      return safeRuns[0] ?? null;
     });
-  }, [runs]);
+  }, [safeRuns]);
 
   const closeInspector = useCallback(() => {
     setSelectedRun(null);
@@ -171,7 +234,7 @@ export function RunsListClient({
 
   const filteredSorted = useMemo(() => {
     const query = filterText.trim().toLowerCase();
-    let list = runs;
+    let list = safeRuns;
 
     if (query.length > 0) {
       list = list.filter((run) => {
@@ -188,7 +251,7 @@ export function RunsListClient({
 
       return sortOrder === "createdDesc" ? rightTime - leftTime : leftTime - rightTime;
     });
-  }, [runs, filterText, sortOrder]);
+  }, [safeRuns, filterText, sortOrder]);
 
   const workQueueSections = useMemo(
     () => partitionRunsIntoWorkQueueSections(filteredSorted),
@@ -257,7 +320,7 @@ export function RunsListClient({
           aria-live="polite"
           aria-atomic="true"
         >
-          Showing {filteredSorted.length} of {runs.length} on this page
+          Showing {filteredSorted.length} of {safeRuns.length} on this page
           {filterText.trim().length > 0 ? " (filtered)" : ""}
         </p>
       </div>
@@ -348,7 +411,17 @@ export function RunsListClient({
                                     <span className="min-w-0 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
                                       {title}
                                     </span>
-                                    <RunStatusBadge run={run} />
+                                    <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex shrink-0 cursor-help">
+              <RunStatusBadge run={run} />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-xs">
+            Pipeline phase derived from snapshots: finalized manifest, findings ready to finalize, still executing, or
+            just starting.
+          </TooltipContent>
+        </Tooltip>
                                   </div>
                                   <code className="mt-1 block break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">
                                     {run.runId}
@@ -390,7 +463,7 @@ export function RunsListClient({
                                       e.stopPropagation();
                                     }}
                                   >
-                                    Open run
+                                    Open run detail
                                   </Link>
                                 </td>
                               </tr>

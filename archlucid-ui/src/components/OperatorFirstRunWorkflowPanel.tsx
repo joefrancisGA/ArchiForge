@@ -10,6 +10,7 @@ import { listRunsByProjectPaged } from "@/lib/api";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { cn } from "@/lib/utils";
 
@@ -323,6 +324,18 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
             </Link>
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              href={`/runs/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+            >
+              Claims Intake run
+            </Link>
+            <Link
+              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
+              href="/showcase/claims-intake-modernization"
+            >
+              Showcase
+            </Link>
+            <Link
+              className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
               href="/governance/findings"
             >
               Findings
@@ -351,6 +364,21 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
               <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">
                 Claims Intake is the guided story — run detail, manifest, and showcase are the proof path. The checklist
                 below is optional.
+              </p>
+              <p className="m-0 mt-2 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                <Link
+                  className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                  href={`/runs/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+                >
+                  Open the completed Claims Intake run
+                </Link>{" "}
+                ·{" "}
+                <Link
+                  className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                  href="/showcase/claims-intake-modernization"
+                >
+                  Public showcase
+                </Link>
               </p>
             </>
           ) : !hasAnyRun ? (

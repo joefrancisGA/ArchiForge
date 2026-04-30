@@ -78,10 +78,6 @@ export function FindingInspectView({
         >
           ← Finding detail
         </Link>
-        <span aria-hidden="true">·</span>
-        <Link href={`/runs/${encodeURIComponent(runId)}`} className="text-sky-700 underline dark:text-sky-300">
-          Back to run
-        </Link>
       </div>
 
       <header className="space-y-3">

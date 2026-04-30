@@ -9,6 +9,14 @@ test.describe("operator shell smoke", () => {
     await expect(page.getByText("Create Request")).toBeVisible();
   });
 
+  test("runs list with default project shows a run row without generic error boundary @smoke", async ({ page }) => {
+    await page.goto("/runs?projectId=default");
+
+    await expect(page.getByRole("heading", { name: /^Architecture runs$/i })).toBeVisible();
+    await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
+    await expect(page.locator('[data-testid^="runs-row-"]').first()).toBeVisible();
+  });
+
   test("runs list renders without generic error boundary", async ({ page }) => {
     await page.goto("/runs");
 

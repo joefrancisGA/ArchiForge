@@ -144,18 +144,14 @@ export function FindingInspectFindingBody({
         </section>
       ) : null}
 
-      {variant === "detail" ? (
-        <CollapsibleSection title="Structured evidence (technical)" defaultOpen={false}>
+      <details className="rounded-lg border border-neutral-200 bg-neutral-50/80 dark:border-neutral-700 dark:bg-neutral-900/40">
+        <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          AI Audit Inspection
+        </summary>
+        <div className="border-t border-neutral-200 px-4 pb-4 pt-2 dark:border-neutral-700">
           <FindingInspectJsonPayload value={payload.typedPayload ?? null} />
-        </CollapsibleSection>
-      ) : (
-        <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
-          <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Structured evidence (technical)</h2>
-          <div className="mt-2">
-            <FindingInspectJsonPayload value={payload.typedPayload ?? null} />
-          </div>
-        </section>
-      )}
+        </div>
+      </details>
 
       <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
         <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Audit</h2>

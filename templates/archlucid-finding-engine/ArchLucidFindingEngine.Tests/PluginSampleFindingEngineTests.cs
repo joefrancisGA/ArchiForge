@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 

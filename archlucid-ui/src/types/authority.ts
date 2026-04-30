@@ -17,6 +17,10 @@ export type RunSummary = {
   hasGoldenManifest?: boolean;
   hasDecisionTrace?: boolean;
   hasArtifactBundle?: boolean;
+  /** Optional list enrichment (API may omit). */
+  findingCount?: number | null;
+  warningCount?: number | null;
+  artifactCount?: number | null;
 };
 
 /** Golden manifest summary: decision/warning/issue counts and status (mirrors ManifestSummaryResponse). */

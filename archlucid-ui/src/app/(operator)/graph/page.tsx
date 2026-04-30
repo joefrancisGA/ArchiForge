@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
+import { GraphIdleLegend, GRAPH_MODE_NATIVE_TITLES } from "@/components/GraphIdleLegend";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -252,8 +253,7 @@ export default function GraphPage() {
 
       <div
         className={cn(
-          "mb-6 flex max-w-4xl flex-col gap-3 rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40",
-          "lg:flex-row lg:flex-wrap lg:items-end",
+          "mb-6 flex max-w-4xl flex-nowrap items-end gap-3 overflow-x-auto rounded-lg border border-neutral-200 bg-white/60 p-3 dark:border-neutral-700 dark:bg-neutral-900/40",
         )}
       >
         <div className="min-w-[12rem] flex-1 lg:max-w-sm">
@@ -279,10 +279,18 @@ export default function GraphPage() {
               "lg:w-[220px]",
             )}
           >
-            <option value="provenance-full">Review trail graph</option>
-            <option value="decision-subgraph">Decision focus</option>
-            <option value="node-neighborhood">Node connections</option>
-            <option value="architecture">Architecture graph</option>
+            <option value="provenance-full" title={GRAPH_MODE_NATIVE_TITLES["provenance-full"]}>
+              Review trail graph
+            </option>
+            <option value="decision-subgraph" title={GRAPH_MODE_NATIVE_TITLES["decision-subgraph"]}>
+              Decision focus
+            </option>
+            <option value="node-neighborhood" title={GRAPH_MODE_NATIVE_TITLES["node-neighborhood"]}>
+              Node connections
+            </option>
+            <option value="architecture" title={GRAPH_MODE_NATIVE_TITLES.architecture}>
+              Architecture graph
+            </option>
           </select>
         </div>
 
@@ -384,7 +392,12 @@ export default function GraphPage() {
         </>
       )}
 
-      {showIdleCard ? <EmptyState {...graphIdlePreset} /> : null}
+      {showIdleCard ? (
+        <div className="space-y-4">
+          <GraphIdleLegend />
+          <EmptyState {...graphIdlePreset} />
+        </div>
+      ) : null}
 
       {architectureGraphNote && (
         <div

@@ -4,6 +4,7 @@ import {
   isCanonicalUuidToken,
   isInvalidDynamicRouteToken,
   isInvalidGuidOrSlugRouteToken,
+  isInvalidManifestRouteId,
 } from "./route-dynamic-param";
 
 describe("isInvalidDynamicRouteToken", () => {
@@ -25,6 +26,14 @@ describe("isInvalidDynamicRouteToken", () => {
     expect(isInvalidDynamicRouteToken("pack-1")).toBe(false);
     expect(isInvalidDynamicRouteToken("e2e-policy-pack-001")).toBe(false);
     expect(isInvalidDynamicRouteToken("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")).toBe(false);
+  });
+
+  it("rejects placeholder leak tokens", () => {
+    expect(isInvalidDynamicRouteToken("fixture")).toBe(true);
+    expect(isInvalidDynamicRouteToken("mock")).toBe(true);
+    expect(isInvalidDynamicRouteToken("r1")).toBe(true);
+    expect(isInvalidDynamicRouteToken("localhost")).toBe(true);
+    expect(isInvalidDynamicRouteToken("Execute+")).toBe(true);
   });
 });
 
@@ -56,5 +65,19 @@ describe("isInvalidGuidOrSlugRouteToken", () => {
 
   it("rejects 8-4-4-4-12 shape with invalid hex", () => {
     expect(isInvalidGuidOrSlugRouteToken("gggggggg-gggg-gggg-gggg-gggggggggggg")).toBe(true);
+  });
+
+  it("rejects single-segment placeholder slugs for runs", () => {
+    expect(isInvalidGuidOrSlugRouteToken("fixture")).toBe(true);
+    expect(isInvalidGuidOrSlugRouteToken("mock")).toBe(true);
+    expect(isInvalidGuidOrSlugRouteToken("r1")).toBe(true);
+  });
+});
+
+describe("isInvalidManifestRouteId", () => {
+  it("requires a canonical uuid", () => {
+    expect(isInvalidManifestRouteId("a1c2e3f4-a5b6-7890-abcd-ef1234567890")).toBe(false);
+    expect(isInvalidManifestRouteId("claims-intake-modernization")).toBe(true);
+    expect(isInvalidManifestRouteId("undefined")).toBe(true);
   });
 });

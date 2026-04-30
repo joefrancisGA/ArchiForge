@@ -78,12 +78,19 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
 
     const banned = [
       /undefined/,
+      /\bnull\b/i,
       /\bfixture\b/i,
       /\bmock\b/i,
       /localhost/i,
       /Invalid Date/i,
       /\boperator access\b/i,
       /\bAPI-gated\b/i,
+      /\bAP-gated\b/i,
+      /\br1\b/i,
+      /golden manifest/i,
+      /\blegacy\b/i,
+      /Execute\+/,
+      /Development workspace/i,
     ];
 
     for (const path of paths) {
@@ -138,7 +145,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
       "/graph",
       "/compare",
       "/governance",
-      "/advisory-scheduling",
+      "/advisory",
       "/replay",
       "/search",
       "/policy-packs",

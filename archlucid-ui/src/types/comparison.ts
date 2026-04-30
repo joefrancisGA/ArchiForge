@@ -1,6 +1,8 @@
 /** A single decision-level change between two golden manifests. */
 export type DecisionDelta = {
   decisionKey: string;
+  /** API may supply an operator-facing caption alongside the dotted key. */
+  displayLabel?: string | null;
   baseValue?: string | null;
   targetValue?: string | null;
   changeType: string;

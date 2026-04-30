@@ -148,7 +148,7 @@ export default function GovernanceFindingsQueueClient() {
             try {
               const summary = await getRunExplanationSummary(r.runId);
               const traces =
-                summary.findingTraceConfidences ?? summary.explanation.findingTraceConfidences ?? [];
+                summary.findingTraceConfidences ?? summary.explanation?.findingTraceConfidences ?? [];
 
               if (traces === null || traces.length === 0) {
                 return;
@@ -215,8 +215,73 @@ export default function GovernanceFindingsQueueClient() {
         ) : null}
 
         {!loading && rows.length > 0 ? (
-          <div className="space-y-3">
-            {rows.map((row) => (
+          <>
+            <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
+              <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+                <thead className="bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
+                  <tr>
+                    <th className="px-3 py-2">Severity</th>
+                    <th className="px-3 py-2">Finding</th>
+                    <th className="px-3 py-2">Run</th>
+                    <th className="px-3 py-2">Manifest</th>
+                    <th className="px-3 py-2">Status</th>
+                    <th className="px-3 py-2">Recommended action</th>
+                    <th className="px-3 py-2"> </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => (
+                    <tr
+                      key={`${row.runId}:${row.findingId}:table`}
+                      className="border-t border-neutral-200 dark:border-neutral-800"
+                    >
+                      <td className="px-3 py-2 align-top text-neutral-800 dark:text-neutral-200">{row.severity}</td>
+                      <td className="px-3 py-2 align-top font-medium text-neutral-900 dark:text-neutral-100">
+                        <Link
+                          className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                          href={inspectHref(row.runId, row.findingId)}
+                        >
+                          {row.title}
+                        </Link>
+                        <div className="mt-0.5 font-mono text-[11px] font-normal text-neutral-500">{row.findingId}</div>
+                      </td>
+                      <td className="px-3 py-2 align-top">
+                        <Link
+                          className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                          href={`/runs/${encodeURIComponent(row.runId)}`}
+                        >
+                          {row.runLabel}
+                        </Link>
+                      </td>
+                      <td className="px-3 py-2 align-top font-mono text-xs text-neutral-700 dark:text-neutral-300">
+                        {row.manifestId !== "—" ? (
+                          <Link
+                            className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
+                            href={manifestHref(row.manifestId)}
+                          >
+                            {row.manifestId}
+                          </Link>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="px-3 py-2 align-top">{row.status}</td>
+                      <td className="px-3 py-2 align-top text-xs text-neutral-600 dark:text-neutral-400">
+                        {row.recommended}
+                      </td>
+                      <td className="px-3 py-2 align-top">
+                        <Button asChild variant="outline" size="sm" className="h-8 border-teal-300 dark:border-teal-700">
+                          <Link href={inspectHref(row.runId, row.findingId)}>Open</Link>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="space-y-3 md:hidden">
+              {rows.map((row) => (
               <Card
                 key={`${row.runId}:${row.findingId}`}
                 className="border border-neutral-200 shadow-sm dark:border-neutral-800"
@@ -288,6 +353,7 @@ export default function GovernanceFindingsQueueClient() {
               </Card>
             ))}
           </div>
+          </>
         ) : null}
 
         {!loading && rows.length === 0 ? (
@@ -295,8 +361,8 @@ export default function GovernanceFindingsQueueClient() {
             title="No findings in queue yet"
             description={
               loadFailed
-                ? "Runs could not be loaded. Create a request, complete a pipeline run, then return here."
-                : "When runs produce findings, they appear here with links to inspect. You can still open a run from the list to review findings in context."
+                ? "We could not load runs for this workspace — check connectivity, then open the curated Claims Intake example if you are in demo mode."
+                : "When runs produce open findings, they appear in this queue. Start from an architecture request, finalize a manifest, then return or open findings from run detail."
             }
             actions={[
               { label: "View runs", href: "/runs?projectId=default", variant: "primary" },

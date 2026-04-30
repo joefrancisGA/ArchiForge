@@ -1,5 +1,8 @@
+"use client";
+
 import type { RunSummary } from "@/types/authority";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type StageKey = "context" | "graph" | "findings" | "manifest";
@@ -8,14 +11,43 @@ type StageDef = {
   key: StageKey;
   label: string;
   present: boolean;
+  tooltip: string;
 };
 
 function stagesForRun(run: RunSummary): StageDef[] {
   return [
-    { key: "context", label: "Context", present: run.hasContextSnapshot === true },
-    { key: "graph", label: "Graph", present: run.hasGraphSnapshot === true },
-    { key: "findings", label: "Findings", present: run.hasFindingsSnapshot === true },
-    { key: "manifest", label: "Manifest", present: run.hasGoldenManifest === true },
+    {
+      key: "context",
+      label: "Context",
+      present: run.hasContextSnapshot === true,
+      tooltip:
+        "Context — architecture inputs and constraints captured as a snapshot for this run. " +
+        (run.hasContextSnapshot === true ? "Present." : "Not yet captured."),
+    },
+    {
+      key: "graph",
+      label: "Graph",
+      present: run.hasGraphSnapshot === true,
+      tooltip:
+        "Graph — structured architecture / linkage snapshot. " +
+        (run.hasGraphSnapshot === true ? "Present." : "Not yet generated."),
+    },
+    {
+      key: "findings",
+      label: "Findings",
+      present: run.hasFindingsSnapshot === true,
+      tooltip:
+        "Findings — risk and decision findings snapshot. " +
+        (run.hasFindingsSnapshot === true ? "Present." : "Not yet captured."),
+    },
+    {
+      key: "manifest",
+      label: "Manifest",
+      present: run.hasGoldenManifest === true,
+      tooltip:
+        "Manifest — finalized reviewed manifest (golden). " +
+        (run.hasGoldenManifest === true ? "Present." : "Not yet finalized."),
+    },
   ];
 }
 
@@ -39,18 +71,25 @@ export function RunProvenanceInline({ run }: RunProvenanceInlineProps) {
       >
         {stages.map((stage) => (
           <li key={stage.key}>
-            <span
-              title={`${stage.label}: ${stage.present ? "present" : "not yet present"}`}
-              className={cn(
-                "inline-flex items-center rounded-full border px-2 py-px text-[10px] font-semibold uppercase tracking-wide",
-                stage.present
-                  ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-50"
-                  : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
-              )}
-            >
-              {stage.label}
-              {stage.present ? " · ok" : " · …"}
-            </span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  title={undefined}
+                  className={cn(
+                    "inline-flex cursor-help items-center rounded-full border px-2 py-px text-[10px] font-semibold uppercase tracking-wide",
+                    stage.present
+                      ? "border-teal-600 bg-teal-50 text-teal-900 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-50"
+                      : "border-neutral-300 bg-white text-neutral-500 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400",
+                  )}
+                >
+                  {stage.label}
+                  {stage.present ? " · ok" : " · …"}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs">
+                {stage.tooltip}
+              </TooltipContent>
+            </Tooltip>
           </li>
         ))}
       </ul>

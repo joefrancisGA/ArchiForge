@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+
 import {
   assertOidcSignInConfig,
   getOidcAuthority,
@@ -124,17 +126,22 @@ export function CallbackClient() {
       <h2 style={{ marginTop: 0 }}>{failed ? "Sign-in was not completed" : "Completing sign-in"}</h2>
       <p style={{ color: failed ? "#b91c1c" : undefined }}>{message}</p>
       {failed ? (
-        <p className="text-sm text-neutral-700 dark:text-neutral-300">
-          Your session may not have been established. This can be temporary with your identity provider.{" "}
-          <Link className="text-teal-700 underline dark:text-teal-300" href="/auth/signin">
-            Try again
-          </Link>{" "}
-          or{" "}
-          <Link className="text-teal-700 underline dark:text-teal-300" href="/">
-            return home
-          </Link>
-          .
-        </p>
+        <div className="mt-4 space-y-3">
+          <Button asChild variant="default" size="sm" className="w-fit">
+            <Link href="/auth/signin">Try signing in again</Link>
+          </Button>
+          <p className="text-sm text-neutral-700 dark:text-neutral-300">
+            Need context for this screen?{" "}
+            <Link className="font-medium text-teal-700 underline dark:text-teal-300" href="/help">
+              Open Help
+            </Link>{" "}
+            or{" "}
+            <Link className="font-medium text-teal-700 underline dark:text-teal-300" href="/">
+              return home
+            </Link>
+            .
+          </p>
+        </div>
       ) : null}
     </div>
   );

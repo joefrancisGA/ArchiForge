@@ -91,13 +91,16 @@ export function CommandPalette() {
         type="button"
         variant="outline"
         size="sm"
-        className="gap-1 text-xs font-semibold"
+        className="h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
         aria-label="Open command palette"
         onClick={() => {
           setOpen(true);
         }}
       >
-        Jump…
+        <span className="rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400">
+          ⌘K
+        </span>
+        <span>Jump…</span>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Search pages or paste a run id…" />

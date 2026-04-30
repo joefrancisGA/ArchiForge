@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { ShowcaseOutcomeStrip } from "@/components/showcase/ShowcaseOutcomeStrip";
+import { ShowcasePipelineReviewTrailCards } from "@/components/showcase/ShowcasePipelineReviewTrailCards";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 import type { PipelineTimelineItem } from "@/types/authority";
 import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
@@ -189,8 +190,25 @@ export function DemoPreviewMarketingBody({
         <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           Audit milestones for this completed output — same vertical timeline as workspace run detail (oldest first).
         </p>
-        <div className="mt-3" data-testid="demo-preview-pipeline-timeline">
-          <AuthorityPipelineTimeline items={pipelineItems} omitEventTechnicalDetails={demoMode} />
+        <div className="mt-3 space-y-4" data-testid="demo-preview-pipeline-timeline">
+          <ShowcasePipelineReviewTrailCards
+            items={pipelineItems}
+            runId={typeof payload.run?.runId === "string" ? payload.run.runId : "—"}
+            goldenManifestId={manifest?.manifestId ?? chain.goldenManifestId}
+            primaryFindingId={
+              typeof payload.run?.runId === "string" && payload.run.runId === SHOWCASE_STATIC_DEMO_RUN_ID
+                ? SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID
+                : undefined
+            }
+          />
+          <details className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-800">
+            <summary className="cursor-pointer select-none font-medium text-neutral-900 dark:text-neutral-100">
+              Classic vertical timeline
+            </summary>
+            <div className="mt-3">
+              <AuthorityPipelineTimeline items={pipelineItems} omitEventTechnicalDetails={demoMode} />
+            </div>
+          </details>
         </div>
 
         {!demoMode ? (

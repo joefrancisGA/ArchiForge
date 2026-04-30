@@ -26,7 +26,7 @@ import {
   coerceManifestSummary,
 } from "@/lib/operator-response-guards";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
-import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
+import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -58,7 +58,7 @@ export default async function ManifestDetailPage({
 }) {
   const { manifestId } = await params;
 
-  if (isInvalidGuidOrSlugRouteToken(manifestId)) {
+  if (isInvalidManifestRouteId(manifestId)) {
     notFound();
   }
 
@@ -268,9 +268,6 @@ export default async function ManifestDetailPage({
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/runs/${encodeURIComponent(summary.runId)}`}>Back to run</Link>
-          </Button>
           <Button variant="default" size="sm" asChild>
             <a href={getBundleDownloadUrl(manifestId)}>Export manifest bundle</a>
           </Button>

@@ -19,7 +19,27 @@ export function isInvalidDynamicRouteToken(raw: string | undefined | null): bool
 
   const lower = trimmed.toLowerCase();
 
-  return lower === "undefined" || lower === "null" || lower === "none";
+  if (lower === "undefined" || lower === "null" || lower === "none") {
+    return true;
+  }
+
+  // Placeholder / leak tokens that must not load operator detail shells.
+  if (
+    lower === "fixture" ||
+    lower === "mock" ||
+    lower === "r1" ||
+    lower === "localhost" ||
+    lower === "golden-manifest" ||
+    lower === "ap-gated"
+  ) {
+    return true;
+  }
+
+  if (lower.includes("execute+")) {
+    return true;
+  }
+
+  return false;
 }
 
 /** True when `raw` matches the canonical RFC 4122 string appearance (hex + hyphen layout). */
@@ -64,4 +84,19 @@ export function isInvalidGuidOrSlugRouteToken(raw: string | undefined | null): b
   }
 
   return true;
+}
+
+/**
+ * Manifest detail routes only accept canonical UUIDs (demo manifest ID is UUID-shaped).
+ */
+export function isInvalidManifestRouteId(raw: string | undefined | null): boolean {
+  if (isInvalidDynamicRouteToken(raw)) {
+    return true;
+  }
+
+  if (raw === undefined || raw === null) {
+    return true;
+  }
+
+  return !isCanonicalUuidToken(raw);
 }

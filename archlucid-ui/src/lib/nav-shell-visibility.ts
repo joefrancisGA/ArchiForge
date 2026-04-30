@@ -4,7 +4,12 @@ import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 
 /** In public demo builds, omit advanced learning/planning routes that often render empty without live learning APIs. */
-const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>(["/planning", "/product-learning", "/recommendation-learning"]);
+const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
+  "/planning",
+  "/product-learning",
+  "/recommendation-learning",
+  "/demo/explain",
+]);
 
 function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {
   const demo =

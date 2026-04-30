@@ -34,11 +34,11 @@ function formatCostEstimateCell(value: unknown): string {
   }
 
   if (/^[$€£]/.test(s)) {
-    return `${s}/mo (est.)`;
+    return `${s}/mo — estimated monthly (illustrative; from manifest compare payload — not an invoice)`;
   }
 
   if (/^\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
-    return `~$${s.replace(/,/g, "")}/mo (est.)`;
+    return `~$${s.replace(/,/g, "")}/mo — estimated monthly (illustrative; directional unless FinOps baseline matches)`;
   }
 
   return s;
@@ -77,6 +77,13 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
         golden.securityChanges.length +
         golden.topologyChanges.length +
         golden.costChanges.length;
+
+  const noMaterialDeltaSections =
+    golden.decisionChanges.length === 0 &&
+    golden.requirementChanges.length === 0 &&
+    golden.securityChanges.length === 0 &&
+    golden.topologyChanges.length === 0 &&
+    golden.costChanges.length === 0;
 
   return (
     <section id="compare-structured" className="mt-7">
@@ -122,6 +129,20 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
         )}
       </ComparisonFoldSection>
 
+      {noMaterialDeltaSections ? (
+        <div
+          className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-200"
+          role="status"
+          data-testid="compare-no-material-deltas"
+        >
+          <strong className="font-semibold">No other material changes</strong>
+          <span className="text-neutral-600 dark:text-neutral-400">
+            {" "}
+            — no decision, requirement, security posture, topology, or modeled cost deltas in this comparison payload.
+          </span>
+        </div>
+      ) : (
+        <>
       <ComparisonFoldSection title="Decision changes" countBadge={golden.decisionChanges.length} defaultOpen={golden.decisionChanges.length > 0}>
         {golden.decisionChanges.length === 0 ? (
           <EmptySectionNote label="No decision changes" />
@@ -139,7 +160,9 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
               {golden.decisionChanges.map((d, i) => (
                 <tr key={i}>
                   <td className={cellCls}>
-                    <div className="font-medium text-neutral-900 dark:text-neutral-100">{decisionKeyDisplay(d.decisionKey)}</div>
+                    <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                      {d.displayLabel?.trim() ? d.displayLabel.trim() : decisionKeyDisplay(d.decisionKey)}
+                    </div>
                     <div className="mt-0.5 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">{d.decisionKey}</div>
                   </td>
                   <td className={cellCls}>{d.baseValue ?? "—"}</td>
@@ -251,12 +274,15 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
               </tbody>
             </table>
             <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
-              Values are engineering estimates from the manifest comparison payload (rounded; illustrative). Treat as
-              directional unless your FinOps model is attached to the same baseline.
+              Estimated monthly figures are engineering projections from the comparison service (rounded, illustrative).
+              Directional only — not an invoice; align with your FinOps model and the AI “Summarize for sponsor” narrative
+              for confidence context.
             </p>
           </>
         )}
       </ComparisonFoldSection>
+        </>
+      )}
     </section>
   );
 }

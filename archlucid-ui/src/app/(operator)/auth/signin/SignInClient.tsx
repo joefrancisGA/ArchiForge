@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import {
   assertOidcSignInConfig,
   getOidcAuthority,
@@ -100,9 +101,17 @@ export function SignInClient() {
       <div style={{ maxWidth: 560 }}>
         <h2 style={{ marginTop: 0 }}>Sign-in</h2>
         <p style={{ color: "#b91c1c" }}>{error}</p>
-        <p>
-          <Link href="/">Back to home</Link>
-        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button asChild variant="default" size="sm">
+            <Link href="/auth/signin">Try signing in again</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/help">Help</Link>
+          </Button>
+          <Link href="/" className="text-sm text-teal-800 underline dark:text-teal-300">
+            Back to home
+          </Link>
+        </div>
       </div>
     );
   }
