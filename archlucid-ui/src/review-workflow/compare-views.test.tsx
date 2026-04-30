@@ -51,7 +51,9 @@ describe("Compare / review views (55R smoke)", () => {
 
     render(<StructuredComparisonView golden={golden} />);
 
-    expect(screen.getByText("deploy-region")).toBeInTheDocument();
+    // Decision column shows `decisionKeyDisplay(key)` and the raw key below (duplicate text when they match).
+    const decisionKeyNodes = screen.getAllByText("deploy-region");
+    expect(decisionKeyNodes).toHaveLength(2);
     expect(screen.getByText("Modified")).toBeInTheDocument();
     expect(screen.getByText("Region changed")).toBeInTheDocument();
   });

@@ -47,9 +47,10 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
                     retryAfter);
             }
 
-
-            if (opts.MaxCompletionTokensPerTenantPerWindow > 0 &&
-                completionSum + opts.AssumedMaxCompletionTokensPerRequest > opts.MaxCompletionTokensPerTenantPerWindow)
+            if (opts.MaxCompletionTokensPerTenantPerWindow <= 0 ||
+                completionSum + opts.AssumedMaxCompletionTokensPerRequest <=
+                opts.MaxCompletionTokensPerTenantPerWindow)
+                return;
             {
                 DateTimeOffset retryAfter =
                     ComputeSlidingWindowRetryAfterUtcLocked(window, utcNow, windowLength);

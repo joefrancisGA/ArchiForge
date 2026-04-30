@@ -4,13 +4,13 @@ using ArchLucid.Application.Audit;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 using ArchLucid.Provenance.Analysis;
@@ -60,6 +60,7 @@ public sealed class AuthorityQueryController(
     /// <param name="pageSize">
     ///     Legacy page size when <paramref name="page" /> is set (ignored when <paramref name="cursor" /> is supplied).
     /// </param>
+    /// <param name="ct"></param>
     /// <returns>Newest-first <see cref="CursorPagedResponse{T}" /> of <see cref="RunSummaryResponse" />.</returns>
     [HttpGet("projects/{projectId}/runs")]
     [ProducesResponseType(typeof(CursorPagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
@@ -77,7 +78,7 @@ public sealed class AuthorityQueryController(
         if (string.IsNullOrWhiteSpace(projectId))
             return this.BadRequestProblem("projectId is required.", ProblemTypes.BadRequest);
 
-        if (page is int beyondFirst && beyondFirst > 1 && string.IsNullOrWhiteSpace(cursor))
+        if (page is { } and > 1 && string.IsNullOrWhiteSpace(cursor))
 
             return this.BadRequestProblem(
                 "Paging beyond page 1 requires the nextCursor token from the prior response.",
@@ -110,7 +111,7 @@ public sealed class AuthorityQueryController(
             await queryService.ListRunsByProjectKeysetAsync(scope, projectId, cu, rid, effectiveTake, ct);
 
         string? nextCursor =
-            keysetPage.HasMore && keysetPage.Items.Count > 0
+            keysetPage is { HasMore: true, Items.Count: > 0 }
                 ? RunCursorCodec.Encode(keysetPage.Items[^1].CreatedUtc, keysetPage.Items[^1].RunId)
                 : null;
 

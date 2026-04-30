@@ -20,6 +20,7 @@ import { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { SidebarNav } from "@/components/SidebarNav";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SyncActiveRunFromPathname } from "@/components/SyncActiveRunFromPathname";
 import { WorkspaceActiveRunProvider } from "@/components/WorkspaceActiveRunContext";
 import { SystemHealthStatusStrip } from "@/components/operator-home/SystemHealthStatusStrip";

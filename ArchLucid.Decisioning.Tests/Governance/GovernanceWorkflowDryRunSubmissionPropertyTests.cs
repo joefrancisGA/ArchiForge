@@ -25,7 +25,8 @@ namespace ArchLucid.Decisioning.Tests.Governance;
 
 /// <summary>
 /// FsCheck coverage for <see cref="GovernanceWorkflowService.SubmitApprovalRequestAsync"/> dry-run path:
-/// submitted shape without persistence or side-effect channels.
+/// submitted shape without repository or baseline writes; durable audit records
+/// <see cref="AuditEventTypes.GovernanceDryRunValidationAttempted"/> only (see <c>GOVERNANCE_DRY_RUN_MITIGATIONS.md</c>).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -87,7 +88,15 @@ public sealed class GovernanceWorkflowDryRunSubmissionPropertyTests
             Times.Never);
 
         durableAudit.Verify(
-            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.GovernanceDryRunValidationAttempted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.GovernanceApprovalSubmitted),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

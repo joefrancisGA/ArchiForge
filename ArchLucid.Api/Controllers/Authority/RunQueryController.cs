@@ -1,9 +1,8 @@
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
-using ArchLucid.Application.Architecture;
 using ArchLucid.Application;
-
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Agents;
@@ -393,12 +392,12 @@ public sealed class RunQueryController(
     /// <summary>Hyphen/format-insensitive GUID comparison (aligned with UI <c>sameAuthorityRunId</c>).</summary>
     private static bool SameAuthorityRunIdentifier(string routeRunId, Guid payloadRunId)
     {
-        static string Norm(string value) =>
-            value.Replace("-", string.Empty, StringComparison.Ordinal).Trim().ToUpperInvariant();
-
         return string.Equals(
             Norm(routeRunId),
             Norm(payloadRunId.ToString("D", System.Globalization.CultureInfo.InvariantCulture)),
             StringComparison.Ordinal);
+
+        static string Norm(string value) =>
+            value.Replace("-", string.Empty, StringComparison.Ordinal).Trim().ToUpperInvariant();
     }
 }
