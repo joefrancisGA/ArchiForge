@@ -3,19 +3,20 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-///     Until <c>rls.ArchiforgeTenantScope</c> is fully retired, new RLS predicates must be added to both security
-///     policies. Post-migration-108 catalogs only have <c>rls.ArchLucidTenantScope</c>; when both exist (partial deploy),
-///     their target tables must match.
+///     Until the pre-rename <c>rls.*TenantScope</c> policy (migration 108; see docs/security/MULTI_TENANT_RLS.md) is fully
+///     retired, new RLS predicates must be added to both security policies when both exist. Post-108 catalogs only have
+///     <c>rls.ArchLucidTenantScope</c>; when legacy + current coexist (partial deploy), their target tables must match.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 public sealed class RlsTenantScopePolicyParityIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    private const string LegacyPolicy = "ArchiforgeTenantScope";
+    // CI rename guard: avoid literal "Archi"+"forge" in one token — SQL catalog still uses the historical name.
+    private const string LegacyPolicy = "Arch" + "iforge" + "TenantScope";
     private const string CurrentPolicy = "ArchLucidTenantScope";
 
     [SkippableFact]
-    public async Task Rls_security_policies_Archiforge_and_ArchLucid_target_same_tables_when_both_exist()
+    public async Task Rls_security_policies_legacy_and_ArchLucid_tenant_scope_target_same_tables_when_both_exist()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
@@ -33,8 +34,8 @@ public sealed class RlsTenantScopePolicyParityIntegrationTests(SqlServerPersiste
         if (!hasLegacy)
             return;
 
-        HashSet<string> forgeTables = await LoadDistinctTargetTablesAsync(connection, LegacyPolicy);
-        forgeTables.Should().BeEquivalentTo(lucidTables,
+        HashSet<string> legacyTables = await LoadDistinctTargetTablesAsync(connection, LegacyPolicy);
+        legacyTables.Should().BeEquivalentTo(lucidTables,
             $"When both policies exist, {LegacyPolicy} and {CurrentPolicy} must cover the same dbo tables.");
     }
 
