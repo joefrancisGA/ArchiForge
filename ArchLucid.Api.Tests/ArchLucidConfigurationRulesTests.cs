@@ -77,6 +77,48 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenDevelopmentAndArchLucidStagingAndInMemory_skips_ephemeral_storage_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ARCHLUCID_ENVIRONMENT"] = "Staging",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e =>
+            e.Contains("must not use ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenDevelopmentAndArchLucidProductionAndInMemory_contains_ephemeral_storage_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ARCHLUCID_ENVIRONMENT"] = "Production",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("ArchLucid:StorageProvider=InMemory", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenProductionAndDevelopmentBypass_contains_error()
     {
         Dictionary<string, string?> data = new()

@@ -20,7 +20,6 @@ public sealed class ApiControllerAuthorizationGuardTests
     private static readonly HashSet<string> AllowAnonymousControllerNames =
     [
         nameof(VersionController),
-        nameof(DocsController)
     ];
 
     [Fact]

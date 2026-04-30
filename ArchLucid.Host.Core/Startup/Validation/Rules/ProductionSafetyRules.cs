@@ -8,6 +8,8 @@ internal static class ProductionSafetyRules
 {
     /// <summary>
     /// Ephemeral in-memory persistence must not run under Production-like hosts (matches Content Safety / RLS guardrails).
+    /// Narrow exception: ASP.NET <see cref="Environments.Development" /> with <c>ARCHLUCID_ENVIRONMENT=Staging</c> only
+    /// so integration tests can bind staging-like signals (e.g. JWT advisor checks) without SQL; not a deployed tier.
     /// </summary>
     public static void CollectEphemeralStorageDisallowedInProductionLike(
         IConfiguration configuration,
@@ -28,9 +30,31 @@ internal static class ProductionSafetyRules
             return;
 
 
+        if (AllowsInMemoryForDevelopmentArchLucidStagingOnly(environment, configuration))
+            return;
+
+
         errors.Add(
             "Production-like hosts (ASP.NET Environment Production or Staging, or ARCHLUCID_ENVIRONMENT=Production|Staging) "
             + "must not use ArchLucid:StorageProvider=InMemory; use Sql with ConnectionStrings:ArchLucid (durable persistence).");
+    }
+
+    /// <summary>
+    /// <see cref="CollectEphemeralStorageDisallowedInProductionLike" /> carve-out for WebApplicationFactory + advisor tests.
+    /// </summary>
+    private static bool AllowsInMemoryForDevelopmentArchLucidStagingOnly(
+        IHostEnvironment environment,
+        IConfiguration configuration)
+    {
+        if (!environment.IsDevelopment())
+            return false;
+
+        string? archLucidEnv = configuration["ARCHLUCID_ENVIRONMENT"];
+
+        if (string.IsNullOrWhiteSpace(archLucidEnv))
+            archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
+
+        return string.Equals(archLucidEnv?.Trim(), "Staging", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Stripe billing requires a configured secret API key in Production when selected as the provider.</summary>

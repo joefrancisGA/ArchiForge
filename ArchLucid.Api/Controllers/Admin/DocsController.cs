@@ -1,5 +1,7 @@
 using Asp.Versioning;
 
+using ArchLucid.Core.Authorization;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,8 +12,8 @@ namespace ArchLucid.Api.Controllers.Admin;
 /// </summary>
 /// <remarks>
 ///     Intentionally hidden from the API explorer via <c>IgnoreApi = true</c>.
-///     Marked <see cref="AllowAnonymousAttribute" /> because these are read-only recipe pages
-///     that do not expose sensitive data or mutate state.
+///     Requires <see cref="ArchLucidPolicies.ReadAuthority" /> so anonymous callers cannot scrape recipe URLs for APIs
+///     that are already authenticated; matches comparison/read surfaces this page documents.
 ///     Intentionally does not use <c>[EnableRateLimiting]</c>: static HTML only, excluded from OpenAPI, expected low
 ///     volume.
 /// </remarks>
@@ -19,7 +21,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Route("[controller]")]
 [ApiExplorerSettings(IgnoreApi = true)]
 [ApiVersionNeutral]
-[AllowAnonymous]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 public sealed class DocsController : ControllerBase
 {
     /// <summary>Returns an HTML page with step-by-step comparison replay recipes.</summary>
