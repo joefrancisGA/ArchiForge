@@ -22,7 +22,7 @@ public sealed class LlmCompletionCacheOptions
         set;
     } = 1000;
 
-    /// <summary>Absolute expiration when <see cref="TTLSeconds" /> is not set (>0).</summary>
+    /// <summary>Default absolute expiration in minutes when <c>TTLSeconds</c> is unset (0 or negative).</summary>
     public int TTLMinutes
     {
         get;
