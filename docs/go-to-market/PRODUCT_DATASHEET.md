@@ -11,7 +11,7 @@
 
 **ArchLucid** | AI Architecture Intelligence
 
-*Architecture decisions you can explain, govern, and audit.*
+*Architecture risk reviews your architects can defend and your CTO can act on.*
 
 ---
 
@@ -23,9 +23,9 @@ Reviews depend on a small team of senior architects who apply different standard
 
 ## The solution
 
-ArchLucid is an **AI Architecture Intelligence platform** that orchestrates specialized AI agents to analyze system designs, produce explainable findings, and enforce governance workflows — all with a durable audit trail.
+ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review** — complete with recommended actions, confidence ratings, and an exportable executive summary.
 
-Describe the system you want to build. ArchLucid's multi-agent pipeline analyzes it for topology, cost, compliance, and design quality — then produces a versioned manifest with every finding traced and explained. What used to take weeks of manual review now takes minutes, with full accountability.
+Upload your architecture materials. ArchLucid's multi-agent analysis covers topology, cost, compliance, and design quality — and surfaces a findings board where every risk is ranked by severity, traced to evidence, and accompanied by a concrete recommended action. Architects get a defensible review package. CTOs get a clear executive summary. What used to take weeks now takes minutes, with a full audit trail.
 
 ---
 

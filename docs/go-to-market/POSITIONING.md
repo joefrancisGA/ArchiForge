@@ -19,7 +19,9 @@
 
 ## 1. Positioning statement
 
-> For **enterprise architects and platform engineering leaders** who need architecture decisions that are **consistent, auditable, and governed**, ArchLucid is an **AI Architecture Intelligence platform** that orchestrates specialized AI agents to analyze system designs, produce explainable findings, and enforce governance workflows — all with a durable audit trail. Unlike **manual architecture review** which is slow, inconsistent, and undocumented, or **ad-hoc AI tools** which lack governance and traceability, ArchLucid combines the analytical speed of AI with the accountability enterprises require.
+> For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into a **prioritized, evidence-linked risk review** — complete with recommended actions, confidence ratings, and an exportable executive summary. Unlike **manual architecture review** which is slow, inconsistent, and undocumented, or **ad-hoc AI tools** which produce prose without accountability, ArchLucid delivers findings you can defend: every risk traced to evidence, every recommendation actionable, every decision auditable.
+
+**Category:** AI Architecture Intelligence — sits between traditional Enterprise Architecture Management (which catalogs but does not analyze) and ad-hoc AI assistance (which analyzes but lacks governance and traceability).
 
 ---
 
@@ -71,37 +73,37 @@ Architecture decisions in ArchLucid are not just analyzed — they are governed.
 
 ### 30-second pitch
 
-"ArchLucid is an AI Architecture Intelligence platform. You describe a system you want to build, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. Think of it as an AI-powered architecture review board that runs in minutes instead of weeks, with a full audit trail."
+"ArchLucid turns messy architecture evidence into a prioritized risk review — in minutes, not weeks. Upload your architecture materials, and ArchLucid's AI agents identify the top risks across topology, cost, compliance, and design quality. Every finding cites its evidence. Every recommendation is actionable. You get an executive-ready summary your CTO can actually read."
 
 ### 60-second pitch
 
-"Architecture review today is slow, inconsistent, and poorly documented. Different architects apply different standards, decisions happen in meetings with no record, and compliance gaps surface in production — not during design.
+"Architecture review is a bottleneck in every enterprise I talk to. A small team of senior architects reviews every design proposal. Reviews take weeks. Different architects apply different standards. Decisions are captured in email threads no one can find six months later. And compliance gaps surface in production — not during design.
 
-ArchLucid fixes this with AI Architecture Intelligence: a multi-agent pipeline that analyzes system designs for topology soundness, cost optimization, compliance coverage, and design quality. Every finding comes with a structured explainability trace — what was examined, what rules applied, what decisions were taken. Governance workflows enforce approval chains and segregation of duties, and a pre-commit gate blocks manifests when critical findings exist.
+ArchLucid solves this with evidence-linked architecture risk reviews.
 
-The result: architecture reviews that are fast, consistent, explainable, and fully auditable."
+You upload your architecture materials. ArchLucid runs a multi-agent analysis — topology, cost, compliance, design quality — and surfaces a prioritized findings board: each risk ranked by severity, confidence-rated, evidence-cited, and accompanied by a concrete recommended action.
+
+The result: your architects get a defensible review package. Your CTO gets a clear executive summary. Your audit trail is complete. Reviews that took two weeks now take two hours."
 
 ### 2-minute pitch
 
-"Let me tell you about a problem I see in every enterprise I talk to.
+"Let me describe a problem I see in every enterprise.
 
-Architecture review is a bottleneck. A small team of senior architects reviews every major design proposal. Reviews take weeks. Different architects apply different standards. Decisions are captured in email threads and slide decks that no one can find six months later. And compliance gaps surface during audits or — worse — in production incidents.
+Architecture review is a bottleneck. A small group of senior architects reviews every major design. Reviews take weeks. Different architects apply different standards. Decisions are captured in email threads and slide decks that no one can find six months later. Compliance gaps surface during audits — or worse, in production incidents.
 
-ArchLucid solves this with what we call AI Architecture Intelligence.
+ArchLucid fixes this. Here is what it does.
 
-Here is how it works: An architect or engineer describes the system they want to build — system name, constraints, requirements, infrastructure context. ArchLucid orchestrates four specialized AI agents — for topology, cost, compliance, and critique — through a structured pipeline. The pipeline ingests the context, builds a knowledge graph, runs 10 finding engines in parallel, and produces a versioned golden manifest with structured findings.
+You upload architecture evidence — diagrams, requirements, infrastructure notes, design documents. ArchLucid runs a structured multi-agent analysis: four specialized agents covering topology, cost, compliance, and design critique. The analysis runs in minutes and surfaces a prioritized findings board.
 
-Here is what makes ArchLucid different from just asking ChatGPT:
+Each finding tells you: what the risk is, how severe it is, how confident the system is, what evidence it is based on, and what you should do about it. Not AI prose — a structured, evidence-linked, actionable finding.
 
-First, **every finding is explainable.** Our `ExplainabilityTrace` records exactly what was examined, what rules were applied, and what decisions were taken. This is not 'AI says so' — it is a complete decision trail.
+This is the key question any buyer asks: can I trust this? ArchLucid is built for that. Every finding cites the evidence it used. Every recommendation traces back to a rule. The full decision chain is persisted in an append-only audit store. When your auditor asks 'who reviewed this, what did they find, and who approved it?' — ArchLucid has the answer.
 
-Second, **decisions are governed.** Policy packs define your compliance rules. Pre-commit gates block manifests when critical findings exist. Approval workflows enforce segregation of duties — you cannot approve your own architecture change. SLAs track time-to-review and escalate breaches.
+For the executive, ArchLucid exports an executive summary: top risks, severity, business impact, recommended actions, readiness status. For the architect, it exports a full architecture review package — findings, evidence, rationale, decision trail.
 
-Third, **everything is auditable.** Seventy-eight typed audit events in an append-only store. When your auditor asks 'who reviewed this design, what did they find, and who approved it?' — ArchLucid has the answer.
+Architecture review. Evidence-linked findings. An executive summary your CTO can act on.
 
-The result: architecture reviews that used to take two weeks now take two hours. Quality goes up because every review runs the same engines. Compliance is shifted left because findings surface during design, not in production. And you have a full audit trail for every decision.
-
-We are working with pilot customers in regulated enterprises today. I would love to show you a 15-minute demo."
+That is ArchLucid. I would love to show you a 10-minute demo."
 
 ---
 
@@ -187,12 +189,15 @@ This category sits between traditional **Enterprise Architecture Management** (w
 
 | Do | Don't |
 |----|-------|
-| Say "AI Architecture Intelligence" — own the category | Say "AI chatbot for architecture" — undervalues the pipeline |
-| Emphasize **explainability and traceability** — this is the strongest differentiator | Claim "fully autonomous architecture design" — agents are orchestrated, not autonomous |
-| Position as **complementary** to existing EA tools, not a replacement | Position as a **replacement** for LeanIX/Ardoq — different category |
-| Be honest about V1 limitations (Azure-only, no import connectors) | Imply multi-cloud support or integrations that do not exist |
-| Use "findings" and "manifest" language — these are domain-specific terms | Use "suggestions" or "recommendations" — these are vague and undifferentiated |
-| Highlight the **governance workflow** — most competitors cannot match this | Lead with "AI" alone — every tool claims AI now |
+| Lead with the **buyer outcome**: "architecture risk review in minutes, findings your CTO can act on" | Lead with implementation: "multi-agent pipeline" or "10 finding engines" |
+| Use buyer vocabulary: **risk, finding, recommended action, evidence, confidence, readiness** | Use internal vocabulary as first-impression words: "manifest", "run", "commit", "coordinator" |
+| Say "AI Architecture Intelligence" when explaining the **category** | Say "AI-powered" as the headline — every tool says this now |
+| Emphasize **evidence linkage**: every finding cites what it used | Claim "fully autonomous architecture design" — agents are orchestrated, not autonomous |
+| Lead with **architecture review** — AI is the engine, not the promise | Over-promise on AI accuracy — frame findings as decision support, not legal attestation |
+| Highlight the **executive summary export** — this is what gets budget approved | Position governance workflow as the first selling point (it is the second sale) |
+| Position as **complementary** to existing EA tools (LeanIX, Ardoq), not a replacement | Position as a **replacement** for existing EA tools — different category |
+| Be honest about V1 limitations (Azure-only, no import connectors yet) | Imply multi-cloud support or integrations that do not exist |
+| Reference the **audit trail** for skeptical buyers: "every finding traces to evidence" | Lead with "AI" alone — every tool claims AI now |
 
 ---
 

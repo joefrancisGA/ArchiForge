@@ -27,10 +27,11 @@ describe("filterNavLinksForOperatorShell", () => {
   });
 
   /**
-   * Default shell (no extended / no advanced): Reader should still see Enterprise Controls as system health + Alerts inbox + Findings hub.
+   * Default shell (no extended / no advanced): Reader sees Enterprise Controls as system health + Alerts inbox.
+   * Findings moved to the Pilot group (extended tier) so it surfaces alongside Reviews on "Show more".
    * If `/alerts` moves off `essential` tier, this fails loudly—avoiding an empty Enterprise group for first pilots.
    */
-  it("exposes system health, Alerts inbox, and Findings in Enterprise Controls for Reader when extended and advanced are off", () => {
+  it("exposes system health and Alerts inbox in Enterprise Controls for Reader when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -40,7 +41,7 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ReadAuthority,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts", "/governance/findings"]);
+    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
   });
 
   it("shows read-tier Enterprise extended links for Reader when extended disclosure is on", () => {
@@ -54,7 +55,8 @@ describe("filterNavLinksForOperatorShell", () => {
     );
 
     expect(visible.some((l) => l.href === "/policy-packs")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
+    // Findings now lives in the Pilot group (extended tier), not in operate-governance.
+    expect(visible.some((l) => l.href === "/governance/findings")).toBe(false);
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
   });
 
@@ -80,7 +82,8 @@ describe("filterNavLinksForOperatorShell", () => {
     );
 
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
-    expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
+    // Findings is in the Pilot group; the operate-governance filter should not include it.
+    expect(visible.some((l) => l.href === "/governance/findings")).toBe(false);
   });
 
   /**
@@ -104,9 +107,10 @@ describe("filterNavLinksForOperatorShell", () => {
 
   /**
    * Default shell (no extended, no advanced): Execute-ranked operators see the same essential Enterprise strip as Reader
-   * — system health + inbox + Findings. Rank widens authority-eligible hrefs but does not replace progressive disclosure.
+   * — system health + Alerts inbox. Findings is in the Pilot group (extended tier) and shows there on "Show more".
+   * Rank widens authority-eligible hrefs but does not replace progressive disclosure.
    */
-  it("limits Enterprise Controls to system health, Alerts, and Findings for Execute rank when extended and advanced are off", () => {
+  it("limits Enterprise Controls to system health and Alerts for Execute rank when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -116,7 +120,7 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ExecuteAuthority,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts", "/governance/findings"]);
+    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
   });
 
   /**

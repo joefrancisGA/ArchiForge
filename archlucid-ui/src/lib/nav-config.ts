@@ -177,6 +177,18 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "essential",
       },
       {
+        href: "/governance/findings",
+        label: "Findings",
+        title: navTitleWithShortcut("Findings — open risks from completed reviews, severity and recommended actions", "alt+f"),
+        keyShortcut: "alt+f",
+        icon: AlertCircle,
+        // extended so the ReadAuthority requirement does not break the Pilot-essential invariant
+        // (nav-config.structure.test.ts §"keeps requiredAuthority unset on Pilot essential-tier links").
+        // Findings appears by default after the first review is finalized and the user clicks "Show more".
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
         href: "/help",
         label: "Help",
         title: "Help — using ArchLucid and reference documentation",
@@ -310,14 +322,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         title: navTitleWithShortcut("Alerts — inbox, rules, routing, simulation, and tuning", "alt+l"),
         keyShortcut: "alt+l",
         icon: Bell,
-        tier: "essential",
-        requiredAuthority: "ReadAuthority",
-      },
-      {
-        href: "/governance/findings",
-        label: "Findings",
-        title: "Findings — surfaced issues from architecture runs, snapshots, and governance lineage",
-        icon: AlertCircle,
         tier: "essential",
         requiredAuthority: "ReadAuthority",
       },

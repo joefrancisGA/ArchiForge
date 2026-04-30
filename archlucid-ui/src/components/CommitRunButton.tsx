@@ -40,7 +40,8 @@ export function CommitRunButton({ runId, disabled }: CommitRunButtonProps) {
       await commitArchitectureRun(runId, { notifySponsor });
       recordFirstTenantFunnelEvent("first_run_committed");
       setDialogOpen(false);
-      router.refresh();
+      // Land on the findings board so the architect sees risks immediately after finalizing.
+      router.push("/governance/findings");
     } catch (e: unknown) {
       if (isApiRequestError(e)) {
         setError({

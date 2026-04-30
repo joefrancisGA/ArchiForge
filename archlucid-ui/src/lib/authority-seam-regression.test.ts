@@ -148,10 +148,12 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` must still emit Enterprise Controls
-   * with system health + inbox + Findings (not an empty group after tier + authority).
+   * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` must still emit both Pilot and
+   * Operate governance groups (not empty after tier + authority filtering).
+   * Findings moved to the Pilot group (extended tier) so it appears alongside Reviews after "Show more".
+   * The Governance essential strip is now system-health + Alerts inbox only.
    */
-  it("Reader default shell lists Pilot and Operate governance with system health, Alerts inbox, and Findings (essential tier)", () => {
+  it("Reader default shell lists Pilot and Operate governance with system health and Alerts inbox (essential tier)", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       false,
@@ -169,8 +171,25 @@ describe("authority seam regression", () => {
     expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual([
       "/admin/health",
       "/alerts",
-      "/governance/findings",
     ]);
+  });
+
+  /**
+   * Findings link lives in the Pilot group at extended tier so it appears beside Reviews after "Show more".
+   * Confirm it is visible for a Reader with extended links enabled.
+   */
+  it("Reader with extended links sees Findings in the Pilot group", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+
+    const pilot = rows.find((r) => r.group.id === "pilot");
+    const hrefs = pilot?.visibleLinks.map((l) => l.href) ?? [];
+
+    expect(hrefs).toContain("/governance/findings");
   });
 
   /**
