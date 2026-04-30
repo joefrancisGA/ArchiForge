@@ -6,13 +6,17 @@ ArchLucid takes security seriously. This document describes how to report vulner
 
 **Please do not open public GitHub issues for security vulnerabilities.** Public disclosure can put users at risk before a fix is available.
 
-Instead, email **security@archlucid.net** with:
+Email **security@archlucid.net** with:
 
 - A clear description of the issue and its impact
 - Steps to reproduce (or proof-of-concept), if possible
 - Affected components or versions, if known
 
 We will send an **initial acknowledgment within 48 hours** and aim to provide a **substantive update or resolution within 10 business days** for valid reports in scope. Complex issues may require more time; we will keep you informed.
+
+## Product support (pilots)
+
+For **non-security** product questions during a **pilot or evaluation** (how-to, integration behavior, suspected product defects), email **support@archlucid.net**. Include **release or `GET /version` output**, **`X-Correlation-ID`** from failing API calls, and (if policy allows) a **support bundle** reference or attachment — see [`docs/library/PILOT_GUIDE.md`](docs/library/PILOT_GUIDE.md).
 
 **Accessibility barriers (non-security):** for WCAG / usability barriers in the product or public marketing pages, email **accessibility@archlucid.net**. This alias routes to the **same operational custodian** as **security@archlucid.net** (decision **2026-04-22** — see [`docs/security/ACCESSIBILITY_MAILBOX.md`](docs/security/ACCESSIBILITY_MAILBOX.md)); triage distinguishes accessibility follow-up from coordinated security disclosure.
 

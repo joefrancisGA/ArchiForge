@@ -146,4 +146,103 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.Run.RetryRequested), It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task ExecuteRunAsync_when_retry_requested_audit_fails_repeatedly_still_surfaces_execute_validation_error()
+    {
+        Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+        string runId = runGuid.ToString("N");
+
+        RunRecord header = new()
+        {
+            RunId = runGuid,
+            TenantId = TestScope.TenantId,
+            WorkspaceId = TestScope.WorkspaceId,
+            ScopeProjectId = TestScope.ProjectId,
+            ProjectId = "default",
+            ArchitectureRequestId = "req-retry-audit-sql",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Failed),
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-retry-audit-sql",
+            Description = new string('x', 12),
+            SystemName = "RetryAuditSql",
+        };
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo
+            .Setup(r => r.GetByIdAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(header);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        requestRepo.Setup(r => r.GetByIdAsync(request.RequestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo.Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IAgentExecutor> executor = new();
+        Mock<IAgentEvaluationService> evaluationService = new();
+        Mock<IAgentResultRepository> resultRepo = new();
+        resultRepo.Setup(r => r.GetByRunIdAsync(runId, It.IsAny<CancellationToken>(), null, null)).ReturnsAsync([]);
+
+        Mock<IAgentEvaluationRepository> evalRepo = new();
+        Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
+
+        Mock<IBaselineMutationAuditService> baselineAudit = new();
+        baselineAudit
+            .Setup(
+                b => b.RecordAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuditService> auditService = new();
+        auditService
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("audit sql unavailable"));
+
+        Mock<IActorContext> actorContext = new();
+        actorContext.Setup(a => a.GetActor()).Returns("retry-actor");
+
+        Mock<IRequestContentSafetyPrecheck> contentSafety = new();
+        contentSafety
+            .Setup(p => p.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
+        ArchitectureRunExecuteOrchestrator sut = new(
+            runRepo.Object,
+            scopeProvider.Object,
+            requestRepo.Object,
+            taskRepo.Object,
+            executor.Object,
+            evaluationService.Object,
+            resultRepo.Object,
+            evalRepo.Object,
+            evidenceRepo.Object,
+            new DefaultEvidenceBuilder(),
+            actorContext.Object,
+            baselineAudit.Object,
+            auditService.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            new NoOpAgentOutputTraceEvaluationHook(),
+            contentSafety.Object,
+            NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+
+        Func<Task> act = async () => await sut.ExecuteRunAsync(runId);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*No tasks found*");
+
+        auditService.Verify(
+            a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.Run.RetryRequested), It.IsAny<CancellationToken>()),
+            Times.Exactly(3));
+    }
 }

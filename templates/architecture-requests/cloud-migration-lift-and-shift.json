@@ -1,0 +1,42 @@
+{
+  "requestId": "contoso-lift-and-shift-001",
+  "systemName": "ContosoClaimsProcessing",
+  "description": "Lift-and-shift Contoso's claims adjudication stack from colo VMs to Azure with minimal logic change: preserve weekend batch windows, queued workers, and file-based carrier integrations while adopting managed SQL and private networking.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Carrier SFTP endpoints must see unchanged source IPv4 allow-list during phase 1",
+    "Restore RPO under 1 hour for the transactional database",
+    "No public RDP or SSH listeners on application subnets"
+  ],
+  "requiredCapabilities": [
+    "Managed secrets rotation aligned with carrier re-credentialing cadence",
+    "Autoscale worker tier for seasonal claim volume",
+    "Immutable backups for regulatory retention"
+  ],
+  "assumptions": [
+    "Application binaries are containerizable without framework downgrades",
+    "Test data sets exclude production PII"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Call out phased DNS migration and explicit rollback criteria for the cutover weekend"
+  ],
+  "documents": [
+    {
+      "name": "fictional-carrier-integration-notes.txt",
+      "contentType": "text/plain",
+      "content": "Fictional notes: two primary carriers, hourly pull windows, max file size constraints."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Place integration workers closest to egress controls for predictable carrier allow-lists",
+    "Consider zone-redundant storage for inbound file staging"
+  ],
+  "securityBaselineHints": [
+    "Disable legacy TLS on all public-facing controls before cutover",
+    "Encrypt backups with CMK when handling regulated health metadata"
+  ],
+  "infrastructureDeclarations": []
+}

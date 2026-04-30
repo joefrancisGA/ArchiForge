@@ -226,50 +226,66 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (!TryParseCoordinationRunGuid(coordination.Run.RunId, out Guid runGuid))
             runGuid = Guid.Empty;
 
-        await _auditService.LogAsync(
-            new AuditEvent
+        await DurableAuditLogRetry.TryLogAsync(
+            async ct =>
             {
-                EventType = AuditEventTypes.RequestCreated,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scopeCtx.TenantId,
-                WorkspaceId = scopeCtx.WorkspaceId,
-                ProjectId = scopeCtx.ProjectId,
-                RunId = runGuid == Guid.Empty ? null : runGuid,
-                DataJson = JsonSerializer.Serialize(
-                    new
+                await _auditService.LogAsync(
+                    new AuditEvent
                     {
-                        requestId = request.RequestId,
-                        runId = coordination.Run.RunId,
-                        systemName = request.SystemName,
-                        environment = request.Environment.ToString(),
-                        cloudProvider = request.CloudProvider.ToString(),
+                        EventType = AuditEventTypes.RequestCreated,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = scopeCtx.TenantId,
+                        WorkspaceId = scopeCtx.WorkspaceId,
+                        ProjectId = scopeCtx.ProjectId,
+                        RunId = runGuid == Guid.Empty ? null : runGuid,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                requestId = request.RequestId,
+                                runId = coordination.Run.RunId,
+                                systemName = request.SystemName,
+                                environment = request.Environment.ToString(),
+                                cloudProvider = request.CloudProvider.ToString(),
+                            },
+                            AuditJsonSerializationOptions.Instance),
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    ct);
             },
-            cancellationToken);
+            _logger,
+            $"{AuditEventTypes.RequestCreated}:{LogSanitizer.Sanitize(coordination.Run.RunId)}",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.RequestCreated);
 
-        await _auditService.LogAsync(
-            new AuditEvent
+        await DurableAuditLogRetry.TryLogAsync(
+            async ct =>
             {
-                EventType = AuditEventTypes.RequestLocked,
-                ActorUserId = actor,
-                ActorUserName = actor,
-                TenantId = scopeCtx.TenantId,
-                WorkspaceId = scopeCtx.WorkspaceId,
-                ProjectId = scopeCtx.ProjectId,
-                RunId = runGuid == Guid.Empty ? null : runGuid,
-                DataJson = JsonSerializer.Serialize(
-                    new
+                await _auditService.LogAsync(
+                    new AuditEvent
                     {
-                        requestId = request.RequestId,
-                        runId = coordination.Run.RunId,
-                        rationale =
-                            "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle.",
+                        EventType = AuditEventTypes.RequestLocked,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = scopeCtx.TenantId,
+                        WorkspaceId = scopeCtx.WorkspaceId,
+                        ProjectId = scopeCtx.ProjectId,
+                        RunId = runGuid == Guid.Empty ? null : runGuid,
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                requestId = request.RequestId,
+                                runId = coordination.Run.RunId,
+                                rationale =
+                                    "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle.",
+                            },
+                            AuditJsonSerializationOptions.Instance),
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    ct);
             },
-            cancellationToken);
+            _logger,
+            $"{AuditEventTypes.RequestLocked}:{LogSanitizer.Sanitize(coordination.Run.RunId)}",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.RequestLocked);
 
         if (_logger.IsEnabled(LogLevel.Information))
 

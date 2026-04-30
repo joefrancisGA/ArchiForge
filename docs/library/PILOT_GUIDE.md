@@ -17,6 +17,13 @@
 
 Include **API `GET /version`**, **`X-Correlation-ID`**, relevant logs, and (if policy allows) a **support bundle** (`dotnet run --project ArchLucid.Cli -- support-bundle --zip`). Full checklist: [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue](../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue).
 
+## Getting help
+
+- **Product / pilot support:** **support@archlucid.net** — how-to, integration behavior, non-security defects during pilots.
+- **Security vulnerabilities:** **security@archlucid.net** — coordinated disclosure only; see [SECURITY.md](../../SECURITY.md).
+- **Accessibility barriers (non-security):** **accessibility@archlucid.net** — WCAG / usability in product or marketing surfaces.
+- **Self-serve Q&A:** [FAQ.md](FAQ.md).
+
 ## Capturing your baseline at signup
 
 Optional **review-cycle baseline** fields on anonymous **`POST /v1/register`** (see [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) §3.1):

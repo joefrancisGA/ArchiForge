@@ -1,0 +1,42 @@
+{
+  "requestId": "contoso-dp-modernize-001",
+  "systemName": "ContosoAnalyticsDataPlatform",
+  "description": "Modernize Contoso's batch-heavy analytics platform on Azure: ingest from operational stores into a curated lakehouse, serve curated marts to BI tools, and tighten lineage and PII handling without freezing business reporting.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "SLA-bound daily mart refresh; downtime windows limited to Sundays",
+    "EU resident data stays in approved EU regions",
+    "No shadow copies of PII in dev — synthetic or masked only"
+  ],
+  "requiredCapabilities": [
+    "Incremental ingestion with idempotent watermarks",
+    "Column-level lineage for regulated metrics",
+    "Cost guardrails on scan-heavy engines"
+  ],
+  "assumptions": [
+    "Source systems expose CDC or append-only change feeds within 15 minutes",
+    "Canonical business glossary exists but is not yet wired to technical metadata"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Document backfill strategy and cutover checklist before production promotion"
+  ],
+  "documents": [
+    {
+      "name": "fictional-source-inventory.txt",
+      "contentType": "text/plain",
+      "content": "Fictional inventory: ERP extract, clickstream bucket, partner file drops — volumes and owners are illustrative."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Separate raw and trusted zones; enforce ABAC-style classifications at store boundaries",
+    "Prefer private endpoints for storage and SQL endpoints"
+  ],
+  "securityBaselineHints": [
+    "Encrypt all data at rest with customer-managed keys where contracts require",
+    "Break-glass access for ops is time-bound and audited"
+  ],
+  "infrastructureDeclarations": []
+}

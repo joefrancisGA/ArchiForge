@@ -567,6 +567,15 @@ public static class ArchLucidInstrumentation
             "archlucid_audit_retry_enqueue_dropped_total",
             description: "Audit retry queue dropped events because the bounded channel was full.");
 
+    /// <summary>
+    ///     Durable SQL audit writes abandoned after <see cref="ArchLucid.Core.Audit.DurableAuditLogRetry.TryLogAsync" />
+    ///     exhausted retries (label <c>event_type</c>).
+    /// </summary>
+    public static readonly Counter<long> AuditWriteFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_audit_write_failures_total",
+            description: "Durable audit writes abandoned after max retries (label event_type).");
+
     /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
     public static readonly Counter<long> LlmPromptTokensTotal =
         AppMeter.CreateCounter<long>(
@@ -899,6 +908,13 @@ public static class ArchLucidInstrumentation
     public static void RecordFirstSessionCompleted()
     {
         FirstSessionCompletedTotal.Add(1);
+    }
+
+    /// <summary>Increments <see cref="AuditWriteFailuresTotal" /> (label <c>event_type</c>).</summary>
+    public static void RecordAuditWriteFailure(string eventType)
+    {
+        string e = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType.Trim();
+        AuditWriteFailuresTotal.Add(1, new TagList { { "event_type", e } });
     }
 
     /// <summary>

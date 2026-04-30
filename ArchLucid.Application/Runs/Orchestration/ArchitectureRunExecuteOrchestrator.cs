@@ -44,45 +44,73 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
-    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
-    private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
-    private readonly IAgentExecutor _agentExecutor = agentExecutor ?? throw new ArgumentNullException(nameof(agentExecutor));
-    private readonly IAgentEvaluationService _agentEvaluationService = agentEvaluationService ?? throw new ArgumentNullException(nameof(agentEvaluationService));
-    private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
-    private readonly IAgentEvaluationRepository _agentEvaluationRepository = agentEvaluationRepository ?? throw new ArgumentNullException(nameof(agentEvaluationRepository));
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
-        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
-    private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
-    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-    private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
-
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-    private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook =
-        outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
-
-    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
-        requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
-
-    private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
     /// <summary>One persisted result per required agent type (Topology, Cost, Compliance, Critic) before commit.</summary>
     private static readonly HashSet<AgentType> RequiredAgentTypesForCommit =
         [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
+
+    private static void ValidateDependencies(
+        IRunRepository runRepository,
+        IScopeContextProvider scopeContextProvider,
+        IArchitectureRequestRepository requestRepository,
+        IAgentTaskRepository taskRepository,
+        IAgentExecutor agentExecutor,
+        IAgentEvaluationService agentEvaluationService,
+        IAgentResultRepository resultRepository,
+        IAgentEvaluationRepository agentEvaluationRepository,
+        IAgentEvidencePackageRepository agentEvidencePackageRepository,
+        IEvidenceBuilder evidenceBuilder,
+        IActorContext actorContext,
+        IBaselineMutationAuditService baselineMutationAudit,
+        IAuditService auditService,
+        IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+        IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
+        IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
+        ILogger<ArchitectureRunExecuteOrchestrator> logger)
+    {
+        ArgumentNullException.ThrowIfNull(runRepository);
+        ArgumentNullException.ThrowIfNull(scopeContextProvider);
+        ArgumentNullException.ThrowIfNull(requestRepository);
+        ArgumentNullException.ThrowIfNull(taskRepository);
+        ArgumentNullException.ThrowIfNull(agentExecutor);
+        ArgumentNullException.ThrowIfNull(agentEvaluationService);
+        ArgumentNullException.ThrowIfNull(resultRepository);
+        ArgumentNullException.ThrowIfNull(agentEvaluationRepository);
+        ArgumentNullException.ThrowIfNull(agentEvidencePackageRepository);
+        ArgumentNullException.ThrowIfNull(evidenceBuilder);
+        ArgumentNullException.ThrowIfNull(actorContext);
+        ArgumentNullException.ThrowIfNull(baselineMutationAudit);
+        ArgumentNullException.ThrowIfNull(auditService);
+        ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
+        ArgumentNullException.ThrowIfNull(outputTraceEvaluationHook);
+        ArgumentNullException.ThrowIfNull(requestContentSafetyPrecheck);
+        ArgumentNullException.ThrowIfNull(logger);
+    }
 
     /// <inheritdoc />
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        string actor = _actorContext.GetActor();
+        ValidateDependencies(
+            runRepository,
+            scopeContextProvider,
+            requestRepository,
+            taskRepository,
+            agentExecutor,
+            agentEvaluationService,
+            resultRepository,
+            agentEvaluationRepository,
+            agentEvidencePackageRepository,
+            evidenceBuilder,
+            actorContext,
+            baselineMutationAudit,
+            auditService,
+            unitOfWorkFactory,
+            outputTraceEvaluationHook,
+            requestContentSafetyPrecheck,
+            logger);
+
+        string actor = actorContext.GetActor();
 
         try
         {
@@ -90,7 +118,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
         catch (RunNotFoundException)
         {
-            await _baselineMutationAudit
+            await baselineMutationAudit
                 .RecordAsync(
                     AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
@@ -107,17 +135,17 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         string actor,
         CancellationToken cancellationToken)
     {
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (logger.IsEnabled(LogLevel.Information))
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Executing architecture run: RunId={RunId}",
                 LogSanitizer.Sanitize(runId));
 
 
         ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
-            _runRepository,
-            _scopeContextProvider,
-            _taskRepository,
+            runRepository,
+            scopeContextProvider,
+            taskRepository,
             runId,
             cancellationToken);
 
@@ -127,25 +155,33 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         if (run.Status == ArchitectureRunStatus.Failed)
         {
-            ScopeContext retryScope = _scopeContextProvider.GetCurrentScope();
+            ScopeContext retryScope = scopeContextProvider.GetCurrentScope();
 
             if (TryParseRunGuid(runId, out Guid failedRunGuid))
 
-                await _auditService.LogAsync(
-                    new AuditEvent
+                await DurableAuditLogRetry.TryLogAsync(
+                    async ct =>
                     {
-                        EventType = AuditEventTypes.Run.RetryRequested,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = retryScope.TenantId,
-                        WorkspaceId = retryScope.WorkspaceId,
-                        ProjectId = retryScope.ProjectId,
-                        RunId = failedRunGuid,
-                        DataJson = JsonSerializer.Serialize(
-                            new { runId, previousStatus = nameof(ArchitectureRunStatus.Failed) },
-                            AuditJsonSerializationOptions.Instance),
+                        await auditService.LogAsync(
+                            new AuditEvent
+                            {
+                                EventType = AuditEventTypes.Run.RetryRequested,
+                                ActorUserId = actor,
+                                ActorUserName = actor,
+                                TenantId = retryScope.TenantId,
+                                WorkspaceId = retryScope.WorkspaceId,
+                                ProjectId = retryScope.ProjectId,
+                                RunId = failedRunGuid,
+                                DataJson = JsonSerializer.Serialize(
+                                    new { runId, previousStatus = nameof(ArchitectureRunStatus.Failed) },
+                                    AuditJsonSerializationOptions.Instance),
+                            },
+                            ct);
                     },
-                    cancellationToken);
+                    logger,
+                    $"{AuditEventTypes.Run.RetryRequested}:{LogSanitizer.Sanitize(runId)}",
+                    cancellationToken,
+                    auditEventTypeForMetrics: AuditEventTypes.Run.RetryRequested);
 
         }
 
@@ -154,7 +190,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (idempotent is not null)
             return idempotent;
 
-        await _baselineMutationAudit
+        await baselineMutationAudit
             .RecordAsync(
                 AuditEventTypes.Baseline.Architecture.RunStarted,
                 actor,
@@ -164,29 +200,29 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         try
         {
-            ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
+            ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
                                           ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-            RequestContentSafetyResult safety = await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
+            RequestContentSafetyResult safety = await requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken);
 
             if (!safety.IsAllowed)
                 throw new InvalidOperationException(string.Join("; ", safety.Reasons));
 
-            IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
 
             if (tasks.Count == 0)
                 throw new InvalidOperationException($"No tasks found for run '{runId}'.");
 
-            AgentEvidencePackage evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+            AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
-            IReadOnlyList<AgentResult> results = await _agentExecutor.ExecuteAsync(
+            IReadOnlyList<AgentResult> results = await agentExecutor.ExecuteAsync(
                 runId,
                 request,
                 evidence,
                 tasks,
                 cancellationToken);
 
-            IReadOnlyList<AgentEvaluation> evaluations = await _agentEvaluationService.EvaluateAsync(
+            IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationService.EvaluateAsync(
                 runId,
                 request,
                 evidence,
@@ -201,13 +237,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             try
             {
-                await _outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
+                await outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                if (_logger.IsEnabled(LogLevel.Warning))
+                if (logger.IsEnabled(LogLevel.Warning))
 
-                    _logger.LogWarning(
+                    logger.LogWarning(
                         ex,
                         "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
                         LogSanitizer.Sanitize(runId));
@@ -216,7 +252,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
 
-            await _baselineMutationAudit
+            await baselineMutationAudit
                 .RecordAsync(
                     AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded,
                     actor,
@@ -224,9 +260,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     $"ResultCount={results.Count}",
                     cancellationToken);
 
-            if (_logger.IsEnabled(LogLevel.Information))
+            if (logger.IsEnabled(LogLevel.Information))
 
-                _logger.LogInformation(
+                logger.LogInformation(
                     "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
                     LogSanitizer.Sanitize(runId),
                     results.Count);
@@ -240,16 +276,16 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
+            if (logger.IsEnabled(LogLevel.Warning))
 
-                _logger.LogWarning(
+                logger.LogWarning(
                     ex,
                     "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}",
                     LogSanitizer.Sanitize(runId),
                     ex.GetType().Name);
 
 
-            await _baselineMutationAudit
+            await baselineMutationAudit
                 .RecordAsync(
                     AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
@@ -271,15 +307,15 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<AgentResult> existingResults =
-            await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+            await resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
         {
             if (existingResults.Count > 0)
             {
-                if (_logger.IsEnabled(LogLevel.Information))
+                if (logger.IsEnabled(LogLevel.Information))
 
-                    _logger.LogInformation(
+                    logger.LogInformation(
                         "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
                         LogSanitizer.Sanitize(runId),
                         run.Status,
@@ -301,9 +337,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         // Authority LegacyRunStatus may still read TasksGenerated while execute results already exist; idempotency uses stored results.
         if (run.Status != ArchitectureRunStatus.TasksGenerated || existingResults.Count <= 0)
             return null;
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (logger.IsEnabled(LogLevel.Information))
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)",
                 LogSanitizer.Sanitize(runId),
                 run.Status,
@@ -348,14 +384,14 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return;
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
         if (header is null)
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
+            if (logger.IsEnabled(LogLevel.Warning))
 
-                _logger.LogWarning(
+                logger.LogWarning(
                     "Execute: cannot promote run {RunId} — dbo.Runs header missing.",
                     LogSanitizer.Sanitize(runId));
 
@@ -372,9 +408,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
-        await _runRepository.UpdateAsync(header, cancellationToken);
+        await runRepository.UpdateAsync(header, cancellationToken);
 
-        string actor = _actorContext.GetActor();
+        string actor = actorContext.GetActor();
 
         await DurableAuditLogRetry.TryLogAsync(
             async ct =>
@@ -393,11 +429,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                         AuditJsonSerializationOptions.Instance),
                 };
 
-                await _auditService.LogAsync(auditEvent, ct);
+                await auditService.LogAsync(auditEvent, ct);
             },
-            _logger,
+            logger,
             $"{AuditEventTypes.RunLegacyReadyForCommitPromoted}:{LogSanitizer.Sanitize(runId)}",
-            cancellationToken);
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.RunLegacyReadyForCommitPromoted);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
@@ -413,7 +450,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IReadOnlyList<AgentEvaluation> evaluations,
         CancellationToken cancellationToken)
     {
-        await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
         try
         {
@@ -440,15 +477,15 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     {
         if (uow.SupportsExternalTransaction)
         {
-            await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
-            await _resultRepository.CreateManyAsync(results, cancellationToken, uow.Connection, uow.Transaction);
-            await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken, uow.Connection, uow.Transaction);
+            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
+            await resultRepository.CreateManyAsync(results, cancellationToken, uow.Connection, uow.Transaction);
+            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken, uow.Connection, uow.Transaction);
         }
         else
         {
-            await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
-            await _resultRepository.CreateManyAsync(results, cancellationToken);
-            await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
+            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+            await resultRepository.CreateManyAsync(results, cancellationToken);
+            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
         }
     }
 

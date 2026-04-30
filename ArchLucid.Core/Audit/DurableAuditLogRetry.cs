@@ -1,3 +1,5 @@
+using ArchLucid.Core.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Core.Audit;
@@ -17,7 +19,8 @@ public static class DurableAuditLogRetry
         ILogger logger,
         string operationLabel,
         CancellationToken cancellationToken,
-        int maxAttempts = 3)
+        int maxAttempts = 3,
+        string? auditEventTypeForMetrics = null)
     {
         ArgumentNullException.ThrowIfNull(writeAsync);
         ArgumentNullException.ThrowIfNull(logger);
@@ -61,12 +64,18 @@ public static class DurableAuditLogRetry
             }
 
 
-        if (last is not null && logger.IsEnabled(LogLevel.Warning))
+        if (last is not null)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
 
-            logger.LogWarning(
-                last,
-                "Durable audit abandoned after {MaxAttempts} attempts for {OperationLabel}",
-                maxAttempts,
-                operationLabel);
+                logger.LogWarning(
+                    last,
+                    "Durable audit abandoned after {MaxAttempts} attempts for {OperationLabel}",
+                    maxAttempts,
+                    operationLabel);
+
+            if (!string.IsNullOrWhiteSpace(auditEventTypeForMetrics))
+                ArchLucidInstrumentation.RecordAuditWriteFailure(auditEventTypeForMetrics);
+        }
     }
 }

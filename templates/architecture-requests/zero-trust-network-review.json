@@ -1,0 +1,42 @@
+{
+  "requestId": "contoso-zt-net-review-001",
+  "systemName": "ContosoSecureOperationsMesh",
+  "description": "Zero-trust oriented review of Contoso's hub-and-spoke network on Azure: identity-centric access, micro-segmentation for vendor connectivity, and encrypted east-west traffic without exploding operational toil for SRE.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No flat network ACLs that require manual per-IP maintenance for SaaS egress",
+    "Regulated workloads require evidence of inspected paths for lateral movement",
+    "Maintain compatibility with existing ExpressRoute investment"
+  ],
+  "requiredCapabilities": [
+    "Just-in-time admin access with Privileged Identity Management patterns",
+    "Centralized flow logs and alerts without duplicating full PCAP storage",
+    "Automated posture drift detection for NSG / Azure Firewall rules"
+  ],
+  "assumptions": [
+    "Device compliance is already enforced for workforce identities via Conditional Access",
+    "Legacy partner VPN can be narrowed to explicit published apps over 12 months"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Produce a phased kill-chain mapping (initial access → impact) for the reviewed scope"
+  ],
+  "documents": [
+    {
+      "name": "fictional-network-context.txt",
+      "contentType": "text/plain",
+      "content": "Fictional context: two hub VNets, three landing zones, limited IPv4 overlap historically remediated."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Prefer Azure Firewall Manager policies for spoke inheritance where feasible",
+    "Use Private Link for PaaS data planes referenced by regulated apps"
+  ],
+  "securityBaselineHints": [
+    "Align to NIST 800-207 style zero-trust tenets in narrative and controls mapping",
+    "Document break-glass paths and expected monitoring for those paths"
+  ],
+  "infrastructureDeclarations": []
+}
