@@ -40,6 +40,8 @@ export type FindingTraceConfidenceDto = {
   findingTitle?: string | null;
   /** Trace dimensions that were empty when completeness was scored. */
   missingTraceFields?: string[] | null;
+  /** Actionable next steps from the finding / trace pipeline when present. */
+  recommendedActions?: string[] | null;
 };
 
 /** Full explanation payload returned inside `RunExplanationSummary`. */

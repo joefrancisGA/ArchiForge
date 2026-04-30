@@ -5,6 +5,7 @@ import type { ReactElement } from "react";
 import { FindingInspectJsonPayload } from "@/components/FindingInspectJsonPayload";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 import {
   findingInspectPrimaryLabels,
@@ -52,6 +53,7 @@ export function FindingInspectFindingBody({
   payload,
   variant = "inspect",
 }: FindingInspectFindingBodyProps): ReactElement {
+  const demoFillGaps = isNextPublicDemoMode();
   const labels = findingInspectPrimaryLabels(payload);
   const whyThisMattersNarrative = findingWhyThisMattersText(payload);
 
@@ -68,6 +70,12 @@ export function FindingInspectFindingBody({
         {whyThisMattersNarrative ? (
           <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
             {whyThisMattersNarrative}
+          </p>
+        ) : demoFillGaps ? (
+          <p className="m-0 mt-2 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">
+            In the Claims Intake sample, sensitive fields (PHI) are carried through the request path into downstream
+            services. Without explicit redaction and access boundaries, reviewers cannot show regulators a defensible
+            boundary for where patient identifiers stop.
           </p>
         ) : (
           <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
@@ -114,7 +122,29 @@ export function FindingInspectFindingBody({
       <section className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-700 dark:bg-neutral-900/40">
         <h2 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Evidence</h2>
         {payload.evidence.length === 0 ? (
-          <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">No related graph citations on file.</p>
+          demoFillGaps ? (
+            <ul className="mt-2 list-none space-y-3 p-0 text-sm">
+              <li className="rounded-md border border-teal-200/80 bg-white/80 p-3 dark:border-teal-900 dark:bg-neutral-900/60">
+                <p className="m-0 leading-relaxed text-neutral-800 dark:text-neutral-200">
+                  Graph citation: <strong>Claims intake API</strong> — request schema includes unredacted member ID and
+                  date of birth fields referenced by the adjudication subgraph.
+                </p>
+                <p className="m-0 mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+                  Sample-only evidence for buyer walkthrough; production findings link live graph nodes and artifacts.
+                </p>
+                <div className="mt-2">
+                  <Link
+                    href={`/runs/${encodeURIComponent(runId)}`}
+                    className="text-xs font-medium text-sky-700 underline dark:text-sky-300"
+                  >
+                    Open run (artifacts and graph context)
+                  </Link>
+                </div>
+              </li>
+            </ul>
+          ) : (
+            <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">No related graph citations on file.</p>
+          )
         ) : (
           <ul className="mt-2 list-none space-y-3 p-0 text-sm">
             {payload.evidence.map((row, idx) => (
@@ -182,6 +212,18 @@ export function FindingInspectFindingBody({
               </Link>
             </span>
           </p>
+        ) : demoFillGaps ? (
+          <div className="mt-2 space-y-1 text-sm text-neutral-800 dark:text-neutral-200">
+            <p className="m-0">
+              <strong className="font-medium">Sample audit trail (demo)</strong> — Finding recorded with severity review
+              and rule linkage. Actor: <span className="text-neutral-600 dark:text-neutral-400">Governance automation</span>
+              {" · "}
+              Outcome: <span className="text-neutral-600 dark:text-neutral-400">Escalated for architecture review</span>
+            </p>
+            <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
+              Production tenants emit the same fields from tenant-scoped audit storage.
+            </p>
+          </div>
         ) : (
           <p className="m-0 mt-2 text-sm text-neutral-600 dark:text-neutral-400">
             Audit record not available in this environment (SQL-backed audit logging may be disabled).

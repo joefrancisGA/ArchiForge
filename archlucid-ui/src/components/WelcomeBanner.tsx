@@ -123,7 +123,7 @@ export function WelcomeBanner() {
   const returningUser = hasExistingRuns;
   const headingText = returningUser
     ? "Architecture manifest workspace"
-    : "Generate your first architecture manifest";
+    : "Turn architecture proposals into governed, evidence-backed review packages.";
   const subheadingText = returningUser
     ? "Monitor active runs, finalize manifests, and review governance findings."
     : "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.";

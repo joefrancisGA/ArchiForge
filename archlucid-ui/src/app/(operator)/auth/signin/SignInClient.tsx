@@ -15,6 +15,7 @@ import {
 import { buildAuthorizeUrl } from "@/lib/oidc/build-authorize-url";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { createPkcePair, randomOpaqueState } from "@/lib/oidc/pkce";
+import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer-safe-auth-messages";
 import { isLikelySignedIn, storePkceState } from "@/lib/oidc/session";
 
 /**
@@ -38,7 +39,7 @@ export function SignInClient() {
 
   useEffect(() => {
     if (!isJwtAuthMode()) {
-      setError("JWT / OIDC mode is not enabled (set NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt).");
+      setError(BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE);
 
       return;
     }

@@ -34,8 +34,8 @@ import { cn } from "@/lib/utils";
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 
-/** Shown under the Governance group header even when the group is collapsed — first-run discoverability. */
-const GOVERNANCE_PINNED_HREFS = new Set<string>(["/governance/findings"]);
+/** Hrefs pinned above the Governance body when they exist on `operate-governance` links in `nav-config` (may be empty). */
+const GOVERNANCE_PINNED_HREFS = new Set<string>([]);
 
 /** Alerts & governance is collapsed by default until the user explicitly opens it (localStorage "1"). */
 function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean {
@@ -250,7 +250,10 @@ export function SidebarNav() {
                 aria-label={group.label}
               >
                 {linksAfterDemoFilter
-                  .filter((link) => !GOVERNANCE_PINNED_HREFS.has(link.href))
+                  .filter(
+                    (link) =>
+                      group.id !== "operate-governance" || !GOVERNANCE_PINNED_HREFS.has(link.href),
+                  )
                   .map((link) => {
                   const active = isNavLinkActive(pathname, link.href);
                   const Icon = link.icon;

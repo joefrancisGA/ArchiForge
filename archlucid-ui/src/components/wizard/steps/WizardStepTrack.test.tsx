@@ -73,7 +73,7 @@ describe("WizardStepTrack", () => {
     expect(screen.getAllByText("Pending").length).toBeGreaterThanOrEqual(4);
   });
 
-  it("marks stages Ready as flags flip true", () => {
+  it("marks stages Complete as flags flip true", () => {
     const { rerender } = renderWithTooltips(
       <WizardStepTrack
         runId="r1"
@@ -86,7 +86,7 @@ describe("WizardStepTrack", () => {
       />,
     );
 
-    expect(screen.getAllByText("Ready").length).toBe(2);
+    expect(screen.getAllByText("Complete").length).toBe(2);
     expect(screen.getAllByText("Pending").length).toBe(2);
 
     rerender(
@@ -105,7 +105,7 @@ describe("WizardStepTrack", () => {
       </TooltipProvider>,
     );
 
-    expect(screen.getAllByText("Ready").length).toBe(4);
+    expect(screen.getAllByText("Complete").length).toBe(4);
   });
 
   it("renders Open run detail when hasGoldenManifest is true", () => {
@@ -153,7 +153,7 @@ describe("WizardStepTrack", () => {
     render(<TrackPollingHarness runId={baseSummary.runId} />);
 
     await waitFor(() => {
-      expect(screen.getAllByText("Ready").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("Complete").length).toBeGreaterThanOrEqual(1);
     });
 
     await waitFor(() => {

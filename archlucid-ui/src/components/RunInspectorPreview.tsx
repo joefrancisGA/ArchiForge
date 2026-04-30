@@ -6,6 +6,7 @@ import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -57,7 +58,9 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <CopyIdButton value={run.runId} aria-label="Copy run ID" />
         </dd>
         <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Project</dt>
-        <dd className="m-0 font-mono text-xs">{run.projectId}</dd>
+        <dd className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
+          {formatOperatorProjectIdDisplay(run.projectId)}
+        </dd>
         <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Created</dt>
         <dd className="m-0">{createdLabel}</dd>
       </dl>

@@ -260,7 +260,7 @@ export function RunsDashboardPanel() {
             <Link href="/getting-started">First Manifest Guide</Link>
           </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
-                      <Link href="/help">Operator help</Link>
+                      <Link href="/help">How this works</Link>
                     </Button>
                   </div>
                 </div>

@@ -132,13 +132,13 @@ export function CopyFindingAsWorkItemButton({ runId, findingId, payload }: CopyF
         variant="secondary"
         size="sm"
         className="h-8 gap-1.5 text-xs"
-        aria-label="Copy finding as work item to clipboard"
+        aria-label="Create remediation ticket — copy formatted text to clipboard"
         onClick={() => {
           void onCopy();
         }}
       >
         {copied ? <Check className="size-3.5 text-emerald-600" aria-hidden /> : <ClipboardList className="size-3.5" aria-hidden />}
-        {copied ? "Copied" : "Copy as work item"}
+        {copied ? "Copied" : "Create remediation ticket"}
       </Button>
     </div>
   );

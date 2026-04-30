@@ -25,7 +25,8 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/governance")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/approval-requests/1")).toBe("operate-governance");
     expect(getLayerForRoute("/governance/dashboard/weekly")).toBe("operate-governance");
-    expect(getLayerForRoute("/governance/findings")).toBe("operate-governance");
+    // `/governance/findings` is a Pilot-tier nav link (Findings); longest-prefix resolution matches that group.
+    expect(getLayerForRoute("/governance/findings")).toBe("pilot");
     expect(getLayerForRoute("/audit")).toBe("operate-governance");
   });
 

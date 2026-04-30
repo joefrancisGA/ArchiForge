@@ -116,7 +116,7 @@ export default function MarketingPrivacyPolicyPage(): ReactNode {
               rel="noopener noreferrer"
               target="_blank"
             >
-              docs/go-to-market/PRIVACY_POLICY.md on GitHub (browse)
+              Privacy policy on GitHub (browse)
             </Link>
           </li>
           <li>

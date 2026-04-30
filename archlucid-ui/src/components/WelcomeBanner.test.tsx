@@ -48,7 +48,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
       expect(screen.getByRole("banner", { name: "Welcome" })).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("heading", { name: "Generate your first architecture manifest" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Turn architecture proposals into governed, evidence-backed review packages." })).toBeInTheDocument();
     expect(
       screen.getByText(
         "Turn architecture intent into a governed, reviewable manifest with supporting artifacts and findings.",

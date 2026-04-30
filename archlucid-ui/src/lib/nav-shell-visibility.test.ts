@@ -21,17 +21,17 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ReadAuthority,
     );
 
-    expect(visible.some((l) => l.href === "/admin/health")).toBe(true);
+    expect(visible.some((l) => l.href === "/admin/health")).toBe(false);
     expect(visible.some((l) => l.href === "/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
   });
 
   /**
-   * Default shell (no extended / no advanced): Reader sees Enterprise Controls as system health + Alerts inbox.
-   * Findings moved to the Pilot group (extended tier) so it surfaces alongside Reviews on "Show more".
+   * Default shell (no extended / no advanced): Reader sees Alerts inbox only for Enterprise Controls.
+   * System health is Admin + advanced tier. Findings moved to the Pilot group (extended tier).
    * If `/alerts` moves off `essential` tier, this fails loudly—avoiding an empty Enterprise group for first pilots.
    */
-  it("exposes system health and Alerts inbox in Enterprise Controls for Reader when extended and advanced are off", () => {
+  it("exposes Alerts inbox in Enterprise Controls for Reader when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -41,7 +41,7 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ReadAuthority,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
+    expect(visible.map((l) => l.href)).toEqual(["/alerts"]);
   });
 
   it("shows read-tier Enterprise extended links for Reader when extended disclosure is on", () => {
@@ -107,10 +107,9 @@ describe("filterNavLinksForOperatorShell", () => {
 
   /**
    * Default shell (no extended, no advanced): Execute-ranked operators see the same essential Enterprise strip as Reader
-   * — system health + Alerts inbox. Findings is in the Pilot group (extended tier) and shows there on "Show more".
-   * Rank widens authority-eligible hrefs but does not replace progressive disclosure.
+   * — Alerts inbox. System health is Admin + advanced. Findings is in the Pilot group (extended tier).
    */
-  it("limits Enterprise Controls to system health and Alerts for Execute rank when extended and advanced are off", () => {
+  it("limits Enterprise Controls to Alerts for Execute rank when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -120,7 +119,20 @@ describe("filterNavLinksForOperatorShell", () => {
       AUTHORITY_RANK.ExecuteAuthority,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/admin/health", "/alerts"]);
+    expect(visible.map((l) => l.href)).toEqual(["/alerts"]);
+  });
+
+  it("shows system health for Admin rank when advanced and extended disclosure are on", () => {
+    expect(enterprise).toBeDefined();
+
+    const visible = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+    );
+
+    expect(visible.some((l) => l.href === "/admin/health")).toBe(true);
   });
 
   /**

@@ -5818,6 +5818,12 @@
               "string"
             ]
           },
+          "recommendedActions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "runId": {
             "format": "uuid",
             "type": "string"

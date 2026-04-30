@@ -3,7 +3,6 @@ import type { ReactElement } from "react";
 
 
 
-import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
 
@@ -232,7 +231,7 @@ export function ShowcaseWhatThisProves({
         </ul>
 
         <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
-          <span className="font-semibold text-neutral-700 dark:text-neutral-300">Verify shipped parity:</span>{" "}
+          <span className="font-semibold text-neutral-700 dark:text-neutral-300">See also:</span>{" "}
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
             /demo/preview
           </Link>
@@ -240,20 +239,11 @@ export function ShowcaseWhatThisProves({
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/see-it">
             /see-it
           </Link>
-          . Operator-only flows (exports after auth, compare replay) stay behind sign-in per{" "}
+          . Operator-only exports and compare replay stay behind sign-in — see the{" "}
           <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
-            /trust
+            Trust Center
           </Link>{" "}
-          and{" "}
-          <a
-            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
-            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/library/V1_SCOPE.md`}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            V1_SCOPE.md
-          </a>
-          .
+          for procurement posture and evidence packs.
         </p>
 
       </section>

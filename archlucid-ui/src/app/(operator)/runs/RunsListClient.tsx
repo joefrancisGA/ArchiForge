@@ -14,6 +14,7 @@ import { useViewportNarrow } from "@/hooks/useViewportNarrow";
 import { partitionRunsIntoWorkQueueSections, workQueueSectionHeading } from "@/lib/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -152,12 +153,12 @@ function activateRowKeyboard(e: React.KeyboardEvent<HTMLTableRowElement>, run: R
 }
 
 function displayRelativeCreated(run: RunSummary): string {
-  if (isNextPublicDemoMode() && run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID) {
-    const synthetic = new Date();
-
-    synthetic.setDate(synthetic.getDate() - 3);
-
-    return formatRelativeTime(synthetic.toISOString());
+  if (isNextPublicDemoMode()) {
+    return new Date(run.createdUtc).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   }
 
   return formatRelativeTime(run.createdUtc);
@@ -428,7 +429,8 @@ export function RunsListClient({
                                   </code>
                                   {run.projectId !== projectId ? (
                                     <p className="m-0 mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                      Project <span className="font-mono">{run.projectId}</span>
+                                      Project{" "}
+                                      <span className="font-mono">{formatOperatorProjectIdDisplay(run.projectId)}</span>
                                     </p>
                                   ) : null}
                                   <div className="mt-1.5">

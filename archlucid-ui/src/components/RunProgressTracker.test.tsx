@@ -109,7 +109,7 @@ describe("RunProgressTracker", () => {
     });
 
     expect(mockGetRunSummary).toHaveBeenCalled();
-    expect(screen.getAllByText("Ready").length).toBe(1);
+    expect(screen.getAllByText("Complete").length).toBe(1);
 
     allowFullSummary = true;
 
@@ -121,7 +121,7 @@ describe("RunProgressTracker", () => {
       await Promise.resolve();
     });
 
-    expect(screen.getAllByText("Ready").length).toBe(4);
+    expect(screen.getAllByText("Complete").length).toBe(4);
   });
 
   it("stops polling when all stages are ready", async () => {

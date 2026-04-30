@@ -52,28 +52,28 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
 
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">
-            <GlossaryTooltip termKey="context_snapshot">Context</GlossaryTooltip>
+          <span className="w-36 text-sm font-medium">
+            <GlossaryTooltip termKey="context_snapshot">Context captured</GlossaryTooltip>
           </span>
-          <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Ready" : "Pending"}</Badge>
+          <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">
-            <GlossaryTooltip termKey="knowledge_graph">Graph</GlossaryTooltip>
+          <span className="w-36 text-sm font-medium">
+            <GlossaryTooltip termKey="knowledge_graph">Evidence graph ready</GlossaryTooltip>
           </span>
-          <Badge variant={graph ? "default" : "secondary"}>{graph ? "Ready" : "Pending"}</Badge>
+          <Badge variant={graph ? "default" : "secondary"}>{graph ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">
-            <GlossaryTooltip termKey="findings">Findings</GlossaryTooltip>
+          <span className="w-36 text-sm font-medium">
+            <GlossaryTooltip termKey="findings">Findings complete</GlossaryTooltip>
           </span>
-          <Badge variant={findings ? "default" : "secondary"}>{findings ? "Ready" : "Pending"}</Badge>
+          <Badge variant={findings ? "default" : "secondary"}>{findings ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">
-            <GlossaryTooltip termKey="golden_manifest">Manifest</GlossaryTooltip>
+          <span className="w-36 text-sm font-medium">
+            <GlossaryTooltip termKey="golden_manifest">Manifest ready</GlossaryTooltip>
           </span>
-          <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Ready" : "Pending"}</Badge>
+          <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Complete" : "Pending"}</Badge>
         </li>
       </ul>
 

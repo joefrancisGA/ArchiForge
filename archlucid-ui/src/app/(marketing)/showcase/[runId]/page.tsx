@@ -149,6 +149,35 @@ function ShowcaseBottomCTA(): ReactElement {
   );
 }
 
+function ShowcaseExecutiveSummary({ payload }: { readonly payload: DemoCommitPagePreviewResponse }): ReactElement {
+  const keys = keyDriversFromPayload(payload);
+  const riskLine =
+    keys[0] ??
+    "PHI and data-minimization boundaries were reviewed against the proposed intake flow.";
+
+  return (
+    <section
+      aria-label="Executive summary"
+      className="mb-6 rounded-lg border border-neutral-200 bg-white/80 p-5 dark:border-neutral-700 dark:bg-neutral-900/50"
+    >
+      <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50">Executive summary</h2>
+      <p className="mt-3 mb-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <strong className="font-medium text-neutral-900 dark:text-neutral-100">What changed:</strong> the architecture
+        moves from an underspecified intake hand-off to a governed package with explicit decisions and traceable
+        evidence.
+      </p>
+      <p className="mt-2 mb-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <strong className="font-medium text-neutral-900 dark:text-neutral-100">What risk was found:</strong> {riskLine}
+      </p>
+      <p className="mt-2 mb-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <strong className="font-medium text-neutral-900 dark:text-neutral-100">What decision is now defensible:</strong>{" "}
+        sponsors can reference a single reviewed manifest, linked findings, and audit-ready lineage instead of ad-hoc
+        slide decks.
+      </p>
+    </section>
+  );
+}
+
 /** One-line teaser under the hero — caps length for marketing hero layout. */
 function trimLeadDescription(desc: string | undefined | null): string {
   const t = (desc ?? "").trim();
@@ -271,6 +300,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
 
         <ShowcaseLead>{trimLeadDescription(payload.run.description)}</ShowcaseLead>
 
+        <ShowcaseExecutiveSummary payload={payload} />
+
         <div className="mt-6">
           <ShowcaseWhatThisProves
             scenarioBullets={keyDriversFromPayload(payload)}
@@ -322,6 +353,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
           <ShowcaseHero runId={runId} />
 
           <ShowcaseLead>{trimLeadDescription(bundle.payload.run.description)}</ShowcaseLead>
+
+          <ShowcaseExecutiveSummary payload={bundle.payload} />
 
           <div className="mt-6">
             <ShowcaseWhatThisProves
@@ -385,6 +418,8 @@ export default async function MarketingShowcasePage(props: PageProps) {
           <ShowcaseHero runId={runId} />
 
           <ShowcaseLead>{trimLeadDescription(fallbackPayload.run.description)}</ShowcaseLead>
+
+          <ShowcaseExecutiveSummary payload={fallbackPayload} />
 
           <div className="mt-6">
             <ShowcaseWhatThisProves

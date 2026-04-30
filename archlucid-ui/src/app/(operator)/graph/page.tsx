@@ -57,7 +57,9 @@ type GraphMode =
 /** Interactive graph viewer page. Operator picks a run, graph mode, and optional filters. */
 export default function GraphPage() {
   const workspaceRun = useWorkspaceActiveRun();
-  const [runId, setRunId] = useState("");
+  const [runId, setRunId] = useState(() =>
+    isNextPublicDemoMode() ? SHOWCASE_STATIC_DEMO_RUN_ID : "",
+  );
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
   const [depth, setDepth] = useState(1);

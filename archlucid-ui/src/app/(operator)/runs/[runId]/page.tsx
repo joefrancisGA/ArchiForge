@@ -34,6 +34,7 @@ import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
@@ -87,7 +88,9 @@ function ManifestSummarySection({
     <section id="manifest-summary" className="scroll-mt-24 space-y-4">
       <Card>
         <CardHeader>
-          <h3 className={sectionHeadingClass}>Manifest summary</h3>
+          <h3 className={sectionHeadingClass}>
+            <GlossaryTooltip termKey="architecture_manifest">Manifest</GlossaryTooltip> summary
+          </h3>
         </CardHeader>
         <CardContent className="space-y-4">
           {manifestSummary.operatorSummary ? (

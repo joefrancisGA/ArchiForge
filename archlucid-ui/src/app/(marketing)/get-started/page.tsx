@@ -30,7 +30,7 @@ const STEPS: readonly Step[] = [
   {
     n: 2,
     title: "Pick a vertical",
-    body: "A short picker asks which industry profile to start from. The defaults match the briefs in templates/briefs/ — financial-services, healthcare, public-sector, public-sector-us, retail, saas. Choose the closest match; you can change it later. The vertical sets default compliance rules, terminology, and analysis priorities so the first run produces findings relevant to your domain. You are not locked in — the vertical can be changed at any time, and you can run against multiple verticals from the same workspace.",
+    body: "A short picker asks which industry profile to start from. The defaults match the brief library bundled with the product — financial-services, healthcare, public-sector, public-sector-us, retail, saas. Choose the closest match; you can change it later. The vertical sets default compliance rules, terminology, and analysis priorities so the first run produces findings relevant to your domain. You are not locked in — the vertical can be changed at any time, and you can run against multiple verticals from the same workspace.",
   },
   {
     n: 3,
@@ -126,7 +126,7 @@ export default function GetStartedPage(): ReactNode {
           Pick a vertical to start
         </h2>
         <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-          Defaults mirror the existing briefs in templates/briefs/.
+          Defaults mirror the industry brief library in the product.
         </p>
         <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3" role="list">
           {BUYER_GET_STARTED_VERTICAL_SLUGS.map((slug) => (

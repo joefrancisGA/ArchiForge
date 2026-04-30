@@ -64,7 +64,9 @@ describe("CopyFindingAsWorkItemButton", () => {
 
 
 
-    fireEvent.click(screen.getByRole("button", { name: /copy finding as work item to clipboard/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /create remediation ticket — copy formatted text to clipboard/i }),
+    );
 
 
 

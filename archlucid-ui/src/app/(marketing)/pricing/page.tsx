@@ -28,13 +28,13 @@ export default async function PricingPage(props: PricingPageProps) {
         className="mb-6 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
         data-testid="pricing-brand-category-paragraph"
       >
-        ArchLucid is an {BRAND_CATEGORY} offering. Packaging tiers below load from the published pricing document at
-        build time.
+        ArchLucid is an {BRAND_CATEGORY} offering. Compare Standard, Professional, and Enterprise capability bundles
+        below, then start a trial or contact sales for a formal quote.
       </p>
       <MarketingTierPricingSection
         sectionHeadingId="pricing-page-heading"
         sectionTitle="Pricing"
-        sectionIntro="Figures are loaded from the published pricing document at build time — not hard-coded in the UI bundle."
+        sectionIntro="Tier summaries reflect the current published price list. Your account team can confirm licensing and any volume discounts."
         signupHref={signupHref}
         signupCallToActionLabel="Start trial"
       />

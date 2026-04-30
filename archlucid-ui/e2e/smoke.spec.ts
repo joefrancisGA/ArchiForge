@@ -27,7 +27,7 @@ test.describe("operator shell smoke", () => {
   test("Ask page renders without generic error boundary", async ({ page }) => {
     await page.goto("/ask");
 
-    await expect(page.getByRole("heading", { name: /^Ask ArchLucid$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Ask about a review$/i })).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
   });
 
@@ -70,7 +70,7 @@ test.describe("operator shell smoke — core proof path", () => {
     await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
 
     await page.goto("/ask");
-    await expect(page.getByRole("heading", { name: /^Ask ArchLucid$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Ask about a review$/i })).toBeVisible();
     await expect(page.getByRole("main").getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/help");
@@ -82,7 +82,7 @@ test.describe("operator shell smoke — core proof path", () => {
 test.describe("operator shell smoke — advanced surface path", () => {
   test("analysis and controls routes render primary headings @smoke-advanced-path", async ({ page }) => {
     await page.goto("/ask");
-    await expect(page.getByRole("heading", { name: /^Ask ArchLucid$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Ask about a review$/i })).toBeVisible();
     await expect(page.getByRole("main").first().getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/graph");

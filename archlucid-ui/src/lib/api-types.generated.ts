@@ -19725,6 +19725,7 @@ export interface components {
             findingId: string;
             findingTitle?: string;
             missingTraceFields?: string[];
+            recommendedActions?: string[];
             ruleId?: string;
             /** Format: double */
             traceCompletenessRatio?: number | string;

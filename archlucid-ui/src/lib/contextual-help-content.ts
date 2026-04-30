@@ -69,7 +69,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/operator-shell.md",
   },
   "ask-archlucid": {
-    text: "Multi-turn conversations about your architecture. First message needs a run ID; follow-ups reuse the thread.",
+    text: "Multi-turn conversations about an architecture review. Select a review for the first message; follow-ups reuse the same thread.",
     learnMoreUrl: "/docs/operator-shell.md",
   },
   "operator-scope-switcher": {

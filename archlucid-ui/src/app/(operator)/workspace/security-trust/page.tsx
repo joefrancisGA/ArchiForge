@@ -38,16 +38,7 @@ export default function OperatorSecurityTrustPage() {
           >
             security@archlucid.net
           </a>
-          . (Owner decision 2026-04-22 — see{" "}
-          <Link
-            className="font-medium text-sky-800 underline underline-offset-2 hover:text-sky-950 dark:text-sky-300 dark:hover:text-sky-100"
-            href={`${DOCS_REPO_BASE}/docs/PENDING_QUESTIONS.md`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            PENDING_QUESTIONS.md
-          </Link>{" "}
-          item 20.)
+          . (Owner decision 2026-04-22.)
         </p>
       </section>
 

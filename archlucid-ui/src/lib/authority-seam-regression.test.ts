@@ -153,7 +153,7 @@ describe("authority seam regression", () => {
    * Findings moved to the Pilot group (extended tier) so it appears alongside Reviews after "Show more".
    * The Governance essential strip is now system-health + Alerts inbox only.
    */
-  it("Reader default shell lists Pilot and Operate governance with system health and Alerts inbox (essential tier)", () => {
+  it("Reader default shell lists Pilot and Operate governance with Alerts inbox on essential tier (system health is Admin + advanced)", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       false,
@@ -168,10 +168,7 @@ describe("authority seam regression", () => {
 
     const enterprise = rows.find((r) => r.group.id === "operate-governance");
 
-    expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual([
-      "/admin/health",
-      "/alerts",
-    ]);
+    expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual(["/alerts"]);
   });
 
   /**

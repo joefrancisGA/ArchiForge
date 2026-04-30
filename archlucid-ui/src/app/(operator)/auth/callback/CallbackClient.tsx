@@ -16,6 +16,7 @@ import {
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
+import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer-safe-auth-messages";
 import { consumePkceState, persistTokenResponse } from "@/lib/oidc/session";
 import { clearLastRegistrationPayload } from "@/lib/registration-session";
 
@@ -35,7 +36,7 @@ export function CallbackClient() {
   useEffect(() => {
     if (!isJwtAuthMode()) {
       setFailed(true);
-      setMessage("JWT / OIDC mode is not enabled.");
+      setMessage(BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE);
 
       return;
     }

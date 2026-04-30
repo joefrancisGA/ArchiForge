@@ -134,7 +134,7 @@ describe("operator client pages — render gate", () => {
 
   it("AskPage renders primary heading and contextual help", () => {
     render(<AskPage />);
-    expect(screen.getByRole("heading", { level: 2, name: "Ask ArchLucid" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Ask about a review" })).toBeInTheDocument();
     expect(screen.getByLabelText(/more information: ask-archlucid/i)).toBeInTheDocument();
   });
 

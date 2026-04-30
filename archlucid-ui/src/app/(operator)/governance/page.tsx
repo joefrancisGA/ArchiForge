@@ -563,7 +563,7 @@ function GovernanceWorkflowPageInner() {
               />
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col items-stretch gap-3">
             <Button
               type="button"
               data-testid="governance-submit-approval-button"
@@ -577,6 +577,12 @@ function GovernanceWorkflowPageInner() {
                   ? "Submit for governance approval"
                   : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
             </Button>
+            {!canMutateWorkflow ? (
+              <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="note">
+                Submitting for governance approval requires Execute access on your account. You can still review
+                approvals below; contact your ArchLucid account team if this should be enabled for your workspace.
+              </p>
+            ) : null}
           </CardFooter>
         </Card>
       </section>

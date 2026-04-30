@@ -142,20 +142,20 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
 
       <ul className="m-0 flex flex-col gap-3 p-0 list-none">
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">Context</span>
-          <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Ready" : "Pending"}</Badge>
+          <span className="w-36 text-sm font-medium">Context captured</span>
+          <Badge variant={ctx ? "default" : "secondary"}>{ctx ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">Graph</span>
-          <Badge variant={graph ? "default" : "secondary"}>{graph ? "Ready" : "Pending"}</Badge>
+          <span className="w-36 text-sm font-medium">Evidence graph ready</span>
+          <Badge variant={graph ? "default" : "secondary"}>{graph ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">Findings</span>
-          <Badge variant={findings ? "default" : "secondary"}>{findings ? "Ready" : "Pending"}</Badge>
+          <span className="w-36 text-sm font-medium">Findings complete</span>
+          <Badge variant={findings ? "default" : "secondary"}>{findings ? "Complete" : "Pending"}</Badge>
         </li>
         <li className="flex flex-wrap items-center gap-2">
-          <span className="w-28 text-sm font-medium">Manifest</span>
-          <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Ready" : "Pending"}</Badge>
+          <span className="w-36 text-sm font-medium">Manifest ready</span>
+          <Badge variant={manifest ? "default" : "secondary"}>{manifest ? "Complete" : "Pending"}</Badge>
         </li>
       </ul>
 

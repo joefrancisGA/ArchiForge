@@ -24,10 +24,16 @@ export class MutationErrorBoundary extends Component<
 
   public override render(): ReactNode {
     if (this.state.hasError) {
+      const isDev = process.env.NODE_ENV === "development";
+      const detail =
+        isDev && this.state.message !== null
+          ? this.state.message
+          : "Something went wrong while loading this view. Try again, or go back and reopen the page.";
+
       return (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/50 dark:text-red-100" role="alert">
           <p className="m-0 font-semibold">{this.props.title ?? "This view failed to render"}</p>
-          <p className="m-0 mt-2 font-mono text-xs opacity-90">{this.state.message}</p>
+          <p className="m-0 mt-2 text-sm opacity-90">{detail}</p>
         </div>
       );
     }

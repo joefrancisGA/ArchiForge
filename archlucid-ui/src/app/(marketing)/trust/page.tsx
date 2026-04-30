@@ -83,7 +83,7 @@ export default function MarketingTrustCenterPage(): ReactNode {
       <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">
         This page is <strong>not</strong> a claim of SOC 2 compliance or completed third-party penetration testing. It
         consolidates <strong>self-assessed</strong> documentation, <strong>V1.1-scheduled</strong> assurance, and{" "}
-        <strong>in-flight engagements</strong> with links to the same files your security team can grep in CI.
+        <strong>in-flight engagements</strong> with links your security team can trace in your procurement workflow.
       </p>
 
       <div className="mt-6">
@@ -124,7 +124,7 @@ export default function MarketingTrustCenterPage(): ReactNode {
               rel="noopener noreferrer"
               target="_blank"
             >
-              docs/trust-center.md on GitHub (browse)
+              Trust Center documentation on GitHub (browse)
             </Link>
           </li>
           <li>
@@ -169,13 +169,13 @@ function TrustCenterFallbackTable(): ReactNode {
           <tr className="odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/60">
             <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">SOC 2 self-assessment</td>
             <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">Self-asserted</td>
-            <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">docs/security</td>
+            <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">Security self-assessment pack</td>
             <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">2026-04-24</td>
           </tr>
           <tr className="odd:bg-white even:bg-neutral-50 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/60">
             <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">Penetration test programme</td>
             <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">V1.1-scheduled</td>
-            <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">docs/library/V1_DEFERRED.md</td>
+            <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">Deferred scope note (repository)</td>
             <td className="border border-neutral-200 px-3 py-2 dark:border-neutral-800">2026-04-24</td>
           </tr>
         </tbody>

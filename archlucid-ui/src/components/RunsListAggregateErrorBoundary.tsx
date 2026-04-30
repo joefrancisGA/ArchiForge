@@ -114,15 +114,21 @@ export class RunsListAggregateErrorBoundary extends Component<
       );
     }
 
+    const isDev = process.env.NODE_ENV === "development";
+
     return (
       <div
         className="mt-6 max-w-xl space-y-3 rounded-lg border border-red-200 bg-red-50/90 p-4 text-sm text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100"
         role="alert"
       >
-        <p className="m-0 font-semibold">Runs list could not render</p>
-        {this.state.message !== null ? (
+        <p className="m-0 font-semibold">Reviews could not render</p>
+        {isDev && this.state.message !== null ? (
           <p className="m-0 font-mono text-xs opacity-95">{this.state.message}</p>
-        ) : null}
+        ) : (
+          <p className="m-0 text-sm opacity-95">
+            This review list hit an unexpected error. You can retry or return to Home for a fresh start.
+          </p>
+        )}
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
@@ -134,7 +140,7 @@ export class RunsListAggregateErrorBoundary extends Component<
             Retry
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/runs">Reload runs</Link>
+            <Link href="/runs?projectId=default">Back to reviews</Link>
           </Button>
         </div>
       </div>

@@ -15,7 +15,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
   >
     ArchLucid is an 
     AI Architecture Review Board
-     platform: specialized agents analyze architecture requests, produce explainable findings, and feed governance workflows with a durable audit trail — grounded in what ships today in V1. The **front-door** comparison table below is claim-by-claim and symbol-only in the product columns; the same row labels and order ship in docs/go-to-market/COMPETITIVE_LANDSCAPE.md (CI-aligned with this page). The downloadable proof pack PDF still bundles the deeper five-row benchmarked narrative (citations and evidence strings) kept in sync separately with the PDF builder.
+     platform: specialized agents analyze architecture requests, produce explainable findings, and feed governance workflows with a durable audit trail. The comparison table below is claim-by-claim, with symbol-only scores in the product columns. The downloadable proof pack bundles a deeper, citation-backed narrative for teams who need to compare vendors on paper.
   </p>
   <section
     class="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
@@ -60,7 +60,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400"
     >
-      Anonymous read-only preview of the latest finalized demo-seed run (cached JSON + marketing UI). Same shape as the operator finalize experience — no sign-in. Described in docs/DEMO_PREVIEW.md and docs/adr/0027-demo-preview-cached-anonymous-commit-page.md.
+      Anonymous read-only preview of the latest finalized demo-seed run (cached JSON + marketing UI). Same shape as the operator finalize experience — no sign-in.
     </p>
     <p
       class="mt-4 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-3 py-8 text-center text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400"
@@ -101,7 +101,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400"
     >
-      Symbols only in the product columns (✓ / partial / —). Row labels match COMPETITIVE_LANDSCAPE.md.
+      Symbols only in the product columns (✓ / partial / —). Each row is labeled the same way across public collateral so reviewers can trace claims to proof links.
     </p>
     <div
       class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -493,7 +493,16 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="text-sm text-neutral-600 dark:text-neutral-400"
     >
-      For the executive sponsor narrative, see docs/EXECUTIVE_SPONSOR_BRIEF.md. For positioning phrasing, see docs/go-to-market/POSITIONING.md.
+      For sponsor-ready language and procurement context, see the
+       
+      <a
+        class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+        href="/get-started"
+      >
+        getting started guide
+      </a>
+       
+      or ask your account team for the executive overview pack.
     </p>
   </section>
 </main>

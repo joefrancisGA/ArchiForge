@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { OperatorApiProblem } from "./OperatorApiProblem";
 
@@ -37,10 +37,16 @@ describe("OperatorApiProblem", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows a client UI reference id for support triage", () => {
+  it("does not surface ERR reference text to the user (logged to console only)", () => {
+    const spy = vi.spyOn(console, "info").mockImplementation(() => {});
+
     render(<OperatorApiProblem problem={null} fallbackMessage="Plain error" />);
 
-    expect(screen.getByText(/^Reference: ERR-/)).toBeInTheDocument();
+    expect(screen.queryByText(/^Reference: ERR-/)).not.toBeInTheDocument();
+
+    expect(spy).toHaveBeenCalled();
+
+    spy.mockRestore();
   });
 
   it("uses warning callout when variant is warning", () => {

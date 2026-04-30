@@ -118,7 +118,7 @@ export default function AskPage() {
     const tid = selectedThreadId.trim();
     if (!tid && !rid) {
       setActionFailure(
-        uiFailureFromMessage("Choose a run for a new thread, or open an existing thread from the left."),
+        uiFailureFromMessage("Select an architecture review to start asking questions, or open an existing conversation."),
       );
       return;
     }
@@ -186,9 +186,9 @@ export default function AskPage() {
   return (
     <main className="max-w-5xl">
       <OperatorPageHeader
-        title="Ask ArchLucid"
+        title="Ask about a review"
         helpKey="ask-archlucid"
-        subtitle="Multi-turn conversations stay in your workspace. Pick a run for a new thread; follow-ups stay on the same thread without picking the run again."
+        subtitle="Conversations stay in your workspace. Select an architecture review for a new thread; follow-ups stay on the same thread without picking the review again."
       />
       <p className="mb-4 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
         Answers use the run context you select (finalized manifest and findings when available; in-progress runs may
@@ -212,8 +212,8 @@ export default function AskPage() {
               Your conversation history
             </CardTitle>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              Threads for your signed-in workspace user. They are not marketing sample dialogs — start{" "}
-              <strong>New conversation</strong> and pick a run, or open a thread to continue with its saved run context.
+              Your saved conversations for this account. Start <strong>New conversation</strong> and select a review, or
+              open one below to continue with its saved context.
             </p>
           </CardHeader>
           <CardContent className="space-y-3 p-4 pt-0">

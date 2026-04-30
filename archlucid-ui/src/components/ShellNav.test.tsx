@@ -47,12 +47,12 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       const homeLink = screen.getByRole("link", { name: "Home" });
       expect(homeLink).toHaveAttribute("href", "/");
       expect(homeLink).toHaveAttribute("aria-current", "page");
-      expect(screen.getByRole("link", { name: "New request" })).toHaveAttribute("href", "/runs/new");
-      expect(screen.getByRole("link", { name: "New request" })).toHaveAttribute(
+      expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/runs/new");
+      expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute(
         "title",
-        "Guided new-request wizard — system identity through pipeline tracking (Alt+N)",
+        "Start a new architecture review — guided wizard through pipeline tracking (Alt+N)",
       );
-      expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
+      expect(screen.getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/runs?projectId=default");
 
       expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
@@ -69,6 +69,8 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       );
       expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");
+      expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
+      expect(screen.getByRole("link", { name: "Scorecard" })).toHaveAttribute("href", "/scorecard");
 
       const linksWithKeyShortcuts = screen
         .getAllByRole("link")
@@ -95,8 +97,6 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
 
       fireEvent.click(screen.getByRole("button", { name: "Governance" }));
-
-      expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
 
       expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");

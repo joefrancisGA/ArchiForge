@@ -93,6 +93,12 @@ export const GLOSSARY_TERMS = {
     term: "Governance workflow",
     definition: "The structured path to request, review, and activate manifest changes for a run, with approver and evidence trail.",
   },
+  architecture_manifest: {
+    term: "Architecture manifest",
+    definition:
+      "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
+    docLink: "/docs/library/GLOSSARY.md#golden-manifest",
+  },
   manifest_diff: {
     term: "Manifest diff",
     definition: "A field-level comparison between two finalized, reviewed manifests (or their persisted projection), used in Compare to see what changed between runs.",

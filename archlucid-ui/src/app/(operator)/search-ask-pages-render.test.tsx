@@ -28,7 +28,7 @@ describe("AskPage (operator shell)", () => {
   it("renders heading, question field, and ask control", () => {
     render(<AskPage />);
 
-    expect(screen.getByRole("heading", { name: /ask archlucid/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /ask about a review/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/^question$/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^ask$/i })).toBeInTheDocument();
   });

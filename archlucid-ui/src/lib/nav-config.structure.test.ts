@@ -18,18 +18,16 @@ describe("nav-config structure", () => {
     expect(flattenNavLinks().length).toBe(fromGroups);
   });
 
-  it("sets requiredAuthority on every Governance link except system health (Pilot essentials may omit)", () => {
+  it("sets requiredAuthority on every Governance link (Pilot essentials may omit)", () => {
     const enterprise = NAV_GROUPS.find((group) => group.id === "operate-governance");
 
     expect(enterprise).toBeDefined();
 
     for (const link of enterprise!.links) {
-      if (link.href === "/admin/health") {
-        expect(link.requiredAuthority, link.href).toBeUndefined();
-        continue;
-      }
-
       expect(link.requiredAuthority, link.href).toBeDefined();
+      if (link.href === "/admin/health") {
+        expect(link.requiredAuthority).toBe("AdminAuthority");
+      }
     }
   });
 

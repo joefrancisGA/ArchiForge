@@ -16,40 +16,83 @@ export default function ComplianceJourneyPage() {
       <p className="mb-6 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         ArchLucid is <strong>not SOC 2 attested</strong> today. We publish self-assessment material, questionnaires, and
         engineering controls so buyers can diligence the product without mistaking roadmap for certification. This page
-        summarizes what is in scope now and points to canonical in-repo documents (no new certifications are claimed here).
+        summarizes what is in scope now — no new certifications are claimed here.
       </p>
       <ul className="list-disc space-y-2 pl-5 text-sm text-neutral-700 dark:text-neutral-300">
         <li>
-          Trust Center index: <code className="text-[0.85em]">docs/go-to-market/TRUST_CENTER.md</code> in the ArchLucid
-          repository.
+          <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+            Trust Center
+          </Link>{" "}
+          — consolidated posture, questionnaires, and procurement downloads.
         </li>
         <li>
-          CAIQ Lite + SIG Core pre-fills live under{" "}
-          <code className="text-[0.85em]">docs/security/CAIQ_LITE_2026.md</code> and{" "}
-          <code className="text-[0.85em]">docs/security/SIG_CORE_2026.md</code> in-repo.
+          CAIQ Lite and SIG Core pre-fills:{" "}
+          <a
+            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/security/CAIQ_LITE_2026.md`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            CAIQ Lite
+          </a>
+          ,{" "}
+          <a
+            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/security/SIG_CORE_2026.md`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            SIG Core
+          </a>
+          .
         </li>
         <li>
-          Control/evidence mapping: <code className="text-[0.85em]">docs/security/COMPLIANCE_MATRIX.md</code>.
+          Control and evidence mapping:{" "}
+          <a
+            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/security/COMPLIANCE_MATRIX.md`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Compliance matrix
+          </a>
+          .
         </li>
         <li>
-          DPA template + subprocessors: <code className="text-[0.85em]">docs/go-to-market/DPA_TEMPLATE.md</code>,{" "}
-          <code className="text-[0.85em]">docs/go-to-market/SUBPROCESSORS.md</code>.
+          Data processing terms:{" "}
+          <a
+            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/DPA_TEMPLATE.md`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            DPA template
+          </a>{" "}
+          and{" "}
+          <a
+            className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+            href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/SUBPROCESSORS.md`}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            subprocessor list
+          </a>
+          .
         </li>
       </ul>
       <p className="mt-8 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Verify:</span> open the in-product Trust Center at{" "}
+        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Verify:</span> start from the in-product{" "}
         <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
-          /trust
-        </Link>{" "}
-        (downloads align with the same Markdown paths above). Canonical blobs on{" "}
-        <code className="text-[0.85em]">main</code>:{" "}
+          Trust Center
+        </Link>
+        , or open the same materials on GitHub:{" "}
         <a
           className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
           href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/TRUST_CENTER.md`}
           rel="noopener noreferrer"
           target="_blank"
         >
-          TRUST_CENTER.md
+          Trust Center pack
         </a>
         ,{" "}
         <a
@@ -58,7 +101,7 @@ export default function ComplianceJourneyPage() {
           rel="noopener noreferrer"
           target="_blank"
         >
-          COMPLIANCE_MATRIX.md
+          compliance matrix
         </a>
         .
       </p>

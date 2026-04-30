@@ -1,9 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
-import { useMemo } from "react";
-
-import { cn } from "@/lib/utils";
+import { useEffect, useMemo } from "react";
 
 function makeUiReferenceSegment(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -14,27 +11,19 @@ function makeUiReferenceSegment(): string {
 }
 
 export type OperatorErrorUiReferenceLineProps = {
-  /** Optional typography override (e.g. red panel in **`global-error.tsx`**). */
+  /** @deprecated Kept for API compatibility; reference is no longer shown in the UI. */
   paragraphClassName?: string;
 };
 
 /**
- * Stable per-mount client reference shown on error callouts when no server correlation id exists —
- * aligns with **`OperatorApiProblem`** wording for support triage screenshots.
+ * Logs a per-mount support reference for triage. Does not render buyer-facing “ERR-…” text.
  */
-export function OperatorErrorUiReferenceLine({
-  paragraphClassName,
-}: OperatorErrorUiReferenceLineProps = {}): ReactElement {
+export function OperatorErrorUiReferenceLine(_props: OperatorErrorUiReferenceLineProps = {}): null {
   const segment = useMemo(makeUiReferenceSegment, []);
 
-  return (
-    <p
-      className={cn(
-        "mt-3 font-mono text-[11px] text-neutral-600 dark:text-neutral-400",
-        paragraphClassName,
-      )}
-    >
-      Reference: ERR-{segment}
-    </p>
-  );
+  useEffect(() => {
+    console.info("[ArchLucid support reference]", `ERR-${segment}`);
+  }, [segment]);
+
+  return null;
 }

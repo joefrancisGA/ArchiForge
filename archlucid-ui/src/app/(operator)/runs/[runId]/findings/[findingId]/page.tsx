@@ -26,7 +26,7 @@ import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
 /**
- * Finding detail: deterministic inspect sections first (server-loaded), supplemental AI audit collapsed below.
+ * Finding detail: severity and narrative first; technical identifiers and export tools collapsed.
  */
 export default async function RunFindingExplainPage({
   params,
@@ -99,7 +99,7 @@ export default async function RunFindingExplainPage({
             ) : null}
             {labels.impactedAreaLabel ? (
               <Badge variant="outline" className="max-w-full whitespace-normal text-left font-normal">
-                Impacted: {labels.impactedAreaLabel}
+                Business impact: {labels.impactedAreaLabel}
               </Badge>
             ) : null}
           </div>
@@ -109,38 +109,6 @@ export default async function RunFindingExplainPage({
           <p className="m-0 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
             {findingDetailLeadSentence(inspectPayload)}
           </p>
-        ) : null}
-
-        {inspectPayload !== null ? (
-          <div className="pt-1">
-            <CopyFindingAsWorkItemButton findingId={decodedFindingId} payload={inspectPayload} runId={runId} />
-          </div>
-        ) : null}
-
-        {inspectPayload !== null ? (
-          <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
-            <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200">
-              <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                  Finding id
-                </dt>
-                <dd className="m-0 mt-1 flex flex-wrap items-center gap-2">
-                  <code className="max-w-full break-all rounded bg-neutral-100 px-1.5 py-0.5 text-xs font-mono dark:bg-neutral-800">
-                    {decodedFindingId}
-                  </code>
-                  <CopyIdButton value={decodedFindingId} aria-label="Copy finding ID" />
-                </dd>
-              </div>
-              {inspectPayload.manifestVersion ? (
-                <div>
-                  <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                    Manifest version
-                  </dt>
-                  <dd className="m-0 mt-1 font-mono text-xs">{inspectPayload.manifestVersion}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </CollapsibleSection>
         ) : null}
       </header>
 
@@ -159,6 +127,43 @@ export default async function RunFindingExplainPage({
           payload={inspectPayload}
           variant="detail"
         />
+      ) : null}
+
+      {inspectPayload !== null ? (
+        <CollapsibleSection title="Export for remediation ticket" defaultOpen={false}>
+          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            Copy a structured summary formatted for your issue tracker (Markdown, GitHub Issues, Azure Boards, or Jira).
+          </p>
+          <div className="pt-3">
+            <CopyFindingAsWorkItemButton findingId={decodedFindingId} payload={inspectPayload} runId={runId} />
+          </div>
+        </CollapsibleSection>
+      ) : null}
+
+      {inspectPayload !== null ? (
+        <CollapsibleSection title="Technical identifiers" defaultOpen={false}>
+          <dl className="m-0 grid gap-2 text-sm text-neutral-800 dark:text-neutral-200">
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                Finding id
+              </dt>
+              <dd className="m-0 mt-1 flex flex-wrap items-center gap-2">
+                <code className="max-w-full break-all rounded bg-neutral-100 px-1.5 py-0.5 text-xs font-mono dark:bg-neutral-800">
+                  {decodedFindingId}
+                </code>
+                <CopyIdButton value={decodedFindingId} aria-label="Copy finding ID" />
+              </dd>
+            </div>
+            {inspectPayload.manifestVersion ? (
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                  Manifest version
+                </dt>
+                <dd className="m-0 mt-1 font-mono text-xs">{inspectPayload.manifestVersion}</dd>
+              </div>
+            ) : null}
+          </dl>
+        </CollapsibleSection>
       ) : null}
 
       <CollapsibleSection title="Technical audit trail" defaultOpen={false}>
