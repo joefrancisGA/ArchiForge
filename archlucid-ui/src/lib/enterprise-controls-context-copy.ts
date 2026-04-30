@@ -17,11 +17,11 @@ export const alertToolingConfigureSectionSubline = "Inspect above · configure b
 /** Alert tooling — configure block **`h3`** (`alert-rules`, `alert-routing`, `composite-alert-rules`; tuning uses operator string only). */
 export const alertToolingChangeConfigurationHeadingOperator = "Change configuration";
 
-export const alertToolingChangeConfigurationHeadingReader = "Change configuration (operator access)";
+export const alertToolingChangeConfigurationHeadingReader = "Change configuration (elevated permissions)";
 
 /** `title` on mutation controls the UI soft-disables for Reader-tier principals (API remains authoritative). */
 export const enterpriseMutationControlDisabledTitle =
-  "Requires operator-level access in this shell; the API still enforces every write.";
+  "Requires elevated permissions in this workspace; the API still enforces every write.";
 
 /**
  * Audit CSV export uses **`RequireAuditor`** on the API (Auditor **or** Admin)—stricter than Execute-tier pack
@@ -122,7 +122,7 @@ export const governanceDashboardOpenWorkflowReviewTitleReader =
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
-  "Review and promote finalized architecture outputs through governance stages. Load a run to see approvals, promotions, and environment activations.";
+  "Submit finalized architecture outputs for governance review and promotion. Load a run to see approvals, promotions, and environment activations.";
 
 /** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
 export const governanceWorkflowPageLeadReader =
@@ -300,7 +300,7 @@ export const governanceDashboardPendingClearReaderSupplement =
 
 /** Governance workflow — “Approval requests for a run” card description by rank. */
 export const governanceWorkflowQueryCardDescriptionReader =
-  "Load a run to see its approval requests. Approving, promoting, and activating require operator permissions.";
+  "Load a run to see its approval requests. Approving, promoting, and activating require elevated permissions.";
 
 export const governanceWorkflowQueryCardDescriptionOperator =
   "Pick a run, then load its approval requests. Approve or reject submitted requests, promote approved manifests, and activate in the target environment when ready.";
@@ -313,19 +313,19 @@ export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or choose a different run.";
 
 /** Governance workflow — Submit for approval when rank cannot mutate (shell soft-disable; API authoritative). */
-export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for approval (operator access)";
+export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for governance approval";
 
 /** Governance workflow — inline review Submit when rank cannot mutate. */
-export const governanceWorkflowReviewSubmitButtonLabelReaderRank = "Submit review (operator access)";
+export const governanceWorkflowReviewSubmitButtonLabelReaderRank = "Submit review (elevated permissions)";
 
 /** Governance workflow — row actions when rank cannot mutate (buttons stay disabled; label clarifies floor). */
-export const governanceWorkflowApproveButtonLabelReaderRank = "Approve (operator access)";
+export const governanceWorkflowApproveButtonLabelReaderRank = "Approve (elevated permissions)";
 
-export const governanceWorkflowRejectButtonLabelReaderRank = "Reject (operator access)";
+export const governanceWorkflowRejectButtonLabelReaderRank = "Reject (elevated permissions)";
 
-export const governanceWorkflowPromoteButtonLabelReaderRank = "Promote (operator access)";
+export const governanceWorkflowPromoteButtonLabelReaderRank = "Promote (elevated permissions)";
 
-export const governanceWorkflowActivateButtonLabelReaderRank = "Activate (operator access)";
+export const governanceWorkflowActivateButtonLabelReaderRank = "Activate (elevated permissions)";
 
 /** Governance workflow — under “Promotions & activations” for Execute+ (timeline + actions). */
 export const governanceWorkflowPromotionsActivationsSectionLeadOperator =
@@ -333,7 +333,7 @@ export const governanceWorkflowPromotionsActivationsSectionLeadOperator =
 
 /** Governance workflow — same section for read tier (Activate/Promote buttons stay disabled in the shell). */
 export const governanceWorkflowPromotionsActivationsSectionLeadReader =
-  "Read-only timeline; Promote/Activate need operator access (API).";
+  "Read-only timeline; Promote and Activate require elevated permissions (API).";
 
 /** Policy packs — lead under title (Execute+); link to Governance resolution for stack semantics. */
 export const policyPacksPageLeadOperator = "Inventory and diff first; lifecycle last.";
@@ -380,11 +380,11 @@ export const policyPacksAssignButtonLabelReaderRank = "Assign (Execute+)";
 
 /** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
 export const governanceWorkflowSubmitCardDescriptionReader =
-  "Submitting requests requires operator access in this workspace. You can still review the workflow below.";
+  "Submitting requests requires elevated permissions in this workspace. You can still review the workflow below.";
 
 /** Composite alert rules — empty “Current composite rules” list. */
 export const compositeRulesDefinedListEmptyReaderLine =
-  "No composite rules yet. Inspect definitions; writes need operator on the API.";
+  "No composite rules yet. Inspect definitions; writes require elevated permissions on the API.";
 
 export const compositeRulesDefinedListEmptyOperatorLine = "None yet.";
 

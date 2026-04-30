@@ -135,10 +135,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-workflow": {
     layerBadge: "Operate",
-    headline: "Run-scoped submit, review, promote, activate.",
-    useWhen: "One run ID; follow status top to bottom.",
-    firstPilotNote: "Operate · governance — after Pilot proof when submit/review/promotion applies to the run.",
-    enterpriseFootnote: "Run workflow; API-gated writes.",
+    headline: "Submit finalized architecture outputs for governance review and promotion.",
+    useWhen: "Pick one run and move from submission through approval, promotion, and activation.",
+    firstPilotNote:
+      "Operate · governance — after Pilot proof when your team promotes finalized manifests through governed stages.",
+    enterpriseFootnote: "Workflow actions respect role checks on the API.",
   },
   "policy-packs": {
     layerBadge: "Operate",

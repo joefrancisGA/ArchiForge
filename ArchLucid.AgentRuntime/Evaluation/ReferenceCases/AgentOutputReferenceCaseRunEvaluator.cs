@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Diagnostics;
@@ -19,7 +20,11 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
     IAgentOutputEvaluationResultRepository resultRepository,
     ILogger<AgentOutputReferenceCaseRunEvaluator> logger)
 {
-    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     /// <summary>Evaluates one trace against all cases matching its <see cref="AgentExecutionTrace.AgentType" />.</summary>
     public async Task EvaluateTraceAsync(

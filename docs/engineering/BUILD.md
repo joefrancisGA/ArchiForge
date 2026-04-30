@@ -32,6 +32,21 @@ Verify locally with a Release build (matches typical CI compile strictness):
 dotnet build ArchLucid.sln -c Release
 ```
 
+## Hosting misconfiguration warnings (staging / production-like)
+
+**ArchLucid.Api** logs non-blocking **`[HostingMisconfiguration]`** warnings (via **`ProductionLikeHostingMisconfigurationAdvisor`**) after configuration validation succeeds. This **does not** change authentication defaults or CORS policy — visibility only.
+
+| Signal | When a warning is emitted |
+|--------|---------------------------|
+| **Host profile** | **`ASPNETCORE_ENVIRONMENT`** (or **`DOTNET_ENVIRONMENT`**) is **Production** or **Staging**, **`ARCHLUCID_ENVIRONMENT`** is **Production** or **Staging**, or the environment name matches **`HostingEnvironmentNamePatterns`** (contains **`prod`**, excludes **`non-production` / `nonproduction`**) — same production-like idea as **`AuthSafetyGuard`**. Pure **Development** is skipped unless **`ARCHLUCID_ENVIRONMENT`** or the host name triggers production-like rules. |
+| **CORS** | **`Hosting:Role`** is not **Worker** and **`Cors:AllowedOrigins`** has no non-empty entries — browser SPAs cannot use the API cross-origin until operators add trusted origins. |
+| **JWT** | **`ArchLucidAuth:Mode`** is **JwtBearer** and neither **`ArchLucidAuth:Authority`** nor **`ArchLucidAuth:JwtSigningPublicKeyPemPath`** is set — JWT validation cannot succeed. |
+| **API key mode mismatch** | **`ArchLucidAuth:Mode`** is **ApiKey** but **`Authentication:ApiKey:Enabled`** is **false**. |
+
+**`archlucid doctor`** repeats the same advisory text after **GET /health/live** returns 2xx, evaluating **`ProductionLikeHostingMisconfigurationAdvisor.DescribeWarnings`** against this process’s environment variables (align shell env with the API container when debugging).
+
+**Fail-fast rules (unchanged):** **`AuthSafetyGuard`** still throws outside **Development** for **`ArchLucidAuth:Mode=DevelopmentBypass`** and **`Authentication:ApiKey:DevelopmentBypassAll=true`**. **Production** continues to enforce **`ArchLucidConfigurationRules`** (including **`Cors:AllowedOrigins`** for API hosts).
+
 ## Full solution
 
 ```bash

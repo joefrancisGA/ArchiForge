@@ -566,6 +566,7 @@ function GovernanceWorkflowPageInner() {
           <CardFooter>
             <Button
               type="button"
+              data-testid="governance-submit-approval-button"
               onClick={() => void onSubmitApproval()}
               disabled={submitBusy || !canMutateWorkflow || submitRunId.trim().length === 0}
               title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}

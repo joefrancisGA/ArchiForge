@@ -22,6 +22,17 @@ describe("getRouteTitle — manifest detail", () => {
   });
 });
 
+describe("getRouteTitle — governance policy pack detail", () => {
+  it("returns Not found for leaked literal tokens in the path tail", () => {
+    expect(getRouteTitle("/governance/policy-packs/undefined")).toBe("Not found");
+    expect(getRouteTitle("/governance/policy-packs/null")).toBe("Not found");
+  });
+
+  it("returns Policy pack detail for normal ids", () => {
+    expect(getRouteTitle("/governance/policy-packs/pack-1")).toBe("Policy pack detail");
+  });
+});
+
 describe("getRouteTitle — unknown path", () => {
   it("capitalizes last segment", () => {
     expect(getRouteTitle("/foo/bar-baz")).toBe("Bar baz");

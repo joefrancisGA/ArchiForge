@@ -3,6 +3,7 @@ using System.Text;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -51,24 +52,10 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         CancellationToken ct)
     {
         // Read-committed + row-versioning (RCSI): consistent committed reads without dirty-read hints; enable via migration 091.
-        const string sql = """
-                           SELECT TOP (@Take)
-                               EventId, OccurredUtc, EventType,
-                               ActorUserId, ActorUserName,
-                               TenantId, WorkspaceId, ProjectId,
-                               RunId, ManifestId, ArtifactId,
-                               DataJson, CorrelationId
-                           FROM dbo.AuditEvents
-                           WHERE TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId
-                           ORDER BY OccurredUtc DESC, EventId DESC;
-                           """;
-
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
             new CommandDefinition(
-                sql,
+                HotPathRelationalQueryShapes.AuditEventsGetByScope,
                 new
                 {
                     TenantId = tenantId,
@@ -93,18 +80,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
 
         // RCSI-backed read committed: no dirty reads on audit listing (see migration 091).
-        StringBuilder sql = new("""
-                                SELECT TOP (@Take)
-                                    EventId, OccurredUtc, EventType,
-                                    ActorUserId, ActorUserName,
-                                    TenantId, WorkspaceId, ProjectId,
-                                    RunId, ManifestId, ArtifactId,
-                                    DataJson, CorrelationId
-                                FROM dbo.AuditEvents
-                                WHERE TenantId = @TenantId
-                                  AND WorkspaceId = @WorkspaceId
-                                  AND ProjectId = @ProjectId
-                                """);
+        StringBuilder sql = new(HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope);
 
         DynamicParameters parameters = new();
         parameters.Add("TenantId", tenantId);
@@ -169,7 +145,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             }
         }
 
-        sql.Append(" ORDER BY OccurredUtc DESC, EventId DESC;");
+        sql.Append(HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc);
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(

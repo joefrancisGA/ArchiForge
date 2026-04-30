@@ -26,6 +26,12 @@ Targets for the **core pilot flow** regression tests in `ArchLucid.Api.Tests` (`
 
 ---
 
+## SQL shape sentinels (runs list / audit paging)
+
+High-volume relational list paths keep their SQL in **`ArchLucid.Persistence/Sql/HotPathRelationalQueryShapes.cs`** (canonical strings passed into Dapper for **`SqlRunRepository`** dashboard/keyset lists on **`dbo.Runs`** and **`DapperAuditRepository`** scoped reads on **`dbo.AuditEvents`**). **`ArchLucid.Persistence.Tests/Sql/HotPathRelationalQueryShapeTests.cs`** asserts stable fragments (`WITH (NOLOCK)` where intended, tenant/workspace/project scope, **`ArchivedUtc IS NULL`** on runs, **`ORDER BY`** tails) **without** opening a SQL connection — regression-only guardrails, not latency numbers. When you change those queries or indexing assumptions, update the constants and extend assertions in the same PR.
+
+---
+
 ## Real-mode E2E benchmark (time-to-value)
 
 For a **defensible, publishable** time-to-value figure using actual Azure OpenAI execution (not simulator), run the dedicated benchmark script:

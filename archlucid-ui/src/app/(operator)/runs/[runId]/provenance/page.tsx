@@ -1,11 +1,14 @@
 import Link from "next/link";
 
+import { notFound } from "next/navigation";
+
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProvenanceGraphDiagram } from "@/components/ProvenanceGraphDiagram";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import { type ApiResponseWithTrace, getArchitectureRunProvenance } from "@/lib/api";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
@@ -27,6 +30,11 @@ export default async function RunProvenancePage({
   params: Promise<{ runId: string }>;
 }) {
   const { runId } = await params;
+
+  if (isInvalidGuidOrSlugRouteToken(runId)) {
+    notFound();
+  }
+
   let loadFailure: ApiLoadFailureState | null = null;
   let provenanceResponse: ApiResponseWithTrace<ArchitectureRunProvenanceGraph> | null = null;
 
@@ -46,6 +54,10 @@ export default async function RunProvenancePage({
   }
 
   if (loadFailure || !provenanceResponse) {
+    if (loadFailure !== null && isApiNotFoundFailure(loadFailure)) {
+      notFound();
+    }
+
     const fallback =
       loadFailure?.message ?? "Provenance could not be loaded (run missing, broken manifest reference, or transport error).";
 

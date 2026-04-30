@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ApiRequestError } from "./api-request-error";
-import { toApiLoadFailure, uiFailureFromMessage } from "./api-load-failure";
+import { isApiNotFoundFailure, toApiLoadFailure, uiFailureFromMessage } from "./api-load-failure";
 
 describe("toApiLoadFailure", () => {
   it("maps ApiRequestError to state", () => {
@@ -15,6 +15,7 @@ describe("toApiLoadFailure", () => {
       message: "m",
       problem: { title: "T" },
       correlationId: "c",
+      httpStatus: 400,
     });
   });
 
@@ -23,6 +24,7 @@ describe("toApiLoadFailure", () => {
       message: "oops",
       problem: null,
       correlationId: null,
+      httpStatus: null,
     });
   });
 
@@ -31,7 +33,44 @@ describe("toApiLoadFailure", () => {
       message: "An unexpected error occurred.",
       problem: null,
       correlationId: null,
+      httpStatus: null,
     });
+  });
+});
+
+describe("isApiNotFoundFailure", () => {
+  it("is true for 404 httpStatus", () => {
+    expect(
+      isApiNotFoundFailure({
+        message: "m",
+        problem: null,
+        correlationId: null,
+        httpStatus: 404,
+      }),
+    ).toBe(true);
+  });
+
+  it("is true for problem.status 404", () => {
+    expect(
+      isApiNotFoundFailure({
+        message: "m",
+        problem: { title: "Missing", status: 404 },
+        correlationId: null,
+        httpStatus: null,
+      }),
+    ).toBe(true);
+  });
+
+  it("is false for other errors", () => {
+    expect(
+      isApiNotFoundFailure({
+        message: "m",
+        problem: { title: "Bad", status: 400 },
+        correlationId: null,
+        httpStatus: 400,
+      }),
+    ).toBe(false);
+    expect(isApiNotFoundFailure(null)).toBe(false);
   });
 });
 
@@ -41,6 +80,7 @@ describe("uiFailureFromMessage", () => {
       message: "hello",
       problem: null,
       correlationId: null,
+      httpStatus: null,
     });
   });
 

@@ -120,7 +120,6 @@ import {
   governanceWorkflowApprovalRequestsCardTitleReader,
   governanceWorkflowPromotionsActivationsHeadingReader,
   governanceWorkflowSubmitCardTitleReader,
-  governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
   policyPacksCreatePackButtonLabelReaderRank,
   policyPacksCurrentPacksHeadingReader,
   policyPacksPackContentHeadingReader,
@@ -381,7 +380,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(submitRunTrigger!.disabled).toBe(true);
     });
 
-    expect(screen.getByText(governanceWorkflowSubmitCardTitleReader)).toBeInTheDocument();
+    expect(screen.getAllByText(governanceWorkflowSubmitCardTitleReader).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(governanceWorkflowApprovalRequestsCardTitleReader)).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { level: 3, name: governanceWorkflowPromotionsActivationsHeadingReader }),
@@ -391,7 +390,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
     expect(submitVersion).not.toBeNull();
     expect(submitVersion!.readOnly).toBe(true);
-    expect(screen.getByRole("button", { name: governanceWorkflowSubmitForApprovalButtonLabelReaderRank })).toBeDisabled();
+    expect(screen.getByTestId("governance-submit-approval-button")).toBeDisabled();
   });
 
   it("Governance workflow: submit Run ID is editable when mutation capability is true", async () => {
@@ -405,7 +404,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(submitRunTrigger!.disabled).toBe(false);
     });
 
-    expect(screen.getByRole("button", { name: /submit for governance approval/i })).not.toBeDisabled();
+    expect(screen.getByTestId("governance-submit-approval-button")).not.toBeDisabled();
   });
 
   /**

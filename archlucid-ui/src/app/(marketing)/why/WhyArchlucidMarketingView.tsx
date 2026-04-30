@@ -1,7 +1,44 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { type WhyVerifyLink, WHY_COMPARISON_VERIFY_LINK_ROWS } from "@/lib/why-comparison-verify-points";
 import { type WhyHardComparisonRow, whyHardCellDisplay } from "@/lib/why-comparison";
+
+function renderWhyVerifyLink(link: WhyVerifyLink): ReactNode {
+  const className =
+    "break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400";
+
+  const key = `${link.href}|${link.label}`;
+
+  if (link.href.startsWith("http")) {
+    return (
+      <a key={key} className={className} href={link.href} target="_blank" rel="noopener noreferrer">
+        {link.label}
+      </a>
+    );
+  }
+
+  if (link.href.endsWith(".zip")) {
+    return (
+      <a key={key} className={className} href={link.href} download>
+        {link.label}
+      </a>
+    );
+  }
+
+  return (
+    <Link key={key} className={className} href={link.href}>
+      {link.label}
+    </Link>
+  );
+}
+
+function WhyHardComparisonVerifyCell({ links }: { readonly links: readonly WhyVerifyLink[] }): ReactNode {
+  return (
+    <div className="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug">{links.map(renderWhyVerifyLink)}</div>
+  );
+}
 
 export type WhyArchlucidMarketingViewProps = {
   /** Parsed from `WHY_COMPARISON_ROWS_SERIALIZED` on the marketing route for a single JSON source path. */
@@ -101,7 +138,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         </p>
 
         <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <table className="w-full min-w-[960px] border-collapse text-left text-sm" data-testid="why-hard-comparison-table">
+          <table className="w-full min-w-[72rem] border-collapse text-left text-sm" data-testid="why-hard-comparison-table">
             <caption className="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
               ArchLucid vs common stacks — technically scoped rows
             </caption>
@@ -109,6 +146,9 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
               <tr className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80">
                 <th scope="col" className="min-w-[220px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
                   Claim
+                </th>
+                <th scope="col" className="min-w-[140px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  Verify
                 </th>
                 <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
                   ArchLucid
@@ -136,6 +176,9 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
                   >
                     {row.label}
                   </th>
+                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                    <WhyHardComparisonVerifyCell links={WHY_COMPARISON_VERIFY_LINK_ROWS[index] ?? []} />
+                  </td>
                   <td className="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
                     {whyHardCellDisplay(row.archlucid)}
                   </td>

@@ -1,0 +1,44 @@
+{
+  "requestId": "template-microservices-ecommerce-demo-001",
+  "systemName": "ContosoRetailEcommerce",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "description": "We are designing a cloud-native e-commerce platform on Azure for the Contoso Retail division. The storefront and BFF run on Azure Container Apps behind Azure Front Door + WAF; product catalog and order services use Azure SQL with read replicas for hot paths; payments integrate with a PSP via private connectivity; inventory events flow through Azure Service Bus to downstream fulfillment. Non-functional goals: sub-200ms p95 for catalog reads in primary regions, RPO under 15 minutes for order data, PCI scope minimized by tokenizing PAN data at the edge, and centralized structured logging with correlation IDs end-to-end.",
+  "constraints": [
+    "All public HTTPS entry must terminate at Front Door; origin apps must not expose public IPs without WAF inspection.",
+    "Order and payment state transitions must be auditable per transaction id.",
+    "No raw cardholder data persists in application databases.",
+    "Use managed identities for Azure service credentials; avoid long-lived secrets in app configuration."
+  ],
+  "requiredCapabilities": [
+    "Autoscale HTTP workloads based on concurrent requests",
+    "At-least-once messaging between order service and fulfillment",
+    "Secrets and keys in Azure Key Vault with rotation policy"
+  ],
+  "assumptions": [
+    "Traffic is predominantly read-heavy on catalog endpoints.",
+    "Peak events align with seasonal retail spikes; scale-out must be bounded by declared budget tier."
+  ],
+  "inlineRequirements": [
+    "REQ: Product catalog REST API supports pagination and etag-based concurrency for optimistic updates.",
+    "REQ: Checkout path must degrade gracefully when the payment PSP is unhealthy (queued orders with SLA).",
+    "REQ: Operational dashboards expose golden signals (latency, errors, saturation) per service tier.",
+    "POL: Encrypt customer PII at rest (SQL TDE + application-level field encryption where mandated).",
+    "TOP: Prefer hub-spoke networking with delegated subnets for Container Apps and private endpoints to SQL."
+  ],
+  "policyReferences": [
+    "contoso-retail-online-governance-pack"
+  ],
+  "topologyHints": [
+    "hub-spoke-VNet-with-ACA-environment",
+    "Front-Door-premium-fronting-regional-container-apps",
+    "Service-Bus-namespace-for-async-order-events"
+  ],
+  "securityBaselineHints": [
+    "Entra ID app roles for admin vs operator storefront actions",
+    "Private Link to Azure SQL and Key Vault deny public network access where feasible",
+    "Defender for Cloud alerts on suspicious SQL and identity activity"
+  ],
+  "documents": [],
+  "infrastructureDeclarations": []
+}

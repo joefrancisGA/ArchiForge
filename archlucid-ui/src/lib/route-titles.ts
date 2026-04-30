@@ -1,3 +1,5 @@
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+
 const ROUTE_TITLES: Record<string, string> = {
   "/": "Home",
   "/runs": "Runs",
@@ -33,6 +35,16 @@ export function getRouteTitle(pathname: string): string {
 
   if (/^\/manifests\/[^/]+$/.test(normalized)) {
     return "Manifest detail";
+  }
+
+  if (/^\/governance\/policy-packs\/[^/]+$/.test(normalized)) {
+    const tail = normalized.split("/").filter((s) => s.length > 0).pop() ?? "";
+
+    if (isInvalidDynamicRouteToken(tail)) {
+      return "Not found";
+    }
+
+    return "Policy pack detail";
   }
 
   const segments: string[] = normalized.split("/").filter((s) => s.length > 0);

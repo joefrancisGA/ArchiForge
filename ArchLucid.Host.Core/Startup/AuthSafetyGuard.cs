@@ -1,3 +1,4 @@
+using ArchLucid.Core.Hosting;
 using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup;
@@ -42,9 +43,9 @@ public static class AuthSafetyGuard
     ///         (include <c>ArchLucidAuth:DevUserId</c>); pass <see langword="null" /> in unit tests if not needed.
     ///     </para>
     ///     <para>
-        ///         <c>Authentication:ApiKey:DevelopmentBypassAll=true</c> remains blocked in any
-        ///         environment where <see cref="IHostEnvironment.IsDevelopment()" /> is <see langword="false" />
-        ///         (Staging, Production, Test, and production-like names). Call before registering authentication services.
+    ///         <c>Authentication:ApiKey:DevelopmentBypassAll=true</c> remains blocked in any
+    ///         environment where <see cref="IHostEnvironment.IsDevelopment()" /> is <see langword="false" />
+    ///         (Staging, Production, Test, and production-like names). Call before registering authentication services.
     ///     </para>
     /// </remarks>
     public static void GuardAllDevelopmentBypasses(
@@ -104,7 +105,7 @@ public static class AuthSafetyGuard
             return true;
 
 
-        if (EnvironmentNameImpliesProductionLike(hostEnvironment.EnvironmentName))
+        if (HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(hostEnvironment.EnvironmentName))
             return true;
 
 
@@ -115,26 +116,6 @@ public static class AuthSafetyGuard
             archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
 
 
-        return EnvironmentNameImpliesProductionLike(archLucidEnv);
-    }
-
-    /// <summary>
-    ///     Treats names containing <c>prod</c> (case-insensitive) as production-like so misnamed hosts
-    ///     (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot run DevelopmentBypassAll.
-    ///     Excludes <c>non-production</c> / <c>nonproduction</c> so dev stacks that embed that phrase are not blocked.
-    /// </summary>
-    private static bool EnvironmentNameImpliesProductionLike(string? environmentName)
-    {
-        if (string.IsNullOrWhiteSpace(environmentName))
-            return false;
-
-
-        string trimmed = environmentName.Trim();
-
-        if (trimmed.Contains("non-production", StringComparison.OrdinalIgnoreCase))
-            return false;
-
-
-        return !trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase) && trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
+        return HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(archLucidEnv);
     }
 }

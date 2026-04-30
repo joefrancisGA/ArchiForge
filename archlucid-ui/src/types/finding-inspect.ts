@@ -14,4 +14,7 @@ export type FindingInspectPayload = {
   auditRowId: string | null;
   runId: string;
   manifestVersion: string | null;
+  /** Inspect API fields when returned (FindingInspectResponse). */
+  modelDeploymentName?: string | null;
+  promptTemplateVersion?: string | null;
 };

@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 
-using static ArchLucid.Contracts.Requests.RequestConstraintClassifier;
+using static ArchLucid.Core.Requests.RequestConstraintClassifier;
 
 namespace ArchLucid.Application.Evidence;
 

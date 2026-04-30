@@ -5,8 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
+import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
+import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +21,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getApprovalRequestLineage } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
-import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 export default function GovernanceApprovalLineagePage() {
@@ -56,21 +58,45 @@ export default function GovernanceApprovalLineagePage() {
     void load();
   }, [load]);
 
-  if (!approvalRequestId || isInvalidDynamicRouteToken(approvalRequestId)) {
-    return (
-      <OperatorEmptyState title="Missing approval id">
-        <p className="text-sm">
-          Open this page from a governance link that includes the approval request id.
-        </p>
-      </OperatorEmptyState>
-    );
+  if (failure !== null && isApiNotFoundFailure(failure)) {
+    return <OperatorBrandedNotFound />;
   }
 
   if (loading) {
+    if (isNextPublicDemoMode()) {
+      return (
+        <OperatorLoadingNotice>Loading approval lineage…</OperatorLoadingNotice>
+      );
+    }
+
     return (
       <div className="space-y-4" aria-busy="true" aria-label="Loading lineage">
         <div className="h-8 w-64 animate-pulse rounded-md bg-neutral-200 dark:bg-neutral-700" />
         <div className="h-40 animate-pulse rounded-md bg-neutral-200 dark:bg-neutral-700" />
+      </div>
+    );
+  }
+
+  const demoUnavailable =
+    isNextPublicDemoMode() && (failure !== null || data === null);
+
+  if (demoUnavailable) {
+    return (
+      <div className="space-y-4">
+        <DemoUnavailableNotice
+          title="Approval lineage"
+          description="Lineage detail is not available in this demo environment, or this approval id has no persisted lineage yet. Explore governance findings or a completed example run instead."
+          learnMoreHref="/governance/findings"
+          learnMoreLabel="Governance findings"
+        />
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" size="sm" variant="outline" onClick={() => void load()}>
+            Retry
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/runs?projectId=default">Runs</Link>
+          </Button>
+        </div>
       </div>
     );
   }

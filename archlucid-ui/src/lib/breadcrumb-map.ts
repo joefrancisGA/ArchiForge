@@ -1,3 +1,5 @@
+import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+
 export type BreadcrumbItem = {
   label: string;
   href?: string;
@@ -69,6 +71,33 @@ export function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
     return items;
   }
 
+  // `/governance/policy-packs/[id]` is governance-scoped pack tooling; the registry is `/policy-packs`.
+  // Do not link the "Governance" segment to `/governance` (approval workflow) — that confused screenshots
+  // and operators expecting pack UX.
+  const governancePolicyPacksPrefix = "/governance/policy-packs";
+
+  if (normalized === governancePolicyPacksPrefix || normalized === `${governancePolicyPacksPrefix}/`) {
+    return [...items, { label: "Policy packs", href: "/policy-packs" }];
+  }
+
+  if (normalized.startsWith(`${governancePolicyPacksPrefix}/`)) {
+    const afterSlash = normalized.slice(governancePolicyPacksPrefix.length + 1).replace(/\/$/, "");
+    const idSegment = afterSlash.split("/")[0] ?? "";
+
+    if (idSegment.length === 0) {
+      return [...items, { label: "Policy packs", href: "/policy-packs" }];
+    }
+
+    const allSegments = ["governance", "policy-packs", idSegment];
+    const lastLabel = labelForSegment(idSegment, allSegments, 2);
+
+    return [
+      ...items,
+      { label: "Policy packs", href: "/policy-packs" },
+      { label: lastLabel },
+    ];
+  }
+
   let cumulative = "";
 
   for (let i = 0; i < rawSegments.length; i++) {
@@ -108,6 +137,11 @@ const DEMO_PATH_SEGMENT_TITLES: Record<string, string> = {
 
 function labelForSegment(segment: string, allSegments: string[], index: number): string {
   const prev = index > 0 ? allSegments[index - 1] : "";
+
+  if (prev === "policy-packs" && isInvalidDynamicRouteToken(segment)) {
+    return "Policy pack detail";
+  }
+
   const demoTitle = DEMO_PATH_SEGMENT_TITLES[segment];
 
   if (

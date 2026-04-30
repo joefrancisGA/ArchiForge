@@ -107,7 +107,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
     >
       <table
-        class="w-full min-w-[960px] border-collapse text-left text-sm"
+        class="w-full min-w-[72rem] border-collapse text-left text-sm"
         data-testid="why-hard-comparison-table"
       >
         <caption
@@ -124,6 +124,12 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               scope="col"
             >
               Claim
+            </th>
+            <th
+              class="min-w-[140px] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              Verify
             </th>
             <th
               class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
@@ -162,6 +168,20 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               Every commit produces a versioned, immutable manifest
             </th>
             <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <div
+                class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
+              >
+                <a
+                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  href="/demo/preview"
+                >
+                  /demo/preview
+                </a>
+              </div>
+            </td>
+            <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
               ✓
@@ -191,6 +211,29 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             >
               Every mutation produces a typed audit row in an append-only store
             </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <div
+                class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
+              >
+                <a
+                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  download=""
+                  href="/v1/marketing/trust-center/evidence-pack.zip"
+                >
+                  Evidence pack (ZIP)
+                </a>
+                <a
+                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/AUDIT_COVERAGE_MATRIX.md"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  AUDIT_COVERAGE_MATRIX.md
+                </a>
+              </div>
+            </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
@@ -222,6 +265,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               Tenant isolation is enforced at SQL via Row-Level Security with SESSION_CONTEXT
             </th>
             <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <div
+                class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
+              >
+                <a
+                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/security/MULTI_TENANT_RLS.md"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  MULTI_TENANT_RLS.md
+                </a>
+              </div>
+            </td>
+            <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
               ✓
@@ -251,6 +310,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             >
               Authentication fails closed by default (API keys disabled until enabled)
             </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <div
+                class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
+              >
+                <a
+                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/V1_SCOPE.md"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  V1_SCOPE.md (auth)
+                </a>
+              </div>
+            </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
@@ -282,6 +357,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               Comparison replay can re-derive the same artifact and detect drift
             </th>
             <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <div
+                class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
+              >
+                <a
+                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/COMPARISON_REPLAY.md"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  COMPARISON_REPLAY.md
+                </a>
+              </div>
+            </td>
+            <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
               ✓
@@ -312,6 +403,20 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               Findings carry typed payloads per category, not free-text
             </th>
             <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <div
+                class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
+              >
+                <a
+                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  href="/demo/explain"
+                >
+                  /demo/explain
+                </a>
+              </div>
+            </td>
+            <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >
               ✓
@@ -341,6 +446,22 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             >
               Pre-commit governance gate can block commit on configured severity thresholds
             </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <div
+                class="flex max-w-[14rem] flex-col gap-1 align-top text-xs leading-snug"
+              >
+                <a
+                  class="break-words text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+                  href="https://github.com/joefrancisGA/ArchLucid/blob/main/docs/library/PRE_COMMIT_GOVERNANCE_GATE.md"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  PRE_COMMIT_GOVERNANCE_GATE.md
+                </a>
+              </div>
+            </td>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
             >

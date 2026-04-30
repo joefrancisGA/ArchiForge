@@ -99,6 +99,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Coordinator run execution succeeded (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunExecuteOrchestrator` → `Architecture.RunExecuteSucceeded`) | `AuditEventTypes.Run.ExecuteSucceeded` | RunId | `{ runId, resultCount }` |
 | Coordinator run commit completed (baseline → durable) | `BaselineMutationAuditService` (`ArchitectureRunCommitOrchestrator` / `AuthorityDrivenArchitectureRunCommitOrchestrator` → `Architecture.RunCompleted`) | `AuditEventTypes.Run.CommitCompleted` | RunId | Coordinator path: `{ runId, manifestVersion, systemName }`; authority path adds `warningCount`, `commitPath` |
 | Coordinator run failed (baseline → durable) | `BaselineMutationAuditService` (orchestrators → `Architecture.RunFailed`) via `BaselineMutationAuditArchitectureDurableWriter` | `AuditEventTypes.Run.Failed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
+| Coordinator run execute retry (`LegacyRunStatus` / contract status **Failed**) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.Run.RetryRequested` | RunId when `runId` parses as GUID | `{ runId, previousStatus: "Failed" }` — direct `IAuditService` before baseline `Architecture.RunStarted`; clarifies durable trail when operators re-invoke execute after a failed run |
 | Agent trace blob persistence failed or timed out | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceBlobPersistenceFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, failedBlobTypes? }` — emitted when inline blob writes after trace insert exhaust retries, time out, or throw unexpectedly; execute outcome elsewhere is unchanged. |
 | Agent trace mandatory inline fallback failed or forensic verification failed | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceInlineFallbackFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, exceptionDetail? }` — SQL inline patch threw, trace row missing on read, or blob+inline still missing non-empty prompt/response after patch; **`dbo.AgentExecutionTraces.InlineFallbackFailed`** set; execute outcome elsewhere is unchanged. |
 | Orphan comparison-record remediation (execute) | `AdminDiagnosticsService` | `ComparisonRecordOrphansRemediated` | — | `{ dryRun: false, deletedCount, comparisonRecordIds[] }` — `POST .../admin/diagnostics/data-consistency/orphan-comparison-records?dryRun=false`; dry-run calls emit no audit row. |
@@ -177,7 +178,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `ManifestArchived` cascades (`dbo.GoldenManifests.ArchivedUtc` via bulk run archival) | `AdminDiagnosticsService` logs `AuditEventTypes.ManifestArchived` after successful `ArchiveRuns*` calls | Wiring echo CI + orchestration review |
 | `RequestCreated` / `RequestLocked` / `RequestReleased` | `ArchitectureRunCreateOrchestrator`, `AuthorityDrivenArchitectureRunCommitOrchestrator` + `IRunRepository.CountActiveRunsForArchitectureRequestAsync` | Wiring echo CI |
 | Pipeline synthesis / findings sealing | `AuthorityPipelineStagesExecutor` | Wiring echo CI |
-| Run retry durability | `ArchitectureRunExecuteOrchestrator` emits `AuditEventTypes.Run.RetryRequested` | Wiring echo CI |
+| Run retry durability | `ArchitectureRunExecuteOrchestrator` emits `AuditEventTypes.Run.RetryRequested` | Wiring echo CI + unit `ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests` (`ArchLucid.Application.Tests`) |
 
 **Future-drift signal.** Governance repository writes should continue to funnel through audited application services wherever possible; pairing + layering scripts are regression tripwires, not substitutes for semantic tests.
 
@@ -337,7 +338,7 @@ When adding a Core constant, add a row here and bump `audit-core-const-count`.
 | `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunExecuteSucceeded`) |
 | `Run.CommitCompleted` | `Run.CommitCompleted` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunCompleted`) |
 | `Run.Failed` | `Run.Failed` | `BaselineMutationAuditService` / `BaselineMutationAuditArchitectureDurableWriter` (baseline `Architecture.RunFailed`) |
-| `Run.RetryRequested` | `Run.RetryRequested` | — (constant catalogued; operator / API retry of a failed run — durable `LogAsync` not yet wired) |
+| `Run.RetryRequested` | `Run.RetryRequested` | `ArchitectureRunExecuteOrchestrator` (`ExecuteRunAsync` when load maps to `ArchitectureRunStatus.Failed`; scoped tenant/workspace/project + `RunId`) |
 
 When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 

@@ -202,9 +202,9 @@ export default function GraphPage() {
     if (demoUi && showIdleCard) {
       return {
         ...GRAPH_IDLE,
-        title: "Graph preview pending",
+        title: "Architecture graph",
         description:
-          "Pick **Load graph** above after selecting a run. Demo builds substitute a sample review-trail layout when the API has no graph bundle yet — if this message persists, graph data may not be deployed for your route.",
+          "Select a run above. If no graph appears after a moment, choose **Load graph** or switch graph mode — the Claims Intake sample can provide a fallback preview when you are evaluating the product.",
       };
     }
 

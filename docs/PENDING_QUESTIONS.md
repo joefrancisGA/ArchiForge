@@ -5,7 +5,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-29 (items **12**–**13** — **12** public `/accessibility` + `accessibility@archlucid.net`; **13** governance SoD OID columns; **ITSM V1.1 priority** — ServiceNow first; Assessor B thread: only Q3 still open).
+**Last updated:** 2026-04-29 (items **12**–**13** — **12** public `/accessibility` + `accessibility@archlucid.net`; **13** governance SoD OID columns; **ITSM V1.1 priority** — ServiceNow first; Assessor B thread: only Q3 still open; **audit async path policy Resolved 2026-04-29**).
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
@@ -58,6 +58,12 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 ### Still open — same assessment thread (Assessor B §9)
 
 1. **API key lifecycle (Q3)** — how keys are **created, rotated, distributed**, and **break-glass** for any path that still uses API keys (typically **non-production** or emergency while prod is JWT-only).
+
+**Resolved 2026-04-29 (performance regression sentinel approach)** — **Named-query allowlist (Option A).** SaaS product — no customer DBAs, team owns the full stack. SQL text snapshots produce high CI noise (false positives on every whitespace / ORM change) and erode gate trust; allowlist keeps the gate high-signal. A query name that crosses its p95 threshold fails CI; everything not in the allowlist is invisible until deliberately added. Allowlist grows organically as new critical paths are identified. Implementation deferred to **TB-003** in `docs/library/TECH_BACKLOG.md`.
+
+**Resolved 2026-04-29 (production config warnings → OTel)** — **OTel counter + log.** Startup validation warnings emit both a structured `LogWarning` line and increment `archlucid_startup_config_warnings_total` (label `rule_name`; bounded cardinality — rule names are code constants). A Terraform alert rule fires when the counter is non-zero on a Production-classified host. Implementation deferred to **TB-002** in `docs/library/TECH_BACKLOG.md`.
+
+**Resolved 2026-04-29 (audit coverage on async paths)** — **Best-effort, never block.** Audit write failures on async / fire-and-forget paths must **not** surface to the user or degrade their experience. Log the failure as a structured warning (include correlation ID and the missed event type), increment a counter metric (`archlucid_audit_write_failures_total`), but **continue processing** regardless. Fail-closed behaviour is reserved for **synchronous, user-visible** paths where the audit record is part of the response contract (e.g. governance approval submission). Affects `ArchLucid.Provenance/`, dual-write design, and `docs/library/AUDIT_COVERAGE_MATRIX.md` wording.
 
 **Resolved 2026-04-28 (Q7 — agent eval / real LLM signal)** — **Manual gate preferred by owner** until a CI rollup is a habit. Use **`docs/quality/MANUAL_QA_CHECKLIST.md` §8.3** (*Real-LLM / agent output quality*) to perform a **staging real-LLM** run, subjective sponsor-readiness check, and a one-line private note. **Optional later:** add “last time I ran §8.3” / link to a **green** `agent-eval-datasets-nightly` run when you start tracking it. Automated nightly does **not** replace §8.3; it **complements** it.
 

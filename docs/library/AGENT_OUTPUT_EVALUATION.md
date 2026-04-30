@@ -105,12 +105,12 @@ IAgentOutputSemanticEvaluator.Evaluate(traceId, parsedResultJson, agentType) →
 
 Registered as **singleton** (`IAgentOutputSemanticEvaluator → AgentOutputSemanticEvaluator`).
 
-## Quality gate (optional in Development)
+## Quality gate (enabled by default)
 
 **`IAgentOutputQualityGate`** classifies structural + semantic scores into **accepted / warned / rejected** using **`ArchLucid:AgentOutput:QualityGate`** (`AgentOutputQualityGateOptions`).
 
 - **Shipped default (`ArchLucid.Api/appsettings.json`):** **`Enabled: true`** with **`StructuralWarnBelow`**, **`SemanticWarnBelow`**, **`StructuralRejectBelow`**, **`SemanticRejectBelow`** thresholds so production-like runs record gate outcomes on the evaluation path.
-- **Local Development (`appsettings.Development.json`):** **`Enabled: false`** so prompt and handler iteration is not slowed by gate warnings.
+- **Local Development (`appsettings.Development.json`):** matches the same threshold block with **`Enabled: true`** so **`dotnet run`** and API tests observe the same OTel gate counters and warning logs as staging—set **`Enabled: false`** only when you are intentionally mutating agent JSON without gate noise.
 - **`appsettings.Advanced.json`:** does not need to repeat the block unless you override thresholds per environment.
 
 When enabled, **`AgentOutputEvaluationRecorder`** increments **`archlucid_agent_output_quality_gate_total`** (labels `agent_type`, `outcome`) and logs **warn** for **warned**/**rejected** outcomes. The gate does **not** change persisted traces or block merges by itself.

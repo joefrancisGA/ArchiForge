@@ -14,6 +14,7 @@ import { ShortcutHint } from "@/components/ShortcutHint";
 import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
+import { toDocsBlobUrl } from "@/lib/contextual-help-content";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
@@ -120,11 +121,13 @@ export default async function RunsPage({
           </Button>
           <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
         </div>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/compare" className="no-underline">
-            Compare two runs
-          </Link>
-        </Button>
+        {totalCount > 0 ? (
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/compare" className="no-underline">
+              Compare two runs
+            </Link>
+          </Button>
+        ) : null}
       </div>
 
       {usedStaticRunsFallback ? (
@@ -170,7 +173,28 @@ export default async function RunsPage({
         </>
       )}
 
-      {loadFailure === null && !malformedMessage && totalCount === 0 ? <EmptyState {...RUNS_EMPTY} /> : null}
+      {loadFailure === null && !malformedMessage && totalCount === 0 ? (
+        <>
+          <div
+            className="mt-4 max-w-prose rounded-md border border-amber-200 bg-amber-50/70 px-3 py-2 text-sm leading-snug text-neutral-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-neutral-200"
+            data-testid="runs-empty-core-pilot-hint"
+          >
+            <strong className="font-semibold">Core Pilot first:</strong> use{" "}
+            <strong className="font-semibold">New request</strong> here, then execute, commit, and review on run detail
+            (see{" "}
+            <a
+              href={toDocsBlobUrl("/docs/CORE_PILOT.md")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-teal-800 underline dark:text-teal-300"
+            >
+              Core Pilot path
+            </a>
+            ). You do not need Compare, Replay, or Governance until after your first committed manifest.
+          </div>
+          <EmptyState {...RUNS_EMPTY} />
+        </>
+      ) : null}
 
       {!loadFailure && !malformedMessage && totalCount > 0 ? (
         <RunsListClient

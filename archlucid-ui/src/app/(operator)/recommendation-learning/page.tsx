@@ -1,16 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { getLatestLearningProfile, rebuildLearningProfile } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import type { LearningProfile } from "@/types/recommendation-learning";
 
 export default function RecommendationLearningPage() {
+  const router = useRouter();
+  const demoMode = isNextPublicDemoMode();
   const [profile, setProfile] = useState<LearningProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+
+  useEffect(() => {
+    if (!demoMode) {
+      return;
+    }
+
+    router.replace("/");
+  }, [demoMode, router]);
 
   async function loadLatest() {
     setLoading(true);
@@ -37,6 +50,14 @@ export default function RecommendationLearningPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (demoMode) {
+    return (
+      <main className="max-w-4xl">
+        <OperatorLoadingNotice>Returning to home…</OperatorLoadingNotice>
+      </main>
+    );
   }
 
   return (

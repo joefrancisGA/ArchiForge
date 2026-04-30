@@ -23,6 +23,8 @@ export const SCREENSHOT_RUN_ID = "claims-intake-modernization-run";
 export const SCREENSHOT_FINDING_ID = "phi-minimization-risk";
 export const SCREENSHOT_PLAN_ID = "claims-intake-modernization-plan";
 export const SCREENSHOT_APPROVAL_ID = "claims-intake-approval-001";
+/** Human slug for governance policy pack detail screenshots; aligns with `breadcrumb-map` demo segment titles. */
+export const SCREENSHOT_POLICY_PACK_ID = "healthcare-claims-v3-pack";
 /** Screenshot manifest detail uses the canonical showcase UUID so mock API aligns with operator/showcase. */
 export const SCREENSHOT_MANIFEST_ID = SHOWCASE_STATIC_DEMO_MANIFEST_ID;
 export const SCREENSHOT_LEFT_RUN_ID = "claims-intake-run-v1";

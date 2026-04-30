@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 
@@ -8,7 +8,7 @@ export default async function PolicyPackDetailPage({ params }: { params: Promise
   const { id } = await params;
 
   if (isInvalidDynamicRouteToken(id)) {
-    redirect("/governance");
+    notFound();
   }
 
   return <PolicyPackDetailClient policyPackId={id.trim()} />;

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { fetchProductLearningDashboard } from "@/lib/api";
@@ -11,6 +12,7 @@ import {
 } from "@/lib/product-learning-report-urls";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import type { ProductLearningDashboardBundle } from "@/types/product-learning";
 
 type TimeRangeKey = "all" | "7d" | "30d";
@@ -58,6 +60,8 @@ const numericCellClass = "border border-neutral-200 dark:border-neutral-700 px-2
  * Pilot / product learning dashboard (58R): outcome trends, opportunities, triage — distinct from advisory recommendation learning.
  */
 export default function ProductLearningPage() {
+  const router = useRouter();
+  const demoMode = isNextPublicDemoMode();
   const [range, setRange] = useState<TimeRangeKey>("all");
   const [bundle, setBundle] = useState<ProductLearningDashboardBundle | null>(null);
   const [loading, setLoading] = useState(false);
@@ -80,10 +84,30 @@ export default function ProductLearningPage() {
   }, [range]);
 
   useEffect(() => {
+    if (!demoMode) {
+      return;
+    }
+
+    router.replace("/");
+  }, [demoMode, router]);
+
+  useEffect(() => {
+    if (demoMode) {
+      return;
+    }
+
     void load();
-  }, [load]);
+  }, [demoMode, load]);
 
   const emptyDataset = bundle !== null && bundle.summary.totalSignalsInScope === 0;
+
+  if (demoMode) {
+    return (
+      <main className="max-w-5xl">
+        <OperatorLoadingNotice>Returning to home…</OperatorLoadingNotice>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-5xl">

@@ -39,7 +39,7 @@ public sealed class CriticAgentHandlerTests
                           {
                             "findingId": "FIND-CRITIC-001",
                             "sourceAgent": "Critic",
-                            "severity": "Medium",
+                            "severity": "Warning",
                             "category": "Critic",
                             "message": "ObservabilityUnderSpecified",
                             "evidenceRefs": [ "critic-checklist" ]
@@ -47,7 +47,7 @@ public sealed class CriticAgentHandlerTests
                           {
                             "findingId": "FIND-CRITIC-002",
                             "sourceAgent": "Critic",
-                            "severity": "Medium",
+                            "severity": "Warning",
                             "category": "Critic",
                             "message": "SecretManagementUnderSpecified",
                             "evidenceRefs": [ "critic-checklist" ]

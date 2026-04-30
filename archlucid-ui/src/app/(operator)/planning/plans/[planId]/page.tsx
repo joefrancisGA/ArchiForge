@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorBrandedNotFound } from "@/components/OperatorBrandedNotFound";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { fetchLearningPlanDetail } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
-import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import type { LearningPlanDetailResponse } from "@/types/learning";
 
 /**
@@ -17,7 +17,6 @@ import type { LearningPlanDetailResponse } from "@/types/learning";
  */
 export default function PlanningPlanDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const planIdRaw = params.planId;
   const planId = typeof planIdRaw === "string" ? planIdRaw : Array.isArray(planIdRaw) ? planIdRaw[0] : "";
 
@@ -25,20 +24,8 @@ export default function PlanningPlanDetailPage() {
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
-  useEffect(() => {
-    if (!isInvalidDynamicRouteToken(planId)) {
-      return;
-    }
-
-    router.replace("/planning");
-  }, [planId, router]);
-
   const load = useCallback(async () => {
     if (!planId.trim()) {
-      return;
-    }
-
-    if (isInvalidDynamicRouteToken(planId)) {
       return;
     }
 
@@ -62,6 +49,10 @@ export default function PlanningPlanDetailPage() {
 
   return (
     <main className="max-w-3xl">
+      {failure !== null && isApiNotFoundFailure(failure) ? (
+        <OperatorBrandedNotFound />
+      ) : (
+        <>
       <p className="mt-0 mb-4">
         <Link href="/planning" className="text-blue-700 dark:text-blue-400 text-sm">
           ← Back to planning
@@ -76,14 +67,14 @@ export default function PlanningPlanDetailPage() {
         </p>
       ) : null}
 
-      {loading && plan === null && !isInvalidDynamicRouteToken(planId) ? (
+      {loading && plan === null && planId.trim().length > 0 ? (
         <OperatorLoadingNotice>
           <strong>Loading plan.</strong>
           <p className="mt-2 text-sm">Fetching plan detail from the API…</p>
         </OperatorLoadingNotice>
       ) : null}
 
-      {failure !== null && !isInvalidDynamicRouteToken(planId) ? (
+      {failure !== null && !isApiNotFoundFailure(failure) ? (
         <div role="alert" className="mb-4">
           <OperatorApiProblem
             problem={failure.problem}
@@ -178,6 +169,8 @@ export default function PlanningPlanDetailPage() {
           </section>
         </>
       ) : null}
+        </>
+      )}
     </main>
   );
 }

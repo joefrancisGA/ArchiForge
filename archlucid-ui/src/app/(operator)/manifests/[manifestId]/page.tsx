@@ -1,8 +1,11 @@
 import Link from "next/link";
 
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
+import {
+  OperatorEvidenceLimitsFooter,
+} from "@/components/OperatorEvidenceLimitsFooter";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { ManifestDetailSummaryPanel } from "@/components/ManifestDetailSummaryPanel";
@@ -17,16 +20,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/operator-response-guards";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  coerceArtifactDescriptorList,
+  coerceManifestSummary,
+} from "@/lib/operator-response-guards";
 import { tryStaticDemoArtifacts, tryStaticDemoManifestSummary } from "@/lib/operator-static-demo";
-import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import {
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
+import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
 function manifestScenarioSubtitle(m: ManifestSummary): string | null {
@@ -51,8 +58,8 @@ export default async function ManifestDetailPage({
 }) {
   const { manifestId } = await params;
 
-  if (isInvalidDynamicRouteToken(manifestId)) {
-    redirect("/runs?projectId=default");
+  if (isInvalidGuidOrSlugRouteToken(manifestId)) {
+    notFound();
   }
 
   let summary: ManifestSummary | null = null;
@@ -84,6 +91,10 @@ export default async function ManifestDetailPage({
     summaryFailure = null;
     summaryMalformed = null;
     usedStaticDemoManifest = true;
+  }
+
+  if (summaryFailure !== null && isApiNotFoundFailure(summaryFailure)) {
+    notFound();
   }
 
   try {
@@ -208,6 +219,8 @@ export default async function ManifestDetailPage({
   }
 
   const manifestSubtitle = manifestScenarioSubtitle(summary);
+
+  const manifestFooterExecution = await tryLoadRunExecutionFootnote(summary.runId.trim());
 
   const primaryFindingHref =
     summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID || summary.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID
@@ -363,6 +376,12 @@ export default async function ManifestDetailPage({
           )}
         </CardContent>
       </Card>
+
+      <OperatorEvidenceLimitsFooter
+        runId={summary.runId}
+        execution={manifestFooterExecution}
+        showArchitectureReviewSummaryLink
+      />
     </main>
   );
 }

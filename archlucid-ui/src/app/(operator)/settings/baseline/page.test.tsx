@@ -6,6 +6,10 @@ vi.mock("@/lib/toast", () => ({
   showSuccess: vi.fn()
 }));
 
+vi.mock("@/lib/demo-ui-env", () => ({
+  isNextPublicDemoMode: () => false,
+}));
+
 import { BaselineSettingsClient } from "./BaselineSettingsClient";
 
 describe("BaselineSettingsPage", () => {

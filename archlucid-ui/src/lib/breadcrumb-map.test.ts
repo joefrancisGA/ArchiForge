@@ -31,6 +31,21 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
+  it("uses policy-pack registry trail for governance-scoped pack routes (no workflow parent link)", () => {
+    expect(getBreadcrumbs("/governance/policy-packs/undefined")).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Policy packs", href: "/policy-packs" },
+      { label: "Policy pack detail" },
+    ]);
+  });
+
+  it("redirect target path breadcrumb resolves to registry only", () => {
+    expect(getBreadcrumbs("/governance/policy-packs")).toEqual([
+      { label: "Home", href: "/" },
+      { label: "Policy packs", href: "/policy-packs" },
+    ]);
+  });
+
   it("labels showcase demo slug before uuid-style titles", () => {
     expect(getBreadcrumbs("/showcase/claims-intake-modernization")).toEqual([
       { label: "Home", href: "/" },

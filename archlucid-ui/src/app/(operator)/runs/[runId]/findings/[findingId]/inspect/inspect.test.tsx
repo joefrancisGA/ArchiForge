@@ -9,6 +9,10 @@ vi.mock("@/components/OperatorApiProblem", () => ({
   ),
 }));
 
+vi.mock("@/components/OperatorEvidenceLimitsFooter", () => ({
+  OperatorEvidenceLimitsFooter: () => <div data-testid="operator-evidence-limits-footer-stub" />,
+}));
+
 describe("FindingInspectView", () => {
   it("renders all four labeled sections when payload matches route run", () => {
     const { container } = render(

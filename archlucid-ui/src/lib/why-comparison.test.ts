@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { WHY_COMPARISON_VERIFY_LINK_ROWS } from "./why-comparison-verify-points";
 import {
   type WhyHardComparisonRow,
   WHY_COMPARISON_ROWS,
@@ -34,5 +35,18 @@ describe("why-comparison (front-door table drift guards)", () => {
 
   it("row labels match the ordered label export", () => {
     expect(WHY_COMPARISON_ROWS.map((row) => row.label)).toEqual([...WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER]);
+  });
+
+  it("marketing verify link rows stay aligned with comparison row count", () => {
+    expect(WHY_COMPARISON_VERIFY_LINK_ROWS).toHaveLength(WHY_COMPARISON_ROWS.length);
+
+    for (const links of WHY_COMPARISON_VERIFY_LINK_ROWS) {
+      expect(links.length).toBeGreaterThan(0);
+
+      for (const link of links) {
+        expect(link.label.trim().length).toBeGreaterThan(0);
+        expect(link.href.trim().length).toBeGreaterThan(0);
+      }
+    }
   });
 });

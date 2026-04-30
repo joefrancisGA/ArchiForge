@@ -10,6 +10,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Sql;
 
 using Dapper;
 
@@ -129,27 +130,11 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
 
         // NOLOCK: dashboard-grade list on hot-write table; tolerates replica-style staleness (see ListRecentInScopeAsync).
-        const string sql = """
-                           SELECT TOP (@Take)
-                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                               GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                               ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                               RetryCount, LastFailureReason
-                           FROM dbo.Runs WITH (NOLOCK)
-                           WHERE ProjectId = @ProjectSlug
-                             AND TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId
-                             AND ArchivedUtc IS NULL
-                           ORDER BY CreatedUtc DESC;
-                           """;
 
         await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
-                sql,
+                HotPathRelationalQueryShapes.RunsListByProjectNoLock,
                 new
                 {
                     ProjectSlug = projectId,
@@ -178,33 +163,11 @@ public sealed class SqlRunRepository(
         int fetch = safeTake + 1;
 
         // NOLOCK: same dashboard-grade tolerance as unpaged lists.
-        const string sql = """
-                           SELECT TOP (@Fetch)
-                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                               GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                               ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                               RetryCount, LastFailureReason
-                           FROM dbo.Runs WITH (NOLOCK)
-                           WHERE ProjectId = @ProjectSlug
-                             AND TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId
-                             AND ArchivedUtc IS NULL
-                             AND (
-                                 (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
-                                 OR CreatedUtc < @CursorCreatedUtc
-                                 OR (CreatedUtc = @CursorCreatedUtc AND RunId < @CursorRunId)
-                             )
-                           ORDER BY CreatedUtc DESC, RunId DESC;
-                           """;
 
         await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
-
         IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
-                sql,
+                HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock,
                 new
                 {
                     ProjectSlug = projectId,
@@ -221,9 +184,7 @@ public sealed class SqlRunRepository(
         bool hasMore = rows.Count > safeTake;
 
         if (hasMore)
-
             rows.RemoveAt(rows.Count - 1);
-
 
         return new RunListPage(rows, hasMore);
     }
@@ -235,26 +196,11 @@ public sealed class SqlRunRepository(
         ArgumentNullException.ThrowIfNull(scope);
 
         // NOLOCK: dashboard / picker list; same tolerance as read-replica staleness (see LOAD_TEST_BASELINE.md). Avoids S-lock blocking behind writers on dbo.Runs.
-        const string sql = """
-                           SELECT TOP (@Take)
-                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                               GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                               ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                               RetryCount, LastFailureReason
-                           FROM dbo.Runs WITH (NOLOCK)
-                           WHERE TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId
-                             AND ArchivedUtc IS NULL
-                           ORDER BY CreatedUtc DESC;
-                           """;
 
         await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
-                sql,
+                HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock,
                 new
                 {
                     scope.TenantId,
@@ -281,31 +227,12 @@ public sealed class SqlRunRepository(
         int safeTake = RunPagination.ClampTake(take);
         int fetch = safeTake + 1;
 
-        const string sql = """
-                           SELECT TOP (@Fetch)
-                               RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
-                               ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                               GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                               ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
-                               IsPublicShowcase, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
-                               RetryCount, LastFailureReason
-                           FROM dbo.Runs WITH (NOLOCK)
-                           WHERE TenantId = @TenantId
-                             AND WorkspaceId = @WorkspaceId
-                             AND ScopeProjectId = @ScopeProjectId
-                             AND ArchivedUtc IS NULL
-                             AND (
-                                 (@CursorRunId IS NULL AND @CursorCreatedUtc IS NULL)
-                                 OR CreatedUtc < @CursorCreatedUtc
-                                 OR (CreatedUtc = @CursorCreatedUtc AND RunId < @CursorRunId)
-                             )
-                           ORDER BY CreatedUtc DESC, RunId DESC;
-                           """;
+        // NOLOCK: keyset continuation for picker/dashboard lists (same tolerance as ListRecentInScopeAsync).
 
         await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<RunRecord> rowsEnumerable = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
-                sql,
+                HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock,
                 new
                 {
                     scope.TenantId,
@@ -321,9 +248,7 @@ public sealed class SqlRunRepository(
         bool hasMore = rows.Count > safeTake;
 
         if (hasMore)
-
             rows.RemoveAt(rows.Count - 1);
-
 
         return new RunListPage(rows, hasMore);
     }

@@ -119,6 +119,33 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
     }
   }, [loading, items, value, onChange, preferAutoPick]);
 
+  /**
+   * Demo fallback lists zero runs without API error — keep parent state in sync so Graph / Governance receive a run id.
+   * Without this, the Select displays the synthetic row while `value` stays empty upstream.
+   */
+  useEffect(() => {
+    if (!preferAutoPick) {
+      return;
+    }
+
+    if (loading || loadError) {
+      return;
+    }
+
+    const demoMode =
+      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+
+    if (!demoMode || items.length > 0) {
+      return;
+    }
+
+    if (value.trim().length > 0) {
+      return;
+    }
+
+    onChange(SHOWCASE_STATIC_DEMO_RUN_ID);
+  }, [loading, loadError, items, preferAutoPick, value, onChange]);
+
   useEffect(() => {
     if (!loadError) {
       return;
@@ -244,7 +271,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         </Label>
         <Select disabled>
           <SelectTrigger id={selectControlId} className="font-mono text-sm">
-            <SelectValue placeholder="No runs available — connect the API or use demo mode" />
+            <SelectValue placeholder="No runs in this workspace yet" />
           </SelectTrigger>
         </Select>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">

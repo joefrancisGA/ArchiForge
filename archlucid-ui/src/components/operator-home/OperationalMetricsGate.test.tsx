@@ -1,24 +1,19 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/api", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/api")>();
+vi.mock("@/lib/core-pilot-commit-context", () => ({
+  fetchCorePilotCommitContext: vi.fn(),
+}));
 
-  return {
-    ...actual,
-    listRunsByProjectPaged: vi.fn(),
-  };
-});
-
-import { listRunsByProjectPaged } from "@/lib/api";
+import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
 import { OperationalMetricsGate } from "./OperationalMetricsGate";
 
-const listRuns = vi.mocked(listRunsByProjectPaged);
+const fetchCtx = vi.mocked(fetchCorePilotCommitContext);
 
 describe("OperationalMetricsGate", () => {
   it("renders nothing while loading", () => {
-    listRuns.mockImplementation(() => new Promise(() => {}));
+    fetchCtx.mockImplementation(() => new Promise(() => {}));
 
     render(
       <OperationalMetricsGate>
@@ -29,13 +24,11 @@ describe("OperationalMetricsGate", () => {
     expect(screen.queryByTestId("gated-child")).not.toBeInTheDocument();
   });
 
-  it("hides children when the workspace has zero runs", async () => {
-    listRuns.mockResolvedValue({
-      items: [],
-      totalCount: 0,
-      page: 1,
-      pageSize: 1,
-      hasMore: false,
+  it("hides children when no committed manifest is detected", async () => {
+    fetchCtx.mockResolvedValue({
+      hasCommittedManifest: false,
+      latestRunId: "00000000-0000-0000-0000-000000000099",
+      firstCommittedRunId: null,
     });
 
     render(
@@ -45,29 +38,30 @@ describe("OperationalMetricsGate", () => {
     );
 
     await waitFor(() => {
-      expect(listRuns).toHaveBeenCalled();
+      expect(fetchCtx).toHaveBeenCalled();
     });
 
     expect(screen.queryByTestId("gated-child")).not.toBeInTheDocument();
   });
 
-  it("shows children when at least one run exists", async () => {
-    listRuns.mockResolvedValue({
-      items: [
-        {
-          runId: "00000000-0000-0000-0000-000000000001",
-          projectId: "default",
-          description: "Test",
-          createdUtc: "2026-01-15T12:00:00.000Z",
-          hasFindingsSnapshot: false,
-          hasGoldenManifest: false,
-        },
-      ],
-      totalCount: 1,
-      page: 1,
-      pageSize: 1,
-      hasMore: false,
+  it("shows children when a committed manifest exists", async () => {
+    fetchCtx.mockResolvedValue({
+      hasCommittedManifest: true,
+      latestRunId: "00000000-0000-0000-0000-000000000001",
+      firstCommittedRunId: "00000000-0000-0000-0000-000000000001",
     });
+
+    render(
+      <OperationalMetricsGate>
+        <div data-testid="gated-child">Child</div>
+      </OperationalMetricsGate>,
+    );
+
+    expect(await screen.findByTestId("gated-child")).toBeInTheDocument();
+  });
+
+  it("fails open when commit context resolution throws", async () => {
+    fetchCtx.mockRejectedValue(new Error("network"));
 
     render(
       <OperationalMetricsGate>

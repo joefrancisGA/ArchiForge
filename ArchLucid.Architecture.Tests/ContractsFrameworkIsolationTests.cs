@@ -1,6 +1,5 @@
 using System.Reflection;
 
-using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
@@ -10,19 +9,13 @@ using NetArchTest.Rules;
 namespace ArchLucid.Architecture.Tests;
 
 /// <summary>
-/// Contracts and Contracts.Abstractions are leaf assemblies — they describe the
-/// public shape of ArchLucid (DTOs, ports). They must not pull in framework
-/// concretes like ASP.NET Core or SqlClient, because doing so couples every
-/// downstream consumer to the same framework choices and quietly turns the
-/// "shared contracts" library into a hosting decision.
-///
-/// This test pins that invariant. If you reach for AspNetCore or SqlClient
-/// in Contracts*, that is the signal to either move the type to a host
-/// assembly or introduce a Contracts.Abstractions port.
+/// <c>ArchLucid.Contracts</c> (DTOs and port interfaces under <c>ArchLucid.Contracts.Abstractions.*</c>) is a
+/// leaf assembly — it must not pull in framework concretes like ASP.NET Core or SqlClient,
+/// because doing so couples every downstream consumer to the same framework choices.
 /// </summary>
 public sealed class ContractsFrameworkIsolationTests
 {
-    /// <summary>Forbidden framework namespace prefixes for Contracts* assemblies.</summary>
+    /// <summary>Forbidden framework namespace prefixes for the Contracts assembly.</summary>
     private static readonly string[] ForbiddenFrameworkNamespaces =
     [
         "Microsoft.AspNetCore",
@@ -46,25 +39,7 @@ public sealed class ContractsFrameworkIsolationTests
             .GetResult();
 
         result.IsSuccessful.Should().BeTrue(
-            because: "ArchLucid.Contracts is a DTO leaf consumed by every host (API, Worker, CLI, Api.Client). Adding AspNetCore or SqlClient here couples every consumer to the same framework. Offending types: {0}",
-            FormatFailingTypeNames(result));
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void ContractsAbstractions_must_not_reference_AspNetCore_or_data_access_libraries()
-    {
-        Assembly abstractions = typeof(ISimulationEngine).Assembly;
-
-        TestResult result = Types
-            .InAssembly(abstractions)
-            .ShouldNot()
-            .HaveDependencyOnAny(ForbiddenFrameworkNamespaces)
-            .GetResult();
-
-        result.IsSuccessful.Should().BeTrue(
-            because: "ArchLucid.Contracts.Abstractions defines cross-cutting service ports — concrete framework choices belong on the implementation side. Offending types: {0}",
+            because: "ArchLucid.Contracts is a shared DTO and port-definition leaf consumed by every host (API, Worker, CLI, Api.Client). Adding AspNetCore or SqlClient here couples every consumer. Offending types: {0}",
             FormatFailingTypeNames(result));
     }
 

@@ -1,29 +1,89 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 
 /** §3 “30-second pitch” in `docs/go-to-market/POSITIONING.md` — category label flows through `BRAND_CATEGORY`. */
 const HERO_PITCH = `ArchLucid is an ${BRAND_CATEGORY} platform. You describe a system you want to build, and our AI agents analyze it for topology, cost, compliance, and design quality — then produce a versioned manifest with every finding traced and explained. Think of it as an AI-powered architecture review board that runs in minutes instead of weeks, with a full audit trail.`;
 
-const PILLARS: { title: string; body: string }[] = [
+type WelcomeVerifyLink = {
+  readonly label: string;
+  readonly href: string;
+};
+
+type WelcomePillar = {
+  readonly title: string;
+  readonly body: string;
+  readonly verify: readonly WelcomeVerifyLink[];
+};
+
+function WelcomePillarVerifyLinks(props: { readonly links: readonly WelcomeVerifyLink[] }): ReactNode {
+  const { links } = props;
+
+  return (
+    <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+      <span className="font-semibold text-neutral-700 dark:text-neutral-300">Verify:</span>{" "}
+      {links.map((link, index) => (
+        <span key={`${link.href}|${link.label}`}>
+          {index > 0 ? " · " : null}
+          {link.href.startsWith("http") ? (
+            <a
+              className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.label}
+            </a>
+          ) : link.href.endsWith(".zip") ? (
+            <a className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href={link.href} download>
+              {link.label}
+            </a>
+          ) : (
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href={link.href}>
+              {link.label}
+            </Link>
+          )}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+const PILLARS: readonly WelcomePillar[] = [
   {
     title: "AI-native architecture analysis",
-    body: "ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a multi-agent pipeline — four specialized AI agents (Topology, Cost, Compliance, Critic) analyze architecture requests through a structured pipeline: context ingestion → knowledge graph → findings → decisioning → artifact synthesis. The result is a versioned, finalized architecture manifest with structured findings, not a chat conversation that disappears.",
+    body: "ArchLucid is not an architecture documentation tool with AI bolted on. It was built from day one around a multi-agent pipeline — specialized agents analyze architecture requests through a structured flow: context ingestion → knowledge graph → findings → decisioning → artifact synthesis (see V1 scope for the shipped operator path). The result is a versioned, finalized architecture manifest with structured findings, not a chat conversation that disappears.",
+    verify: [
+      { label: "/see-it", href: "/see-it" },
+      { label: "/demo/preview", href: "/demo/preview" },
+      { label: "V1_SCOPE.md", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/V1_SCOPE.md` },
+    ],
   },
   {
     title: "Auditable decision trail",
-    body: "Every architecture recommendation ArchLucid produces comes with a complete chain of evidence. The ExplainabilityTrace on every finding records what was examined, what rules were applied, what decisions were taken, and why. The provenance graph connects evidence to decisions to manifest entries to artifacts. This is not \"AI said so\" — it is \"AI analyzed these inputs, applied these rules, and reached this conclusion, and here is the full trail.\"",
+    body: "Every architecture recommendation ArchLucid produces is designed to ship with a chain of evidence: explainability metadata on findings records what was examined, what rules were applied, what decisions were taken, and why. Provenance and graph surfaces connect evidence to decisions and artifacts for investigation in the operator shell — not an anonymous “AI said so” reply.",
+    verify: [
+      { label: "/demo/explain", href: "/demo/explain" },
+      { label: "KNOWLEDGE_GRAPH.md", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/KNOWLEDGE_GRAPH.md` },
+    ],
   },
   {
     title: "Enterprise governance",
-    body: "Architecture decisions in ArchLucid are not just analyzed — they are governed. Policy packs define compliance rules. Approval workflows enforce segregation of duties. Pre-finalization gates block manifests when findings exceed severity thresholds. Approval SLAs track time-to-review and escalate breaches via webhooks. And 78 typed audit events in an append-only SQL store provide the evidence trail that regulators and auditors expect.",
+    body: "Operate-layer governance is configuration-driven: policy packs, approval workflows with segregation of duties, optional pre-commit gates that block commits when findings exceed thresholds, SLA tracking with webhook escalation on breach, and 78 typed audit events in an append-only SQL store with CSV export — scoped in V1_SCOPE.md. That is the evidence profile buyers use for diligence; it is not a disposable chat log.",
+    verify: [
+      { label: "/trust", href: "/trust" },
+      { label: "Evidence pack (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
+      { label: "AUDIT_COVERAGE_MATRIX.md", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/AUDIT_COVERAGE_MATRIX.md` },
+      { label: "PRE_COMMIT_GOVERNANCE_GATE.md", href: `${DEFAULT_GITHUB_BLOB_BASE}/docs/library/PRE_COMMIT_GOVERNANCE_GATE.md` },
+    ],
   },
 ];
-
 /** Public marketing landing: hero, pillars, pricing cards from `/pricing.json`, primary CTA to `/see-it`. */
 export function WelcomeMarketingPage() {
   return (
@@ -74,6 +134,20 @@ export function WelcomeMarketingPage() {
             — Contoso sample ROI (fictional tenant); markdown companion in{" "}
             <code className="text-xs">docs/go-to-market/WORKED_EXAMPLE_ROI.md</code>.
           </p>
+          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+            <span className="font-semibold text-neutral-600 dark:text-neutral-300">Verify:</span>{" "}
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/why">
+              /why
+            </Link>
+            {" · "}
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+              /trust
+            </Link>
+            {" · "}
+            <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/explain">
+              /demo/explain
+            </Link>
+          </p>
         </div>
       </section>
 
@@ -89,6 +163,7 @@ export function WelcomeMarketingPage() {
             >
               <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{pillar.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{pillar.body}</p>
+              <WelcomePillarVerifyLinks links={pillar.verify} />
             </li>
           ))}
         </ul>

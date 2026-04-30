@@ -3,6 +3,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
+using ArchLucid.Core.Hosting;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
@@ -43,7 +48,10 @@ internal static class DoctorCommand
 
         await PrintApiVersionAsync(client, ct);
 
-        await PrintProbeAsync(client, "/health/live", "Liveness (/health/live)", ct);
+        bool liveOk = await PrintProbeAsync(client, "/health/live", "Liveness (/health/live)", ct);
+
+        PrintHostingMisconfigurationHintsFromLocalEnvironment(liveOk);
+
         bool readyOk = await PrintProbeAsync(client, "/health/ready", "Readiness (/health/ready)", ct);
 
         (int aggregateCode, string aggregateBody) = await client.GetHealthProbeAsync("/health", ct);
@@ -193,12 +201,46 @@ internal static class DoctorCommand
         Console.WriteLine(
             "| RLS bypass | MANUAL | `ArchLucid:Persistence:AllowRlsBypass` must stay **false** outside break-glass. |");
         Console.WriteLine();
-        return;
 
         static string Cell(string value)
         {
             return string.IsNullOrWhiteSpace(value) ? "MISSING" : "OK";
         }
+    }
+
+    /// <summary>
+    ///     After the API responds to liveness, replay <see cref="ProductionLikeHostingMisconfigurationAdvisor" /> against
+    ///     this process environment (same inputs the API host typically receives via env vars).
+    /// </summary>
+    private static void PrintHostingMisconfigurationHintsFromLocalEnvironment(bool apiHostLiveResponded)
+    {
+        if (!apiHostLiveResponded)
+            return;
+
+
+        IConfiguration configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
+
+        string envName =
+            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+            ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+            ?? Environments.Production;
+
+        IReadOnlyList<string> hints = ProductionLikeHostingMisconfigurationAdvisor.DescribeWarnings(configuration, envName);
+
+        if (hints.Count == 0)
+            return;
+
+
+        Console.WriteLine();
+        Console.WriteLine("--- Hosting misconfiguration hints (local env; mirrors ArchLucid.Api startup warnings) ---");
+        Console.WriteLine(
+            "Derived from this shell's environment variables — align with the API process/container. "
+                + "See docs/engineering/BUILD.md (Hosting misconfiguration warnings).");
+
+        foreach (string hint in hints)
+            Console.WriteLine($" • {hint}");
+
+        Console.WriteLine();
     }
 
     private static async Task<bool> PrintProbeAsync(

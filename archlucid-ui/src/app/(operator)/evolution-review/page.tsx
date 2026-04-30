@@ -123,7 +123,7 @@ export default function EvolutionReviewPage() {
         <Link href="/planning" className="text-blue-700 dark:text-blue-400">
           Planning
         </Link>{" "}
-        via the API; use <strong>Run simulation</strong> when your token has operator access to refresh outcomes and
+        via the API; use <strong>Run simulation</strong> when your account has permission to refresh outcomes and
         scores.
       </p>
 

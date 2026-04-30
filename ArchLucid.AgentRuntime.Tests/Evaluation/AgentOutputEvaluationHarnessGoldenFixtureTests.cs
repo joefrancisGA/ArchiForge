@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
@@ -16,7 +17,12 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Category", "Unit")]
 public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
 {
-    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
+    /// <summary>Matches <see cref="AgentResultParser" />: web defaults + string enums for <see cref="AgentResult" /> round-trip.</summary>
+    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     private readonly IAgentOutputEvaluationHarness _harness = new AgentOutputEvaluationHarness(
         new AgentOutputEvaluator(),

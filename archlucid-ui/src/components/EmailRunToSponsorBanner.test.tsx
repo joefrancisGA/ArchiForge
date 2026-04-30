@@ -1,9 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/api", () => ({
-  downloadFirstValueReportPdf: vi.fn(),
-}));
+vi.mock("@/lib/api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api")>();
+
+  return {
+    ...actual,
+    downloadFirstValueReportPdf: vi.fn(),
+  };
+});
 
 vi.mock("@/lib/sponsor-banner-telemetry", () => ({
   recordSponsorBannerFirstCommitBadge: vi.fn(),
@@ -16,6 +21,8 @@ import { EmailRunToSponsorBanner } from "./EmailRunToSponsorBanner";
 
 const mockDownload = vi.mocked(downloadFirstValueReportPdf);
 const mockTelemetry = vi.mocked(recordSponsorBannerFirstCommitBadge);
+
+const bannerProps = { runId: "run-42", manifestId: "manifest-fixture" } as const;
 
 describe("EmailRunToSponsorBanner", () => {
   beforeEach(() => {
@@ -34,13 +41,13 @@ describe("EmailRunToSponsorBanner", () => {
     vi.clearAllMocks();
   });
 
-  it("renders the time-to-value heading and primary CTA copy", async () => {
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+  it("renders the time-to-value heading and primary pilot scorecard CTA", async () => {
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     expect(screen.getByTestId("email-run-to-sponsor-banner")).toBeInTheDocument();
     expect(screen.getByText(/time to value/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /prepare sponsor summary/i }),
+      screen.getByRole("button", { name: /generate pilot scorecard package/i }),
     ).toBeInTheDocument();
 
     await waitFor(() => {
@@ -51,7 +58,7 @@ describe("EmailRunToSponsorBanner", () => {
   it("invokes downloadFirstValueReportPdf with the run id when the primary action is clicked", async () => {
     mockDownload.mockResolvedValue(undefined);
 
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     fireEvent.click(screen.getByTestId("email-run-to-sponsor-primary-action"));
 
@@ -60,10 +67,26 @@ describe("EmailRunToSponsorBanner", () => {
     });
   });
 
+  it("exposes canonical export links without duplicating download handlers", () => {
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
+
+    const md = screen.getByRole("link", { name: /first-value report \(markdown\)/i });
+
+    expect(md).toHaveAttribute("href", "/api/proxy/v1/pilots/runs/run-42/first-value-report");
+
+    const docx = screen.getByRole("link", { name: /architecture package \(docx\)/i });
+
+    expect(docx.getAttribute("href")).toContain("/api/proxy/v1/docx/runs/run-42/architecture-package");
+
+    const bundle = screen.getByRole("link", { name: /manifest bundle \(zip\)/i });
+
+    expect(bundle.getAttribute("href")).toContain("/api/proxy/v1/artifacts/manifests/manifest-fixture/bundle");
+  });
+
   it("renders the API problem callout when the download throws a generic error", async () => {
     mockDownload.mockRejectedValueOnce(new Error("boom — server unavailable"));
 
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     fireEvent.click(screen.getByTestId("email-run-to-sponsor-primary-action"));
 
@@ -80,7 +103,7 @@ describe("EmailRunToSponsorBanner", () => {
       }),
     );
 
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     fireEvent.click(screen.getByTestId("email-run-to-sponsor-primary-action"));
 
@@ -105,7 +128,7 @@ describe("EmailRunToSponsorBanner", () => {
       json: async () => ({ firstCommitUtc: anchorIso }),
     } as Response);
 
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
@@ -126,7 +149,7 @@ describe("EmailRunToSponsorBanner", () => {
       json: async () => ({ firstCommitUtc: anchorIso }),
     } as Response);
 
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
@@ -145,7 +168,7 @@ describe("EmailRunToSponsorBanner", () => {
       json: async () => ({ firstCommitUtc: anchorIso }),
     } as Response);
 
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     await waitFor(() => {
       expect(screen.getByTestId("email-run-to-sponsor-first-commit-badge")).toHaveTextContent(
@@ -162,7 +185,7 @@ describe("EmailRunToSponsorBanner", () => {
       json: async () => ({ firstCommitUtc: null }),
     } as Response);
 
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();
@@ -179,7 +202,7 @@ describe("EmailRunToSponsorBanner", () => {
       json: async () => ({}),
     } as Response);
 
-    render(<EmailRunToSponsorBanner runId="run-42" />);
+    render(<EmailRunToSponsorBanner {...bannerProps} />);
 
     await waitFor(() => {
       expect(vi.mocked(fetch)).toHaveBeenCalled();

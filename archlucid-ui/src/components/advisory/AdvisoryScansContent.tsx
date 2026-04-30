@@ -188,7 +188,8 @@ export function AdvisoryScansContent() {
           <>
             <h3 className="m-0 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Persisted recommendations</h3>
             <p className="doc-meta m-0 text-sm">
-              Status and reviewer fields are loaded from storage. Use actions below (requires operator access on the API).
+              Status and reviewer fields are loaded from storage. Use actions below (elevated permissions required on the
+              API).
             </p>
             <div className="grid gap-4">
               {recommendations.map((rec) => (

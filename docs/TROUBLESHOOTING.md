@@ -9,7 +9,8 @@
 
 ## First-line steps (try in order)
 
-1. **`GET /health/live`** — process up? Then **`GET /health/ready`** — read JSON `entries[]` for the first **`Unhealthy`** / **`Degraded`** check.
+1. See **[Common operator errors (top 10)](runbooks/COMMON_ERRORS.md)** for step-by-step fixes to startup, auth, migrations, OpenAI, rate limits, concurrency, and readiness checks.
+2. **`GET /health/live`** — process up? Then **`GET /health/ready`** — read JSON `entries[]` for the first **`Unhealthy`** / **`Degraded`** check.
 2. **`GET /version`** — capture build identity for your report (same info appears in enriched **`/health/ready`** / **`/health`** JSON as **`version`** / **`commitSha`**).
 3. **`dotnet run --project ArchLucid.Cli -- doctor`** (repo root, API reachable) — CLI + API version + all health endpoints.
 4. **`support-bundle --zip`** — sanitized diagnostics folder (review before sending). See [Support bundle](#support-bundle-attach-to-tickets) below.

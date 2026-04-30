@@ -153,7 +153,7 @@ export default function ValueReportPage() {
         </div>
         {!canMutate ? (
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Operator or Admin role required — the API enforces operator access.
+            Operator or Administrator role required — the API enforces elevated permissions for this report.
           </p>
         ) : null}
         {error ? (

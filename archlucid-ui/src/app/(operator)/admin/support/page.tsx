@@ -76,7 +76,7 @@ export default function AdminSupportPage() {
         </Button>
 
         <p className="text-xs text-neutral-600 dark:text-neutral-400">
-          The endpoint requires <strong>operator access</strong> on the API per owner decision F (PENDING_QUESTIONS.md item 37).
+          The endpoint requires <strong>elevated permissions</strong> on the API for your tenant.
           Owner approval of the pre-forwarding redaction policy (item 37 part c) is still pending — review the bundle
           contents before forwarding to a third party.
         </p>

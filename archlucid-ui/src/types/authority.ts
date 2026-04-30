@@ -127,6 +127,10 @@ export type RunDetail = {
     artifactBundleId?: string | null;
     /** Persisted W3C trace id from run creation (OpenTelemetry); distinct from the current-request trace header. */
     otelTraceId?: string;
+    /** API mirrors `RunRecord.RealModeFellBackToSimulator` when present. */
+    realModeFellBackToSimulator?: boolean;
+    /** Optional deployment label captured when fallback was recorded (`PilotAoaiDeploymentSnapshot`). */
+    pilotAoaiDeploymentSnapshot?: string | null;
   };
   contextSnapshot?: unknown;
   graphSnapshot?: unknown;

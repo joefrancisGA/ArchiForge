@@ -1,6 +1,10 @@
 import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import {
+  OperatorEvidenceLimitsFooter,
+  type OperatorEvidenceLimitsExecutionProps,
+} from "@/components/OperatorEvidenceLimitsFooter";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -19,6 +23,7 @@ export type FindingInspectViewProps = {
   decodedFindingId: string;
   payload: FindingInspectPayload | null;
   failure: ApiLoadFailureState | null;
+  runExecutionFootnote?: OperatorEvidenceLimitsExecutionProps | null;
 };
 
 /**
@@ -30,6 +35,7 @@ export function FindingInspectView({
   decodedFindingId,
   payload,
   failure,
+  runExecutionFootnote = null,
 }: FindingInspectViewProps) {
   if (failure || !payload) {
     return (
@@ -96,6 +102,16 @@ export function FindingInspectView({
         decodedFindingId={decodedFindingId}
         payload={payload}
         variant="inspect"
+      />
+
+      <OperatorEvidenceLimitsFooter
+        runId={runId}
+        findingIdForInspectLink={decodedFindingId}
+        execution={runExecutionFootnote}
+        inspectMetadata={{
+          modelDeploymentName: payload.modelDeploymentName ?? null,
+          promptTemplateVersion: payload.promptTemplateVersion ?? null,
+        }}
       />
     </main>
   );

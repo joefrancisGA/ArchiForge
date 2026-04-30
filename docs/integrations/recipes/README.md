@@ -12,6 +12,8 @@
 
 | Recipe | Target tool | Automation platform | Event type(s) |
 |--------|-------------|---------------------|----------------|
+| [Azure Logic Apps → Azure DevOps work item](recipe-azure-logic-apps-webhook-to-ado-work-item.md) | Azure DevOps (Boards) | Azure Logic Apps + APIM/Function (HMAC) | `com.archlucid.authority.run.completed`, `com.archlucid.alert.fired` |
+| [Event Grid / webhook hardening checklist](recipe-event-grid-webhook-hardening-checklist.md) | *(subscriber hardening)* | Event Grid, APIM, Logic Apps, Functions | *(delivery semantics — see checklist)* |
 | [Jira issue via Power Automate](JIRA_ISSUE_VIA_POWER_AUTOMATE.md) | Atlassian Jira Cloud | Microsoft Power Automate | `com.archlucid.authority.run.completed`, `com.archlucid.alert.fired` |
 | [Confluence page via Logic Apps](CONFLUENCE_PAGE_VIA_LOGIC_APPS.md) | Atlassian Confluence Cloud | Azure Logic Apps (Standard) | `com.archlucid.authority.run.completed`, `com.archlucid.advisory.scan.completed` |
 | [ServiceNow incident via Power Automate](SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md) | ServiceNow | Microsoft Power Automate | `com.archlucid.authority.run.completed`, `com.archlucid.alert.fired` |
@@ -54,4 +56,4 @@ See [V1_DEFERRED.md §6](../../library/V1_DEFERRED.md) for the full V1.1 commitm
 
 ---
 
-*Last reviewed: 2026-04-26 — event types from [IntegrationEventTypes.cs](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs).*
+*Last reviewed: 2026-04-29 — event types from [IntegrationEventTypes.cs](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs); added ADO Logic Apps recipe + Event Grid hardening checklist.*

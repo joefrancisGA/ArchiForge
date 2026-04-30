@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,8 +65,8 @@ function describeTrigger(eventType: string): { label: string; helpText: string }
 
 export default function TeamsNotificationsIntegrationPage() {
   const canMutate = useEnterpriseMutationCapability();
-  // Start true so first paint shows Loading; paired with `loading && !conn` below so API failures
-  // (loading=false, conn=null) do not keep rendering "Loading…" under the error callout.
+  // Start true so first paint shows loading; paired with `loading && conn === null` below so API failures
+  // (loading=false, conn=null) do not keep rendering the loading notice under the error callout.
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -183,9 +184,9 @@ export default function TeamsNotificationsIntegrationPage() {
         </div>
       ) : null}
 
-      {loading && !conn ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>
-      ) : conn ? (
+      {loading && conn === null ? (
+        <OperatorLoadingNotice>Loading Teams configuration…</OperatorLoadingNotice>
+      ) : conn !== null ? (
         <div className="space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
           <p className="text-sm text-neutral-700 dark:text-neutral-300">
             Status:{" "}
@@ -278,7 +279,7 @@ export default function TeamsNotificationsIntegrationPage() {
 
           {!canMutate ? (
             <p className="text-xs text-neutral-600 dark:text-neutral-400">
-              Your role can view this page; saving requires operator access (same floor as other Enterprise mutation
+              Your role can view this page; saving requires elevated permissions (same as other Enterprise configuration
               surfaces).
             </p>
           ) : null}

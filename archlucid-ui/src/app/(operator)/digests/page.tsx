@@ -7,7 +7,7 @@ export default function DigestsPage() {
     <Suspense
       fallback={
         <p className="p-4 text-sm text-neutral-500 dark:text-neutral-400" data-testid="digests-hub-suspense-fallback">
-          Loading digests…
+          Loading digests...
         </p>
       }
     >

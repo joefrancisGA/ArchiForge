@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CorePilotOneSessionChecklist } from "@/components/CorePilotOneSessionChecklist";
 import { GettingStartedTrialSection } from "@/components/GettingStartedTrialSection";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +38,7 @@ export default async function GettingStartedPage({ searchParams }: GettingStarte
         </Link>
         .
       </p>
+      <CorePilotOneSessionChecklist />
       <GettingStartedTrialSection fromRegistrationQuery={fromRegistration} />
       <section aria-labelledby="getting-started-journey" className="space-y-4">
         <h2

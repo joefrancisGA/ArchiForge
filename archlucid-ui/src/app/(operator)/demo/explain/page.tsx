@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { getDemoExplain } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -129,7 +130,7 @@ export default function DemoExplainPage() {
           <ExplanationPanel summary={state.payload.runExplanation} />
         </section>
       ) : !state.error && !state.notFound && state.loading ? (
-        <p className="text-sm text-neutral-500">Loading demo explain payload…</p>
+        <OperatorLoadingNotice>Loading example analysis…</OperatorLoadingNotice>
       ) : !state.error && !state.notFound && !state.loading && state.payload ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400" role="status">
           The demo response was incomplete — provenance or explanation is missing. Try again after the API is ready.

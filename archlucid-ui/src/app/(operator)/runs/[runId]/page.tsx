@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import { redirect } from "next/navigation";
 
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -9,14 +9,14 @@ import {
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   coerceArtifactDescriptorList,
   coerceManifestSummary,
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance-gate-display";
-import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { effectiveRunSummaryForPipeline } from "@/lib/run-summary-from-detail";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
@@ -37,6 +37,10 @@ import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorVa
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import {
+  OperatorEvidenceLimitsFooter,
+  type OperatorEvidenceLimitsExecutionProps,
+} from "@/components/OperatorEvidenceLimitsFooter";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -59,6 +63,7 @@ import {
   tryStaticDemoPipelineTimeline,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
+import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import type {
   ArtifactDescriptor,
   ManifestSummary,
@@ -73,11 +78,13 @@ const sectionHeadingClass =
 
 function ManifestSummarySection({
   manifestSummary,
+  runExecution,
 }: {
   readonly manifestSummary: ManifestSummary;
+  readonly runExecution?: OperatorEvidenceLimitsExecutionProps | null;
 }): ReactElement {
   return (
-    <section id="manifest-summary" className="scroll-mt-24">
+    <section id="manifest-summary" className="scroll-mt-24 space-y-4">
       <Card>
         <CardHeader>
           <h3 className={sectionHeadingClass}>Manifest summary</h3>
@@ -108,6 +115,12 @@ function ManifestSummarySection({
           </dl>
         </CardContent>
       </Card>
+
+      <OperatorEvidenceLimitsFooter
+        runId={manifestSummary.runId}
+        execution={runExecution ?? null}
+        showArchitectureReviewSummaryLink
+      />
     </section>
   );
 }
@@ -120,8 +133,8 @@ export default async function RunDetailPage({
 }) {
   const { runId } = await params;
 
-  if (isInvalidDynamicRouteToken(runId)) {
-    redirect("/runs?projectId=default");
+  if (isInvalidGuidOrSlugRouteToken(runId)) {
+    notFound();
   }
 
   let runDetailResponse: ApiResponseWithTrace<RunDetail> | null = null;
@@ -131,13 +144,18 @@ export default async function RunDetailPage({
   try {
     runDetailResponse = await getRunDetail(runId);
   } catch (e) {
-    loadFailure = toApiLoadFailure(e);
     const fallback = tryStaticDemoRunDetail(runId);
 
     if (fallback !== null) {
       runDetailResponse = { data: fallback, traceId: null };
       loadFailure = null;
       usedStaticDemoRun = true;
+    } else {
+      loadFailure = toApiLoadFailure(e);
+
+      if (isApiNotFoundFailure(loadFailure)) {
+        notFound();
+      }
     }
   }
 
@@ -304,6 +322,11 @@ export default async function RunDetailPage({
     descriptionTrimmed.length > 0 ? descriptionTrimmed : `Run ${resolvedDetail.run.runId}`;
   const createdLabel = new Date(resolvedDetail.run.createdUtc).toLocaleString();
 
+  const showPilotScorecardPackageCta =
+    Boolean(manifestId) &&
+    manifestSummary !== null &&
+    isManifestCommittedForPilotScorecardPackage(manifestSummary);
+
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-1 py-2 sm:px-0">
       <nav aria-label="Breadcrumb" className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -348,11 +371,21 @@ export default async function RunDetailPage({
         <RunProgressTracker runId={runId} initialSummary={progressForPipelineUi} />
       ) : null}
 
-      {manifestId ? <EmailRunToSponsorBanner runId={runId} /> : null}
+      {showPilotScorecardPackageCta && manifestId ? (
+        <EmailRunToSponsorBanner runId={runId} manifestId={manifestId} />
+      ) : null}
 
       <RunDetailSectionNav sections={runDetailNavSections} />
 
-      {manifestId && manifestSummary ? <ManifestSummarySection manifestSummary={manifestSummary} /> : null}
+      {manifestId && manifestSummary ? (
+        <ManifestSummarySection
+          manifestSummary={manifestSummary}
+          runExecution={{
+            realModeFellBackToSimulator: resolvedDetail.run.realModeFellBackToSimulator,
+            pilotAoaiDeploymentSnapshot: resolvedDetail.run.pilotAoaiDeploymentSnapshot ?? null,
+          }}
+        />
+      ) : null}
 
       <section id="run-metadata" className="scroll-mt-24">
         <Card>
@@ -691,7 +724,12 @@ export default async function RunDetailPage({
         <Card>
           <CardHeader>
             <h3 className={sectionHeadingClass}>Actions</h3>
-            <CardDescription>Secondary downloads and sponsor collateral.</CardDescription>
+            <CardDescription>
+              Run-scoped pilot scorecard package (PDF, Markdown, DOCX, ZIP) appears above after finalization — see{" "}
+              <code className="text-[0.8rem]">docs/EXECUTIVE_SPONSOR_BRIEF.md</code> and{" "}
+              <code className="text-[0.8rem]">docs/library/PILOT_ROI_MODEL.md</code> for narrative and measurement.
+              Tenant-wide sponsor DOCX uses the control below when your workspace allows enterprise mutations.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {manifestId ? <GenerateSponsorValueReportButton /> : null}

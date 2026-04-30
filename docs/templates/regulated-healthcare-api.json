@@ -1,0 +1,43 @@
+{
+  "requestId": "template-regulated-healthcare-api-demo-001",
+  "systemName": "ContosoClinicalRecordsApi",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "description": "Contoso Health is exposing a HIPAA-aware REST API over patient summaries and appointments for authenticated clinical applications. Components include Regional Azure SQL for structured PHI with column-level protections, Blob for document artifacts, Private Link for all data planes, MI-based access to Azure OpenAI where needed for clinician assist (no training on tenant data). Audit captures who accessed what patient record fragment and from which workstation identity. PHI export is controlled and rate limited.",
+  "constraints": [
+    "Least-privilege access to patient identifiers; break-glass access is dual-control approved and audited.",
+    "Encryption in transit (TLS 1.2+) and encryption at rest for all PHI-bearing stores.",
+    "Session and API activity must correlate to durable audit streams with tenant-scoped isolation.",
+    "Backups geo-redundant within approved regions; restores tested quarterly."
+  ],
+  "requiredCapabilities": [
+    "BAA-aligned operational posture documented for Azure services in scope",
+    "DSAR/export workflow placeholders for patient-directed requests",
+    "Alerting when abnormal query patterns indicate potential bulk PHI exfiltration"
+  ],
+  "assumptions": [
+    "Identity federation with the health system's Entra External ID tenant is available.",
+    "Clinical workstations use compliant managed endpoints (MDM)."
+  ],
+  "inlineRequirements": [
+    "REQ: Every patient record read/write returns a deterministic audit fingerprint for downstream SIEM ingestion.",
+    "REQ: Separation of duties between identity administrators and PHI database administrators reflected in RBAC.",
+    "REQ: Incident response playbook references for suspected PHI leakage include customer notification SLA.",
+    "POL: HIPAA minimum necessary enforced at API coarse scopes (facility + role).",
+    "SEC: Customer-managed keys for databases where contract requires tenant-owned key revocation story."
+  ],
+  "policyReferences": [
+    "contoso-healthcare-policy-pack-draft"
+  ],
+  "topologyHints": [
+    "Private-Link-only-SQL-and-Blob-tier",
+    "Container-Apps-internal-only-clinical-bff-behind-front-door-premium-with-waf"
+  ],
+  "securityBaselineHints": [
+    "Entra Conditional Access enforced for all clinical API callers",
+    "Defender for Cloud CSPM posture baselines enforced on subscriptions hosting PHI",
+    "Azure Monitor diagnostic exports to SOC SIEM via private ingestion path"
+  ],
+  "documents": [],
+  "infrastructureDeclarations": []
+}

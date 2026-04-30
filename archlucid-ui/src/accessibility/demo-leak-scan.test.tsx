@@ -36,6 +36,8 @@ const GLOBALLY_FORBIDDEN = [
   "provenance-full",
   "decision-subgraph",
   "node-neighborhood",
+  "operator access",
+  "api-gated",
 ];
 
 describe("demo-leak scan — LegacyRunComparisonView", () => {

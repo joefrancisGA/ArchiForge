@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 
+import { DemoUnavailableNotice } from "@/components/DemoUnavailableNotice";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { showError, showSuccess } from "@/lib/toast";
 
 type TenantBaselineGet = {
@@ -39,8 +41,13 @@ export function BaselineSettingsClient() {
   const [saving, setSaving] = useState(false);
   const [manualPrep, setManualPrep] = useState("");
   const [people, setPeople] = useState("");
+  const demoMode = isNextPublicDemoMode();
 
   const load = useCallback(async () => {
+    if (demoMode) {
+      return;
+    }
+
     setLoading(true);
     setLoadFailure(null);
 
@@ -72,14 +79,25 @@ export function BaselineSettingsClient() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [demoMode]);
 
   useEffect(() => {
+    if (demoMode) {
+      setLoading(false);
+
+      return;
+    }
+
     void load();
-  }, [load]);
+  }, [demoMode, load]);
 
   async function onSave(e: FormEvent): Promise<void> {
     e.preventDefault();
+
+    if (demoMode) {
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -158,7 +176,13 @@ export function BaselineSettingsClient() {
           model defaults. You can update them at any time.
         </p>
       </div>
-      {loadFailure !== null ? (
+      {demoMode ? (
+        <DemoUnavailableNotice
+          title="Baseline settings"
+          description="ROI baseline measurement requires a connected deployment and tenant API access."
+        />
+      ) : null}
+      {!demoMode && loadFailure !== null ? (
         <div role="alert">
           <OperatorApiProblem
             problem={loadFailure.problem}
@@ -167,9 +191,9 @@ export function BaselineSettingsClient() {
           />
         </div>
       ) : null}
-      {loading ? (
+      {!demoMode && loading ? (
         <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading…</p>
-      ) : (
+      ) : !demoMode ? (
         <form onSubmit={onSave} className="space-y-4">
           <div>
             <Label htmlFor="baseline-prep">Manual preparation hours per review (optional)</Label>
@@ -203,7 +227,7 @@ export function BaselineSettingsClient() {
             </Button>
           </div>
         </form>
-      )}
+      ) : null}
     </div>
   );
 }

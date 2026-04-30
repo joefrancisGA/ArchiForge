@@ -3,6 +3,8 @@ using System.Net.Http.Headers;
 
 using ArchLucid.Api.Hosting;
 
+using ArchLucid.Core.Hosting;
+
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Configuration;
@@ -127,6 +129,11 @@ public partial class Program
         }
 
         ArchLucidConfigurationRules.LogAgentExecutionRealModeInformation(app.Configuration, app.Logger);
+
+        ProductionLikeHostingMisconfigurationAdvisor.LogWarningsIfPresent(
+            app.Logger,
+            app.Configuration,
+            app.Environment);
 
         ArchLucidAuthOptions authBound = ArchLucidAuthConfigurationBridge.Resolve(app.Configuration);
 

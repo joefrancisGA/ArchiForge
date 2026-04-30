@@ -1,0 +1,44 @@
+{
+  "requestId": "template-event-driven-iot-demo-001",
+  "systemName": "ContosoFleetTelemetryInsight",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "description": "Contoso Logistics needs an event-driven pipeline for globally distributed vehicle and facility IoT telemetry. Devices publish through Azure IoT Hub; telemetry is normalized and enriched in stream processing (Event Hubs + stream processing tier), persisted to warm storage (Cosmos DB or SQL patterns TBD per workload), aggregated to Azure Data Explorer for fleet analytics, and surfaced in near-real-time Grafana-backed dashboards with alerting. Privacy: geolocation telemetry is minimized and retained per contractual retention tiers.",
+  "constraints": [
+    "Ingestion must tolerate intermittent device connectivity without duplicate command side-effects (idempotent device commands).",
+    "PII-bearing telemetry identifiers must map to pseudonymous device ids in analytics stores.",
+    "Regional data residency preference: EU fleet data stays in EU Azure regions.",
+    "Alert noise must stay below an agreed weekly budget (false-positive cap)."
+  ],
+  "requiredCapabilities": [
+    "Millions ofIngress events per hour with partitioned scaling",
+    "Replay from raw landing zone when downstream processors need backfill",
+    "Role-based access to analytics aligned to Ops vs Data Science personas"
+  ],
+  "assumptions": [
+    "Devices are provisioned via DPS or equivalent with device twin desired properties used sparingly.",
+    "Downstream ML scoring is asynchronous and not on the ingestion hot path."
+  ],
+  "inlineRequirements": [
+    "REQ: Ingest pipeline exposes lag and watermark metrics per regional consumer group.",
+    "REQ: Cold path supports GDPR-style purge requests keyed by pseudonymous device lineage.",
+    "REQ: Incident response runbook linkage from critical alerts into Teams or equivalent channel.",
+    "TOP: Dedicated Event Hub namespaces partitioned by ingestion volume and blast-radius isolation.",
+    "SEC: Network rules restrict ingestion endpoints to approved IP/device patterns."
+  ],
+  "policyReferences": [
+    "contoso-security-baseline-online"
+  ],
+  "topologyHints": [
+    "IoT-Hub-tier-for-device-registry-and-ingress",
+    "Event-Hubs-capture-to-landing-blob-tiered-retention",
+    "ADX-cluster-for-hot-analytics-queries"
+  ],
+  "securityBaselineHints": [
+    "Conditional access policies for Ops consoles accessing telemetry stores",
+    "Private endpoints by default between processing tiers and persisted stores",
+    "Immutable audit logs for telemetry schema evolution and ingestion configuration changes"
+  ],
+  "documents": [],
+  "infrastructureDeclarations": []
+}

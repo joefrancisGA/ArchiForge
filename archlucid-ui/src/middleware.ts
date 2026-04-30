@@ -2,11 +2,10 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 /**
- * Next.js middleware: currently a pass-through for operator shell routes.
- * Extend to add auth checks, redirects, or request transforms when moving beyond dev bypass.
+ * Next.js middleware: extend for auth checks or request transforms (e.g. runs/compare/replay/manifests).
+ * Invalid dynamic segments are handled with `notFound()` in segment layouts or page loaders (branded 404).
  */
-export function middleware(request: NextRequest) {
-  void request;
+export function middleware(_request: NextRequest) {
   return NextResponse.next();
 }
 

@@ -40,7 +40,7 @@ public sealed class ComplianceAgentHandlerTests
                                 {
                                   "findingId": "FIND-COMP-001",
                                   "sourceAgent": "Compliance",
-                                  "severity": "High",
+                                  "severity": "Error",
                                   "category": "Compliance",
                                   "message": "ManagedIdentityRequired",
                                   "evidenceRefs": [ "policy-pack:azure-security-baseline" ]
@@ -48,7 +48,7 @@ public sealed class ComplianceAgentHandlerTests
                                 {
                                   "findingId": "FIND-COMP-002",
                                   "sourceAgent": "Compliance",
-                                  "severity": "High",
+                                  "severity": "Error",
                                   "category": "Compliance",
                                   "message": "PrivateNetworkingRequired",
                                   "evidenceRefs": [ "policy-pack:enterprise-default" ]

@@ -1,0 +1,6 @@
+{
+  "name": "Azure Well-Architected analogue (starter v1)",
+  "description": "Bundles bundled SaaS compliance keys as a pilot-friendly WAF-oriented starter pack. Not an official Microsoft assessment.",
+  "packType": "TenantCustom",
+  "initialContentJson": "{\"complianceRuleIds\":[],\"complianceRuleKeys\":[\"saas-ctrl-001\",\"saas-ctrl-002\",\"saas-ctrl-003\",\"saas-ctrl-004\",\"saas-ctrl-005\",\"saas-ctrl-006\",\"saas-ctrl-007\",\"saas-ctrl-008\"],\"alertRuleIds\":[],\"compositeAlertRuleIds\":[],\"advisoryDefaults\":{\"severityFloor\":\"warning\"},\"metadata\":{\"templateId\":\"azure-waf-aligned-starter-v1\",\"wafAnalogueDisclaimer\":\"Not an official Microsoft Well-Architected submission; illustrative mapping of SOC2-aligned catalog keys to pillar themes for pilots.\",\"pillarSummary\":\"Reliability: DR (saas-ctrl-006). Security: logging/encryption/access/thirdparty/segmentation (saas-ctrl-001 through 005). Cost: advisory and sizing reviews alongside pack assignment. Operational excellence: changes/monitoring (saas-ctrl-007/008). Performance: workload characteristics evaluated at runtime; extend keys when you add latency-specific compliance rules.\",\"sourceVerticalKeys\":\"Reuses SaaS vertical rule ids from bundled templates/policy-packs/saas/\"}}"
+}

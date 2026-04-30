@@ -4,7 +4,7 @@
 
 **Purpose:** Minimal JSON Schema documents for outbound **CloudEvents**-shaped payloads published via integration events (`com.archlucid.*`).
 
-**Status:** Contracts live in **`ArchLucid.Contracts`** / **`ArchLucid.Contracts.Abstractions`**; schemas here are reviewer-facing mirrors and **should be validated against production payloads** before customer hand-offs.
+**Status:** Contracts live in **`ArchLucid.Contracts`** (including **`ArchLucid.Contracts.Abstractions.*`** namespaces under `Contracts/Abstractions/`); schemas here are reviewer-facing mirrors and **should be validated against production payloads** before customer hand-offs.
 
 ---
 

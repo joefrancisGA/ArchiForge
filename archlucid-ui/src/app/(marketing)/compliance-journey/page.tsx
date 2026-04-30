@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+
+import { DEFAULT_GITHUB_BLOB_BASE } from "@/lib/docs-public-base";
 
 export const metadata: Metadata = {
   title: "Compliance journey",
@@ -33,6 +36,32 @@ export default function ComplianceJourneyPage() {
           <code className="text-[0.85em]">docs/go-to-market/SUBPROCESSORS.md</code>.
         </li>
       </ul>
+      <p className="mt-8 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        <span className="font-semibold text-neutral-900 dark:text-neutral-100">Verify:</span> open the in-product Trust Center at{" "}
+        <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/trust">
+          /trust
+        </Link>{" "}
+        (downloads align with the same Markdown paths above). Canonical blobs on{" "}
+        <code className="text-[0.85em]">main</code>:{" "}
+        <a
+          className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+          href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/go-to-market/TRUST_CENTER.md`}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          TRUST_CENTER.md
+        </a>
+        ,{" "}
+        <a
+          className="text-teal-700 underline underline-offset-2 dark:text-teal-300"
+          href={`${DEFAULT_GITHUB_BLOB_BASE}/docs/security/COMPLIANCE_MATRIX.md`}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          COMPLIANCE_MATRIX.md
+        </a>
+        .
+      </p>
     </main>
   );
 }

@@ -1,9 +1,10 @@
-namespace ArchLucid.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
+
+namespace ArchLucid.Core.Requests;
 
 /// <summary>
 ///     Centralises free-text constraint and capability matching rules so that
-///     <c>CoordinatorService</c> and <c>DefaultEvidenceBuilder</c> (and any future
-///     callers) apply identical heuristics.
+///     <c>RunStarterTaskFactory</c>, <c>DefaultEvidenceBuilder</c>, and any future callers apply identical heuristics.
 /// </summary>
 public static class RequestConstraintClassifier
 {
@@ -20,6 +21,8 @@ public static class RequestConstraintClassifier
 
     public static bool HasManagedIdentityConstraint(ArchitectureRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         return request.Constraints.Any(c =>
             c.Contains(ConstraintManagedIdentity, StringComparison.OrdinalIgnoreCase));
     }
@@ -30,6 +33,8 @@ public static class RequestConstraintClassifier
     /// </summary>
     public static bool HasPrivateNetworkingConstraint(ArchitectureRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         return request.Constraints.Any(c =>
             c.Contains(ConstraintPrivateEndpoint, StringComparison.OrdinalIgnoreCase) ||
             c.Contains(ConstraintPrivateNetworking, StringComparison.OrdinalIgnoreCase) ||
@@ -38,18 +43,24 @@ public static class RequestConstraintClassifier
 
     public static bool HasEncryptionConstraint(ArchitectureRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         return request.Constraints.Any(c =>
             c.Contains(ConstraintEncryption, StringComparison.OrdinalIgnoreCase));
     }
 
     public static bool RequiresSearchCapability(ArchitectureRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         return request.RequiredCapabilities.Any(c =>
             c.Contains(CapabilitySearch, StringComparison.OrdinalIgnoreCase));
     }
 
     public static bool RequiresAiCapability(ArchitectureRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         return request.RequiredCapabilities.Any(c =>
             c.Contains(CapabilityOpenAi, StringComparison.OrdinalIgnoreCase) ||
             c.Contains(CapabilityAi, StringComparison.OrdinalIgnoreCase));
@@ -57,6 +68,8 @@ public static class RequestConstraintClassifier
 
     public static bool RequiresSqlCapability(ArchitectureRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         return request.RequiredCapabilities.Any(c =>
             c.Contains(CapabilitySql, StringComparison.OrdinalIgnoreCase));
     }

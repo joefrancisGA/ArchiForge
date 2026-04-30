@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 using ArchLucid.Persistence.Connections;
 using ArchLucid.TestSupport;
 
@@ -20,17 +22,43 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class SimmyChaosPipelineTests
 {
     [Fact]
-    public async Task ChaosLatency_inner_timeout_outer_fails_fast()
+    public async Task Timeout_rejects_slow_delegate_quickly()
     {
         ResiliencePipeline<string> pipeline = new ResiliencePipelineBuilder<string>()
             .AddTimeout(TimeSpan.FromMilliseconds(80))
-            .AddChaosLatency(1.0, TimeSpan.FromMilliseconds(200))
             .Build();
 
         Func<Task> act = async () =>
-            await pipeline.ExecuteAsync(static async _ => await Task.FromResult("ok"), CancellationToken.None);
+            await pipeline.ExecuteAsync(
+                static async ct =>
+                {
+                    await Task.Delay(200, ct);
+                    return "ok";
+                },
+                CancellationToken.None);
 
         await act.Should().ThrowAsync<TimeoutRejectedException>();
+    }
+
+    [Fact]
+    public async Task ChaosLatency_at_full_injection_adds_delay_before_completion()
+    {
+        ResiliencePipeline<string> pipeline = new ResiliencePipelineBuilder<string>()
+            .AddChaosLatency(1.0, TimeSpan.FromMilliseconds(120))
+            .Build();
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        _ = await pipeline.ExecuteAsync(static async _ =>
+        {
+            await Task.CompletedTask;
+            return "ok";
+        }, CancellationToken.None);
+
+        sw.Stop();
+
+        // Simmy injects latency around the callback; budget is generous for loaded CI agents.
+        sw.ElapsedMilliseconds.Should().BeGreaterThanOrEqualTo(90);
     }
 
     [Fact]

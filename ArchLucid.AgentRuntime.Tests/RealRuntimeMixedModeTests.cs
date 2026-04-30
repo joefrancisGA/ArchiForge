@@ -123,7 +123,7 @@ public sealed class RealRuntimeMixedModeTests
                                     {
                                       "findingId": "FIND-COMP-001",
                                       "sourceAgent": "Compliance",
-                                      "severity": "High",
+                                      "severity": "Error",
                                       "category": "Compliance",
                                       "message": "ManagedIdentityRequired",
                                       "evidenceRefs": [ "policy-pack:enterprise-default" ]
@@ -165,7 +165,7 @@ public sealed class RealRuntimeMixedModeTests
                                 {
                                   "findingId": "FIND-CRITIC-001",
                                   "sourceAgent": "Critic",
-                                  "severity": "Medium",
+                                  "severity": "Warning",
                                   "category": "Critic",
                                   "message": "ObservabilityUnderSpecified",
                                   "evidenceRefs": [ "critic-checklist" ]

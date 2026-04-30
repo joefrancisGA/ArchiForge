@@ -1,16 +1,18 @@
 import Link from "next/link";
 
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { CopyFindingAsWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorEvidenceLimitsFooter } from "@/components/OperatorEvidenceLimitsFooter";
 import { Badge } from "@/components/ui/badge";
 import { getFindingInspect } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 import {
@@ -19,7 +21,7 @@ import {
   findingInspectPrimaryLabels,
 } from "@/lib/finding-display-from-inspect";
 
-import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
+import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 
 import { FindingInspectFindingBody } from "./FindingInspectFindingBody";
 
@@ -33,12 +35,12 @@ export default async function RunFindingExplainPage({
 }) {
   const { runId, findingId } = await params;
 
-  if (isInvalidDynamicRouteToken(runId)) {
-    redirect("/runs?projectId=default");
+  if (isInvalidGuidOrSlugRouteToken(runId)) {
+    notFound();
   }
 
   if (isInvalidDynamicRouteToken(findingId)) {
-    redirect(`/runs/${encodeURIComponent(runId)}`);
+    notFound();
   }
 
   const decodedFindingId = decodeURIComponent(findingId);
@@ -51,7 +53,13 @@ export default async function RunFindingExplainPage({
     inspectPayload = await getFindingInspect(runId, decodedFindingId);
   } catch (e) {
     inspectFailure = toApiLoadFailure(e);
+
+    if (isApiNotFoundFailure(inspectFailure)) {
+      notFound();
+    }
   }
+
+  const runExecutionFootnote = await tryLoadRunExecutionFootnote(runId);
 
   const labels = inspectPayload !== null ? findingInspectPrimaryLabels(inspectPayload) : null;
 
@@ -163,6 +171,20 @@ export default async function RunFindingExplainPage({
       <CollapsibleSection title="Technical audit trail" defaultOpen={false}>
         <FindingExplainPanel runId={runId} findingId={findingId} />
       </CollapsibleSection>
+
+      <OperatorEvidenceLimitsFooter
+        runId={runId}
+        findingIdForInspectLink={decodedFindingId}
+        execution={runExecutionFootnote}
+        inspectMetadata={
+          inspectPayload !== null
+            ? {
+                modelDeploymentName: inspectPayload.modelDeploymentName ?? null,
+                promptTemplateVersion: inspectPayload.promptTemplateVersion ?? null,
+              }
+            : null
+        }
+      />
     </main>
   );
 }

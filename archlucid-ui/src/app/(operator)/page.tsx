@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BarChart3, Search, Shield } from "lucide-react";
 
+import { CorePilotOneSessionChecklist } from "@/components/CorePilotOneSessionChecklist";
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
 import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
@@ -26,6 +27,8 @@ export default function HomePage() {
     <TrialWelcomeRunDeepLink />
     <main className="space-y-6">
       <WelcomeBanner />
+
+      <CorePilotOneSessionChecklist />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-start">
         <div className="min-w-0 space-y-6">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { DemoPreviewMarketingBody, DemoPreviewNotAvailable } from "../demo/preview/DemoPreviewMarketingBody";
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
@@ -88,6 +89,14 @@ export default async function LiveDemoMarketingPage() {
       <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-50">Live demo</h1>
       <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
         A read-only view of a completed architecture analysis.
+      </p>
+      <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+        <span className="font-semibold text-neutral-600 dark:text-neutral-300">Verify:</span> this host renders JSON from{" "}
+        <code className="text-[0.8rem]">GET …/v1/public/demo/sample-run</code> — parity UI lives at{" "}
+        <Link className="text-teal-700 underline underline-offset-2 dark:text-teal-300" href="/demo/preview">
+          /demo/preview
+        </Link>{" "}
+        (anonymous cached demo manifest page).
       </p>
       <div className="mt-8">
         <DemoPreviewMarketingBody payload={payload} />

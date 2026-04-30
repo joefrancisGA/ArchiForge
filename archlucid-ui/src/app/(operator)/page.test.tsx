@@ -34,6 +34,10 @@ vi.mock("@/components/WelcomeBanner", () => ({
   WelcomeBanner: () => <div data-testid="welcome-banner-mock">Welcome mock</div>,
 }));
 
+vi.mock("@/components/CorePilotOneSessionChecklist", () => ({
+  CorePilotOneSessionChecklist: () => <div data-testid="core-pilot-one-session-checklist-mock" />,
+}));
+
 vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
   TrialWelcomeRunDeepLink: () => null,
 }));

@@ -6,7 +6,6 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Cli;
 using ArchLucid.ContextIngestion;
-using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
@@ -62,24 +61,6 @@ public sealed class DependencyConstraintTests
 
         result.IsSuccessful.Should().BeTrue(
             because: "ArchLucid.Contracts is a shared DTO leaf; it must not reference application, persistence, or hosts. Offending types: {0}",
-            FormatFailingTypeNames(result));
-    }
-
-    [Fact]
-    [Trait("Suite", "Core")]
-    [Trait("Category", "Unit")]
-    public void ContractsAbstractions_may_only_depend_on_Contracts()
-    {
-        Assembly abstractions = typeof(ISimulationEngine).Assembly;
-
-        TestResult result = Types
-            .InAssembly(abstractions)
-            .ShouldNot()
-            .HaveDependencyOnAny(ArchitectureConstraintNamespaces.ForbiddenFromContractsAbstractions)
-            .GetResult();
-
-        result.IsSuccessful.Should().BeTrue(
-            because: "ArchLucid.Contracts.Abstractions defines cross-cutting service ports and may reference ArchLucid.Contracts only. Offending types: {0}",
             FormatFailingTypeNames(result));
     }
 

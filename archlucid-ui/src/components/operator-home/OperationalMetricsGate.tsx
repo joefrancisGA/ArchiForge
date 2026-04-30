@@ -2,21 +2,18 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 
-import { listRunsByProjectPaged } from "@/lib/api";
-import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
-
-const DEFAULT_PROJECT_ID = "default";
+import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 
 type Phase = "loading" | "ready";
 
 /**
- * Hides tertiary operator-home surfaces until at least one run exists for the default project,
- * avoiding a chorus of empty-state cards on first visit. Fails open on fetch/guard errors so
- * returning operators still see metrics if the lightweight list call fails.
+ * Hides tertiary operator-home surfaces until at least one committed manifest exists for the tenant (trial-status
+ * anchor or golden manifest on a run row). Fails open on resolution errors so transient API issues do not strip the
+ * dashboard for returning operators.
  */
 export function OperationalMetricsGate({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<Phase>("loading");
-  const [hasRuns, setHasRuns] = useState(false);
+  const [showOperateDiscovery, setShowOperateDiscovery] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,28 +22,20 @@ export function OperationalMetricsGate({ children }: { children: ReactNode }) {
       setPhase("loading");
 
       try {
-        const raw: unknown = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, 1);
-        const coerced = coerceRunSummaryPaged(raw);
+        const ctx = await fetchCorePilotCommitContext();
 
         if (cancelled) {
           return;
         }
 
-        if (!coerced.ok) {
-          setHasRuns(true);
-          setPhase("ready");
-
-          return;
-        }
-
-        setHasRuns(coerced.value.totalCount > 0);
+        setShowOperateDiscovery(ctx.hasCommittedManifest);
         setPhase("ready");
       } catch {
         if (cancelled) {
           return;
         }
 
-        setHasRuns(true);
+        setShowOperateDiscovery(true);
         setPhase("ready");
       }
     }
@@ -62,7 +51,7 @@ export function OperationalMetricsGate({ children }: { children: ReactNode }) {
     return null;
   }
 
-  if (phase === "ready" && !hasRuns) {
+  if (phase === "ready" && !showOperateDiscovery) {
     return null;
   }
 

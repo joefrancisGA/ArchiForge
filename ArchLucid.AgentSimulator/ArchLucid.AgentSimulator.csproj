@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
-    <ProjectReference Include="..\ArchLucid.Contracts.Abstractions\ArchLucid.Contracts.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,3 +1,5 @@
+> **Scope:** Operators and platform engineers executing trial→paid tenant conversion and Entra directory binding; excludes billing SKU design and generic Entra admin guides.
+
 # Trial → paid identity handoff
 
 ## Objective
@@ -82,7 +84,7 @@ Negligible: two indexed lookups and conditional updates per customer.
 
 ## Related code
 
-- [`ArchLucid.Api/Controllers/Tenancy/TenantTrialController.cs`](../ArchLucid.Api/Controllers/Tenancy/TenantTrialController.cs)
-- [`ArchLucid.Persistence/Tenancy/DapperTenantRepository.cs`](../ArchLucid.Persistence/Tenancy/DapperTenantRepository.cs) — `UpdateEntraTenantIdAsync`
-- [`ArchLucid.Persistence/Identity/SqlTrialIdentityUserRepository.cs`](../ArchLucid.Persistence/Identity/SqlTrialIdentityUserRepository.cs) — `TryLinkLocalIdentityToEntraAsync`
+- [`ArchLucid.Api/Controllers/Tenancy/TenantTrialController.cs`](../../ArchLucid.Api/Controllers/Tenancy/TenantTrialController.cs)
+- [`ArchLucid.Persistence/Tenancy/DapperTenantRepository.cs`](../../ArchLucid.Persistence/Tenancy/DapperTenantRepository.cs) — `UpdateEntraTenantIdAsync`
+- [`ArchLucid.Persistence/Identity/SqlTrialIdentityUserRepository.cs`](../../ArchLucid.Persistence/Identity/SqlTrialIdentityUserRepository.cs) — `TryLinkLocalIdentityToEntraAsync`
 - Migration **131** — `dbo.IdentityUsers.LinkedEntraOid`, `LinkedUtc`
