@@ -18,6 +18,12 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/",
+  useRouter: (): { push: () => void; replace: () => void } => ({ push: vi.fn(), replace: vi.fn() }),
+  useSearchParams: (): URLSearchParams => new URLSearchParams(),
+}));
+
 import { AdvisoryScansContent } from "@/components/advisory/AdvisoryScansContent";
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
 import { DigestsBrowseContent } from "@/components/digests/DigestsBrowseContent";
