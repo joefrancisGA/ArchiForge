@@ -11,8 +11,7 @@ public sealed class LlmCompletionCacheOptions
     /// <summary>When false, the decorator forwards every call to the inner client.</summary>
     public bool Enabled
     {
-        get;
-        set;
+        get; set;
     }
 
     /// <summary>Maximum cached entries (uniform size budget for the dedicated memory cache).</summary>

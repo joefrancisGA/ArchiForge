@@ -207,6 +207,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 For **`npm run screenshots`**, **`npm run screenshots:all`**, **`npm run screenshots:all:prebuilt`**, and **`npm run e2e:mock`**, the Playwright **`webServer`** sets **`NEXT_PUBLIC_DEMO_MODE=true`** (unless overridden) so the Runs list can use **`tryStaticDemoRunSummariesPaged`** when the mock API returns no usable paged runs. It also sets **`NEXT_PUBLIC_DEMO_STATIC_OPERATOR=true`** by default so run detail/manifest surfaces match Showcase static payloads when an API call fails. Override either in the shell if you need non-demo parity.
 
+**Standalone / RSC noise:** While the mock server runs **`node .next/standalone/server.js`**, the console may intermittently log **`TypeError: controller[kState].transformAlgorithm is not a function`** (Next.js App Router streaming + Node Web Streams when a response is cut short—e.g. Playwright navigating away). That is a known upstream race; if tests and PNGs succeed, you can ignore it. Mitigations if it escalates: use a current **Node 20 LTS** or **Node ≥ 22.9** (stream fixes), avoid rapid-fire navigation where possible, and watch [vercel/next.js#68319](https://github.com/vercel/next.js/issues/68319) / [Discussion #75995](https://github.com/vercel/next.js/discussions/75995).
+
 ## Tests
 
 - **All unit/component tests:** `npm test` (or `npm run test:watch`). Pattern: `src/**/*.test.{ts,tsx}`.
