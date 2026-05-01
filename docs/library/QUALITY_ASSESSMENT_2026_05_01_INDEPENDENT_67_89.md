@@ -205,16 +205,16 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 #### 9. Trustworthiness — Score: 64 | Weight: 3 | Deficiency: 1.06
 
-**Justification:** The product has: STRIDE threat model, RLS, fail-closed auth, content safety, prompt redaction, rate limiting. The product lacks: SOC 2 Type II attestation, published pen-test report (engagement awarded but not delivered), real customer testimonials, any social proof. An enterprise security reviewer will ask "who else runs this in production?" and the answer is "no one." Self-assessment is not third-party attestation.
+**Justification:** The product has: STRIDE threat model, RLS, fail-closed auth, content safety, prompt redaction, rate limiting. The product lacks: SOC 2 Type II attestation, published pen-test report, real customer testimonials, any social proof. An enterprise security reviewer will ask "who else runs this in production?" and the answer is "no one." Self-assessment is not third-party attestation. The pen test is owner-conducted (not third-party), which strengthens internal confidence but does not carry the same weight with procurement teams.
 
-**Tradeoffs:** SOC 2 costs $30-80K and takes 3-6 months. The pen test is in flight (Aeronova, kickoff 2026-05-06). These are on track but not delivered.
+**Tradeoffs:** Owner-conducted pen testing is fast and cheap but lacks independent verification. SOC 2 costs $30-80K and takes 3-6 months. Product is self-funded from savings, so timeline is not cash-constrained.
 
 **Recommendations:**
-- Complete pen test engagement and publish redacted summary
-- Begin SOC 2 Type II engagement immediately after pen test delivery
+- Complete owner-conducted pen test and publish redacted summary
 - Add "trust timeline" visualization showing when each attestation will be available
+- Consider a third-party pen test later (V1.1) for procurement-grade evidence
 
-**Fixability:** Blocked on vendor timelines (pen test in flight)
+**Fixability:** V1 for owner pen test; V1.1 for third-party attestation
 
 ---
 
@@ -263,7 +263,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 #### 13. Compliance Readiness — Score: 66 | Weight: 2 | Deficiency: 0.67
 
-**Justification:** SOC 2 self-assessment exists (internal ownership). CAIQ Lite pre-fill exists. SIG Core pre-fill exists. Pen test is in flight. Audit trail is durable and append-only. 78 typed audit events. However: no actual SOC 2 report, no completed pen test deliverable, no ISO 27001. For regulated industries (financial services, healthcare — the identified best-fit scenarios), these are hard blockers.
+**Justification:** SOC 2 self-assessment exists (internal ownership). CAIQ Lite pre-fill exists. SIG Core pre-fill exists. Owner-conducted pen test underway. Audit trail is durable and append-only. 78 typed audit events. However: no actual SOC 2 report, no completed pen test deliverable, no ISO 27001. For regulated industries (financial services, healthcare — the identified best-fit scenarios), these are hard blockers.
 
 **Tradeoffs:** Compliance attestation before revenue is expensive but necessary for the target market.
 
@@ -342,7 +342,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 |------|----------|--------|
 | 1 | **No paying customers or live billing flow** | Cannot generate revenue; cannot validate product-market fit; cannot prove ROI claims |
 | 2 | **No live self-serve trial-to-paid conversion** | Stripe URL is placeholder; Team tier cannot be purchased without manual intervention |
-| 3 | **No third-party security attestation delivered** | SOC 2 absent; pen test in flight but not delivered; regulated buyers cannot clear security review |
+| 3 | **No independent security attestation delivered** | SOC 2 absent; owner pen test underway but not third-party; regulated buyers cannot clear security review |
 | 4 | **Azure-only + Entra-only constrains market to ~30%** | >50% of enterprises are AWS/GCP-primary; non-Microsoft IdP shops are blocked |
 | 5 | **No inbound data connectors** | Customers must re-describe architecture from scratch; cannot import existing Terraform/CMDB/ArchiMate |
 | 6 | **Time from signup to first value is hours, not minutes** | Infrastructure setup, auth config, and wizard completion before any output appears |
@@ -359,7 +359,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 |------|---------|----------------------|
 | 1 | **Stripe checkout is a placeholder** | Cannot collect money from willing buyers |
 | 2 | **No reference customer** | Prospects cannot talk to peers; 15% discount cannot be earned; trust gap persists |
-| 3 | **$15K guided pilot requires sales motion** | No sales team exists; pilot fee collection requires manual invoicing |
+| 3 | **$15K guided pilot requires sales motion** | Founder is sole commercial motion; pilot fee collection requires manual invoicing; free trial is available but 14-day window is short for enterprise evaluation |
 | 4 | **Azure Marketplace not live** | Enterprise buyers with Azure spending commitments cannot route through existing procurement channels |
 | 5 | **ROI model is unvalidated** | "Save $294K/year" claim has zero customer evidence; CFOs will discount it to zero |
 
@@ -373,7 +373,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 | 2 | **No ITSM connector (Jira/ServiceNow)** | Enterprise architecture workflows terminate in ITSM systems; ArchLucid findings must bridge manually |
 | 3 | **Entra-only SSO** | Organizations on Okta/PingFederate/Auth0 cannot federate identity without custom work |
 | 4 | **No inbound data connector** | Enterprises with existing CMDB/Terraform/ArchiMate repositories cannot onboard data automatically |
-| 5 | **Single-region Azure deployment only** | Data residency requirements (EU, APAC) cannot be met without multi-region availability |
+| 5 | **No multi-cloud architecture analysis (V2)** | AWS-primary and GCP-primary organizations cannot use ArchLucid to analyze their infrastructure; Azure-only cloud analysis limits addressable market |
 
 ---
 
@@ -543,14 +543,49 @@ Impact: Directly improves Adoption Friction (+6-8 pts), Interoperability (+8-10 
 
 ---
 
-### Improvement 5: DEFERRED — Complete Pen Test and Publish Redacted Summary
+### Improvement 5: Complete Owner Pen Test and Publish Redacted Summary
 
-**Title:** DEFERRED — Complete Aeronova pen test and publish redacted summary  
-**Why it matters:** Third-party security attestation is the top enterprise adoption blocker. The pen test is awarded but not delivered (kickoff 2026-05-06). Until the redacted summary is available, regulated buyers cannot proceed through security review.  
-**Expected impact:** Directly improves Trustworthiness (+12-15 pts), Compliance Readiness (+10-12 pts), Procurement Readiness (+8-10 pts). Weighted readiness impact: +1.0-1.5%.  
+**Title:** Complete owner-conducted pen test and publish redacted summary  
+**Why it matters:** Security attestation is the top enterprise adoption blocker. Until a published summary is available, regulated buyers cannot proceed through security review. An owner-conducted pen test is a valid V1 milestone; third-party attestation can follow in V1.1.  
+**Expected impact:** Directly improves Trustworthiness (+8-10 pts), Compliance Readiness (+6-8 pts), Procurement Readiness (+5-7 pts). Weighted readiness impact: +0.7-1.0%.  
 **Affected qualities:** Trustworthiness, Compliance Readiness, Procurement Readiness, Marketability  
-**Reason deferred:** Pen test engagement is in flight with external vendor (Aeronova Red Team LLC, kickoff 2026-05-06). Cannot be accelerated by Cursor.  
-**Information needed:** Expected delivery timeline from Aeronova; whether remediation cycles are included in scope or require separate engagement.
+**Whether actionable now:** YES — owner is conducting the pen test; Cursor can assist with documentation and remediation tracking
+
+**Cursor Prompt:**
+
+```
+Create the pen test execution tracking and redacted summary publication infrastructure.
+
+Context:
+- Pen test is owner-conducted (not third-party)
+- `docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md` exists
+- `docs/security/pen-test-summaries/` directory exists
+- `docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md` may exist
+- Trust center at `docs/go-to-market/TRUST_CENTER.md` references pen test status
+- The pen test covers: API, operator UI, hosted SaaS data plane
+
+Tasks:
+1. Create `docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md` using the redacted summary template structure with sections for: scope, methodology, tools used, finding categories (critical/high/medium/low/info), remediation status, and overall posture assessment.
+2. Add a findings tracker table at the top with columns: ID, Category, Severity, Status (Open/Remediated/Accepted), Date Found, Date Resolved.
+3. Pre-populate the methodology section with standard owner pen test tools: OWASP ZAP (already in CI), Schemathesis (already in CI), manual STRIDE-guided testing, SQL injection probes, RBAC boundary testing, RLS bypass attempts.
+4. Update `docs/go-to-market/TRUST_CENTER.md` "Recent assurance activity" table: change the Aeronova row to reflect owner-conducted pen test with accurate scope and status.
+5. Add a "Pen Test Findings Remediation" section to the summary that links to relevant commits/PRs when findings are fixed.
+6. Ensure the redacted summary does NOT include: specific exploit code, internal IP addresses, credential material, or customer-identifiable data.
+
+Acceptance criteria:
+- Pen test summary document exists with correct template structure
+- Trust center accurately reflects owner-conducted (not third-party) engagement
+- Findings tracker is ready for use during testing
+- Document is marked as NDA-gated per existing trust center policy
+
+Constraints:
+- Do not fabricate findings — leave the findings table empty for the owner to populate
+- Do not remove references to future third-party pen testing (that's V1.1)
+- Do not modify the SOC 2 self-assessment document
+- Keep the existing template structure for redacted summaries
+
+Impact: Directly improves Trustworthiness (+8-10 pts), Compliance Readiness (+6-8 pts), Procurement Readiness (+5-7 pts). Weighted readiness impact: +0.7-1.0%.
+```
 
 ---
 
@@ -793,7 +828,7 @@ Context:
 Tasks:
 1. Create `ArchLucid.Api/Controllers/Marketplace/AzureMarketplaceWebhookController.cs` that handles Azure Marketplace SaaS fulfillment API v2 webhook events:
    - POST subscription notifications (ChangePlan, ChangeQuantity, Suspend, Reinstate, Unsubscribe)
-   - Validate the marketplace token against Azure AD
+   - Validate the marketplace token against Microsoft Entra ID
    - Log and acknowledge events (respond 200 OK)
    - Store subscription state in a new table or existing tenant mechanism
 2. Create `ArchLucid.Api/Controllers/Marketplace/AzureMarketplaceLandingController.cs`:
@@ -813,7 +848,7 @@ Acceptance criteria:
 - All three tiers (Team/Professional/Enterprise) are mapped in the plan resolution logic
 
 Constraints:
-- Do not hard-code any Azure AD credentials
+- Do not hard-code any Microsoft Entra ID credentials
 - Do not auto-activate Enterprise tier (require manual approval)
 - Do not modify existing Stripe billing paths
 - Guard all marketplace endpoints behind a feature flag (`Marketplace:Azure:Enabled`, default false)
@@ -828,8 +863,9 @@ Impact: Directly improves Marketability (+5-7 pts), Procurement Readiness (+5-7 
 
 All items identified as "V1.1" or "V2" in `docs/library/V1_DEFERRED.md` were successfully located and reviewed. The deferred scope is clearly documented:
 
-- **V1.1:** ServiceNow, Jira, Confluence connectors; product learning "brains" (theme derivation, plan-draft builder)
-- **V2:** Slack connector; cross-tenant analytics; BYOK; air-gapped deployment
+- **V1.1:** ServiceNow, Jira, Confluence connectors; product learning "brains" (theme derivation, plan-draft builder); first design partner customer; third-party pen test
+- **V2:** Slack connector; cross-tenant analytics; BYOK; multi-cloud analysis (AWS/GCP)
+- **Not applicable (SaaS-only):** Air-gapped deployment
 
 No scoring penalties were applied for these deferred items.
 
@@ -843,12 +879,14 @@ No scoring penalties were applied for these deferred items.
 - Would you accept a free pilot (no $15K) to accelerate first customer acquisition?
 - These questions are for V1.1 planning; they do not block V1 readiness scoring.
 
-### Improvement 5 (Pen Test)
-- What is Aeronova's expected delivery timeline after kickoff?
-- Does the engagement include a remediation cycle or just findings?
-- Will findings be remediatable before the redacted summary is published?
+### Improvement 5 (Owner Pen Test)
+- What tools beyond ZAP and Schemathesis (already in CI) are you planning to use?
+- Is there a target completion date for the pen test?
+- Will remediation of findings happen before or after the redacted summary is published?
 
-### General
-- Is there a sales hire planned, or is the founder the sole commercial motion?
-- What is the runway (months of cash) available for pre-revenue investment?
-- Is multi-cloud (AWS/GCP analysis) on the roadmap for any specific version, or is it a "someday" item?
+### General (resolved in conversation 2026-05-01)
+- ~~Is there a sales hire planned?~~ **No.** Founder is sole commercial motion.
+- ~~What is the runway?~~ **Not constrained.** Self-funded from savings.
+- ~~Is multi-cloud on the roadmap?~~ **V2.** Multi-cloud analysis (AWS/GCP) is explicitly V2 scope.
+- ~~Air-gapped deployment?~~ **Does not apply.** This is SaaS-only; air-gapped deployment is out of scope permanently.
+- **Free pilot posture:** Founder will accept a free pilot at any time to accelerate acquisition. Product is free at first (14-day trial exists).

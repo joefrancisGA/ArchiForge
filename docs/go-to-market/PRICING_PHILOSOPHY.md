@@ -94,7 +94,7 @@ Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manag
 
 | Scenario | Pricing | Duration | Conversion path |
 |----------|---------|----------|-----------------|
-| **Self-serve trial** | Free | 14 days | Auto-upgrade prompt; see [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md). Team-tier features, simulator agents, 10 runs, 3 seats, sample seeded. |
+| **Self-serve trial** | Free | 30 days | Auto-upgrade prompt; see [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md). Team-tier features, simulator agents, 10 runs, 3 seats, sample seeded. One-time 14-day extension available. |
 | **Guided pilot** | $15,000 flat, fully credited on conversion to Professional or Enterprise | 6 weeks (per [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Scorecard review → commercial proposal |
 | **Design partner** | 50% off Professional list price for 12 months; **capped at first 3 customers** | Contract term | In exchange for: published case study + quarterly reference call |
 | **Enterprise evaluation** | Custom | Negotiated | Champion + executive sponsor path |

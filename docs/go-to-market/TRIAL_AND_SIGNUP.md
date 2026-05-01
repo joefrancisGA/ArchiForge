@@ -7,7 +7,7 @@
 
 **Audience:** Product and engineering teams planning the self-serve trial path.
 
-**Last reviewed:** 2026-04-17
+**Last reviewed:** 2026-05-01 (trial duration extended from 14 to 30 days)
 
 **Pricing:** Trial parameters (seats, runs, duration) are governed by the free trial row in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) §4. Prices for conversion are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — do not restate numbers here.
 
@@ -51,13 +51,13 @@ The signup form defaults to **“Use model default (modeled estimate)”** so pr
 
 | Parameter | Value | Rationale |
 |-----------|-------|-----------|
-| **Duration** | **14 days** | Enough time for evaluation without urgency loss; aligns with typical enterprise eval cycles |
+| **Duration** | **30 days** | Enterprise architects need 4+ sessions across multiple weeks to evaluate, demo to stakeholders, and make a buy decision; 14 days was too short for the product's complexity and multi-stakeholder evaluation pattern |
 | **Tier** | **Team** features (per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)) | Provides architecture runs, manifests, comparisons — enough to demonstrate core value |
 | **Seats** | Up to 3 | Allows team evaluation without over-provisioning |
 | **Runs** | 10 included | Sufficient for meaningful evaluation; prevents abuse |
 | **Workspaces** | 1 | Simplicity for trial; upgrade to add more |
 | **Data** | Pre-seeded sample project (using Docker demo seed pattern) | Ensures immediate value — user sees a completed run on first login |
-| **Trial end** | **Read-only access** for 7 days after expiration, then data export available for 30 days, then deletion per [DPA](DPA_TEMPLATE.md) | Avoids abrupt loss; incentivizes conversion |
+| **Trial end** | **Read-only access** for 14 days after expiration, then data export available for 30 days, then deletion per [DPA](DPA_TEMPLATE.md) | Avoids abrupt loss; incentivizes conversion; one-time 14-day extension available via in-app button |
 
 ---
 
@@ -79,11 +79,11 @@ The signup form defaults to **“Use model default (modeled estimate)”** so pr
 |---------|---------|--------|
 | **Welcome + getting started** | Email | Day 0 |
 | **"Your first run is complete"** | In-app notification + email | Day 1 (after seed run) |
-| **Mid-trial check-in** | Email | Day 7 |
+| **Mid-trial check-in** | Email | Day 14 |
 | **Approaching run limit** | In-app banner | When 8 of 10 runs consumed |
-| **Trial expiring soon** | Email + in-app | Day 12 |
-| **Trial expired** | Email with upgrade CTA pointing at **Stripe Checkout** for Team tier (`teamStripeCheckoutUrl` in `archlucid-ui/public/pricing.json`, populated per [STRIPE_CHECKOUT.md](STRIPE_CHECKOUT.md)) + data export reminder | Day 14 |
-| **Champion enablement** | Auto-generated pilot scorecard stub (linked to [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Day 7 (if > 3 runs completed) |
+| **Trial expiring soon** | Email + in-app | Day 26 |
+| **Trial expired** | Email with upgrade CTA pointing at **Stripe Checkout** for Team tier (`teamStripeCheckoutUrl` in `archlucid-ui/public/pricing.json`, populated per [STRIPE_CHECKOUT.md](STRIPE_CHECKOUT.md)) + data export reminder | Day 30 |
+| **Champion enablement** | Auto-generated pilot scorecard stub (linked to [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Day 10 (if > 3 runs completed) |
 
 ---
 
