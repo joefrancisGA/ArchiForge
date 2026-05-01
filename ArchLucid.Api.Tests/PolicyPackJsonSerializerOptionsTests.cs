@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class PolicyPackJsonSerializerOptionsTests
 {
-    [Fact]
+    [SkippableFact]
     public void Default_RoundTripsPolicyPackContentDocument_WithCamelCase()
     {
         PolicyPackContentDocument doc = new()

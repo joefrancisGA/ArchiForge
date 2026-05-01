@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Host.Core.Health;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class DetailedHealthCheckResponseWriterTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task WriteAsync_includes_version_and_entries()
     {
         Dictionary<string, HealthReportEntry> entries = new()
@@ -57,7 +57,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         httpContext.Response.ContentType.Should().Contain("application/json");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WriteAsync_healthy_report_returns_healthy_status()
     {
         Dictionary<string, HealthReportEntry> entries = new()
@@ -85,7 +85,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         doc.RootElement.GetProperty("status").GetString().Should().Be("Healthy");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WriteAsync_unhealthy_entry_includes_operator_triage_fields()
     {
         Dictionary<string, HealthReportEntry> entries = new()
@@ -117,7 +117,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         first.TryGetProperty("durationMs", out _).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WriteAsync_detailed_includes_data_when_health_entry_has_dictionary()
     {
         Dictionary<string, object> checkData = new()
@@ -169,7 +169,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         gate0.GetProperty("lastStateChangeUtc").GetString().Should().Be("never");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WriteAsync_detailed_serializes_circuit_breaker_last_transition_roundtrip()
     {
         string lastChange = new DateTimeOffset(2026, 4, 10, 15, 30, 0, TimeSpan.Zero).ToString("o");
@@ -215,7 +215,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         gate0.GetProperty("consecutiveFailures").GetInt32().Should().Be(5);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task WriteAsync_summary_omits_version_duration_and_error()
     {
         Dictionary<string, HealthReportEntry> entries = new()

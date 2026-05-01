@@ -1,4 +1,4 @@
-using ArchLucid.Api.Attributes;
+﻿using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Filters;
 using ArchLucid.Core.Configuration;
 
@@ -23,7 +23,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class FeatureGateFilterTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task DemoEnabled_open_invokes_next_and_does_not_set_result()
     {
         FeatureGateFilter sut = new(FeatureGateKey.DemoEnabled, Options.Create(new DemoOptions { Enabled = true }));
@@ -41,7 +41,7 @@ public sealed class FeatureGateFilterTests
         executing.Result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DemoEnabled_closed_short_circuits_with_404_problem_details()
     {
         FeatureGateFilter sut = new(FeatureGateKey.DemoEnabled, Options.Create(new DemoOptions { Enabled = false }));
@@ -65,7 +65,7 @@ public sealed class FeatureGateFilterTests
         problem.Instance.Should().Be("/v1/demo/explain");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Unmapped_gate_key_closes_by_default()
     {
         // An undefined key (cast forces the discard arm). The filter must err on the side of *closed* so an

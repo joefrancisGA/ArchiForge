@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurityApiFactory factory)
     : IClassFixture<HealthEndpointSecurityApiFactory>
 {
-    [Fact]
+    [SkippableFact]
     public async Task HealthReady_anonymous_returns_summary_without_error_or_version_fields()
     {
         using HttpClient client = factory.CreateClient();
@@ -43,7 +43,7 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Health_anonymous_returns_401()
     {
         using HttpClient client = factory.CreateClient();
@@ -53,7 +53,7 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Health_with_api_key_returns_detailed_payload()
     {
         using HttpClient client = factory.CreateClient();
@@ -76,7 +76,7 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
         first.TryGetProperty("durationMs", out _).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Health_with_api_key_includes_circuit_breakers_entry_with_data()
     {
         using HttpClient client = factory.CreateClient();

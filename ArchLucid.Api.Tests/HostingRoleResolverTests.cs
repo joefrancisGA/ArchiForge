@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Hosting;
+﻿using ArchLucid.Host.Core.Hosting;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 
 public sealed class HostingRoleResolverTests
 {
-    [Fact]
+    [SkippableFact]
     public void Resolve_WhenMissing_returns_Combined()
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();

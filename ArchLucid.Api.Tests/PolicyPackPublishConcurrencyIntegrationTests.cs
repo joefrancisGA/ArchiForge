@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -37,7 +37,7 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
         await act(client);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Eight_parallel_publish_posts_single_policy_pack_version_row()
     {
         await WithIsolatedFactory(async client =>

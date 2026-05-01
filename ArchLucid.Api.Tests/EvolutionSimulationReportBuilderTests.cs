@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Models.Evolution;
 using ArchLucid.Api.Services.Evolution;
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class EvolutionSimulationReportBuilderTests
 {
-    [Fact]
+    [SkippableFact]
     public void Build_EmptyRuns_ProducesDocumentWithCandidateAndPlanAndDiffSectionReady()
     {
         string planJson = JsonSerializer.Serialize(
@@ -58,7 +58,7 @@ public sealed class EvolutionSimulationReportBuilderTests
         markdown.Should().Contain("No simulation rows persisted");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Build_WithEnvelopeOutcome_IncludesDiffSummaryAndEvaluationSectionInMarkdown()
     {
         string planJson = JsonSerializer.Serialize(

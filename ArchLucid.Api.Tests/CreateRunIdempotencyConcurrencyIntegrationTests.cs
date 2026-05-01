@@ -37,10 +37,10 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)) || OperatingSystem.IsWindows();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Parallel_posts_with_same_idempotency_key_yield_single_run_id()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         HttpClient client = factory.CreateClient();

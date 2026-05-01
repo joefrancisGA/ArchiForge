@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task CompareEnvironments_ReturnsOk()
     {
         var body = new { sourceEnvironment = "dev", targetEnvironment = "test" };
@@ -31,7 +31,7 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
         payload.Notes.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Preview_ReturnsNotFound_WhenRunMissing()
     {
         var body = new { runId = "nonexistent-run-id-xxxxxxxx", manifestVersion = "v1", environment = "dev" };
@@ -41,7 +41,7 @@ public sealed class GovernancePreviewControllerTests(ArchLucidApiFactory factory
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Preview_ReturnsOk_AfterCommittedRun()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -39,7 +39,7 @@ public sealed class PolicyPacksIntegrationTests
         await act(client);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PolicyPack_CreateAssignEffective_Lifecycle()
     {
         await WithIsolatedFactory(async client =>
@@ -101,7 +101,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveAssignment_Removes_pack_from_effective_set()
     {
         await WithIsolatedFactory(async client =>
@@ -159,7 +159,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EffectiveContent_MergesComplianceRuleKeys_FromAssignedPack()
     {
         await WithIsolatedFactory(async client =>
@@ -207,7 +207,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EffectiveContent_MergesAlertRuleIds_FromAssignedPack()
     {
         await WithIsolatedFactory(async client =>
@@ -257,7 +257,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PublishSameVersion_EightParallelPosts_YieldsSinglePublishedRow()
     {
         await WithIsolatedFactory(async client =>
@@ -321,7 +321,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PublishSameVersionTwice_IsIdempotent_SingleVersionRow()
     {
         await WithIsolatedFactory(async client =>
@@ -372,7 +372,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListVersions_AfterCreate_IncludesInitialVersion()
     {
         await WithIsolatedFactory(async client =>
@@ -399,7 +399,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveAssignment_unknown_assignment_returns_404()
     {
         await WithIsolatedFactory(async client =>
@@ -411,7 +411,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssignUnknownVersion_Returns404()
     {
         await WithIsolatedFactory(async client =>
@@ -448,7 +448,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GovernanceResolution_Get_ReturnsNotesAndEffectiveContent()
     {
         await WithIsolatedFactory(async client =>
@@ -497,7 +497,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EffectiveContent_MergesAdvisoryDefaults_FromTwoAssignedPacks()
     {
         await WithIsolatedFactory(async client =>
@@ -578,7 +578,7 @@ public sealed class PolicyPacksIntegrationTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EffectiveContent_UnionsComplianceRuleKeys_FromTwoAssignments()
     {
         await WithIsolatedFactory(async client =>

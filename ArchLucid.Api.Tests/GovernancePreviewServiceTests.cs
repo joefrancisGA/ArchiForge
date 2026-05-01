@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance.Preview;
+﻿using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -68,7 +68,7 @@ public sealed class GovernancePreviewServiceTests
         return new ArchitectureRunDetail { Run = Run(runId), Manifest = null };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PreviewActivationAsync_WhenNoCurrentActiveRowExists_ReturnsPreviewAgainstEmptyCurrent()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-a", It.IsAny<CancellationToken>()))
@@ -94,7 +94,7 @@ public sealed class GovernancePreviewServiceTests
             n.Contains("No current active governance activation", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PreviewActivationAsync_WhenCurrentActiveRowExists_ReturnsDifferences()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-b", It.IsAny<CancellationToken>()))
@@ -138,7 +138,7 @@ public sealed class GovernancePreviewServiceTests
             d.Key == "RequiredControls" && d.ChangeType == GovernanceDiffChangeType.Changed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompareEnvironmentsAsync_WhenBothHaveActiveRows_ReturnsDifferences()
     {
         GovernanceEnvironmentActivation srcAct = new()
@@ -177,7 +177,7 @@ public sealed class GovernancePreviewServiceTests
             .Contain(n => n.Contains("Compared active governance", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompareEnvironmentsAsync_WhenStatesAreEquivalent_ReturnsNoMeaningfulDiffs()
     {
         ManifestGovernance gov = new()
@@ -222,7 +222,7 @@ public sealed class GovernancePreviewServiceTests
         result.Differences.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PreviewActivationAsync_DoesNotMutateActivationRows()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-x", It.IsAny<CancellationToken>()))
@@ -247,7 +247,7 @@ public sealed class GovernancePreviewServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PreviewActivationAsync_WhenRunMissing_ThrowsRunNotFoundException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))

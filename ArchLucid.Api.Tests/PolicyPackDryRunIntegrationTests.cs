@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -25,7 +25,7 @@ public sealed class PolicyPackDryRunIntegrationTests
         Converters = { new JsonStringEnumConverter(null) }
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task DryRun_WithPiiInProposedThresholds_PersistsRedactedAuditRow()
     {
         await using PolicyPackDryRunIntegrationApiFactory factory = new();
@@ -74,7 +74,7 @@ public sealed class PolicyPackDryRunIntegrationTests
         doc.RootElement.GetProperty("deltaCounts").GetProperty("runMissing").GetInt32().Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DryRun_WithEmptyRunIdList_Returns400()
     {
         await using PolicyPackDryRunIntegrationApiFactory factory = new();
@@ -98,7 +98,7 @@ public sealed class PolicyPackDryRunIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DryRun_WithoutScopeHeaders_DoesNotLeakAuthInternals()
     {
         await using PolicyPackDryRunIntegrationApiFactory factory = new();

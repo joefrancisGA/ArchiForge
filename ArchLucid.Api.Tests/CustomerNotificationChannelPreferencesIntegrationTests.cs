@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -33,7 +33,7 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests : ICl
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Get_customer_channel_preferences_with_reader_jwt_returns_unconfigured_defaults()
     {
         string token = MintJwt(

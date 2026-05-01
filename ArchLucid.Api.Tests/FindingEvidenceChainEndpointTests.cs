@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Integration")]
 public sealed class FindingEvidenceChainEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetFindingEvidenceChain_WhenRunUnknown_Returns404()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

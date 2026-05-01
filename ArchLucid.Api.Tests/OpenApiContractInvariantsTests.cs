@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 using FluentAssertions;
 
@@ -17,7 +17,7 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
 {
     private const string OpenApiDocumentPath = "/openapi/v1.json";
 
-    [Fact]
+    [SkippableFact]
     public async Task OpenApi_v1_json_exposes_core_metadata_and_register_route()
     {
         using HttpClient client = factory.CreateClient(

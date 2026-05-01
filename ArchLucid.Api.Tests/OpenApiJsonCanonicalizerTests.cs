@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class OpenApiJsonCanonicalizerTests
 {
-    [Fact]
+    [SkippableFact]
     public void Canonicalize_sorts_openapi_document_tag_objects_by_name()
     {
         JsonNode? left = JsonNode.Parse("""{"tags":[{"name":"Zebra"},{"name":"Apple"}]}""");
@@ -22,7 +22,7 @@ public sealed class OpenApiJsonCanonicalizerTests
         JsonNode.DeepEquals(canonicalLeft, canonicalRight).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Canonicalize_sorts_operation_level_string_tag_arrays()
     {
         JsonNode? left = JsonNode.Parse("""{"paths":{"/x":{"get":{"tags":["Zulu","Alpha"]}}}}""");

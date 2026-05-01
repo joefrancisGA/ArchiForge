@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -11,7 +11,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     End-to-end: create digest subscription → advisory scan persists digest and dispatcher records a delivery attempt →
+///     End-to-end: create digest subscription â†’ advisory scan persists digest and dispatcher records a delivery attempt â†’
 ///     GET attempts.
 /// </summary>
 [Trait("Category", "Integration")]
@@ -22,7 +22,7 @@ public sealed class DigestDeliveryLifecycleIntegrationTests
         PropertyNameCaseInsensitive = true
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_subscription_run_advisory_scan_lists_succeeded_delivery_attempt()
     {
         await using AlertLifecycleWebAppFactory factory = new();

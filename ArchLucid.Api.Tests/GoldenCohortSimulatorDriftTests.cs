@@ -21,10 +21,10 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "GoldenCohort")]
 public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Simulator_path_matches_locked_baseline_when_enabled()
     {
-        Assert.SkipUnless(
+        Skip.IfNot(
             string.Equals(
                 Environment.GetEnvironmentVariable("ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED"),
                 "true",

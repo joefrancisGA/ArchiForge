@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 
 using FluentAssertions;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class HostLeaderElectionCoordinatorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RunLeaderWorkAsync_when_disabled_does_not_call_lease_repository()
     {
         Mock<IHostLeaderLeaseRepository> lease = new();
@@ -50,7 +50,7 @@ public sealed class HostLeaderElectionCoordinatorTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunLeaderWorkAsync_when_renewal_fails_cancels_leader_work()
     {
         int callSequence = 0;

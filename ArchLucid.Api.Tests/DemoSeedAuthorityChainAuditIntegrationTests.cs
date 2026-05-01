@@ -40,10 +40,10 @@ public sealed class DemoSeedAuthorityChainAuditIntegrationTests
             Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)) || OperatingSystem.IsWindows();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_authority_chain_audit_is_idempotent_against_sql()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();

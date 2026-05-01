@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Admin;
+﻿using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Configuration;
 
@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class DemoControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_returns_not_found_when_not_development()
     {
         Mock<IDemoSeedService> demoSeed = new();
@@ -36,7 +36,7 @@ public sealed class DemoControllerTests
         demoSeed.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_returns_bad_request_when_demo_disabled()
     {
         Mock<IDemoSeedService> demoSeed = new();
@@ -54,7 +54,7 @@ public sealed class DemoControllerTests
         demoSeed.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_seeds_and_returns_no_content_when_development_and_enabled()
     {
         Mock<IDemoSeedService> demoSeed = new();

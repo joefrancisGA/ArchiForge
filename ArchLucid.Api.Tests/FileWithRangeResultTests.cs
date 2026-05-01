@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class FileWithRangeResultTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteResultAsync_empty_payload_returns_200_with_zero_length()
     {
         DefaultHttpContext http = new()
@@ -28,7 +28,7 @@ public sealed class FileWithRangeResultTests
         http.Response.Headers["Accept-Ranges"].ToString().Should().Be("bytes");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteResultAsync_full_body_when_range_header_absent()
     {
         byte[] payload = [0x01, 0x02, 0x03];
@@ -47,7 +47,7 @@ public sealed class FileWithRangeResultTests
         body.ToArray().Should().Equal(payload);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteResultAsync_partial_content_when_range_valid()
     {
         byte[] payload = [0x10, 0x20, 0x30, 0x40];

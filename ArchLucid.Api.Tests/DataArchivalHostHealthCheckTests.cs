@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Health;
+﻿using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Archival;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class DataArchivalHostHealthCheckTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CheckHealthAsync_archival_disabled_is_healthy()
     {
         DataArchivalHostHealthState state = new();
@@ -30,7 +30,7 @@ public sealed class DataArchivalHostHealthCheckTests
         result.Status.Should().Be(HealthStatus.Healthy);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckHealthAsync_archival_enabled_no_iteration_yet_is_healthy()
     {
         DataArchivalHostHealthState state = new();
@@ -43,7 +43,7 @@ public sealed class DataArchivalHostHealthCheckTests
         result.Status.Should().Be(HealthStatus.Healthy);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckHealthAsync_archival_enabled_last_failure_is_degraded()
     {
         DataArchivalHostHealthState state = new();
@@ -57,7 +57,7 @@ public sealed class DataArchivalHostHealthCheckTests
         result.Status.Should().Be(HealthStatus.Degraded);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CheckHealthAsync_archival_enabled_last_success_is_healthy()
     {
         DataArchivalHostHealthState state = new();

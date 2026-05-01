@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
@@ -140,9 +140,9 @@ public sealed class GovernanceWorkflowServiceTests
         return new ArchitectureRunDetail { Run = ValidRun(runId) };
     }
 
-    // ── Submit ───────────────────────────────────────────────────────────────
+    // â”€â”€ Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_RunExists_CreatesSubmittedRequest()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -180,7 +180,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_DryRun_DoesNotPersist()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -218,7 +218,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_InvalidEnvironmentStep_ThrowsInvalidOperationException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -235,7 +235,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_when_transactional_outbox_enqueues_without_direct_publish()
     {
         _integrationEventOptions.Setup(m => m.CurrentValue)
@@ -272,7 +272,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_RunNotFound_ThrowsRunNotFoundException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("missing-run", It.IsAny<CancellationToken>()))
@@ -298,9 +298,9 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    // ── Approve ──────────────────────────────────────────────────────────────
+    // â”€â”€ Approve â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_SubmittedRequest_ChangesStatusToApproved()
     {
         GovernanceApprovalRequest existing = new()
@@ -363,7 +363,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_DraftRequest_ChangesStatusToApproved()
     {
         GovernanceApprovalRequest existing = new()
@@ -397,7 +397,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_AlreadyRejected_ThrowsInvalidOperationException()
     {
         GovernanceApprovalRequest existing = new()
@@ -428,7 +428,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_SameUserAsSubmitter_ThrowsSelfApprovalException()
     {
         GovernanceApprovalRequest existing = new()
@@ -484,7 +484,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_SameUserCaseInsensitive_ThrowsSelfApprovalException()
     {
         GovernanceApprovalRequest existing = new()
@@ -528,7 +528,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_WhenAlreadyApprovedByConcurrentRequest_ThrowsGovernanceApprovalReviewConflictException()
     {
         GovernanceApprovalRequest submittedView = new()
@@ -584,9 +584,9 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    // ── Reject ───────────────────────────────────────────────────────────────
+    // â”€â”€ Reject â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task Reject_SubmittedRequest_ChangesStatusToRejected()
     {
         GovernanceApprovalRequest existing = new()
@@ -631,7 +631,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Reject_AlreadyApproved_ThrowsInvalidOperationException()
     {
         GovernanceApprovalRequest existing = new()
@@ -662,7 +662,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Reject_SameUserAsSubmitter_ThrowsSelfApprovalException()
     {
         GovernanceApprovalRequest existing = new()
@@ -711,9 +711,9 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    // ── Promote ──────────────────────────────────────────────────────────────
+    // â”€â”€ Promote â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_ToProd_WithoutApproval_ThrowsInvalidOperationException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -740,7 +740,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_DryRun_FailsValidation_WhenNoApproval()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -758,7 +758,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_ToProd_WithUnapprovedRequest_ThrowsInvalidOperationException()
     {
         GovernanceApprovalRequest pendingApproval = new()
@@ -793,7 +793,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_ToProd_WithUnapprovedRequest_Verbose_IncludesApprovalStatusInMessage()
     {
         GovernanceApprovalRequest pendingApproval = new()
@@ -822,7 +822,7 @@ public sealed class GovernanceWorkflowServiceTests
             .WithMessage("*Submitted*");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_ToProd_WithApprovedRequest_Succeeds()
     {
         GovernanceApprovalRequest approvedRequest = new()
@@ -876,7 +876,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_DryRun_ValidatesApprovalChain_ButDoesNotPersist()
     {
         GovernanceApprovalRequest approvedRequest = new()
@@ -930,7 +930,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_ToTest_WithoutApproval_Succeeds()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -962,7 +962,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_SkipsEnvironmentOrdering_ThrowsInvalidOperationException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -980,9 +980,9 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
-    // ── Activate ─────────────────────────────────────────────────────────────
+    // â”€â”€ Activate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task Activate_DeactivatesPreviousActiveActivation()
     {
         GovernanceEnvironmentActivation previous = new()
@@ -1036,7 +1036,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Activate_NoExistingActivations_CreatesNewActive()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -1075,7 +1075,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Activate_RunNotFound_ThrowsRunNotFoundException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("no-such-run", It.IsAny<CancellationToken>()))

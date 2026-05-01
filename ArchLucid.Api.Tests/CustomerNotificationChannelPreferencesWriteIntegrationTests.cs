@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -31,7 +31,7 @@ public sealed class
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Put_customer_channel_preferences_with_reader_jwt_returns_forbidden()
     {
         string token = MintJwt(
@@ -58,7 +58,7 @@ public sealed class
         res.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Put_customer_channel_preferences_with_operator_jwt_then_get_returns_configured_row()
     {
         string token = MintJwt(

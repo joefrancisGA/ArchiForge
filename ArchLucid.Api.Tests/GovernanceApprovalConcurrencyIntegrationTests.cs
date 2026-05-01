@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -25,7 +25,7 @@ public sealed class GovernanceApprovalConcurrencyIntegrationTests(ArchLucidApiFa
         return payload!.Run.RunId;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Thirty_two_parallel_approves_single_ok_terminal_outcome()
     {
         string runId = await CreateRunAsync("REQ-GOV-32-" + Guid.NewGuid().ToString("N")[..8]);

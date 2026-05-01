@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -37,7 +37,7 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteRun_WithPilotTryRealHeader_emitsFirstRealValueAuditEvents()
     {
         await using ArchLucidApiFactory factory = new();

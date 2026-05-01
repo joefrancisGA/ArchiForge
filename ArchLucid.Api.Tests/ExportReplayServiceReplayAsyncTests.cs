@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
@@ -22,7 +22,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         WriteIndented = true
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_NullRequest_ThrowsArgumentNullException()
     {
         ExportReplayService sut = CreateSut(out _, out _, out _, out _, out _);
@@ -32,7 +32,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_BlankExportRecordId_ThrowsArgumentException()
     {
         ExportReplayService sut = CreateSut(out _, out _, out _, out _, out _);
@@ -43,7 +43,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_RecordNotFound_ThrowsInvalidOperationException()
     {
         ExportReplayService sut = CreateSut(out Mock<IRunExportRecordRepository> repo, out _, out _, out _, out _);
@@ -57,7 +57,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             .Which.Message.Should().Contain("missing");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_MissingAnalysisRequestJson_ThrowsInvalidOperationException()
     {
         ExportReplayService sut = CreateSut(out Mock<IRunExportRecordRepository> repo, out _, out _, out _, out _);
@@ -73,7 +73,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             .Which.Message.Should().Contain("does not contain a persisted analysis request");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_CorruptAnalysisRequestJson_ThrowsInvalidOperationException_WithJsonExceptionInner()
     {
         ExportReplayService sut = CreateSut(out Mock<IRunExportRecordRepository> repo, out _, out _, out _, out _);
@@ -90,7 +90,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         ex.InnerException.Should().BeOfType<JsonException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_UnsupportedExportType_ThrowsInvalidOperationException()
     {
         ExportReplayService sut = CreateSut(out Mock<IRunExportRecordRepository> repo, out _, out _, out _, out _);
@@ -106,7 +106,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             .Which.Message.Should().Contain("Replay is not supported");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_ConsultingDocx_UsesConsultingGenerator_NotStandardDocx()
     {
         ExportReplayService sut = CreateSut(
@@ -140,7 +140,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_AnalysisDocx_UsesStandardGenerator_NotConsulting()
     {
         ExportReplayService sut = CreateSut(
@@ -173,7 +173,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplayAsync_WhenRecordReplayExportTrue_RecordsAuditOnce()
     {
         ExportReplayService sut = CreateSut(

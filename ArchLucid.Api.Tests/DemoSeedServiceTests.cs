@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class DemoSeedServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_inserts_run_records_listable_via_IAuthorityQueryService()
     {
         await using ArchLucidApiFactory factory = new();
@@ -37,7 +37,7 @@ public sealed class DemoSeedServiceTests
         rows.Should().OnlyContain(r => r.ProjectId == "Contoso Retail Platform");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_twice_does_not_throw_and_remains_idempotent()
     {
         await using ArchLucidApiFactory factory = new();
@@ -48,7 +48,7 @@ public sealed class DemoSeedServiceTests
         await second.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_creates_baseline_and_hardened_runs_with_manifests()
     {
         await using ArchLucidApiFactory factory = new();
@@ -72,7 +72,7 @@ public sealed class DemoSeedServiceTests
         hardened.Run.CurrentManifestVersion.Should().Be(demo.ManifestHardened);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_governance_activations_allow_environment_compare_preview()
     {
         await using ArchLucidApiFactory factory = new();
@@ -87,7 +87,7 @@ public sealed class DemoSeedServiceTests
         result.Differences.Should().NotBeEmpty("baseline vs hardened governance should differ");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_lists_both_demo_runs_in_run_summaries()
     {
         await using ArchLucidApiFactory factory = new();
@@ -106,7 +106,7 @@ public sealed class DemoSeedServiceTests
         ]);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_manifest_diff_detects_structural_differences_between_versions()
     {
         await using ArchLucidApiFactory factory = new();
@@ -134,7 +134,7 @@ public sealed class DemoSeedServiceTests
         hasMeaningfulStructuralDiff.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedAsync_agent_result_compare_produces_deltas()
     {
         await using ArchLucidApiFactory factory = new();

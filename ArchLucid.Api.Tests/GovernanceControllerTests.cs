@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -23,9 +23,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         return payload!.Run.RunId;
     }
 
-    // ── Submit ───────────────────────────────────────────────────────────────
+    // â”€â”€ Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_ValidRun_ReturnsOk()
     {
         string runId = await CreateRunAsync("REQ-GOV-SUBMIT-01");
@@ -51,7 +51,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         payload.RunId.Should().Be(runId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_UnknownRun_Returns404()
     {
         var body = new
@@ -67,7 +67,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_MissingBody_Returns400()
     {
         HttpResponseMessage response = await Client.PostAsync("/v1/governance/approval-requests", null);
@@ -75,9 +75,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    // ── Approve ──────────────────────────────────────────────────────────────
+    // â”€â”€ Approve â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_ValidRequest_ReturnsOkWithApprovedStatus()
     {
         string runId = await CreateRunAsync("REQ-GOV-APPROVE-01");
@@ -104,9 +104,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         result.ReviewedBy.Should().Be("reviewer1");
     }
 
-    // ── Reject ───────────────────────────────────────────────────────────────
+    // â”€â”€ Reject â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task Reject_ValidRequest_ReturnsOkWithRejectedStatus()
     {
         string runId = await CreateRunAsync("REQ-GOV-REJECT-01");
@@ -132,9 +132,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         result!.Status.Should().Be("Rejected");
     }
 
-    // ── Promote ──────────────────────────────────────────────────────────────
+    // â”€â”€ Promote â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_ToProd_WithoutApproval_Returns400()
     {
         string runId = await CreateRunAsync("REQ-GOV-PROD-01");
@@ -153,7 +153,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_ToProd_WithApprovedRequest_ReturnsOk()
     {
         string runId = await CreateRunAsync("REQ-GOV-PROD-02");
@@ -195,9 +195,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         result.PromotedBy.Should().Be("alice");
     }
 
-    // ── Activate ─────────────────────────────────────────────────────────────
+    // â”€â”€ Activate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task Activate_ValidRun_ReturnsOkAndIsActive()
     {
         string runId = await CreateRunAsync("REQ-GOV-ACTIVATE-01");
@@ -216,9 +216,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         result.Environment.Should().Be("dev");
     }
 
-    // ── List by run ──────────────────────────────────────────────────────────
+    // â”€â”€ List by run â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public async Task GetApprovalRequests_ByRunId_ReturnsRows()
     {
         string runId = await CreateRunAsync("REQ-GOV-LIST-01");
@@ -237,7 +237,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         items.Should().Contain(x => x.RunId == runId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPromotions_ByRunId_ReturnsRows()
     {
         string runId = await CreateRunAsync("REQ-GOV-LIST-02");
@@ -262,7 +262,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         items.Should().Contain(x => x.RunId == runId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetActivations_ByRunId_ReturnsRows()
     {
         string runId = await CreateRunAsync("REQ-GOV-LIST-03");
@@ -280,7 +280,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         items.Should().Contain(x => x.RunId == runId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetApprovalRequestRationale_AfterSubmit_ReturnsOk()
     {
         string runId = await CreateRunAsync("REQ-GOV-RATIONALE-01");
@@ -305,7 +305,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         payload.Bullets.Should().NotBeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_SecondApprove_ReturnsBadRequest()
     {
         string runId = await CreateRunAsync("REQ-GOV-APR2-01");
@@ -329,7 +329,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         second.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Approve_ParallelDuplicateApproves_FromSameReviewer_HasConsistentOutcome()
     {
         string runId = await CreateRunAsync("REQ-GOV-PAR-01");

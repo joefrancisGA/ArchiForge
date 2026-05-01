@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diffs;
+﻿using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ManifestDiffServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public void Compare_ShouldDetectAddedServiceAndControl()
     {
         GoldenManifest left = new()
@@ -72,7 +72,7 @@ public sealed class ManifestDiffServiceTests
         diff.RemovedRequiredControls.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Compare_ShouldDetectRemovedDatastore()
     {
         GoldenManifest left = new()

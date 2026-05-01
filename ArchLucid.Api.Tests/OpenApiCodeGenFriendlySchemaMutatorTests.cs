@@ -1,4 +1,4 @@
-using ArchLucid.Api.OpenApi;
+﻿using ArchLucid.Api.OpenApi;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class OpenApiCodeGenFriendlySchemaMutatorTests
 {
-    [Fact]
+    [SkippableFact]
     public void Collapses_integer_and_string_union_to_integer_when_format_is_int32()
     {
         OpenApiDocument document = new()
@@ -36,7 +36,7 @@ public sealed class OpenApiCodeGenFriendlySchemaMutatorTests
         schema.Pattern.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Preserves_null_when_collapsing_integer_string_union()
     {
         OpenApiDocument document = new()

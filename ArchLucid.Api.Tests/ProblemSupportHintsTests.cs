@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ProblemSupportHintsTests
 {
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenProblemIsNull_throws()
     {
         Action act = () => ProblemSupportHints.AttachForProblemType(null!);
@@ -16,7 +16,7 @@ public sealed class ProblemSupportHintsTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenTypeIsEmpty_does_not_add_supportHint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = "" };
@@ -26,7 +26,7 @@ public sealed class ProblemSupportHintsTests
         problem.Extensions.Should().NotContainKey("supportHint");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenTypeIsUnknown_does_not_add_supportHint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = "https://example.invalid/problems/unknown" };
@@ -36,7 +36,7 @@ public sealed class ProblemSupportHintsTests
         problem.Extensions.Should().NotContainKey("supportHint");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenRunNotFound_adds_scope_hint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.RunNotFound };
@@ -48,7 +48,7 @@ public sealed class ProblemSupportHintsTests
         hint.ToLowerInvariant().Should().Contain("scope");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenConflict_adds_idempotency_hint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.Conflict };
@@ -60,7 +60,7 @@ public sealed class ProblemSupportHintsTests
         hint.ToLowerInvariant().Should().Contain("idempotency");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenDatabaseTimeout_adds_health_ready_hint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.DatabaseTimeout };
@@ -72,7 +72,7 @@ public sealed class ProblemSupportHintsTests
         hint.ToLowerInvariant().Should().Contain("health/ready");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenValidationFailed_adds_swagger_hint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.ValidationFailed };
@@ -84,7 +84,7 @@ public sealed class ProblemSupportHintsTests
         hint.ToLowerInvariant().Should().Contain("swagger");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenComparisonVerificationFailed_adds_drift_hint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.ComparisonVerificationFailed };
@@ -96,7 +96,7 @@ public sealed class ProblemSupportHintsTests
         hint.ToLowerInvariant().Should().Contain("drift");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AttachForProblemType_WhenPackagingTierInsufficient_adds_checkout_hint()
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.PackagingTierInsufficient };

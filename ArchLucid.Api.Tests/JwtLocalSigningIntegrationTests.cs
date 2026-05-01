@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -23,7 +23,7 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Get_architecture_runs_with_valid_local_jwt_returns_OK()
     {
         string token = MintJwt(
@@ -41,7 +41,7 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
         res.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Get_architecture_runs_with_malformed_bearer_returns_Unauthorized()
     {
         HttpClient client = _factory.CreateClient();

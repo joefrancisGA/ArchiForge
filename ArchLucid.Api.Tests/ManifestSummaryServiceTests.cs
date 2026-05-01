@@ -1,4 +1,4 @@
-using ArchLucid.Application.Summaries;
+﻿using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
@@ -20,7 +20,7 @@ public sealed class ManifestSummaryServiceTests
 
     private readonly ManifestSummaryService _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_NullManifest_Throws()
     {
         Action act = () => _sut.GenerateMarkdown(null!);
@@ -28,7 +28,7 @@ public sealed class ManifestSummaryServiceTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_EmptyManifest_ContainsSystemNameAndOverview()
     {
         GoldenManifest manifest = CreateMinimalManifest("TestSystem");
@@ -40,7 +40,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().Contain("**System Name:** TestSystem");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_WithServices_ContainsServiceSection()
     {
         GoldenManifest manifest = CreateMinimalManifest("Svc");
@@ -61,7 +61,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().Contain("**Purpose:** Handles orders");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_WithDatastores_ContainsDatastoreSection()
     {
         GoldenManifest manifest = CreateMinimalManifest("Ds");
@@ -83,7 +83,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().Contain("**Encryption At Rest Required:** Yes");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_WithRelationships_ContainsRelationshipSection()
     {
         GoldenManifest manifest = CreateMinimalManifest("Rel");
@@ -116,7 +116,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().Contain("MainDb");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_WithComplianceTags_ContainsComplianceSection()
     {
         GoldenManifest manifest = CreateMinimalManifest("Gov");
@@ -129,7 +129,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().Contain("- SOC2");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_WithRequiredControls_ContainsControlsSection()
     {
         GoldenManifest manifest = CreateMinimalManifest("Controls");
@@ -141,7 +141,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().Contain("- ManagedIdentity");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_IncludeRelationshipsFalse_OmitsRelationships()
     {
         GoldenManifest manifest = CreateMinimalManifest("NoRel");
@@ -171,7 +171,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().NotContain("## Relationships");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_IncludeComplianceTagsFalse_OmitsComplianceTags()
     {
         GoldenManifest manifest = CreateMinimalManifest("NoCT");
@@ -184,7 +184,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().NotContain("## Compliance Tags");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_MaxRelationships_LimitsOutput()
     {
         GoldenManifest manifest = CreateMinimalManifest("Limited");
@@ -224,7 +224,7 @@ public sealed class ManifestSummaryServiceTests
         count.Should().Be(2);
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMarkdown_DefaultOptions_IncludesAllSections()
     {
         GoldenManifest manifest = CreateMinimalManifest("Full");

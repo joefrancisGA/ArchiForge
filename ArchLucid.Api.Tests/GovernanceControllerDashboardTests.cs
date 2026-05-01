@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Governance;
+﻿using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
@@ -19,7 +19,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class GovernanceControllerDashboardTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetDashboard_ReturnsOkWithSummary()
     {
         Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-000011112222");

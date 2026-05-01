@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Bootstrap;
@@ -17,18 +17,18 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>GET /v1/demo/explain</c> — the public proof endpoint that powers the operator-shell
+///     HTTP coverage for <c>GET /v1/demo/explain</c> â€” the public proof endpoint that powers the operator-shell
 ///     <c>/demo/explain</c> route. Two scenarios exercise the security-critical 404 paths:
 ///     <list type="bullet">
 ///         <item>
 ///             <description>
-///                 <b>Demo:Enabled=false</b> (factory default) — <see cref="FeatureGateFilter" /> short-circuits
+///                 <b>Demo:Enabled=false</b> (factory default) â€” <see cref="FeatureGateFilter" /> short-circuits
 ///                 before the action runs.
 ///             </description>
 ///         </item>
 ///         <item>
 ///             <description>
-///                 <b>Demo:Enabled=true</b> but no committed demo run — <see cref="DemoReadModelClient" />
+///                 <b>Demo:Enabled=true</b> but no committed demo run â€” <see cref="DemoReadModelClient" />
 ///                 returns null and the controller emits <c>NotFoundProblem</c>.
 ///             </description>
 ///         </item>
@@ -47,7 +47,7 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDemoExplain_returns_404_when_demo_not_enabled_on_deployment()
     {
         // Factory defaults leave Demo:Enabled unset (false). The FeatureGateFilter must hide the route entirely.
@@ -59,7 +59,7 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDemoExplain_returns_404_when_demo_enabled_but_no_committed_demo_run()
     {
         WebApplicationFactory<Program> enabled = _factory.WithWebHostBuilder(builder =>
@@ -76,7 +76,7 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDemoExplain_returns_200_with_payload_when_demo_enabled_and_read_model_resolves()
     {
         StubDemoReadModelClient stub = new();
@@ -123,7 +123,7 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
                 RunId = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"),
                 ManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
                 IsDemoData = true,
-                DemoStatusMessage = "demo tenant — replace before publishing",
+                DemoStatusMessage = "demo tenant â€” replace before publishing",
                 RunExplanation = new RunExplanationSummary
                 {
                     Explanation = new ExplanationResult { Summary = "Stub" },

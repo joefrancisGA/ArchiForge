@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Application.Analysis;
 
@@ -18,10 +18,10 @@ namespace ArchLucid.Api.Tests;
 public sealed class ExportReplayServiceTests
 {
     // BuildReplayFileName is private but its rules are:
-    //   - blank input → "replayed_export.docx"
-    //   - "report.docx" → "report_replay.docx"
-    //   - "report.v2.docx" → "report.v2_replay.docx"  (only last extension)
-    //   - "noext" → "noext_replay"
+    //   - blank input â†’ "replayed_export.docx"
+    //   - "report.docx" â†’ "report_replay.docx"
+    //   - "report.v2.docx" â†’ "report.v2_replay.docx"  (only last extension)
+    //   - "noext" â†’ "noext_replay"
 
     private static string CallBuildReplayFileName(string originalFileName)
     {
@@ -33,7 +33,7 @@ public sealed class ExportReplayServiceTests
         return (string)method!.Invoke(null, [originalFileName])!;
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildReplayFileName_BlankInput_ReturnsFallback()
     {
         string result = CallBuildReplayFileName("");
@@ -41,7 +41,7 @@ public sealed class ExportReplayServiceTests
         result.Should().Be("replayed_export.docx");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildReplayFileName_WhitespaceInput_ReturnsFallback()
     {
         string result = CallBuildReplayFileName("   ");
@@ -49,7 +49,7 @@ public sealed class ExportReplayServiceTests
         result.Should().Be("replayed_export.docx");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildReplayFileName_SimpleDocxName_AppendsReplaySuffix()
     {
         string result = CallBuildReplayFileName("report.docx");
@@ -57,7 +57,7 @@ public sealed class ExportReplayServiceTests
         result.Should().Be("report_replay.docx");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildReplayFileName_NameWithDottedVersion_PreservesExtensionOnly()
     {
         string result = CallBuildReplayFileName("report.v2.docx");
@@ -65,7 +65,7 @@ public sealed class ExportReplayServiceTests
         result.Should().Be("report.v2_replay.docx");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildReplayFileName_NameWithNoExtension_AppendsReplaySuffixWithoutDot()
     {
         string result = CallBuildReplayFileName("noext");
@@ -73,7 +73,7 @@ public sealed class ExportReplayServiceTests
         result.Should().Be("noext_replay");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildReplayFileName_NullInput_ReturnsFallback()
     {
         // null is coerced to empty by the outer guard (IsNullOrWhiteSpace covers null).

@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Admin;
+﻿using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Core.Metering;
 
 using FluentAssertions;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class MeteringAdminControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetTenantSummaryAsync_returns_bad_request_when_period_end_not_after_start()
     {
         Mock<IUsageMeteringService> metering = new();
@@ -36,7 +36,7 @@ public sealed class MeteringAdminControllerTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetTenantSummaryAsync_returns_rows_from_metering()
     {
         Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");

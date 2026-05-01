@@ -1,4 +1,4 @@
-using ArchLucid.Api.Validators;
+﻿using ArchLucid.Api.Validators;
 using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
@@ -20,7 +20,7 @@ public sealed class InfrastructureDeclarationRequestValidatorTests
         return new InfrastructureDeclarationRequest { Name = "primary", Format = "json", Content = """{"resources":[]}""" };
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Succeeds_ForTerraformShowJson_whenContentPresent()
     {
         InfrastructureDeclarationRequest decl = ValidDecl();
@@ -48,7 +48,7 @@ public sealed class InfrastructureDeclarationRequestValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Validate_Fails_WhenFormatIsUnsupported()
     {
         InfrastructureDeclarationRequest decl = ValidDecl();

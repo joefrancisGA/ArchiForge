@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -34,7 +34,7 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetShowcase_returns_404_when_stub_returns_null()
     {
         WebApplicationFactory<Program> app = _factory.WithWebHostBuilder(builder =>
@@ -54,7 +54,7 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetShowcase_returns_200_when_stub_returns_payload()
     {
         WebApplicationFactory<Program> app = _factory.WithWebHostBuilder(builder =>

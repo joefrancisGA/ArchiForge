@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreatePolicyPack_InvalidInitialContentJson_Returns400WithValidationErrors()
     {
         var body = new
@@ -31,7 +31,7 @@ public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory
         text.Should().ContainEquivalentOf("InitialContentJson");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PublishPolicyPack_InvalidSemVerVersion_Returns400()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
@@ -57,7 +57,7 @@ public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory
         text.Should().ContainEquivalentOf("Version");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssignPolicyPack_InvalidScopeLevel_Returns400()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

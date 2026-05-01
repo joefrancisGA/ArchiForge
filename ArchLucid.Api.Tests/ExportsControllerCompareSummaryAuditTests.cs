@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
@@ -21,7 +21,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ExportsControllerCompareSummaryAuditTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CompareExportRecordsSummary_WhenPersistTrue_LogsComparisonSummaryPersisted()
     {
         string leftId = "exp-left";
@@ -83,7 +83,7 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompareExportRecordsSummary_WhenPersistFalse_DoesNotLogComparisonSummaryPersisted()
     {
         string leftId = "exp-a";

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Pilots;
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class PilotInProductScorecardEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetInProductScorecard_returns_ok_with_metric_shape()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/pilots/scorecard");

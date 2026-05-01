@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -22,7 +22,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("ChangeSet", "60R")]
 public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ShadowEvaluate_UnknownCandidate_Returns404Problem()
     {
         HttpResponseMessage response = await Client.PostAsync(
@@ -36,7 +36,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
         problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PlanWithNoLinkedRuns_CreateShadowGet_YieldsSimulatedCandidateWithNoSimulationRows()
     {
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
@@ -83,7 +83,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
         JsonDocument.Parse(detail.PlanSnapshotJson);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Simulate_ThenGetResults_NoLinkedRuns_ReturnsCandidateAndEmptyRuns()
     {
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
@@ -125,7 +125,7 @@ public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : 
         resultsBody.SimulationRuns.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportResults_MarkdownAndJson_ContainDescriptionDiffAndSchema()
     {
         Guid planId = await SeedMinimalPlanInDefaultScopeAsync();

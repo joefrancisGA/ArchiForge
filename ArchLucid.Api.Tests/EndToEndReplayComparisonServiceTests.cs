@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -58,7 +58,7 @@ public sealed class EndToEndReplayComparisonServiceTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_LoadsBothRunsViaRunDetailQueryService_AndComparesManifestsFromDetail()
     {
         ArchitectureRunDetail left = new()
@@ -93,7 +93,7 @@ public sealed class EndToEndReplayComparisonServiceTests
         _manifestDiff.Verify(m => m.Compare(left.Manifest, right.Manifest), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WhenLeftRunMissing_ThrowsRunNotFoundException()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))

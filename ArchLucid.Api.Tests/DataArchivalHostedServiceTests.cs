@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Hosted;
+﻿using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Archival;
 
 using FluentAssertions;
@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class DataArchivalHostedServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_exits_cleanly_when_cancellation_during_delay_after_iteration()
     {
         Mock<IOptionsMonitor<DataArchivalOptions>> options = new();
@@ -43,7 +43,7 @@ public sealed class DataArchivalHostedServiceTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_marks_health_failed_when_coordinator_throws()
     {
         Mock<IDataArchivalCoordinator> coordinator = new();

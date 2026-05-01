@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 
 using FluentAssertions;
@@ -18,7 +18,7 @@ public sealed class CommitRunRequiresCommitPermissionTests : IClassFixture<Opera
         _client = factory.CreateClient();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CommitRun_returns_403_when_commit_run_permission_claim_missing()
     {
         HttpResponseMessage response = await _client.PostAsync(
@@ -43,7 +43,7 @@ public sealed class
         _client = factory.CreateClient();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadConsultingDocx_returns_403_when_export_consulting_docx_claim_missing()
     {
         using StringContent body = new("{}", Encoding.UTF8, "application/json");
@@ -54,7 +54,7 @@ public sealed class
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadConsultingDocxAsync_returns_403_when_export_consulting_docx_claim_missing()
     {
         using StringContent body = new("{}", Encoding.UTF8, "application/json");
@@ -79,7 +79,7 @@ public sealed class ArchitecturePackageDocxRequiresExportPermissionTests : IClas
         _client = factory.CreateClient();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportRunDocx_returns_403_when_export_consulting_docx_claim_missing()
     {
         HttpResponseMessage response = await _client.GetAsync(

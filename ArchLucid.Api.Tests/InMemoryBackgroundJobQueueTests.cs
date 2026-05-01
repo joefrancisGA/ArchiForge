@@ -1,4 +1,4 @@
-using ArchLucid.Application.Jobs;
+﻿using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Jobs;
 
 using FluentAssertions;
@@ -43,7 +43,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         return new InMemoryBackgroundJobQueue(logger.Object, scopeFactory);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Enqueue_WhenPendingChannelIsFull_ThrowsInvalidOperationException()
     {
         TaskCompletionSource<bool> barrier = new();
@@ -78,7 +78,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StopAsync(CancellationToken.None);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_WhenWorkThrows_MarksJobFailedWithErrorMessage()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
@@ -102,7 +102,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StopAsync(CancellationToken.None);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvictOldTerminalJobs_AfterMoreThan200Succeeded_OldestJobRemoved()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
@@ -134,7 +134,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StopAsync(CancellationToken.None);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Enqueue_WithRetry_RetriesOnFailureThenSucceeds()
     {
         int attempt = 0;
@@ -167,7 +167,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StopAsync(CancellationToken.None);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Enqueue_WithRetry_ExhaustsRetriesThenFails()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
@@ -192,7 +192,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StopAsync(CancellationToken.None);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Enqueue_WithZeroRetries_FailsImmediately()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();

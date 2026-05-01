@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Parallel <c>POST /v1/policy-packs</c> with identical name in the same scope: the model does not enforce a unique
 ///     name, so all writers can succeed. With <c>ArchLucid:StorageProvider=InMemory</c> (default
-///     <see cref="ArchLucidApiFactory" />), packs live in the in-process store — list by HTTP, not <c>dbo</c> probes.
+///     <see cref="ArchLucidApiFactory" />), packs live in the in-process store â€” list by HTTP, not <c>dbo</c> probes.
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -33,7 +33,7 @@ public sealed class PolicyPackConcurrencyIntegrationTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Five_parallel_creates_with_same_name_produce_five_distinct_packs_visible_in_list()
     {
         await using ArchLucidApiFactory factory = new();

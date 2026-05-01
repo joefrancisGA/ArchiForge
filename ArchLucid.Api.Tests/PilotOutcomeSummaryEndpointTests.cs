@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Pilots;
@@ -7,12 +7,12 @@ using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
-/// <summary>HTTP coverage for <c>GET /v1/pilots/outcome-summary</c> — trailing 30-day rollup for operator home.</summary>
+/// <summary>HTTP coverage for <c>GET /v1/pilots/outcome-summary</c> â€” trailing 30-day rollup for operator home.</summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
 public sealed class PilotOutcomeSummaryEndpointTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetOutcomeSummary_returns_ok_with_scorecard_shape()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/pilots/outcome-summary");

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -14,7 +14,7 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
 {
     private readonly HttpClient _client = factory.CreateClient();
 
-    [Fact]
+    [SkippableFact]
     public async Task HealthCheck_IncludesW3CTraceResponseHeaders_OnSuccess()
     {
         HttpResponseMessage response = await _client.GetAsync("/health/ready");
@@ -29,7 +29,7 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
         xt.First().Should().MatchRegex("^[0-9a-fA-F]{32}$");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HealthCheck_DoesNotEmitAllowOrigin_ForDisallowedOrigin()
     {
         using HttpRequestMessage request = new(HttpMethod.Get, "/health/ready");
@@ -41,7 +41,7 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
         response.Headers.TryGetValues("Access-Control-Allow-Origin", out IEnumerable<string>? _).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HealthCheck_EmitsAllowOrigin_ForConfiguredOrigin()
     {
         using HttpRequestMessage request = new(HttpMethod.Get, "/health/ready");
@@ -56,7 +56,7 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
         acao.Should().Be("https://trusted.app.example");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PreflightOptions_FromTrustedOrigin_WithPost_ReflectsAllowedMethods()
     {
         using HttpRequestMessage request = new(HttpMethod.Options, "/health/ready");
@@ -76,7 +76,7 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
         joined.Contains("POST", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PreflightOptions_FromTrustedOrigin_WithDisallowedRequestHeader_IsRejected()
     {
         using HttpRequestMessage request = new(HttpMethod.Options, "/health/ready");

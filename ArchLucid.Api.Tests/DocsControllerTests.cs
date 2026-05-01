@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Admin;
+﻿using ArchLucid.Api.Controllers.Admin;
 
 using FluentAssertions;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class DocsControllerTests
 {
-    [Fact]
+    [SkippableFact]
     public void ReplayRecipes_returns_html_linking_scalar_and_replay_endpoints()
     {
         DocsController sut = new();

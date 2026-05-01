@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -19,7 +19,7 @@ public sealed class DatabaseMigrationScriptTests
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
         TimeSpan.FromMilliseconds(100));
 
-    [Fact]
+    [SkippableFact]
     public void ArchLucidPersistenceAssembly_HasEmbeddedMigrationScripts_InNumericOrder()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;

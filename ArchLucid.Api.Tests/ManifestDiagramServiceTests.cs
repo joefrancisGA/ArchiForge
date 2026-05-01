@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diagrams;
+﻿using ArchLucid.Application.Diagrams;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
@@ -14,7 +14,7 @@ public sealed class ManifestDiagramServiceTests
 {
     private readonly ManifestDiagramService _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_NullManifest_Throws()
     {
         Action act = () => _sut.GenerateMermaid(null!);
@@ -22,7 +22,7 @@ public sealed class ManifestDiagramServiceTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_EmptyManifest_ReturnsFlowchartHeader()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -32,7 +32,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().StartWith("flowchart LR");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_LayoutTb_ReturnsTopBottomHeader()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -42,7 +42,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().StartWith("flowchart TB");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_WithService_ContainsServiceNode()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -60,7 +60,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().Contain("AppService");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_WithDatastore_ContainsCylinderNode()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -79,7 +79,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().Contain("[(\"");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_WithRelationship_ContainsEdge()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -107,7 +107,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().Contain("-->|WritesTo|");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_RelationshipLabelsNone_OmitsEdgeLabel()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -138,7 +138,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().NotContain("-->|");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_IncludeRuntimePlatformFalse_OmitsPlatformLabel()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -158,7 +158,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().NotContain("ContainerApps");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_GroupByRuntimePlatform_ContainsSubgraph()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -185,7 +185,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().Contain("end");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_GroupByServiceType_ContainsSubgraph()
     {
         GoldenManifest manifest = CreateMinimalManifest();
@@ -204,7 +204,7 @@ public sealed class ManifestDiagramServiceTests
         mermaid.Should().Contain("subgraph");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GenerateMermaid_DuplicateServiceIds_ProducesUniqueNodeIds()
     {
         GoldenManifest manifest = CreateMinimalManifest();

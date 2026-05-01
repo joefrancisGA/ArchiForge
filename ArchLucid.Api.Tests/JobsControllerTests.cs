@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers.Admin;
+﻿using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Jobs;
 
@@ -25,7 +25,7 @@ public sealed class JobsControllerTests
         return controller;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetJob_whitespace_jobId_returns_400()
     {
         Mock<IBackgroundJobQueue> jobs = new();
@@ -38,7 +38,7 @@ public sealed class JobsControllerTests
         jobs.Verify(j => j.GetInfoAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetJob_unknown_returns_404()
     {
         Mock<IBackgroundJobQueue> jobs = new();
@@ -53,7 +53,7 @@ public sealed class JobsControllerTests
         obj.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetJob_found_returns_200()
     {
         BackgroundJobInfo info = new(
@@ -75,7 +75,7 @@ public sealed class JobsControllerTests
         ok.Value.Should().BeSameAs(info);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadJobFile_whitespace_jobId_returns_400()
     {
         Mock<IBackgroundJobQueue> jobs = new();
@@ -88,7 +88,7 @@ public sealed class JobsControllerTests
         jobs.Verify(j => j.GetFileAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadJobFile_unknown_returns_404()
     {
         Mock<IBackgroundJobQueue> jobs = new();
@@ -103,7 +103,7 @@ public sealed class JobsControllerTests
         obj.StatusCode.Should().Be(StatusCodes.Status404NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadJobFile_not_succeeded_returns_409()
     {
         BackgroundJobInfo info = new(
@@ -126,7 +126,7 @@ public sealed class JobsControllerTests
         jobs.Verify(j => j.GetFileAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadJobFile_succeeded_without_file_returns_409()
     {
         BackgroundJobInfo info = new(
@@ -151,7 +151,7 @@ public sealed class JobsControllerTests
         obj.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadJobFile_succeeded_with_file_returns_file()
     {
         BackgroundJobInfo info = new(

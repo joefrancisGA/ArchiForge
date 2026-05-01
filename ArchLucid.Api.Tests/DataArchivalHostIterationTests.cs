@@ -1,4 +1,4 @@
-using ArchLucid.Core.Audit;
+﻿using ArchLucid.Core.Audit;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Archival;
 
@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class DataArchivalHostIterationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RunOnceAsync_when_disabled_does_not_resolve_coordinator()
     {
         Mock<IServiceScopeFactory> scopeFactory = new();
@@ -36,7 +36,7 @@ public sealed class DataArchivalHostIterationTests
         scopeFactory.Verify(f => f.CreateScope(), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunOnceAsync_when_coordinator_throws_logs_audit_event()
     {
         Mock<IDataArchivalCoordinator> coordinator = new();
@@ -89,7 +89,7 @@ public sealed class DataArchivalHostIterationTests
         status.Should().Be(HealthStatus.Degraded);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunOnceAsync_when_coordinator_succeeds_marks_health_healthy()
     {
         Mock<IDataArchivalCoordinator> coordinator = new();

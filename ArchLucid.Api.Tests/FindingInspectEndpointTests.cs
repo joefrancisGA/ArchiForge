@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using System.Net.Http.Json;
 
@@ -82,7 +82,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
     /// <summary>Regression: after explicit seed, authority read-model exposes findings for the inspect repository.</summary>
 
-    [Fact]
+    [SkippableFact]
 
     public async Task Demo_baseline_run_detail_has_findings_after_explicit_seed()
 
@@ -122,7 +122,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
 
 
-    [Fact]
+    [SkippableFact]
 
     public async Task GetFindingInspect_when_seeded_returns_200_with_contract_shape()
 
@@ -158,7 +158,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
 
 
-    [Fact]
+    [SkippableFact]
 
     public async Task GetFindingInspectForRun_when_seeded_matching_route_run_returns_200()
 
@@ -196,7 +196,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
 
 
-    [Fact]
+    [SkippableFact]
 
     public async Task GetFindingInspectForRun_when_route_run_mismatch_returns_404()
 
@@ -224,7 +224,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
 
 
-    [Fact]
+    [SkippableFact]
 
     public async Task GetFindingInspect_when_unknown_returns_404()
 
@@ -240,7 +240,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
 
 
-    [Fact]
+    [SkippableFact]
 
     public async Task GetFindingInspect_anonymous_api_key_mode_returns_401()
 
@@ -264,7 +264,7 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
 
 
 
-    [Fact]
+    [SkippableFact]
 
     public async Task GetFindingInspect_when_role_outside_read_authority_returns_403()
 
@@ -317,4 +317,3 @@ public sealed class FindingInspectEndpointTests : IntegrationTestBase
     }
 
 }
-

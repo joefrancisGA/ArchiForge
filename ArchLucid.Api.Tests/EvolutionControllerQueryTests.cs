@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models.Evolution;
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("ChangeSet", "60R")]
 public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListCandidates_Default_ReturnsOk_Empty()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/evolution/candidates");
@@ -30,7 +30,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
         body.Candidates.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListCandidates_InvalidMax_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/evolution/candidates?max=0");
@@ -42,7 +42,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetCandidate_Unknown_Returns404Problem()
     {
         HttpResponseMessage response =
@@ -55,7 +55,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
         problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetResults_UnknownCandidate_Returns404Problem()
     {
         HttpResponseMessage response =
@@ -68,7 +68,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
         problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportResults_UnknownCandidate_Returns404Problem()
     {
         HttpResponseMessage response = await Client.GetAsync(
@@ -81,7 +81,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
         problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportResults_InvalidFormat_Returns400Problem()
     {
         Guid candidateId = Guid.Parse("00000000-0000-0000-0000-000000000077");
@@ -95,7 +95,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateFromPlan_UnknownPlan_Returns404Problem()
     {
         HttpResponseMessage response = await Client.PostAsync(
@@ -109,7 +109,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
         problem.Type.Should().Be(ProblemTypes.LearningImprovementPlanNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Simulate_UnknownCandidate_Returns404Problem()
     {
         HttpResponseMessage response = await Client.PostAsync(
@@ -123,7 +123,7 @@ public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) :
         problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportResults_OmittedFormat_UnknownCandidate_Returns404Problem()
     {
         HttpResponseMessage response = await Client.GetAsync(

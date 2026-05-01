@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Middleware;
+﻿using ArchLucid.Host.Core.Middleware;
 
 using FluentAssertions;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class CorrelationIdMiddlewareTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_valid_header_sets_response_and_trace_identifier()
     {
         DefaultHttpContext context = new()
@@ -30,7 +30,7 @@ public sealed class CorrelationIdMiddlewareTests
         context.TraceIdentifier.Should().Be("safe-id_01");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_invalid_header_falls_back_to_trace_identifier()
     {
         DefaultHttpContext context = new()
@@ -47,7 +47,7 @@ public sealed class CorrelationIdMiddlewareTests
         context.TraceIdentifier.Should().Be("fallback-trace");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_invokes_next_delegate()
     {
         DefaultHttpContext context = new();

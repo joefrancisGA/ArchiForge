@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProblemDetails;
+﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Tenancy;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class PackagingTierProblemDetailsFactoryTests
 {
-    [Fact]
+    [SkippableFact]
     public void CreateObfuscatedNotFound_returns_404_resource_not_found()
     {
         ServiceCollection services = [];
@@ -41,7 +41,7 @@ public sealed class PackagingTierProblemDetailsFactoryTests
         problem.Extensions["supportHint"].Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void CreateObfuscatedNotFound_when_instance_null_still_problem_json()
     {
         ServiceCollection services = [];
@@ -59,7 +59,7 @@ public sealed class PackagingTierProblemDetailsFactoryTests
         problem!.Type.Should().Be(ProblemTypes.ResourceNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public void CreateTenantProductInsufficientTier_returns_403_packaging_tier_problem_without_tier_echo()
     {
         ServiceCollection services = [];

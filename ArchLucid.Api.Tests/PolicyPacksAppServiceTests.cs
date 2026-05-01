@@ -1,4 +1,4 @@
-using ArchLucid.Core.Audit;
+﻿using ArchLucid.Core.Audit;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class PolicyPacksAppServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreatePackAsync_WhenManagementSucceeds_AuditsCreated()
     {
         Guid tenantId = Guid.NewGuid();
@@ -53,7 +53,7 @@ public sealed class PolicyPacksAppServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryAssignAsync_WhenVersionMissing_ReturnsNullWithoutAssignOrAudit()
     {
         Guid packId = Guid.NewGuid();
@@ -84,7 +84,7 @@ public sealed class PolicyPacksAppServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryArchiveAssignmentAsync_WhenManagementReturnsTrue_AuditsArchived()
     {
         Guid tenantId = Guid.NewGuid();

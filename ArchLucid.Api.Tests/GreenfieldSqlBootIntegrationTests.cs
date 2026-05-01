@@ -37,10 +37,10 @@ public sealed class GreenfieldSqlBootIntegrationTests
             Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)) || OperatingSystem.IsWindows();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Api_boots_against_empty_database_and_health_ready_returns_ok()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -50,10 +50,10 @@ public sealed class GreenfieldSqlBootIntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SchemaVersions_has_rows_after_greenfield_boot()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();
@@ -77,10 +77,10 @@ public sealed class GreenfieldSqlBootIntegrationTests
         Convert.ToInt32(scalar, CultureInfo.InvariantCulture).Should().BeGreaterThan(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Core_tables_exist_after_greenfield_boot()
     {
-        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();

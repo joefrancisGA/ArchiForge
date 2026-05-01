@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Http;
@@ -25,7 +25,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class GovernanceControllerDryRunTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task SubmitApprovalRequest_WhenDryRun_SetsDryRunResponseHeader()
     {
         Mock<IGovernanceWorkflowService> workflow = new();
@@ -87,7 +87,7 @@ public sealed class GovernanceControllerDryRunTests
         http.Response.Headers[ArchLucidHttpHeaders.DryRun].ToString().Should().Be("true");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Promote_WhenDryRun_SetsDryRunResponseHeader()
     {
         Mock<IGovernanceWorkflowService> workflow = new();

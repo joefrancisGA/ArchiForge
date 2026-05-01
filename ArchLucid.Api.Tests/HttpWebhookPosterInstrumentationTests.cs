@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Host.Core.Services.Delivery;
 
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class HttpWebhookPosterInstrumentationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task HttpWebhookPoster_logs_and_scopes_correct_fields_OnSuccess()
     {
         TelemetryLogger<HttpWebhookPoster> telemetryLogger = new();
@@ -62,7 +62,7 @@ public sealed class HttpWebhookPosterInstrumentationTests
         stub.SendCount.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HttpWebhookPoster_logs_correct_fields_when_response_is_terminal_non_success()
     {
         TelemetryLogger<HttpWebhookPoster> telemetryLogger = new();

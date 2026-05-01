@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("ChangeSet", "59R")]
 public sealed class LearningControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetThemes_Default_ReturnsOk_WithEmptyThemes()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/themes");
@@ -33,7 +33,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         body.Themes.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetThemes_InvalidMax_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/themes?maxThemes=0");
@@ -46,7 +46,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         problem.Detail.Should().Contain("maxThemes");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlans_Default_ReturnsOk_WithEmptyPlans()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/plans");
@@ -61,7 +61,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         body.Plans.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlanById_InvalidGuid_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/plans/not-a-guid");
@@ -73,7 +73,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlanById_UnknownGuid_Returns404Problem()
     {
         HttpResponseMessage response =
@@ -86,7 +86,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         problem.Type.Should().Be(ProblemTypes.LearningImprovementPlanNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummary_Default_ReturnsOk_WithZeroCounts()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/summary");
@@ -103,7 +103,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         body.MaxPlanPriorityScore.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummary_InvalidMaxPlans_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/summary?maxPlans=abc");
@@ -115,7 +115,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         problem.Detail.Should().Contain("maxPlans");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSummary_InvalidMaxThemes_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/summary?maxThemes=0");
@@ -128,7 +128,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         problem.Detail.Should().Contain("maxThemes");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlans_InvalidMaxPlans_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/plans?maxPlans=-1");
@@ -141,7 +141,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         problem.Detail.Should().Contain("maxPlans");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlanningReport_Json_ReturnsOk_WithDocumentShape()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=json");
@@ -157,7 +157,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         doc.Plans.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlanningReport_Markdown_ReturnsOk_WithWrapper()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=markdown");
@@ -174,7 +174,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         body.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries)[0].Should().StartWith("# ");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlanningReport_InvalidFormat_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=xml");
@@ -186,7 +186,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadPlanningReport_File_Markdown_ReturnsMarkdownContentType()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=markdown");
@@ -198,7 +198,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         text.Split('\n', StringSplitOptions.RemoveEmptyEntries)[0].Should().StartWith("# ");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadPlanningReport_File_Json_IsIndentedObject()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=json");
@@ -211,7 +211,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         doc.RootElement.GetProperty("summary").GetProperty("themeCount").GetInt32().Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DownloadPlanningReport_File_InvalidFormat_Returns400Problem()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=yaml");
@@ -223,7 +223,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlanningReport_Json_empty_scope_exposes_expected_arrays_and_counts()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=json");
@@ -239,7 +239,7 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         doc.RootElement.TryGetProperty("generatedUtc", out JsonElement _).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetPlanningReport_InvalidMaxReportSignalLinks_Returns400Problem()
     {
         HttpResponseMessage response =

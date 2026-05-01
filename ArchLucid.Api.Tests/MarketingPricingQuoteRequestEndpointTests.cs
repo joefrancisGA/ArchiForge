@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Application.Notifications.Email;
@@ -17,7 +17,7 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>POST /v1/marketing/pricing/quote-request</c> — persist + sales notification path.
+///     HTTP coverage for <c>POST /v1/marketing/pricing/quote-request</c> â€” persist + sales notification path.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -25,7 +25,7 @@ public sealed class MarketingPricingQuoteRequestEndpointTests
 {
     private static readonly Guid SeededRequestId = Guid.Parse("99999999-9999-9999-9999-999999999999");
 
-    [Fact]
+    [SkippableFact]
     public async Task PostQuoteRequest_after_successful_persist_invokes_sales_notifier()
     {
         DateTime createdUtc = new(2026, 4, 27, 12, 0, 0, DateTimeKind.Utc);

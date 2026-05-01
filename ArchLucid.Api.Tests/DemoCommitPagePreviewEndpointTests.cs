@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Security.Cryptography;
 
 using ArchLucid.Application.Bootstrap;
@@ -26,7 +26,7 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
         _factory = factory;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDemoPreview_returns_404_when_demo_not_enabled()
     {
         HttpClient client = _factory.CreateClient();
@@ -37,7 +37,7 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDemoPreview_returns_404_when_demo_enabled_but_preview_unavailable()
     {
         WebApplicationFactory<Program> enabled = _factory.WithWebHostBuilder(builder =>
@@ -54,7 +54,7 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDemoPreview_returns_200_with_cache_headers_and_stable_body_on_cache_hit()
     {
         StubPreviewClient stub = new();
@@ -103,7 +103,7 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
         (await third.Content.ReadAsByteArrayAsync()).Length.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDemoPreview_etag_matches_sha256_of_json_body()
     {
         StubPreviewClient stub = new();
@@ -150,7 +150,7 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
             {
                 GeneratedUtc = FixedGeneratedUtc,
                 IsDemoData = true,
-                DemoStatusMessage = "demo tenant — replace before publishing",
+                DemoStatusMessage = "demo tenant â€” replace before publishing",
                 Run =
                     new DemoPreviewRun
                     {

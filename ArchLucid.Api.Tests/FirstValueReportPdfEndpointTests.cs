@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 
 using FluentAssertions;
@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <c>POST /v1/pilots/runs/{runId}/first-value-report.pdf</c> — the in-product CTA
+///     HTTP coverage for <c>POST /v1/pilots/runs/{runId}/first-value-report.pdf</c> â€” the in-product CTA
 ///     that produces a sponsor-shareable PDF projection of the canonical first-value-report Markdown.
 ///     404 on unknown run is the stable contract surface (parity with the Markdown sibling).
 /// </summary>
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class FirstValueReportPdfEndpointTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task PostFirstValueReportPdf_WhenRunUnknown_Returns404Problem()
     {
         Guid runId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
@@ -28,7 +28,7 @@ public sealed class FirstValueReportPdfEndpointTests(ArchLucidApiFactory factory
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PostFirstValueReportPdf_NonceRunId_DoesNotRequireStandardTier()
     {
         // Mirrors the Markdown sibling auth shape: a 404 (not 402) for an unknown run id confirms the

@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Core.Scoping;
 
@@ -19,7 +19,7 @@ public sealed class HttpScopeContextProviderTests
         return new HttpScopeContextProvider(accessor);
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetCurrentScope_prefers_claim_tenant_over_conflicting_header()
     {
         Guid claimTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -40,7 +40,7 @@ public sealed class HttpScopeContextProviderTests
         scope.ProjectId.Should().Be(ScopeIds.DefaultProject);
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetCurrentScope_uses_header_when_claim_absent()
     {
         Guid headerTenant = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -56,7 +56,7 @@ public sealed class HttpScopeContextProviderTests
         scope.TenantId.Should().Be(headerTenant);
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetCurrentScope_uses_default_when_claim_invalid_and_header_absent()
     {
         DefaultHttpContext http = new()
@@ -71,7 +71,7 @@ public sealed class HttpScopeContextProviderTests
         scope.TenantId.Should().Be(ScopeIds.DefaultTenant);
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetCurrentScope_falls_back_to_header_when_claim_not_parseable_as_guid()
     {
         Guid headerTenant = Guid.Parse("dededede-dede-dede-dede-dededededede");
@@ -89,7 +89,7 @@ public sealed class HttpScopeContextProviderTests
         scope.TenantId.Should().Be(headerTenant);
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetCurrentScope_ambient_override_wins_over_claims_and_headers()
     {
         Guid ambientTenant = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
@@ -115,7 +115,7 @@ public sealed class HttpScopeContextProviderTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public void GetCurrentScope_claim_precedence_applies_per_workspace_and_project()
     {
         Guid claimWs = Guid.Parse("f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0");
