@@ -19,10 +19,10 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
         _fixture = fixture;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PurgeTenantAsync_removes_tenant_scoped_rows_and_retains_audit_events()
     {
-        Assert.SkipUnless(_fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(_fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();

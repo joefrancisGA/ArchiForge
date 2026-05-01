@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Billing.AzureMarketplace;
 using ArchLucid.Core.Tenancy;
@@ -16,7 +16,7 @@ public sealed class MarketplaceWebhookPayloadParserTests
         MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId).Should().Be(expected);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ReadQuantity_parses_number_and_string()
     {
         using JsonDocument n = JsonDocument.Parse("""{"quantity":7}""");

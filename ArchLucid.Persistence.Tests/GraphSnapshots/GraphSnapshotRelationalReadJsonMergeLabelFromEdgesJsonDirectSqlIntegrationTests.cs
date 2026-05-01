@@ -22,10 +22,10 @@ namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 public sealed class GraphSnapshotRelationalReadJsonMergeLabelFromEdgesJsonDirectSqlIntegrationTests(
     SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_merges_edge_label_from_EdgesJson_when_relational_properties_absent()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

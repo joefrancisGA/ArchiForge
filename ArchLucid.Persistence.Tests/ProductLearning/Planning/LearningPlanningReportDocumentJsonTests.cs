@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.ProductLearning.Planning;
@@ -16,7 +16,7 @@ public sealed class LearningPlanningReportDocumentJsonTests
         WriteIndented = false
     };
 
-    [Fact]
+    [SkippableFact]
     public void Serialize_round_trips_with_expected_numeric_fields()
     {
         DateTime generated = new(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc);

@@ -1,11 +1,11 @@
-using ArchLucid.Core.Scim.Models;
+﻿using ArchLucid.Core.Scim.Models;
 using ArchLucid.Persistence.Scim;
 
 namespace ArchLucid.Persistence.Tests.Scim;
 
 public sealed class InMemoryScimGroupRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Insert_Get_List_pagination()
     {
         InMemoryScimGroupRepository sut = new();
@@ -23,7 +23,7 @@ public sealed class InMemoryScimGroupRepositoryTests
         items[0].ExternalId.Should().Be("g2");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_wrong_tenant_returns_null()
     {
         InMemoryScimGroupRepository sut = new();
@@ -35,7 +35,7 @@ public sealed class InMemoryScimGroupRepositoryTests
         row.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplaceAsync_updates_display_name()
     {
         InMemoryScimGroupRepository sut = new();
@@ -50,7 +50,7 @@ public sealed class InMemoryScimGroupRepositoryTests
         row.ExternalId.Should().Be("e2");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplaceAsync_wrong_tenant_is_noop()
     {
         InMemoryScimGroupRepository sut = new();
@@ -64,7 +64,7 @@ public sealed class InMemoryScimGroupRepositoryTests
         row!.DisplayName.Should().Be("n");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SetMembersAsync_replaces_membership()
     {
         InMemoryScimGroupRepository sut = new();
@@ -78,7 +78,7 @@ public sealed class InMemoryScimGroupRepositoryTests
         await sut.SetMembersAsync(tenantId, g.Id, [], CancellationToken.None);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListMemberUserIdsAsync_reflects_SetMembersAsync()
     {
         InMemoryScimGroupRepository sut = new();

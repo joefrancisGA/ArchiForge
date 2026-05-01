@@ -1,4 +1,4 @@
-using ArchLucid.Core.CustomerSuccess;
+﻿using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Persistence.CustomerSuccess;
 
 namespace ArchLucid.Persistence.Tests.CustomerSuccess;
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.CustomerSuccess;
 [Trait("Category", "Unit")]
 public sealed class InMemoryTenantCustomerSuccessRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetHealthScoreAsync_returns_null()
     {
         InMemoryTenantCustomerSuccessRepository sut = new();
@@ -21,7 +21,7 @@ public sealed class InMemoryTenantCustomerSuccessRepositoryTests
         row.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InsertProductFeedbackAsync_completes_without_throw()
     {
         InMemoryTenantCustomerSuccessRepository sut = new();
@@ -36,7 +36,7 @@ public sealed class InMemoryTenantCustomerSuccessRepositoryTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RefreshAllTenantHealthScoresAsync_completes_without_throw()
     {
         InMemoryTenantCustomerSuccessRepository sut = new();

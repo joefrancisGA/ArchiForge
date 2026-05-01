@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using Polly;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class SqlOpenResilienceOptionsTests
 {
-    [Fact]
+    [SkippableFact]
     public void Normalize_clamps_max_retries_and_base_delay()
     {
         SqlOpenResilienceOptions options = new() { MaxRetryAttempts = -5, BaseDelayMilliseconds = -1 };
@@ -17,7 +17,7 @@ public sealed class SqlOpenResilienceOptionsTests
         options.BaseDelayMilliseconds.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildSqlOpenRetryPipeline_uses_values_matching_bound_options()
     {
         SqlOpenResilienceOptions options = new() { MaxRetryAttempts = 1, BaseDelayMilliseconds = 1 };

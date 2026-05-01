@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 
@@ -9,7 +9,7 @@ public sealed class ListStringTypeHandlerTests
 {
     private readonly ListStringTypeHandler _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void Parse_ReturnsEmpty_ForNullDbNullOrBlank()
     {
         _sut.Parse(null!).Should().BeEmpty();
@@ -17,7 +17,7 @@ public sealed class ListStringTypeHandlerTests
         _sut.Parse("  ").Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_ReturnsList_ForValidJson()
     {
         IReadOnlyList<string> r = _sut.Parse("""["a","b"]""");
@@ -25,7 +25,7 @@ public sealed class ListStringTypeHandlerTests
         r.Should().Equal("a", "b");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Parse_ReturnsEmpty_OnInvalidJson()
     {
         IReadOnlyList<string> r = _sut.Parse("not json");
@@ -33,7 +33,7 @@ public sealed class ListStringTypeHandlerTests
         r.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void SetValue_SerializesOrDbNull()
     {
         SqlParameter p = new();
@@ -48,7 +48,7 @@ public sealed class ListStringTypeHandlerTests
         p.Value.ToString().Should().Contain("x");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Register_IsIdempotent()
     {
         ListStringTypeHandler.Register();

@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Suite", "Migration115")]
 public sealed class Migration115_StructuredBaselineColumnsTests
 {
-    [Fact]
+    [SkippableFact]
     public void Embedded_115_migration_adds_tenant_baseline_intake_and_checks()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;

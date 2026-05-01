@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
@@ -58,7 +58,7 @@ public sealed class ImprovementThemeExtractionServiceTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Extract_empty_inputs_yields_empty()
     {
         ImprovementThemeExtractionService svc = new();
@@ -82,7 +82,7 @@ public sealed class ImprovementThemeExtractionServiceTests
         Assert.Empty(themes);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Rollup_theme_emits_when_rejects_repeat_and_evidence_matches_signals()
     {
         ImprovementThemeExtractionService svc = new();
@@ -162,7 +162,7 @@ public sealed class ImprovementThemeExtractionServiceTests
         Assert.Contains("aggregate key", rollup.GroupingExplanation, StringComparison.OrdinalIgnoreCase);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Tag_theme_requires_distinct_signals_at_threshold()
     {
         ImprovementThemeExtractionService svc = new();
@@ -236,7 +236,7 @@ public sealed class ImprovementThemeExtractionServiceTests
         Assert.Equal(3, tagTheme.Theme.EvidenceCount);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Mismatched_signal_scope_throws()
     {
         ImprovementThemeExtractionService svc = new();
@@ -269,7 +269,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             CancellationToken.None));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Theme_ids_are_stable_for_same_scope_and_key()
     {
         ImprovementThemeExtractionService svc = new();
@@ -343,7 +343,7 @@ public sealed class ImprovementThemeExtractionServiceTests
         Assert.Equal(a[0].Theme.ThemeId, b[0].Theme.ThemeId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Trend_theme_emits_when_totals_and_negative_outcomes_meet_thresholds()
     {
         ImprovementThemeExtractionService svc = new();
@@ -426,7 +426,7 @@ public sealed class ImprovementThemeExtractionServiceTests
         Assert.Equal(3, t.ExampleEvidence.Count);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Comment_theme_emits_when_occurrence_count_meets_minimum()
     {
         ImprovementThemeExtractionService svc = new();
@@ -499,7 +499,7 @@ public sealed class ImprovementThemeExtractionServiceTests
         Assert.Equal(3, c.ExampleEvidence.Count);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Max_themes_drops_lower_evidence_after_ranking()
     {
         ImprovementThemeExtractionService svc = new();

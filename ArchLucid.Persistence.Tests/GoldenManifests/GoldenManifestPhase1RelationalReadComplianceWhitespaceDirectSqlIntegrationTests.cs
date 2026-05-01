@@ -26,10 +26,10 @@ public sealed class GoldenManifestPhase1RelationalReadComplianceWhitespaceDirect
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_whitespace_ComplianceJson_yields_empty_ComplianceSection()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

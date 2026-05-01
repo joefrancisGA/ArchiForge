@@ -15,7 +15,7 @@ public abstract class ArchitectureRequestRepositoryContractTests
 
     protected abstract IArchitectureRequestRepository CreateRepository();
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();

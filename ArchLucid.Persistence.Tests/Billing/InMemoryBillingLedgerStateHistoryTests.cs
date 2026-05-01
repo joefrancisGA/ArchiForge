@@ -1,4 +1,4 @@
-using ArchLucid.Core.Billing;
+﻿using ArchLucid.Core.Billing;
 using ArchLucid.Persistence.Billing;
 
 namespace ArchLucid.Persistence.Tests.Billing;
@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class InMemoryBillingLedgerStateHistoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Checkout_then_activate_produces_two_history_rows_newest_first()
     {
         InMemoryBillingLedger ledger = new();

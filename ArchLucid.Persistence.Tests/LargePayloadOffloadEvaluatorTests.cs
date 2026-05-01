@@ -1,10 +1,10 @@
-namespace ArchLucid.Persistence.Tests;
+﻿namespace ArchLucid.Persistence.Tests;
 
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class LargePayloadOffloadEvaluatorTests
 {
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadManifestOrBundle_false_when_disabled()
     {
         ArtifactLargePayloadOptions o = new()
@@ -15,7 +15,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
         LargePayloadOffloadEvaluator.ShouldOffloadManifestOrBundle(o, 999_999).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadManifestOrBundle_false_when_provider_none()
     {
         ArtifactLargePayloadOptions o = new()
@@ -26,7 +26,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
         LargePayloadOffloadEvaluator.ShouldOffloadManifestOrBundle(o, 100).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadManifestOrBundle_true_when_over_threshold_and_local()
     {
         ArtifactLargePayloadOptions o = new()

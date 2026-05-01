@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.Tests.Connections;
 [Trait("Category", "Unit")]
 public sealed class ResilientSqlConnectionFactoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreateOpenConnectionAsync_DelegatesToInnerThroughPipeline()
     {
         await using SqlConnection connection = new();
@@ -26,7 +26,7 @@ public sealed class ResilientSqlConnectionFactoryTests
         inner.Verify(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateOpenConnectionAsync_PropagatesInnerException()
     {
         Mock<ISqlConnectionFactory> inner = new();

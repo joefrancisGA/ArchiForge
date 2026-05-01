@@ -15,10 +15,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class DatabaseMigratorUpgradePathSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task RunExcludingLatest_then_full_run_succeeds()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidMigr_" + suffix;

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -13,7 +13,7 @@ public sealed class ImprovementThemeExtractionDeterministicIdsTests
             ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
         };
 
-    [Fact]
+    [SkippableFact]
     public void ThemeId_is_stable_for_same_scope_and_key()
     {
         ProductLearningScope scope = Scope();
@@ -24,7 +24,7 @@ public sealed class ImprovementThemeExtractionDeterministicIdsTests
         a.Should().Be(b);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ThemeId_changes_when_canonical_key_changes()
     {
         ProductLearningScope scope = Scope();
@@ -35,7 +35,7 @@ public sealed class ImprovementThemeExtractionDeterministicIdsTests
         a.Should().NotBe(b);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ThemeId_changes_when_tenant_changes()
     {
         ProductLearningScope scopeA = Scope();
@@ -52,7 +52,7 @@ public sealed class ImprovementThemeExtractionDeterministicIdsTests
         a.Should().NotBe(b);
     }
 
-    [Fact]
+    [SkippableFact]
     public void EvidenceId_is_stable_for_same_inputs()
     {
         Guid themeId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
@@ -63,7 +63,7 @@ public sealed class ImprovementThemeExtractionDeterministicIdsTests
         a.Should().Be(b);
     }
 
-    [Fact]
+    [SkippableFact]
     public void EvidenceId_differs_by_sequence_or_discriminator()
     {
         Guid themeId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");

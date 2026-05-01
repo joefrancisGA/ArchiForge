@@ -1,4 +1,4 @@
-using ArchLucid.Core.Integration;
+﻿using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -11,7 +11,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class IntegrationEventOutboxProcessorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_processes_multiple_entries_in_one_batch()
     {
         Mock<IIntegrationEventPublisher> publisher = new();
@@ -68,7 +68,7 @@ public sealed class IntegrationEventOutboxProcessorTests
             Times.Exactly(2));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_on_success_marks_processed()
     {
         Mock<IIntegrationEventPublisher> publisher = new();
@@ -115,7 +115,7 @@ public sealed class IntegrationEventOutboxProcessorTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_on_failure_schedules_retry_when_under_cap()
     {
         Mock<IIntegrationEventPublisher> publisher = new();
@@ -168,7 +168,7 @@ public sealed class IntegrationEventOutboxProcessorTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_on_failure_dead_letters_when_at_cap()
     {
         Mock<IIntegrationEventPublisher> publisher = new();
@@ -219,7 +219,7 @@ public sealed class IntegrationEventOutboxProcessorTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_on_failure_truncates_error_message_to_2048_chars()
     {
         string huge = new('x', 3000);

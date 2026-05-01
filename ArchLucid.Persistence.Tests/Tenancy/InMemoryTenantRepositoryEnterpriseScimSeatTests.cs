@@ -1,4 +1,4 @@
-using ArchLucid.Core.Tenancy;
+﻿using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Suite", "Core")]
 public sealed class InMemoryTenantRepositoryEnterpriseScimSeatTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryIncrementEnterpriseScimSeat_respects_limit_then_decrement_frees()
     {
         Guid tenantId = Guid.NewGuid();
@@ -28,7 +28,7 @@ public sealed class InMemoryTenantRepositoryEnterpriseScimSeatTests
         (await sut.TryIncrementEnterpriseScimSeatAsync(tenantId, default)).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryIncrementEnterpriseScimSeat_unlimited_when_limit_null()
     {
         Guid tenantId = Guid.NewGuid();

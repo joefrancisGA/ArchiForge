@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using Polly;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Connections;
 [Trait("Category", "Unit")]
 public sealed class SqlOpenResilienceDefaultsTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildSqlOpenRetryPipeline_MaxRetryZero_ReturnsNoOpPipeline_ExecutesOnce()
     {
         ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(maxRetryAttempts: 0);
@@ -24,7 +24,7 @@ public sealed class SqlOpenResilienceDefaultsTests
         count.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildSqlOpenRetryPipeline_PositiveMax_BuildsAndRunsHappyPath()
     {
         ResiliencePipeline pipeline = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(maxRetryAttempts: 1);

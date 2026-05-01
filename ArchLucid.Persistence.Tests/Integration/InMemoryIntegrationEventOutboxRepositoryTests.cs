@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.Core.Integration;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Persistence.Tests.Integration;
 [Trait("Category", "Unit")]
 public sealed class InMemoryIntegrationEventOutboxRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task EnqueueAsync_with_transaction_overload_throws_when_connection_null()
     {
         InMemoryIntegrationEventOutboxRepository sut = new();
@@ -31,7 +31,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("connection");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EnqueueAsync_with_transaction_overload_throws_when_transaction_null()
     {
         InMemoryIntegrationEventOutboxRepository sut = new();
@@ -52,7 +52,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("transaction");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Full_lifecycle_enqueue_dequeue_mark_processed()
     {
         InMemoryIntegrationEventOutboxRepository sut = new();
@@ -78,7 +78,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         (await sut.CountIntegrationOutboxPublishPendingAsync(CancellationToken.None)).Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DequeuePendingAsync_respects_next_retry_utc_and_order()
     {
         InMemoryIntegrationEventOutboxRepository sut = new();
@@ -107,7 +107,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         pending[0].EventType.Should().Be("b");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DequeuePendingAsync_prioritizes_critical_events_before_internal_when_enqueued_later()
     {
         InMemoryIntegrationEventOutboxRepository sut = new();
@@ -142,7 +142,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         batch[1].EventType.Should().Be(IntegrationEventTypes.TrialLifecycleEmailV1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Dead_letter_list_count_and_reset()
     {
         InMemoryIntegrationEventOutboxRepository sut = new();
@@ -182,7 +182,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         missing.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecordPublishFailureAsync_ignores_unknown_outbox_id()
     {
         InMemoryIntegrationEventOutboxRepository sut = new();

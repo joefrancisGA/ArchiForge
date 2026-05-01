@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.Core.Integration;
 
@@ -13,7 +13,7 @@ namespace ArchLucid.Persistence.Tests.Integration;
 [Trait("Category", "Unit")]
 public sealed class OutboxAwareIntegrationEventPublishingTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryPublishOrEnqueueAsync_when_outbox_enabled_and_tx_enqueues_and_skips_direct_publish()
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();
@@ -66,7 +66,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryPublishOrEnqueueAsync_when_outbox_enabled_without_tx_enqueues_standalone()
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();
@@ -113,7 +113,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryPublishOrEnqueueAsync_when_outbox_disabled_uses_direct_publish()
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();
@@ -168,7 +168,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryPublishOrEnqueueAsync_when_enqueue_throws_does_not_throw_to_caller()
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();
@@ -208,7 +208,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryPublishOrEnqueueAsync_when_serialization_fails_logs_and_returns()
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();

@@ -19,10 +19,10 @@ namespace ArchLucid.Persistence.Tests.Findings;
 public sealed class FindingsSnapshotRelationalReadOrderedRecommendedActionsDirectSqlIntegrationTests(
     SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task LoadRelationalSnapshotAsync_returns_recommended_actions_in_SortOrder()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

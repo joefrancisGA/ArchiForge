@@ -23,7 +23,7 @@ public abstract class AgentEvidencePackageRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetByRunId_and_GetById_round_trip()
     {
         SkipIfSqlServerUnavailable();

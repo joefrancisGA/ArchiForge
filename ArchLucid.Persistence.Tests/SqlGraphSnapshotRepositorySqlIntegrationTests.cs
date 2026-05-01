@@ -20,10 +20,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips_relational_collections()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
@@ -85,10 +85,10 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         loaded.Warnings.Should().Equal("w1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListIndexedEdgesAsync_preserves_order_by_EdgeId_and_core_fields()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
@@ -129,11 +129,11 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         indexed[1].Weight.Should().Be(2d);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task
         GetById_relational_edges_merge_label_and_properties_from_edges_json_when_edge_properties_table_empty()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
@@ -226,10 +226,10 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     ///     Header JSON columns are legacy dual-write artifacts; <see cref="GraphSnapshotRelationalRead" /> must not
     ///     deserialize them for nodes/warnings (and must not build edges without relational edge rows).
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_no_relational_children_returns_empty_collections_even_when_json_columns_populated()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
@@ -303,10 +303,10 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
             .BeEmpty("relational GraphSnapshotWarnings has no rows â€” JSON must not hydrate warnings");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_no_relational_children_and_json_columns_null_returns_empty_collections()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
@@ -368,10 +368,10 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         loaded.Warnings.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SaveAsync_with_explicit_transaction_commits_relational_rows()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 

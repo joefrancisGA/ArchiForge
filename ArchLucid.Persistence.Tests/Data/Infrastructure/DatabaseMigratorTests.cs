@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "Unit")]
 public sealed class DatabaseMigratorTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetOrderedMigrationResourceNames_IsLexicographicOrdinalIgnoreCase_AndNonEmpty()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;
@@ -37,7 +37,7 @@ public sealed class DatabaseMigratorTests
             .WithParameterName("trailingScriptCountToSkip");
     }
 
-    [Fact]
+    [SkippableFact]
     public void RunExcludingTrailingScripts_Throws_WhenSkipGreaterOrEqualToScriptCount()
     {
         int count = DatabaseMigrator.GetOrderedMigrationResourceNames().Count;

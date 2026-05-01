@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 using ArchLucid.TestSupport;
 
 using Polly;
@@ -15,7 +15,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class SqlOpenResilienceSimmyTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Sql_open_retry_pipeline_outer_with_inner_chaos_transient_sql()
     {
         ResiliencePipeline sqlRetry = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(

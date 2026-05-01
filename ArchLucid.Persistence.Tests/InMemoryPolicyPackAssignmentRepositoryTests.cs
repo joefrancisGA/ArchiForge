@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Persistence.Governance;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class InMemoryPolicyPackAssignmentRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopeAsync_Excludes_archived_rows()
     {
         Guid tenantId = Guid.NewGuid();
@@ -41,7 +41,7 @@ public sealed class InMemoryPolicyPackAssignmentRepositoryTests
         rows.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveAsync_Sets_flag_and_is_idempotent_for_list()
     {
         Guid tenantId = Guid.NewGuid();

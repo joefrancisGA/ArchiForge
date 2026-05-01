@@ -1,10 +1,10 @@
-using ArchLucid.Persistence.Repositories;
+﻿using ArchLucid.Persistence.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Repositories;
 
 public sealed class RunConcurrencyConflictExceptionTests
 {
-    [Fact]
+    [SkippableFact]
     public void Message_and_RunId_set()
     {
         Guid runId = Guid.NewGuid();

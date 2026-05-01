@@ -1,10 +1,10 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Persistence.Tests;
 
 public sealed class HotPathCacheKeysTests
 {
-    [Fact]
+    [SkippableFact]
     public void Manifest_includes_scope_and_id()
     {
         ScopeContext scope = new()
@@ -23,7 +23,7 @@ public sealed class HotPathCacheKeysTests
         key.Should().StartWith("al:hot:hm:");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Run_uses_scope_project_id_column()
     {
         ScopeContext scope = new()
@@ -41,7 +41,7 @@ public sealed class HotPathCacheKeysTests
         key.Should().Contain("cccccccccccccccccccccccccccccccc");
     }
 
-    [Fact]
+    [SkippableFact]
     public void PolicyPack_key_is_stable()
     {
         Guid id = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

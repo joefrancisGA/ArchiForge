@@ -13,10 +13,10 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "SqlServerContainer")]
 public sealed class MigrationReplayIdempotencySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task DatabaseMigrator_re_applies_127_StateConstraints_after_journal_row_removed_without_error()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidReplay127_" + suffix;
@@ -52,10 +52,10 @@ public sealed class MigrationReplayIdempotencySqlIntegrationTests(SqlServerPersi
         replay.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DatabaseMigrator_re_applies_129_RlsAuthorityChildTableScopeDenorm_after_journal_row_removed_without_error()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidReplay129_" + suffix;

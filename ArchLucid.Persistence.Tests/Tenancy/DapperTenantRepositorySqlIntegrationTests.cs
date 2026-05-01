@@ -12,10 +12,10 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Suite", "Core")]
 public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetBySlug_rejects_whitespace_before_sql()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -25,10 +25,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Insert_get_by_id_slug_entra_list_and_workspace_round_trips()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -72,10 +72,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         link.DefaultProjectId.Should().Be(projectId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SuspendTenant_sets_suspended_utc()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -93,10 +93,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.SuspendedUtc.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Commit_trial_update_baseline_and_mark_converted()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -143,10 +143,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         r.TrialStatus.Should().Be(TrialLifecycleStatus.Converted);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task List_automation_ids_preseed_pipeline_and_first_manifest_idempotent()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -199,10 +199,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             .BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task E2eHarnessSetTrialExpiresUtc_persists()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -235,10 +235,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.TrialExpiresUtc.Should().BeCloseTo(next, TimeSpan.FromSeconds(1));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryIncrementActiveTrialRun_increments_until_cap()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -274,10 +274,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             async () => await sut.TryIncrementActiveTrialRunAsync(tenantId, CancellationToken.None));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryClaimTrialSeat_respects_duplicate_and_seat_limit()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -315,10 +315,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
             async () => await sut.TryClaimTrialSeatAsync(tenantId, "p3@contoso.com", CancellationToken.None));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryRecordTrialLifecycleTransition_succeeds_and_fails_on_mismatch()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -365,10 +365,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         bad.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Enterprise_scim_seat_bump_respects_limit_and_decrements()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -390,10 +390,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         (await sut.GetByIdAsync(tenantId, CancellationToken.None))!.EnterpriseSeatsUsed.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateEntraTenantIdAsync_binds_after_trial_convert_and_is_idempotent()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);
@@ -433,10 +433,10 @@ public sealed class DapperTenantRepositorySqlIntegrationTests(SqlServerPersisten
         (await sut.UpdateEntraTenantIdAsync(tenantId, corpEntra, CancellationToken.None)).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateEntraTenantIdAsync_noop_when_row_has_different_entra()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperTenantRepository sut = new(factory);

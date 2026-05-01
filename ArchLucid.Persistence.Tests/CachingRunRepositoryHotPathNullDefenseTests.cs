@@ -1,4 +1,4 @@
-using ArchLucid.Core.Pagination;
+﻿using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Interfaces;
@@ -18,7 +18,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class CachingRunRepositoryHotPathNullDefenseTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListByProjectKeysetAsync_throws_when_first_page_cache_returns_null_RunListPage()
     {
         Mock<IHotPathReadCache> cache = new();
@@ -42,7 +42,7 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*Run list cache returned null*");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRecentInScopeKeysetAsync_throws_when_first_page_cache_returns_null_RunListPage()
     {
         Mock<IHotPathReadCache> cache = new();
@@ -66,7 +66,7 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*Run list cache returned null*");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByProjectKeysetAsync_bypasses_cache_when_cursor_supplied()
     {
         Mock<IRunRepository> inner = new();
@@ -105,7 +105,7 @@ public sealed class CachingRunRepositoryHotPathNullDefenseTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRecentInScopeKeysetAsync_bypasses_cache_when_cursor_supplied()
     {
         Mock<IRunRepository> inner = new();

@@ -13,7 +13,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
 
     protected abstract IAlertDeliveryAttemptRepository CreateRepository();
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_ListByAlert_returns_row_newest_first()
     {
         SkipIfSqlServerUnavailable();
@@ -37,7 +37,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         list[1].AlertDeliveryAttemptId.Should().Be(first.AlertDeliveryAttemptId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Update_is_reflected_in_ListByAlert()
     {
         SkipIfSqlServerUnavailable();
@@ -58,7 +58,7 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         list[0].Status.Should().Be(AlertDeliveryAttemptStatus.Succeeded);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListBySubscription_respects_take_and_orders_newest_first()
     {
         SkipIfSqlServerUnavailable();

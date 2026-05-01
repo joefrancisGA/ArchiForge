@@ -1,17 +1,17 @@
-using ArchLucid.Persistence.Sql;
+﻿using ArchLucid.Persistence.Sql;
 
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.Sql;
 
 /// <summary>
-///     Guards SQL text for high-volume run/audit list paths — deterministic string assertions only (no DB).
+///     Guards SQL text for high-volume run/audit list paths â€” deterministic string assertions only (no DB).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class HotPathRelationalQueryShapeTests
 {
-    [Fact]
+    [SkippableFact]
     public void Runs_list_by_project_retains_nolock_scope_archived_filter_and_created_order()
     {
         string sql = HotPathRelationalQueryShapes.RunsListByProjectNoLock;
@@ -26,7 +26,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("ORDER BY CreatedUtc DESC");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Runs_list_by_project_keyset_retains_cursor_predicate_and_run_id_tie_break()
     {
         string sql = HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock;
@@ -39,7 +39,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("ORDER BY CreatedUtc DESC, RunId DESC");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Runs_list_recent_in_scope_retains_nolock_scope_archived_filter_and_created_order()
     {
         string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock;
@@ -53,7 +53,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("ORDER BY CreatedUtc DESC");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Runs_list_recent_in_scope_keyset_matches_project_keyset_cursor_pattern()
     {
         string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeKeysetNoLock;
@@ -65,7 +65,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().NotContain("ProjectId = @ProjectSlug");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Audit_get_by_scope_retains_scope_and_stable_occurred_event_order()
     {
         string sql = HotPathRelationalQueryShapes.AuditEventsGetByScope;
@@ -78,7 +78,7 @@ public sealed class HotPathRelationalQueryShapeTests
         sql.Should().Contain("ORDER BY OccurredUtc DESC, EventId DESC");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Audit_filtered_shape_prefix_suffix_allow_dynamic_and_predicate_between()
     {
         string prefix = HotPathRelationalQueryShapes.AuditEventsFilteredSelectFromWhereScope;

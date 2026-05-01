@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
@@ -7,7 +7,7 @@ public sealed class UnsupportedRelationalDbConnectionFactoryTests
 {
     private readonly UnsupportedRelationalDbConnectionFactory _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void CreateConnection_Throws()
     {
         Action act = () => _sut.CreateConnection();
@@ -15,7 +15,7 @@ public sealed class UnsupportedRelationalDbConnectionFactoryTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*InMemory*");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateOpenConnectionAsync_Throws()
     {
         Func<Task> act = async () => await _sut.CreateOpenConnectionAsync(CancellationToken.None);

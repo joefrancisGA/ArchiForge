@@ -1,10 +1,10 @@
-using ArchLucid.Persistence.Data.Repositories;
+﻿using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Data.Repositories;
 
 public sealed class QueuedBackgroundJobPrepareResultTests
 {
-    [Fact]
+    [SkippableFact]
     public void Record_holds_flags()
     {
         QueuedBackgroundJobPrepareResult r = new(

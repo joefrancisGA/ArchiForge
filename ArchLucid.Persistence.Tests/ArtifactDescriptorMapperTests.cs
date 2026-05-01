@@ -1,4 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
+﻿using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Persistence.Queries;
 
@@ -26,7 +26,7 @@ public sealed class ArtifactDescriptorMapperTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public void OrderSynthesizedArtifacts_SortsByNameCaseInsensitiveThenArtifactId()
     {
         Guid idA = Guid.Parse("00000000-0000-0000-0000-000000000002");
@@ -47,7 +47,7 @@ public sealed class ArtifactDescriptorMapperTests
         ordered[2].ArtifactId.Should().Be(idA);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ToDescriptorList_PreservesSameOrderAsOrderSynthesizedArtifacts()
     {
         Guid id1 = Guid.Parse("00000000-0000-0000-0000-000000000001");

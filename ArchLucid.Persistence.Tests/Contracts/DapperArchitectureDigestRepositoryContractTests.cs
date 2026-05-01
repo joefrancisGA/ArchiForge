@@ -14,7 +14,7 @@ public sealed class DapperArchitectureDigestRepositoryContractTests(SqlServerPer
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IArchitectureDigestRepository CreateRepository()

@@ -125,7 +125,7 @@ public sealed class FindingsSnapshotRelationalReadBranchMatrixDirectSqlIntegrati
     [InlineData(14)]
     public async Task LoadRelationalSnapshotAsync_branch_matrix(int branch)
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         (SqlConnection connection, Guid runId, Guid contextId, Guid graphId, Guid findingsId, DateTime createdUtc) =
             await SeedFindingsHeaderAsync(fixture, "mx" + branch);
 

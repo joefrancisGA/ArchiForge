@@ -47,7 +47,7 @@ public abstract class RunRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_returns_same_record()
     {
         SkipIfSqlServerUnavailable();
@@ -65,7 +65,7 @@ public abstract class RunRepositoryContractTests
         loaded.TenantId.Should().Be(scope.TenantId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_wrong_scope_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -85,7 +85,7 @@ public abstract class RunRepositoryContractTests
         loaded.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByProjectAsync_orders_newest_first_and_respects_take()
     {
         SkipIfSqlServerUnavailable();
@@ -107,7 +107,7 @@ public abstract class RunRepositoryContractTests
         list[0].RunId.Should().Be(second.RunId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByProjectKeysetAsync_returns_slices_newest_first()
     {
         SkipIfSqlServerUnavailable();
@@ -145,7 +145,7 @@ public abstract class RunRepositoryContractTests
         page2.Items[0].RunId.Should().Be(a.RunId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRecentInScopeAsync_orders_newest_first_and_spans_project_slugs()
     {
         SkipIfSqlServerUnavailable();
@@ -167,7 +167,7 @@ public abstract class RunRepositoryContractTests
         list[1].RunId.Should().Be(first.RunId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_changes_fields_visible_on_GetById()
     {
         SkipIfSqlServerUnavailable();
@@ -187,10 +187,10 @@ public abstract class RunRepositoryContractTests
         loaded.Description.Should().Be("updated");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveRunsCreatedBefore_async_marks_rows_and_excludes_from_get()
     {
-        Assert.SkipUnless(
+        Skip.IfNot(
             IncludeArchiveRunsCreatedBeforeContractTest,
             "Shared SQL: ArchiveRunsCreatedBeforeAsync is global to dbo.Runs.");
 
@@ -211,10 +211,10 @@ public abstract class RunRepositoryContractTests
         after.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveRunsByIds_async_archives_only_requested_rows_and_classifies_failures()
     {
-        Assert.SkipUnless(
+        Skip.IfNot(
             IncludeArchiveRunsByIdsContractTest,
             "Shared SQL: ArchiveRunsByIdsAsync is not isolated per test on dbo.Runs.");
 

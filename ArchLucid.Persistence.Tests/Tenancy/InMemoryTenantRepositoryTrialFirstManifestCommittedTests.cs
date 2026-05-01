@@ -1,4 +1,4 @@
-using ArchLucid.Core.Tenancy;
+﻿using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Suite", "Persistence")]
 public sealed class InMemoryTenantRepositoryTrialFirstManifestCommittedTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryMarkFirstManifestCommittedAsync_then_GetByIdAsync_returns_TrialFirstManifestCommittedUtc_for_trial_tenant()
     {
         Guid tenantId = Guid.NewGuid();
@@ -42,7 +42,7 @@ public sealed class InMemoryTenantRepositoryTrialFirstManifestCommittedTests
         row.TrialFirstManifestCommittedUtc.Should().Be(committed);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryMarkFirstManifestCommittedAsync_sets_anchor_for_non_trial_tenant()
     {
         Guid tenantId = Guid.NewGuid();

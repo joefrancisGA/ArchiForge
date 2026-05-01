@@ -42,7 +42,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AppendAsync_InsertsEntry_GetByPolicyPackIdReturnsIt()
     {
         SkipIfSqlServerUnavailable();
@@ -57,7 +57,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         list.Should().ContainSingle(e => e.PolicyPackId == packId && e.SummaryText == "first");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByPolicyPackId_MultipleEntries_ReturnsDescendingByChangedUtc()
     {
         SkipIfSqlServerUnavailable();
@@ -80,7 +80,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         list[2].SummaryText.Should().Be("old");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByTenant_FiltersCorrectly()
     {
         SkipIfSqlServerUnavailable();
@@ -98,7 +98,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         forA.Should().NotContain(e => e.SummaryText == "tenant-b");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByPolicyPackId_RespectsMaxRows()
     {
         SkipIfSqlServerUnavailable();
@@ -121,7 +121,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         list[1].SummaryText.Should().Be("row-3");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByTenantInRangeAsync_ReturnsAscending_ExcludesEnds()
     {
         SkipIfSqlServerUnavailable();

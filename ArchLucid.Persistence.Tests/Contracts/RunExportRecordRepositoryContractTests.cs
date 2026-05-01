@@ -23,7 +23,7 @@ public abstract class RunExportRecordRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();
@@ -44,7 +44,7 @@ public abstract class RunExportRecordRepositoryContractTests
         loaded.RunId.Should().Be(runId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByRunId_orders_descending_by_CreatedUtc()
     {
         SkipIfSqlServerUnavailable();

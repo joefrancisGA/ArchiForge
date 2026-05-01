@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Interfaces;
+﻿using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
 using Moq;
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Compare;
 
 public sealed class AuthorityCompareServiceAddRunDiffTests
 {
-    [Fact]
+    [SkippableFact]
     public void AddRunDiff_appends_when_values_differ()
     {
         Mock<IGoldenManifestRepository> manifests = new();
@@ -23,7 +23,7 @@ public sealed class AuthorityCompareServiceAddRunDiffTests
         diffs[0].AfterValue.Should().Be("b");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AddRunDiff_skips_when_values_equal_ordinal()
     {
         Mock<IGoldenManifestRepository> manifests = new();

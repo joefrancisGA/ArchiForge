@@ -14,7 +14,7 @@ public abstract class EvidenceBundleRepositoryContractTests
 
     protected abstract IEvidenceBundleRepository CreateRepository();
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();

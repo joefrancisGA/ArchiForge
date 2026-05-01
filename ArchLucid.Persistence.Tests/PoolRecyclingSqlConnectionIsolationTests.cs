@@ -23,10 +23,10 @@ public sealed class PoolRecyclingSqlConnectionIsolationTests(SqlServerPersistenc
 
     private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
 
-    [Fact]
+    [SkippableFact]
     public async Task Recycled_connection_overwrites_stale_tenant_session_context()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         SqlConnection.ClearAllPools();
 
@@ -85,10 +85,10 @@ public sealed class PoolRecyclingSqlConnectionIsolationTests(SqlServerPersistenc
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Recycled_connection_overwrites_stale_bypass_session_context()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         SqlConnection.ClearAllPools();
 

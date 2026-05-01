@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -14,7 +14,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
 
     private static readonly DateTime Late = new(2026, 1, 10, 0, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildRankedOpportunitiesAsync_orders_by_bad_score_desc_then_last_seen_then_sort_key()
     {
         ProductLearningScope scope = new()
@@ -83,7 +83,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
         ranked[1].PatternKey.Should().Be("weaker");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildRankedOpportunitiesAsync_respects_MaxImprovementOpportunities()
     {
         ProductLearningScope scope = new()

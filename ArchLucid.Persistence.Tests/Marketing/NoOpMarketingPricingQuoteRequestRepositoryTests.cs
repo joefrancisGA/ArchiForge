@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Marketing;
+﻿using ArchLucid.Contracts.Marketing;
 using ArchLucid.Persistence.Marketing;
 
 namespace ArchLucid.Persistence.Tests.Marketing;
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Marketing;
 [Trait("Category", "Unit")]
 public sealed class NoOpMarketingPricingQuoteRequestRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task AppendAsync_returns_null_and_does_not_throw()
     {
         NoOpMarketingPricingQuoteRequestRepository sut = new();

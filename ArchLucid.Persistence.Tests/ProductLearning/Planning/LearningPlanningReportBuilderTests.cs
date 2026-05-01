@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
@@ -16,7 +16,7 @@ public sealed class LearningPlanningReportBuilderTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_orders_themes_by_evidence_then_runs_then_id()
     {
         InMemoryProductLearningPlanningRepository repo = new();
@@ -47,7 +47,7 @@ public sealed class LearningPlanningReportBuilderTests
         Assert.Equal("low", doc.Themes[1].ThemeKey);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_orders_plans_by_priority_then_plan_id_and_includes_evidence_refs()
     {
         InMemoryProductLearningPlanningRepository repo = new();
@@ -110,7 +110,7 @@ public sealed class LearningPlanningReportBuilderTests
         Assert.Equal("run-z", doc.Plans[0].Evidence.ArchitectureRunIds[0]);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_caps_evidence_ref_lists()
     {
         InMemoryProductLearningPlanningRepository repo = new();

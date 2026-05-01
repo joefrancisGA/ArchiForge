@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class Migration081TrialFunnelSqlTests
 {
-    [Fact]
+    [SkippableFact]
     public void Embedded_081_migration_adds_trial_first_manifest_column()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;

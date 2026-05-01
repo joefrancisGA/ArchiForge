@@ -1,11 +1,11 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
 [Trait("Category", "Unit")]
 public sealed class GreenfieldBaselineMigrationRunnerTests
 {
-    [Fact]
+    [SkippableFact]
     public void GetOrderedIncrementalMigrationResourceNames_Places017_GraphSnapshots_before038_GovernanceWorkflow()
     {
         IReadOnlyList<string> names = GreenfieldBaselineMigrationRunner.GetOrderedIncrementalMigrationResourceNames();

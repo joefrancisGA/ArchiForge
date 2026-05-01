@@ -1,4 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
+﻿using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Persistence.ArtifactBundles;
 using ArchLucid.Persistence.Serialization;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Tests.ArtifactBundles;
 
 public sealed class ArtifactBundleArtifactsJsonReaderTests
 {
-    [Fact]
+    [SkippableFact]
     public void DeserializeArtifacts_when_json_null_or_whitespace_returns_empty_list()
     {
         ArtifactBundleArtifactsJsonReader.DeserializeArtifacts(null).Should().BeEmpty();
@@ -14,7 +14,7 @@ public sealed class ArtifactBundleArtifactsJsonReaderTests
         ArtifactBundleArtifactsJsonReader.DeserializeArtifacts("   ").Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeserializeArtifacts_round_trips_serialized_list()
     {
         List<SynthesizedArtifact> original =

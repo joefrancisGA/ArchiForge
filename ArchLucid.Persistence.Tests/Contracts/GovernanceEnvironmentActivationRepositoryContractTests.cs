@@ -14,7 +14,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
 
     protected abstract IGovernanceEnvironmentActivationRepository CreateRepository();
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetByEnvironment_returns_row_newest_first()
     {
         SkipIfSqlServerUnavailable();
@@ -34,7 +34,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
         list[1].ActivationId.Should().Be("act-old");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Update_changes_only_IsActive_visible_in_GetByRunId()
     {
         SkipIfSqlServerUnavailable();
@@ -69,7 +69,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
         row.Environment.Should().Be(GovernanceEnvironment.Dev);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByRunId_orders_descending_by_ActivatedUtc()
     {
         SkipIfSqlServerUnavailable();

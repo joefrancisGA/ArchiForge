@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Conversation;
@@ -16,7 +16,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class DataArchivalCoordinatorCorrelationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RunOnceAsync_starts_activity_with_correlation_tag()
     {
         List<Activity> stopped = [];
@@ -52,7 +52,7 @@ public sealed class DataArchivalCoordinatorCorrelationTests
             .Should().StartWith("data-archival:");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunOnceAsync_when_runs_archived_logs_child_cascade_counts()
     {
         Mock<IRunRepository> runs = new();

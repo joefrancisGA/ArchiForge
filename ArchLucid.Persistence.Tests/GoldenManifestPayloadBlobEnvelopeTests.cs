@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.GoldenManifests;
+﻿using ArchLucid.Persistence.GoldenManifests;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class GoldenManifestPayloadBlobEnvelopeTests
 {
-    [Fact]
+    [SkippableFact]
     public void RoundTrip_serializes_and_merges_into_row()
     {
         GoldenManifestPayloadBlobEnvelope original = GoldenManifestPayloadBlobEnvelope.FromSerializedSlices(

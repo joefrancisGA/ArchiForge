@@ -1,10 +1,10 @@
-using ArchLucid.Persistence.Data.Repositories;
+﻿using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Data.Repositories;
 
 public sealed class InMemoryTenantExecDigestPreferencesRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetByTenantAsync_missing_returns_null()
     {
         InMemoryTenantExecDigestPreferencesRepository sut = new();
@@ -15,7 +15,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepositoryTests
         row.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpsertAsync_trims_recipients_and_defaults_time_zone()
     {
         InMemoryTenantExecDigestPreferencesRepository sut = new();
@@ -35,7 +35,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepositoryTests
         row.IanaTimeZoneId.Should().Be("UTC");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListEmailEnabledTenantIdsAsync_returns_only_enabled()
     {
         InMemoryTenantExecDigestPreferencesRepository sut = new();
@@ -50,7 +50,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepositoryTests
         ids.Should().Contain(onId).And.NotContain(offId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryDisableEmailAsync_false_when_missing()
     {
         InMemoryTenantExecDigestPreferencesRepository sut = new();
@@ -60,7 +60,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepositoryTests
         ok.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryDisableEmailAsync_false_when_already_off()
     {
         InMemoryTenantExecDigestPreferencesRepository sut = new();
@@ -72,7 +72,7 @@ public sealed class InMemoryTenantExecDigestPreferencesRepositoryTests
         ok.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryDisableEmailAsync_true_when_was_on()
     {
         InMemoryTenantExecDigestPreferencesRepository sut = new();

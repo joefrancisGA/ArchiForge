@@ -1,11 +1,11 @@
-using ArchLucid.Persistence.Data.Repositories;
+﻿using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Data.Repositories;
 
 [Trait("Category", "Unit")]
 public sealed class InMemoryGovernanceApprovalRequestRepositoryMaxRowsValidationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetPendingAsync_throws_when_maxRows_not_positive()
     {
         InMemoryGovernanceApprovalRequestRepository sut = new();
@@ -15,7 +15,7 @@ public sealed class InMemoryGovernanceApprovalRequestRepositoryMaxRowsValidation
         await act.Should().ThrowAsync<ArgumentOutOfRangeException>().WithParameterName("maxRows");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDecisionsAsync_throws_when_maxRows_not_positive()
     {
         InMemoryGovernanceApprovalRequestRepository sut = new();

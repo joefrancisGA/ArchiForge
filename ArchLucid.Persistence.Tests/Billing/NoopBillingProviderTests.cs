@@ -1,11 +1,11 @@
-using ArchLucid.Core.Billing;
+﻿using ArchLucid.Core.Billing;
 using ArchLucid.Persistence.Billing;
 
 namespace ArchLucid.Persistence.Tests.Billing;
 
 public sealed class NoopBillingProviderTests
 {
-    [Fact]
+    [SkippableFact]
     public void Ctor_null_ledger_throws()
     {
         Action act = () => _ = new NoopBillingProvider(null!);
@@ -13,7 +13,7 @@ public sealed class NoopBillingProviderTests
         act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("ledger");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateCheckoutSessionAsync_writes_pending_row_to_ledger()
     {
         InMemoryBillingLedger ledger = new();
@@ -38,7 +38,7 @@ public sealed class NoopBillingProviderTests
         (await ledger.TenantHasActiveSubscriptionAsync(tenantId, CancellationToken.None)).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HandleWebhookAsync_rejects()
     {
         InMemoryBillingLedger ledger = new();

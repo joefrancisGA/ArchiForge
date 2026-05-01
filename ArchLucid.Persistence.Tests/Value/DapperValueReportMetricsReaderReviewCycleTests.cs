@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.Tests.Value;
+﻿namespace ArchLucid.Persistence.Tests.Value;
 
 /// <summary>
 ///     Guard-rail: review-cycle SQL stays aligned with golden-manifest window scoping (no LocalDB harness in this
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Value;
 [Trait("Category", "Unit")]
 public sealed class DapperValueReportMetricsReaderReviewCycleTests
 {
-    [Fact]
+    [SkippableFact]
     public void DapperValueReportMetricsReader_source_contains_join_and_avg_hours_expression()
     {
         string root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));

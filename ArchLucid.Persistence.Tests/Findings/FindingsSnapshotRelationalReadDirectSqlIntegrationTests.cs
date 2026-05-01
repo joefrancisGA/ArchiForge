@@ -20,10 +20,10 @@ namespace ArchLucid.Persistence.Tests.Findings;
 [Trait("Suite", "Core")]
 public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task LoadRelationalSnapshotAsync_when_no_FindingRecords_deserializes_FindingsJson_blob()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -157,10 +157,10 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
         loaded.Findings[0].Title.Should().Be("from-json");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task LoadRelationalSnapshotAsync_hydrates_finding_with_ordered_children_and_explainability_trace()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

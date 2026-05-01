@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Queries;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Persistence.Tests.Compare;
 
 public sealed class AuthorityCompareServiceCompareRunsTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task
         CompareRunsAsync_omits_manifest_comparison_when_only_one_run_has_golden_manifest_but_run_diff_shows_asymmetry()
     {

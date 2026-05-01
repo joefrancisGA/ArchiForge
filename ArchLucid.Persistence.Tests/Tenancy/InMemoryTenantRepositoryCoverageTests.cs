@@ -1,4 +1,4 @@
-using ArchLucid.Core.Tenancy;
+﻿using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
@@ -10,7 +10,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class InMemoryTenantRepositoryCoverageTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Full_trial_lifecycle_including_preseed_list_and_first_manifest_enqueues_and_completes()
     {
         InMemoryTenantRepository sut = new();
@@ -96,7 +96,7 @@ public sealed class InMemoryTenantRepositoryCoverageTests
         transitioned.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InsertTenant_throws_on_duplicate_id_slug_or_entra()
     {
         InMemoryTenantRepository sut = new();
@@ -142,7 +142,7 @@ public sealed class InMemoryTenantRepositoryCoverageTests
         await dupEntra.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetBySlug_Throws_WhenNullOrEmpty()
     {
         InMemoryTenantRepository sut = new();
@@ -151,7 +151,7 @@ public sealed class InMemoryTenantRepositoryCoverageTests
         await a.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task MarkTrialConverted_skips_When_trial_not_active()
     {
         InMemoryTenantRepository sut = new();
@@ -168,7 +168,7 @@ public sealed class InMemoryTenantRepositoryCoverageTests
         (await sut.GetByIdAsync(id, CancellationToken.None))!.Tier.Should().Be(TenantTier.Standard);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryIncrementActiveTrialRun_throws_When_trial_expired()
     {
         InMemoryTenantRepository sut = new();
@@ -200,7 +200,7 @@ public sealed class InMemoryTenantRepositoryCoverageTests
             async () => await sut.TryIncrementActiveTrialRunAsync(id, CancellationToken.None));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryIncrementActiveTrialRun_throws_When_runs_exceeded()
     {
         InMemoryTenantRepository sut = new();
@@ -232,7 +232,7 @@ public sealed class InMemoryTenantRepositoryCoverageTests
             async () => await sut.TryIncrementActiveTrialRunAsync(id, CancellationToken.None));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryClaimTrialSeat_throws_WhenSeatsOrTrial_expired()
     {
         InMemoryTenantRepository sut = new();

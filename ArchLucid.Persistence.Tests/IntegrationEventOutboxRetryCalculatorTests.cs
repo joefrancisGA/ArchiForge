@@ -1,8 +1,8 @@
-namespace ArchLucid.Persistence.Tests;
+﻿namespace ArchLucid.Persistence.Tests;
 
 public sealed class IntegrationEventOutboxRetryCalculatorTests
 {
-    [Fact]
+    [SkippableFact]
     public void DelayUntilNextAttempt_first_failure_uses_two_seconds()
     {
         TimeSpan d = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(1, 300);
@@ -10,7 +10,7 @@ public sealed class IntegrationEventOutboxRetryCalculatorTests
         d.Should().Be(TimeSpan.FromSeconds(2));
     }
 
-    [Fact]
+    [SkippableFact]
     public void DelayUntilNextAttempt_respects_cap()
     {
         TimeSpan d = IntegrationEventOutboxRetryCalculator.DelayUntilNextAttempt(20, 30);

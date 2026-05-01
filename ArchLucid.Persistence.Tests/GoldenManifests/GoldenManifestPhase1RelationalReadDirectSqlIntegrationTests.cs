@@ -24,10 +24,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_prefers_relational_GoldenManifestAssumptions_over_AssumptionsJson()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -179,10 +179,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Assumptions.Should().Equal("relational-assumption-wins");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_prefers_relational_GoldenManifestWarnings_over_WarningsJson()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -326,10 +326,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Warnings.Should().Equal("relational-warning-wins");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_prefers_relational_provenance_source_findings_over_ProvenanceJson()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -482,10 +482,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Provenance.AppliedRuleIds.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_loads_relational_decisions_with_evidence_and_node_links_ordered()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -695,10 +695,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         d.RelatedNodeIds.Should().Equal("node-b", "node-a");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_loads_relational_decisions_without_evidence_or_node_links()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -869,10 +869,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         d.RelatedNodeIds.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_loads_relational_provenance_applied_rules_only_other_slices_empty()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -1025,10 +1025,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Provenance.AppliedRuleIds.Should().Equal("relational-rule-only");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_loads_relational_provenance_nodes_and_rules_without_source_findings_rows()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -1190,10 +1190,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Provenance.AppliedRuleIds.Should().Equal("prov-rule-rel");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_falls_back_to_AssumptionsJson_when_no_relational_assumption_rows()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -1239,10 +1239,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Assumptions.Should().Equal("json-assumption-a", "json-assumption-b");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_falls_back_to_ProvenanceJson_when_no_relational_provenance_rows()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -1295,10 +1295,10 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Provenance.AppliedRuleIds.Should().Equal("json-prov-r1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_falls_back_to_DecisionsJson_when_no_relational_decision_rows()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

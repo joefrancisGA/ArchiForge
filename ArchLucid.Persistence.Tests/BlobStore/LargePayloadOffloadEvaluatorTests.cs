@@ -1,9 +1,9 @@
-namespace ArchLucid.Persistence.Tests.BlobStore;
+﻿namespace ArchLucid.Persistence.Tests.BlobStore;
 
 [Trait("Category", "Unit")]
 public sealed class LargePayloadOffloadEvaluatorTests
 {
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadManifestOrBundle_Throws_WhenOptionsNull()
     {
         Action act = () => LargePayloadOffloadEvaluator.ShouldOffloadManifestOrBundle(null!, 1000);
@@ -11,7 +11,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("options");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadManifestOrBundle_ReturnsFalse_WhenDisabled()
     {
         ArtifactLargePayloadOptions o = new() { Enabled = false, BlobProvider = "AzureBlob" };
@@ -21,7 +21,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
         r.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadManifestOrBundle_ReturnsFalse_WhenBelowMinimum()
     {
         ArtifactLargePayloadOptions o = new()
@@ -34,7 +34,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
         r.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadManifestOrBundle_ReturnsFalse_WhenProviderNone()
     {
         ArtifactLargePayloadOptions o = new() { Enabled = true, MinimumUtf16LengthToOffload = 1, BlobProvider = "None" };
@@ -44,7 +44,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
         r.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadManifestOrBundle_ReturnsTrue_WhenEligible()
     {
         ArtifactLargePayloadOptions o = new() { Enabled = true, MinimumUtf16LengthToOffload = 1, BlobProvider = "Local" };
@@ -54,7 +54,7 @@ public sealed class LargePayloadOffloadEvaluatorTests
         r.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ShouldOffloadArtifactContent_MirrorsManifestRules()
     {
         ArtifactLargePayloadOptions o = new() { Enabled = true, MinimumArtifactContentUtf16LengthToOffload = 1, BlobProvider = "Local" };

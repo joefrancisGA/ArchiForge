@@ -1,4 +1,4 @@
-using ArchLucid.Core.Conversation;
+﻿using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Conversation;
@@ -14,7 +14,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class DataArchivalCoordinatorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task RunOnceAsync_when_all_retention_non_positive_skips_archival_paths()
     {
         InMemoryRunRepository runs = new();
@@ -61,7 +61,7 @@ public sealed class DataArchivalCoordinatorTests
         listed[0].ArchivedUtc.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RunOnceAsync_ArchivesRunsDigestsAndThreads_ByRetention()
     {
         InMemoryRunRepository runs = new();

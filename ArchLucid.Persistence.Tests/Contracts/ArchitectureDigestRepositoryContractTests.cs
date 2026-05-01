@@ -39,7 +39,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetById_returns_same_digest()
     {
         SkipIfSqlServerUnavailable();
@@ -62,7 +62,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         loaded.MetadataJson.Should().Be(digest.MetadataJson);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_nonexistent_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -73,7 +73,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_returns_only_matching_scope()
     {
         SkipIfSqlServerUnavailable();
@@ -92,7 +92,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         result.Should().NotContain(d => d.DigestId == otherProject.DigestId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_orders_by_GeneratedUtc_descending()
     {
         SkipIfSqlServerUnavailable();
@@ -114,7 +114,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         ours[1].DigestId.Should().Be(older.DigestId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_respects_take_limit()
     {
         SkipIfSqlServerUnavailable();
@@ -136,7 +136,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         result.Should().HaveCount(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_empty_scope_returns_empty_list()
     {
         SkipIfSqlServerUnavailable();

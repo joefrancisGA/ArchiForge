@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -9,7 +9,7 @@ public sealed class ProductLearningTriageReportBuilderTests
 {
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
-    [Fact]
+    [SkippableFact]
     public void Build_and_Format_include_core_sections_and_totals()
     {
         DateTime utc = new(2026, 4, 2, 12, 0, 0, DateTimeKind.Utc);
@@ -89,7 +89,7 @@ public sealed class ProductLearningTriageReportBuilderTests
         md.Should().Contain("Triage queue");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Build_orders_artifact_rows_by_negative_signal_mass_then_key()
     {
         DateTime utc = new(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc);
@@ -130,7 +130,7 @@ public sealed class ProductLearningTriageReportBuilderTests
         doc.ArtifactOutcomes[1].ArtifactLabel.Should().Be("Low pain");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Format_markdown_documents_empty_triage_without_throwing()
     {
         DateTime utc = new(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc);

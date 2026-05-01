@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Persistence.Notifications.Email;
 
@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.Tests.Notifications.Email;
 [Trait("Category", "Unit")]
 public sealed class AzureCommunicationServicesEmailProviderContractTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task SendAsync_invokes_acs_transport_with_html_and_plain_text_ordering()
     {
         Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();

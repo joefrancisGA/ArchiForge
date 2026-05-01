@@ -1,11 +1,11 @@
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Governance;
 
 namespace ArchLucid.Persistence.Tests.Governance;
 
 public sealed class InMemoryPolicyPackVersionRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_null_throws()
     {
         InMemoryPolicyPackVersionRepository sut = new();
@@ -15,7 +15,7 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByPackAndVersionAsync_finds_row()
     {
         InMemoryPolicyPackVersionRepository sut = new();
@@ -36,7 +36,7 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
         found.ContentJson.Should().Be("{}");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_replaces_matching_id()
     {
         InMemoryPolicyPackVersionRepository sut = new();
@@ -59,7 +59,7 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
         found!.ContentJson.Should().Be("b");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpsertPublishedVersionAsync_insert_then_update_returns_previous_content()
     {
         InMemoryPolicyPackVersionRepository sut = new();
@@ -78,7 +78,7 @@ public sealed class InMemoryPolicyPackVersionRepositoryTests
         prev2.Should().Be("{}");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByPackAsync_orders_newest_first()
     {
         InMemoryPolicyPackVersionRepository sut = new();

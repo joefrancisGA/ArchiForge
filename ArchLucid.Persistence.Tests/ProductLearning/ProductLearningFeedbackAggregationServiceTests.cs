@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -18,7 +18,7 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
         return new ProductLearningScope { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSnapshotAsync_drops_rollups_below_MinSignalsPerAggregate()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -41,7 +41,7 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
         snap.FeedbackRollups.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSnapshotAsync_respects_SinceUtc_when_building_rollups()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -67,7 +67,7 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
         snap.SinceUtc.Should().Be(options.SinceUtc);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetSnapshotAsync_does_not_query_top_rejected_revised_slice()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();

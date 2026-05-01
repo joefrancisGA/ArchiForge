@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Governance;
 [Trait("Category", "Unit")]
 public sealed class Migration080PolicyPackVersionsSqlTests
 {
-    [Fact]
+    [SkippableFact]
     public void Embedded_080_migration_enforces_unique_pack_version()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;

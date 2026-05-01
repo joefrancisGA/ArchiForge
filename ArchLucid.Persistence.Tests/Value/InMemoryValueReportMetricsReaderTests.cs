@@ -1,10 +1,10 @@
-using ArchLucid.Persistence.Value;
+﻿using ArchLucid.Persistence.Value;
 
 namespace ArchLucid.Persistence.Tests.Value;
 
 public sealed class InMemoryValueReportMetricsReaderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ReadAsync_returns_empty_metrics_for_any_scope()
     {
         InMemoryValueReportMetricsReader sut = new();

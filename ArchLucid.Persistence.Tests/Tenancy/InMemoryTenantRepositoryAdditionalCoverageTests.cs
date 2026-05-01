@@ -1,4 +1,4 @@
-using ArchLucid.Core.Tenancy;
+﻿using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Tests.Tenancy;
@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ListAsync_and_GetByEntra_round_trip()
     {
         InMemoryTenantRepository sut = new();
@@ -24,7 +24,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         all.Should().Contain(r => r.Id == id);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SuspendTenant_async_sets_suspended_on_existing_row()
     {
         InMemoryTenantRepository sut = new();
@@ -41,14 +41,14 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         (await sut.GetByIdAsync(id, CancellationToken.None))!.SuspendedUtc.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFirstWorkspaceAsync_returns_null_when_no_workspaces()
     {
         InMemoryTenantRepository sut = new();
         (await sut.GetFirstWorkspaceAsync(Guid.NewGuid(), CancellationToken.None)).Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CommitSelfService_and_UpdateBaseline_no_op_for_unknown_tenant()
     {
         InMemoryTenantRepository sut = new();
@@ -72,7 +72,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         (await sut.GetByIdAsync(missing, CancellationToken.None)).Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task MarkTrialConverted_updates_tier_when_trial_active()
     {
         InMemoryTenantRepository sut = new();
@@ -106,7 +106,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         r.TrialStatus.Should().Be(TrialLifecycleStatus.Converted);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateEntraTenantIdAsync_true_when_null_then_entra_lookup_round_trips()
     {
         InMemoryTenantRepository sut = new();
@@ -126,7 +126,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         (await sut.GetByEntraTenantIdAsync(entraNew, CancellationToken.None))!.Id.Should().Be(id);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateEntraTenantIdAsync_false_when_tenant_missing()
     {
         InMemoryTenantRepository sut = new();
@@ -134,7 +134,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         (await sut.UpdateEntraTenantIdAsync(Guid.NewGuid(), Guid.NewGuid(), CancellationToken.None)).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateEntraTenantIdAsync_false_when_already_bound_to_different_directory()
     {
         InMemoryTenantRepository sut = new();
@@ -153,7 +153,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         (await sut.GetByIdAsync(id, CancellationToken.None))!.EntraTenantId.Should().Be(first);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateEntraTenantIdAsync_true_idempotent_when_same_directory()
     {
         InMemoryTenantRepository sut = new();
@@ -170,7 +170,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         (await sut.UpdateEntraTenantIdAsync(id, entra, CancellationToken.None)).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateEntraTenantIdAsync_false_when_directory_id_held_by_other_tenant()
     {
         InMemoryTenantRepository sut = new();
@@ -196,7 +196,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         (await sut.GetByIdAsync(b, CancellationToken.None))!.EntraTenantId.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryMarkFirstManifestCommitted_second_invocation_returns_null()
     {
         InMemoryTenantRepository sut = new();
@@ -232,7 +232,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
             .BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryRecordTrialLifecycleTransition_returns_false_when_status_mismatches()
     {
         InMemoryTenantRepository sut = new();
@@ -269,7 +269,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         moved.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryClaimTrialSeat_is_idempotent_for_same_principal()
     {
         InMemoryTenantRepository sut = new();
@@ -304,7 +304,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         used2.Should().Be(used1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Enterprise_scim_increment_and_decrement()
     {
         InMemoryTenantRepository sut = new();
@@ -325,7 +325,7 @@ public sealed class InMemoryTenantRepositoryAdditionalCoverageTests
         (await sut.GetByIdAsync(id, CancellationToken.None))!.EnterpriseSeatsUsed.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EnqueueTrialArchitecturePreseed_is_no_op_when_already_enqueued()
     {
         InMemoryTenantRepository sut = new();

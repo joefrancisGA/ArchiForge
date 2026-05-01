@@ -15,7 +15,7 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
 
     protected abstract IGovernancePromotionRecordRepository CreateRepository();
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetByRunId_contains_record()
     {
         SkipIfSqlServerUnavailable();
@@ -34,7 +34,7 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
         list[0].PromotionRecordId.Should().Be(promotionId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByRunId_orders_descending_by_PromotedUtc()
     {
         SkipIfSqlServerUnavailable();

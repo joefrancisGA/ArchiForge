@@ -15,7 +15,7 @@ namespace ArchLucid.Persistence.Tests;
 ///     No Docker/Testcontainers dependency in this fixture. When <see cref="EnvironmentConnectionStringVariable" /> is
 ///     unset and LocalDB
 ///     is unavailable, <see cref="IsSqlServerAvailable" /> is false and SQL integration tests should skip
-///     (see <c>Assert.SkipUnless</c> / xUnit.net v3). You can still filter with
+///     (see <see cref="Xunit.Skip" />.<c>IfNot</c> with <c>[SkippableFact]</c> from Xunit.SkippableFact). You can still filter with
 ///     <c>dotnet test --filter "Category!=SqlServerContainer"</c>.
 /// </remarks>
 public sealed class SqlServerPersistenceFixture : IAsyncLifetime
@@ -27,7 +27,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     public const string EnvironmentConnectionStringVariable = TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable;
 
     /// <summary>
-    ///     Message passed to <c>Assert.SkipUnless</c> when no SQL Server could be reached without an explicit env
+    ///     Message passed to <see cref="Xunit.Skip" />.<c>IfNot</c> when no SQL Server could be reached without an explicit env
     ///     connection string.
     /// </summary>
     public const string SqlServerUnavailableSkipReason =

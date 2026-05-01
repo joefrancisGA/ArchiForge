@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning.Planning;
+﻿using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -71,7 +71,7 @@ public sealed class ImprovementPlanningServiceTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Trend_plan_has_five_steps_and_stable_id()
     {
         ImprovementPlanningService svc = new();
@@ -107,7 +107,7 @@ public sealed class ImprovementPlanningServiceTests
         Assert.Equal(plan.PlanId, again[0].PlanId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Max_steps_trims_template()
     {
         ImprovementPlanningService svc = new();
@@ -124,7 +124,7 @@ public sealed class ImprovementPlanningServiceTests
         Assert.Equal(3, plans[0].ProposedChanges[2].Ordinal);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Priority_scores_severity_by_canonical_prefix_and_frequency_from_evidence_count()
     {
         ImprovementPlanningService svc = new();
@@ -167,7 +167,7 @@ public sealed class ImprovementPlanningServiceTests
         Assert.Equal(pRollup.FrequencyScore + pRollup.SeverityScore, pRollup.PriorityScore);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Frequency_score_respects_upper_cap()
     {
         ImprovementPlanningService svc = new();
@@ -191,7 +191,7 @@ public sealed class ImprovementPlanningServiceTests
         Assert.Equal(920, plan.PriorityScore);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Output_order_is_theme_id_then_canonical_key_regardless_of_input_order()
     {
         ImprovementPlanningService svc = new();
@@ -222,7 +222,7 @@ public sealed class ImprovementPlanningServiceTests
         Assert.Equal(highId, plans[1].ThemeId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Rollup_template_starts_with_investigate_comment_template_has_four_steps()
     {
         ImprovementPlanningService svc = new();

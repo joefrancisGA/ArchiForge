@@ -18,7 +18,7 @@ public sealed class SqlDecisionTraceRepositoryContractTests(SqlServerPersistence
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IDecisionTraceRepository CreateRepository()

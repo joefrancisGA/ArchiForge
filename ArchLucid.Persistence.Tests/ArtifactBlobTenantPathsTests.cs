@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 using Moq;
 
@@ -27,7 +27,7 @@ public sealed class ArtifactBlobTenantPathsTests
         return CreateProvider(tenantId, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
     }
 
-    [Fact]
+    [SkippableFact]
     public void FormatArtifactContentRelativePath_formats_scope_and_artifact_segments()
     {
         Guid ws = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -42,7 +42,7 @@ public sealed class ArtifactBlobTenantPathsTests
             + "33333333-3333-3333-3333-333333333333/44444444-4444-4444-4444-444444444444/content.txt");
     }
 
-    [Fact]
+    [SkippableFact]
     public void PrefixWithTenant_allows_logical_path_starting_with_workspace_guid()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -61,7 +61,7 @@ public sealed class ArtifactBlobTenantPathsTests
         result.Should().Contain("/artifacts/");
     }
 
-    [Fact]
+    [SkippableFact]
     public void FormatArtifactContentRelativePath_rejects_paths_in_file_name()
     {
         Action act = () => ArtifactBlobTenantPaths.FormatArtifactContentRelativePath(
@@ -74,7 +74,7 @@ public sealed class ArtifactBlobTenantPathsTests
         act.Should().Throw<InvalidOperationException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void PrefixWithTenant_prefixes_logical_path()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -83,7 +83,7 @@ public sealed class ArtifactBlobTenantPathsTests
         result.Should().Be(tenantId.ToString("D") + "/exports/a.json");
     }
 
-    [Fact]
+    [SkippableFact]
     public void PrefixWithTenant_when_blob_already_has_tenant_prefix_throws()
     {
         Guid tenantId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -94,7 +94,7 @@ public sealed class ArtifactBlobTenantPathsTests
         act.Should().Throw<InvalidOperationException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void PrefixWithTenant_when_first_segment_is_another_guid_still_prefixes_current_tenant()
     {
         Guid mine = Guid.Parse("30303030-3030-3030-3030-303030303030");
@@ -107,14 +107,14 @@ public sealed class ArtifactBlobTenantPathsTests
         result.Should().Be(mine.ToString("D") + "/" + path);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ThrowIfBlobRelativePathUnsafe_rejects_dot_dot()
     {
         Action act = () => ArtifactBlobTenantPaths.ThrowIfBlobRelativePathUnsafe("a/../b");
         act.Should().Throw<InvalidOperationException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureReadBlobNameMatchesTenant_accepts_matching_prefix()
     {
         Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -125,7 +125,7 @@ public sealed class ArtifactBlobTenantPathsTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureReadBlobNameMatchesTenant_rejects_other_tenant_prefix()
     {
         Guid mine = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

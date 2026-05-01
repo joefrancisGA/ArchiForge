@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Security.Claims;
 
 using ArchLucid.Application.Billing;
@@ -19,7 +19,7 @@ namespace ArchLucid.Persistence.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ChangePlan_ga_off_skips_ledger_change_plan()
     {
         BillingOptions billing = new()
@@ -89,7 +89,7 @@ public sealed class AzureMarketplaceBillingProviderChangeWebhookTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChangePlan_ga_on_invokes_ledger_change_plan()
     {
         BillingOptions billing = new()

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Audit;
+﻿using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Suite", "Persistence")]
 public sealed class SqlTrialFunnelCommitHookTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task OnTrialTenantManifestCommittedAsync_when_column_pin_succeeds_for_non_trial_tenant_does_not_log_trial_audit()
     {
         Guid tenantId = Guid.NewGuid();
@@ -43,7 +43,7 @@ public sealed class SqlTrialFunnelCommitHookTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task OnTrialTenantManifestCommittedAsync_when_trial_tenant_logs_TrialFirstRunCompleted()
     {
         Guid tenantId = Guid.NewGuid();

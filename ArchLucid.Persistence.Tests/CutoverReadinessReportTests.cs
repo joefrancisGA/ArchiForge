@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.Tests;
+﻿namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 ///     Unit tests for <see cref="CutoverReadinessReport" /> and <see cref="CutoverSliceReadiness" />
@@ -7,9 +7,9 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class CutoverReadinessReportTests
 {
-    // ── CutoverSliceReadiness ──────────────────────────────────────
+    // â”€â”€ CutoverSliceReadiness â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public void Slice_AllHeadersHaveChildren_IsReady()
     {
         CutoverSliceReadiness slice = new()
@@ -23,7 +23,7 @@ public sealed class CutoverReadinessReportTests
         slice.HeadersMissingRelationalRows.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Slice_SomeHeadersMissing_IsNotReady()
     {
         CutoverSliceReadiness slice = new()
@@ -37,7 +37,7 @@ public sealed class CutoverReadinessReportTests
         slice.HeadersMissingRelationalRows.Should().Be(8);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Slice_ZeroHeaders_IsReady()
     {
         CutoverSliceReadiness slice = new()
@@ -51,7 +51,7 @@ public sealed class CutoverReadinessReportTests
         slice.HeadersMissingRelationalRows.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Slice_AllHeadersMissing_ReportsCorrectCount()
     {
         CutoverSliceReadiness slice = new()
@@ -65,9 +65,9 @@ public sealed class CutoverReadinessReportTests
         slice.HeadersMissingRelationalRows.Should().Be(25);
     }
 
-    // ── CutoverReadinessReport ─────────────────────────────────────
+    // â”€â”€ CutoverReadinessReport â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public void Report_AllSlicesReady_IsFullyReady()
     {
         CutoverReadinessReport report = new()
@@ -84,7 +84,7 @@ public sealed class CutoverReadinessReportTests
         report.SlicesNotReady.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Report_OneSliceNotReady_IsNotFullyReady()
     {
         CutoverReadinessReport report = new()
@@ -102,7 +102,7 @@ public sealed class CutoverReadinessReportTests
         report.SlicesNotReady[0].SliceName.Should().Be("ContextSnapshot.Warnings");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Report_EmptySlices_IsFullyReady()
     {
         CutoverReadinessReport report = new()
@@ -115,7 +115,7 @@ public sealed class CutoverReadinessReportTests
         report.TotalHeaderRows.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Report_TotalHeaderRows_DeduplicatesByEntityType()
     {
         CutoverReadinessReport report = new()
@@ -135,7 +135,7 @@ public sealed class CutoverReadinessReportTests
         report.TotalHeaderRows.Should().Be(15);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Report_MultipleSlicesNotReady_ListsAll()
     {
         CutoverReadinessReport report = new()
@@ -157,7 +157,7 @@ public sealed class CutoverReadinessReportTests
         notReadyNames.Should().Contain("FindingsSnapshot.Findings");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Report_AllZeroHeaders_IsFullyReady()
     {
         CutoverReadinessReport report = new()
@@ -176,9 +176,9 @@ public sealed class CutoverReadinessReportTests
         report.TotalHeaderRows.Should().Be(0);
     }
 
-    // ── Representative full-coverage scenario ──────────────────────
+    // â”€â”€ Representative full-coverage scenario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-    [Fact]
+    [SkippableFact]
     public void Report_FullPipeline_RealisticScenario()
     {
         CutoverReadinessReport report = new()

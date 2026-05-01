@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -26,7 +26,7 @@ public sealed class StripeBillingProviderCheckoutWebhookIdempotencyTests
     /// </summary>
     private const string StripeNetWebhookApiVersion = "2025-08-27.basil";
 
-    [Fact]
+    [SkippableFact]
     public async Task HandleWebhookAsync_duplicate_processed_event_returns_ok_without_replaying_mutation()
     {
         byte[] keyMaterial = new byte[32];

@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Manifest.Sections;
+﻿using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 
 using ArchLucid.Persistence.Models;
@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.Tests.Queries;
 [Trait("Category", "Unit")]
 public sealed class AuthorityRunMapperTests
 {
-    [Fact]
+    [SkippableFact]
     public void MapSummary_projects_run_record_fields()
     {
         Guid runId = Guid.NewGuid();
@@ -41,7 +41,7 @@ public sealed class AuthorityRunMapperTests
         dto.ArtifactBundleId.Should().Be(run.ArtifactBundleId);
     }
 
-    [Fact]
+    [SkippableFact]
     public void MapManifestSummary_projects_manifest_counts_and_status()
     {
         Guid manifestId = Guid.NewGuid();

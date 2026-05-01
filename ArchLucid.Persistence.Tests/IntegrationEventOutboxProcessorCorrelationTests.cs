@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -14,7 +14,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class IntegrationEventOutboxProcessorCorrelationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_starts_activity_with_run_correlation_when_run_id_present()
     {
         List<Activity> stopped = [];
@@ -72,7 +72,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
         entryActivity.GetTagItem("archlucid.event_type").Should().Be("t");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_starts_activity_with_outbox_correlation_when_run_id_absent()
     {
         List<Activity> stopped = [];

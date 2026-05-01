@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -38,7 +38,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 {
     private const string AuthorityRunSourceName = "ArchLucid.AuthorityRun";
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_creates_child_activities_under_run_activity()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
@@ -102,7 +102,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_records_stage_duration_metrics()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
@@ -160,7 +160,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_propagates_error_status_on_stage_failure()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
@@ -223,7 +223,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_works_when_run_activity_is_null()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
@@ -236,7 +236,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_aborts_decisioning_when_findings_generation_failed()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
@@ -274,7 +274,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_aborts_decisioning_when_findings_partial_and_halt_enabled()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
@@ -323,7 +323,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_runs_decisioning_when_findings_partial_and_halt_disabled()
     {
         _ = ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds;
@@ -370,7 +370,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAfterRunPersistedAsync_when_artifact_synthesis_throws_logs_ArtifactSynthesisFailed_and_rethrows()
     {
         Guid runGuid = Guid.NewGuid();

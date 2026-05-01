@@ -1,4 +1,4 @@
-using ArchLucid.Core.Comparison;
+﻿using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
@@ -16,7 +16,7 @@ namespace ArchLucid.Persistence.Tests.Alerts;
 
 public sealed class AlertSimulationContextProviderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetContextsAsync_when_run_has_no_manifest_returns_empty()
     {
         Guid tenantId = Guid.NewGuid();

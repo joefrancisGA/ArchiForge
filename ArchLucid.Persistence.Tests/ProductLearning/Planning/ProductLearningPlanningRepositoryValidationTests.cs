@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
@@ -33,7 +33,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
             DerivationRuleVersion = "v1",
         };
 
-    [Fact]
+    [SkippableFact]
     public void EnsureScope_throws_when_scope_null()
     {
         Action act = () => ProductLearningPlanningRepositoryValidation.EnsureScope(null!);
@@ -63,7 +63,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public void NormalizeThemeStatus_whitespace_defaults_to_proposed()
     {
         string r = ProductLearningPlanningRepositoryValidation.NormalizeThemeStatus("  ");
@@ -71,7 +71,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         r.Should().Be(ProductLearningImprovementThemeStatusValues.Proposed);
     }
 
-    [Fact]
+    [SkippableFact]
     public void NormalizeThemeStatus_accepts_known_statuses()
     {
         ProductLearningPlanningRepositoryValidation
@@ -80,7 +80,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
             .Be(ProductLearningImprovementThemeStatusValues.Accepted);
     }
 
-    [Fact]
+    [SkippableFact]
     public void NormalizeThemeStatus_rejects_unknown()
     {
         Action act = () => ProductLearningPlanningRepositoryValidation.NormalizeThemeStatus("Unknown");
@@ -88,7 +88,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("status");
     }
 
-    [Fact]
+    [SkippableFact]
     public void NormalizePlanStatus_whitespace_defaults_to_proposed()
     {
         string r = ProductLearningPlanningRepositoryValidation.NormalizePlanStatus("\t");
@@ -96,7 +96,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         r.Should().Be(ProductLearningImprovementPlanStatusValues.Proposed);
     }
 
-    [Fact]
+    [SkippableFact]
     public void NormalizePlanStatus_accepts_under_review()
     {
         ProductLearningPlanningRepositoryValidation
@@ -105,7 +105,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
             .Be(ProductLearningImprovementPlanStatusValues.UnderReview);
     }
 
-    [Fact]
+    [SkippableFact]
     public void NormalizePlanStatus_rejects_unknown()
     {
         Action act = () => ProductLearningPlanningRepositoryValidation.NormalizePlanStatus("Draft");
@@ -113,7 +113,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("status");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureTheme_throws_when_theme_null()
     {
         Action act = () => ProductLearningPlanningRepositoryValidation.EnsureTheme(null!);
@@ -121,7 +121,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureTheme_throws_when_tenant_missing()
     {
         ProductLearningScope scope = ValidScope();
@@ -146,7 +146,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("theme");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureTheme_throws_when_theme_key_too_long()
     {
         ProductLearningScope scope = ValidScope();
@@ -171,7 +171,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("theme");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureTheme_throws_when_title_too_long()
     {
         ProductLearningScope scope = ValidScope();
@@ -196,7 +196,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("theme");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureTheme_throws_when_derivation_rule_version_too_long()
     {
         ProductLearningScope scope = ValidScope();
@@ -223,7 +223,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("theme");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureTheme_throws_when_counts_negative()
     {
         ProductLearningScope scope = ValidScope();
@@ -248,7 +248,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("theme");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureTheme_throws_when_status_unknown()
     {
         ProductLearningScope scope = ValidScope();
@@ -274,7 +274,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("status");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureTheme_accepts_valid_theme()
     {
         ProductLearningScope scope = ValidScope();
@@ -285,7 +285,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsurePlan_throws_when_plan_null()
     {
         Action act = () => ProductLearningPlanningRepositoryValidation.EnsurePlan(null!);
@@ -293,7 +293,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsurePlan_throws_when_theme_id_empty()
     {
         ProductLearningScope scope = ValidScope();
@@ -313,7 +313,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("plan");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsurePlan_throws_when_status_invalid()
     {
         ProductLearningScope scope = ValidScope();
@@ -334,7 +334,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("status");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureActionSteps_throws_when_null()
     {
         Action act = () => ProductLearningPlanningRepositoryValidation.EnsureActionSteps(null!);
@@ -342,7 +342,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureActionSteps_throws_when_empty_list()
     {
         Action act = () => ProductLearningPlanningRepositoryValidation.EnsureActionSteps([]);
@@ -350,7 +350,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("steps");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureActionSteps_throws_when_step_null()
     {
         List<ProductLearningImprovementPlanActionStep> steps =
@@ -363,7 +363,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureRunLink_throws_when_plan_id_empty()
     {
         ProductLearningImprovementPlanRunLinkRecord link = new()
@@ -377,7 +377,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("link");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureRunLink_throws_when_run_id_blank()
     {
         ProductLearningImprovementPlanRunLinkRecord link = new()
@@ -391,7 +391,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("link");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureRunLink_accepts_valid()
     {
         ProductLearningImprovementPlanRunLinkRecord link = new()
@@ -405,7 +405,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureSignalLink_throws_when_triage_snapshot_invalid()
     {
         ProductLearningImprovementPlanSignalLinkRecord link = new()
@@ -420,7 +420,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("snapshot");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureSignalLink_accepts_open_snapshot()
     {
         ProductLearningImprovementPlanSignalLinkRecord link = new()
@@ -435,7 +435,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureArtifactLink_throws_when_authority_partial()
     {
         ProductLearningImprovementPlanArtifactLinkRecord link = new()
@@ -450,7 +450,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().Throw<ArgumentException>().WithParameterName("link");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureArtifactLink_accepts_authority_pair()
     {
         ProductLearningImprovementPlanArtifactLinkRecord link = new()
@@ -465,7 +465,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureArtifactLink_accepts_pilot_hint_only()
     {
         ProductLearningImprovementPlanArtifactLinkRecord link = new()
@@ -479,7 +479,7 @@ public sealed class ProductLearningPlanningRepositoryValidationTests
         act.Should().NotThrow();
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureArtifactLink_throws_when_hint_too_long()
     {
         ProductLearningImprovementPlanArtifactLinkRecord link = new()

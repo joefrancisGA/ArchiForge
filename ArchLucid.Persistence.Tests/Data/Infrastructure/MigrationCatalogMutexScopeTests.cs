@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 
 namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
@@ -8,7 +8,7 @@ public sealed class MigrationCatalogMutexScopeTests
     private const string SampleConnectionString =
         "Server=(localdb)\\mssqllocaldb;Database=ArchLucidMutexTest;Integrated Security=true;TrustServerCertificate=true;";
 
-    [Fact]
+    [SkippableFact]
     public void Acquire_Throws_WhenConnectionStringNull()
     {
         Action act = () => MigrationCatalogMutexScope.Acquire(null!, TimeSpan.FromSeconds(1));
@@ -16,7 +16,7 @@ public sealed class MigrationCatalogMutexScopeTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("connectionString");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Dispose_IsIdempotent_AndReleasesMutexForSameCatalog()
     {
         using (MigrationCatalogMutexScope.Acquire(SampleConnectionString, TimeSpan.FromMinutes(1)))
@@ -31,7 +31,7 @@ public sealed class MigrationCatalogMutexScopeTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Acquire_ThrowsTimeoutException_WhenSameCatalogAlreadyLocked()
     {
         using ManualResetEventSlim holderReady = new(false);

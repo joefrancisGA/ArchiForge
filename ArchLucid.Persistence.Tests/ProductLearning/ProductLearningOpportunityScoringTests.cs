@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.ProductLearning;
 [Trait("ChangeSet", "58R")]
 public sealed class ProductLearningOpportunityScoringTests
 {
-    [Fact]
+    [SkippableFact]
     public void ComputeAggregateBadScore_weights_reject_followup_revise_and_no_trusted_bonus()
     {
         FeedbackAggregate agg = new()
@@ -29,7 +29,7 @@ public sealed class ProductLearningOpportunityScoringTests
         score.Should().Be(11);
     }
 
-    [Fact]
+    [SkippableFact]
     public void SeverityFromBadScore_maps_to_high_medium_low_bands()
     {
         ProductLearningOpportunityScoring.SeverityFromBadScore(11).Should().Be("Medium");
@@ -37,7 +37,7 @@ public sealed class ProductLearningOpportunityScoringTests
         ProductLearningOpportunityScoring.SeverityFromBadScore(5).Should().Be("Low");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputeTrendNegativeMass_sums_reject_revise_followup()
     {
         ArtifactOutcomeTrend trend = new()

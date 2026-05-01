@@ -27,10 +27,10 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [Fact]
+    [SkippableFact]
     public async Task AssessAsync_MixedState_ReportsCorrectCounts()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
 
         // Seed one JSON-only ContextSnapshot (no relational children)
@@ -59,10 +59,10 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
         canonicalSlice.HeadersMissingRelationalRows.Should().BeGreaterThanOrEqualTo(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssessAsync_AllSlicesPresent()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
 
         SqlCutoverReadinessService service = new(factory, NullLogger<SqlCutoverReadinessService>.Instance);
@@ -88,10 +88,10 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
         sliceNames.Should().HaveCount(14);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task AssessAsync_ReportAggregates_AreConsistent()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
 
         SqlCutoverReadinessService service = new(factory, NullLogger<SqlCutoverReadinessService>.Instance);

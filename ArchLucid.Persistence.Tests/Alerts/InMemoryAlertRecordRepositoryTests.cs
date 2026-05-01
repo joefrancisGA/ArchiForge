@@ -1,4 +1,4 @@
-using ArchLucid.Core.Pagination;
+﻿using ArchLucid.Core.Pagination;
 using ArchLucid.Decisioning.Alerts;
 
 namespace ArchLucid.Persistence.Tests.Alerts;
@@ -15,7 +15,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_same_row()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -31,7 +31,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         loaded.DeduplicationKey.Should().Be("k1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_replaces_existing_alert_by_AlertId()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -50,7 +50,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         loaded.Title.Should().Be("updated");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_trims_oldest_when_exceeding_MaxEntries_500()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -79,7 +79,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         scope.Should().HaveCount(500);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetOpenByDeduplicationKeyAsync_returns_newest_Open_or_Acknowledged_in_scope_only()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -104,7 +104,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         match.AlertId.Should().Be(Guid.Parse("20000000-0000-0000-0000-000000000003"));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetOpenByDeduplicationKeyAsync_ignores_Resolved_and_wrong_scope()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -132,7 +132,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         noOtherTenant.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopeAsync_orders_newest_CreatedUtc_first_and_clamps_take()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -164,7 +164,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         maxCap.Should().HaveCount(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopeAsync_status_filter_is_case_insensitive()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -182,7 +182,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         openOnly[0].Status.Should().Be(AlertStatus.Open);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopePagedAsync_returns_total_and_respects_skip_take_with_MaxPageSize_clamp()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -224,7 +224,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         page2[0].CreatedUtc.Should().Be(BaseUtc.AddMinutes(9));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_with_null_alert_throws()
     {
         InMemoryAlertRecordRepository repo = new();
@@ -234,7 +234,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_with_null_alert_throws()
     {
         InMemoryAlertRecordRepository repo = new();

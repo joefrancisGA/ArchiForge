@@ -26,7 +26,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryInsert_then_TryGet_round_trips()
     {
         SkipIfSqlServerUnavailable();
@@ -60,7 +60,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
         lookup.RequestFingerprint.Should().Equal(fingerprint);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryInsert_twice_same_key_second_fails()
     {
         SkipIfSqlServerUnavailable();

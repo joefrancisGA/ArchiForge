@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class Migration079TenantLifecycleSqlTests
 {
-    [Fact]
+    [SkippableFact]
     public void Embedded_079_migration_contains_tenant_lifecycle_transitions()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;

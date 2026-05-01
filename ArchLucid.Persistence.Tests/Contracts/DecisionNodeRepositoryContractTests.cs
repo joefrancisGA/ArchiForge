@@ -23,7 +23,7 @@ public abstract class DecisionNodeRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Two_CreateMany_batches_append_for_same_run()
     {
         SkipIfSqlServerUnavailable();

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Metadata;
+﻿using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Data.Repositories;
@@ -28,7 +28,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchAsync_limit_zero_uses_default_page_size()
     {
         InMemoryComparisonRecordRepository sut = new();
@@ -41,7 +41,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         page.Should().ContainSingle();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchAsync_sorts_by_label_ascending()
     {
         InMemoryComparisonRecordRepository sut = new();
@@ -68,7 +68,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         page.Select(p => p.Label).Should().ContainInOrder("a", "b");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchByCursor_ascending_pages_after_cursor()
     {
         InMemoryComparisonRecordRepository sut = new();
@@ -96,7 +96,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         page.Should().ContainSingle(r => r.ComparisonRecordId == "late");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByExportRecordIdAsync_matches_left_or_right()
     {
         InMemoryComparisonRecordRepository sut = new();
@@ -110,7 +110,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         list.Should().ContainSingle(x => x.ComparisonRecordId == "c");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateLabelAndTags_unknown_id_returns_false()
     {
         InMemoryComparisonRecordRepository sut = new();
@@ -120,7 +120,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         ok.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_throws_when_cancelled()
     {
         InMemoryComparisonRecordRepository sut = new();
@@ -133,7 +133,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         await act.Should().ThrowAsync<OperationCanceledException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplacePayloadJsonForIntegrationTest_updates_payload()
     {
         InMemoryComparisonRecordRepository sut = new();
@@ -147,7 +147,7 @@ public sealed class InMemoryComparisonRecordRepositoryAdditionalCoverageTests
         loaded!.PayloadJson.Should().Be("{\"k\":1}");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ReplacePayloadJsonForIntegrationTest_missing_throws()
     {
         InMemoryComparisonRecordRepository sut = new();

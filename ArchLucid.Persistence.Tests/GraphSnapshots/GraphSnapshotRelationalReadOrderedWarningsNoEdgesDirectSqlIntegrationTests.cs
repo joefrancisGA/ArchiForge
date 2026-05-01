@@ -22,10 +22,10 @@ namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 public sealed class GraphSnapshotRelationalReadOrderedWarningsNoEdgesDirectSqlIntegrationTests(
     SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_returns_warnings_in_SortOrder_when_no_nodes_and_no_edges()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -13,7 +13,7 @@ public sealed class ProductLearningDashboardServiceTests
 
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [Fact]
+    [SkippableFact]
     public async Task GetDashboardSummaryAsync_ranks_opportunities_and_counts_signals()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -62,7 +62,7 @@ public sealed class ProductLearningDashboardServiceTests
         summary.SummaryNotes.Should().NotBeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CountSignalsInScopeAsync_matches_inserted_rows()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();

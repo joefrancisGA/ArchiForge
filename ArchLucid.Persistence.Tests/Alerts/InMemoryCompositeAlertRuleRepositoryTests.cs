@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Alerts.Composite;
+﻿using ArchLucid.Decisioning.Alerts.Composite;
 
 namespace ArchLucid.Persistence.Tests.Alerts;
 
@@ -14,7 +14,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 2, 10, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_stores_clone_mutating_original_does_not_change_repository()
     {
         InMemoryCompositeAlertRuleRepository repo = new();
@@ -29,7 +29,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         loaded.Name.Should().Be("v1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByIdAsync_returns_clone_mutations_do_not_affect_stored_rule()
     {
         InMemoryCompositeAlertRuleRepository repo = new();
@@ -45,7 +45,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         second.Name.Should().Be("stable");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_clones_condition_list()
     {
         InMemoryCompositeAlertRuleRepository repo = new();
@@ -70,7 +70,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         loaded.Conditions[0].ThresholdValue.Should().Be(10m);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_replaces_by_CompositeRuleId()
     {
         InMemoryCompositeAlertRuleRepository repo = new();
@@ -86,7 +86,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         loaded.IsEnabled.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByIdAsync_returns_null_for_unknown_id()
     {
         InMemoryCompositeAlertRuleRepository repo = new();
@@ -97,7 +97,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         loaded.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopeAsync_filters_and_orders_desc_and_returns_clones()
     {
         InMemoryCompositeAlertRuleRepository repo = new();
@@ -132,7 +132,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         again.Name.Should().Be("b");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListEnabledByScopeAsync_excludes_disabled_rules()
     {
         InMemoryCompositeAlertRuleRepository repo = new();
@@ -151,7 +151,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         enabled[0].Name.Should().Be("on");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_with_null_rule_throws()
     {
         InMemoryCompositeAlertRuleRepository repo = new();
@@ -161,7 +161,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_with_null_rule_throws()
     {
         InMemoryCompositeAlertRuleRepository repo = new();

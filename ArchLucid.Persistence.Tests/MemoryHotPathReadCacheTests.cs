@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Options;
+﻿using ArchLucid.Persistence.Options;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests;
 
 public sealed class MemoryHotPathReadCacheTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetOrCreateAsync_second_call_does_not_invoke_factory()
     {
         int calls = 0;
@@ -30,7 +30,7 @@ public sealed class MemoryHotPathReadCacheTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetOrCreateAsync_does_not_cache_null()
     {
         int calls = 0;
@@ -53,7 +53,7 @@ public sealed class MemoryHotPathReadCacheTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RemoveAsync_drops_entry()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 60 };
@@ -76,7 +76,7 @@ public sealed class MemoryHotPathReadCacheTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetOrCreateAsync_promotes_legacy_key_to_primary()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 60 };

@@ -1,8 +1,8 @@
-namespace ArchLucid.Persistence.Tests.Coordination.Diagnostics;
+﻿namespace ArchLucid.Persistence.Tests.Coordination.Diagnostics;
 
 public sealed class InMemoryOutboxOperationalMetricsReaderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ReadSnapshotAsync_returns_zeroed_snapshot()
     {
         InMemoryOutboxOperationalMetricsReader reader = new();

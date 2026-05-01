@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Evolution;
+﻿using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.Evolution;
@@ -8,7 +8,7 @@ public sealed class CandidateChangeSetServiceTests
 {
     private readonly CandidateChangeSetService _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void MapFromImprovementPlan_NullPlan_Throws()
     {
         Action act = () => _sut.MapFromImprovementPlan(null!, null);
@@ -16,7 +16,7 @@ public sealed class CandidateChangeSetServiceTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("plan");
     }
 
-    [Fact]
+    [SkippableFact]
     public void MapFromImprovementPlan_SingleStep_ReturnsOneAggregateOnly_WithDeterministicId()
     {
         Guid planId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -60,7 +60,7 @@ public sealed class CandidateChangeSetServiceTests
             .Which.ComponentKey.Should().Be(planId.ToString("N"));
     }
 
-    [Fact]
+    [SkippableFact]
     public void MapFromImprovementPlan_TwoSteps_ReturnsAggregatePlusTwoSlices_OrderedByOrdinal()
     {
         Guid planId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -120,7 +120,7 @@ public sealed class CandidateChangeSetServiceTests
         results[0].AffectedComponents[1].ComponentKey.Should().Be("pattern-p");
     }
 
-    [Fact]
+    [SkippableFact]
     public void MapFromImprovementPlan_ShuffledInputSteps_ProducesSameOutputAsSortedInput()
     {
         Guid planId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

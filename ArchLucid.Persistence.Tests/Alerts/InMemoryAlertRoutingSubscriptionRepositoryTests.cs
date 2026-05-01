@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Alerts.Delivery;
+﻿using ArchLucid.Decisioning.Alerts.Delivery;
 
 namespace ArchLucid.Persistence.Tests.Alerts;
 
@@ -14,7 +14,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 1, 8, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_subscription()
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
@@ -30,7 +30,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         loaded.Destination.Should().Be("a@b.com");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByIdAsync_returns_null_for_unknown_id()
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
@@ -41,7 +41,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         loaded.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_replaces_row_when_id_exists()
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
@@ -58,7 +58,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         loaded.IsEnabled.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_is_no_op_when_id_not_found()
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
@@ -80,7 +80,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         all[0].Destination.Should().Be("keep");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopeAsync_filters_scope_and_orders_CreatedUtc_desc()
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();
@@ -109,7 +109,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         list[1].Destination.Should().Be("a");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListEnabledByScopeAsync_returns_only_IsEnabled_true()
     {
         InMemoryAlertRoutingSubscriptionRepository repo = new();

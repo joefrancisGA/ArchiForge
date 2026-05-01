@@ -1,11 +1,11 @@
-using ArchLucid.Core.Scim.Models;
+﻿using ArchLucid.Core.Scim.Models;
 using ArchLucid.Persistence.Scim;
 
 namespace ArchLucid.Persistence.Tests.Scim;
 
 public sealed class InMemoryScimTenantTokenRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Insert_List_Find_round_trip()
     {
         InMemoryScimTenantTokenRepository sut = new();
@@ -25,7 +25,7 @@ public sealed class InMemoryScimTenantTokenRepositoryTests
         list.Should().ContainSingle(s => s.PublicLookupKey == "pub-key");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Insert_duplicate_public_key_throws()
     {
         InMemoryScimTenantTokenRepository sut = new();
@@ -38,7 +38,7 @@ public sealed class InMemoryScimTenantTokenRepositoryTests
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FindActive_returns_null_when_revoked()
     {
         InMemoryScimTenantTokenRepository sut = new();
@@ -52,7 +52,7 @@ public sealed class InMemoryScimTenantTokenRepositoryTests
         found.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryRevokeByIdAsync_false_for_unknown()
     {
         InMemoryScimTenantTokenRepository sut = new();
@@ -62,7 +62,7 @@ public sealed class InMemoryScimTenantTokenRepositoryTests
         ok.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryRevokeByIdAsync_false_when_already_revoked()
     {
         InMemoryScimTenantTokenRepository sut = new();

@@ -17,10 +17,10 @@ namespace ArchLucid.Persistence.Tests.Identity;
 [Trait("Suite", "Core")]
 public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryLinkLocalIdentityToEntraAsync_persists_oid_and_utc()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlTrialIdentityUserRepository sut = new(factory);
@@ -50,10 +50,10 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
         row.LinkedUtc.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryLinkLocalIdentityToEntraAsync_false_when_oid_conflict()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlTrialIdentityUserRepository sut = new(factory);
@@ -78,10 +78,10 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
         (await sut.GetByNormalizedEmailAsync(normalized, CancellationToken.None))!.LinkedEntraOid.Should().Be("oid-first");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryLinkLocalIdentityToEntraAsync_false_for_unknown_email()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlTrialIdentityUserRepository sut = new(factory);

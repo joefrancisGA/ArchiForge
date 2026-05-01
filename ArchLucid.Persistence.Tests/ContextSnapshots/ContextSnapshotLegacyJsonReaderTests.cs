@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Models;
+﻿using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.ContextSnapshots;
 using ArchLucid.Persistence.Serialization;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Tests.ContextSnapshots;
 
 public sealed class ContextSnapshotLegacyJsonReaderTests
 {
-    [Fact]
+    [SkippableFact]
     public void DeserializeCanonicalObjects_when_json_null_or_whitespace_returns_empty()
     {
         ContextSnapshotLegacyJsonReader.DeserializeCanonicalObjects(null).Should().BeEmpty();
@@ -14,14 +14,14 @@ public sealed class ContextSnapshotLegacyJsonReaderTests
         ContextSnapshotLegacyJsonReader.DeserializeCanonicalObjects("   ").Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeserializeStringList_when_json_null_or_whitespace_returns_empty()
     {
         ContextSnapshotLegacyJsonReader.DeserializeStringList(null).Should().BeEmpty();
         ContextSnapshotLegacyJsonReader.DeserializeStringList("").Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeserializeSourceHashes_when_json_null_or_whitespace_returns_empty_ordinal_dict()
     {
         Dictionary<string, string> empty = ContextSnapshotLegacyJsonReader.DeserializeSourceHashes(null);
@@ -30,7 +30,7 @@ public sealed class ContextSnapshotLegacyJsonReaderTests
         empty.Comparer.Should().Be(StringComparer.Ordinal);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Deserialize_round_trips_like_integration_legacy_row()
     {
         List<CanonicalObject> canonical =

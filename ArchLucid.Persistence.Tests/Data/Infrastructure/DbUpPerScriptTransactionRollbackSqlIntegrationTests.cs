@@ -17,10 +17,10 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "SqlServerContainer")]
 public sealed class DbUpPerScriptTransactionRollbackSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Second_batch_failure_in_one_script_rolls_back_first_batch_DDL()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidDbUpTx_" + suffix;

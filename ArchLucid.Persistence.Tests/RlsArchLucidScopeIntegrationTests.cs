@@ -19,10 +19,10 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
     /// <summary>Deployed policy identifier (post-rename â€” see DbUp 108_RlsRenameToArchLucid.sql).</summary>
     private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
 
-    [Fact]
+    [SkippableFact]
     public async Task Rls_filters_rows_by_session_context_and_bypass_sees_all()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection admin = new(fixture.ConnectionString);
         await admin.OpenAsync();
@@ -206,10 +206,10 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
         return Convert.ToInt32(scalar);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Rls_filters_AuditEvents_by_session_context()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection admin = new(fixture.ConnectionString);
         await admin.OpenAsync();
@@ -259,10 +259,10 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Rls_filters_ContextSnapshots_by_denormalized_scope_columns()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection admin = new(fixture.ConnectionString);
         await admin.OpenAsync();
@@ -342,10 +342,10 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
         return Convert.ToInt32(scalar);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Rls_select_with_cleared_session_context_returns_zero_runs()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection admin = new(fixture.ConnectionString);
         await admin.OpenAsync();
@@ -381,10 +381,10 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Rls_block_predicates_reject_cross_tenant_insert_on_runs()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection admin = new(fixture.ConnectionString);
         await admin.OpenAsync();

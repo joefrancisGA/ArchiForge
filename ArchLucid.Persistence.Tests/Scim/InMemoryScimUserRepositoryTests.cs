@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scim.Filtering;
+﻿using ArchLucid.Core.Scim.Filtering;
 using ArchLucid.Core.Scim.Models;
 using ArchLucid.Persistence.Scim;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Tests.Scim;
 
 public sealed class InMemoryScimUserRepositoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Insert_GetById_GetByExternalId_round_trip()
     {
         InMemoryScimUserRepository sut = new();
@@ -30,7 +30,7 @@ public sealed class InMemoryScimUserRepositoryTests
         byExt.Should().BeEquivalentTo(byId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_wrong_tenant_returns_null()
     {
         InMemoryScimUserRepository sut = new();
@@ -50,7 +50,7 @@ public sealed class InMemoryScimUserRepositoryTests
         row.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplaceAsync_updates_row()
     {
         InMemoryScimUserRepository sut = new();
@@ -85,7 +85,7 @@ public sealed class InMemoryScimUserRepositoryTests
         row.ResolvedRole.Should().Be("Reader");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReplaceAsync_wrong_tenant_is_noop()
     {
         InMemoryScimUserRepository sut = new();
@@ -116,7 +116,7 @@ public sealed class InMemoryScimUserRepositoryTests
         row!.UserName.Should().Be("u");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PatchAsync_merges_partial_fields()
     {
         InMemoryScimUserRepository sut = new();
@@ -149,7 +149,7 @@ public sealed class InMemoryScimUserRepositoryTests
         row.ResolvedRole.Should().Be("Admin");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task PatchAsync_wrong_tenant_is_noop()
     {
         InMemoryScimUserRepository sut = new();
@@ -180,7 +180,7 @@ public sealed class InMemoryScimUserRepositoryTests
         row!.UserName.Should().Be("u");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DeactivateAsync_sets_active_false()
     {
         InMemoryScimUserRepository sut = new();
@@ -202,7 +202,7 @@ public sealed class InMemoryScimUserRepositoryTests
         row!.Active.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListAsync_applies_filter_and_pagination()
     {
         InMemoryScimUserRepository sut = new();
@@ -218,7 +218,7 @@ public sealed class InMemoryScimUserRepositoryTests
         items.Should().ContainSingle(u => u.UserName == "user2");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListGroupKeysForUserAsync_returns_empty()
     {
         InMemoryScimUserRepository sut = new();

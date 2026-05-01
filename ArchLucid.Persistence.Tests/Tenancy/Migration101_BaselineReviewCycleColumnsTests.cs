@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class Migration101_BaselineReviewCycleColumnsTests
 {
-    [Fact]
+    [SkippableFact]
     public void Embedded_101_migration_adds_baseline_columns_and_positive_check()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;

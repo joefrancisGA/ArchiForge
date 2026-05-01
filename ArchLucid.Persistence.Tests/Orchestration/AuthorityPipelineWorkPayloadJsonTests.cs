@@ -1,10 +1,10 @@
-using ArchLucid.ContextIngestion.Models;
+﻿using ArchLucid.ContextIngestion.Models;
 
 namespace ArchLucid.Persistence.Tests.Orchestration;
 
 public sealed class AuthorityPipelineWorkPayloadJsonTests
 {
-    [Fact]
+    [SkippableFact]
     public void Serialize_throws_when_payload_null()
     {
         Action act = () => AuthorityPipelineWorkPayloadJson.Serialize(null!);
@@ -12,7 +12,7 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         act.Should().Throw<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Deserialize_returns_null_for_null_json()
     {
         AuthorityPipelineWorkPayload? result = AuthorityPipelineWorkPayloadJson.Deserialize(null!);
@@ -30,7 +30,7 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Serialize_round_trips_minimal_payload()
     {
         AuthorityPipelineWorkPayload payload = new()

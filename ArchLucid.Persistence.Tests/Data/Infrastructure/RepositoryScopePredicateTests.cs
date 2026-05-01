@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -8,7 +8,7 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "Unit")]
 public sealed class RepositoryScopePredicateTests
 {
-    [Fact]
+    [SkippableFact]
     public void AndTripleWhere_empty_tenant_returns_empty_clause()
     {
         ScopeContext scope = new() { TenantId = Guid.Empty, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
@@ -18,7 +18,7 @@ public sealed class RepositoryScopePredicateTests
         clause.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void AndTripleWhere_non_empty_tenant_appends_scope_predicate_sql()
     {
         ScopeContext scope = new()
@@ -33,7 +33,7 @@ public sealed class RepositoryScopePredicateTests
         clause.Should().Contain("ProjectId = @ScopeProjectId");
     }
 
-    [Fact]
+    [SkippableFact]
     public void AddScopeTripleIfNeeded_skips_parameters_when_tenant_empty()
     {
         ScopeContext scope = new() { TenantId = Guid.Empty, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
@@ -45,7 +45,7 @@ public sealed class RepositoryScopePredicateTests
         readTenant.Should().Throw<KeyNotFoundException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void AddScopeTripleIfNeeded_registers_scope_triple_when_tenant_present()
     {
         ScopeContext scope = new()

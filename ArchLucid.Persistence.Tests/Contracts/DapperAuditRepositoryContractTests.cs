@@ -12,7 +12,7 @@ public sealed class DapperAuditRepositoryContractTests(SqlServerPersistenceFixtu
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IAuditRepository CreateRepository()

@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class Migration086BillingSqlTests
 {
-    [Fact]
+    [SkippableFact]
     public void Embedded_086_migration_contains_change_procs()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;

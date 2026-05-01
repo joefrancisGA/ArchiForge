@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -32,7 +32,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_when_run_missing_throws_invalid_operation_exception()
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
@@ -45,7 +45,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
             .WithMessage($"Run '{run.RunId:D}' was not found for update.");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_when_row_version_mismatch_throws_run_concurrency_conflict_exception()
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
@@ -75,7 +75,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
         await act.Should().ThrowAsync<RunConcurrencyConflictException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveRunsByIdsAsync_empty_returns_empty_result()
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
@@ -87,7 +87,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
         result.Failed.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveRunsByIdsAsync_duplicate_ids_in_request_archives_once()
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
@@ -103,7 +103,7 @@ public sealed class InMemoryRunRepositoryEdgeCaseTests
         result.Failed.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveRunsByIdsAsync_unknown_id_records_failure()
     {
         IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());

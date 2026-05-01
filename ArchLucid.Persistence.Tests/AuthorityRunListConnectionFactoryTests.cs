@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
@@ -16,7 +16,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class AuthorityRunListConnectionFactoryTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreateOpenConnectionAsync_WithoutReplica_Uses_resilient_factory_and_applies_session_context()
     {
         Mock<ISqlConnectionFactory> inner = new();

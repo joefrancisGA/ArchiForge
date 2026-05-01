@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Requests;
+﻿using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
@@ -57,7 +57,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             scopeProvider.Object);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReadByRunIdAsync_WhenRunMissing_ReturnsNullWithoutAuthorityCall()
     {
         Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -86,7 +86,7 @@ public sealed class UnifiedGoldenManifestReaderTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReadByRunIdAsync_WhenNoCurrentVersion_ProbesAuthorityWithV1RunKeyConvention()
     {
         Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -146,7 +146,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         manifest.RunId.Should().Be(runId.ToString("D"));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReadByRunIdAsync_WhenAuthorityHasNothing_ReturnsNull()
     {
         Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -186,7 +186,7 @@ public sealed class UnifiedGoldenManifestReaderTests
         manifest.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReadByRunIdAsync_WhenGoldenManifestIdPresent_ReturnsProjectedContract()
     {
         Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

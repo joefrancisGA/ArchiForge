@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning.Planning;
+﻿using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
@@ -21,7 +21,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Higher_frequency_and_severity_ranks_first_with_default_weights()
     {
         ImprovementPlanPrioritizationService svc = new();
@@ -59,7 +59,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
         Assert.Contains("weights frequency=0.4", ranked[0].PrioritizationExplanation, StringComparison.Ordinal);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Weight_sum_must_be_one()
     {
         ImprovementPlanPrioritizationService svc = new();
@@ -78,7 +78,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             CancellationToken.None));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Tie_breaker_uses_plan_id_ascending()
     {
         ImprovementPlanPrioritizationService svc = new();

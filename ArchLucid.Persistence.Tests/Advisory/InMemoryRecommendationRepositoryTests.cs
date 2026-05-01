@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Workflow;
+﻿using ArchLucid.Decisioning.Advisory.Workflow;
 
 namespace ArchLucid.Persistence.Tests.Advisory;
 
@@ -16,7 +16,7 @@ public sealed class InMemoryRecommendationRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 3, 9, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [SkippableFact]
     public async Task UpsertAsync_inserts_new_row_and_GetByIdAsync_returns_it()
     {
         InMemoryRecommendationRepository repo = new();
@@ -31,7 +31,7 @@ public sealed class InMemoryRecommendationRepositoryTests
         loaded.PriorityScore.Should().Be(5);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpsertAsync_replaces_existing_by_RecommendationId()
     {
         InMemoryRecommendationRepository repo = new();
@@ -52,7 +52,7 @@ public sealed class InMemoryRecommendationRepositoryTests
         scope[0].Title.Should().Be("updated");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByIdAsync_returns_null_for_unknown_id()
     {
         InMemoryRecommendationRepository repo = new();
@@ -63,7 +63,7 @@ public sealed class InMemoryRecommendationRepositoryTests
         loaded.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpsertAsync_trims_fifo_when_exceeding_MaxEntries_5000()
     {
         InMemoryRecommendationRepository repo = new();
@@ -85,7 +85,7 @@ public sealed class InMemoryRecommendationRepositoryTests
         tail.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByRunAsync_orders_by_PriorityScore_desc_then_CreatedUtc_desc_capped_at_500()
     {
         InMemoryRecommendationRepository repo = new();
@@ -124,7 +124,7 @@ public sealed class InMemoryRecommendationRepositoryTests
         capped.Should().HaveCount(500);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopeAsync_filters_status_exact_optional_orders_LastUpdatedUtc_desc_and_clamps_take()
     {
         InMemoryRecommendationRepository repo = new();
@@ -174,7 +174,7 @@ public sealed class InMemoryRecommendationRepositoryTests
         maxCap.Should().HaveCount(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpsertAsync_with_null_recommendation_throws()
     {
         InMemoryRecommendationRepository repo = new();

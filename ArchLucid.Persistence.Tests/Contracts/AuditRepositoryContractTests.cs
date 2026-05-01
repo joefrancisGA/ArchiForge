@@ -53,7 +53,7 @@ public abstract class AuditRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Append_then_GetByScope_returns_event()
     {
         SkipIfSqlServerUnavailable();
@@ -71,7 +71,7 @@ public abstract class AuditRepositoryContractTests
         loaded.ActorUserId.Should().Be(evt.ActorUserId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByScope_filters_other_project()
     {
         SkipIfSqlServerUnavailable();
@@ -89,7 +89,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().NotContain(x => x.EventId == other.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByScope_orders_by_OccurredUtc_descending()
     {
         SkipIfSqlServerUnavailable();
@@ -111,7 +111,7 @@ public abstract class AuditRepositoryContractTests
         iOld.Should().BeGreaterThan(iNew);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_ByEventType_ReturnsOnlyMatchingType()
     {
         SkipIfSqlServerUnavailable();
@@ -130,7 +130,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().NotContain(x => x.EventId == other.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_ByDateRange_FiltersCorrectly()
     {
         SkipIfSqlServerUnavailable();
@@ -154,7 +154,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().NotContain(x => x.EventId == after.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_ByCorrelationId_ReturnsMatch()
     {
         SkipIfSqlServerUnavailable();
@@ -173,7 +173,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().NotContain(x => x.EventId == other.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_ByActorUserId_ReturnsMatch()
     {
         SkipIfSqlServerUnavailable();
@@ -192,7 +192,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().NotContain(x => x.EventId == other.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_ByRunId_ReturnsMatch()
     {
         SkipIfSqlServerUnavailable();
@@ -212,7 +212,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().NotContain(x => x.EventId == other.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_MultipleFilters_AppliesAll()
     {
         SkipIfSqlServerUnavailable();
@@ -252,7 +252,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().ContainSingle(x => x.EventId == match.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_NoFilters_ReturnsAllInScopeOrderedDesc()
     {
         SkipIfSqlServerUnavailable();
@@ -277,7 +277,7 @@ public abstract class AuditRepositoryContractTests
         iOld.Should().BeGreaterThan(iNew);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_null_filter_throws()
     {
         SkipIfSqlServerUnavailable();
@@ -293,7 +293,7 @@ public abstract class AuditRepositoryContractTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_clamps_take_to_500()
     {
         SkipIfSqlServerUnavailable();
@@ -310,7 +310,7 @@ public abstract class AuditRepositoryContractTests
         list.Count.Should().Be(PaginationDefaults.MaxListingTake);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetExportAsync_DateRange_IsHalfOpen_OnOccurredUtc()
     {
         SkipIfSqlServerUnavailable();
@@ -334,7 +334,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().NotContain(x => x.EventId == after.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetExportAsync_OrdersByOccurredUtc_Ascending()
     {
         SkipIfSqlServerUnavailable();
@@ -365,7 +365,7 @@ public abstract class AuditRepositoryContractTests
         list[1].EventId.Should().Be(second.EventId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetExportAsync_RespectsMaxRows()
     {
         SkipIfSqlServerUnavailable();
@@ -395,7 +395,7 @@ public abstract class AuditRepositoryContractTests
         list.Should().HaveCount(4);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetExportAsync_WhenMoreRowsExistThanMax_ReturnsMaxRows()
     {
         SkipIfSqlServerUnavailable();
@@ -426,7 +426,7 @@ public abstract class AuditRepositoryContractTests
     }
 
     /// <summary>Keyset pagination must not skip rows when multiple events share the same <see cref="AuditEvent.OccurredUtc"/>.</summary>
-    [Fact]
+    [SkippableFact]
     public async Task GetFilteredAsync_KeysetSameOccurredUtc_WithBeforeEventId_pages_deterministically()
     {
         SkipIfSqlServerUnavailable();

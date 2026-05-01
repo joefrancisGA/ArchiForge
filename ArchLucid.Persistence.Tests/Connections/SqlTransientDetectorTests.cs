@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using ArchLucid.TestSupport;
 
@@ -24,7 +24,7 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(ex).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_SqlException_ReturnsFalse_ForOtherNumber()
     {
         SqlException ex = SqlExceptionTestFactory.Create(50000);
@@ -32,13 +32,13 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(ex).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_SqlExceptionOverload_ReturnsFalse_ForNull()
     {
         SqlTransientDetector.IsTransient(null).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_Exception_WalksInner_AndDetectsTimeout()
     {
         Exception ex = new("outer", new TimeoutException());
@@ -46,7 +46,7 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(ex).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_Exception_WalksInner_AndDetectsWrappedSqlTransient()
     {
         SqlException inner = SqlExceptionTestFactory.Create(1205);
@@ -55,7 +55,7 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(ex).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsTransient_Exception_ReturnsFalse_ForNull()
     {
         SqlTransientDetector.IsTransient((Exception?)null).Should().BeFalse();

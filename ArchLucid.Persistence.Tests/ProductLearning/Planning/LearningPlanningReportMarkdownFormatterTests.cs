@@ -1,11 +1,11 @@
-using ArchLucid.Contracts.ProductLearning.Planning;
+﻿using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
 [Trait("ChangeSet", "59R")]
 public sealed class LearningPlanningReportMarkdownFormatterTests
 {
-    [Fact]
+    [SkippableFact]
     public void Format_emits_fixed_headings_and_stable_numeric_formatting()
     {
         DateTime generated = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);

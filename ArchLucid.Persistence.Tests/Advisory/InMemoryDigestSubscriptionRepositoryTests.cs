@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Delivery;
+﻿using ArchLucid.Decisioning.Advisory.Delivery;
 
 namespace ArchLucid.Persistence.Tests.Advisory;
 
@@ -14,7 +14,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
 
     private static readonly DateTime BaseUtc = new(2026, 4, 5, 7, 30, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_then_GetByIdAsync_returns_row()
     {
         InMemoryDigestSubscriptionRepository repo = new();
@@ -30,7 +30,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         loaded.Destination.Should().Be("digest@x.com");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_replaces_existing_by_SubscriptionId()
     {
         InMemoryDigestSubscriptionRepository repo = new();
@@ -49,7 +49,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         loaded.LastDeliveredUtc.Should().Be(BaseUtc.AddHours(2));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByIdAsync_returns_null_for_unknown_id()
     {
         InMemoryDigestSubscriptionRepository repo = new();
@@ -60,7 +60,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         loaded.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopeAsync_filters_and_orders_CreatedUtc_desc()
     {
         InMemoryDigestSubscriptionRepository repo = new();
@@ -82,7 +82,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         list[1].Destination.Should().Be("a");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListEnabledByScopeAsync_returns_only_IsEnabled_true()
     {
         InMemoryDigestSubscriptionRepository repo = new();
@@ -100,7 +100,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         enabled[0].Destination.Should().Be("on");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_trims_oldest_when_exceeding_500()
     {
         InMemoryDigestSubscriptionRepository repo = new();
@@ -124,7 +124,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         scope.Should().HaveCount(500);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateAsync_with_null_subscription_throws()
     {
         InMemoryDigestSubscriptionRepository repo = new();
@@ -134,7 +134,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateAsync_with_null_subscription_throws()
     {
         InMemoryDigestSubscriptionRepository repo = new();

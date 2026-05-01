@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Configuration;
 
 using Dapper;
@@ -12,7 +12,7 @@ public sealed class DapperGlobalCommandTimeoutBootstrapTests
 {
     private static readonly Lock SCommandTimeoutGate = new();
 
-    [Fact]
+    [SkippableFact]
     public void ApplyIfConfigured_Throws_WhenConfigurationNull()
     {
         Action act = () => DapperGlobalCommandTimeoutBootstrap.ApplyIfConfigured(null!);
@@ -20,7 +20,7 @@ public sealed class DapperGlobalCommandTimeoutBootstrapTests
         act.Should().Throw<ArgumentNullException>().WithParameterName("configuration");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ApplyIfConfigured_NoOp_WhenSecondsMissingOrNonPositive()
     {
         lock (SCommandTimeoutGate)
@@ -45,7 +45,7 @@ public sealed class DapperGlobalCommandTimeoutBootstrapTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public void ApplyIfConfigured_SetsSqlMapper_WhenPositive()
     {
         lock (SCommandTimeoutGate)

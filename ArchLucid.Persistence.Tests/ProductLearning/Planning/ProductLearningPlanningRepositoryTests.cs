@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
@@ -16,7 +16,7 @@ public sealed class ProductLearningPlanningRepositoryTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InsertTheme_list_and_get_round_trips()
     {
         InMemoryProductLearningPlanningRepository repo = new();
@@ -58,7 +58,7 @@ public sealed class ProductLearningPlanningRepositoryTests
         Assert.Equal(5, got.EvidenceSignalCount);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Duplicate_theme_key_in_scope_throws()
     {
         InMemoryProductLearningPlanningRepository repo = new();
@@ -84,7 +84,7 @@ public sealed class ProductLearningPlanningRepositoryTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => repo.InsertThemeAsync(theme, CancellationToken.None));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Insert_plan_requires_theme_and_round_trips_action_steps()
     {
         InMemoryProductLearningPlanningRepository repo = new();
@@ -156,7 +156,7 @@ public sealed class ProductLearningPlanningRepositoryTests
         Assert.Equal(42, got.PriorityScore);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Links_list_in_deterministic_order()
     {
         InMemoryProductLearningPlanningRepository repo = new();
@@ -246,7 +246,7 @@ public sealed class ProductLearningPlanningRepositoryTests
         Assert.Equal("diagram.png", arts[0].PilotArtifactHint);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Action_step_validation_rejects_duplicates_and_overflow()
     {
         List<ProductLearningImprovementPlanActionStep> dupOrd =

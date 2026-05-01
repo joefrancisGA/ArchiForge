@@ -85,10 +85,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
 
     private static readonly Guid SeedScopeProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030");
 
-    [Fact]
+    [SkippableFact]
     public async Task After_archival_child_rows_remain_consistent_with_probe_queries()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string runId = Guid.NewGuid().ToString("N");
         Guid runGuid = Guid.ParseExact(runId, "N");

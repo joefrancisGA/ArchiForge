@@ -38,7 +38,7 @@ public abstract class AlertRuleRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetById_returns_same_rule()
     {
         SkipIfSqlServerUnavailable();
@@ -60,7 +60,7 @@ public abstract class AlertRuleRepositoryContractTests
         loaded.MetadataJson.Should().Be(rule.MetadataJson);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_nonexistent_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -71,7 +71,7 @@ public abstract class AlertRuleRepositoryContractTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Update_modifies_mutable_fields()
     {
         SkipIfSqlServerUnavailable();
@@ -94,7 +94,7 @@ public abstract class AlertRuleRepositoryContractTests
         after.IsEnabled.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_returns_only_matching_scope()
     {
         SkipIfSqlServerUnavailable();
@@ -113,7 +113,7 @@ public abstract class AlertRuleRepositoryContractTests
         result.Should().NotContain(r => r.RuleId == otherProject.RuleId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_orders_by_CreatedUtc_descending()
     {
         SkipIfSqlServerUnavailable();
@@ -133,7 +133,7 @@ public abstract class AlertRuleRepositoryContractTests
         ours[1].RuleId.Should().Be(older.RuleId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListEnabledByScope_excludes_disabled_rules()
     {
         SkipIfSqlServerUnavailable();
@@ -151,7 +151,7 @@ public abstract class AlertRuleRepositoryContractTests
         result.Should().NotContain(r => r.RuleId == disabled.RuleId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListEnabledByScope_returns_empty_when_none_enabled()
     {
         SkipIfSqlServerUnavailable();

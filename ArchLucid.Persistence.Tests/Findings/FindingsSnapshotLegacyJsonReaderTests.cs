@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Serialization;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Tests.Findings;
 
 public sealed class FindingsSnapshotLegacyJsonReaderTests
 {
-    [Fact]
+    [SkippableFact]
     public void DeserializeFindings_when_json_null_or_whitespace_returns_empty()
     {
         FindingsSnapshotLegacyJsonReader.DeserializeFindings(null).Should().BeEmpty();
@@ -14,7 +14,7 @@ public sealed class FindingsSnapshotLegacyJsonReaderTests
         FindingsSnapshotLegacyJsonReader.DeserializeFindings("   ").Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeserializeFindings_round_trips_full_snapshot_blob()
     {
         FindingsSnapshot original = new()
@@ -48,7 +48,7 @@ public sealed class FindingsSnapshotLegacyJsonReaderTests
         parsed[0].Title.Should().Be("Legacy title");
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeserializeFindings_invalid_json_returns_empty()
     {
         FindingsSnapshotLegacyJsonReader.DeserializeFindings("{not json").Should().BeEmpty();

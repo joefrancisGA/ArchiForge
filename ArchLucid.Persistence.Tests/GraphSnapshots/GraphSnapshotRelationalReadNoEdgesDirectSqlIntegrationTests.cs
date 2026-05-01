@@ -20,10 +20,10 @@ namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 [Trait("Suite", "Core")]
 public sealed class GraphSnapshotRelationalReadNoEdgesDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task HydrateAsync_when_no_relational_edges_returns_relational_nodes_and_empty_edges()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

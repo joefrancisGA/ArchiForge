@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Options;
 using ArchLucid.Persistence.Repositories;
@@ -15,7 +15,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class CachingRunRepositoryArchiveInvalidationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveRunsCreatedBeforeAsync_removes_cached_GetById_row()
     {
         HotPathCacheOptions options = new() { AbsoluteExpirationSeconds = 3600 };

@@ -35,7 +35,7 @@ public abstract class ConversationMessageRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Add_then_GetByThreadId_returns_oldest_first_within_window()
     {
         SkipIfSqlServerUnavailable();
@@ -72,7 +72,7 @@ public abstract class ConversationMessageRepositoryContractTests
         window[1].MessageId.Should().Be(second.MessageId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByThreadId_respects_take()
     {
         SkipIfSqlServerUnavailable();

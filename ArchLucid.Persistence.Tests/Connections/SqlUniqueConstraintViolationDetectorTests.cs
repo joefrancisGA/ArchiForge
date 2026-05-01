@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using ArchLucid.TestSupport;
 
@@ -19,7 +19,7 @@ public sealed class SqlUniqueConstraintViolationDetectorTests
         SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsUniqueKeyViolation_ReturnsFalse_ForNonUniqueError()
     {
         SqlException ex = SqlExceptionTestFactory.Create(50000);
@@ -27,7 +27,7 @@ public sealed class SqlUniqueConstraintViolationDetectorTests
         SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsUniqueKeyViolation_ReturnsTrue_WhenInnerSqlException()
     {
         SqlException inner = SqlExceptionTestFactory.Create(2627);
@@ -36,7 +36,7 @@ public sealed class SqlUniqueConstraintViolationDetectorTests
         SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsUniqueKeyViolation_ReturnsFalse_ForNull()
     {
         SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(null).Should().BeFalse();

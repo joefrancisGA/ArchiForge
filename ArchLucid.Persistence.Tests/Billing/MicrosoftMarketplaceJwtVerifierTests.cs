@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
@@ -10,7 +10,7 @@ namespace ArchLucid.Persistence.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class MicrosoftMarketplaceJwtVerifierTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ValidateAsync_without_metadata_returns_null()
     {
         BillingOptions billing = new()

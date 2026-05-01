@@ -15,10 +15,10 @@ public sealed class RlsTenantScopePolicyParityIntegrationTests(SqlServerPersiste
     private const string LegacyPolicy = "Arch" + "iforge" + "TenantScope";
     private const string CurrentPolicy = "ArchLucidTenantScope";
 
-    [Fact]
+    [SkippableFact]
     public async Task Rls_security_policies_legacy_and_ArchLucid_tenant_scope_target_same_tables_when_both_exist()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection connection = new(fixture.ConnectionString);
         await connection.OpenAsync();

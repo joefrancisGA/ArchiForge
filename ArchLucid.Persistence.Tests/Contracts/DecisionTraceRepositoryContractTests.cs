@@ -35,7 +35,7 @@ public abstract class DecisionTraceRepositoryContractTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();
@@ -63,7 +63,7 @@ public abstract class DecisionTraceRepositoryContractTests
         audit.AppliedRuleIds.Should().Equal("r1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_wrong_scope_returns_null()
     {
         SkipIfSqlServerUnavailable();

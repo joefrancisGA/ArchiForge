@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning;
 
@@ -13,7 +13,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
 
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [Fact]
+    [SkippableFact]
     public async Task Insert_then_list_returns_newest_first_with_stable_secondary_sort()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -55,7 +55,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         list[1].Disposition.Should().Be(ProductLearningDispositionValues.Trusted);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Insert_assigns_id_and_utc_when_defaults()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -80,7 +80,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         list[0].TriageStatus.Should().Be(ProductLearningTriageStatusValues.Open);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Insert_without_subject_throws()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -99,7 +99,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRunFeedbackAggregatesAsync_groups_by_pattern_key_and_counts_dispositions()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -131,7 +131,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         agg[0].RejectedCount.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListTopRejectedRevisedArtifactRollupsAsync_prefers_high_reject_plus_revised()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -164,7 +164,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         score0.Should().BeGreaterThan(score1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListRepeatedCommentThemesAsync_groups_trimmed_prefix_deterministically()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
@@ -194,7 +194,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
         themes[0].ThemeKey.Length.Should().Be(ProductLearningSignalAggregations.CommentThemePrefixLength);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListImprovementOpportunityCandidatesAsync_respects_poor_outcome_threshold()
     {
         InMemoryProductLearningPilotSignalRepository repo = new();

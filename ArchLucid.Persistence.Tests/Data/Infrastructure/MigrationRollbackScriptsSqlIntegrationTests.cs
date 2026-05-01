@@ -13,10 +13,10 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "SqlServerContainer")]
 public sealed class MigrationRollbackScriptsSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task R124_FindingRecords_FilterIndexes_drops_expected_indexes_after_forward_migration()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidRb124_" + suffix;
@@ -73,10 +73,10 @@ public sealed class MigrationRollbackScriptsSqlIntegrationTests(SqlServerPersist
         Convert.ToInt32(await category.ExecuteScalarAsync(CancellationToken.None), System.Globalization.CultureInfo.InvariantCulture).Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task R128_Runs_RetrySupport_removes_columns_after_forward_migration()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidRb128_" + suffix;

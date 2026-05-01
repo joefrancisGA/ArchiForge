@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Serialization;
@@ -23,7 +23,7 @@ public sealed class GraphJsonConverterTests
         return o;
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphNodeJsonConverter_Read_uses_alternate_property_names()
     {
         const string json = """{"id":"n1","type":"svc","name":"API","category":"c","sourceType":"st","sourceId":"sid","properties":{"k":"v"}}""";
@@ -39,7 +39,7 @@ public sealed class GraphJsonConverterTests
         node.Properties.Should().ContainKey("k").WhoseValue.Should().Be("v");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphNodeJsonConverter_Read_non_object_throws()
     {
         Action act = () => JsonSerializer.Deserialize<GraphNode>("[]", NodeOptions());
@@ -47,7 +47,7 @@ public sealed class GraphJsonConverterTests
         act.Should().Throw<JsonException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphNodeJsonConverter_Read_missing_properties_yields_empty_dictionary()
     {
         const string json = """{"nodeId":"n1","nodeType":"t","label":"l"}""";
@@ -57,7 +57,7 @@ public sealed class GraphJsonConverterTests
         node.Properties.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphNodeJsonConverter_Read_invalid_properties_object_yields_empty_dictionary_after_deserialize_failure()
     {
         const string json = """{"nodeId":"n1","nodeType":"t","label":"l","properties":{"bad":123}}""";
@@ -67,7 +67,7 @@ public sealed class GraphJsonConverterTests
         node.Properties.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphNodeJsonConverter_Write_round_trips_null_optional_fields()
     {
         GraphNode original = new()
@@ -87,7 +87,7 @@ public sealed class GraphJsonConverterTests
         back.Should().BeEquivalentTo(original);
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphEdgeJsonConverter_Read_uses_alternate_property_names()
     {
         const string json =
@@ -103,7 +103,7 @@ public sealed class GraphJsonConverterTests
         edge.Properties["p"].Should().Be("q");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphEdgeJsonConverter_Read_source_target_aliases_resolve()
     {
         const string json = """{"edgeId":"e","source":"s","target":"t","relation":"r"}""";
@@ -115,7 +115,7 @@ public sealed class GraphJsonConverterTests
         edge.EdgeType.Should().Be("r");
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphEdgeJsonConverter_Read_non_object_throws()
     {
         Action act = () => JsonSerializer.Deserialize<GraphEdge>("true", EdgeOptions());
@@ -123,7 +123,7 @@ public sealed class GraphJsonConverterTests
         act.Should().Throw<JsonException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void GraphEdgeJsonConverter_Write_null_label_emits_null_json()
     {
         GraphEdge edge = new()

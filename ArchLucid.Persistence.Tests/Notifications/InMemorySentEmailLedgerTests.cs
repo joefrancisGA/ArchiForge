@@ -1,11 +1,11 @@
-using ArchLucid.Core.Notifications;
+﻿using ArchLucid.Core.Notifications;
 using ArchLucid.Persistence.Notifications;
 
 namespace ArchLucid.Persistence.Tests.Notifications;
 
 public sealed class InMemorySentEmailLedgerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryRecordSentAsync_false_when_key_blank()
     {
         InMemorySentEmailLedger sut = new();
@@ -16,7 +16,7 @@ public sealed class InMemorySentEmailLedgerTests
         ok.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryRecordSentAsync_true_then_false_duplicate()
     {
         InMemorySentEmailLedger sut = new();
@@ -29,7 +29,7 @@ public sealed class InMemorySentEmailLedgerTests
         second.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryRecordSentAsync_trims_key()
     {
         InMemorySentEmailLedger sut = new();

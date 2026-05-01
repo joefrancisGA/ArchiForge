@@ -44,7 +44,7 @@ public abstract class ConversationThreadRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetById_returns_same_thread()
     {
         SkipIfSqlServerUnavailable();
@@ -61,7 +61,7 @@ public abstract class ConversationThreadRepositoryContractTests
         loaded.TenantId.Should().Be(TenantId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_nonexistent_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -72,7 +72,7 @@ public abstract class ConversationThreadRepositoryContractTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_returns_only_matching_scope()
     {
         SkipIfSqlServerUnavailable();
@@ -94,7 +94,7 @@ public abstract class ConversationThreadRepositoryContractTests
         list.Should().NotContain(t => t.ThreadId == otherProject.ThreadId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_orders_by_LastUpdatedUtc_descending()
     {
         SkipIfSqlServerUnavailable();
@@ -119,7 +119,7 @@ public abstract class ConversationThreadRepositoryContractTests
         i1.Should().BeGreaterThan(i2);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScopePaged_respects_skip_and_total()
     {
         SkipIfSqlServerUnavailable();
@@ -142,7 +142,7 @@ public abstract class ConversationThreadRepositoryContractTests
         page.Should().HaveCount(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateLastUpdatedAsync_changes_GetById()
     {
         SkipIfSqlServerUnavailable();
@@ -159,10 +159,10 @@ public abstract class ConversationThreadRepositoryContractTests
         loaded.LastUpdatedUtc.Should().BeCloseTo(updated, TimeSpan.FromSeconds(2));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ArchiveThreadsLastUpdatedBefore_excludes_from_get()
     {
-        Assert.SkipUnless(
+        Skip.IfNot(
             IncludeArchiveContractTest,
             "Shared SQL: ArchiveThreadsLastUpdatedBeforeAsync is global to conversation threads.");
 

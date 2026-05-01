@@ -9,7 +9,7 @@ public sealed class DapperGovernanceEnvironmentActivationRepositoryContractTests
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IGovernanceEnvironmentActivationRepository CreateRepository()

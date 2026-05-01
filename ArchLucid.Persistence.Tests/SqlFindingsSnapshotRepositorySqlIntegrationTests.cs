@@ -23,10 +23,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips_relational_rows_and_payload_sidecar()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -99,10 +99,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         f.Trace.Notes.Should().Equal("note1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_no_FindingRecords_falls_back_to_FindingsJson()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -205,10 +205,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         lf.Trace.Notes.Should().Equal("trace-note");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_json_fallback_preserves_multi_finding_ordering()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -394,10 +394,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         c.Trace.Notes.Should().Equal("n3a", "n3b");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_json_fallback_deserializes_mixed_payload_types()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -545,10 +545,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         cost.MaxMonthlyCost.Should().Be(12_500.50m);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_no_FindingRecords_and_FindingsJson_is_null_returns_empty_findings()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -602,10 +602,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         loaded.SchemaVersion.Should().Be(schemaVersion);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_no_FindingRecords_and_FindingsJson_is_empty_string_returns_empty_findings()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -659,10 +659,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         loaded.SchemaVersion.Should().Be(schemaVersion);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_no_FindingRecords_and_FindingsJson_has_empty_array_returns_empty_findings()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -730,10 +730,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         loaded.SchemaVersion.Should().Be(FindingsSchema.CurrentSnapshotVersion);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SaveAsync_with_explicit_transaction_commits_relational_rows()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

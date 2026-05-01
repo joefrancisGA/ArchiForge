@@ -21,6 +21,7 @@
     <PackageReference Include="Polly" />
     <PackageReference Include="Polly.Extensions" />
     <PackageReference Include="xunit" />
+    <PackageReference Include="Xunit.SkippableFact" />
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 

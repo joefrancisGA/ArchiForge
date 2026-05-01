@@ -1,11 +1,11 @@
-using ArchLucid.Persistence.Utilities;
+﻿using ArchLucid.Persistence.Utilities;
 
 namespace ArchLucid.Persistence.Tests.Utilities;
 
 [Trait("Category", "Unit")]
 public sealed class DapperRowExpectTests
 {
-    [Fact]
+    [SkippableFact]
     public void Required_returns_row_when_not_null()
     {
         object row = new();
@@ -15,7 +15,7 @@ public sealed class DapperRowExpectTests
         actual.Should().BeSameAs(row);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Required_throws_with_message_when_null()
     {
         Action act = () => DapperRowExpect.Required<object>(null, "expected row");

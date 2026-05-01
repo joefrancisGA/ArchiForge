@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 using Moq;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class LocalFileArtifactBlobStoreTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Write_then_Read_round_trips_utf8_content()
     {
         string root = Path.Combine(Path.GetTempPath(), "archlucid-blob-test-" + Guid.NewGuid().ToString("N"));
@@ -40,7 +40,7 @@ public sealed class LocalFileArtifactBlobStoreTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReadAsync_when_scope_tenant_mismatch_throws()
     {
         string root = Path.Combine(Path.GetTempPath(),

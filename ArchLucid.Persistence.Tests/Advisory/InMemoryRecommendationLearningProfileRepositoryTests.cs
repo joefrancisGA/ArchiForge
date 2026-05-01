@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Learning;
+﻿using ArchLucid.Decisioning.Advisory.Learning;
 
 namespace ArchLucid.Persistence.Tests.Advisory;
 
@@ -14,7 +14,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
 
     private static readonly DateTime SampleUtc = new(2026, 4, 4, 0, 0, 0, DateTimeKind.Utc);
 
-    [Fact]
+    [SkippableFact]
     public async Task GetLatestAsync_returns_null_when_empty()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
@@ -25,7 +25,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
         latest.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SaveAsync_then_GetLatestAsync_returns_that_profile()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
@@ -41,7 +41,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
         latest.GeneratedUtc.Should().Be(generated);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetLatestAsync_returns_most_recent_GeneratedUtc_for_scope()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
@@ -59,7 +59,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
         latest.GeneratedUtc.Should().Be(new DateTime(2026, 4, 4, 15, 0, 0, DateTimeKind.Utc));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetLatestAsync_ignores_other_scopes()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
@@ -78,7 +78,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
         latest.GeneratedUtc.Should().Be(new DateTime(2026, 4, 4, 20, 0, 0, DateTimeKind.Utc));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SaveAsync_trims_oldest_inserted_row_when_exceeding_500()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
@@ -102,7 +102,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
         latest.GeneratedUtc.Should().NotBe(sentinel);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SaveAsync_throws_when_cancellation_requested_before_lock()
     {
         InMemoryRecommendationLearningProfileRepository repo = new();

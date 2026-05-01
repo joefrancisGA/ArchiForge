@@ -1,10 +1,10 @@
-using ArchLucid.Persistence.Billing;
+﻿using ArchLucid.Persistence.Billing;
 
 namespace ArchLucid.Persistence.Tests.Billing;
 
 public sealed class InMemoryBillingLedgerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TenantHasActiveSubscriptionAsync_false_when_empty()
     {
         InMemoryBillingLedger sut = new();
@@ -14,7 +14,7 @@ public sealed class InMemoryBillingLedgerTests
         active.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TenantHasActiveSubscriptionAsync_true_when_active_row()
     {
         InMemoryBillingLedger sut = new();
@@ -37,7 +37,7 @@ public sealed class InMemoryBillingLedgerTests
         active.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task UpsertPendingCheckoutAsync_then_TenantHasActiveSubscriptionAsync_false_until_activated()
     {
         InMemoryBillingLedger sut = new();
@@ -57,7 +57,7 @@ public sealed class InMemoryBillingLedgerTests
         (await sut.TenantHasActiveSubscriptionAsync(tenantId, CancellationToken.None)).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Webhook_dedupe_and_status_round_trip()
     {
         InMemoryBillingLedger sut = new();
@@ -76,7 +76,7 @@ public sealed class InMemoryBillingLedgerTests
         status.Should().Be("ok");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetWebhookEventResultStatusAsync_unknown_returns_null()
     {
         InMemoryBillingLedger sut = new();
@@ -86,7 +86,7 @@ public sealed class InMemoryBillingLedgerTests
         status.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SuspendSubscriptionAsync_then_TenantHasActiveSubscriptionAsync_false()
     {
         InMemoryBillingLedger sut = new();
@@ -109,7 +109,7 @@ public sealed class InMemoryBillingLedgerTests
         (await sut.TenantHasActiveSubscriptionAsync(tenantId, CancellationToken.None)).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ReinstateSubscriptionAsync_after_suspend_restores_active()
     {
         InMemoryBillingLedger sut = new();
@@ -133,7 +133,7 @@ public sealed class InMemoryBillingLedgerTests
         (await sut.TenantHasActiveSubscriptionAsync(tenantId, CancellationToken.None)).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CancelSubscriptionAsync_marks_canceled()
     {
         InMemoryBillingLedger sut = new();
@@ -156,7 +156,7 @@ public sealed class InMemoryBillingLedgerTests
         (await sut.TenantHasActiveSubscriptionAsync(tenantId, CancellationToken.None)).Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ChangePlanAsync_and_ChangeQuantityAsync_mutate_row_when_present()
     {
         InMemoryBillingLedger sut = new();

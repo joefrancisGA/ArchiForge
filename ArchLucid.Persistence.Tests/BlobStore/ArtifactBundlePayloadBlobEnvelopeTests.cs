@@ -1,10 +1,10 @@
-using ArchLucid.Persistence.ArtifactBundles;
+﻿using ArchLucid.Persistence.ArtifactBundles;
 
 namespace ArchLucid.Persistence.Tests.BlobStore;
 
 public sealed class ArtifactBundlePayloadBlobEnvelopeTests
 {
-    [Fact]
+    [SkippableFact]
     public void SumUtf16Length_adds_lengths()
     {
         int n = ArtifactBundlePayloadBlobEnvelope.SumUtf16Length("ab", "cde");
@@ -12,7 +12,7 @@ public sealed class ArtifactBundlePayloadBlobEnvelopeTests
         n.Should().Be(5);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ToJson_round_trips_via_TryDeserialize()
     {
         ArtifactBundlePayloadBlobEnvelope original =
@@ -27,20 +27,20 @@ public sealed class ArtifactBundlePayloadBlobEnvelopeTests
         back.SchemaVersion.Should().Be(ArtifactBundlePayloadBlobEnvelope.CurrentSchemaVersion);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryDeserialize_null_or_whitespace_returns_null()
     {
         ArtifactBundlePayloadBlobEnvelope.TryDeserialize(string.Empty).Should().BeNull();
         ArtifactBundlePayloadBlobEnvelope.TryDeserialize("   ").Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryDeserialize_invalid_json_returns_null()
     {
         ArtifactBundlePayloadBlobEnvelope.TryDeserialize("{").Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void MergeIntoRow_copies_json_fields()
     {
         Guid runId = Guid.NewGuid();

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
@@ -15,7 +15,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ProcessPendingBatchAsync_starts_activity_with_correlation_tags()
     {
         List<Activity> stopped = [];

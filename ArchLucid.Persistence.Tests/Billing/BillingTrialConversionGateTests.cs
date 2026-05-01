@@ -1,4 +1,4 @@
-using ArchLucid.Core.Billing;
+﻿using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing;
 
@@ -10,7 +10,7 @@ namespace ArchLucid.Persistence.Tests.Billing;
 
 public sealed class BillingTrialConversionGateTests
 {
-    [Fact]
+    [SkippableFact]
     public void Ctor_null_options_throws()
     {
         InMemoryBillingLedger ledger = new();
@@ -20,7 +20,7 @@ public sealed class BillingTrialConversionGateTests
         act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("options");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Ctor_null_ledger_throws()
     {
         Mock<IOptionsMonitor<BillingOptions>> opt = new();
@@ -30,7 +30,7 @@ public sealed class BillingTrialConversionGateTests
         act.Should().Throw<ArgumentNullException>().Which.ParamName.Should().Be("ledger");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EnsureManualConversionAllowedAsync_noop_provider_does_not_throw()
     {
         Mock<IOptionsMonitor<BillingOptions>> opt = new();
@@ -43,7 +43,7 @@ public sealed class BillingTrialConversionGateTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EnsureManualConversionAllowedAsync_whitespace_provider_does_not_throw()
     {
         Mock<IOptionsMonitor<BillingOptions>> opt = new();
@@ -56,7 +56,7 @@ public sealed class BillingTrialConversionGateTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EnsureManualConversionAllowedAsync_paid_provider_with_active_subscription_does_not_throw()
     {
         Mock<IOptionsMonitor<BillingOptions>> opt = new();
@@ -82,7 +82,7 @@ public sealed class BillingTrialConversionGateTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EnsureManualConversionAllowedAsync_paid_provider_without_subscription_throws()
     {
         Mock<IOptionsMonitor<BillingOptions>> opt = new();

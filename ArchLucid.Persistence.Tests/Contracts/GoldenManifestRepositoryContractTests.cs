@@ -56,7 +56,7 @@ public abstract class GoldenManifestRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips_core_fields()
     {
         SkipIfSqlServerUnavailable();
@@ -95,7 +95,7 @@ public abstract class GoldenManifestRepositoryContractTests
         loaded.Assumptions.Should().Equal("a1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_wrong_scope_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -137,7 +137,7 @@ public abstract class GoldenManifestRepositoryContractTests
         loaded.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByContractManifestVersionAsync_matches_metadata_version_in_scope()
     {
         SkipIfSqlServerUnavailable();

@@ -83,7 +83,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
     [InlineData(14)]
     public async Task HydrateAsync_branch_matrix_json_and_relational_slices(int branch)
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

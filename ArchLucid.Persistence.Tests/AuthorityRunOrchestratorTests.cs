@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
@@ -30,7 +30,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class AuthorityRunOrchestratorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_sync_mode_commits_and_enqueues_retrieval()
     {
         ScopeContext scope = new()
@@ -224,7 +224,7 @@ public sealed class AuthorityRunOrchestratorTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_with_transactional_integration_outbox_enqueues_sql_and_skips_immediate_publish()
     {
         ScopeContext scope = new()
@@ -397,7 +397,7 @@ public sealed class AuthorityRunOrchestratorTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_queue_mode_enqueues_work_and_commits_without_running_stages()
     {
         ScopeContext scope = new()
@@ -520,7 +520,7 @@ public sealed class AuthorityRunOrchestratorTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CompleteQueuedAuthorityPipelineAsync_emits_run_started_with_resumed_from_queue()
     {
         Guid runIdGuid = Guid.NewGuid();
@@ -691,7 +691,7 @@ public sealed class AuthorityRunOrchestratorTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_when_pipeline_throws_rolls_back_without_commit()
     {
         ScopeContext scope = new()
@@ -809,7 +809,7 @@ public sealed class AuthorityRunOrchestratorTests
             .Returns(Task.CompletedTask);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteAsync_when_pipeline_exceeds_timeout_rolls_back_and_emits_counter()
     {
         ScopeContext scope = new()

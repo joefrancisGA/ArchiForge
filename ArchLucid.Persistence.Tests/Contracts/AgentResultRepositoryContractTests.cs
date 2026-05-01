@@ -26,7 +26,7 @@ public abstract class AgentResultRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetByRunId_returns_result()
     {
         SkipIfSqlServerUnavailable();
@@ -48,7 +48,7 @@ public abstract class AgentResultRepositoryContractTests
         loaded[0].ResultId.Should().Be("r1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateMany_replaces_prior_results_for_same_run()
     {
         SkipIfSqlServerUnavailable();

@@ -37,7 +37,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetByRunId_returns_snapshot()
     {
         SkipIfSqlServerUnavailable();
@@ -57,7 +57,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         loaded.TenantId.Should().Be(TenantId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByRunId_wrong_scope_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -79,7 +79,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         loaded.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Save_twice_same_run_latest_wins_on_read()
     {
         SkipIfSqlServerUnavailable();

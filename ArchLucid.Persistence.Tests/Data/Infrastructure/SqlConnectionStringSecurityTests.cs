@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "Unit")]
 public sealed class SqlConnectionStringSecurityTests
 {
-    [Fact]
+    [SkippableFact]
     public void EnsureSqlClientEncryptMandatory_TrimsAndSetsEncryptMandatory()
     {
         string input = " Server=localhost; Database=Db; Integrated Security=true; TrustServerCertificate=true; ";
@@ -19,7 +19,7 @@ public sealed class SqlConnectionStringSecurityTests
         b.DataSource.Should().Be("localhost");
     }
 
-    [Fact]
+    [SkippableFact]
     public void EnsureSqlClientEncryptMandatory_Throws_WhenNullOrWhiteSpace()
     {
         Action actNull = () => SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(null!);

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
@@ -12,7 +12,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "Unit")]
 public sealed class FindingPayloadJsonCodecTests
 {
-    [Fact]
+    [SkippableFact]
     public void SerializeDeserialize_round_trips_registered_payload_type()
     {
         RequirementFindingPayload original = new()
@@ -31,20 +31,20 @@ public sealed class FindingPayloadJsonCodecTests
         typed.IsMandatory.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void SerializePayload_null_yields_null()
     {
         FindingPayloadJsonCodec.SerializePayload(null).Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void DeserializePayload_null_or_whitespace_yields_null()
     {
         FindingPayloadJsonCodec.DeserializePayload(null, "x").Should().BeNull();
         FindingPayloadJsonCodec.DeserializePayload("   ", "x").Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void HydrateJsonElementPayloads_replaces_JsonElement_with_typed_payload()
     {
         using JsonDocument doc = JsonDocument.Parse(
@@ -61,7 +61,7 @@ public sealed class FindingPayloadJsonCodecTests
         typed.IsMandatory.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void HydrateJsonElementPayloads_leaves_non_JsonElement_unchanged()
     {
         RequirementFindingPayload original = new() { RequirementName = "n" };
@@ -72,7 +72,7 @@ public sealed class FindingPayloadJsonCodecTests
         finding.Payload.Should().BeSameAs(original);
     }
 
-    [Fact]
+    [SkippableFact]
     public void HydrateJsonElementPayloads_null_findings_throws()
     {
         Action act = () => FindingPayloadJsonCodec.HydrateJsonElementPayloads(null!);

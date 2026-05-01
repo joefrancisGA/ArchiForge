@@ -23,10 +23,10 @@ public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServ
     private static readonly Guid ProjectP = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
     private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
 
-    [Fact]
+    [SkippableFact]
     public async Task SessionContext_factory_path_filters_runs_per_tenant_scope()
     {
-        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection admin = new(fixture.ConnectionString);
         await admin.OpenAsync();

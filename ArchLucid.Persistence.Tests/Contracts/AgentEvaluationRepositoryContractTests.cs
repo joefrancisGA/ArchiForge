@@ -24,7 +24,7 @@ public abstract class AgentEvaluationRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateMany_replaces_prior_batch_for_same_run()
     {
         SkipIfSqlServerUnavailable();
@@ -53,7 +53,7 @@ public abstract class AgentEvaluationRepositoryContractTests
         loaded[0].EvaluationType.Should().Be(EvaluationTypes.Oppose);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateMany_then_GetByRunId_orders_by_CreatedUtc()
     {
         SkipIfSqlServerUnavailable();

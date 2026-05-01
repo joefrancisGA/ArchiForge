@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
@@ -16,7 +16,7 @@ namespace ArchLucid.Persistence.Tests.Billing;
 [Trait("Category", "Unit")]
 public sealed class StripeBillingProviderWebhookTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task HandleWebhookAsync_without_signature_rejected()
     {
         BillingOptions billing = new()

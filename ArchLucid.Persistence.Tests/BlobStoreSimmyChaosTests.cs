@@ -1,4 +1,4 @@
-using Polly;
+﻿using Polly;
 using Polly.Retry;
 using Polly.Simmy;
 using Polly.Simmy.Fault;
@@ -13,7 +13,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class BlobStoreSimmyChaosTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Chaos_io_faults_on_writes_retry_then_persist()
     {
         MemoryBlobStore inner = new();

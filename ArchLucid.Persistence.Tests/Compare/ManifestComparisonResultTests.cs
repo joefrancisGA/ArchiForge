@@ -1,8 +1,8 @@
-namespace ArchLucid.Persistence.Tests.Compare;
+﻿namespace ArchLucid.Persistence.Tests.Compare;
 
 public sealed class ManifestComparisonResultTests
 {
-    [Fact]
+    [SkippableFact]
     public void Diff_kind_counts_reflect_Diffs_collection()
     {
         ManifestComparisonResult result = new()

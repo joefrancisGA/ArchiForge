@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using Microsoft.Extensions.Configuration;
 
@@ -11,7 +11,7 @@ public sealed class RlsBreakGlassTests
 
     private static readonly Lock SEnvGate = new();
 
-    [Fact]
+    [SkippableFact]
     public void IsEnabled_ReturnsFalse_WhenConfigFalse_EvenIfEnvTrue()
     {
         lock (SEnvGate)
@@ -35,7 +35,7 @@ public sealed class RlsBreakGlassTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsEnabled_ReturnsTrue_WhenEnvAndConfigTrue()
     {
         lock (SEnvGate)
@@ -59,7 +59,7 @@ public sealed class RlsBreakGlassTests
         }
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsEnabled_Throws_WhenConfigurationNull()
     {
         Action act = () => RlsBreakGlass.IsEnabled(null!);
