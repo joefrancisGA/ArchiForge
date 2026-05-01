@@ -1,6 +1,7 @@
 using ArchLucid.Application.DataConsistency;
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Integration;
+using ArchLucid.Persistence;
 
 using FluentAssertions;
 
@@ -23,8 +24,15 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
             .Setup(p => p.PublishAsync(
                 IntegrationEventTypes.DataConsistencyCheckCompletedV1,
                 It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyDictionary<string, object>>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
+        integrationEventsOptions
+            .Setup(m => m.CurrentValue)
+            .Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
 
         Mock<ILeaderElectionWorkRunner> runner = new();
         runner
@@ -40,6 +48,8 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
         ServiceCollection sc = new();
         sc.AddSingleton<DataConsistencyReconciliationHealthState>();
         sc.AddScoped<IDataConsistencyReconciliationService>(_ => new StubReconciliationService(expected));
+        sc.AddScoped(_ => Mock.Of<IIntegrationEventOutboxRepository>());
+        sc.AddSingleton(publisher.Object);
         await using ServiceProvider sp = sc.BuildServiceProvider(true);
 
         IOptionsMonitor<DataConsistencyReconciliationOptions> opts =
@@ -57,12 +67,14 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
             runner.Object,
             sp.GetRequiredService<DataConsistencyReconciliationHealthState>(),
             publisher.Object,
+            integrationEventsOptions.Object,
             NullLogger<DataConsistencyReconciliationHostedService>.Instance);
 
         using CancellationTokenSource cts = new(TimeSpan.FromSeconds(2));
 
         await sut.StartAsync(cts.Token);
-        await Task.Delay(300);
+
+        await Task.Delay(750, CancellationToken.None);
 
         DataConsistencyReconciliationHealthState health = sp.GetRequiredService<DataConsistencyReconciliationHealthState>();
         health.TrySnapshot(out bool hasRun, out DataConsistencyReport? report, out string? error);
@@ -75,6 +87,8 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
             p => p.PublishAsync(
                 IntegrationEventTypes.DataConsistencyCheckCompletedV1,
                 It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyDictionary<string, object>>(),
                 It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
 
@@ -85,6 +99,9 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
     public async Task Loop_records_failure_when_reconciliation_throws()
     {
         Mock<IIntegrationEventPublisher> publisher = new();
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
+        integrationEventsOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
+
         Mock<ILeaderElectionWorkRunner> runner = new();
         runner
             .Setup(r => r.RunLeaderWorkAsync(It.IsAny<string>(), It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
@@ -94,6 +111,8 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
         ServiceCollection sc = new();
         sc.AddSingleton<DataConsistencyReconciliationHealthState>();
         sc.AddScoped<IDataConsistencyReconciliationService>(_ => new ThrowingReconciliationService());
+        sc.AddScoped(_ => Mock.Of<IIntegrationEventOutboxRepository>());
+        sc.AddSingleton(publisher.Object);
         await using ServiceProvider sp = sc.BuildServiceProvider(true);
 
         IOptionsMonitor<DataConsistencyReconciliationOptions> opts =
@@ -111,12 +130,14 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
             runner.Object,
             sp.GetRequiredService<DataConsistencyReconciliationHealthState>(),
             publisher.Object,
+            integrationEventsOptions.Object,
             NullLogger<DataConsistencyReconciliationHostedService>.Instance);
 
         using CancellationTokenSource cts = new(TimeSpan.FromSeconds(2));
 
         await sut.StartAsync(cts.Token);
-        await Task.Delay(300);
+
+        await Task.Delay(750, CancellationToken.None);
 
         DataConsistencyReconciliationHealthState health = sp.GetRequiredService<DataConsistencyReconciliationHealthState>();
         health.TrySnapshot(out _, out DataConsistencyReport? report, out string? error);

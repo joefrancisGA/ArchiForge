@@ -19,7 +19,7 @@ function formatCostEstimateCell(value: unknown): string {
 
   if (s.length === 0) return "?";
 
-  if (/^[$?£]/.test(s)) {
+  if (/^[\$\u00a3\u20ac]/.test(s)) {
     return `${s}/mo ? projected monthly run rate (from manifest pipeline cost model)`;
   }
 
@@ -89,7 +89,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
           <strong>Updated review:</strong> {compareRunHeadingLabel(golden.targetRunId)}
         </span>
         <span className="text-neutral-500 dark:text-neutral-400">
-          · <strong>Total changes:</strong> {total}
+          Â· <strong>Total changes:</strong> {total}
         </span>
       </div>
       {golden.summaryHighlights.length > 0 ? (

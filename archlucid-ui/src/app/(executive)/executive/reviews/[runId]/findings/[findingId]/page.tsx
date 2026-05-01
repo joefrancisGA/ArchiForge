@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { FindingInspectFindingBody } from "@/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectFindingBody";
+import { FindingInspectFindingBody } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectFindingBody";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getFindingInspect } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -9,7 +9,7 @@ import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { findingDetailHeadingTitle } from "@/lib/finding-display-from-inspect";
 import { tryStaticDemoFindingInspect } from "@/lib/operator-static-demo";
 import { isInvalidDynamicRouteToken, isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
-import { sameAuthorityRunId } from "@/app/(operator)/runs/[runId]/findings/[findingId]/FindingInspectView";
+import { sameAuthorityRunId } from "@/app/(operator)/reviews/[runId]/findings/[findingId]/FindingInspectView";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 function normalizeInspectPayload(payload: FindingInspectPayload): FindingInspectPayload {

@@ -1,7 +1,6 @@
-using System.Text.Json;
-
 using ArchLucid.Core.Hosting;
 using ArchLucid.Core.Integration;
+using ArchLucid.Persistence;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,15 +16,14 @@ public sealed class DataConsistencyReconciliationHostedService(
     ILeaderElectionWorkRunner electionWorkRunner,
     DataConsistencyReconciliationHealthState healthState,
     IIntegrationEventPublisher integrationEventPublisher,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<DataConsistencyReconciliationHostedService> logger) : BackgroundService
 {
     /// <summary>Must stay aligned with Host leader lease name <c>hosted:data-consistency-reconciliation</c>.</summary>
     private const string LeaderLeaseName = "hosted:data-consistency-reconciliation";
 
-    private static readonly JsonSerializerOptions PublishJsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    /// <summary>Sentinel tenancy for platform-scope reconciliation events (no single tenant/workspace).</summary>
+    private static readonly Guid PlatformScopeSentinelTenantId = Guid.Empty;
 
     private readonly IServiceScopeFactory _scopeFactory =
         scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
@@ -41,6 +39,9 @@ public sealed class DataConsistencyReconciliationHostedService(
 
     private readonly IIntegrationEventPublisher _integrationEventPublisher =
         integrationEventPublisher ?? throw new ArgumentNullException(nameof(integrationEventPublisher));
+
+    private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions =
+        integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
 
     private readonly ILogger<DataConsistencyReconciliationHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -126,10 +127,26 @@ public sealed class DataConsistencyReconciliationHostedService(
                     .ToArray()
             };
 
-            byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(payload, PublishJsonOptions);
+            string messageId = $"data-consistency-check:{report.CheckedAtUtc:o}";
 
-            await _integrationEventPublisher
-                .PublishAsync(IntegrationEventTypes.DataConsistencyCheckCompletedV1, utf8, ct)
+            using IServiceScope scope = _scopeFactory.CreateScope();
+            IIntegrationEventOutboxRepository outbox = scope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
+
+            await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+                    outbox,
+                    _integrationEventPublisher,
+                    _integrationEventsOptions.CurrentValue,
+                    _logger,
+                    IntegrationEventTypes.DataConsistencyCheckCompletedV1,
+                    payload,
+                    messageId,
+                    runId: null,
+                    PlatformScopeSentinelTenantId,
+                    PlatformScopeSentinelTenantId,
+                    PlatformScopeSentinelTenantId,
+                    connection: null,
+                    transaction: null,
+                    ct)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException)

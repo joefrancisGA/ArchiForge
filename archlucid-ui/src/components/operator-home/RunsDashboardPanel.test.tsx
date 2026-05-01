@@ -62,7 +62,7 @@ describe("RunsDashboardPanel", () => {
 
     render(<RunsDashboardPanel />);
 
-    expect(screen.getByRole("heading", { name: /^runs$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^architecture reviews$/i })).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("runs-dashboard-panel")).toBeInTheDocument();
     });

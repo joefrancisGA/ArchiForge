@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Component, type ErrorInfo, type ReactNode } from "react";
 
-import { RunsListClient, type RunsListClientProps } from "@/app/(operator)/runs/RunsListClient";
+import { RunsListClient, type RunsListClientProps } from "@/app/(operator)/reviews/RunsListClient";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { Button } from "@/components/ui/button";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
