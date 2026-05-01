@@ -19,6 +19,7 @@ public sealed class InMemoryScimUserRepositoryTests
             "Alice",
             true,
             "Admin",
+            ScimResolvedRoleOrigin.ScimGroups,
             CancellationToken.None);
 
         ScimUserRecord? byId = await sut.GetByIdAsync(tenantId, inserted.Id, CancellationToken.None);
@@ -41,6 +42,7 @@ public sealed class InMemoryScimUserRepositoryTests
             null,
             true,
             null,
+            ScimResolvedRoleOrigin.Unknown,
             CancellationToken.None);
 
         ScimUserRecord? row = await sut.GetByIdAsync(Guid.NewGuid(), inserted.Id, CancellationToken.None);
@@ -60,6 +62,7 @@ public sealed class InMemoryScimUserRepositoryTests
             null,
             true,
             "Admin",
+            ScimResolvedRoleOrigin.Manual,
             CancellationToken.None);
 
         await sut.ReplaceAsync(
@@ -70,6 +73,7 @@ public sealed class InMemoryScimUserRepositoryTests
             "D",
             false,
             "Reader",
+            ScimResolvedRoleOrigin.ScimGroups,
             CancellationToken.None);
 
         ScimUserRecord? row = await sut.GetByIdAsync(tenantId, inserted.Id, CancellationToken.None);
@@ -93,9 +97,19 @@ public sealed class InMemoryScimUserRepositoryTests
             null,
             true,
             null,
+            ScimResolvedRoleOrigin.Unknown,
             CancellationToken.None);
 
-        await sut.ReplaceAsync(Guid.NewGuid(), inserted.Id, "x", "y", null, true, null, CancellationToken.None);
+        await sut.ReplaceAsync(
+            Guid.NewGuid(),
+            inserted.Id,
+            "x",
+            "y",
+            null,
+            true,
+            null,
+            ScimResolvedRoleOrigin.Unknown,
+            CancellationToken.None);
 
         ScimUserRecord? row = await sut.GetByIdAsync(tenantId, inserted.Id, CancellationToken.None);
 
@@ -114,9 +128,19 @@ public sealed class InMemoryScimUserRepositoryTests
             "Old",
             true,
             "Admin",
+            ScimResolvedRoleOrigin.ScimGroups,
             CancellationToken.None);
 
-        await sut.PatchAsync(tenantId, inserted.Id, null, "newname", null, null, null, CancellationToken.None);
+        await sut.PatchAsync(
+            tenantId,
+            inserted.Id,
+            null,
+            "newname",
+            null,
+            null,
+            null,
+            inserted.ResolvedRoleOrigin,
+            CancellationToken.None);
 
         ScimUserRecord? row = await sut.GetByIdAsync(tenantId, inserted.Id, CancellationToken.None);
 
@@ -137,9 +161,19 @@ public sealed class InMemoryScimUserRepositoryTests
             null,
             true,
             null,
+            ScimResolvedRoleOrigin.Unknown,
             CancellationToken.None);
 
-        await sut.PatchAsync(Guid.NewGuid(), inserted.Id, null, "x", null, null, null, CancellationToken.None);
+        await sut.PatchAsync(
+            Guid.NewGuid(),
+            inserted.Id,
+            null,
+            "x",
+            null,
+            null,
+            null,
+            inserted.ResolvedRoleOrigin,
+            CancellationToken.None);
 
         ScimUserRecord? row = await sut.GetByIdAsync(tenantId, inserted.Id, CancellationToken.None);
 
@@ -158,6 +192,7 @@ public sealed class InMemoryScimUserRepositoryTests
             null,
             true,
             null,
+            ScimResolvedRoleOrigin.Unknown,
             CancellationToken.None);
 
         await sut.DeactivateAsync(tenantId, inserted.Id, CancellationToken.None);
@@ -172,8 +207,8 @@ public sealed class InMemoryScimUserRepositoryTests
     {
         InMemoryScimUserRepository sut = new();
         Guid tenantId = Guid.NewGuid();
-        await sut.InsertAsync(tenantId, "a", "user1", null, true, null, CancellationToken.None);
-        await sut.InsertAsync(tenantId, "b", "user2", null, false, null, CancellationToken.None);
+        await sut.InsertAsync(tenantId, "a", "user1", null, true, null, ScimResolvedRoleOrigin.Unknown, CancellationToken.None);
+        await sut.InsertAsync(tenantId, "b", "user2", null, false, null, ScimResolvedRoleOrigin.Unknown, CancellationToken.None);
 
         ScimFilterNode filter = new ScimComparisonNode("userName", "eq", "user2");
         (IReadOnlyList<ScimUserRecord> items, int total) =

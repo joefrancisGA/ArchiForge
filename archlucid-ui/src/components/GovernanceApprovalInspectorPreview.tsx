@@ -39,7 +39,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Run</dt>
         <dd className="m-0 min-w-0">
           <Link
-            href={`/runs/${encodeURIComponent(request.runId)}`}
+            href={`/reviews/${encodeURIComponent(request.runId)}`}
             className="break-all font-mono text-xs font-medium text-teal-800 underline dark:text-teal-300"
           >
             {request.runId}

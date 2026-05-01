@@ -87,6 +87,28 @@ export function classifyArtifactView(format: string, artifactType: string): Arti
   return "plain";
 }
 
+/**
+ * Maps raw format strings (API values like "markdown", "json") to a short business label
+ * suitable for a sponsor-facing artifact table. Avoids surfacing MIME types or raw identifiers.
+ */
+export function getArtifactFormatLabel(format: string): string {
+  const normalized = format.trim().toLowerCase();
+
+  return (
+    {
+      markdown: "Markdown",
+      md: "Markdown",
+      json: "JSON",
+      mermaid: "Diagram source",
+      mmd: "Diagram source",
+      plain: "Plain text",
+      txt: "Plain text",
+      csv: "CSV",
+      pdf: "PDF",
+    }[normalized] ?? format
+  );
+}
+
 /** Returns a human-readable label for an artifact type (e.g. "Cost summary" for "CostSummary"). */
 export function getArtifactTypeLabel(artifactType: string): string {
   const entry = ARTIFACT_TYPE_COPY[artifactType];

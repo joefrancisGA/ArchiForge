@@ -7,19 +7,19 @@ describe("getBreadcrumbs", () => {
     expect(getBreadcrumbs("/")).toEqual([{ label: "Home" }]);
   });
 
-  it("shortens the new-run path to Home / New request", () => {
-    expect(getBreadcrumbs("/runs/new")).toEqual([
+  it("shortens the new-review path to Home / New request", () => {
+    expect(getBreadcrumbs("/reviews/new")).toEqual([
       { label: "Home", href: "/" },
       { label: "New request" },
     ]);
   });
 
-  it("labels UUID run segments as Run detail", () => {
+  it("labels UUID review segments as Review detail", () => {
     const id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
-    expect(getBreadcrumbs(`/runs/${id}`)).toEqual([
+    expect(getBreadcrumbs(`/reviews/${id}`)).toEqual([
       { label: "Home", href: "/" },
-      { label: "Runs", href: "/runs" },
-      { label: "Run detail" },
+      { label: "Architecture reviews", href: "/reviews" },
+      { label: "Review detail" },
     ]);
   });
 
@@ -54,14 +54,14 @@ describe("getBreadcrumbs", () => {
     ]);
   });
 
-  it("labels E2E demo finding segment under Runs", () => {
+  it("labels E2E demo finding segment under Architecture reviews", () => {
     expect(
-      getBreadcrumbs("/runs/e2e-fixture-run-001/findings/e2e-finding-001"),
+      getBreadcrumbs("/reviews/e2e-fixture-run-001/findings/e2e-finding-001"),
     ).toEqual([
       { label: "Home", href: "/" },
-      { label: "Runs", href: "/runs" },
-      { label: "Claims Intake Modernization", href: "/runs/e2e-fixture-run-001" },
-      { label: "Findings", href: "/runs/e2e-fixture-run-001/findings" },
+      { label: "Architecture reviews", href: "/reviews" },
+      { label: "Claims Intake Modernization", href: "/reviews/e2e-fixture-run-001" },
+      { label: "Findings", href: "/reviews/e2e-fixture-run-001/findings" },
       { label: "Demonstration finding" },
     ]);
   });

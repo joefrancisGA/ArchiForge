@@ -29,7 +29,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     icon: Rocket,
     label: "Create Request",
     description: "Capture architecture intent, requirements, and constraints.",
-    href: "/runs/new",
+    href: "/reviews/new",
     shortcut: "Alt+N",
   },
   {
@@ -38,7 +38,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     icon: ListOrdered,
     label: "Track Progress",
     description: "Monitor pipeline progress and inspect run detail.",
-    href: "/runs?projectId=default",
+    href: "/reviews?projectId=default",
     shortcut: "Alt+R",
     linkAccessibleName: "Runs",
   },
@@ -48,7 +48,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     icon: Play,
     label: "Finalize Manifest",
     description: "Finalize the reviewed manifest and export artifacts.",
-    href: "/runs?projectId=default",
+    href: "/reviews?projectId=default",
     tooltip:
       "Finalizing records the reviewed manifest as the authoritative output for this run. You can still compare, export, and review its artifacts afterward.",
   },
@@ -58,7 +58,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     icon: FileCheck,
     label: "Review Artifacts",
     description: "Review, download, and share architecture artifacts.",
-    href: "/runs?projectId=default",
+    href: "/reviews?projectId=default",
   },
 ];
 

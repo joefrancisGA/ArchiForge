@@ -26,7 +26,7 @@ export function ShowcaseQuickNav({ payload }: { readonly payload: DemoCommitPage
   const runId = payload.run.runId;
   const manifestId = payload.manifest.manifestId;
   const findingId = primaryFindingIdForShowcase(payload);
-  const findingHref = `/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
+  const findingHref = `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}`;
 
   return (
     <section
@@ -43,7 +43,7 @@ export function ShowcaseQuickNav({ payload }: { readonly payload: DemoCommitPage
         Sign in may be required. Same scenario as this public preview.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Link href={`/runs/${encodeURIComponent(runId)}`} className={btnClass}>
+        <Link href={`/reviews/${encodeURIComponent(runId)}`} className={btnClass}>
           Open review
         </Link>
         <Link href={`/manifests/${encodeURIComponent(manifestId)}`} className={btnClass}>

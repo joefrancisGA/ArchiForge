@@ -134,7 +134,7 @@ export function FindingInspectFindingBody({
                 </p>
                 <div className="mt-2">
                   <Link
-                    href={`/runs/${encodeURIComponent(runId)}`}
+                    href={`/reviews/${encodeURIComponent(runId)}`}
                     className="text-xs font-medium text-sky-700 underline dark:text-sky-300"
                   >
                     Open review (artifacts and graph context)
@@ -163,7 +163,7 @@ export function FindingInspectFindingBody({
                 ) : null}
                 <div className="mt-2">
                   <Link
-                    href={`/runs/${encodeURIComponent(runId)}`}
+                    href={`/reviews/${encodeURIComponent(runId)}`}
                     className="text-xs font-medium text-sky-700 underline dark:text-sky-300"
                   >
                     Open review (artifacts and graph context)

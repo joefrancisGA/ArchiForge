@@ -9,7 +9,8 @@ namespace ArchLucid.Api.Filters;
 
 /// <summary>
 ///     Enforces a minimum <see cref="TenantTier" /> for the current scope (loaded from <c>dbo.Tenants</c>).
-///     Returns <c>404 Not Found</c> when the scope is not entitled so callers cannot infer hidden capabilities.
+///     Returns <c>404 Not Found</c> for Enterprise-only entitlement gates (enumeration suppression); <c>403 Forbidden</c>
+///     with Problem Details when the minimum tier is Standard (tenant-visible commercial capabilities).
 /// </summary>
 public sealed class CommercialTenantTierFilter(
     TenantTier minimumTier,
@@ -58,15 +59,22 @@ public sealed class CommercialTenantTierFilter(
 
         if ((int)tenant.Tier < (int)minimumTier)
         {
-            context.Result = PackagingTierProblemDetailsFactory.CreatePaymentRequired(
-                context.HttpContext,
-                tenant.Tier,
-                minimumTier,
-                context.HttpContext.Request.Path.Value);
+            string? instancePath = context.HttpContext.Request.Path.Value;
+
+            context.Result =
+                MinimumTierDeniedShouldObfuscate(minimumTier)
+                    ? PackagingTierProblemDetailsFactory.CreateObfuscatedNotFound(context.HttpContext, instancePath)
+                    : PackagingTierProblemDetailsFactory.CreateTenantProductInsufficientTier(
+                        context.HttpContext,
+                        minimumTier,
+                        instancePath);
 
             return;
         }
 
         await next();
     }
+
+    private static bool MinimumTierDeniedShouldObfuscate(TenantTier minimumTier) =>
+        minimumTier == TenantTier.Enterprise;
 }

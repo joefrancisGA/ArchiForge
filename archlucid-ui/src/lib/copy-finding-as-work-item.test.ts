@@ -69,7 +69,7 @@ describe("buildTraceRowWorkItemBody", () => {
 
     expect(text).toContain("## Finding: architecture");
     expect(text).toContain("`find-z`");
-    expect(text).toContain(`/runs/run-z/findings/find-z`);
+    expect(text).toContain(`/reviews/run-z/findings/find-z`);
     expect(text).toContain("aggregate explanation table");
   });
 });

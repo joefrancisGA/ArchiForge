@@ -19,7 +19,7 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
  * - `sidebar`: same data as `top`, compact rendering for the sidebar widget slot.
  * - `inline`: single-run delta vs the prior committed run for the same architecture
  *   request (uses `runId` from props), rendered above the artifacts table on
- *   `/runs/{runId}`.
+ *   `/reviews/{runId}`.
  */
 export type BeforeAfterDeltaPanelVariant = "cycle" | "top" | "sidebar" | "inline";
 

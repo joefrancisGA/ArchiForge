@@ -10,25 +10,21 @@ const cellCls = "border border-neutral-200 px-2.5 py-2 text-left align-top dark:
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
 
 /**
- * Prefer dollar + monthly framing when the payload is numeric (demo-friendly “100 vs 120” deltas).
+ * Prefer dollar + monthly framing when the payload is numeric (demo-friendly "100 vs 120" deltas).
  */
 function formatCostEstimateCell(value: unknown): string {
-  if (value === null || value === undefined) {
-    return "—";
-  }
+  if (value === null || value === undefined) return "?";
 
   const s = String(value).trim();
 
-  if (s.length === 0) {
-    return "—";
-  }
+  if (s.length === 0) return "?";
 
-  if (/^[$€£]/.test(s)) {
-    return `${s}/mo — estimated monthly (illustrative; from manifest compare payload — not an invoice)`;
+  if (/^[$?�]/.test(s)) {
+    return `${s}/mo ? projected monthly run rate (from manifest pipeline cost model)`;
   }
 
   if (/^\d+([\.,]\d+)?$/.test(s.replace(/,/g, ""))) {
-    return `~$${s.replace(/,/g, "")}/mo — estimated monthly (illustrative; directional unless FinOps baseline matches)`;
+    return `~$${s.replace(/,/g, "")}/mo ? projected monthly run rate`;
   }
 
   return s;
@@ -79,7 +75,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
     <section id="compare-structured" className="mt-7">
       <h3 className="mb-2">Manifest comparison</h3>
       <p className="mb-3 max-w-3xl text-sm font-medium leading-relaxed text-neutral-800 dark:text-neutral-100">
-        Compare finalized manifests to understand what changed between reviews — each card below summarizes one category.
+        Compare finalized manifests to understand what changed between reviews ? each card below summarizes one category.
         Prefer this narrative before supplementary diffs further down.
       </p>
       <div className="mb-3 flex flex-wrap items-baseline gap-3 text-sm text-neutral-700 dark:text-neutral-300">
@@ -87,13 +83,13 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
           <strong>Baseline review:</strong> {compareRunHeadingLabel(golden.baseRunId)}
         </span>
         <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-600">
-          →
+          ?
         </span>
         <span>
           <strong>Updated review:</strong> {compareRunHeadingLabel(golden.targetRunId)}
         </span>
         <span className="text-neutral-500 dark:text-neutral-400">
-          · <strong>Total deltas (reported):</strong> {total}
+          � <strong>Total changes:</strong> {total}
         </span>
       </div>
       {golden.summaryHighlights.length > 0 ? (
@@ -137,7 +133,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
           <strong className="font-semibold">No other material changes</strong>
           <span className="text-neutral-600 dark:text-neutral-400">
             {" "}
-            — no decision, requirement, security posture, topology, or modeled cost deltas in this comparison payload.
+            ? no decision, requirement, security posture, topology, or modeled cost changes in this comparison payload.
           </span>
         </div>
       ) : (
@@ -171,8 +167,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
                           </div>
                         )}
                       </td>
-                      <td className={cellCls}>{d.baseValue ?? "—"}</td>
-                      <td className={cellCls}>{d.targetValue ?? "—"}</td>
+                      <td className={cellCls}>{d.baseValue ?? "?"}</td>
+                      <td className={cellCls}>{d.targetValue ?? "?"}</td>
                       <td className={cellCls}>{d.changeType}</td>
                     </tr>
                   ))}
@@ -220,8 +216,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
                   {golden.securityChanges.map((s, i) => (
                     <tr key={i}>
                       <td className={cellCls}>{s.controlName}</td>
-                      <td className={cellCls}>{s.baseStatus ?? "—"}</td>
-                      <td className={cellCls}>{s.targetStatus ?? "—"}</td>
+                      <td className={cellCls}>{s.baseStatus ?? "?"}</td>
+                      <td className={cellCls}>{s.targetStatus ?? "?"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -251,12 +247,12 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
           ) : null}
 
           {golden.costChanges.length > 0 ? (
-            <ComparisonFoldSection title="Estimated cost delta" countBadge={golden.costChanges.length} defaultOpen>
+            <ComparisonFoldSection title="Projected cost impact" countBadge={golden.costChanges.length} defaultOpen>
               <table className="mt-2 w-full border-collapse text-sm">
                 <thead>
                   <tr className="bg-neutral-50/90 dark:bg-neutral-900/50">
-                    <th className={cellCls}>Baseline (est. max monthly)</th>
-                    <th className={cellCls}>Updated (est. max monthly)</th>
+                    <th className={cellCls}>Baseline ? projected monthly run rate</th>
+                    <th className={cellCls}>Updated ? projected monthly run rate</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -269,9 +265,9 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
                 </tbody>
               </table>
               <p className="mt-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
-                Estimated monthly figures are engineering projections from the comparison service (rounded, illustrative).
-                Directional only — not an invoice; align with your FinOps model and the AI “Summarize for sponsor” narrative
-                for confidence context.
+                Projected monthly run rates are derived from the manifest pipeline cost model. Figures reflect the
+                architecture as described ? validate against your FinOps baseline before using in budget planning.
+                Use &ldquo;Summarize for sponsor&rdquo; to include this delta in an executive narrative.
               </p>
             </ComparisonFoldSection>
           ) : null}

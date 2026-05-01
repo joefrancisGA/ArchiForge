@@ -25,7 +25,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     summary:
       "Create a request, track progress, finalize the reviewed manifest, and review artifacts, findings, and the review trail.",
     docPath: "docs/FIRST_RUN_WIZARD.md",
-    routes: ["/runs/new", "/", "/getting-started"],
+    routes: ["/reviews/new", "/", "/getting-started"],
   },
   {
     id: "artifacts",
@@ -33,7 +33,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["download", "manifest", "bundle", "zip"],
     summary: "Open a run, then review artifact list, previews, and bundle downloads from run detail.",
     docPath: "docs/operator-shell.md",
-    routes: ["/runs"],
+    routes: ["/reviews"],
   },
   {
     id: "compare",

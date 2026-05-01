@@ -38,7 +38,7 @@ public sealed class AlertsCommercialTierPackagingIntegrationTests : IDisposable
 
         using (HttpResponseMessage free = await client.GetAsync("/v1/alerts"))
         {
-            free.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            free.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
 
         await CommercialTierIntegrationTestTenant.SetDefaultScopedTenantTierAsync(_factory, TenantTier.Standard);

@@ -15,6 +15,28 @@ public sealed class DapperScimTenantTokenRepository(ISqlConnectionFactory connec
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<ScimTokenRotationCandidate>> ListActiveCreatedOnOrBeforeAsync(
+        DateTimeOffset createdUtcUpperBoundInclusive,
+        CancellationToken cancellationToken)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           SELECT Id, TenantId, CreatedUtc
+                           FROM dbo.ScimTenantTokens
+                           WHERE RevokedUtc IS NULL AND CreatedUtc <= @Cutoff;
+                           """;
+
+        IEnumerable<ScimTokenRotationCandidate> rows = await connection.QueryAsync<ScimTokenRotationCandidate>(
+            new CommandDefinition(
+                sql,
+                new { Cutoff = createdUtcUpperBoundInclusive },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
+
+    /// <inheritdoc />
     public async Task<ScimTokenRow?> FindActiveByPublicLookupKeyAsync(
         string publicLookupKey,
         CancellationToken cancellationToken)

@@ -48,7 +48,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
 
         string listSql = $"""
                             SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
-                                   u.CreatedUtc, u.UpdatedUtc
+                                   u.ResolvedRoleOrigin, u.CreatedUtc, u.UpdatedUtc
                             FROM dbo.ScimUsers u
                             WHERE u.TenantId = @TenantId AND ({whereExtra})
                             ORDER BY u.CreatedUtc
@@ -68,7 +68,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
 
         const string sql = """
                            SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
-                                  u.CreatedUtc, u.UpdatedUtc
+                                  u.ResolvedRoleOrigin, u.CreatedUtc, u.UpdatedUtc
                            FROM dbo.ScimUsers u
                            WHERE u.TenantId = @TenantId AND u.Id = @Id;
                            """;
@@ -89,7 +89,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
 
         const string sql = """
                            SELECT u.Id, u.TenantId, u.ExternalId, u.UserName, u.DisplayName, u.Active, u.ResolvedRole,
-                                  u.CreatedUtc, u.UpdatedUtc
+                                  u.ResolvedRoleOrigin, u.CreatedUtc, u.UpdatedUtc
                            FROM dbo.ScimUsers u
                            WHERE u.TenantId = @TenantId AND u.ExternalId = @ExternalId;
                            """;
@@ -108,15 +108,16 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
         string? displayName,
         bool active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
-                           INSERT INTO dbo.ScimUsers (TenantId, ExternalId, UserName, DisplayName, Active, ResolvedRole)
+                           INSERT INTO dbo.ScimUsers (TenantId, ExternalId, UserName, DisplayName, Active, ResolvedRole, ResolvedRoleOrigin)
                            OUTPUT INSERTED.Id, INSERTED.TenantId, INSERTED.ExternalId, INSERTED.UserName, INSERTED.DisplayName,
-                                  INSERTED.Active, INSERTED.ResolvedRole, INSERTED.CreatedUtc, INSERTED.UpdatedUtc
-                           VALUES (@TenantId, @ExternalId, @UserName, @DisplayName, @Active, @ResolvedRole);
+                                  INSERTED.Active, INSERTED.ResolvedRole, INSERTED.ResolvedRoleOrigin, INSERTED.CreatedUtc, INSERTED.UpdatedUtc
+                           VALUES (@TenantId, @ExternalId, @UserName, @DisplayName, @Active, @ResolvedRole, @ResolvedRoleOrigin);
                            """;
 
         UserRow? outRow = await connection.QueryFirstOrDefaultAsync<UserRow>(
@@ -129,7 +130,8 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                     UserName = userName,
                     DisplayName = displayName,
                     Active = active,
-                    ResolvedRole = resolvedRole
+                    ResolvedRole = resolvedRole,
+                    ResolvedRoleOrigin = (byte)resolvedRoleOrigin
                 },
                 cancellationToken: cancellationToken));
 
@@ -147,6 +149,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
         string? displayName,
         bool active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -158,6 +161,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                                DisplayName = @DisplayName,
                                Active = @Active,
                                ResolvedRole = @ResolvedRole,
+                               ResolvedRoleOrigin = @ResolvedRoleOrigin,
                                UpdatedUtc = SYSUTCDATETIME()
                            WHERE Id = @Id AND TenantId = @TenantId;
                            """;
@@ -173,7 +177,8 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                     UserName = userName,
                     DisplayName = displayName,
                     Active = active,
-                    ResolvedRole = resolvedRole
+                    ResolvedRole = resolvedRole,
+                    ResolvedRoleOrigin = (byte)resolvedRoleOrigin
                 },
                 cancellationToken: cancellationToken));
     }
@@ -187,6 +192,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
         string? displayName,
         bool? active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -198,6 +204,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                                DisplayName = CASE WHEN @DisplayNameProvided = 1 THEN @DisplayName ELSE DisplayName END,
                                Active = COALESCE(@Active, Active),
                                ResolvedRole = COALESCE(@ResolvedRole, ResolvedRole),
+                               ResolvedRoleOrigin = @ResolvedRoleOrigin,
                                UpdatedUtc = SYSUTCDATETIME()
                            WHERE Id = @Id AND TenantId = @TenantId;
                            """;
@@ -214,7 +221,8 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                     DisplayName = displayName,
                     DisplayNameProvided = displayName is null ? 0 : 1,
                     Active = active,
-                    ResolvedRole = resolvedRole
+                    ResolvedRole = resolvedRole,
+                    ResolvedRoleOrigin = (byte)resolvedRoleOrigin
                 },
                 cancellationToken: cancellationToken));
     }
@@ -315,6 +323,12 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
             init;
         }
 
+        public byte ResolvedRoleOrigin
+        {
+            get;
+            init;
+        }
+
         public DateTimeOffset CreatedUtc
         {
             get;
@@ -338,6 +352,7 @@ public sealed class DapperScimUserRepository(ISqlConnectionFactory connectionFac
                 DisplayName = DisplayName,
                 Active = Active,
                 ResolvedRole = ResolvedRole,
+                ResolvedRoleOrigin = (ScimResolvedRoleOrigin)ResolvedRoleOrigin,
                 CreatedUtc = CreatedUtc,
                 UpdatedUtc = UpdatedUtc
             };

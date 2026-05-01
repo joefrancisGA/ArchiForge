@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class PackagingTierProblemDetailsFactoryTests
 {
     [Fact]
-    public void CreatePaymentRequired_returns_404_resource_not_found_without_tier_extensions()
+    public void CreateObfuscatedNotFound_returns_404_resource_not_found()
     {
         ServiceCollection services = [];
         services.AddSingleton<IConfiguration>(
@@ -28,16 +28,12 @@ public sealed class PackagingTierProblemDetailsFactoryTests
             RequestServices = sp
         };
 
-        ObjectResult result = PackagingTierProblemDetailsFactory.CreatePaymentRequired(
-            http,
-            TenantTier.Free,
-            TenantTier.Standard,
-            "/v1/policy-packs");
+        ObjectResult result = PackagingTierProblemDetailsFactory.CreateObfuscatedNotFound(http, "/v1/policy-packs");
 
         result.StatusCode.Should().Be(404);
         Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         problem.Should().NotBeNull();
-        problem.Type.Should().Be(ProblemTypes.ResourceNotFound);
+        problem!.Type.Should().Be(ProblemTypes.ResourceNotFound);
         problem.Title.Should().Be("Not Found");
         problem.Detail.Should().Be("The requested resource was not found.");
         problem.Extensions.Should().NotContainKey("upgradeUrl");
@@ -46,7 +42,7 @@ public sealed class PackagingTierProblemDetailsFactoryTests
     }
 
     [Fact]
-    public void CreatePaymentRequired_obfuscates_even_when_public_site_unconfigured()
+    public void CreateObfuscatedNotFound_when_instance_null_still_problem_json()
     {
         ServiceCollection services = [];
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
@@ -56,15 +52,32 @@ public sealed class PackagingTierProblemDetailsFactoryTests
             RequestServices = sp
         };
 
-        ObjectResult result = PackagingTierProblemDetailsFactory.CreatePaymentRequired(
-            http,
-            TenantTier.Standard,
-            TenantTier.Enterprise,
-            null);
+        ObjectResult result = PackagingTierProblemDetailsFactory.CreateObfuscatedNotFound(http, null);
 
         result.StatusCode.Should().Be(404);
         Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         problem!.Type.Should().Be(ProblemTypes.ResourceNotFound);
-        problem.Extensions.Should().NotContainKey("upgradeUrl");
+    }
+
+    [Fact]
+    public void CreateTenantProductInsufficientTier_returns_403_packaging_tier_problem_without_tier_echo()
+    {
+        ServiceCollection services = [];
+        services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
+        ServiceProvider sp = services.BuildServiceProvider();
+        DefaultHttpContext http = new()
+        {
+            RequestServices = sp
+        };
+
+        ObjectResult result = PackagingTierProblemDetailsFactory.CreateTenantProductInsufficientTier(
+            http,
+            TenantTier.Standard,
+            "/v1/governance/dashboard");
+
+        result.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
+        problem!.Type.Should().Be(ProblemTypes.PackagingTierInsufficient);
+        problem.Extensions.Should().NotContainKey("currentTier");
     }
 }

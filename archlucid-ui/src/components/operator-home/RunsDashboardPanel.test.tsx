@@ -90,7 +90,7 @@ describe("RunsDashboardPanel", () => {
 
     expect(await screen.findByTestId("recent-runs-home-panel")).toBeInTheDocument();
     const link = await screen.findByRole("link", { name: "Sample" });
-    expect(link).toHaveAttribute("href", "/runs/11111111-1111-1111-1111-111111111111");
+    expect(link).toHaveAttribute("href", "/reviews/11111111-1111-1111-1111-111111111111");
   });
 
   it("shows empty state when there are no runs", async () => {
@@ -110,18 +110,18 @@ describe("RunsDashboardPanel", () => {
     });
     expect(
       screen.getByText(
-        /You have no runs in this workspace yet\. Create an architecture request to produce a manifest/i,
+        /You have no architecture reviews yet\. Create a request to produce a manifest/i,
       ),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/runs/new");
+    expect(screen.getByRole("link", { name: "Create your first request" })).toHaveAttribute("href", "/reviews/new");
     expect(screen.getByTestId("example-request-panel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Use this example" })).toHaveAttribute(
       "href",
-      "/runs/new?example=environmental-report-pdf-analysis",
+      "/reviews/new?example=healthcare-claims-intake",
     );
     expect(screen.getByRole("link", { name: "See completed output" })).toHaveAttribute(
       "href",
-      "/runs?projectId=default",
+      "/reviews?projectId=default",
     );
   });
 

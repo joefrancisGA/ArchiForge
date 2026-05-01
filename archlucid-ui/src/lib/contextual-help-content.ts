@@ -35,7 +35,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/ALERTS.md",
   },
   "compare-runs": {
-    text: "Compare diffs two finalized manifests. Enter base and target run IDs from the Runs list.",
+    text: "Compare diffs two finalized manifests. Enter base and target review IDs from the Reviews list.",
     learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
   },
   /** Stub `/governance/dashboard` route; full cross-run queue UI not demo-ready yet. */
@@ -49,7 +49,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
   },
   "architecture-graph": {
-    text: "Graph shows provenance or architecture view for a single run. Enter a run ID and choose a mode.",
+    text: "Graph shows provenance or architecture view for a single review. Enter a review ID and choose a mode.",
     learnMoreUrl: "/docs/KNOWLEDGE_GRAPH.md",
   },
   "audit-log": {
@@ -69,7 +69,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     learnMoreUrl: "/docs/operator-shell.md",
   },
   "ask-archlucid": {
-    text: "Multi-turn conversations about an architecture review. Select a review for the first message; follow-ups reuse the same thread.",
+    text: "Multi-turn conversations about an architecture review. Select a review for the first message; follow-ups continue the same conversation.",
     learnMoreUrl: "/docs/operator-shell.md",
   },
   "operator-scope-switcher": {

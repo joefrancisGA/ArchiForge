@@ -19,8 +19,9 @@ using Moq;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     Unit tests for <see cref="CommercialTenantTierFilter" />: authenticated callers below the minimum tier receive the
-///     intentional <c>404</c> (see <see cref="PackagingTierProblemDetailsFactory" />); unauthenticated callers skip tier checks.
+///     Unit tests for <see cref="CommercialTenantTierFilter" />: unauthenticated callers skip tier checks;
+///     Standard-minimum denial returns <see cref="StatusCodes.Status403Forbidden"/> with packaging problem details;
+///     Enterprise-only gates return <see cref="StatusCodes.Status404NotFound"/> (enumeration suppression).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -53,7 +54,7 @@ public sealed class CommercialTenantTierFilterTests
     }
 
     [Fact]
-    public async Task OnActionExecutionAsync_free_tier_with_minimum_standard_short_circuits_with_404()
+    public async Task OnActionExecutionAsync_free_tier_minimum_standard_returns_403_packaging_problem()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
@@ -82,6 +83,56 @@ public sealed class CommercialTenantTierFilterTests
                 });
 
         CommercialTenantTierFilter sut = new(TenantTier.Standard, tenants.Object, scopeProvider.Object);
+        ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
+        bool next = false;
+
+        await sut.OnActionExecutionAsync(
+            executing,
+            () =>
+            {
+                next = true;
+
+                return Task.FromResult(BuildExecutedContext(executing));
+            });
+
+        next.Should().BeFalse();
+        ObjectResult? obj = executing.Result.Should().BeOfType<ObjectResult>().Subject;
+        obj.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem =
+            obj.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Type.Should().Be(ProblemTypes.PackagingTierInsufficient);
+    }
+
+    [Fact]
+    public async Task OnActionExecutionAsync_standard_tier_minimum_enterprise_denial_returns_404()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-dddd-eeee-ffff-999999999999");
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantRecord
+                {
+                    Id = tenantId,
+                    Name = "t",
+                    Slug = "t",
+                    Tier = TenantTier.Standard,
+                    CreatedUtc = DateTimeOffset.UtcNow,
+                    TrialRunsUsed = 0,
+                    TrialSeatsUsed = 0
+                });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope())
+            .Returns(
+                new ScopeContext
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid()
+                });
+
+        CommercialTenantTierFilter sut = new(TenantTier.Enterprise, tenants.Object, scopeProvider.Object);
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
         bool next = false;
 

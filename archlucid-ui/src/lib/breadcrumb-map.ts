@@ -8,7 +8,7 @@ export type BreadcrumbItem = {
 const SEGMENT_LABELS: Record<string, string> = {
   "getting-started": "Getting started",
   onboarding: "Onboarding",
-  runs: "Runs",
+  reviews: "Architecture reviews",
   new: "New request",
   graph: "Graph",
   compare: "Compare",
@@ -56,8 +56,8 @@ export function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
     return [{ label: "Home" }];
   }
 
-  // Product path: skip the intermediate "Runs" crumb so first workflow reads Home / New request.
-  if (normalized === "/runs/new") {
+  // Product path: skip the intermediate "Architecture reviews" crumb so first workflow reads Home / New request.
+  if (normalized === "/reviews/new") {
     return [
       { label: "Home", href: "/" },
       { label: "New request" },
@@ -146,7 +146,7 @@ function labelForSegment(segment: string, allSegments: string[], index: number):
 
   if (
     demoTitle !== undefined &&
-    (prev === "runs" ||
+    (prev === "reviews" ||
       prev === "manifests" ||
       prev === "showcase" ||
       prev === "findings" ||
@@ -158,8 +158,8 @@ function labelForSegment(segment: string, allSegments: string[], index: number):
   }
 
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)) {
-    if (prev === "runs") {
-      return "Run detail";
+    if (prev === "reviews") {
+      return "Review detail";
     }
 
     if (prev === "manifests") {
@@ -178,8 +178,8 @@ function labelForSegment(segment: string, allSegments: string[], index: number):
   }
 
   if (/^[0-9a-f-]{16,}$/i.test(segment) && segment.includes("-")) {
-    if (prev === "runs") {
-      return "Run detail";
+    if (prev === "reviews") {
+      return "Review detail";
     }
   }
 

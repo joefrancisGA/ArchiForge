@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Integration;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -89,10 +90,12 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     {
         byte[] bytes = payloadUtf8.ToArray();
 
+        int priority = IntegrationEventOutboxPriority.ForEventType(eventType);
+
         const string sql = """
             INSERT INTO dbo.IntegrationEventOutbox
-            (OutboxId, RunId, EventType, MessageId, PayloadUtf8, TenantId, WorkspaceId, ProjectId, CreatedUtc)
-            VALUES (@OutboxId, @RunId, @EventType, @MessageId, @PayloadUtf8, @TenantId, @WorkspaceId, @ProjectId, SYSUTCDATETIME());
+            (OutboxId, RunId, EventType, MessageId, PayloadUtf8, TenantId, WorkspaceId, ProjectId, Priority, CreatedUtc)
+            VALUES (@OutboxId, @RunId, @EventType, @MessageId, @PayloadUtf8, @TenantId, @WorkspaceId, @ProjectId, @Priority, SYSUTCDATETIME());
             """;
 
         await connection.ExecuteAsync(
@@ -107,7 +110,8 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
                     PayloadUtf8 = bytes,
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    ProjectId = projectId
+                    ProjectId = projectId,
+                    Priority = priority,
                 },
                 transaction: transaction,
                 cancellationToken: ct));
@@ -121,12 +125,13 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         const string sql = """
             SELECT TOP (@Take)
                 OutboxId, RunId, EventType, MessageId, PayloadUtf8, TenantId, WorkspaceId, ProjectId, CreatedUtc,
+                Priority,
                 RetryCount, NextRetryUtc, LastErrorMessage, DeadLetteredUtc
             FROM dbo.IntegrationEventOutbox
             WHERE ProcessedUtc IS NULL
               AND DeadLetteredUtc IS NULL
               AND (NextRetryUtc IS NULL OR NextRetryUtc <= SYSUTCDATETIME())
-            ORDER BY CreatedUtc ASC;
+            ORDER BY ISNULL(Priority, 1) ASC, CreatedUtc ASC;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -157,6 +162,7 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
                     WorkspaceId = row.WorkspaceId,
                     ProjectId = row.ProjectId,
                     CreatedUtc = row.CreatedUtc,
+                    Priority = row.Priority,
                     RetryCount = row.RetryCount,
                     NextRetryUtc = row.NextRetryUtc,
                     LastErrorMessage = row.LastErrorMessage,
@@ -375,6 +381,11 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         }
 
         public DateTime CreatedUtc
+        {
+            get; init;
+        }
+
+        public int? Priority
         {
             get; init;
         }

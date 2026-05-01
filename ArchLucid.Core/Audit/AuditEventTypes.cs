@@ -368,6 +368,9 @@ public static class AuditEventTypes
 
     public const string ScimUserUpdated = "ScimUserUpdated";
 
+    /// <summary>SCIM IdP group-derived role superseded an operator-managed SCIM <c>manualResolvedRole</c> assignment.</summary>
+    public const string RoleOverriddenByScim = "RoleOverriddenByScim";
+
     public const string ScimUserDeactivated = "ScimUserDeactivated";
 
     public const string ScimGroupProvisioned = "ScimGroupProvisioned";

@@ -2552,6 +2552,7 @@ BEGIN
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
+        Priority INT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         ProcessedUtc DATETIME2 NULL,
         RetryCount INT NOT NULL CONSTRAINT DF_IntegrationEventOutbox_RetryCount DEFAULT (0),
@@ -2563,6 +2564,13 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_IntegrationEventOutbox_Pending
         ON dbo.IntegrationEventOutbox (ProcessedUtc, NextRetryUtc, CreatedUtc)
         WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.IntegrationEventOutbox', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.IntegrationEventOutbox', N'Priority') IS NULL
+BEGIN
+    ALTER TABLE dbo.IntegrationEventOutbox ADD Priority INT NULL;
 END;
 GO
 
@@ -5703,7 +5711,32 @@ BEGIN
 END;
 GO
 
-/* ---- Manifest finalization: one active golden manifest per run + dbo.sp_FinalizeManifest (DbUp 120 parity). ---- */
+/* 133: SCIM ResolvedRoleOrigin + dbo.AdminNotifications (see Migrations/133_ScimResolvedRole_AdminNotifications.sql). */
+IF COL_LENGTH(N'dbo.ScimUsers', N'ResolvedRoleOrigin') IS NULL
+BEGIN
+    ALTER TABLE dbo.ScimUsers ADD
+        ResolvedRoleOrigin TINYINT NOT NULL CONSTRAINT DF_ScimUsers_ResolvedRoleOrigin DEFAULT (0),
+        CONSTRAINT CK_ScimUsers_ResolvedRoleOrigin_Valid CHECK (ResolvedRoleOrigin IN (0, 1, 2));
+END;
+GO
+
+UPDATE dbo.ScimUsers SET ResolvedRoleOrigin = 2 WHERE ResolvedRoleOrigin = 0 AND ResolvedRole IS NOT NULL;
+GO
+
+IF OBJECT_ID(N'dbo.AdminNotifications', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AdminNotifications
+    (
+        Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_AdminNotifications PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        RaisedUtc DATETIME2(7) NOT NULL CONSTRAINT DF_AdminNotifications_RaisedUtc DEFAULT SYSUTCDATETIME(),
+        Kind NVARCHAR(96) NOT NULL,
+        Summary NVARCHAR(512) NOT NULL,
+        DataJson NVARCHAR(MAX) NULL
+    );
+END;
+GO
+
+/* ---- Manifest finalization: one active golden manifest per run + dbo.sp_FinalizeManifest (DbUp 120 + 132 outbox Priority). ---- */
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -5741,7 +5774,8 @@ ALTER PROCEDURE dbo.sp_FinalizeManifest
     @OutboxId UNIQUEIDENTIFIER,
     @IntegrationEventType NVARCHAR(256),
     @OutboxMessageId NVARCHAR(128),
-    @OutboxPayloadUtf8 VARBINARY(MAX)
+    @OutboxPayloadUtf8 VARBINARY(MAX),
+    @OutboxPriority INT = 1
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -5789,11 +5823,11 @@ BEGIN
 
         INSERT INTO dbo.IntegrationEventOutbox (
             OutboxId, RunId, EventType, MessageId, PayloadUtf8,
-            TenantId, WorkspaceId, ProjectId, CreatedUtc
+            TenantId, WorkspaceId, ProjectId, Priority, CreatedUtc
         )
         VALUES (
             @OutboxId, @RunId, @IntegrationEventType, @OutboxMessageId, @OutboxPayloadUtf8,
-            @TenantId, @WorkspaceId, @ScopeProjectId, SYSUTCDATETIME()
+            @TenantId, @WorkspaceId, @ScopeProjectId, @OutboxPriority, SYSUTCDATETIME()
         );
 
         RETURN;

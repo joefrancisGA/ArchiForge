@@ -19,7 +19,7 @@ export type WorkspaceActiveRunContextValue = {
 const WorkspaceActiveRunContext = createContext<WorkspaceActiveRunContextValue | null>(null);
 
 /**
- * Remembers the last run the operator opened (`/runs/[runId]`) per browser session so Ask / Graph can stay aligned without pasting IDs.
+ * Remembers the last run the operator opened (`/reviews/[runId]`) per browser session so Ask / Graph can stay aligned without pasting IDs.
  */
 export function WorkspaceActiveRunProvider({ children }: { readonly children: ReactNode }) {
   const [activeRunId, setActiveRunIdState] = useState<string | null>(() => {

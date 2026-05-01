@@ -1,3 +1,5 @@
+using ArchLucid.Core.Diagnostics;
+
 namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
@@ -51,5 +53,7 @@ public static class ArchLucidLegacyConfigurationWarnings
             "Legacy configuration keys are present but ignored: {LegacyKeys}. Use ConnectionStrings:ArchLucid, ArchLucid:*, and ArchLucidAuth:* only. Hard enforcement is not scheduled before {SunsetDate}; see docs/CONFIG_BRIDGE_SUNSET.md.",
             string.Join(", ", found),
             LegacyConfigurationKeysHardEnforcementNoEarlierThan);
+
+        ArchLucidInstrumentation.RecordStartupConfigWarning(LegacyConfigurationStartupWarningRuleNames.IgnoredLegacyKeysPresent);
     }
 }

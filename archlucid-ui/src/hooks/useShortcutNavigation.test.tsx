@@ -28,7 +28,7 @@ describe("useShortcutNavigation", () => {
 
     fireEvent.keyDown(window, { key: "n", altKey: true });
 
-    expect(routerPush).toHaveBeenCalledWith("/runs/new");
+    expect(routerPush).toHaveBeenCalledWith("/reviews/new");
   });
 
   it("invokes onHelpRequested for Shift+?", () => {

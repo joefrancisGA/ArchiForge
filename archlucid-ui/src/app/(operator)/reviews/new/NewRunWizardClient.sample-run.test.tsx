@@ -59,6 +59,6 @@ describe("NewRunWizardClient (sampleRunId query)", () => {
     render(<NewRunWizardClient />);
 
     const link = await screen.findByTestId("wizard-open-trial-sample-run");
-    expect(link).toHaveAttribute("href", "/runs/6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
+    expect(link).toHaveAttribute("href", "/reviews/6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
   });
 });

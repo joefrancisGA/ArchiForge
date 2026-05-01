@@ -56,7 +56,7 @@ describe("keyboard shortcuts global (integration)", () => {
     );
 
     fireCombo("alt+n");
-    expect(mockPush).toHaveBeenLastCalledWith("/runs/new");
+    expect(mockPush).toHaveBeenLastCalledWith("/reviews/new");
 
     mockPush.mockClear();
     fireCombo("alt+c");

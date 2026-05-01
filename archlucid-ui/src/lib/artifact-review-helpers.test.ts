@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   classifyArtifactView,
+  getArtifactFormatLabel,
   getArtifactTypeDescription,
   getArtifactTypeLabel,
   prepareArtifactBodyText,
@@ -22,6 +23,24 @@ describe("classifyArtifactView", () => {
 
   it("classifies DiagramAst by type", () => {
     expect(classifyArtifactView("txt", "DiagramAst")).toBe("json");
+  });
+});
+
+describe("getArtifactFormatLabel", () => {
+  it("returns Markdown for markdown format", () => {
+    expect(getArtifactFormatLabel("markdown")).toBe("Markdown");
+  });
+
+  it("returns JSON for json format", () => {
+    expect(getArtifactFormatLabel("json")).toBe("JSON");
+  });
+
+  it("returns Diagram source for mermaid", () => {
+    expect(getArtifactFormatLabel("mermaid")).toBe("Diagram source");
+  });
+
+  it("passes through unknown formats unchanged", () => {
+    expect(getArtifactFormatLabel("xlsx")).toBe("xlsx");
   });
 });
 

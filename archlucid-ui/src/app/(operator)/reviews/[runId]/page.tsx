@@ -175,7 +175,7 @@ export default async function RunDetailPage({
           correlationId={loadFailure?.correlationId ?? null}
         />
         <p>
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
             ← Back to reviews
           </Link>
         </p>
@@ -207,7 +207,7 @@ export default async function RunDetailPage({
           </p>
         </OperatorMalformedCallout>
         <p>
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
             ← Back to reviews
           </Link>
         </p>
@@ -347,7 +347,7 @@ export default async function RunDetailPage({
           Home
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
+        <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
           Reviews
         </Link>
         {" · "}

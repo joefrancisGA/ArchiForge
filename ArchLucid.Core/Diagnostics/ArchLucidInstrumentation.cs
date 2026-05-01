@@ -624,6 +624,23 @@ public static class ArchLucidInstrumentation
             "archlucid_audit_write_failures_total",
             description: "Durable audit writes abandoned after max retries (label event_type).");
 
+    /// <summary>
+    ///     Startup configuration advisory warnings (label <c>rule_name</c>) — bounded code constants only (TECH_BACKLOG TB-002).
+    /// </summary>
+    public static readonly Counter<long> StartupConfigWarningsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_startup_config_warnings_total",
+            description: "Non-fatal startup configuration warnings (label rule_name).");
+
+    /// <summary>
+    ///     Observed latency for named SQL/query gates (TECH_BACKLOG TB-003 parity with CI allowlist; label <c>query_name</c>).
+    /// </summary>
+    public static readonly Histogram<double> QueryNamedLatencyMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_query_p95_ms",
+            "ms",
+            "Latency snapshot for named query performance regression gates (label query_name).");
+
     /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
     public static readonly Counter<long> LlmPromptTokensTotal =
         AppMeter.CreateCounter<long>(
@@ -1014,6 +1031,22 @@ public static class ArchLucidInstrumentation
     {
         string e = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType.Trim();
         AuditWriteFailuresTotal.Add(1, new TagList { { "event_type", e } });
+    }
+
+    /// <summary>
+    ///     Increments <see cref="StartupConfigWarningsTotal"/> once per distinct advisory emission (TECH_BACKLOG TB-002).
+    /// </summary>
+    public static void RecordStartupConfigWarning(string ruleName)
+    {
+        string r = string.IsNullOrWhiteSpace(ruleName) ? "unknown" : ruleName.Trim();
+        StartupConfigWarningsTotal.Add(1, new TagList { { "rule_name", r } });
+    }
+
+    /// <summary>Records a latency observation for TB-003 allowlisted queries (production or CI ingest).</summary>
+    public static void RecordNamedQueryLatencyMilliseconds(string queryName, double milliseconds)
+    {
+        string q = string.IsNullOrWhiteSpace(queryName) ? "unknown" : queryName.Trim();
+        QueryNamedLatencyMilliseconds.Record(milliseconds, new TagList { { "query_name", q } });
     }
 
     /// <summary>

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
-    get: (key: string) => (key === "example" ? "environmental-report-pdf-analysis" : null),
+    get: (key: string) => (key === "example" ? "healthcare-claims-intake" : null),
   }),
 }));
 
@@ -82,7 +82,7 @@ describe("NewRunWizardClient (example query)", { timeout: 60_000 }, () => {
     );
   });
 
-  it("prefills description and system name when example=environmental-report-pdf-analysis", async () => {
+  it("prefills description and system name when example=healthcare-claims-intake", async () => {
     render(<NewRunWizardClient />);
 
     await waitFor(() => {

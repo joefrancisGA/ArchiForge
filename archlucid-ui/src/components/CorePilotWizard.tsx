@@ -87,7 +87,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
       <div className="space-y-2 leading-relaxed text-neutral-700 dark:text-neutral-200">
         <p className="m-0">Use the operator wizard to capture identity, constraints, and advanced inputs (`POST /v1/architecture/request`).</p>
         <p className="m-0">
-          <Link href="/runs/new" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
+          <Link href="/reviews/new" className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400">
             Launch new-request wizard →
           </Link>
         </p>
@@ -104,7 +104,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         </p>
         <p className="m-0">
           <Link
-            href="/runs?projectId=default"
+            href="/reviews?projectId=default"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
             Open Runs → choose your run →
@@ -123,7 +123,7 @@ const BLUEPRINT_STEPS: WizardBlueprintStep[] = [
         </p>
         <p className="m-0">
           <Link
-            href="/runs?projectId=default"
+            href="/reviews?projectId=default"
             className="font-medium text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
             Navigate to Runs → finalize from run detail →

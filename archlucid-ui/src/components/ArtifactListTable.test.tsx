@@ -60,6 +60,6 @@ describe("ArtifactListTable", () => {
     );
 
     const preview = screen.getByRole("link", { name: "Preview" });
-    expect(preview.getAttribute("href")).toBe("/runs/run-guid-1/artifacts/artifact-guid-1");
+    expect(preview.getAttribute("href")).toBe("/reviews/run-guid-1/artifacts/artifact-guid-1");
   });
 });

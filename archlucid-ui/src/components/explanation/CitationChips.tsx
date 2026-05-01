@@ -14,15 +14,15 @@ function citationHref(c: CitationReference, runId: string): string {
     case "Manifest":
       return `/manifests/${encodeURIComponent(c.id)}`;
     case "Finding":
-      return `/runs/${encodeURIComponent(runId)}#finding-${encodeURIComponent(c.id)}`;
+      return `/reviews/${encodeURIComponent(runId)}#finding-${encodeURIComponent(c.id)}`;
     case "DecisionTrace":
     case "GraphSnapshot":
     case "ContextSnapshot":
-      return `/runs/${encodeURIComponent(runId)}/provenance`;
+      return `/reviews/${encodeURIComponent(runId)}/provenance`;
     case "EvidenceBundle":
-      return `/runs/${encodeURIComponent(runId)}`;
+      return `/reviews/${encodeURIComponent(runId)}`;
     default:
-      return `/runs/${encodeURIComponent(runId)}`;
+      return `/reviews/${encodeURIComponent(runId)}`;
   }
 }
 

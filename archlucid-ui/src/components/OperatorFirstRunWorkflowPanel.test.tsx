@@ -22,7 +22,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     expect(screen.getByText("Start here")).toBeInTheDocument();
 
     const wizard = screen.getByRole("link", { name: "Start new request" });
-    expect(wizard).toHaveAttribute("href", "/runs/new");
+    expect(wizard).toHaveAttribute("href", "/reviews/new");
   });
 
   it("accordion toggles step body when clicking the step title", async () => {

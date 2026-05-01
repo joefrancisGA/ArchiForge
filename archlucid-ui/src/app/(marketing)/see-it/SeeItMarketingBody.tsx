@@ -54,7 +54,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         <p className="font-semibold">Sample healthcare architecture review — for evaluation only</p>
         {source === "snapshot" ? (
           <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400" data-testid="see-it-snapshot-notice">
-            Showing a stable offline snapshot for this page.
+            Stable sample — finalized January 2026.
           </p>
         ) : null}
       </div>
@@ -66,6 +66,9 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-50">
           Finalized sample architecture review (read-only)
         </h2>
+        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+          Full artifact bytes for your tenant require a signed-in workspace.
+        </p>
         <dl className="mt-3 space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
           <div>
             <dt className="font-medium text-neutral-600 dark:text-neutral-400">Review</dt>
@@ -127,8 +130,7 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
         </Link>
       </section>
       <p className="text-xs text-neutral-600 dark:text-neutral-400">
-        The PDF is a no-sign-in marketing bundle aligned with this sample. Full artifact bytes for your tenant require a
-        signed-in workspace.
+        The PDF is a no-sign-in marketing bundle aligned with this sample.
       </p>
     </div>
   );

@@ -23,6 +23,7 @@ public interface IScimUserRepository
         string? displayName,
         bool active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken);
 
     Task ReplaceAsync(
@@ -33,6 +34,7 @@ public interface IScimUserRepository
         string? displayName,
         bool active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken);
 
     Task PatchAsync(
@@ -43,6 +45,7 @@ public interface IScimUserRepository
         string? displayName,
         bool? active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken);
 
     Task DeactivateAsync(Guid tenantId, Guid id, CancellationToken cancellationToken);

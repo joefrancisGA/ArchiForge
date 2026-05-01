@@ -6,13 +6,13 @@ describe("getRouteTitle — static routes", () => {
   it("returns known titles", () => {
     expect(getRouteTitle("/")).toBe("Home");
     expect(getRouteTitle("/alerts")).toBe("Alerts");
-    expect(getRouteTitle("/runs/new")).toBe("New review");
+    expect(getRouteTitle("/reviews/new")).toBe("New review");
   });
 });
 
-describe("getRouteTitle — dynamic run detail", () => {
+describe("getRouteTitle — dynamic review detail", () => {
   it("returns Review detail for uuid path", () => {
-    expect(getRouteTitle("/runs/e2e-fixture-run-001")).toBe("Review detail");
+    expect(getRouteTitle("/reviews/e2e-fixture-run-001")).toBe("Review detail");
   });
 });
 

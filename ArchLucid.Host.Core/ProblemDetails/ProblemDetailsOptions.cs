@@ -73,6 +73,6 @@ public static class ProblemTypes
     /// <summary>Architecture request JSON exceeds configured <c>ArchLucid:ArchitectureRunCreation:MaxPayloadBytes</c> (<c>ArchLucid:ContextIngestion:MaxPayloadBytes</c> is accepted as a legacy synonym).</summary>
     public const string RequestPayloadTooLarge = Base + "#request-payload-too-large";
 
-    /// <summary>Caller is authenticated but the tenant commercial tier is below the capability required for this route (HTTP 402).</summary>
+    /// <summary>Authenticated tenant is below the commercial tier required for this tenant-facing route (RFC 9457 Problem Details; HTTP 403).</summary>
     public const string PackagingTierInsufficient = Base + "#packaging-tier-insufficient";
 }

@@ -7,13 +7,13 @@ export type RouteReadinessTier = "demo-ready" | "advanced-only" | "admin-only" |
 const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
   "/": "demo-ready",
   "/getting-started": "demo-ready",
-  "/runs/new": "demo-ready",
-  "/runs?projectId=default": "demo-ready",
+  "/reviews/new": "demo-ready",
+  "/reviews?projectId=default": "demo-ready",
   "/help": "demo-ready",
   "/ask": "demo-ready",
   "/search": "demo-ready",
   "/scorecard": "demo-ready",
-  "/runs": "demo-ready",
+  "/reviews": "demo-ready",
   "/governance/findings": "demo-ready",
   "/workspace/security-trust": "demo-ready",
   "/value-report": "advanced-only",
@@ -46,13 +46,13 @@ const READINESS_BY_PATH: Record<string, RouteReadinessTier> = {
 };
 
 /**
- * Resolves readiness for a sidebar or deep link `href` (strips query except projectId on `/runs` list).
+ * Resolves readiness for a sidebar or deep link `href` (strips query except projectId on `/reviews` list).
  */
 export function operatorRouteReadiness(href: string): RouteReadinessTier {
   const [path, query] = href.split("?", 2);
 
-  if (path === "/runs" && query !== undefined && query.includes("projectId=")) {
-    const fromTable = READINESS_BY_PATH["/runs?projectId=default"];
+  if (path === "/reviews" && query !== undefined && query.includes("projectId=")) {
+    const fromTable = READINESS_BY_PATH["/reviews?projectId=default"];
 
     return fromTable ?? "demo-ready";
   }
@@ -90,8 +90,8 @@ function normalizeOperatorNavHrefForDemo(href: string): string {
   const [path, query] = href.split("?", 2);
   const trimmed = path.trim().length === 0 ? "/" : path;
 
-  if (trimmed === "/runs" && query !== undefined && query.includes("projectId=")) {
-    return "/runs?projectId=default";
+  if (trimmed === "/reviews" && query !== undefined && query.includes("projectId=")) {
+    return "/reviews?projectId=default";
   }
 
   return trimmed;

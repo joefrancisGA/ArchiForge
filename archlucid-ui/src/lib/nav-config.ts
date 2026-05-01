@@ -159,7 +159,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "essential",
       },
       {
-        href: "/runs/new",
+        href: "/reviews/new",
         label: "New review",
         title: navTitleWithShortcut(
           "Start a new architecture review — guided wizard through pipeline tracking",
@@ -170,7 +170,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "essential",
       },
       {
-        href: "/runs?projectId=default",
+        href: "/reviews?projectId=default",
         label: "Reviews",
         title: navTitleWithShortcut("Reviews — open review detail, architecture package, artifacts, exports", "alt+r"),
         keyShortcut: "alt+r",

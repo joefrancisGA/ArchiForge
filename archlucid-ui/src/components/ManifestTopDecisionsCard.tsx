@@ -42,7 +42,7 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
         </CardHeader>
         <CardContent>
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/runs/${encodeURIComponent(summary.runId)}#run-explanation`}>Open decisions on run</Link>
+            <Link href={`/reviews/${encodeURIComponent(summary.runId)}#run-explanation`}>Open decisions on run</Link>
           </Button>
         </CardContent>
       </Card>

@@ -38,7 +38,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
-  const findingHref = `/runs/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
+  const findingHref = `/reviews/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
   const artifactNote =
     showcaseStory && demo
       ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings (demo totals)`
@@ -53,10 +53,10 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
       </div>
 
       <dl className="m-0 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Run ID</dt>
+        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Review ID</dt>
         <dd className="m-0 flex min-w-0 items-center gap-1">
           <code className="truncate font-mono text-[11px] text-neutral-900 dark:text-neutral-100">{run.runId}</code>
-          <CopyIdButton value={run.runId} aria-label="Copy run ID" />
+          <CopyIdButton value={run.runId} aria-label="Copy review ID" />
         </dd>
         <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Project</dt>
         <dd className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
@@ -109,7 +109,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           </Button>
           {run.hasFindingsSnapshot === true || showcaseStory ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={`/runs/${encodeURIComponent(run.runId)}#run-explanation`}>Findings &amp; explanation</Link>
+              <Link href={`/reviews/${encodeURIComponent(run.runId)}#run-explanation`}>Findings &amp; explanation</Link>
             </Button>
           ) : null}
           {showcaseStory ? (
@@ -119,21 +119,21 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           ) : null}
           {run.hasArtifactBundle === true || showcaseStory ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={`/runs/${encodeURIComponent(run.runId)}#artifacts-exports`}>Artifacts</Link>
+              <Link href={`/reviews/${encodeURIComponent(run.runId)}#artifacts-exports`}>Artifacts</Link>
             </Button>
           ) : null}
           <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={`/runs/${encodeURIComponent(run.runId)}#pipeline-timeline`}>Review trail timeline</Link>
+            <Link href={`/reviews/${encodeURIComponent(run.runId)}#pipeline-timeline`}>Review trail timeline</Link>
           </Button>
           <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={`/runs/${encodeURIComponent(run.runId)}/provenance`}>Review trail graph</Link>
+            <Link href={`/reviews/${encodeURIComponent(run.runId)}/provenance`}>Review trail graph</Link>
           </Button>
         </div>
       </div>
 
       <div className="flex flex-col gap-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
         <Button variant="primary" size="sm" className="w-full sm:w-auto" asChild>
-          <Link href={`/runs/${encodeURIComponent(run.runId)}`}>Open review</Link>
+          <Link href={`/reviews/${encodeURIComponent(run.runId)}`}>Open review</Link>
         </Button>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" asChild>

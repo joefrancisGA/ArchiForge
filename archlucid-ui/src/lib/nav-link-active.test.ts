@@ -5,18 +5,18 @@ import { isNavLinkActive } from "@/lib/nav-link-active";
 describe("isNavLinkActive", () => {
   it("matches home only for exact /", () => {
     expect(isNavLinkActive("/", "/")).toBe(true);
-    expect(isNavLinkActive("/runs", "/")).toBe(false);
+    expect(isNavLinkActive("/reviews", "/")).toBe(false);
   });
 
-  it("matches /runs list but not /runs/new or run detail", () => {
-    expect(isNavLinkActive("/runs", "/runs?projectId=default")).toBe(true);
-    expect(isNavLinkActive("/runs/new", "/runs?projectId=default")).toBe(false);
-    expect(isNavLinkActive("/runs/abc", "/runs?projectId=default")).toBe(false);
+  it("matches /reviews list but not /reviews/new or review detail", () => {
+    expect(isNavLinkActive("/reviews", "/reviews?projectId=default")).toBe(true);
+    expect(isNavLinkActive("/reviews/new", "/reviews?projectId=default")).toBe(false);
+    expect(isNavLinkActive("/reviews/abc", "/reviews?projectId=default")).toBe(false);
   });
 
-  it("matches /runs/new exactly", () => {
-    expect(isNavLinkActive("/runs/new", "/runs/new")).toBe(true);
-    expect(isNavLinkActive("/runs", "/runs/new")).toBe(false);
+  it("matches /reviews/new exactly", () => {
+    expect(isNavLinkActive("/reviews/new", "/reviews/new")).toBe(true);
+    expect(isNavLinkActive("/reviews", "/reviews/new")).toBe(false);
   });
 
   it("matches exact path or nested segments for other routes", () => {

@@ -80,26 +80,26 @@ export function CorePilotOneSessionChecklist() {
 
   function hrefForStep(index: number): string {
     if (index === 0) {
-      return "/runs/new";
+      return "/reviews/new";
     }
 
     if (index === 1) {
-      return "/runs?projectId=default";
+      return "/reviews?projectId=default";
     }
 
     if (index === 2) {
       if (latestRunId !== null) {
-        return `/runs/${encodeURIComponent(latestRunId)}`;
+        return `/reviews/${encodeURIComponent(latestRunId)}`;
       }
 
-      return "/runs?projectId=default";
+      return "/reviews?projectId=default";
     }
 
     if (firstCommittedRunId !== null) {
-      return `/runs/${encodeURIComponent(firstCommittedRunId)}`;
+      return `/reviews/${encodeURIComponent(firstCommittedRunId)}`;
     }
 
-    return "/runs?projectId=default";
+    return "/reviews?projectId=default";
   }
 
   function labelForStep(index: number): string {

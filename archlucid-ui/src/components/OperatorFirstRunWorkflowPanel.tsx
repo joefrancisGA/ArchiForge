@@ -318,7 +318,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           <div className="mt-2 flex flex-wrap gap-1.5">
             <Link
               className="inline-flex rounded-full border border-teal-200 bg-white px-2 py-0.5 text-xs font-medium text-teal-800 no-underline hover:bg-teal-50 dark:border-teal-700 dark:bg-neutral-900 dark:text-teal-300 dark:hover:bg-teal-950/60"
-              href={`/runs/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+              href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
             >
               Claims Intake review
             </Link>
@@ -350,7 +350,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
               <p className="m-0 mt-2 text-xs font-medium text-neutral-700 dark:text-neutral-300">
                 <Link
                   className="text-teal-800 underline decoration-teal-300/50 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                  href={`/runs/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
+                  href={`/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}
                 >
                   Open the completed Claims Intake review
                 </Link>{" "}
@@ -461,7 +461,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                       {index === 0 && hasAnyRun ? (
                         <div className="mt-1 text-[11px] leading-snug text-neutral-500 dark:text-neutral-500 [&_a]:text-teal-700 [&_a]:underline [&_a]:decoration-teal-300/50 dark:[&_a]:text-teal-400">
                           Or open the{" "}
-                          <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/runs?projectId=default">
+                          <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/reviews?projectId=default">
                             Runs list
                           </Link>
                           .

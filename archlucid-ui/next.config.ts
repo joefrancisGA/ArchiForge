@@ -45,6 +45,9 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // /runs/* → /reviews/* (URL rename; permanent so search engines and bookmarks update)
+      { source: "/runs", destination: "/reviews", permanent: true },
+      { source: "/runs/:path*", destination: "/reviews/:path*", permanent: true },
       { source: "/alert-rules", destination: "/alerts?tab=rules", permanent: false },
       { source: "/alert-routing", destination: "/alerts?tab=routing", permanent: false },
       { source: "/composite-alert-rules", destination: "/alerts?tab=composite", permanent: false },

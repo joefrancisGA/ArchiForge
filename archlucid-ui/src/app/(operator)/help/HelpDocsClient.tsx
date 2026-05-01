@@ -26,9 +26,9 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
     title: "New architecture request",
     summary: "Create a run with the guided wizard.",
     category: "Getting Started",
-    url: "/runs/new",
+    url: "/reviews/new",
   },
-  { title: "Requests and runs list", summary: "Browse runs for the workspace.", category: "Operations", url: "/runs" },
+  { title: "Requests and runs list", summary: "Browse runs for the workspace.", category: "Operations", url: "/reviews" },
   {
     title: "Governance findings",
     summary: "Review cross-run findings and policy signals.",

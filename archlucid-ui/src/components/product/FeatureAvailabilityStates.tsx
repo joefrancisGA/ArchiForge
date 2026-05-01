@@ -44,7 +44,7 @@ export function AvailableAfterFirstRun() {
           Complete an architecture request and finalize the run to unlock this view.
         </p>
         <Button asChild className="mt-4 bg-teal-600 hover:bg-teal-700" type="button">
-          <Link href="/runs/new">Start a new request</Link>
+          <Link href="/reviews/new">Start a new request</Link>
         </Button>
       </CardContent>
     </Card>

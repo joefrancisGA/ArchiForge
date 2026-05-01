@@ -48,6 +48,12 @@ public sealed class IntegrationEventOutboxEntry
         get; init;
     }
 
+    /// <summary>Dequeue tier (nullable for pre-migration rows; treat as standard when absent).</summary>
+    public int? Priority
+    {
+        get; init;
+    }
+
     public int RetryCount
     {
         get; init;

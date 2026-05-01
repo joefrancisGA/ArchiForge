@@ -128,7 +128,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           <div className="flex flex-wrap gap-2 pt-1">
             <Button asChild variant="outline" size="sm" type="button">
               <Link
-                href={`/runs/new?sampleRunId=${TRIAL_ONBOARDING_SAMPLE_RUN_ID}`}
+                href={`/reviews/new?sampleRunId=${TRIAL_ONBOARDING_SAMPLE_RUN_ID}`}
                 data-testid="wizard-use-canonical-sample"
               >
                 Use a sample (preset deep link)
@@ -151,7 +151,7 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
           </CardHeader>
           <CardFooter>
             <Button asChild type="button" className="w-full sm:w-auto">
-              <Link href={`/runs/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
+              <Link href={`/reviews/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
                 Open example run
               </Link>
             </Button>

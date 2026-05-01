@@ -127,8 +127,8 @@ export default async function ManifestDetailPage({
             Home
           </Link>
           {" · "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
-            Runs
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+            Reviews
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -146,7 +146,7 @@ export default async function ManifestDetailPage({
         <p className="text-sm">
           <Link href="/">Home</Link>
           {" · "}
-          <Link href="/runs?projectId=default">Runs</Link>
+          <Link href="/reviews?projectId=default">Reviews</Link>
         </p>
       </main>
     );
@@ -160,8 +160,8 @@ export default async function ManifestDetailPage({
             Home
           </Link>
           {" · "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
-            Runs
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+            Reviews
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -177,7 +177,7 @@ export default async function ManifestDetailPage({
         <p className="text-sm">
           <Link href="/">Home</Link>
           {" · "}
-          <Link href="/runs?projectId=default">Runs</Link>
+          <Link href="/reviews?projectId=default">Reviews</Link>
         </p>
       </main>
     );
@@ -191,8 +191,8 @@ export default async function ManifestDetailPage({
             Home
           </Link>
           {" · "}
-          <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
-            Runs
+          <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+            Reviews
           </Link>
         </nav>
         <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -212,7 +212,7 @@ export default async function ManifestDetailPage({
         <p className="text-sm">
           <Link href="/">Home</Link>
           {" · "}
-          <Link href="/runs?projectId=default">Runs</Link>
+          <Link href="/reviews?projectId=default">Reviews</Link>
         </p>
       </main>
     );
@@ -224,7 +224,7 @@ export default async function ManifestDetailPage({
 
   const primaryFindingHref =
     summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID || summary.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID
-      ? `/runs/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
+      ? `/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`
       : null;
 
   return (
@@ -234,11 +234,11 @@ export default async function ManifestDetailPage({
           Home
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
-          Runs
+        <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+          Reviews
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href={`/runs/${summary.runId}`}>
+        <Link className="text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
           Open review
         </Link>
         {summary.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID ? (
@@ -308,7 +308,7 @@ export default async function ManifestDetailPage({
               <Button variant="secondary" size="sm" asChild>
                 <Link
                   href={
-                    primaryFindingHref ?? `/runs/${encodeURIComponent(summary.runId)}#run-explanation`
+                    primaryFindingHref ?? `/reviews/${encodeURIComponent(summary.runId)}#run-explanation`
                   }
                 >
                   {primaryFindingHref ? "Review PHI minimization finding" : "Open review findings"}

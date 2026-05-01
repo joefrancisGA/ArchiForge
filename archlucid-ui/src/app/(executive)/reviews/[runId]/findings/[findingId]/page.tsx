@@ -107,7 +107,7 @@ export default async function ExecutiveFindingDetailPage({
           |
         </span>
         <Link
-          href={`/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
+          href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
           className="text-neutral-600 underline hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
         >
           Technical inspection (operator)

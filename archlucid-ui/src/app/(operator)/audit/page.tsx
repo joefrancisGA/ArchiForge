@@ -464,7 +464,7 @@ export default function AuditPage() {
               <div className="text-sm">
                 Run:{" "}
                 {ev.runId ? (
-                  <Link href={`/runs/${ev.runId}`} title="Open review">
+                  <Link href={`/reviews/${ev.runId}`} title="Open review">
                     {ev.runId}
                   </Link>
                 ) : (
@@ -473,7 +473,7 @@ export default function AuditPage() {
               </div>
               {ev.runId ? (
                 <div className="text-[13px] mt-0.5">
-                  <Link href={`/runs/${ev.runId}#agent-traces`} className="text-xs">
+                  <Link href={`/reviews/${ev.runId}#agent-traces`} className="text-xs">
                     View agent traces →
                   </Link>
                 </div>

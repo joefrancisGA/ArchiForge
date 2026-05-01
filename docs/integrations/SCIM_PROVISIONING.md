@@ -23,7 +23,7 @@ ArchLucid acts as a **SCIM 2.0 Service Provider** (RFC 7644). Your identity prov
 
 - **No anonymous SCIM** — unauthenticated calls receive **401**.
 - **Filter support** — `eq`, `ne`, `co`, `sw`, `ew`, `gt`, `lt`, `ge`, `le`, `pr`, `and`, `or`, `not` over flat user attributes mapped to SQL (or in-memory evaluator in dev).
-- **PATCH** — flat attribute paths only; complex attribute selectors return **400** with SCIM error type `invalidPath`.
+- **PATCH** — Users: flat scalar attributes (`userName`, `active`, …). Groups: **`members`** supports bulk `add`, `replace`, and `remove` (replace replaces the membership list), plus Entra-compatible **`members[value eq "<guid>"]`** (`remove`), **`members[value eq "<guid>"].active`** (`replace` boolean), and **`remove` with path `members`** (clear). Other complex attribute selectors (other attributes, composite filters, or operators beyond `eq` on member `value`) return **501** (`notImplemented`) when RFC-shaped, or **400** (`invalidPath`) when malformed. User resources never accept `members[…]` paths — respond **501** for valid syntax.
 - **Audit** — token mint/revoke and user/group mutations emit typed `AuditEventTypes.Scim*` rows to durable audit when configured.
 
 ## Further reading

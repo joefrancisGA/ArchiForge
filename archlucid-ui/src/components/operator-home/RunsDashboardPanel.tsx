@@ -219,7 +219,7 @@ export function RunsDashboardPanel() {
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button asChild variant="primary" size="sm" className="h-8">
-                      <Link href={`/runs/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open review</Link>
+                      <Link href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}`}>Open review</Link>
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link
@@ -230,7 +230,7 @@ export function RunsDashboardPanel() {
                     </Button>
                     <Button asChild variant="outline" size="sm" className="h-8">
                       <Link
-                        href={`/runs/${encodeURIComponent(showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+                        href={`/reviews/${encodeURIComponent(showcaseDemoRun.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
                       >
                         Primary finding
                       </Link>
@@ -249,12 +249,12 @@ export function RunsDashboardPanel() {
                 >
                   <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Getting started</p>
                   <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-                    You have no runs in this workspace yet. Create an architecture request to produce a manifest,
+                    You have no architecture reviews yet. Create a request to produce a manifest,
                     findings, and exportable artifacts — or walk the pilot checklist first.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button asChild variant="primary" size="sm" className="h-8">
-                      <Link href="/runs/new">Create your first request</Link>
+                      <Link href="/reviews/new">Create your first request</Link>
                     </Button>
           <Button asChild variant="outline" size="sm" className="h-8">
             <Link href="/getting-started">First Manifest Guide</Link>
@@ -274,7 +274,7 @@ export function RunsDashboardPanel() {
                       className="flex flex-wrap items-start justify-between gap-2 border-b border-neutral-100 pb-2 last:border-b-0 last:pb-0 dark:border-neutral-800"
                     >
                       <Link
-                        href={`/runs/${encodeURIComponent(run.runId)}`}
+                        href={`/reviews/${encodeURIComponent(run.runId)}`}
                         className="min-w-0 flex-1 text-xs font-medium text-teal-800 underline decoration-teal-300/80 hover:text-teal-900 dark:text-teal-200 dark:hover:text-teal-100"
                       >
                         {runListPrimaryTitle(run)}
@@ -307,7 +307,7 @@ export function RunsDashboardPanel() {
                 <>
                   {attentionRuns.length === 0 ? (
                     <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-                      No runs currently need attention.
+                      No reviews currently need attention.
                     </p>
                   ) : (
                     <>
@@ -375,7 +375,7 @@ export function RunsDashboardPanel() {
           ) : null}
 
           <Link
-            href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}
+            href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}
             className="inline-block text-xs font-semibold text-teal-800 underline dark:text-teal-300"
           >
             Open full runs list
@@ -397,13 +397,13 @@ export function RunsDashboardPanel() {
           <CardContent className="flex flex-wrap gap-2 px-3 pb-3">
             <Button asChild variant="outline" size="sm" className="h-8">
               <Link
-                href={`/runs/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`}
+                href={`/reviews/new?example=${encodeURIComponent(OPERATOR_HOME_EXAMPLE_QUERY_VALUE)}`}
               >
                 Use this example
               </Link>
             </Button>
             <Button asChild variant="primary" size="sm" className="h-8">
-              <Link href={`/runs?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>
+              <Link href={`/reviews?projectId=${encodeURIComponent(DEFAULT_PROJECT_ID)}`}>
                 See completed output
               </Link>
             </Button>

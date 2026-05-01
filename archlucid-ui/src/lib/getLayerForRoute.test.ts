@@ -30,12 +30,12 @@ describe("getLayerForRoute", () => {
     expect(getLayerForRoute("/audit")).toBe("operate-governance");
   });
 
-  it("prefers the longer nav path when multiple prefixes could match (runs/new over runs)", () => {
-    expect(getLayerForRoute("/runs/new")).toBe("pilot");
+  it("prefers the longer nav path when multiple prefixes could match (reviews/new over reviews)", () => {
+    expect(getLayerForRoute("/reviews/new")).toBe("pilot");
   });
 
-  it("maps runs detail under the Runs list path", () => {
-    expect(getLayerForRoute("/runs/550e8400-e29b-41d4-a716-446655440000")).toBe("pilot");
+  it("maps review detail under the Reviews list path", () => {
+    expect(getLayerForRoute("/reviews/550e8400-e29b-41d4-a716-446655440000")).toBe("pilot");
   });
 
   it("returns pilot for paths not in NAV_GROUPS", () => {

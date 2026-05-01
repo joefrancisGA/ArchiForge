@@ -216,6 +216,9 @@ public sealed class ManifestFinalizationService(
         sp.Add("@IntegrationEventType", IntegrationEventTypes.ManifestFinalizedV1);
         sp.Add("@OutboxMessageId", messageId);
         sp.Add("@OutboxPayloadUtf8", payloadUtf8);
+        sp.Add(
+            "@OutboxPriority",
+            IntegrationEventOutboxPriority.ForEventType(IntegrationEventTypes.ManifestFinalizedV1));
 
         try
         {

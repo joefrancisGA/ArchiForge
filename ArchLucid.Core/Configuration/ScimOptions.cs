@@ -11,4 +11,11 @@ public sealed class ScimOptions
         get;
         set;
     } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Daily reminder job threshold in days (<c>0</c> disables). Default six months.</summary>
+    public int TokenRotationReminderDays
+    {
+        get;
+        set;
+    } = 180;
 }

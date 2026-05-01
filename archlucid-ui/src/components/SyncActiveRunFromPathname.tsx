@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 
 /**
- * Tracks `/runs/[runId]` navigation (excluding `/runs/new`) and stores the active run id for downstream pickers (Ask / Graph).
+ * Tracks `/reviews/[runId]` navigation (excluding `/reviews/new`) and stores the active run id for downstream pickers (Ask / Graph).
  */
 export function SyncActiveRunFromPathname(): null {
   const pathname = usePathname();

@@ -44,6 +44,12 @@ public sealed class ScimUserRecord
         init;
     }
 
+    public ScimResolvedRoleOrigin ResolvedRoleOrigin
+    {
+        get;
+        init;
+    } = ScimResolvedRoleOrigin.Unknown;
+
     public DateTimeOffset CreatedUtc
     {
         get;

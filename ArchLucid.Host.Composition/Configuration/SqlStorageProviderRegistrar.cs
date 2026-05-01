@@ -7,6 +7,7 @@ using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
+using ArchLucid.Core.AdminNotifications;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.CustomerSuccess;
@@ -32,6 +33,8 @@ using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.Persistence.AdminNotifications;
+
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Configuration;
@@ -211,6 +214,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
         services.AddScoped<IScimTenantTokenRepository, DapperScimTenantTokenRepository>();
         services.AddScoped<IScimUserRepository, DapperScimUserRepository>();
+        services.AddScoped<IAdminNotificationsRepository, DapperAdminNotificationsRepository>();
         services.AddScoped<IScimGroupRepository, DapperScimGroupRepository>();
         services.AddScoped<IRoiBulletinAggregateReader, SqlRoiBulletinAggregateReader>();
         services.AddScoped<ITenantCustomerSuccessRepository, SqlTenantCustomerSuccessRepository>();

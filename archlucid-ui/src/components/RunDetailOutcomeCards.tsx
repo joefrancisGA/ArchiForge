@@ -148,7 +148,7 @@ export function RunDetailOutcomeCards({
           </Link>
           <Link
             className="mt-2 block text-sm font-medium text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-            href={`/runs/${encodeURIComponent(runId)}/provenance`}
+            href={`/reviews/${encodeURIComponent(runId)}/provenance`}
           >
             Full provenance view
           </Link>

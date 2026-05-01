@@ -36,7 +36,7 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
       <CommandItem
         value={`open-run-${trimmed}`}
         onSelect={() => {
-          onNavigate(`/runs/${trimmed}`);
+          onNavigate(`/reviews/${trimmed}`);
         }}
       >
         Open review detail for {trimmed}
@@ -103,7 +103,7 @@ export function CommandPalette() {
         <span>Jump…</span>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search pages or paste a run id…" />
+        <CommandInput placeholder="Search pages or paste a review ID…" />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} />
           <CommandEmpty>No matching pages. Try another search or paste a run UUID.</CommandEmpty>

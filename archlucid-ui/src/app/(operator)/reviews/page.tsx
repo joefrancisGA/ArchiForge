@@ -99,7 +99,7 @@ export default async function RunsPage({
     const pages = Math.max(1, Math.ceil(totalCount / pageSize));
 
     if (page > pages) {
-      redirect(`/runs?projectId=${encodeURIComponent(projectId)}&page=${pages}&pageSize=${pageSize}`);
+      redirect(`/reviews?projectId=${encodeURIComponent(projectId)}&page=${pages}&pageSize=${pageSize}`);
     }
   }
 
@@ -119,7 +119,7 @@ export default async function RunsPage({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <div className="inline-flex items-center gap-1.5">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/runs/new" className="no-underline">
+            <Link href="/reviews/new" className="no-underline">
               New request
             </Link>
           </Button>

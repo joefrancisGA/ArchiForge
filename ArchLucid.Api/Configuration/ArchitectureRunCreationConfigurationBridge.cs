@@ -1,8 +1,4 @@
-using System.Collections.Generic;
-
 using ArchLucid.Core.Configuration;
-
-using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Configuration;
 
@@ -25,19 +21,16 @@ internal static class ArchitectureRunCreationConfigurationBridge
         if (!string.IsNullOrWhiteSpace(modern))
             return;
 
-
         string? legacy = editable[LegacyMaxPayloadBytesKey]?.Trim();
 
         if (string.IsNullOrWhiteSpace(legacy))
             return;
 
-
         editable.AddInMemoryCollection(
-            new[]
-            {
-                new KeyValuePair<string, string?>(
+        [
+            new KeyValuePair<string, string?>(
                     ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey,
-                    legacy),
-            });
+                    legacy)
+        ]);
     }
 }

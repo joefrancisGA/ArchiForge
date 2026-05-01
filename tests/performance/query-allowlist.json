@@ -1,0 +1,6 @@
+[
+  { "name": "GetRunsByTenantId", "p95ThresholdMs": 200 },
+  { "name": "AppendAuditEvent", "p95ThresholdMs": 50 },
+  { "name": "GetFindingsByRunId", "p95ThresholdMs": 150 },
+  { "name": "GetGoldenManifestById", "p95ThresholdMs": 100 }
+]

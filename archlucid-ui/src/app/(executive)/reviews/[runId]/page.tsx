@@ -103,7 +103,7 @@ export default async function ExecutiveReviewFindingsPage({ params }: { params: 
           |
         </span>
         <Link
-          href={`/runs/${encodeURIComponent(runId)}`}
+          href={`/reviews/${encodeURIComponent(runId)}`}
           className="text-neutral-600 underline hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
         >
           Open in operator shell

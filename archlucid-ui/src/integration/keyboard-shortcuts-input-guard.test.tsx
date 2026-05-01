@@ -96,7 +96,7 @@ describe("keyboard shortcuts input guard (integration)", () => {
     fireComboOn(plain, "alt+n");
 
     expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenCalledWith("/runs/new");
+    expect(mockPush).toHaveBeenCalledWith("/reviews/new");
   });
 
   it("does not open help or navigate when Shift+? is pressed while focus is in an input", () => {

@@ -68,7 +68,7 @@ export type TraceRowWorkItemInput = {
 /** Builds pasted text for [`RunFindingExplainabilityTable`](/components/RunFindingExplainabilityTable) rows. */
 export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input: TraceRowWorkItemInput): string {
   const origin = input.siteOrigin.replace(/\/$/, "");
-  const runPath = `/runs/${encodeURIComponent(input.runId)}`;
+  const runPath = `/reviews/${encodeURIComponent(input.runId)}`;
   const findingPath = `${runPath}/findings/${encodeURIComponent(input.findingId)}`;
   const inspectPath = `${findingPath}/inspect`;
   const title = na(input.findingTitle);

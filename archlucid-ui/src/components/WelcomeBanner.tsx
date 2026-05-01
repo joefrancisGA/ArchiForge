@@ -157,7 +157,7 @@ export function WelcomeBanner() {
           </span>
         ) : null}
         <Button asChild size="sm" className="h-8" variant="primary">
-          <Link href="/runs/new">Create Request</Link>
+          <Link href="/reviews/new">New review</Link>
         </Button>
         <Button
           type="button"
@@ -241,29 +241,15 @@ export function WelcomeBanner() {
 
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
             <Button asChild variant="primary" className="h-10 px-6 text-base font-semibold shadow-sm">
-              <Link href="/runs/new">Create Request</Link>
+              <Link href="/reviews/new">New review</Link>
             </Button>
             <Button
               asChild
               variant="outline"
               className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
             >
-              <Link href="/runs?projectId=default">See completed example</Link>
+              <Link href="/showcase/claims-intake-modernization">See completed example</Link>
             </Button>
-            {returningUser ? (
-              <Button
-                asChild
-                variant="outline"
-                className="h-10 border-teal-300 px-5 text-sm font-semibold text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-300 dark:hover:bg-teal-900/40"
-              >
-                <Link href="/runs?projectId=default">View runs</Link>
-              </Button>
-            ) : null}
-            {trialActive ? (
-              <Button asChild variant="outline" size="sm" className="h-8">
-                <Link href="/getting-started?source=registration">Onboarding checklist</Link>
-              </Button>
-            ) : null}
             <OptInTourLauncher className="h-10 px-4 text-sm" />
           </div>
         </div>

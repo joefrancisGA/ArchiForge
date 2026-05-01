@@ -176,7 +176,7 @@ export function DemoPreviewMarketingBody({
           </p>
         ) : (
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-            <strong>Run ID:</strong>{" "}
+            <strong>Review ID:</strong>{" "}
             <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">
               {typeof payload.run?.runId === "string" ? payload.run.runId : "—"}
             </code>

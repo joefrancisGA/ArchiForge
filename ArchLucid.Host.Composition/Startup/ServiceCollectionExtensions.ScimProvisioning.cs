@@ -15,5 +15,6 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IScimBearerTokenAuthenticator, ScimBearerTokenAuthenticator>();
         services.AddScoped<IScimUserService, ScimUserService>();
         services.AddScoped<IScimGroupService, ScimGroupService>();
+        services.AddHostedService<ScimTokenRotationReminderJob>();
     }
 }

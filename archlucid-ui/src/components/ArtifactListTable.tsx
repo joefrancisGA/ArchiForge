@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
-import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
+import { getArtifactFormatLabel, getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
 
 /** Formats an ISO 8601 date string for display, falling back to the raw string on failure. */
 function formatDate(iso: string): string {
@@ -23,7 +23,7 @@ function reviewHrefForArtifact(
   runId: string | undefined,
 ): string {
   if (runId) {
-    return `/runs/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`;
+    return `/reviews/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`;
   }
 
   return `/manifests/${encodeURIComponent(manifestId)}/artifacts/${encodeURIComponent(artifactId)}`;
@@ -53,7 +53,7 @@ export function ArtifactListTable(props: {
           <tr className="border-b border-neutral-300 text-left dark:border-neutral-600">
             <th className="px-2 py-2.5">Artifact</th>
             <th className="px-2 py-2.5">Type</th>
-            <th className="px-2 py-2.5">Format</th>
+            <th className="px-2 py-2.5">File format</th>
             <th className="px-2 py-2.5">Created</th>
             <th className="px-2 py-2.5">Actions</th>
           </tr>
@@ -77,8 +77,8 @@ export function ArtifactListTable(props: {
                 <td className="px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
                   {getArtifactTypeLabel(artifact.artifactType)}
                 </td>
-                <td className="px-2 py-2.5 font-mono text-[13px]">
-                  {artifact.format}
+                <td className="px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
+                  {getArtifactFormatLabel(artifact.format)}
                 </td>
                 <td className="whitespace-nowrap px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
                   {formatDate(artifact.createdUtc)}

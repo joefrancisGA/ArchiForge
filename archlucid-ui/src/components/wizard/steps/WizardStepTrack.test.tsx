@@ -121,7 +121,7 @@ describe("WizardStepTrack", () => {
     );
 
     const link = screen.getByRole("link", { name: "Open review detail" });
-    expect(link).toHaveAttribute("href", "/runs/golden-1");
+    expect(link).toHaveAttribute("href", "/reviews/golden-1");
   });
 
   it("advances polled summary when the interval callback runs (mock setInterval + getRunSummary)", async () => {

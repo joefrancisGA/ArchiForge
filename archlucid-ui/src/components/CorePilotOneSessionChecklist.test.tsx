@@ -47,15 +47,15 @@ describe("CorePilotOneSessionChecklist", () => {
     });
 
     expect(screen.getByRole("heading", { name: "First architecture review in one session" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "New request" })).toHaveAttribute("href", "/runs/new");
-    expect(screen.getByRole("link", { name: "Reviews list" })).toHaveAttribute("href", "/runs?projectId=default");
+    expect(screen.getByRole("link", { name: "New request" })).toHaveAttribute("href", "/reviews/new");
+    expect(screen.getByRole("link", { name: "Reviews list" })).toHaveAttribute("href", "/reviews?projectId=default");
     expect(screen.getByRole("link", { name: "Open review detail to commit" })).toHaveAttribute(
       "href",
-      "/runs/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+      "/reviews/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
     );
     expect(screen.getByRole("link", { name: "Open a review after commit" })).toHaveAttribute(
       "href",
-      "/runs?projectId=default",
+      "/reviews?projectId=default",
     );
   });
 
@@ -74,7 +74,7 @@ describe("CorePilotOneSessionChecklist", () => {
 
     expect(screen.getByRole("link", { name: "Open committed review" })).toHaveAttribute(
       "href",
-      "/runs/11111111-2222-3333-4444-555555555555",
+      "/reviews/11111111-2222-3333-4444-555555555555",
     );
   });
 });

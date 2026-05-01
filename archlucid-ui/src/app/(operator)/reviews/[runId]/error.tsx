@@ -8,12 +8,13 @@ import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-telemetry";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /**
- * Segment error boundary for `/runs` so list/split layout failures stay scoped and surface a recovery path
- * without swapping the entire operator shell chrome.
+ * Segment error boundary for `/runs/[runId]` so run detail client failures show buyer-safe recovery
+ * (not the parent `/runs` “reviews list” error segment).
  */
-export default function RunsSegmentError({
+export default function RunDetailSegmentError({
   error,
   reset,
 }: {
@@ -21,7 +22,7 @@ export default function RunsSegmentError({
   reset: () => void;
 }) {
   useEffect(() => {
-    reportClientError(error, { source: "runs-segment-error-boundary", digest: error.digest ?? "" });
+    reportClientError(error, { source: "run-detail-segment-error-boundary", digest: error.digest ?? "" });
   }, [error]);
 
   const digest = error.digest?.trim() ?? "";
@@ -30,11 +31,11 @@ export default function RunsSegmentError({
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 py-8">
       <OperatorErrorCallout>
-        <strong className="text-base">Reviews could not load</strong>
+        <strong className="text-base">This architecture review could not be loaded</strong>
         <p className="mt-2 text-sm">
           {isDev
             ? "Development build — technical details appear below."
-            : "This reviews view hit an unexpected error. You can retry, return to reviews, go home, or open Help."}
+            : "The sample review is temporarily unavailable in this environment. You can open the curated sample manifest or the public walkthrough while we recover this view."}
         </p>
         {isDev ? (
           <pre
@@ -60,7 +61,13 @@ export default function RunsSegmentError({
           Retry
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href="/runs?projectId=default">Back to reviews</Link>
+          <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>Sample manifest</Link>
+        </Button>
+        <Button type="button" variant="outline" asChild>
+          <Link href={`/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>Sample walkthrough</Link>
+        </Button>
+        <Button type="button" variant="outline" asChild>
+          <Link href="/reviews?projectId=default">Back to reviews</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/">Home</Link>

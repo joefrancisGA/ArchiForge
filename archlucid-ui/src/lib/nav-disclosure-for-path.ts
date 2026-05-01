@@ -9,7 +9,7 @@ export function effectiveNavDisclosureForPathname(
 ): { showExtended: boolean; showAdvanced: boolean } {
   const normalized = pathname ?? "";
 
-  if (normalized === "/runs/new") {
+  if (normalized === "/reviews/new") {
     return { showExtended: false, showAdvanced: false };
   }
 

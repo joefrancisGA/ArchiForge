@@ -158,9 +158,6 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
                 continue;
             }
 
-            if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning("Webhook outbound POST returned terminal HTTP status {HttpStatus}.", code);
-
             throw new HttpRequestException(
                 $"Outbound webhook failed with HTTP {(int)code}.",
                 inner: null,

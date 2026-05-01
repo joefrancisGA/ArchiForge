@@ -28,11 +28,11 @@ describe("OperatorEvidenceLimitsFooter", () => {
 
     const provenance = screen.getByRole("link", { name: /review trail \(provenance graph\)/i });
 
-    expect(provenance).toHaveAttribute("href", "/runs/abc-123/provenance");
+    expect(provenance).toHaveAttribute("href", "/reviews/abc-123/provenance");
 
     const explain = screen.getByRole("link", { name: /architecture review summary \(explain aggregate\)/i });
 
-    expect(explain).toHaveAttribute("href", "/runs/abc-123#run-explanation");
+    expect(explain).toHaveAttribute("href", "/reviews/abc-123#run-explanation");
   });
 
   it("adds finding inspect link when finding id is provided", () => {
@@ -40,7 +40,7 @@ describe("OperatorEvidenceLimitsFooter", () => {
 
     const inspect = screen.getByRole("link", { name: /technical inspection trail/i });
 
-    expect(inspect).toHaveAttribute("href", "/runs/run-z/findings/fid-9/inspect");
+    expect(inspect).toHaveAttribute("href", "/reviews/run-z/findings/fid-9/inspect");
   });
 
   it("shows fallback disclaimer only when API flag realModeFellBackToSimulator is true", () => {

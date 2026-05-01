@@ -30,7 +30,7 @@ export function writeOnboardingTourCompleted(): void {
 
 /** Anchor values match `[data-onboarding="…"]` on shell / home targets. */
 export function onboardingTourAnchorForHref(href: string): string | undefined {
-  if (href === "/runs/new") {
+  if (href === "/reviews/new") {
     return "tour-new-run";
   }
 

@@ -47,12 +47,12 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       const homeLink = screen.getByRole("link", { name: "Home" });
       expect(homeLink).toHaveAttribute("href", "/");
       expect(homeLink).toHaveAttribute("aria-current", "page");
-      expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/runs/new");
+      expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
       expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute(
         "title",
         "Start a new architecture review — guided wizard through pipeline tracking (Alt+N)",
       );
-      expect(screen.getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/runs?projectId=default");
+      expect(screen.getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
 
       expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();

@@ -102,7 +102,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
         Pipeline progress
       </h3>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        <strong>Run ID:</strong>{" "}
+        <strong>Review ID:</strong>{" "}
         <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{runId}</code>
       </p>
 

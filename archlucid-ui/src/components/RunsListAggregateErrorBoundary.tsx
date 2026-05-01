@@ -47,7 +47,7 @@ function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {
               </td>
               <td className="whitespace-nowrap px-3 py-2 align-top">
                 <Link
-                  href={`/runs/${encodeURIComponent(run.runId)}`}
+                  href={`/reviews/${encodeURIComponent(run.runId)}`}
                   className="font-medium text-teal-800 underline dark:text-teal-300"
                 >
                   Open review
@@ -140,7 +140,7 @@ export class RunsListAggregateErrorBoundary extends Component<
             Retry
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/runs?projectId=default">Back to reviews</Link>
+            <Link href="/reviews?projectId=default">Back to reviews</Link>
           </Button>
         </div>
       </div>

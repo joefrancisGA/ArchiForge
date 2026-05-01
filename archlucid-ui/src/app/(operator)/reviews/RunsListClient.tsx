@@ -261,11 +261,11 @@ export function RunsListClient({
 
   const pages = totalPages(totalCount, pageSize);
   const baseQuery = `projectId=${encodeURIComponent(projectId)}&pageSize=${pageSize}`;
-  const previousHref = `/runs?${baseQuery}&page=1`;
+  const previousHref = `/reviews?${baseQuery}&page=1`;
   const nextHref =
     nextCursor !== null && nextCursor !== undefined && nextCursor.length > 0
-      ? `/runs?${baseQuery}&page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}`
-      : `/runs?${baseQuery}&page=${page + 1}`;
+      ? `/reviews?${baseQuery}&page=${page + 1}&cursor=${encodeURIComponent(nextCursor)}`
+      : `/reviews?${baseQuery}&page=${page + 1}`;
 
   const onRowActivate = useCallback((run: RunSummary, e: React.MouseEvent<HTMLTableRowElement>) => {
     if ((e.target as HTMLElement).closest("a")) {
@@ -288,7 +288,7 @@ export function RunsListClient({
     <div className="mt-4 space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="flex min-w-[12rem] max-w-md flex-1 flex-col gap-1">
-          <Label htmlFor="runs-filter-input">Filter (run id or description)</Label>
+          <Label htmlFor="runs-filter-input">Filter (review ID or description)</Label>
           <input
             id="runs-filter-input"
             type="search"
@@ -298,7 +298,7 @@ export function RunsListClient({
             }}
             className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
             autoComplete="off"
-            aria-label="Filter runs by run id or description"
+            aria-label="Filter reviews by review ID or description"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -348,7 +348,7 @@ export function RunsListClient({
                   <tbody>
                     <tr>
                       <td className="px-3 py-2 text-neutral-600 dark:text-neutral-400" colSpan={3}>
-                        No runs match this filter.
+                        No reviews match this filter.
                       </td>
                     </tr>
                   </tbody>
@@ -459,7 +459,7 @@ export function RunsListClient({
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-2 align-top">
                                   <Link
-                                    href={`/runs/${run.runId}`}
+                                    href={`/reviews/${run.runId}`}
                                     className="font-medium text-teal-800 underline dark:text-teal-300"
                                     onClick={(e) => {
                                       e.stopPropagation();

@@ -110,7 +110,7 @@ export function ManifestDetailSummaryPanel({
           ) : summary.decisionCount > 0 ? (
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
               Full decision text is included in the{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/runs/${summary.runId}`}>
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
                 governed review export
               </Link>{" "}
               and manifest bundle — use the download actions on this page when available.
@@ -141,7 +141,7 @@ export function ManifestDetailSummaryPanel({
           ) : summary.warningCount > 0 ? (
             <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
               Warning detail ships with the governed manifest export. Use{" "}
-              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/runs/${summary.runId}`}>
+              <Link className="font-medium text-teal-800 underline dark:text-teal-300" href={`/reviews/${summary.runId}`}>
                 review detail
               </Link>{" "}
               or download the bundle.
@@ -166,7 +166,7 @@ export function ManifestDetailSummaryPanel({
           <p className="m-0 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             <Link
               className="font-medium text-teal-800 underline dark:text-teal-300"
-              href={`/runs/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
+              href={`/reviews/${encodeURIComponent(summary.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`}
             >
               PHI Minimization Risk
             </Link>

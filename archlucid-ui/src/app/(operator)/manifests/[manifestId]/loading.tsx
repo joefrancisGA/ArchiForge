@@ -19,8 +19,8 @@ export default function ManifestDetailLoading() {
           Home
         </Link>
         {" · "}
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
-          Runs
+        <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
+          Reviews
         </Link>
       </nav>
       <p className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">

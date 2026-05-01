@@ -93,8 +93,8 @@ public sealed class HttpWebhookPosterInstrumentationTests
         scope["archlucid.webhook.succeeded"].Should().Be(false);
 
         telemetryLogger.LogWrites.Should().ContainSingle(static w =>
-            w.Level == LogLevel.Warning
-            && w.Message.StartsWith("Webhook outbound HTTP POST attempt completed.", StringComparison.Ordinal));
+            w.Message.StartsWith("Webhook outbound HTTP POST attempt completed.", StringComparison.Ordinal)
+            && w.Level == LogLevel.Warning);
 
         telemetryLogger.MessagesJoined().Should().NotContain("/fail/route");
 

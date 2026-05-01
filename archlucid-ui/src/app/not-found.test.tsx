@@ -19,7 +19,7 @@ describe("not-found", () => {
 
     expect(screen.getByText("Page not found")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
+    expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/reviews?projectId=default");
     expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
   });
 });

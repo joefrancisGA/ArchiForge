@@ -2,7 +2,10 @@ using System.Text.Json;
 
 namespace ArchLucid.Application.Scim.Patching;
 
-/// <summary>SCIM PATCH (RFC 7644) for flat attribute paths only (v1 rejects complex selectors).</summary>
+/// <summary>
+/// SCIM PATCH (RFC 7644 §3.5): flat paths for User resources; complex selectors on Users are <c>501 notImplemented</c>
+/// upstream (parsed in <see cref="ScimPatchValuePathParser" />).
+/// </summary>
 public static class ScimPatchOpEvaluator
 {
     public static IReadOnlyDictionary<string, JsonElement> ApplyFlat(
@@ -36,11 +39,9 @@ public static class ScimPatchOpEvaluator
         if (!op.TryGetProperty("path", out JsonElement pathEl) || pathEl.ValueKind != JsonValueKind.String)
             throw new ScimPatchException("invalidPath", "Flat PATCH requires a string 'path' per operation.");
 
-        string path = pathEl.GetString() ?? string.Empty;
+        string rawPath = pathEl.GetString() ?? string.Empty;
 
-        if (path.Contains('\"', StringComparison.Ordinal) || path.Contains('[', StringComparison.Ordinal) ||
-            path.Contains('(', StringComparison.Ordinal))
-            throw new ScimPatchException("invalidPath", "Complex SCIM selectors are not supported in v1.");
+        string path = ScimPatchValuePathParser.ParseForUserFlatPatchPath(rawPath);
 
         string key = path.Trim();
 

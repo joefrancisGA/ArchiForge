@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-30 — Quality batch: tier **403**/**404** split, SCIM audit + rotation telemetry, TB-002/**TB-003** gates
+
+**Outcome.** **`CommercialTenantTierFilter`** returns **`403`** (**`PackagingTierInsufficient`**) for **`TenantTier.Standard`** minimum gates and keeps **`404`** obfuscation for **`Enterprise`** (**`PackagingTierProblemDetailsFactory`**). **`RoleOverriddenByScim`** durable audit plus **`AUDIT_COVERAGE_MATRIX.md`** anchor **`audit-core-const-count:146`**. **`archlucid_startup_config_warnings_total`** (**TB-002**) and **`archlucid_query_p95_ms`** + **`tests/performance/query-allowlist.json`** + **`scripts/ci/assert_query_performance.py`** (**TB-003**, CI dry-run **`continue-on-error`**). Docs: **`TENANT_TIER_AND_ROUTE_ENUMERATION.md`**, **`COMMERCIAL_ENFORCEMENT_DEBT.md`**, **`OBSERVABILITY.md`**. SCIM token rotation reminder job and admin-notification plumbing as in session (migrations/hosted service).
+
+---
+
 ## 2026-04-29 — Tests: golden decisioning **case-31** (compliance storage rule + security coverage + topology pillar gap)
 
 **Outcome.** New hand-authored corpus under **`tests/golden-corpus/decisioning/case-31`** (`input.json` + expected finding/decision/audit JSON). **`GoldenCorpusRegressionTests`** expects **31** case directories. Docs: **`DECISIONING_GOLDEN_CORPUS.md`**, **`DECISIONING_TYPED_FINDINGS.md`**, **`FINDINGS_TYPED_SCHEMA.md`**.

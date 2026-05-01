@@ -52,7 +52,7 @@ public sealed class ScimPatchOpEvaluatorTests
     }
 
     [Fact]
-    public void Complex_path_throws_invalidPath()
+    public void Invalid_member_filter_value_throws_invalid_path()
     {
         // ReSharper disable once CollectionNeverUpdated.Local
         Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase);
@@ -64,6 +64,18 @@ public sealed class ScimPatchOpEvaluatorTests
         ex.ScimType.Should().Be("invalidPath");
     }
 
+    [Fact]
+    public void Valid_guid_member_path_on_user_throws_not_implemented()
+    {
+        Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase);
+        Guid id = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        JsonElement patch = JsonDocument.Parse(
+            $$"""{"Operations":[{"op":"replace","path":"members[value eq \"{{id:D}}\"]","value":true}]}""").RootElement;
+
+        Action act = () => ScimPatchOpEvaluator.ApplyFlat(cur, patch);
+        ScimPatchException ex = act.Should().Throw<ScimPatchException>().Which;
+        ex.ScimType.Should().Be("notImplemented");
+    }
     [Fact]
     public void Missing_value_on_replace_throws()
     {

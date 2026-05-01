@@ -5,6 +5,11 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Scim.RoleMapping;
 
+/// <summary>
+///     Maps SCIM enterprise group identifiers to ArchLucid application role names.
+///     Provenance for the persisted resolved role (<c>ResolvedRoleOrigin</c> manual vs SCIM groups) is handled in
+///     <see cref="ScimUserService" /> when writing <c>dbo.ScimUsers</c>.
+/// </summary>
 public sealed class GroupToRoleMapper(IOptions<ScimOptions> options) : IGroupToRoleMapper
 {
     private readonly ScimOptions _options = options.Value;

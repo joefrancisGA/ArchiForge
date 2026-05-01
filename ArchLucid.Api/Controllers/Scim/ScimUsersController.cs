@@ -97,7 +97,7 @@ public sealed class ScimUsersController(
         }
         catch (ScimUserResourceParseException ex)
         {
-            return ScimErrorResultFactory.Create(400, ex.ScimType, ex.Message);
+            return ScimErrorResultFactory.FromParseException(ex);
         }
     }
 
@@ -134,7 +134,7 @@ public sealed class ScimUsersController(
         }
         catch (ScimUserResourceParseException ex)
         {
-            return ScimErrorResultFactory.Create(400, ex.ScimType, ex.Message);
+            return ScimErrorResultFactory.FromParseException(ex);
         }
     }
 
@@ -171,7 +171,7 @@ public sealed class ScimUsersController(
         }
         catch (ScimUserResourceParseException ex)
         {
-            return ScimErrorResultFactory.Create(400, ex.ScimType, ex.Message);
+            return ScimErrorResultFactory.FromParseException(ex);
         }
     }
 

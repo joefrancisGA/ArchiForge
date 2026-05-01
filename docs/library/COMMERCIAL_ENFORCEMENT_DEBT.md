@@ -2,13 +2,16 @@
 
 # Commercial tier enforcement (`[RequiresCommercialTenantTier]`) — as-built
 
-**Date:** 2026-04-28
+**Date:** 2026-04-30
 
 ## Behavior
 
 Endpoints decorated with `[RequiresCommercialTenantTier(TenantTier.Standard)]` (or **`Enterprise`** where noted) are filtered by **`CommercialTenantTierFilter`**, which loads **`dbo.Tenants.Tier`** for the current scope.
 
-When the authenticated principal’s tenant tier is **below** the required tier, `PackagingTierProblemDetailsFactory.CreatePaymentRequired` returns an **`HTTP 404 Not Found`** body with `ProblemTypes.ResourceNotFound` — **not** `402 Payment Required`. This is intentional so lower-tier callers cannot infer that a capability exists on the route (see XML doc on `PackagingTierProblemDetailsFactory`).
+When the authenticated principal’s tenant tier is **below** the required tier:
+
+- **`TenantTier.Standard`** minimum → **`HTTP 403 Forbidden`** with **`ProblemTypes.PackagingTierInsufficient`** via **`PackagingTierProblemDetailsFactory.CreateTenantProductInsufficientTier`** — explicit tenant-visible entitlement signal (not **`402 Payment Required`**).
+- **`TenantTier.Enterprise`** minimum → **`HTTP 404 Not Found`** via **`PackagingTierProblemDetailsFactory.CreateObfuscatedNotFound`** (**`ProblemTypes.ResourceNotFound`**) — anti-route-enumeration for Enterprise-only probes.
 
 When the tenant row is missing, the filter also returns **`404`**.
 
@@ -50,7 +53,7 @@ Unauthenticated requests **pass through** the tier filter (no tier check).
 ## Debt / follow-ons (not in this doc’s scope)
 
 - **SKU ↔ full endpoint matrix:** Packaging docs describe packaging intent; this file tracks **code-level** attributes. Controllers without the attribute are intentionally **not** listed here.
-- **`402` vs `404` naming:** `PackagingTierProblemDetailsFactory` is named for “payment required” but implements **404** responses by design — avoid renaming without a breaking-change review.
+- **Legacy naming:** Class `PackagingTierProblemDetailsFactory` predates the **403**/Enterprise-**404** split — avoid renaming without a breaking-change review.
 
 ## References
 
@@ -59,5 +62,5 @@ Unauthenticated requests **pass through** the tier filter (no tier check).
 - `ArchLucid.Api/Attributes/RequiresCommercialTenantTierAttribute.cs`
 - `ArchLucid.Api.Tests/CommercialPackagingMetadataTests.cs` (metadata regression)
 - `ArchLucid.Api.Tests/Planning/PlanningGovernanceCommercialSmokeIntegrationTests.cs` (gated route smoke)
-- `ArchLucid.Api.Tests/Alerts/AlertsCommercialTierPackagingIntegrationTests.cs` (404 vs 200 on `GET /v1/alerts` with `InMemoryTenantRepository` tier overrides)
+- `ArchLucid.Api.Tests/Alerts/AlertsCommercialTierPackagingIntegrationTests.cs` (**403** vs 200 on `GET /v1/alerts` with `InMemoryTenantRepository` tier overrides — Standard-minimum capability)
 - `ArchLucid.Api.Tests/CommercialTierIntegrationTestTenant.cs` (tier mutation helper for `ArchLucidApiFactory` + InMemory hosts)

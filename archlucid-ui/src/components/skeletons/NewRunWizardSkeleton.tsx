@@ -8,7 +8,7 @@ const MACRO_WIZARD_STEPS = [
 ] as const;
 
 /**
- * Suspense fallback for `/runs/new`: mirrors macro stepper placement without loading-copy text-only flash.
+ * Suspense fallback for `/reviews/new`: mirrors macro stepper placement without loading-copy text-only flash.
  */
 export function NewRunWizardSkeleton() {
   return (

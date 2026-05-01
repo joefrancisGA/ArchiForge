@@ -94,7 +94,7 @@ export default function GovernanceApprovalLineagePage() {
             Retry
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link href="/runs?projectId=default">Runs</Link>
+            <Link href="/reviews?projectId=default">Reviews</Link>
           </Button>
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function GovernanceApprovalLineagePage() {
             <span className="text-muted-foreground">Run</span>{" "}
             <Link
               className="font-mono text-xs underline-offset-4 hover:underline"
-              href={`/runs/${encodeURIComponent(a.runId)}`}
+              href={`/reviews/${encodeURIComponent(a.runId)}`}
             >
               {a.runId}
             </Link>

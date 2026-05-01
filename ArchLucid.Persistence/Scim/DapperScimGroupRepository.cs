@@ -152,6 +152,27 @@ public sealed class DapperScimGroupRepository(ISqlConnectionFactory connectionFa
         await tran.CommitAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Guid>> ListMemberUserIdsAsync(
+        Guid tenantId,
+        Guid groupId,
+        CancellationToken cancellationToken)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+                           SELECT m.UserId
+                           FROM dbo.ScimGroupMembers m
+                           WHERE m.TenantId = @TenantId AND m.GroupId = @GroupId
+                           ORDER BY m.UserId;
+                           """;
+
+        IEnumerable<Guid> rows = await connection.QueryAsync<Guid>(
+            new CommandDefinition(sql, new { TenantId = tenantId, GroupId = groupId }, cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
+
     private sealed class GroupRow
     {
         public Guid Id

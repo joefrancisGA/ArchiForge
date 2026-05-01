@@ -636,6 +636,10 @@ jobs:
           python3 -m pip install --quiet pytest
           cd scripts/ci && python3 -m pytest tests/ -v
 
+      - name: TB-003 named query performance allowlist (dry-run, non-blocking)
+        run: python3 scripts/ci/assert_query_performance.py --dry-run
+        continue-on-error: true
+
       - name: V1 traceability matrix (docs vs repo paths)
         run: python3 scripts/ci/assert_traceability_coverage.py
 

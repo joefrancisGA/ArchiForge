@@ -1,5 +1,7 @@
 using System.Data;
 
+using ArchLucid.Core.Integration;
+
 using Moq;
 
 namespace ArchLucid.Persistence.Tests.Integration;
@@ -103,6 +105,41 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
 
         pending.Should().ContainSingle();
         pending[0].EventType.Should().Be("b");
+    }
+
+    [Fact]
+    public async Task DequeuePendingAsync_prioritizes_critical_events_before_internal_when_enqueued_later()
+    {
+        InMemoryIntegrationEventOutboxRepository sut = new();
+        Guid tenant = Guid.NewGuid();
+        Guid workspace = Guid.NewGuid();
+        Guid project = Guid.NewGuid();
+
+        await sut.EnqueueAsync(
+            null,
+            IntegrationEventTypes.TrialLifecycleEmailV1,
+            null,
+            new byte[] { 1 },
+            tenant,
+            workspace,
+            project,
+            CancellationToken.None);
+
+        await sut.EnqueueAsync(
+            null,
+            IntegrationEventTypes.AlertFiredV1,
+            null,
+            new byte[] { 2 },
+            tenant,
+            workspace,
+            project,
+            CancellationToken.None);
+
+        IReadOnlyList<IntegrationEventOutboxEntry> batch = await sut.DequeuePendingAsync(10, CancellationToken.None);
+
+        batch.Should().HaveCount(2);
+        batch[0].EventType.Should().Be(IntegrationEventTypes.AlertFiredV1);
+        batch[1].EventType.Should().Be(IntegrationEventTypes.TrialLifecycleEmailV1);
     }
 
     [Fact]

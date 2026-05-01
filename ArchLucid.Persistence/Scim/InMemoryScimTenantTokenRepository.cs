@@ -10,6 +10,21 @@ public sealed class InMemoryScimTenantTokenRepository : IScimTenantTokenReposito
     private readonly ConcurrentDictionary<string, ScimTokenRow> _byPublicKey = new(StringComparer.Ordinal);
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<ScimTokenRotationCandidate>> ListActiveCreatedOnOrBeforeAsync(
+        DateTimeOffset createdUtcUpperBoundInclusive,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        List<ScimTokenRotationCandidate> list = _byPublicKey.Values
+            .Where(r => r.RevokedUtc is null && r.CreatedUtc <= createdUtcUpperBoundInclusive)
+            .Select(static r => new ScimTokenRotationCandidate(r.Id, r.TenantId, r.CreatedUtc))
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<ScimTokenRotationCandidate>>(list);
+    }
+
+    /// <inheritdoc />
     public Task<ScimTokenRow?> FindActiveByPublicLookupKeyAsync(string publicLookupKey, CancellationToken cancellationToken)
     {
         _ = cancellationToken;

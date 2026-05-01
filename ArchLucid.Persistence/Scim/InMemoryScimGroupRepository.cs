@@ -106,4 +106,23 @@ public sealed class InMemoryScimGroupRepository : IScimGroupRepository
 
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<Guid>> ListMemberUserIdsAsync(
+        Guid tenantId,
+        Guid groupId,
+        CancellationToken cancellationToken)
+    {
+        _ = cancellationToken;
+
+        List<Guid> ids =
+        [
+            .. _members.Keys
+                .Where(k => k.TenantId == tenantId && k.GroupId == groupId)
+                .Select(k => k.UserId)
+                .OrderBy(static u => u)
+        ];
+
+        return Task.FromResult<IReadOnlyList<Guid>>(ids);
+    }
 }

@@ -1,5 +1,7 @@
 using System.Data;
 
+using ArchLucid.Core.Integration;
+
 namespace ArchLucid.Persistence;
 
 /// <summary>In-memory outbox for tests and <c>StorageProvider=InMemory</c>.</summary>
@@ -61,6 +63,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
             WorkspaceId = workspaceId,
             ProjectId = projectId,
             CreatedUtc = DateTime.UtcNow,
+            Priority = IntegrationEventOutboxPriority.ForEventType(eventType),
             RetryCount = 0,
             NextRetryUtc = null,
             LastErrorMessage = null,
@@ -85,7 +88,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         {
             List<IntegrationEventOutboxEntry> batch = _rows
                 .Where(e => e.DeadLetteredUtc is null && (e.NextRetryUtc is null || e.NextRetryUtc <= utcNow))
-                .OrderBy(e => e.CreatedUtc)
+                .OrderBy(e => DrainSortPriority(e.Priority))
+                .ThenBy(e => e.CreatedUtc)
                 .Take(take)
                 .ToList();
 
@@ -134,6 +138,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
                 WorkspaceId = e.WorkspaceId,
                 ProjectId = e.ProjectId,
                 CreatedUtc = e.CreatedUtc,
+                Priority = e.Priority,
                 RetryCount = newRetryCount,
                 NextRetryUtc = nextRetryUtc,
                 DeadLetteredUtc = deadLetteredUtc,
@@ -217,6 +222,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
                 WorkspaceId = e.WorkspaceId,
                 ProjectId = e.ProjectId,
                 CreatedUtc = e.CreatedUtc,
+                Priority = e.Priority,
                 RetryCount = 0,
                 NextRetryUtc = null,
                 DeadLetteredUtc = null,
@@ -226,4 +232,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
             return Task.FromResult(true);
         }
     }
+
+    /// <summary>Matches <c>ORDER BY ISNULL(Priority, 1)</c> in SQL dequeue.</summary>
+    private static int DrainSortPriority(int? priority) => priority ?? 1;
 }

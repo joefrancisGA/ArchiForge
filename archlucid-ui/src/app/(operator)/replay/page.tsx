@@ -73,7 +73,7 @@ function ReplayForm() {
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>
         {" · "}
-        <Link href="/runs?projectId=default">Runs</Link>
+        <Link href="/reviews?projectId=default">Runs</Link>
         {" · "}
         <Link href="/compare">Compare two runs</Link>
       </p>
@@ -119,7 +119,7 @@ function ReplayForm() {
         <OperatorEmptyState title="Waiting for a run ID">
           <p className="m-0">
             Enter the run to replay, open this page with <code>?runId=…</code>, or go from{" "}
-            <Link href="/runs?projectId=default">Runs</Link> → run detail → <strong>Replay this run</strong>.
+            <Link href="/reviews?projectId=default">Runs</Link> → run detail → <strong>Replay this run</strong>.
           </p>
         </OperatorEmptyState>
       )}

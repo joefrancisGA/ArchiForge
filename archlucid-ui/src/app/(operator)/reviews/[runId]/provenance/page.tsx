@@ -87,8 +87,8 @@ export default async function RunProvenancePage({
           runs use <Link href="/graph">Graph</Link> with the authority provenance API instead.
         </p>
         <p>
-          <Link href={`/runs/${runId}`} className="text-teal-800 underline dark:text-teal-300">
-            ← Run detail
+          <Link href={`/reviews/${runId}`} className="text-teal-800 underline dark:text-teal-300">
+            ← Review detail
           </Link>
         </p>
       </main>
@@ -136,8 +136,8 @@ export default async function RunProvenancePage({
         <ProvenanceGraphDiagram nodes={graph.nodes} edges={graph.edges} />
 
         <p>
-          <Link href={`/runs/${runId}`} className="text-teal-800 underline dark:text-teal-300">
-            ← Run detail
+          <Link href={`/reviews/${runId}`} className="text-teal-800 underline dark:text-teal-300">
+            ← Review detail
           </Link>
         </p>
 

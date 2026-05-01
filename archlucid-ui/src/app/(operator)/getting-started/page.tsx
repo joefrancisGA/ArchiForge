@@ -17,7 +17,7 @@ type GettingStartedPageProps = {
 export default async function GettingStartedPage({ searchParams }: GettingStartedPageProps) {
   const p = await searchParams;
   const fromRegistration = p.source === "registration";
-  const sampleNewRunHref = `/runs/new?sampleRunId=${encodeURIComponent(TRIAL_ONBOARDING_SAMPLE_RUN_ID)}`;
+  const sampleNewRunHref = `/reviews/new?sampleRunId=${encodeURIComponent(TRIAL_ONBOARDING_SAMPLE_RUN_ID)}`;
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-1 sm:px-0">
@@ -56,7 +56,7 @@ export default async function GettingStartedPage({ searchParams }: GettingStarte
               <CardContent className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
                 <p className="m-0">Describe your architecture scenario in the new-request wizard.</p>
                 <p className="m-0 flex flex-wrap gap-x-3 gap-y-2">
-                  <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/runs/new">
+                  <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
                     Open new request
                   </Link>
                   <Link
@@ -83,7 +83,7 @@ export default async function GettingStartedPage({ searchParams }: GettingStarte
                 <p className="m-0">
                   <Link
                     className="font-medium text-teal-800 underline dark:text-teal-300"
-                    href="/runs?projectId=default"
+                    href="/reviews?projectId=default"
                   >
                     View runs
                   </Link>

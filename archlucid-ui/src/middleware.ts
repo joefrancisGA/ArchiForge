@@ -10,5 +10,5 @@ export function middleware() {
 
 /** Routes that pass through this middleware (authority, artifact, and comparison flows). */
 export const config = {
-  matcher: ["/runs/:path*", "/compare", "/replay", "/manifests/:path*"],
+  matcher: ["/reviews/:path*", "/runs/:path*", "/compare", "/replay", "/manifests/:path*"],
 };

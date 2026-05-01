@@ -77,4 +77,24 @@ public sealed class InMemoryScimGroupRepositoryTests
         await sut.SetMembersAsync(tenantId, g.Id, [u2], CancellationToken.None);
         await sut.SetMembersAsync(tenantId, g.Id, [], CancellationToken.None);
     }
+
+    [Fact]
+    public async Task ListMemberUserIdsAsync_reflects_SetMembersAsync()
+    {
+        InMemoryScimGroupRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        ScimGroupRecord g = await sut.InsertAsync(tenantId, "e", "n", CancellationToken.None);
+        Guid u1 = Guid.NewGuid();
+        Guid u2 = Guid.NewGuid();
+
+        IReadOnlyList<Guid> empty = await sut.ListMemberUserIdsAsync(tenantId, g.Id, CancellationToken.None);
+
+        empty.Should().BeEmpty();
+
+        await sut.SetMembersAsync(tenantId, g.Id, [u2, u1], CancellationToken.None);
+
+        IReadOnlyList<Guid> two = await sut.ListMemberUserIdsAsync(tenantId, g.Id, CancellationToken.None);
+
+        two.Should().BeEquivalentTo(new[] { u1, u2 });
+    }
 }

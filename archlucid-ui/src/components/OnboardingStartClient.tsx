@@ -21,7 +21,7 @@ type TenantTrialStatusResponse = {
 
 /**
  * Post-registration entry: reads `GET /v1/tenant/trial-status` using registration scope headers (pre-OIDC),
- * surfaces limits and the seeded sample run, and links into `/runs/new` with `sampleRunId` for the wizard.
+ * surfaces limits and the seeded sample run, and links into `/reviews/new` with `sampleRunId` for the wizard.
  */
 export function OnboardingStartClient() {
   const [status, setStatus] = useState<TenantTrialStatusResponse | null>(null);
@@ -62,7 +62,7 @@ export function OnboardingStartClient() {
   const reg = readLastRegistrationPayload();
   const sampleId = status?.trialSampleRunId?.trim() ?? "";
   const hasSample = sampleId.length > 0;
-  const wizardHref = hasSample ? `/runs/new?sampleRunId=${encodeURIComponent(sampleId)}` : "/runs/new";
+  const wizardHref = hasSample ? `/reviews/new?sampleRunId=${encodeURIComponent(sampleId)}` : "/reviews/new";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -125,13 +125,13 @@ export function OnboardingStartClient() {
             ) : null}
             {hasSample ? (
               <Button asChild variant="outline">
-                <Link href={`/runs/${sampleId}`} data-testid="onboarding-open-sample-run">
+                <Link href={`/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
                   Open example run
                 </Link>
               </Button>
             ) : null}
             <Button asChild variant="outline">
-              <Link href="/runs/new">Open new-run wizard</Link>
+              <Link href="/reviews/new">Open new-run wizard</Link>
             </Button>
             <Button asChild variant="ghost">
               <Link href="/">Operator home</Link>

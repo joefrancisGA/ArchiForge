@@ -102,7 +102,7 @@ export default async function ExecutiveReviewsPage() {
               Finalized reviews appear here after an operator completes the review and locks the architecture package.
             </p>
             <Button asChild variant="outline" size="sm">
-              <Link href="/runs/new">Start a review (operator shell)</Link>
+              <Link href="/reviews/new">Start a review (operator shell)</Link>
             </Button>
           </CardContent>
         </Card>

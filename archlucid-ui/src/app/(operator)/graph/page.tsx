@@ -369,7 +369,7 @@ export default function GraphPage() {
           />
           <OperatorTryNext>
             This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed JSON body.
-            Confirm the run exists in <Link href="/runs?projectId=default">Runs</Link>, retry{" "}
+            Confirm the run exists in <Link href="/reviews?projectId=default">Runs</Link>, retry{" "}
             <strong>Load graph</strong>, and check the browser network tab for the failing <code>/v1/…/graph</code>{" "}
             call.
           </OperatorTryNext>
@@ -388,7 +388,7 @@ export default function GraphPage() {
           </OperatorMalformedCallout>
           <OperatorTryNext>
             Compare <code>GET /version</code> on the API with your UI deployment. Try another run from{" "}
-            <Link href="/runs?projectId=default">Runs</Link> if this run has partial graph data.
+            <Link href="/reviews?projectId=default">Runs</Link> if this run has partial graph data.
           </OperatorTryNext>
         </>
       )}

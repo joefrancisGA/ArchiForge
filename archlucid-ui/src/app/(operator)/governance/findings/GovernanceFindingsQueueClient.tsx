@@ -109,7 +109,7 @@ function dedupeRows(rows: GovernanceFindingQueueRow[]): GovernanceFindingQueueRo
 }
 
 function inspectHref(runId: string, findingId: string): string {
-  return `/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`;
+  return `/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(findingId)}/inspect`;
 }
 
 function manifestHref(manifestId: string): string {
@@ -247,7 +247,7 @@ export default function GovernanceFindingsQueueClient() {
                       <td className="px-3 py-2 align-top">
                         <Link
                           className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                          href={`/runs/${encodeURIComponent(row.runId)}`}
+                          href={`/reviews/${encodeURIComponent(row.runId)}`}
                         >
                           {row.runLabel}
                         </Link>
@@ -318,7 +318,7 @@ export default function GovernanceFindingsQueueClient() {
                       <div className="mt-0.5">
                         <Link
                           className="text-teal-800 underline hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
-                          href={`/runs/${encodeURIComponent(row.runId)}`}
+                          href={`/reviews/${encodeURIComponent(row.runId)}`}
                         >
                           {row.runLabel}
                         </Link>
@@ -364,7 +364,7 @@ export default function GovernanceFindingsQueueClient() {
                 : "When runs produce open findings, they appear in this queue. Start from an architecture request, finalize a manifest, then return or open findings from run detail."
             }
             actions={[
-              { label: "View runs", href: "/runs?projectId=default", variant: "primary" },
+              { label: "View runs", href: "/reviews?projectId=default", variant: "primary" },
               { label: "Governance workflow", href: "/governance", variant: "outline" },
             ]}
           />

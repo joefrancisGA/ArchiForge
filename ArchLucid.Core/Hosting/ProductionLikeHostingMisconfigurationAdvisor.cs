@@ -1,5 +1,7 @@
 using System.Globalization;
 
+using ArchLucid.Core.Diagnostics;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,6 +29,18 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
     /// </summary>
     public static IReadOnlyList<string> DescribeWarnings(IConfiguration configuration, string hostingEnvironmentName)
     {
+        IReadOnlyList<HostingMisconfigurationWarning> structured = DescribeWarningRecords(configuration, hostingEnvironmentName);
+
+        return structured.Count is 0
+            ? []
+            : structured.Select(static w => w.Message).ToList();
+    }
+
+    /// <summary>TB-002: exposes stable <paramref name="RuleName"/> for metrics alongside operator <see cref="HostingMisconfigurationWarning.Message"/>.</summary>
+    public static IReadOnlyList<HostingMisconfigurationWarning> DescribeWarningRecords(
+        IConfiguration configuration,
+        string hostingEnvironmentName)
+    {
         ArgumentNullException.ThrowIfNull(configuration);
 
         if (string.IsNullOrWhiteSpace(hostingEnvironmentName))
@@ -35,7 +49,7 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
         if (!ShouldEvaluateProductionLikeWarnings(hostingEnvironmentName.Trim(), configuration))
             return [];
 
-        List<string> warnings = [];
+        List<HostingMisconfigurationWarning> warnings = [];
 
         AppendCorsWarnings(configuration, warnings);
         AppendAuthWarnings(configuration, warnings);
@@ -52,10 +66,12 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(environment);
 
-        foreach (string warning in DescribeWarnings(configuration, environment))
+        foreach (HostingMisconfigurationWarning warning in DescribeWarningRecords(configuration, environment.EnvironmentName))
         {
             if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning("[HostingMisconfiguration] {Warning}", warning);
+                logger.LogWarning("[HostingMisconfiguration] {Warning}", warning.Message);
+
+            ArchLucidInstrumentation.RecordStartupConfigWarning(warning.RuleName);
         }
     }
 
@@ -114,7 +130,7 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
             || string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static void AppendCorsWarnings(IConfiguration configuration, List<string> warnings)
+    private static void AppendCorsWarnings(IConfiguration configuration, List<HostingMisconfigurationWarning> warnings)
     {
         if (IsWorkerOnlyHost(configuration))
             return;
@@ -128,12 +144,15 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
             hostingRole = "Combined";
 
 
-        warnings.Add(
+        string message =
             string.Format(
                 CultureInfo.InvariantCulture,
                 "Cors:AllowedOrigins has no entries on a staging/production-like API host (Hosting:Role={0}); "
                     + "browsers cannot call the API cross-origin until origins are configured.",
-                hostingRole));
+                hostingRole);
+
+        warnings.Add(
+            new HostingMisconfigurationWarning(ProductionLikeHostingMisconfigurationAdvisorRuleNames.CorsAllowedOriginsEmptyProductionLikeHost, message));
     }
 
     private static bool IsWorkerOnlyHost(IConfiguration configuration)
@@ -153,7 +172,7 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
         return origins.Any(static o => !string.IsNullOrWhiteSpace(o));
     }
 
-    private static void AppendAuthWarnings(IConfiguration configuration, List<string> warnings)
+    private static void AppendAuthWarnings(IConfiguration configuration, List<HostingMisconfigurationWarning> warnings)
     {
         string? mode = ResolveArchLucidAuth(configuration, "Mode");
 
@@ -164,8 +183,10 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
 
             if (string.IsNullOrWhiteSpace(pem) && string.IsNullOrWhiteSpace(authority))
                 warnings.Add(
-                    "ArchLucidAuth:Mode is JwtBearer but neither ArchLucidAuth:Authority nor "
-                        + "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; JWT authentication cannot succeed.");
+                    new HostingMisconfigurationWarning(
+                        ProductionLikeHostingMisconfigurationAdvisorRuleNames.JwtBearerMissingAuthorityAndPem,
+                        "ArchLucidAuth:Mode is JwtBearer but neither ArchLucidAuth:Authority nor "
+                            + "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; JWT authentication cannot succeed."));
 
             return;
         }
@@ -175,8 +196,10 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
 
         if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
             warnings.Add(
-                "ArchLucidAuth:Mode is ApiKey but Authentication:ApiKey:Enabled is false; "
-                    + "configure API keys or switch ArchLucidAuth:Mode.");
+                new HostingMisconfigurationWarning(
+                    ProductionLikeHostingMisconfigurationAdvisorRuleNames.ApiKeyModeDisabledWhenConfigured,
+                    "ArchLucidAuth:Mode is ApiKey but Authentication:ApiKey:Enabled is false; "
+                        + "configure API keys or switch ArchLucidAuth:Mode."));
     }
 
     private static string? ResolveArchLucidAuth(IConfiguration configuration, string relativeKey) =>

@@ -1,7 +1,6 @@
 using ArchLucid.Api.Demo;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
-using ArchLucid.Application.Common;
 
 using Asp.Versioning;
 

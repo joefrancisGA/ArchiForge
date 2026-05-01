@@ -16,14 +16,14 @@ export const SHORTCUTS: ShortcutEntry[] = [
   {
     key: "alt+n",
     label: "New request",
-    route: "/runs/new",
+    route: "/reviews/new",
     description: "Create request (new request wizard)",
   },
   {
     key: "alt+r",
-    label: "Runs list",
-    route: "/runs?projectId=default",
-    description: "Open runs",
+    label: "Reviews list",
+    route: "/reviews?projectId=default",
+    description: "Open reviews",
   },
   {
     key: "alt+c",

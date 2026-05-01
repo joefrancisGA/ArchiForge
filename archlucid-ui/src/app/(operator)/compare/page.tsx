@@ -429,7 +429,7 @@ function CompareForm() {
           />
           <OperatorTryNext>
             Confirm both runs exist and are in scope (same tenant/project as the shell). Re-pick runs from{" "}
-            <Link href="/runs?projectId=default">Runs</Link> or run detail, then click <strong>Compare</strong> again.
+            <Link href="/reviews?projectId=default">Runs</Link> or run detail, then click <strong>Compare</strong> again.
             Use the correlation ID in API logs if you escalate.
           </OperatorTryNext>
         </>

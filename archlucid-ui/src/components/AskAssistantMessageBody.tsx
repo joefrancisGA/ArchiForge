@@ -30,7 +30,7 @@ export function AskAssistantMessageBody(props: { readonly content: string }) {
     parts.push(
       <Link
         key={`id-${m.index}-${id}`}
-        href={`/runs/${encodeURIComponent(id)}`}
+        href={`/reviews/${encodeURIComponent(id)}`}
         className="font-medium text-teal-800 underline decoration-teal-300/60 underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:decoration-teal-700 dark:hover:text-teal-200"
         title="Open as run detail (IDs may reference manifests in some answers — confirm in context)."
       >

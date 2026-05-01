@@ -40,8 +40,8 @@ export function FindingInspectView({
   if (failure || !payload) {
     return (
       <main className="mx-auto max-w-3xl space-y-4 p-6">
-        <Link href={`/runs/${encodeURIComponent(runId)}`} className="text-sm text-sky-700 underline dark:text-sky-300">
-          ← Back to run
+        <Link href={`/reviews/${encodeURIComponent(runId)}`} className="text-sm text-sky-700 underline dark:text-sky-300">
+          ← Back to review
         </Link>
         <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Technical inspection</h1>
         <OperatorApiProblem
@@ -60,7 +60,7 @@ export function FindingInspectView({
           This finding belongs to run <span className="font-mono">{payload.runId}</span>, not the run in this URL.
         </p>
         <Link
-          href={`/runs/${encodeURIComponent(payload.runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
+          href={`/reviews/${encodeURIComponent(payload.runId)}/findings/${encodeURIComponent(decodedFindingId)}/inspect`}
           className="text-sky-700 underline dark:text-sky-300"
         >
           Open the correct inspector
@@ -73,7 +73,7 @@ export function FindingInspectView({
     <main className="mx-auto max-w-3xl space-y-6 p-6">
       <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600 dark:text-neutral-400">
         <Link
-          href={`/runs/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}
+          href={`/reviews/${encodeURIComponent(runId)}/findings/${encodeURIComponent(decodedFindingId)}`}
           className="text-base font-semibold text-teal-800 underline underline-offset-2 hover:text-teal-900 dark:text-teal-300 dark:hover:text-teal-200"
         >
           ← Finding detail

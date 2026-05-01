@@ -145,7 +145,7 @@ export function AlertsInboxContent() {
 
     const actions = canMutateAlertInbox
       ? [
-          { label: "View runs list", href: "/runs?projectId=default" },
+          { label: "View runs list", href: "/reviews?projectId=default" },
           {
             label: "Alert tooling (rules, routing, tuning)",
             href: "/alerts?tab=rules",
@@ -153,7 +153,7 @@ export function AlertsInboxContent() {
           },
         ]
       : [
-          { label: "View runs list", href: "/runs?projectId=default" },
+          { label: "View runs list", href: "/reviews?projectId=default" },
           {
             label: "Review alert tooling (read-only)",
             href: "/alerts?tab=rules",

@@ -36,7 +36,7 @@ export function OperatorEvidenceLimitsFooter({
   inspectMetadata,
 }: OperatorEvidenceLimitsFooterProps) {
   const safeRunId = runId.trim();
-  const runBase = `/runs/${encodeURIComponent(safeRunId)}`;
+  const runBase = `/reviews/${encodeURIComponent(safeRunId)}`;
   const provenanceHref = `${runBase}/provenance`;
   const explainHref = `${runBase}#run-explanation`;
   const inspectFindingId = trimmedOrEmpty(findingIdForInspectLink);

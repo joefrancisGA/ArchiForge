@@ -84,7 +84,7 @@ describe("CopyFindingAsWorkItemButton", () => {
 
     expect(body).toContain("`fid-1`");
 
-    expect(body).toContain("/runs/run-42");
+    expect(body).toContain("/reviews/run-42");
 
   });
 

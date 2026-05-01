@@ -57,6 +57,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
         string? displayName,
         bool active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
@@ -71,6 +72,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             DisplayName = displayName,
             Active = active,
             ResolvedRole = resolvedRole,
+            ResolvedRoleOrigin = resolvedRoleOrigin,
             CreatedUtc = now,
             UpdatedUtc = now
         };
@@ -89,6 +91,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
         string? displayName,
         bool active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
@@ -107,6 +110,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             DisplayName = displayName,
             Active = active,
             ResolvedRole = resolvedRole,
+            ResolvedRoleOrigin = resolvedRoleOrigin,
             CreatedUtc = existing.CreatedUtc,
             UpdatedUtc = now
         };
@@ -123,6 +127,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
         string? displayName,
         bool? active,
         string? resolvedRole,
+        ScimResolvedRoleOrigin resolvedRoleOrigin,
         CancellationToken cancellationToken)
     {
         _ = cancellationToken;
@@ -140,6 +145,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             DisplayName = displayName ?? e.DisplayName,
             Active = active ?? e.Active,
             ResolvedRole = resolvedRole ?? e.ResolvedRole,
+            ResolvedRoleOrigin = resolvedRoleOrigin,
             CreatedUtc = e.CreatedUtc,
             UpdatedUtc = DateTimeOffset.UtcNow
         };
@@ -167,6 +173,7 @@ public sealed class InMemoryScimUserRepository : IScimUserRepository
             DisplayName = e.DisplayName,
             Active = false,
             ResolvedRole = e.ResolvedRole,
+            ResolvedRoleOrigin = e.ResolvedRoleOrigin,
             CreatedUtc = e.CreatedUtc,
             UpdatedUtc = DateTimeOffset.UtcNow
         };

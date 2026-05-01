@@ -89,7 +89,7 @@ describe("HomePage (55R smoke — landing)", () => {
 
     const runsLinks = screen
       .getAllByRole("link")
-      .filter((el) => el.getAttribute("href") === "/runs?projectId=default");
+      .filter((el) => el.getAttribute("href") === "/reviews?projectId=default");
     expect(runsLinks.length).toBeGreaterThan(0);
 
     await waitFor(() => {
@@ -103,7 +103,7 @@ describe("HomePage (55R smoke — landing)", () => {
     await waitFor(() => {
       expect(screen.getByRole("link", { name: "Open full runs list" })).toHaveAttribute(
         "href",
-        "/runs?projectId=default",
+        "/reviews?projectId=default",
       );
     });
   });

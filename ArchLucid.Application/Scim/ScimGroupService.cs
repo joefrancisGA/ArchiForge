@@ -63,44 +63,24 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
         _ = await _groups.GetByIdAsync(tenantId, id, cancellationToken)
             ?? throw new ScimNotFoundException("Group not found.");
 
-        if (patch.ValueKind != JsonValueKind.Object || !patch.TryGetProperty("Operations", out JsonElement ops))
+        if (patch.ValueKind != JsonValueKind.Object || !patch.TryGetProperty("Operations", out JsonElement ops) ||
+            ops.ValueKind != JsonValueKind.Array)
             throw new ScimUserResourceParseException("invalidSyntax", "PATCH must include Operations.");
 
-        List<Guid> members = [];
+        IReadOnlyList<Guid> initial = await _groups.ListMemberUserIdsAsync(tenantId, id, cancellationToken);
 
-        foreach (JsonElement op in ops.EnumerateArray().Where(op => op.ValueKind == JsonValueKind.Object))
-        {
-            string? opName = op.TryGetProperty("op", out JsonElement on) && on.ValueKind == JsonValueKind.String
-                ? on.GetString()
-                : null;
+        HashSet<Guid> working = new(initial);
 
-            if (!string.Equals(opName, "add", StringComparison.OrdinalIgnoreCase))
-                throw new ScimUserResourceParseException("invalidPath", "Only 'add' on members is supported in v1.");
+        ScimGroupMemberPatchPlanner.ApplyOrderedOperations(ops, working);
 
-            if (!op.TryGetProperty("path", out JsonElement pathEl) || pathEl.GetString() is not { } p ||
-                !string.Equals(p, "members", StringComparison.OrdinalIgnoreCase))
-                throw new ScimUserResourceParseException("invalidPath", "Only path 'members' is supported.");
+        List<Guid> ordered = working.OrderBy(static u => u).ToList();
 
-            if (!op.TryGetProperty("value", out JsonElement val))
-                throw new ScimUserResourceParseException("invalidValue", "members add requires value.");
-
-            if (val.ValueKind != JsonValueKind.Array)
-                continue;
-
-            foreach (JsonElement m in val.EnumerateArray())
-            {
-                if (m.TryGetProperty("value", out JsonElement idEl) && idEl.ValueKind == JsonValueKind.String &&
-                    Guid.TryParse(idEl.GetString(), out Guid uid))
-                    members.Add(uid);
-            }
-        }
-
-        await _groups.SetMembersAsync(tenantId, id, members, cancellationToken);
+        await _groups.SetMembersAsync(tenantId, id, ordered, cancellationToken);
 
         await LogAsync(
             tenantId,
             AuditEventTypes.ScimGroupMembershipChanged,
-            $"{{\"groupId\":\"{id:D}\",\"memberCount\":{members.Count}}}",
+            $"{{\"groupId\":\"{id:D}\",\"memberCount\":{ordered.Count}}}",
             cancellationToken);
     }
 

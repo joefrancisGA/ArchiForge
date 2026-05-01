@@ -26,7 +26,7 @@ export function HelpProductGuide() {
           </CardHeader>
           <CardContent className="pt-0 text-sm text-neutral-800 dark:text-neutral-200">
             Use{" "}
-            <Link className="text-teal-700 underline dark:text-teal-300" href="/runs/new">
+            <Link className="text-teal-700 underline dark:text-teal-300" href="/reviews/new">
               New request
             </Link>{" "}
             to describe your system and start the pipeline. You can use an industry starter or a blank brief.
@@ -89,11 +89,11 @@ export function HelpProductGuide() {
 
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         <strong>What to do next:</strong> open{" "}
-        <Link className="text-teal-700 underline dark:text-teal-300" href="/runs/new">
+        <Link className="text-teal-700 underline dark:text-teal-300" href="/reviews/new">
           New request
         </Link>{" "}
         or your{" "}
-        <Link className="text-teal-700 underline dark:text-teal-300" href="/runs?projectId=default">
+        <Link className="text-teal-700 underline dark:text-teal-300" href="/reviews?projectId=default">
           Runs
         </Link>{" "}
         list to continue.

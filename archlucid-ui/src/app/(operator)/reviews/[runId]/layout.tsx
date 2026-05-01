@@ -23,7 +23,7 @@ export default async function RunDetailLayout({
   }
 
   if (demoRunUrlRequiresCanonicalRedirect(runId)) {
-    permanentRedirect(`/runs/${encodeURIComponent(canonicalizeDemoRunId(runId))}`);
+    permanentRedirect(`/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`);
   }
 
   return children;

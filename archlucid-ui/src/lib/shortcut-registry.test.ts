@@ -61,7 +61,7 @@ describe("shortcut-registry", () => {
     expect(byLower?.label).toBe("New request");
 
     const byMixed = findShortcutByKey("Alt+N");
-    expect(byMixed?.route).toBe("/runs/new");
+    expect(byMixed?.route).toBe("/reviews/new");
 
     const help = findShortcutByKey("Shift+?");
     expect(help?.label).toBe("Help");

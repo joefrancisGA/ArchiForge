@@ -20,7 +20,7 @@ export function OperatorBrandedNotFound() {
         <Link className="text-teal-800 underline dark:text-teal-300" href="/" data-testid="not-found-home">
           Home
         </Link>
-        <Link className="text-teal-800 underline dark:text-teal-300" href="/runs?projectId=default">
+        <Link className="text-teal-800 underline dark:text-teal-300" href="/reviews?projectId=default">
           Runs
         </Link>
         <Link className="text-teal-800 underline dark:text-teal-300" href="/governance/findings">

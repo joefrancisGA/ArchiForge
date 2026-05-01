@@ -26,4 +26,6 @@ public interface IScimGroupRepository
         CancellationToken cancellationToken);
 
     Task SetMembersAsync(Guid tenantId, Guid groupId, IReadOnlyList<Guid> userIds, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<Guid>> ListMemberUserIdsAsync(Guid tenantId, Guid groupId, CancellationToken cancellationToken);
 }

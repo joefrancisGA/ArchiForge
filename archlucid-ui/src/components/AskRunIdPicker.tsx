@@ -216,7 +216,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
           </SelectTrigger>
         </Select>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          The run list could not be loaded — open an existing thread from the left, or try again shortly.
+          The review list could not be loaded — open an existing conversation from the left, or try again shortly.
         </p>
       </div>
     );
@@ -275,10 +275,10 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
           </SelectTrigger>
         </Select>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/runs/new">
+          <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/reviews/new">
             Create a request
           </Link>{" "}
-          to add a run, open an existing thread from the left, or{" "}
+          to add a review, open an existing conversation from the left, or{" "}
           <Link className="font-medium text-teal-800 underline dark:text-teal-300" href="/showcase/claims-intake-modernization">
             browse the Claims Intake sample scenario
           </Link>{" "}

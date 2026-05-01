@@ -16,7 +16,7 @@ type TrialStatusPayload = {
 };
 
 /**
- * One-time redirect from operator home (`/`) to `/runs/{trialWelcomeRunId}` when the API exposes a pre-seeded
+ * One-time redirect from operator home (`/`) to `/reviews/{trialWelcomeRunId}` when the API exposes a pre-seeded
  * welcome run (self-service trial). Uses sessionStorage so returning to home does not loop.
  */
 export function TrialWelcomeRunDeepLink() {
@@ -58,7 +58,7 @@ export function TrialWelcomeRunDeepLink() {
         }
 
         window.sessionStorage.setItem(SESSION_KEY, welcomeId);
-        router.replace(`/runs/${encodeURIComponent(welcomeId)}`);
+        router.replace(`/reviews/${encodeURIComponent(welcomeId)}`);
       } catch {
         /* ignore */
       }

@@ -9,12 +9,12 @@ export function isNavLinkActive(pathname: string, href: string): boolean {
     return pathname === "/";
   }
 
-  if (pathPart === "/runs/new") {
-    return pathname === "/runs/new";
+  if (pathPart === "/reviews/new") {
+    return pathname === "/reviews/new";
   }
 
-  if (pathPart === "/runs") {
-    return pathname === "/runs";
+  if (pathPart === "/reviews") {
+    return pathname === "/reviews";
   }
 
   return pathname === pathPart || pathname.startsWith(`${pathPart}/`);
