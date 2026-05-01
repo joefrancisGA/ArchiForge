@@ -14,15 +14,15 @@ namespace ArchLucid.Cli.Commands;
     "CLI webhook probe reaches arbitrary HTTPS URLs; validated via Program integration tests for usage paths.")]
 internal static class WebhooksTestCommand
 {
-    private static readonly JsonSerializerOptions JsonCamel = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
-
     /// <summary>Mirror of Host.Core <c>WebhookSignature.HeaderName</c> (CLI cannot reference Host.Core).</summary>
     internal const string WebhookSignatureHeaderName = "X-ArchLucid-Webhook-Signature";
 
     internal const string WebhookSignaturePrefix = "sha256=";
+
+    private static readonly JsonSerializerOptions JsonCamel = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -53,21 +53,22 @@ internal static class WebhooksTestCommand
                 continue;
             }
 
-            if (string.Equals(a, "--help", StringComparison.Ordinal) || string.Equals(a, "-h", StringComparison.Ordinal))
+            if (string.Equals(a, "--help", StringComparison.Ordinal) ||
+                string.Equals(a, "-h", StringComparison.Ordinal))
             {
-                WriteUsage(stdout: true);
+                WriteUsage(true);
 
                 return CliExitCode.Success;
             }
 
-            WriteUsage(stdout: false);
+            WriteUsage(false);
 
             return CliExitCode.UsageError;
         }
 
         if (string.IsNullOrWhiteSpace(url))
         {
-            WriteUsage(stdout: false);
+            WriteUsage(false);
 
             return CliExitCode.UsageError;
         }
@@ -236,7 +237,8 @@ internal static class WebhooksTestCommand
                 ["tenantId"] = Guid.Empty.ToString("D"),
                 ["findingId"] = Guid.NewGuid().ToString("D"),
                 ["runId"] = Guid.NewGuid().ToString("D"),
-                ["note"] = "Synthetic CLI probe — replace with a captured production envelope before customer hand-off."
+                ["note"] =
+                    "Synthetic CLI probe — replace with a captured production envelope before customer hand-off."
             }
         };
 

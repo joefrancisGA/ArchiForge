@@ -60,7 +60,6 @@ internal static class CliCommandShared
 
                 await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
 
-
             return ApiConnectionOutcome.InvalidConfiguration;
         }
 
@@ -68,7 +67,6 @@ internal static class CliCommandShared
 
         if (await client.CheckHealthAsync(ct))
             return ApiConnectionOutcome.Connected;
-
 
         if (CliExecutionContext.JsonOutput)
 
@@ -115,7 +113,6 @@ internal static class CliCommandShared
     {
         if (string.IsNullOrWhiteSpace(value))
             return CloudProvider.Azure;
-
 
         return value.Trim().ToLowerInvariant() switch
         {

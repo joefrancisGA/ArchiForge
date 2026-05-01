@@ -110,7 +110,8 @@ internal static class TryCommand
         }
 
         IReadOnlyList<string> composeAbsolutePaths =
-            ComposePathListBuilder.BuildAbsolutePaths(composeDir, hooks.ResolveComposeOverlays(options.IsPilotRealAzureOpenAiAttempt));
+            ComposePathListBuilder.BuildAbsolutePaths(composeDir,
+                hooks.ResolveComposeOverlays(options.IsPilotRealAzureOpenAiAttempt));
 
         await output.WriteLineAsync(
             options.IsPilotRealAzureOpenAiAttempt
@@ -158,7 +159,6 @@ internal static class TryCommand
         if (!executed)
             await output.WriteLineAsync(
                 "  (Note: explicit POST /execute did not succeed; will rely on simulator background loop.)");
-
 
         await output.WriteLineAsync();
         await output.WriteLineAsync(
@@ -240,7 +240,6 @@ internal static class TryCommand
         if (options.OpenArtifacts)
             hooks.OpenUrl(runUrl);
 
-
         await output.WriteLineAsync();
         await output.WriteLineAsync(
             "Done. You have a committed manifest, a sponsor-grade Markdown report, and an open run.");
@@ -286,7 +285,6 @@ internal static class TryCommand
                 if (last == ArchitectureRunStatus.Failed)
                     return last;
 
-
                 if (last is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
                     return last;
             }
@@ -314,7 +312,6 @@ internal static class TryCommand
 
         if (detail is null)
             return null;
-
 
         return detail.Run.Status;
     }
@@ -401,7 +398,6 @@ internal static class TryCommand
             if (pilotTryRealMode)
                 http.DefaultRequestHeaders.Add(PilotTryRealModeHeaders.PilotTryRealMode, "1");
 
-
             using HttpResponseMessage response = await http.PostAsync(
                 $"v1/architecture/run/{Uri.EscapeDataString(runId)}/execute",
                 new StringContent(string.Empty, Encoding.UTF8, "application/json"),
@@ -440,7 +436,6 @@ internal static class TryCommand
 
             if (!response.IsSuccessStatusCode)
                 return false;
-
 
             string markdown = await response.Content.ReadAsStringAsync(cancellationToken);
             await File.WriteAllTextAsync(savePath, markdown, cancellationToken);

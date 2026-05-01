@@ -45,9 +45,7 @@ public static class SupportBundleCollector
 
         SupportBundleBuildSection build = new()
         {
-            Cli = ReadCliBuildInfo(),
-            ApiVersionJson = versionJson,
-            ApiVersionError = versionErr
+            Cli = ReadCliBuildInfo(), ApiVersionJson = versionJson, ApiVersionError = versionErr
         };
 
         SupportBundleHealthSection health = new()
@@ -131,7 +129,6 @@ public static class SupportBundleCollector
             if (json is null)
                 return (null, "GET /version returned non-success or empty body.");
 
-
             return (json, null);
         }
         catch (Exception ex)
@@ -152,7 +149,6 @@ public static class SupportBundleCollector
         if (truncated)
 
             body = body[..MaxHealthBodyLength] + "\n... [truncated by ArchLucid support-bundle]";
-
 
         return new SupportBundleHealthProbe { Path = path, HttpStatus = code, Body = body, BodyTruncated = truncated };
     }
@@ -205,13 +201,11 @@ public static class SupportBundleCollector
         if (config is null)
             return new SupportBundleWorkspaceSection();
 
-
         string outputsDir = Path.Combine(workingDirectory, config.Outputs.LocalCacheDir);
 
         if (!Directory.Exists(outputsDir))
 
             return new SupportBundleWorkspaceSection { OutputsDirectory = outputsDir, OutputsExists = false };
-
 
         string[] files = Directory.GetFiles(outputsDir, "*", SearchOption.AllDirectories);
         long total = 0;
@@ -231,7 +225,6 @@ public static class SupportBundleCollector
             {
                 // ignore
             }
-
 
         string[] top = Directory.GetFileSystemEntries(outputsDir);
 
@@ -284,12 +277,10 @@ public static class SupportBundleCollector
         if (config is null)
             return null;
 
-
         string candidate = Path.Combine(workingDirectory, config.Outputs.LocalCacheDir, "last-run.log");
 
         if (!File.Exists(candidate))
             return null;
-
 
         try
         {
@@ -298,12 +289,10 @@ public static class SupportBundleCollector
             if (fi.Length > 65_536)
                 return "(file too large; omitted)";
 
-
             string text = File.ReadAllText(candidate, Encoding.UTF8);
 
             if (text.Length > 4_096)
                 return text[..4_096] + "\n... [truncated]";
-
 
             return text;
         }

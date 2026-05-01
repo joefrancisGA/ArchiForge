@@ -5,7 +5,12 @@ namespace ArchLucid.Cli.Commands;
 ///     <c>--one-line</c> output. Pure formatting (no I/O) so it is unit-testable and can be reused
 ///     by future tooling (e.g. webhook payload builders).
 ///     <para>
-///         Format: <c>PASS|FAIL host=&lt;url&gt; correlation=&lt;id&gt; tenant=&lt;id&gt; welcomeRun=&lt;id|none&gt; failed=&lt;step&gt;</c>.
+///         Format:
+///         <c>
+///             PASS|FAIL host=&lt;url&gt; correlation=&lt;id&gt; tenant=&lt;id&gt; welcomeRun=&lt;id|none&gt; failed=&lt;
+///             step&gt;
+///         </c>
+///         .
 ///     </para>
 ///     The fields are deliberately positional + space-delimited so an oncall responder reading a CI log line
 ///     or a webhook payload can grep on <c>correlation=</c> directly without parsing JSON.
@@ -27,12 +32,16 @@ public static class TrialSmokeOneLineSummaryFormatter
         string welcomeRun = OrNone(report.TrialWelcomeRunId);
         string failedStep = report.AllPassed
             ? NoneToken
-            : (FirstFailedStepName(report) ?? "<unknown>");
+            : FirstFailedStepName(report) ?? "<unknown>";
 
-        return $"{verdict} host={baseUrl} correlation={correlation} tenant={tenant} welcomeRun={welcomeRun} failed={failedStep}";
+        return
+            $"{verdict} host={baseUrl} correlation={correlation} tenant={tenant} welcomeRun={welcomeRun} failed={failedStep}";
     }
 
-    private static string OrNone(string? value) => string.IsNullOrWhiteSpace(value) ? NoneToken : value;
+    private static string OrNone(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? NoneToken : value;
+    }
 
     private static string? FirstFailedStepName(TrialSmokeReport report)
     {

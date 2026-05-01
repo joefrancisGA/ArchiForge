@@ -46,7 +46,6 @@ internal static class PolicyValidateCommand
             return Task.FromResult(CliExitCode.OperationFailed);
         }
 
-
         string trimmed = raw.TrimStart();
 
         if (trimmed.Length == 0)
@@ -56,7 +55,6 @@ internal static class PolicyValidateCommand
             return Task.FromResult(CliExitCode.UsageError);
         }
 
-
         if (trimmed[0] is not '{')
         {
             WriteErr(
@@ -65,7 +63,6 @@ internal static class PolicyValidateCommand
 
             return Task.FromResult(CliExitCode.UsageError);
         }
-
 
         PolicyPackContentDocument? doc;
 
@@ -89,26 +86,15 @@ internal static class PolicyValidateCommand
             return Task.FromResult(CliExitCode.UsageError);
         }
 
-
         if (CliExecutionContext.JsonOutput)
 
         {
-
-
             Dictionary<string, object?> payload = new()
             {
-
-
                 ["ok"] = true,
-
-
                 ["complianceRuleIdCount"] = doc.ComplianceRuleIds.Count,
-
-
                 ["complianceRuleKeyCount"] = doc.ComplianceRuleKeys.Count,
-
                 ["alertRuleIdCount"] = doc.AlertRuleIds.Count,
-
                 ["compositeAlertRuleIdCount"] = doc.CompositeAlertRuleIds.Count
             };
 
@@ -117,8 +103,6 @@ internal static class PolicyValidateCommand
         else
 
         {
-
-
             Console.WriteLine(
                 $"Valid policy pack JSON: {path} " +
                 $"(rules: {doc.ComplianceRuleIds.Count + doc.ComplianceRuleKeys.Count}, alerts: {doc.AlertRuleIds.Count}).");
@@ -130,7 +114,6 @@ internal static class PolicyValidateCommand
     private static void WriteErr(int exitCode, string message)
     {
         if (CliExecutionContext.JsonOutput)
-
 
             CliJson.WriteFailureLine(Console.Error, exitCode, "policy_validate", message);
 

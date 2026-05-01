@@ -181,6 +181,5 @@ internal sealed class SecurityTrustPublishCommandOptions
         error = "--summary-url is required.";
 
         return null;
-
     }
 }

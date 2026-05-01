@@ -3,7 +3,8 @@ namespace ArchLucid.Cli.Real;
 /// <summary>Builds absolute compose paths for <see cref="Commands.PilotUpCommand" />.</summary>
 internal static class ComposePathListBuilder
 {
-    public static IReadOnlyList<string> BuildAbsolutePaths(string composeDirectory, IReadOnlyList<string> overlayRelativeOrdered)
+    public static IReadOnlyList<string> BuildAbsolutePaths(string composeDirectory,
+        IReadOnlyList<string> overlayRelativeOrdered)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(composeDirectory);
         ArgumentNullException.ThrowIfNull(overlayRelativeOrdered);

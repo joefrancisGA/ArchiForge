@@ -47,7 +47,6 @@ internal sealed class CliRetryDelegatingHandler : DelegatingHandler
         if (_pipeline is null)
             return await base.SendAsync(request, cancellationToken);
 
-
         return await _pipeline.ExecuteAsync(
             ct => new ValueTask<HttpResponseMessage>(base.SendAsync(request, ct)),
             cancellationToken);

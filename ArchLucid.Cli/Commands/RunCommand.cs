@@ -53,7 +53,6 @@ internal static class RunCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         ArchLucidApiClient client = new(baseUrl, config);
 
         Console.WriteLine($"Submitting request to {baseUrl}...");

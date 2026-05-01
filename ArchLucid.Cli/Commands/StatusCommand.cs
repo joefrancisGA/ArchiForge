@@ -17,7 +17,6 @@ internal static class StatusCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         ArchLucidApiClient client = new(baseUrl);
 
         ArchLucidApiClient.GetRunResult? run = await client.GetRunAsync(runId);
@@ -39,11 +38,9 @@ internal static class StatusCommand
 
             Console.WriteLine($"Completed: {r.CompletedUtc:O}");
 
-
         if (!string.IsNullOrEmpty(r.CurrentManifestVersion))
 
             Console.WriteLine($"Manifest version: {r.CurrentManifestVersion}");
-
 
         Console.WriteLine();
         Console.WriteLine("Tasks:");

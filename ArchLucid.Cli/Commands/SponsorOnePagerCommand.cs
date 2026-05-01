@@ -24,7 +24,6 @@ internal static class SponsorOnePagerCommand
         if (outcome != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
-
         string normalized = baseUrl.Trim().TrimEnd('/');
         using HttpClient http = new();
         http.Timeout = TimeSpan.FromSeconds(120);

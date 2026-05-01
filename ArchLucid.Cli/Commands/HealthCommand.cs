@@ -21,7 +21,6 @@ internal static class HealthCommand
         if (outcome != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(outcome);
 
-
         if (CliExecutionContext.JsonOutput)
         {
             object payload = new { ok = true, exitCode = CliExitCode.Success, baseUrl };
@@ -30,7 +29,6 @@ internal static class HealthCommand
         else
 
             Console.WriteLine($"OK - ArchLucid API at {baseUrl} is reachable.");
-
 
         return CliExitCode.Success;
     }

@@ -28,7 +28,8 @@ internal static class PilotUpCommand
             return Task.FromResult(CliExitCode.UsageError);
         }
 
-        IReadOnlyList<string> abs = ComposePathListBuilder.BuildAbsolutePaths(composeDir, ComposeOverlayResolver.Resolve(false));
+        IReadOnlyList<string> abs =
+            ComposePathListBuilder.BuildAbsolutePaths(composeDir, ComposeOverlayResolver.Resolve(false));
 
         return RunWithComposeFilesAsync(abs, cancellationToken);
     }
@@ -37,7 +38,8 @@ internal static class PilotUpCommand
     ///     Brings up Docker using an explicit ordered list of compose file <b>absolute</b> paths (first file is always
     ///     <c>docker-compose.yml</c> under the repo root).
     /// </summary>
-    public static Task<int> RunAsync(IReadOnlyList<string> composeAbsolutePaths, CancellationToken cancellationToken = default)
+    public static Task<int> RunAsync(IReadOnlyList<string> composeAbsolutePaths,
+        CancellationToken cancellationToken = default)
     {
         return RunWithComposeFilesAsync(composeAbsolutePaths, cancellationToken);
     }
@@ -62,7 +64,6 @@ internal static class PilotUpCommand
                 return CliExitCode.UsageError;
             }
 
-
         string composeDir = Path.GetDirectoryName(composeAbsolutePaths[0])!;
 
         string composeArgs = string.Join(
@@ -84,11 +85,9 @@ internal static class PilotUpCommand
 
                 Console.WriteLine(stderr);
 
-
             if (!string.IsNullOrEmpty(stdout))
 
                 Console.WriteLine(stdout);
-
 
             return CliExitCode.OperationFailed;
         }
@@ -180,7 +179,6 @@ internal static class PilotUpCommand
 
         if (proc is null)
             return (-1, "", $"Failed to start {fileName}");
-
 
         string stdout = proc.StandardOutput.ReadToEnd();
         string stderr = proc.StandardError.ReadToEnd();

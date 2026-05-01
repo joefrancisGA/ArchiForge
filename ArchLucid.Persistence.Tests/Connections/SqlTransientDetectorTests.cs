@@ -60,4 +60,10 @@ public sealed class SqlTransientDetectorTests
     {
         SqlTransientDetector.IsTransient((Exception?)null).Should().BeFalse();
     }
+
+    [SkippableFact]
+    public void IsTransient_Exception_ReturnsFalse_ForNonTransientChain()
+    {
+        SqlTransientDetector.IsTransient(new InvalidOperationException("outer", new FormatException())).Should().BeFalse();
+    }
 }

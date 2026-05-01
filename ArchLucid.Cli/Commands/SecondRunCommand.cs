@@ -45,7 +45,6 @@ internal static class SecondRunCommand
         if (connection is not ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         ArchLucidApiClient client = new(baseUrl, config);
 
         await Console.Out.WriteLineAsync("Step 1/4: POST /v1/architecture/request (your SECOND_RUN file)...");
@@ -85,7 +84,6 @@ internal static class SecondRunCommand
 
                 if (detail is null)
                     return null;
-
 
                 return detail.Run.Status;
             },
@@ -195,14 +193,12 @@ internal static class SecondRunCommand
             if (!string.IsNullOrWhiteSpace(apiKey))
                 http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 
-
             using HttpResponseMessage response = await http.GetAsync(
                 $"v1/pilots/runs/{Uri.EscapeDataString(runId)}/first-value-report",
                 cancellationToken);
 
             if (!response.IsSuccessStatusCode)
                 return false;
-
 
             string markdown = await response.Content.ReadAsStringAsync(cancellationToken);
             await File.WriteAllTextAsync(savePath, markdown, cancellationToken);

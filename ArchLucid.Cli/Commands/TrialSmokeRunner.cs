@@ -13,6 +13,9 @@ namespace ArchLucid.Cli.Commands;
 /// </summary>
 public sealed class TrialSmokeRunner(HttpClient http)
 {
+    /// <summary>Canonical correlation header emitted by <c>CorrelationIdMiddleware</c> on every API response.</summary>
+    private const string CorrelationHeaderName = "X-Correlation-ID";
+
     private static readonly JsonSerializerOptions JsonCamel = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -21,9 +24,6 @@ public sealed class TrialSmokeRunner(HttpClient http)
     };
 
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
-
-    /// <summary>Canonical correlation header emitted by <c>CorrelationIdMiddleware</c> on every API response.</summary>
-    private const string CorrelationHeaderName = "X-Correlation-ID";
 
     public async Task<TrialSmokeReport> RunAsync(TrialSmokeCommandOptions options, CancellationToken ct = default)
     {
@@ -126,9 +126,7 @@ public sealed class TrialSmokeRunner(HttpClient http)
             return (
                 new TrialSmokeStepResult
                 {
-                    Name = name,
-                    Passed = true,
-                    Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId})."
+                    Name = name, Passed = true, Detail = $"POST /v1/register → 201 (tenantId={body200.TenantId})."
                 }, body200, correlationId);
         }
         catch (Exception ex)
@@ -146,7 +144,9 @@ public sealed class TrialSmokeRunner(HttpClient http)
 
     private static string? ReadCorrelationId(HttpResponseMessage res)
     {
-        return res.Headers.TryGetValues(CorrelationHeaderName, out IEnumerable<string>? values) ? (from v in values where !string.IsNullOrWhiteSpace(v) select v.Trim()).FirstOrDefault() : null;
+        return res.Headers.TryGetValues(CorrelationHeaderName, out IEnumerable<string>? values)
+            ? (from v in values where !string.IsNullOrWhiteSpace(v) select v.Trim()).FirstOrDefault()
+            : null;
     }
 
     private async Task<(TrialSmokeStepResult Step, TrialSmokeTrialStatusResponse? Body)> TrialStatusAsync(

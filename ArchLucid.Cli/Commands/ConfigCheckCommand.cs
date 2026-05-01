@@ -22,13 +22,12 @@ internal static class ConfigCheckCommand
 
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
-        bool noApi = args.Any(
-          a => string.Equals(a, "--no-api", StringComparison.Ordinal));
+        bool noApi = args.Any(a => string.Equals(a, "--no-api", StringComparison.Ordinal));
         ArchLucidProjectScaffolder.ArchLucidCliConfig? cli = CliCommandShared.TryLoadConfigFromCwd();
         IConfiguration local = BuildLocalConfiguration(cli);
         string? envName =
-          Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-          ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+            ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
         IReadOnlyDictionary<string, bool>? apiMap;
         string? apiNote;
         if (noApi)
@@ -42,11 +41,11 @@ internal static class ConfigCheckCommand
         }
 
         IReadOnlyList<ConfigurationKeyEntry> allKeys = ConfigurationKeyCatalog.All
-          .Concat(ConfigurationKeyCatalog.CliLocalOnly)
-          .ToList();
+            .Concat(ConfigurationKeyCatalog.CliLocalOnly)
+            .ToList();
         HashSet<string> cliOnly = new(
-          ConfigurationKeyCatalog.CliLocalOnly
-            .Select(s => s.ConfigPath), StringComparer.OrdinalIgnoreCase);
+            ConfigurationKeyCatalog.CliLocalOnly
+                .Select(s => s.ConfigPath), StringComparer.OrdinalIgnoreCase);
         int requiredTotal = 0;
         int requiredSatisfied = 0;
         int optionalTotal = 0;
@@ -55,10 +54,10 @@ internal static class ConfigCheckCommand
         foreach (ConfigurationKeyEntry e in allKeys)
         {
             (bool fromApi, bool fromLocal) = SplitPresence(
-              e.ConfigPath,
-              local,
-              apiMap,
-              cliOnly);
+                e.ConfigPath,
+                local,
+                apiMap,
+                cliOnly);
             bool isSet = fromApi || fromLocal;
             string source = FormatSource(fromApi, fromLocal);
             bool isRequired = ConfigurationKeyRequirement.IsKeyRequired(e, local, envName, out _);
@@ -92,12 +91,12 @@ internal static class ConfigCheckCommand
                 pairFailed = true;
                 requiredTotal++;
                 lines.Add(
-                  new ConfigCheckLine(
-                    "ApiKey(Admin|Read) pair",
-                    false,
-                    "required-rule",
-                    true,
-                    "At least one of Authentication:ApiKey:AdminKey or ReadOnlyKey when API key mode is on."));
+                    new ConfigCheckLine(
+                        "ApiKey(Admin|Read) pair",
+                        false,
+                        "required-rule",
+                        true,
+                        "At least one of Authentication:ApiKey:AdminKey or ReadOnlyKey when API key mode is on."));
             }
         }
 
@@ -118,24 +117,17 @@ internal static class ConfigCheckCommand
                 ok,
                 hasApiKeySnapshot = apiMap is not null,
                 note = apiNote,
-                summary = new
-                {
-                    requiredSatisfied,
-                    requiredTotal,
-                    optionalSet,
-                    optionalTotal
-                },
+                summary = new { requiredSatisfied, requiredTotal, optionalSet, optionalTotal },
                 keys = lines
-                .Select(
-                  c => new
-                  {
-                      configPath = c.ConfigPath,
-                      c.IsSet,
-                      c.Source,
-                      c.IsRequired,
-                      c.Notes
-                  })
-                .ToList()
+                    .Select(c => new
+                    {
+                        configPath = c.ConfigPath,
+                        c.IsSet,
+                        c.Source,
+                        c.IsRequired,
+                        c.Notes
+                    })
+                    .ToList()
             };
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonWriter));
         }
@@ -151,14 +143,15 @@ internal static class ConfigCheckCommand
             {
                 string m = c.IsSet ? "SET" : "MISSING";
                 Console.WriteLine(
-                  $"{c.ConfigPath,-60} {m,-8} {c.Source,-16} {(c.IsRequired ? "req" : "opt")} {c.Notes}");
+                    $"{c.ConfigPath,-60} {m,-8} {c.Source,-16} {(c.IsRequired ? "req" : "opt")} {c.Notes}");
             }
 
             Console.WriteLine();
             Console.WriteLine(
-              $"Required satisfied: {requiredSatisfied}/{requiredTotal} · optional set: {optionalSet}/{optionalTotal} (optional do not fail the command).");
+                $"Required satisfied: {requiredSatisfied}/{requiredTotal} · optional set: {optionalSet}/{optionalTotal} (optional do not fail the command).");
             if (pairFailed)
-                await Console.Error.WriteLineAsync("API key key material: set AdminKey and/or ReadOnlyKey when `Authentication:ApiKey:Enabled` is true.");
+                await Console.Error.WriteLineAsync(
+                    "API key key material: set AdminKey and/or ReadOnlyKey when `Authentication:ApiKey:Enabled` is true.");
         }
 
         return ok ? CliExitCode.Success : CliExitCode.OperationFailed;
@@ -170,30 +163,30 @@ internal static class ConfigCheckCommand
         if (cli is not null && !string.IsNullOrWhiteSpace(cli.ApiUrl))
         {
             m.Add(
-              new KeyValuePair<string, string?>("ARCHLUCID_API_URL", cli.ApiUrl.Trim().TrimEnd('/')));
+                new KeyValuePair<string, string?>("ARCHLUCID_API_URL", cli.ApiUrl.Trim().TrimEnd('/')));
         }
 
         IConfigurationBuilder b = new ConfigurationBuilder()
-          .SetBasePath(Directory.GetCurrentDirectory())
-          .AddJsonFile("archlucid.json", true, true)
-          .AddJsonFile("appsettings.json", true, true)
-          .AddInMemoryCollection(m)
-          .AddEnvironmentVariables();
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("archlucid.json", true, true)
+            .AddJsonFile("appsettings.json", true, true)
+            .AddInMemoryCollection(m)
+            .AddEnvironmentVariables();
 
         return b.Build();
     }
 
     private static (bool fromApi, bool fromLocal) SplitPresence(
-      string path,
-      IConfiguration local,
-      IReadOnlyDictionary<string, bool>? apiMap,
-      HashSet<string> cliOnly)
+        string path,
+        IConfiguration local,
+        IReadOnlyDictionary<string, bool>? apiMap,
+        HashSet<string> cliOnly)
     {
         bool fromApi = false;
         if (apiMap is not null
             && !cliOnly.Contains(path)
             && apiMap.TryGetValue(
-              path, out bool a))
+                path, out bool a))
         {
             fromApi = a;
         }
@@ -202,11 +195,11 @@ internal static class ConfigCheckCommand
         if (string.Equals(
                 path, "ASPNETCORE_ENVIRONMENT", StringComparison.Ordinal) || string.Equals(
                 path, "DOTNET_ENVIRONMENT", StringComparison.Ordinal)
-            )
+           )
         {
             fromLocal = !string.IsNullOrWhiteSpace(
-              Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-              ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
+                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT"));
         }
         else if (string.Equals(path, "ARCHLUCID_API_KEY", StringComparison.Ordinal))
         {
@@ -215,7 +208,7 @@ internal static class ConfigCheckCommand
         else if (string.Equals(path, "ARCHLUCID_API_URL", StringComparison.Ordinal))
         {
             fromLocal = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARCHLUCID_API_URL"))
-              || !string.IsNullOrWhiteSpace(local["ARCHLUCID_API_URL"]);
+                        || !string.IsNullOrWhiteSpace(local["ARCHLUCID_API_URL"]);
         }
         else
         {
@@ -241,8 +234,8 @@ internal static class ConfigCheckCommand
     }
 
     private static async Task<(IReadOnlyDictionary<string, bool>?, string?)> TryFetchApiSummaryAsync(
-      ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
-      CancellationToken cancellationToken)
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
+        CancellationToken cancellationToken)
     {
         string baseUrl = ArchLucidApiClient.ResolveBaseUrl(config);
         if (ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl) is { } err)
@@ -268,8 +261,8 @@ internal static class ConfigCheckCommand
         try
         {
             using HttpResponseMessage r = await c
-              .GetAsync("v1/admin/config-summary", cancellationToken)
-              .ConfigureAwait(false);
+                .GetAsync("v1/admin/config-summary", cancellationToken)
+                .ConfigureAwait(false);
             if (r.StatusCode == HttpStatusCode.Unauthorized)
             {
                 return (null, "API: 401 (Admin).");
@@ -283,18 +276,18 @@ internal static class ConfigCheckCommand
             r.EnsureSuccessStatusCode();
             string body = await r.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             AdminConfigSummaryResponse? d = JsonSerializer.Deserialize<AdminConfigSummaryResponse>(
-              body, new JsonSerializerOptions
-              {
-                  PropertyNameCaseInsensitive = true,
-                  PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-              });
+                body,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
             if (d?.Keys is not { } rows || rows.Count == 0)
                 return (null, "API: (skip) empty body");
 
             IReadOnlyDictionary<string, bool> m = rows
-              .Where(static r => !string.IsNullOrEmpty(r.ConfigPath))
-              .ToDictionary(
-                static r => r.ConfigPath!, static r => r.IsSet, StringComparer.OrdinalIgnoreCase);
+                .Where(static r => !string.IsNullOrEmpty(r.ConfigPath))
+                .ToDictionary(
+                    static r => r.ConfigPath!, static r => r.IsSet, StringComparer.OrdinalIgnoreCase);
             return (m, "API: merged key presence (non-secret) from GET /v1/admin/config-summary.");
         }
         catch (Exception ex)

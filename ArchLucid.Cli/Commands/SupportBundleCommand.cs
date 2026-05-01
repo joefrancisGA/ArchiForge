@@ -123,7 +123,6 @@ internal static class SupportBundleCommand
         if (!File.Exists(lucidPath) && !File.Exists(legacyPath))
             return null;
 
-
         try
         {
             return ArchLucidProjectScaffolder.LoadConfig(cwd);

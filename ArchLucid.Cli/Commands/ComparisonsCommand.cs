@@ -34,7 +34,6 @@ internal static class ComparisonsCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         ArchLucidApiClient client = new(baseUrl);
 
         switch (sub)
@@ -131,7 +130,6 @@ internal static class ComparisonsCommand
                     break;
             }
 
-
         ArchLucidApiClient.ComparisonHistoryResult? result = await client.SearchComparisonsAsync(
             type,
             leftRun,
@@ -168,7 +166,6 @@ internal static class ComparisonsCommand
 
             if (string.IsNullOrWhiteSpace(result.NextCursor))
                 return CliExitCode.Success;
-
 
             Console.WriteLine();
             Console.WriteLine($"nextCursor: {result.NextCursor}");
@@ -216,7 +213,6 @@ internal static class ComparisonsCommand
 
             widths[c] = rows.Max(r => r[c].Length);
 
-
         for (int i = 0; i < rows.Count; i++)
         {
             string line = string.Join(" | ", rows[i].Select((cell, idx) => cell.PadRight(widths[idx])));
@@ -252,7 +248,6 @@ internal static class ComparisonsCommand
                     tags.Add(args[++i]);
                     break;
             }
-
 
         bool ok = await client.UpdateComparisonRecordAsync(comparisonRecordId, label, tags);
 
@@ -310,7 +305,6 @@ internal static class ComparisonsCommand
                     break;
             }
 
-
         bool ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath,
             force);
 
@@ -363,7 +357,6 @@ internal static class ComparisonsCommand
                     force = true;
                     break;
             }
-
 
         bool ok = await client.ReplayComparisonsBatchToZipAsync(ids, format, mode, profile, persist, outPath, force);
 
@@ -438,11 +431,9 @@ internal static class ComparisonsCommand
 
             Console.WriteLine($"- [{item.Category}] {item.Path}: {item.Description}");
 
-
         if (drift.Items.Count > 25)
 
             Console.WriteLine($"(showing 25 of {drift.Items.Count} items)");
-
 
         return CliExitCode.Success;
     }
@@ -464,7 +455,6 @@ internal static class ComparisonsCommand
             if (args[i] == "--json")
 
                 asJson = true;
-
 
             if (args[i] == "--table")
 
@@ -500,7 +490,6 @@ internal static class ComparisonsCommand
             Console.WriteLine(
                 $"{e.TimestampUtc:O} | {e.ComparisonRecordId} | {e.ComparisonType} | {e.Format} | {e.ReplayMode} | Success={e.Success} | {e.DurationMs}ms | MetaOnly={e.MetadataOnly} | Persisted={e.PersistedReplayRecordId} | Err={e.ErrorMessage}");
 
-
         return CliExitCode.Success;
     }
 
@@ -535,7 +524,6 @@ internal static class ComparisonsCommand
         for (int c = 0; c < headers.Length; c++)
 
             widths[c] = rows.Max(r => r[c].Length);
-
 
         for (int i = 0; i < rows.Count; i++)
         {

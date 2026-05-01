@@ -9,7 +9,6 @@ internal static class ComposeOverlayResolver
         if (realMode)
             return ["docker-compose.demo.yml", "docker-compose.real-aoai.yml"];
 
-
         return ["docker-compose.demo.yml"];
     }
 }

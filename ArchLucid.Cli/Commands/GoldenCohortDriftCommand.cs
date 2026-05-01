@@ -154,7 +154,8 @@ internal static class GoldenCohortDriftCommand
                 ArchLucidApiClient.GoldenManifestFingerprintResult? fingerprint =
                     await client.TryCommitAndFingerprintGoldenManifestAsync(runId);
 
-                if (fingerprint is null || !fingerprint.Success || string.IsNullOrWhiteSpace(fingerprint.Sha256HexUpper))
+                if (fingerprint is null || !fingerprint.Success ||
+                    string.IsNullOrWhiteSpace(fingerprint.Sha256HexUpper))
                 {
                     await Console.Error.WriteLineAsync(
                         $"[{item.Id}] commit/fingerprint failed: {fingerprint?.Error ?? "unknown"}");
@@ -197,11 +198,7 @@ internal static class GoldenCohortDriftCommand
                     };
                     structuralFailures.Add(fb);
                     await Console.Out.WriteLineAsync(
-                        JsonSerializer.Serialize(new
-                        {
-                            success = false,
-                            failure = fb
-                        }, StdoutJson));
+                        JsonSerializer.Serialize(new { success = false, failure = fb }, StdoutJson));
 
                     return CliExitCode.OperationFailed;
                 }
@@ -221,7 +218,8 @@ internal static class GoldenCohortDriftCommand
 
             if (!structuralOnly)
             {
-                SortedSet<string> actualCategories = GoldenCohortFindingCategoryAggregator.DistinctCategories(agentResults);
+                SortedSet<string> actualCategories =
+                    GoldenCohortFindingCategoryAggregator.DistinctCategories(agentResults);
                 SortedSet<string> expectedCategories = new(StringComparer.Ordinal);
 
                 foreach (string c in item.ExpectedFindingCategories.Where(c => !string.IsNullOrWhiteSpace(c)))
@@ -328,11 +326,13 @@ internal static class GoldenCohortDriftCommand
         List<AgentResult> list = [];
         int i = 0;
 
-        foreach (AgentResult? ar in raw.Select(o => JsonSerializer.Serialize(o, ContractJson.Default)).Select(j => JsonSerializer.Deserialize<AgentResult>(j, ContractJson.Default)))
+        foreach (AgentResult? ar in raw.Select(o => JsonSerializer.Serialize(o, ContractJson.Default))
+                     .Select(j => JsonSerializer.Deserialize<AgentResult>(j, ContractJson.Default)))
         {
             if (ar is null)
             {
-                error = $"[{itemId}] could not deserialize agent result at index {i.ToString(CultureInfo.InvariantCulture)}.";
+                error =
+                    $"[{itemId}] could not deserialize agent result at index {i.ToString(CultureInfo.InvariantCulture)}.";
 
                 return null;
             }
@@ -348,16 +348,18 @@ internal static class GoldenCohortDriftCommand
         return null;
     }
 
-    private static bool IsRealLlmContext() =>
-        IsTruthyEnvironment("ARCHLUCID_GOLDEN_COHORT_REAL_LLM")
-        || string.Equals(
-            Environment.GetEnvironmentVariable("ARCHLUCID_AGENT_EXECUTION_MODE")?.Trim() ?? string.Empty,
-            "Real",
-            StringComparison.OrdinalIgnoreCase)
-        || string.Equals(
-            Environment.GetEnvironmentVariable("AgentExecution__Mode")?.Trim() ?? string.Empty,
-            "Real",
-            StringComparison.OrdinalIgnoreCase);
+    private static bool IsRealLlmContext()
+    {
+        return IsTruthyEnvironment("ARCHLUCID_GOLDEN_COHORT_REAL_LLM")
+               || string.Equals(
+                   Environment.GetEnvironmentVariable("ARCHLUCID_AGENT_EXECUTION_MODE")?.Trim() ?? string.Empty,
+                   "Real",
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   Environment.GetEnvironmentVariable("AgentExecution__Mode")?.Trim() ?? string.Empty,
+                   "Real",
+                   StringComparison.OrdinalIgnoreCase);
+    }
 
     private static bool IsTruthyEnvironment(string name)
     {

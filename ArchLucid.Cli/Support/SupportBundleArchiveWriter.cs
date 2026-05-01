@@ -121,18 +121,15 @@ public static class SupportBundleArchiveWriter
         if (!Directory.Exists(bundleDirectory))
             throw new DirectoryNotFoundException(bundleDirectory);
 
-
         string? parent = Path.GetDirectoryName(Path.GetFullPath(zipPath));
 
         if (!string.IsNullOrEmpty(parent))
 
             Directory.CreateDirectory(parent);
 
-
         if (File.Exists(zipPath))
 
             File.Delete(zipPath);
-
 
         using FileStream fs = new(zipPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
         using ZipArchive zip = new(fs, ZipArchiveMode.Create);

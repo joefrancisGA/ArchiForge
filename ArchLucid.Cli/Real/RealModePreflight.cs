@@ -14,18 +14,14 @@ internal static class RealModePreflight
         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(EndpointKey)))
             missing.Add(EndpointKey);
 
-
         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(ApiKeyKey)))
             missing.Add(ApiKeyKey);
-
 
         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(DeploymentKey)))
             missing.Add(DeploymentKey);
 
-
         if (missing.Count == 0)
             return new RealModePreflightResult(true, missing, null);
-
 
         string joined = string.Join(", ", missing);
 

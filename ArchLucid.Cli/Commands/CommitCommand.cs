@@ -15,7 +15,6 @@ internal static class CommitCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         ArchLucidApiClient client = new(baseUrl);
 
         ArchLucidApiClient.CommitRunResult? result = await client.CommitRunAsync(runId);

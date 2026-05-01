@@ -222,7 +222,6 @@ internal static class DoctorCommand
         if (!apiHostLiveResponded)
             return;
 
-
         IConfiguration configuration = new ConfigurationBuilder().AddEnvironmentVariables().Build();
 
         string envName =
@@ -230,17 +229,17 @@ internal static class DoctorCommand
             ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
             ?? Environments.Production;
 
-        IReadOnlyList<string> hints = ProductionLikeHostingMisconfigurationAdvisor.DescribeWarnings(configuration, envName);
+        IReadOnlyList<string> hints =
+            ProductionLikeHostingMisconfigurationAdvisor.DescribeWarnings(configuration, envName);
 
         if (hints.Count == 0)
             return;
-
 
         Console.WriteLine();
         Console.WriteLine("--- Hosting misconfiguration hints (local env; mirrors ArchLucid.Api startup warnings) ---");
         Console.WriteLine(
             "Derived from this shell's environment variables — align with the API process/container. "
-                + "See docs/engineering/BUILD.md (Hosting misconfiguration warnings).");
+            + "See docs/engineering/BUILD.md (Hosting misconfiguration warnings).");
 
         foreach (string hint in hints)
             Console.WriteLine($" • {hint}");
@@ -268,10 +267,8 @@ internal static class DoctorCommand
         if (string.IsNullOrEmpty(body))
             return "(empty body)";
 
-
         if (body.Length <= maxChars)
             return body;
-
 
         return body[..maxChars] + "\n... (truncated)";
     }

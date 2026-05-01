@@ -369,29 +369,47 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
   });
 
-  it("Governance workflow: submit Run ID and manifest inputs stay read-only when mutation capability is false", async () => {
-    mutateCapability.current = false;
-    render(<GovernanceWorkflowPage />);
+  it(
+    "Governance workflow: submit Run ID and manifest inputs stay read-only when mutation capability is false",
+    async () => {
+      mutateCapability.current = false;
+      render(<GovernanceWorkflowPage />);
 
-    await waitFor(() => {
-      const submitRunTrigger = document.getElementById("gov-submit-run-select") as HTMLButtonElement | null;
+      await waitFor(() => {
+        const submitRunTrigger = document.getElementById("gov-submit-run-select") as HTMLButtonElement | null;
 
-      expect(submitRunTrigger).not.toBeNull();
-      expect(submitRunTrigger!.disabled).toBe(true);
-    });
+        expect(submitRunTrigger).not.toBeNull();
+        expect(submitRunTrigger!.disabled).toBe(true);
+      });
 
-    expect(screen.getAllByText(governanceWorkflowSubmitCardTitleReader).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(governanceWorkflowApprovalRequestsCardTitleReader)).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 3, name: governanceWorkflowPromotionsActivationsHeadingReader }),
-    ).toBeInTheDocument();
+      expect(screen.getAllByText(governanceWorkflowSubmitCardTitleReader).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText(governanceWorkflowApprovalRequestsCardTitleReader)).toBeInTheDocument();
 
-    const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
+      // Promotions / activations `h3` is inside the default-closed `AdvancedOptionsAccordion`; Radix unmounts
+      // closed panel content, so open it before querying the heading.
+      const advancedToggle = screen.getByRole("button", { name: /^Advanced Options$/ });
 
-    expect(submitVersion).not.toBeNull();
-    expect(submitVersion!.readOnly).toBe(true);
-    expect(screen.getByTestId("governance-submit-approval-button")).toBeDisabled();
-  });
+      fireEvent.click(advancedToggle);
+
+      await waitFor(
+        () => {
+          expect(advancedToggle).toHaveAttribute("aria-expanded", "true");
+        },
+        { timeout: 5000 },
+      );
+
+      expect(
+        screen.getByRole("heading", { level: 3, name: governanceWorkflowPromotionsActivationsHeadingReader }),
+      ).toBeInTheDocument();
+
+      const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
+
+      expect(submitVersion).not.toBeNull();
+      expect(submitVersion!.readOnly).toBe(true);
+      expect(screen.getByTestId("governance-submit-approval-button")).toBeDisabled();
+    },
+    15_000,
+  );
 
   it("Governance workflow: submit Run ID is editable when mutation capability is true", async () => {
     mutateCapability.current = true;

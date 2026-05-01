@@ -43,7 +43,6 @@ public static class SecondRunInputParser
         if (trimmed.Length > 0 && trimmed[0] == '{')
             return ParseJson(text, sourceLabel);
 
-
         return ParseToml(text, sourceLabel);
     }
 
@@ -79,7 +78,6 @@ public static class SecondRunInputParser
         if (dto is null)
             return SecondRunParseOutcome.Fail(SecondRunParseFailureCode.BadRequest,
                 $"Empty JSON document in {sourceLabel}.");
-
 
         return ValidateAndMap(dto, sourceLabel);
     }
@@ -230,7 +228,6 @@ public static class SecondRunInputParser
 
         if (string.IsNullOrWhiteSpace(environment))
             environment = "prod";
-
 
         ArchitectureRequest request = new()
         {

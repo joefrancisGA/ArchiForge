@@ -42,7 +42,7 @@ internal static class RulesSimulateCommand
 
             if (string.Equals(a, "--severity", StringComparison.Ordinal) && i + 1 < args.Length)
             {
-                if (!Enum.TryParse(args[++i].Trim(), ignoreCase: true, out severity))
+                if (!Enum.TryParse(args[++i].Trim(), true, out severity))
                 {
                     Console.Error.WriteLine("Invalid --severity. Use Critical, Error, Warning, Info.");
                     return CliExitCode.UsageError;
@@ -121,13 +121,6 @@ internal static class RulesSimulateCommand
         return CliExitCode.Success;
     }
 
-    private sealed class SimulateRequestBody
-    {
-        public string RunId { get; init; } = "";
-        public FindingSeverity SyntheticSeverity { get; init; }
-        public int SyntheticCount { get; init; }
-    }
-
     private static void EmitHumanReadable(PreCommitGateResult? result)
     {
         if (result is null)
@@ -153,5 +146,26 @@ internal static class RulesSimulateCommand
         raw = raw.ReplaceLineEndings(" ");
 
         return raw.Length <= max ? raw : raw[..max];
+    }
+
+    private sealed class SimulateRequestBody
+    {
+        public string RunId
+        {
+            get;
+            init;
+        } = "";
+
+        public FindingSeverity SyntheticSeverity
+        {
+            get;
+            init;
+        }
+
+        public int SyntheticCount
+        {
+            get;
+            init;
+        }
     }
 }

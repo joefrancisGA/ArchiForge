@@ -17,7 +17,6 @@ internal static class ArtifactsCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         ArchLucidApiClient client = new(baseUrl);
 
         ArchLucidApiClient.GetRunResult? run = await client.GetRunAsync(runId);
@@ -77,7 +76,6 @@ internal static class ArtifactsCommand
         else
 
             Console.WriteLine(json);
-
 
         return CliExitCode.Success;
     }

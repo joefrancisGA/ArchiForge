@@ -261,10 +261,7 @@ internal static class ReferenceEvidenceCommand
 
             return new ReferenceEvidenceArgs
             {
-                RunId = run,
-                TenantId = tenant,
-                OutputDirectory = output,
-                IncludeDemo = includeDemo
+                RunId = run, TenantId = tenant, OutputDirectory = output, IncludeDemo = includeDemo
             };
         }
     }

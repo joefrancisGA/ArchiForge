@@ -54,7 +54,10 @@ internal sealed class TryCommandOptions
         init;
     } = TimeSpan.FromSeconds(2);
 
-    /// <summary>When <see langword="true" />, user requested the real Azure OpenAI pilot path (still requires <see cref="ArchLucidRealAoaiEnv" />).</summary>
+    /// <summary>
+    ///     When <see langword="true" />, user requested the real Azure OpenAI pilot path (still requires
+    ///     <see cref="ArchLucidRealAoaiEnv" />).
+    /// </summary>
     public bool RealMode
     {
         get;
@@ -138,7 +141,8 @@ internal sealed class TryCommandOptions
 
         error = null;
 
-        TimeSpan commitDeadline = commitDeadlineSeconds ?? (realMode ? RealModeDefaultCommitDeadline : DefaultCommitDeadline);
+        TimeSpan commitDeadline =
+            commitDeadlineSeconds ?? (realMode ? RealModeDefaultCommitDeadline : DefaultCommitDeadline);
 
         return new TryCommandOptions
         {

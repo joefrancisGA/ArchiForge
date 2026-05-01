@@ -3,8 +3,8 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Core.GoldenCorpus;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.GoldenCorpus;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -163,11 +163,7 @@ internal static class GoldenCohortLockBaselineCommand
                 item.ExpectedCommittedManifestSha256 = shaLower;
 
             if (CliExecutionContext.JsonOutput)
-                jsonRows.Add(new
-                {
-                    id = item.Id,
-                    committedManifestSha256 = shaLower
-                });
+                jsonRows.Add(new { id = item.Id, committedManifestSha256 = shaLower });
             else
                 Console.WriteLine($"{item.Id}\t{shaLower}");
         }
@@ -182,12 +178,7 @@ internal static class GoldenCohortLockBaselineCommand
 
         if (!CliExecutionContext.JsonOutput)
             return CliExitCode.Success;
-        object payload = new
-        {
-            cohortPath = resolvedCohort,
-            wrote = write,
-            items = jsonRows
-        };
+        object payload = new { cohortPath = resolvedCohort, wrote = write, items = jsonRows };
 
         Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
 

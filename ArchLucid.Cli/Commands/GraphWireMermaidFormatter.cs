@@ -6,6 +6,8 @@ namespace ArchLucid.Cli.Commands;
 /// <summary>Produces Mermaid flowchart source from provenance REST graph JSON.</summary>
 internal static class GraphWireMermaidFormatter
 {
+    private const string Unknown = "?";
+
     internal static string ToFlowchart(GraphWireModel vm)
     {
         StringBuilder sb = new();
@@ -19,7 +21,8 @@ internal static class GraphWireMermaidFormatter
 
         HashSet<string> edgeReferenced = [];
 
-        foreach (GraphEdgeWire e in vm.Edges.OfType<GraphEdgeWire>().Where(e => !string.IsNullOrWhiteSpace(e.Source) && !string.IsNullOrWhiteSpace(e.Target)))
+        foreach (GraphEdgeWire e in vm.Edges.OfType<GraphEdgeWire>().Where(e =>
+                     !string.IsNullOrWhiteSpace(e.Source) && !string.IsNullOrWhiteSpace(e.Target)))
         {
             edgeReferenced.Add(e.Source.Trim());
             edgeReferenced.Add(e.Target.Trim());
@@ -31,7 +34,6 @@ internal static class GraphWireMermaidFormatter
 
             byId[stub] = null;
 
-
         foreach (KeyValuePair<string, GraphNodeWire?> kv in byId.OrderBy(static kv => kv.Key, StringComparer.Ordinal))
         {
             string mid = ToMermaidNodeId(kv.Key);
@@ -42,8 +44,8 @@ internal static class GraphWireMermaidFormatter
             sb.AppendLine("\"]");
         }
 
-
-        foreach (GraphEdgeWire e in vm.Edges.OfType<GraphEdgeWire>().Where(e => !string.IsNullOrWhiteSpace(e.Source) && !string.IsNullOrWhiteSpace(e.Target)))
+        foreach (GraphEdgeWire e in vm.Edges.OfType<GraphEdgeWire>().Where(e =>
+                     !string.IsNullOrWhiteSpace(e.Source) && !string.IsNullOrWhiteSpace(e.Target)))
         {
             if (string.IsNullOrWhiteSpace(e.Source) || string.IsNullOrWhiteSpace(e.Target))
                 continue;
@@ -60,14 +62,11 @@ internal static class GraphWireMermaidFormatter
 
                 sb.Append(" --> ");
 
-
             sb.AppendLine(t);
         }
 
         return sb.ToString().TrimEnd();
     }
-
-    private const string Unknown = "?";
 
     private static string FormatNodeLabel(GraphNodeWire n)
     {
@@ -89,7 +88,9 @@ internal static class GraphWireMermaidFormatter
 
     private static string EscapeQuotes(string? s)
     {
-        return string.IsNullOrEmpty(s) ? string.Empty : s.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "'", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(s)
+            ? string.Empty
+            : s.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "'", StringComparison.Ordinal);
     }
 
     /// <remarks>

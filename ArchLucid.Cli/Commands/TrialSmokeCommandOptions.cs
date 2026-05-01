@@ -11,7 +11,8 @@ public sealed class TrialSmokeCommandOptions
 
     /// <summary>
     ///     Canonical staging API host targeted by <c>--staging</c>. Must stay in sync with
-    ///     <c>docs/runbooks/TRIAL_FUNNEL_END_TO_END.md</c> § 9 quick-start ("ARCHLUCID_API_URL=https://staging.archlucid.net").
+    ///     <c>docs/runbooks/TRIAL_FUNNEL_END_TO_END.md</c> § 9 quick-start
+    ///     ("ARCHLUCID_API_URL=https://staging.archlucid.net").
     /// </summary>
     public const string StagingApiBaseUrl = "https://staging.archlucid.net";
 

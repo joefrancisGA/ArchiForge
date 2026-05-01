@@ -30,8 +30,7 @@ public sealed class ArchLucidApiClient
     /// </summary>
     private static readonly JsonSerializerOptions GenNumericEnumBridgeJson = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true
     };
 
     /// <summary>
@@ -50,9 +49,7 @@ public sealed class ArchLucidApiClient
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        WriteIndented = false
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true, WriteIndented = false
     };
 
     public ArchLucidApiClient(string baseUrl, ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
@@ -60,7 +57,6 @@ public sealed class ArchLucidApiClient
         string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
         if (invalidReason is not null)
             throw new ArgumentException(invalidReason, nameof(baseUrl));
-
 
         string normalized = baseUrl.Trim().TrimEnd('/');
         ArchLucidProjectScaffolder.ArchLucidCliConfig? effectiveConfig =
@@ -96,11 +92,9 @@ public sealed class ArchLucidApiClient
 
             inner = new CliRetryDelegatingHandler(httpResilience) { InnerHandler = inner };
 
-
         HttpClient http = new(inner, true)
         {
-            BaseAddress = new Uri(normalizedBaseUrl + "/"),
-            Timeout = TimeSpan.FromSeconds(30)
+            BaseAddress = new Uri(normalizedBaseUrl + "/"), Timeout = TimeSpan.FromSeconds(30)
         };
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
@@ -125,7 +119,6 @@ public sealed class ArchLucidApiClient
         if (invalidReason is not null)
             throw new ArgumentException(invalidReason, nameof(baseUrl));
 
-
         string normalized = baseUrl.Trim().TrimEnd('/');
         ArchLucidProjectScaffolder.ArchLucidCliConfig? effectiveConfig =
             cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
@@ -149,17 +142,14 @@ public sealed class ArchLucidApiClient
             return
                 "API base URL is empty. Set apiUrl in archlucid.json in the project folder or ARCHLUCID_API_URL (example: http://localhost:5128).";
 
-
         string trimmed = baseUrl.Trim();
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
 
             return
                 $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
 
-
         if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
             return $"API base URL must use http or https (got '{uri.Scheme}').";
-
 
         return null;
     }
@@ -266,12 +256,10 @@ public sealed class ArchLucidApiClient
             {
                 int toRead = (int)Math.Min(buffer.Length, maxBytes + 1 - accumulator.Length);
 
-
                 if (toRead <= 0)
                     break;
 
                 int n = await stream.ReadAsync(buffer.AsMemory(0, toRead), ct);
-
 
                 if (n == 0)
                     break;
@@ -305,7 +293,6 @@ public sealed class ArchLucidApiClient
             if (body is null)
                 return CreateRunResult.Fail(null, "Invalid architecture request payload.");
 
-
             Gen.CreateArchitectureRunResponse created = await _api.RequestAsync(body, ct);
             CreateRunResponse? mapped = DeserializeRoundTrip<CreateRunResponse>(created);
 
@@ -338,11 +325,7 @@ public sealed class ArchLucidApiClient
             if (genResult is null)
                 return new SubmitResultResult(false, null, "Invalid agent result payload.");
 
-
-            Gen.SubmitAgentResultRequest req = new()
-            {
-                Result = genResult
-            };
+            Gen.SubmitAgentResultRequest req = new() { Result = genResult };
             Gen.SubmitAgentResultResponse parsed = await _api.ResultAsync(runId, req, ct);
 
             return new SubmitResultResult(true, parsed.ResultId, null);
@@ -387,7 +370,7 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            Gen.CommitRunResponse result = await _api.CommitAsync(runId, body: null, ct);
+            Gen.CommitRunResponse result = await _api.CommitAsync(runId, null, ct);
             CommitRunResponse? mapped = DeserializeRoundTrip<CommitRunResponse>(result);
 
             return new CommitRunResult(true, mapped, null);
@@ -445,17 +428,14 @@ public sealed class ArchLucidApiClient
 
         try
         {
-            Gen.CommitRunResponse gen = await _api.CommitAsync(runId, body: null, ct);
+            Gen.CommitRunResponse gen = await _api.CommitAsync(runId, null, ct);
             Gen.GoldenManifest? gm = gen.Manifest;
 
             if (gm is null)
                 return new GoldenManifestFingerprintResult(false, null, "Commit response contained no manifest.");
 
             string wireJson = JsonSerializer.Serialize(gm, gm.GetType(), _jsonOptions);
-            JsonSerializerOptions contractRead = new(ContractJson.Default)
-            {
-                PropertyNameCaseInsensitive = true
-            };
+            JsonSerializerOptions contractRead = new(ContractJson.Default) { PropertyNameCaseInsensitive = true };
             GoldenManifest? manifest = JsonSerializer.Deserialize<GoldenManifest>(wireJson, contractRead);
 
             if (manifest is null)
@@ -592,13 +572,7 @@ public sealed class ArchLucidApiClient
         {
             string uri =
                 $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay?format={Uri.EscapeDataString(format)}";
-            var body = new
-            {
-                format,
-                replayMode,
-                profile,
-                persistReplay
-            };
+            var body = new { format, replayMode, profile, persistReplay };
 
             HttpResponseMessage response = await _http.PostAsJsonAsync(uri, body, _jsonOptions, ct);
             if (!response.IsSuccessStatusCode)
@@ -640,10 +614,8 @@ public sealed class ArchLucidApiClient
 
                         Directory.CreateDirectory(dir);
 
-
                     targetPath = outPath;
                 }
-
 
             if (File.Exists(targetPath) && !force)
             {
@@ -768,10 +740,8 @@ public sealed class ArchLucidApiClient
 
                         Directory.CreateDirectory(dir);
 
-
                     targetPath = outPath;
                 }
-
 
             if (File.Exists(targetPath) && !force)
             {
@@ -835,11 +805,7 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            Gen.UpdateComparisonRecordRequest body = new()
-            {
-                Label = label,
-                Tags = tags?.ToList()
-            };
+            Gen.UpdateComparisonRecordRequest body = new() { Label = label, Tags = tags?.ToList() };
 
             await _api.ComparisonsPATCHAsync(comparisonRecordId, body, ct);
 
@@ -883,11 +849,11 @@ public sealed class ArchLucidApiClient
     private static string? TryReadCorrelationId(Gen.ArchLucidApiException ex)
     {
         return (from pair in ex.Headers
-                where pair.Key.Equals("X-Correlation-ID", StringComparison.OrdinalIgnoreCase)
-                select pair.Value.FirstOrDefault()
+            where pair.Key.Equals("X-Correlation-ID", StringComparison.OrdinalIgnoreCase)
+            select pair.Value.FirstOrDefault()
             into first
-                where !string.IsNullOrWhiteSpace(first)
-                select first.Trim()).FirstOrDefault();
+            where !string.IsNullOrWhiteSpace(first)
+            select first.Trim()).FirstOrDefault();
     }
 
     private static string ResolveApiErrorMessage(Gen.ArchLucidApiException ex)
@@ -918,16 +884,13 @@ public sealed class ArchLucidApiClient
             if (root.TryGetProperty("detail", out JsonElement detail))
                 return detail.GetString();
 
-
             if (root.TryGetProperty("error", out JsonElement err))
                 return err.GetString();
-
 
             if (root.TryGetProperty("errors", out JsonElement errs) && errs.ValueKind == JsonValueKind.Array)
 
                 return string.Join("; ",
                     errs.EnumerateArray().Select(e => e.GetString()).Where(s => !string.IsNullOrEmpty(s)));
-
 
             if (root.TryGetProperty("title", out JsonElement title))
                 return title.GetString();

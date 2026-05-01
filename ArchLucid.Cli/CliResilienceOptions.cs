@@ -48,11 +48,9 @@ public sealed class CliResilienceOptions
 
             result.MaxRetryAttempts = maxRetries;
 
-
         if (section.InitialDelaySeconds is { } delaySec)
 
             result.InitialDelaySeconds = delaySec;
-
 
         result.Normalize();
 

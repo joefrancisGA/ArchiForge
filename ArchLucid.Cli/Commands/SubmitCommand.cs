@@ -18,7 +18,6 @@ internal static class SubmitCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         if (!File.Exists(resultFilePath))
         {
             Console.WriteLine($"Error: File not found: {resultFilePath}");

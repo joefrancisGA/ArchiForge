@@ -66,7 +66,8 @@ internal sealed class TryCommandHooks
     }
 
     /// <summary>POST /v1/architecture/run/{runId}/seed (Development-only fallback).</summary>
-    public required Func<ArchLucidApiClient, string, bool, CancellationToken, Task<ArchLucidApiClient.SeedFakeResultsResult?>>
+    public required Func<ArchLucidApiClient, string, bool, CancellationToken,
+            Task<ArchLucidApiClient.SeedFakeResultsResult?>>
         SeedFakeResults
     {
         get;

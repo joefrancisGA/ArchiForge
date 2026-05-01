@@ -15,7 +15,6 @@ internal static class SeedCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         ArchLucidApiClient client = new(baseUrl);
 
         ArchLucidApiClient.SeedFakeResultsResult? result = await client.SeedFakeResultsAsync(runId);

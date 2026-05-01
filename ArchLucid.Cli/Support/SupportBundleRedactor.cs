@@ -33,10 +33,8 @@ public static class SupportBundleRedactor
         if (string.IsNullOrWhiteSpace(url))
             return string.Empty;
 
-
         if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out Uri? uri))
             return "(invalid url)";
-
 
         UriBuilder builder = new(uri) { UserName = string.Empty, Password = string.Empty };
 
@@ -51,11 +49,9 @@ public static class SupportBundleRedactor
         if (string.IsNullOrEmpty(name))
             return false;
 
-
         if (name.StartsWith("ARCHLUCID_", StringComparison.OrdinalIgnoreCase)
             && name.Contains("SQL", StringComparison.OrdinalIgnoreCase))
             return true;
-
 
         string upper = name.ToUpperInvariant();
 
@@ -63,7 +59,6 @@ public static class SupportBundleRedactor
 
             if (upper.Contains(fragment, StringComparison.Ordinal))
                 return true;
-
 
         return false;
     }
@@ -83,12 +78,10 @@ public static class SupportBundleRedactor
             if (string.IsNullOrEmpty(key))
                 continue;
 
-
             if (!key.StartsWith("ARCHLUCID_", StringComparison.OrdinalIgnoreCase)
                 && !key.StartsWith("DOTNET_", StringComparison.OrdinalIgnoreCase))
 
                 continue;
-
 
             if (IsSensitiveEnvironmentVariableName(key))
             {
@@ -121,7 +114,6 @@ public static class SupportBundleRedactor
     {
         if (string.IsNullOrEmpty(text))
             return text ?? string.Empty;
-
 
         string s = BearerHeader.Replace(text, m => m.Groups[1].Value + "[REDACTED]");
         s = ApiKeyHeader.Replace(s, m => m.Groups[1].Value + "[REDACTED]");

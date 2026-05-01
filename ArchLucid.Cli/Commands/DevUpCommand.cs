@@ -31,7 +31,6 @@ internal static class DevUpCommand
 
                 (exitCode, output, error) = RunProcess("docker-compose", $"-f \"{composePath}\" up -d", composeDir);
 
-
             if (exitCode != 0)
             {
                 Console.WriteLine("Error: Failed to start containers.");
@@ -40,11 +39,9 @@ internal static class DevUpCommand
 
                     Console.WriteLine(error);
 
-
                 if (!string.IsNullOrEmpty(output))
 
                     Console.WriteLine(output);
-
 
                 return Task.FromResult(CliExitCode.OperationFailed);
             }
@@ -104,7 +101,6 @@ internal static class DevUpCommand
 
         if (proc is null)
             return (-1, "", $"Failed to start {fileName}");
-
 
         string stdout = proc.StandardOutput.ReadToEnd();
         string stderr = proc.StandardError.ReadToEnd();

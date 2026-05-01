@@ -22,7 +22,6 @@ internal static class TraceCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         ArchLucidApiClient client = new(baseUrl, config);
 
         return await RunCoreAsync(
@@ -89,7 +88,6 @@ internal static class TraceCommand
 
             openBrowser(url);
 
-
         return CliExitCode.Success;
     }
 
@@ -113,7 +111,6 @@ internal static class TraceCommand
 
         if (string.IsNullOrWhiteSpace(value))
             return false;
-
 
         return value.Equals("1", StringComparison.OrdinalIgnoreCase)
                || value.Equals("true", StringComparison.OrdinalIgnoreCase);

@@ -45,7 +45,6 @@ public static class Program
                     if (normalized.Length > 1 && normalized[1] == "up")
                         return await DevUpCommand.RunAsync();
 
-
                     Console.WriteLine("Expected: archlucid dev up");
 
                     return CliExitCode.UsageError;
@@ -53,7 +52,6 @@ public static class Program
                 case "pilot":
                     if (normalized.Length > 1 && normalized[1] == "up")
                         return await PilotUpCommand.RunAsync();
-
 
                     Console.WriteLine("Expected: archlucid pilot up");
 
@@ -82,7 +80,6 @@ public static class Program
                     if (normalized.Length > 1 && normalized[1] == "publish")
                         return await SecurityTrustPublishCommand.RunAsync(normalized.Skip(2).ToArray());
 
-
                     Console.WriteLine(
                         "Usage: archlucid security-trust publish --kind pen-test --date <YYYY-MM-DD> "
                         + "--summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>]");
@@ -92,7 +89,6 @@ public static class Program
                 case "marketplace":
                     if (normalized.Length > 1 && normalized[1] == "preflight")
                         return await MarketplacePreflightCommand.RunAsync(normalized.Skip(2).ToArray());
-
 
                     Console.WriteLine("Usage: archlucid marketplace preflight [--repo <dir>]");
 
@@ -104,7 +100,6 @@ public static class Program
 
                     if (normalized.Length > 1 && normalized[1] == "drift")
                         return await GoldenCohortDriftCommand.RunAsync(normalized.Skip(2).ToArray());
-
 
                     Console.WriteLine(
                         "Usage: archlucid golden-cohort lock-baseline [--cohort <path>] [--write] | " +
@@ -123,7 +118,6 @@ public static class Program
                         return await FirstValueReportCommand.RunAsync(normalized[1], saveReport);
                     }
 
-
                     Console.WriteLine("Usage: archlucid first-value-report <runId> [--save]");
 
                     return CliExitCode.UsageError;
@@ -135,7 +129,6 @@ public static class Program
 
                         return await SponsorOnePagerCommand.RunAsync(normalized[1], savePdf);
                     }
-
 
                     Console.WriteLine("Usage: archlucid sponsor-one-pager <runId> [--save]");
 
@@ -153,7 +146,6 @@ public static class Program
                     if (normalized.Length > 1)
                         return await StatusCommand.RunAsync(normalized[1]);
 
-
                     Console.WriteLine("Usage: archlucid status <runId>");
 
                     return CliExitCode.UsageError;
@@ -161,7 +153,6 @@ public static class Program
                 case "trace":
                     if (normalized.Length > 1)
                         return await TraceCommand.RunAsync(normalized[1]);
-
 
                     Console.WriteLine("Usage: archlucid trace <runId>");
 
@@ -171,7 +162,6 @@ public static class Program
                     if (normalized.Length > 2)
                         return await SubmitCommand.RunAsync(normalized[1], normalized[2]);
 
-
                     Console.WriteLine("Usage: archlucid submit <runId> <result.json>");
 
                     return CliExitCode.UsageError;
@@ -180,7 +170,6 @@ public static class Program
                     if (normalized.Length > 1)
                         return await CommitCommand.RunAsync(normalized[1]);
 
-
                     Console.WriteLine("Usage: archlucid commit <runId>");
 
                     return CliExitCode.UsageError;
@@ -188,7 +177,6 @@ public static class Program
                 case "seed":
                     if (normalized.Length > 1)
                         return await SeedCommand.RunAsync(normalized[1]);
-
 
                     Console.WriteLine("Usage: archlucid seed <runId>");
 
@@ -219,14 +207,13 @@ public static class Program
                                 .Skip(2)
                                 .ToArray());
 
-                    WebhooksTestCommand.WriteUsage(stdout: false);
+                    WebhooksTestCommand.WriteUsage(false);
 
                     return CliExitCode.UsageError;
 
                 case "policy":
                     if (normalized.Length > 2 && normalized[1] == "validate")
                         return await PolicyValidateCommand.RunAsync(normalized[2]);
-
 
                     Console.WriteLine("Usage: archlucid policy validate <file.json>");
 
@@ -250,7 +237,6 @@ public static class Program
                             normalized
                                 .Skip(2)
                                 .ToArray());
-
 
                     Console.WriteLine(
                         "Usage: archlucid rules simulate --run <runGuid> [--severity Warning] [--count 3]");
@@ -301,7 +287,6 @@ public static class Program
                     else
 
                         Console.WriteLine($"Unknown command: {command}");
-
 
                     return CliExitCode.UsageError;
             }

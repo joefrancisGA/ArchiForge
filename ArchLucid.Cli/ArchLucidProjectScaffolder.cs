@@ -98,7 +98,6 @@ public static class ArchLucidProjectScaffolder
                     "ScaffoldOptions.ConnectionString must be set when RegisterProject is true. " +
                     "Set it explicitly; there is no hardcoded default connection string.");
 
-
             const string sqlQuery =
                 "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) " +
                 "VALUES (@ProjectName, @BaseDirectory, @OverwriteExistingFiles, @IncludeTerraformStubs)";
@@ -195,7 +194,6 @@ public static class ArchLucidProjectScaffolder
         else
 
             throw new FileNotFoundException(CliManifestFileName + " not found.", lucidPath);
-
 
         string json = File.ReadAllText(manifestPath, Encoding.UTF8);
 
