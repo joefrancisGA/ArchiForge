@@ -1,6 +1,6 @@
 > **Scope:** Independent first-principles quality assessment of ArchLucid — weighted readiness score, prioritized weaknesses, monetization/enterprise/engineering blockers, and improvement prompts for Cursor.
 
-# ArchLucid Assessment – Weighted Readiness 67.89%
+# ArchLucid Assessment – Weighted Readiness 68.20%
 
 **Date:** 2026-05-01  
 **Method:** First-principles review of codebase (~4,195 C# source files, 49 projects, 110 Terraform files, 73 UI pages, 39 Playwright specs, 554+ documentation files). No prior assessment referenced.
@@ -10,7 +10,7 @@
 ## Executive Summary
 
 ### Overall Readiness
-ArchLucid scores **67.89%** weighted readiness — a product with strong engineering bones and deep governance/audit discipline, but commercially blocked by an absence of real customers, live payment flow, and third-party trust attestation. The delta between "functionally impressive" and "purchasable" remains the critical gap.
+ArchLucid scores **68.20%** weighted readiness — a product with strong engineering bones and deep governance/audit discipline, but commercially blocked by an absence of real customers, live payment flow, and third-party trust attestation. The delta between "functionally impressive" and "purchasable" remains the critical gap.
 
 ### Commercial Picture
 The pricing model is thoughtful and value-anchored. Documentation reads like a mature company. However, zero revenue, no reference customers, placeholder Stripe URLs, and an Azure-only platform constraint limit addressable market to ~30% of enterprise architecture teams. Time-to-value for a *non-guided* customer is measured in days, not minutes — a severe adoption friction problem for a product without a sales team.
@@ -30,8 +30,8 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 | # | Quality | Score | Weight | Weighted | Deficiency Signal |
 |---|---------|-------|--------|----------|-------------------|
 | 1 | Marketability | 49 | 8 | 3.84 | 4.00 |
-| 2 | Time-to-Value | 53 | 7 | 3.64 | 3.22 |
-| 3 | Adoption Friction | 49 | 6 | 2.88 | 3.00 |
+| 2 | Time-to-Value | 55 | 7 | 3.77 | 3.09 |
+| 3 | Adoption Friction | 50 | 6 | 2.94 | 2.94 |
 | 4 | Proof-of-ROI Readiness | 57 | 5 | 2.79 | 2.11 |
 | 5 | Correctness | 75 | 4 | 2.94 | 0.98 |
 | 6 | Executive Value Visibility | 67 | 4 | 2.63 | 1.29 |
@@ -41,18 +41,18 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 | 10 | Traceability | 87 | 3 | 2.56 | 0.38 |
 | 11 | Usability | 61 | 3 | 1.79 | 1.15 |
 | 12 | Workflow Embeddedness | 53 | 3 | 1.56 | 1.38 |
-| 13 | Trustworthiness | 64 | 3 | 1.88 | 1.06 |
+| 13 | Trustworthiness | 65 | 3 | 1.91 | 1.03 |
 | 14 | Reliability | 78 | 2 | 1.53 | 0.43 |
 | 15 | Data Consistency | 75 | 2 | 1.47 | 0.49 |
 | 16 | Maintainability | 81 | 2 | 1.59 | 0.37 |
 | 17 | Explainability | 80 | 2 | 1.57 | 0.39 |
 | 18 | AI/Agent Readiness | 73 | 2 | 1.43 | 0.53 |
 | 19 | Azure Compat & SaaS Deploy | 86 | 2 | 1.69 | 0.27 |
-| 20 | Decision Velocity | 64 | 2 | 1.25 | 0.71 |
-| 21 | Commercial Packaging Readiness | 66 | 2 | 1.29 | 0.67 |
+| 20 | Decision Velocity | 66 | 2 | 1.29 | 0.67 |
+| 21 | Commercial Packaging Readiness | 67 | 2 | 1.31 | 0.65 |
 | 22 | Auditability | 89 | 2 | 1.75 | 0.22 |
 | 23 | Policy & Governance Alignment | 84 | 2 | 1.65 | 0.31 |
-| 24 | Compliance Readiness | 66 | 2 | 1.29 | 0.67 |
+| 24 | Compliance Readiness | 67 | 2 | 1.31 | 0.65 |
 | 25 | Procurement Readiness | 62 | 2 | 1.22 | 0.75 |
 | 26 | Interoperability | 51 | 2 | 1.00 | 0.96 |
 | 27 | Stickiness | 67 | 1 | 0.66 | 0.32 |
@@ -76,7 +76,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 | 45 | Cognitive Load | 54 | 1 | 0.53 | 0.45 |
 | 46 | Cost-Effectiveness | 67 | 1 | 0.66 | 0.32 |
 
-**Total weighted score: 67.89 / 100**
+**Total weighted score: 68.20 / 100**
 
 ---
 
@@ -99,7 +99,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 ---
 
-#### 2. Time-to-Value — Score: 53 | Weight: 7 | Deficiency: 3.22
+#### 2. Time-to-Value — Score: 55 | Weight: 7 | Deficiency: 3.09
 
 **Justification:** First meaningful value (a committed golden manifest) requires: provisioning infrastructure (SQL + Container Apps or local docker compose), configuring auth, understanding a seven-step wizard, and either waiting for simulator output or configuring Azure OpenAI credentials. Self-serve trial exists in engineering but the signup-to-value path takes hours, not minutes. No hosted sandbox where a prospect can click and see real output immediately.
 
@@ -114,7 +114,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 ---
 
-#### 3. Adoption Friction — Score: 49 | Weight: 6 | Deficiency: 3.00
+#### 3. Adoption Friction — Score: 50 | Weight: 6 | Deficiency: 2.94
 
 **Justification:** The product requires: .NET runtime knowledge for self-hosting, SQL Server, Azure OpenAI subscription (for real mode), Terraform fluency (for production), and learning a new seven-step wizard. No inbound data connectors (Terraform state, ArchiMate, CMDB import) means customers must re-describe their architecture from scratch. Entra-only SSO blocks non-Microsoft shops.
 
@@ -203,7 +203,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 ---
 
-#### 9. Trustworthiness — Score: 64 | Weight: 3 | Deficiency: 1.06
+#### 9. Trustworthiness — Score: 65 | Weight: 3 | Deficiency: 1.03
 
 **Justification:** The product has: STRIDE threat model, RLS, fail-closed auth, content safety, prompt redaction, rate limiting. The product lacks: SOC 2 Type II attestation, published pen-test report, real customer testimonials, any social proof. An enterprise security reviewer will ask "who else runs this in production?" and the answer is "no one." Self-assessment is not third-party attestation. The pen test is owner-conducted (not third-party), which strengthens internal confidence but does not carry the same weight with procurement teams.
 
@@ -247,7 +247,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 ---
 
-#### 12. Decision Velocity — Score: 64 | Weight: 2 | Deficiency: 0.71
+#### 12. Decision Velocity — Score: 66 | Weight: 2 | Deficiency: 0.67
 
 **Justification:** The product accelerates architecture decision-making (that's its purpose), but the decision velocity for the *buyer* to decide to purchase is impaired by: high setup cost, no immediate demo, no self-serve payment, and a 6-week guided pilot process. Enterprise procurement timelines will be 3-6 months minimum.
 
@@ -255,13 +255,13 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 **Recommendations:**
 - Enable Team-tier Stripe self-checkout so small teams can buy without a sales call
-- Reduce the trial-to-paid conversion path to under 14 days
+- Ensure the trial-to-paid conversion path has a clear "upgrade now" CTA visible from day 10 onward
 
 **Fixability:** V1
 
 ---
 
-#### 13. Compliance Readiness — Score: 66 | Weight: 2 | Deficiency: 0.67
+#### 13. Compliance Readiness — Score: 67 | Weight: 2 | Deficiency: 0.65
 
 **Justification:** SOC 2 self-assessment exists (internal ownership). CAIQ Lite pre-fill exists. SIG Core pre-fill exists. Owner-conducted pen test underway. Audit trail is durable and append-only. 78 typed audit events. However: no actual SOC 2 report, no completed pen test deliverable, no ISO 27001. For regulated industries (financial services, healthcare — the identified best-fit scenarios), these are hard blockers.
 
@@ -291,7 +291,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 
 ---
 
-#### 15. Commercial Packaging Readiness — Score: 66 | Weight: 2 | Deficiency: 0.67
+#### 15. Commercial Packaging Readiness — Score: 67 | Weight: 2 | Deficiency: 0.65
 
 **Justification:** Three tiers (Team/Professional/Enterprise) well-defined. Feature gates documented. Locked prices documented with re-rate plan. Stripe checkout URL is a placeholder. Azure Marketplace offer is documented but not published. Metering infrastructure exists (Prometheus counters, run tracking). Gap: no live billing, no live marketplace listing, no tested upgrade/downgrade path.
 
@@ -359,7 +359,7 @@ Architecturally coherent, well-tested (hundreds of test classes, property-based 
 |------|---------|----------------------|
 | 1 | **Stripe checkout is a placeholder** | Cannot collect money from willing buyers |
 | 2 | **No reference customer** | Prospects cannot talk to peers; 15% discount cannot be earned; trust gap persists |
-| 3 | **$15K guided pilot requires sales motion** | Founder is sole commercial motion; pilot fee collection requires manual invoicing; free trial is available but 14-day window is short for enterprise evaluation |
+| 3 | **$15K guided pilot requires sales motion** | Founder is sole commercial motion; pilot fee collection requires manual invoicing; free trial (30 days + one-time 14-day extension) is available for self-serve |
 | 4 | **Azure Marketplace not live** | Enterprise buyers with Azure spending commitments cannot route through existing procurement channels |
 | 5 | **ROI model is unvalidated** | "Save $294K/year" claim has zero customer evidence; CFOs will discount it to zero |
 
@@ -889,4 +889,4 @@ No scoring penalties were applied for these deferred items.
 - ~~What is the runway?~~ **Not constrained.** Self-funded from savings.
 - ~~Is multi-cloud on the roadmap?~~ **V2.** Multi-cloud analysis (AWS/GCP) is explicitly V2 scope.
 - ~~Air-gapped deployment?~~ **Does not apply.** This is SaaS-only; air-gapped deployment is out of scope permanently.
-- **Free pilot posture:** Founder will accept a free pilot at any time to accelerate acquisition. Product is free at first (14-day trial exists).
+- **Free pilot posture:** Founder will accept a free pilot at any time to accelerate acquisition. Product has a 30-day free trial with one-time 14-day extension available.

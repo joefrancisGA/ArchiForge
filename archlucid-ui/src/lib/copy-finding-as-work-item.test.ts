@@ -24,8 +24,8 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(text).toContain("## Finding: Compliance — Exposed egress");
     expect(text).toContain("`f1`");
     expect(text).toContain("`r1`");
-    expect(text).toContain("- ArchLucid run: https://demo.example.org/runs/r1");
-    expect(text).toContain("- Finding (explain page): https://demo.example.org/runs/r1/findings/f1");
+    expect(text).toContain("- ArchLucid run: https://demo.example.org/reviews/r1");
+    expect(text).toContain("- Finding (explain page): https://demo.example.org/reviews/r1/findings/f1");
   });
 
   it("uses Jira wiki markers for Jira variant", () => {

@@ -13,7 +13,7 @@ Describe automated **self-service trial** lifecycle transitions after `TrialExpi
 
 ## Assumptions
 
-- Trial parameters follow [TRIAL_AND_SIGNUP.md](../go-to-market/TRIAL_AND_SIGNUP.md) §3 (14-day window is product policy; phase **durations** are configurable under `Trial:Lifecycle`).
+- Trial parameters follow [TRIAL_AND_SIGNUP.md](../go-to-market/TRIAL_AND_SIGNUP.md) §3 (30-day window is product policy; phase **durations** are configurable under `Trial:Lifecycle`). One-time 14-day extension available via in-app button.
 - `dbo.Tenants.TrialStatus` drives API behaviour (`GET /v1/tenant/trial-status`, `TrialLimitGate`).
 - Worker runs `TrialLifecycleSchedulerHostedService` (leader lease `hosted:trial-lifecycle-automation`).
 

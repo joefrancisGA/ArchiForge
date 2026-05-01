@@ -113,7 +113,8 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
  */
 export function buildInspectFindingWorkItemBody(format: WorkItemClipboardFormat, input: FindingWorkItemBuildInput): string {
   const origin = input.siteOrigin.replace(/\/$/, "");
-  const base = `${origin}/runs/${encodeURIComponent(input.runId)}`;
+  const runPath = `/reviews/${encodeURIComponent(input.runId)}`;
+  const base = `${origin}${runPath}`;
   const explainUrl = `${base}/findings/${encodeURIComponent(input.findingId)}`;
   const inspectUrl = `${explainUrl}/inspect`;
   const heading = findingHeading(input.categoryLabel, input.title);
