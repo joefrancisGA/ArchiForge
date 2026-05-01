@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;
 
@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ApiDeprecationHeadersMiddlewareTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_when_disabled_does_not_register_OnStarting()
     {
         Mock<IOptionsMonitor<ApiDeprecationOptions>> options = new();
@@ -38,7 +38,7 @@ public sealed class ApiDeprecationHeadersMiddlewareTests
         context.Response.Headers.Should().NotContainKey("Deprecation");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_when_enabled_registers_OnStarting_and_next_runs()
     {
         Mock<IOptionsMonitor<ApiDeprecationOptions>> options = new();

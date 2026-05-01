@@ -1,4 +1,4 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 
 using ArchLucid.Contracts.Metadata;
 
@@ -16,7 +16,7 @@ public sealed class ArchitectureComparisonTaggingTests(ArchLucidApiFactory facto
 {
     private readonly ArchLucidApiFactory _factory = factory;
 
-    [Fact]
+    [SkippableFact]
     public async Task UpdateComparisonRecord_UpdatesLabelAndTags_ThenSearchFindsIt()
     {
         string id = $"cmp_update_{Guid.NewGuid():N}";

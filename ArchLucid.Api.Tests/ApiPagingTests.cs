@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 public sealed class ApiPagingTests
 {
-    [Fact]
+    [SkippableFact]
     public void TryParseUtcTicksIdCursor_null_cursor_succeeds_with_null_outputs()
     {
         bool ok = ApiPaging.TryParseUtcTicksIdCursor(null, out DateTime? createdUtc, out string? id, out string? error);
@@ -17,7 +17,7 @@ public sealed class ApiPagingTests
         error.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParseUtcTicksIdCursor_whitespace_cursor_succeeds_with_null_outputs()
     {
         bool ok = ApiPaging.TryParseUtcTicksIdCursor("   ", out DateTime? createdUtc, out string? id,
@@ -29,7 +29,7 @@ public sealed class ApiPagingTests
         error.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParseUtcTicksIdCursor_invalid_format_returns_false_with_error()
     {
         bool ok = ApiPaging.TryParseUtcTicksIdCursor("bad", out DateTime? createdUtc, out string? id,
@@ -41,7 +41,7 @@ public sealed class ApiPagingTests
         error.Should().NotBeNullOrEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryParseUtcTicksIdCursor_valid_cursor_round_trips()
     {
         DateTimeOffset expected = DateTimeOffset.Parse("2026-01-02T03:04:05Z");

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -19,7 +19,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
 
     private static readonly TimeSpan AsyncDocxJobPollDelay = TimeSpan.FromMilliseconds(200);
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
@@ -65,7 +65,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
         bytes.Length.Should().BeGreaterThan(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExportAnalysisReportDocxAsync_ReturnsJob_AndEventuallyFile()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

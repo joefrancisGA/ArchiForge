@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Each test uses a new <see cref="ArchLucidApiFactory" /> so the per-test SQL Server database is isolated (see
 ///     <c>docs/BUILD.md</c> for connection resolution).
-///     Shared state could collide when multiple tests reuse one factory database for the same <c>RunId</c> —
+///     Shared state could collide when multiple tests reuse one factory database for the same <c>RunId</c> â€”
 ///     <c>dbo.GoldenManifests</c> enforces at most one active manifest per run (filtered unique index
 ///     <c>UQ_GoldenManifests_RunId_Active</c>; see <c>dbo.sp_FinalizeManifest</c>).
 /// </summary>
@@ -43,7 +43,7 @@ public sealed class ArchitectureControllerTests
         await act(client);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateRun_ReturnsRun()
     {
         await RunWithIsolatedFactory(async client =>
@@ -69,7 +69,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRun_ReturnsTasks()
     {
         await RunWithIsolatedFactory(async client =>
@@ -98,7 +98,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteRun_SeedsResults()
     {
         await RunWithIsolatedFactory(async client =>
@@ -135,7 +135,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CommitRun_CreatesManifest()
     {
         await RunWithIsolatedFactory(async client =>
@@ -171,7 +171,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteRun_ExecutesTasksAndReturnsResults()
     {
         await RunWithIsolatedFactory(async client =>
@@ -198,7 +198,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GoldenPath_EndToEnd_WithExecute()
     {
         await RunWithIsolatedFactory(async client =>
@@ -229,7 +229,7 @@ public sealed class ArchitectureControllerTests
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
             manifestVersion.Should()
                 .NotBeNullOrWhiteSpace(
-                    "ADR 0030 PR A3 — authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
+                    "ADR 0030 PR A3 â€” authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
             manifestVersion.Should().StartWith("v");
 
             HttpResponseMessage manifestResponse =
@@ -246,7 +246,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GoldenPath_EndToEnd()
     {
         await RunWithIsolatedFactory(async client =>
@@ -284,7 +284,7 @@ public sealed class ArchitectureControllerTests
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
             manifestVersion.Should()
                 .NotBeNullOrWhiteSpace(
-                    "ADR 0030 PR A3 — authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
+                    "ADR 0030 PR A3 â€” authority engine projects v-prefixed semver via AuthorityCommitProjectionBuilder.MapMetadata");
             manifestVersion.Should().StartWith("v");
 
             HttpResponseMessage manifestResponse =
@@ -303,7 +303,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId()
     {
         await RunWithIsolatedFactory(async client =>
@@ -338,7 +338,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateRun_SameIdempotencyKeyDifferentBody_Returns409()
     {
         await RunWithIsolatedFactory(async client =>
@@ -362,7 +362,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateRun_ParallelSameIdempotencyKeyAndBody_AllSucceedWithSingleRunId()
     {
         await RunWithIsolatedFactory(async client =>
@@ -405,7 +405,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetArchitectureRequestTemplates_ReturnsFiveSummaries()
     {
         await RunWithIsolatedFactory(async client =>
@@ -423,7 +423,7 @@ public sealed class ArchitectureControllerTests
         });
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Post_each_catalog_template_creates_valid_run()
     {
         await RunWithIsolatedFactory(async client =>

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class ArchitectureEndToEndCompareRunNotFoundTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task CompareRunsEndToEnd_WhenRunMissing_Returns404RunNotFound()
     {
         HttpResponseMessage response = await Client.GetAsync(

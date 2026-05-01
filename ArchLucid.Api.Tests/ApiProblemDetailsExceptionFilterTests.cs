@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
@@ -21,7 +21,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ApiProblemDetailsExceptionFilterTests
 {
-    [Fact]
+    [SkippableFact]
     public void ComparisonVerificationFailedException_Produces422WithDriftExtensions()
     {
         DriftAnalysisResult drift = new()
@@ -49,7 +49,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         problem.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("exception-filter-cid");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ConflictException_Produces409()
     {
         ExceptionContext context = CreateExceptionContext(new ConflictException("state"), "/v1/run/r/commit");
@@ -67,7 +67,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("idempotency");
     }
 
-    [Fact]
+    [SkippableFact]
     public void RunNotFoundException_Produces404()
     {
         ExceptionContext context = CreateExceptionContext(new RunNotFoundException("missing"), "/v1/run/missing");
@@ -85,7 +85,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("scope");
     }
 
-    [Fact]
+    [SkippableFact]
     public void InvalidOperationException_Produces400BadRequestType()
     {
         ExceptionContext context = CreateExceptionContext(new InvalidOperationException("bad"), "/v1/x");
@@ -102,7 +102,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("swagger");
     }
 
-    [Fact]
+    [SkippableFact]
     public void ArgumentException_Produces400ValidationType()
     {
         ExceptionContext context = CreateExceptionContext(new ArgumentException("arg"), "/v1/x");
@@ -118,7 +118,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("validation");
     }
 
-    [Fact]
+    [SkippableFact]
     public void UnmappedException_LeavesContextUnchanged()
     {
         ExceptionContext context = CreateExceptionContext(new NotSupportedException(), "/v1/x");
@@ -129,7 +129,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         context.Result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TimeoutException_Produces503DatabaseTimeout()
     {
         ExceptionContext context = CreateExceptionContext(
@@ -148,7 +148,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("health/ready");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapDatabaseException_SqlTimeoutException_Returns503()
     {
         // SqlException(-2) cannot be constructed directly; test via the mapper with a TimeoutException
@@ -167,7 +167,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("db-timeout-cid");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapDatabaseException_GenericDbException_Returns503DatabaseUnavailable()
     {
         DefaultHttpContext http = CreateHttpContextForMapper("/v1/runs", "db-unavail-cid");
@@ -185,7 +185,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("health/ready");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapDatabaseException_DeadlockSqlException_Returns409Conflict()
     {
         DefaultHttpContext http = CreateHttpContextForMapper("/v1/architecture/run/x/commit", "deadlock-cid");
@@ -204,7 +204,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         p.Type.Should().Be(ProblemTypes.Conflict);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapDatabaseException_WrappedDeadlockSqlException_Returns409Conflict()
     {
         DefaultHttpContext http = CreateHttpContextForMapper("/v1/commit", "deadlock-wrap-cid");
@@ -220,7 +220,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         p.Type.Should().Be(ProblemTypes.Conflict);
     }
 
-    [Fact]
+    [SkippableFact]
     public void CircuitBreakerOpenException_Produces503WithProblemTypeAndRetryExtension()
     {
         DateTimeOffset retryAfter = new(2026, 3, 1, 12, 0, 0, TimeSpan.Zero);
@@ -243,7 +243,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("azure openai");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapDatabaseException_NonDatabaseException_ReturnsFalse()
     {
         DefaultHttpContext http = CreateHttpContextForMapper("/v1/runs", "db-skip-cid");

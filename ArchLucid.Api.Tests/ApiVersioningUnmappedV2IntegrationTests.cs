@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class ApiVersioningUnmappedV2IntegrationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Get_v2_architecture_runs_is_not_routed_to_v1_controllers()
     {
         await using ArchLucidApiFactory factory = new();

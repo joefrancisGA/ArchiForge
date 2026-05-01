@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureDeterminismTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task DeterminismCheck_ReturnsResult()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

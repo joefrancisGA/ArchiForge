@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Encodings.Web;
 
 using ArchLucid.Api.Auth.Services;
@@ -25,7 +25,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public sealed class ApiKeyAuthenticationHandlerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task When_enabled_false_and_bypass_false_returns_failure()
     {
         DefaultHttpContext http = new();
@@ -45,7 +45,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         result.Failure.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_enabled_true_and_valid_admin_key_returns_success_with_admin_role()
     {
         DefaultHttpContext http = new();
@@ -66,7 +66,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_enabled_true_and_comma_separated_admin_keys_either_segment_authenticates()
     {
         DefaultHttpContext httpFirst = new();
@@ -86,7 +86,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         second.Succeeded.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_enabled_true_and_comma_separated_admin_keys_with_empty_segment_ignores_blanks()
     {
         DefaultHttpContext http = new();
@@ -105,7 +105,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         result.Succeeded.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_enabled_true_and_invalid_key_returns_failure()
     {
         DefaultHttpContext http = new();
@@ -125,7 +125,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         result.Failure?.Message.Should().Contain("Invalid");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_enabled_false_and_bypass_true_in_development_returns_success_without_header()
     {
         DefaultHttpContext http = new();
@@ -145,7 +145,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         result.Principal?.IsInRole(ArchLucidRoles.Admin).Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task When_enabled_false_and_bypass_true_in_production_returns_failure()
     {
         DefaultHttpContext http = new();
@@ -168,7 +168,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
     ///     Simulates configuration reload: first request sees key A, subsequent
     ///     <see cref="IOptionsMonitor{TOptions}.CurrentValue" /> sees key B.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds()
     {
         IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);

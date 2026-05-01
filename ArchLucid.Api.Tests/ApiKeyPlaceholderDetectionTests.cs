@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Startup.Validation.Rules;
+﻿using ArchLucid.Host.Core.Startup.Validation.Rules;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ApiKeyPlaceholderDetectionTests
 {
-    [Fact]
+    [SkippableFact]
     public void IsPlaceholderValue_WhenNullOrEmptyOrWhitespace_returns_false()
     {
         ApiKeyPlaceholderDetection.IsPlaceholderValue(null).Should().BeFalse();
@@ -33,31 +33,31 @@ public sealed class ApiKeyPlaceholderDetectionTests
         ApiKeyPlaceholderDetection.IsPlaceholderValue($"  {value}  ").Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsPlaceholderValue_WhenSubstringTodo_returns_true()
     {
         ApiKeyPlaceholderDetection.IsPlaceholderValue("my-todo-key").Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsPlaceholderValue_WhenShort_returns_true()
     {
         ApiKeyPlaceholderDetection.IsPlaceholderValue("short").Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsPlaceholderValue_WhenNineteenCharacters_returns_true()
     {
         ApiKeyPlaceholderDetection.IsPlaceholderValue("nineteencharacters!").Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsPlaceholderValue_WhenTwentyCharRandom_returns_false()
     {
         ApiKeyPlaceholderDetection.IsPlaceholderValue("aB3$xK9mN2pQ7wR5vZ1y").Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void IsPlaceholderValue_WhenLongRandom_returns_false()
     {
         ApiKeyPlaceholderDetection.IsPlaceholderValue("a-]K9mN2pQ7wR5vZ1yLongEnoughAndRandom").Should().BeFalse();

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Metering;
+﻿using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -32,7 +32,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
         return context;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_when_metering_disabled_does_not_record()
     {
         Mock<IScopeContextProvider> scopes = new();
@@ -124,7 +124,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_when_tenant_id_empty_does_not_record()
     {
         Mock<IScopeContextProvider> scopes = new();
@@ -153,7 +153,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_when_eligible_records_api_request_meter_event()
     {
         Mock<IScopeContextProvider> scopes = new();
@@ -191,7 +191,7 @@ public sealed class ApiRequestMeteringMiddlewareTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task InvokeAsync_when_record_throws_does_not_propagate_after_successful_next()
     {
         Mock<IScopeContextProvider> scopes = new();

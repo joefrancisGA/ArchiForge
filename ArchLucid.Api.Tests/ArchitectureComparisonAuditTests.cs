@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task EndToEndComparisonSummary_PersistsComparisonRecord()
     {
         object request = TestRequestFactory.CreateArchitectureRequest("REQ-COMP-AUDIT-001");

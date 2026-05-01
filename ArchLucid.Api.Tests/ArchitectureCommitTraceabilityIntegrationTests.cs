@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Commit path through the real API host uses the production
 ///     <see cref="ArchLucid.Decisioning.Interfaces.IDecisionEngine" />
-///     (not mocks). After ADR 0030 PR A3 (2026-04-24), the only commit path is the Authority FK chain — these tests
+///     (not mocks). After ADR 0030 PR A3 (2026-04-24), the only commit path is the Authority FK chain â€” these tests
 ///     now assert the authority traceability invariant: the projected manifest must reference the rule-audit trace id
 ///     in <c>Metadata.DecisionTraceIds</c>.
 /// </summary>
@@ -36,7 +36,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CommitRun_manifest_decision_trace_ids_align_with_returned_traces()
     {
         await using ArchLucidApiFactory factory = new();

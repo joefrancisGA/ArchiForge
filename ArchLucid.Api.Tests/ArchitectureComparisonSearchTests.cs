@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Contracts.Metadata;
@@ -23,7 +23,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
 
     private readonly ArchLucidApiFactory _factory = factory;
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchComparisons_PagingDoesNotOverlap_AndSortAscWorks()
     {
         List<string> ids = [];
@@ -76,7 +76,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
         asc.Records.First().ComparisonRecordId.Should().Be(ids[0]);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchComparisons_CursorPaging_ReturnsNextPage()
     {
         using (IServiceScope scope = _factory.Services.CreateScope())
@@ -115,7 +115,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
             .Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchComparisons_InvalidParameters_ReturnsBadRequest()
     {
         HttpResponseMessage badType = await Client.GetAsync("/v1/architecture/comparisons?comparisonType=nope");
@@ -135,7 +135,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
         badSortBy.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SearchComparisons_FiltersByLabelAndTags()
     {
         using (IServiceScope scope = _factory.Services.CreateScope())

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Analysis;
+﻿using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
@@ -54,7 +54,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
             _agentResultDiffService.Object);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WithPreloadedRunDetail_DoesNotRecallRunDetailOrPrimaryManifestFromRepository()
     {
         GoldenManifest manifest = new()
@@ -100,7 +100,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_WithPreloadedRunDetail_UsesManifestWhenCurrentManifestVersionEmpty()
     {
         GoldenManifest manifest = new()

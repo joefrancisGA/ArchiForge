@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -12,7 +12,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class ApiVersioningResponseHeadersIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Versioned_admin_route_exposes_supported_api_versions_header()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/admin/diagnostics/outboxes");

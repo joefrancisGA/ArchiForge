@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using FluentAssertions;
@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task RecommendProfile_ForExecutiveAudience_ReturnsExecutive()
     {
         var request = new
@@ -40,7 +40,7 @@ public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFa
         payload.Recommendation.Reason.Should().NotBeNullOrWhiteSpace();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RecommendProfile_ForRegulatedReview_ReturnsRegulated()
     {
         var request = new

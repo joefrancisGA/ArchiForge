@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProblemDetails;
+﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ApplicationProblemMapperTests
 {
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_ComparisonVerificationFailed_Returns422()
     {
         DriftAnalysisResult drift = new()
@@ -37,7 +37,7 @@ public sealed class ApplicationProblemMapperTests
         p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("corr-verify");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_Conflict_Returns409()
     {
         ConflictException ex = new("c");
@@ -52,7 +52,7 @@ public sealed class ApplicationProblemMapperTests
         p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("corr-409");
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_RunNotFound_Returns404()
     {
         RunNotFoundException ex = new("missing");
@@ -66,7 +66,7 @@ public sealed class ApplicationProblemMapperTests
         p.Type.Should().Be(ProblemTypes.RunNotFound);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_LlmTokenQuotaExceeded_Returns429()
     {
         LlmTokenQuotaExceededException ex = new("quota");
@@ -81,7 +81,7 @@ public sealed class ApplicationProblemMapperTests
         p.Extensions.ContainsKey("retryAfterUtc").Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_LlmTokenQuotaExceeded_with_retry_includes_extension()
     {
         DateTimeOffset retry = new(2026, 5, 1, 12, 0, 0, TimeSpan.Zero);
@@ -95,7 +95,7 @@ public sealed class ApplicationProblemMapperTests
         p.Extensions["retryAfterUtc"].Should().Be(retry);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_InvalidOperation_Returns400()
     {
         InvalidOperationException ex = new("bad op");
@@ -109,7 +109,7 @@ public sealed class ApplicationProblemMapperTests
         p.Type.Should().Be(ProblemTypes.BadRequest);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_ArgumentException_Returns400Validation()
     {
         ArgumentException ex = new("arg");
@@ -123,7 +123,7 @@ public sealed class ApplicationProblemMapperTests
         p.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_ArgumentNullException_Returns400Validation()
     {
         ArgumentNullException ex = new("p");
@@ -137,7 +137,7 @@ public sealed class ApplicationProblemMapperTests
         p.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryMapUnhandledException_UnmappedException_ReturnsFalse()
     {
         DefaultHttpContext http = CreateHttpContext("/p", "corr-none");

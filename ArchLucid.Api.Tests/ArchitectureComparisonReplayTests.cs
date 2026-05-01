@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureComparisonReplayTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task ReplayComparison_RecreatesPersistedEndToEndComparisonAsMarkdown()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(

@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Api.Controllers.Admin;
 
@@ -22,7 +22,7 @@ public sealed class ApiControllerAuthorizationGuardTests
         nameof(VersionController),
     ];
 
-    [Fact]
+    [SkippableFact]
     public void All_api_controllers_declare_authorization_or_allow_anonymous()
     {
         Assembly api = typeof(Program).Assembly;

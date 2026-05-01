@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
@@ -14,7 +14,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetManifestDiagram_ReturnsMermaid()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
@@ -51,7 +51,7 @@ public sealed class ArchitectureDiagramTests(ArchLucidApiFactory factory) : Inte
         diagramPayload.Diagram.Should().Contain("rag-metadata");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetManifestDiagramV2_ReturnsManifestDiagramResponse_WithOptions()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(

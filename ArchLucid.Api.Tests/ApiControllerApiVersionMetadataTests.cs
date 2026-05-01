@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using Asp.Versioning;
 
@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ApiControllerApiVersionMetadataTests
 {
-    [Fact]
+    [SkippableFact]
     public void All_controllers_declare_ApiVersion_or_ApiVersionNeutral()
     {
         Assembly apiAssembly = typeof(Program).Assembly;

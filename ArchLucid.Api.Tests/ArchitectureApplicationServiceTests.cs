@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -174,7 +174,7 @@ public sealed class ArchitectureApplicationServiceTests
 
     #region GetRunAsync
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunAsync_WhenRunExists_ReturnsRunWithTasksAndResults()
     {
         ArchitectureRun run = ValidRun();
@@ -192,7 +192,7 @@ public sealed class ArchitectureApplicationServiceTests
         result.Results.Should().HaveCount(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunAsync_WhenRunNotFound_ReturnsNull()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("nonexistent", It.IsAny<CancellationToken>()))
@@ -216,7 +216,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunAsync_WhenRunHasNoTasksOrResults_ReturnsEmptyCollections()
     {
         ArchitectureRun run = ValidRun();
@@ -231,7 +231,7 @@ public sealed class ArchitectureApplicationServiceTests
         result.Results.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRunAsync_PassesCancellationTokenToRepositories()
     {
         ArchitectureRun run = ValidRun();
@@ -248,7 +248,7 @@ public sealed class ArchitectureApplicationServiceTests
 
     #region SubmitAgentResultAsync
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenRunExists_StoresResult()
     {
         ArchitectureRun run = ValidRun();
@@ -282,7 +282,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenResultIsNull_ReturnsError()
     {
         SubmitResultResult result = await _sut.SubmitAgentResultAsync("run-1", null!);
@@ -293,7 +293,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenAllRequiredAgentTypesHaveResults_TransitionsToReadyForCommit()
     {
         ArchitectureRun run = ValidRun();
@@ -331,7 +331,7 @@ public sealed class ArchitectureApplicationServiceTests
         sutResult.Success.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenThreeResultsButSameAgentType_StaysWaitingForResults()
     {
         ArchitectureRun run = ValidRun();
@@ -365,7 +365,7 @@ public sealed class ArchitectureApplicationServiceTests
         sutResult.Success.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenRunNotFound_ReturnsError()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("nonexistent", It.IsAny<CancellationToken>()))
@@ -380,7 +380,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenRunStatusDoesNotAllowSubmission_ReturnsError()
     {
         ArchitectureRun run = ValidRun();
@@ -399,7 +399,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenRunIdMismatch_ReturnsError()
     {
         ArchitectureRun run = ValidRun();
@@ -417,7 +417,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenRunIdMatchIsCaseInsensitive_AcceptsResult()
     {
         ArchitectureRun run = ValidRun();
@@ -438,7 +438,7 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository.Verify(r => r.CreateAsync(result, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenResultForTaskAlreadySubmitted_ReturnsError()
     {
         ArchitectureRun run = ValidRun();
@@ -457,7 +457,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenTaskNotFoundForRun_ReturnsError()
     {
         ArchitectureRun run = ValidRun();
@@ -476,7 +476,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SubmitAgentResultAsync_WhenResultAgentTypeDoesNotMatchTask_ReturnsError()
     {
         ArchitectureRun run = ValidRun();
@@ -499,7 +499,7 @@ public sealed class ArchitectureApplicationServiceTests
 
     #region GetManifestAsync
 
-    [Fact]
+    [SkippableFact]
     public async Task GetManifestAsync_WhenVersionExists_ReturnsManifest()
     {
         GoldenManifest manifest = new()
@@ -517,7 +517,7 @@ public sealed class ArchitectureApplicationServiceTests
         result.Metadata.ManifestVersion.Should().Be("v1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetManifestAsync_WhenVersionNotFound_ReturnsNull()
     {
         _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("nonexistent", It.IsAny<CancellationToken>()))
@@ -528,7 +528,7 @@ public sealed class ArchitectureApplicationServiceTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetManifestAsync_PassesCancellationTokenToRepository()
     {
         CancellationTokenSource cts = new();
@@ -562,7 +562,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenValid_SeedsResults()
     {
         ArchitectureRun run = ValidRun();
@@ -600,7 +600,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenEvidencePackageAlreadyExists_DoesNotCreatePackageAgain()
     {
         ArchitectureRun run = ValidRun();
@@ -633,7 +633,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenRunStatusNotAllowed_ReturnsError()
     {
         ArchitectureRun run = ValidRun();
@@ -650,7 +650,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenRunNotFound_ReturnsError()
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("nonexistent", It.IsAny<CancellationToken>()))
@@ -665,7 +665,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenRequestNotFound_ReturnsError()
     {
         ArchitectureRun run = ValidRun();
@@ -681,7 +681,7 @@ public sealed class ArchitectureApplicationServiceTests
         result.Error.Should().Contain("not found");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenNoTasks_ReturnsError()
     {
         ArchitectureRun run = ValidRun();
@@ -697,7 +697,7 @@ public sealed class ArchitectureApplicationServiceTests
         result.Error.Should().Contain("No tasks");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenRunAlreadyHasResults_ReturnsSuccessWithZeroCountAndDoesNotCreate()
     {
         ArchitectureRun run = ValidRun();
@@ -719,7 +719,7 @@ public sealed class ArchitectureApplicationServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SeedFakeResultsAsync_WhenPilotMarkFellBack_UpdatesRunAndWritesAudit()
     {
         Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

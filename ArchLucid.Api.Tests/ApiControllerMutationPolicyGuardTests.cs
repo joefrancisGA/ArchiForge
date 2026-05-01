@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Core.Authorization;
 
@@ -17,7 +17,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ApiControllerMutationPolicyGuardTests
 {
-    [Fact]
+    [SkippableFact]
     public void All_mutation_actions_have_named_authorization_policy()
     {
         Assembly api = typeof(Program).Assembly;
@@ -54,7 +54,7 @@ public sealed class ApiControllerMutationPolicyGuardTests
         violations.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void All_declared_authorization_policies_are_known_constants_or_registered_aliases()
     {
         HashSet<string> known = BuildKnownPolicyNames();

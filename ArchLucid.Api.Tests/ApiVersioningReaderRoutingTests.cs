@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using FluentAssertions;
 
@@ -16,7 +16,7 @@ public sealed class ApiVersioningReaderRoutingTests(OpenApiContractWebAppFactory
 {
     private const string OpenApiDocumentPath = "/openapi/v1.json";
 
-    [Fact]
+    [SkippableFact]
     public async Task OpenApi_document_loads_when_api_version_is_sent_as_query_string()
     {
         using HttpClient client = factory.CreateClient(
@@ -28,7 +28,7 @@ public sealed class ApiVersioningReaderRoutingTests(OpenApiContractWebAppFactory
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task OpenApi_document_loads_when_api_version_is_sent_as_header()
     {
         using HttpClient client = factory.CreateClient(
@@ -42,7 +42,7 @@ public sealed class ApiVersioningReaderRoutingTests(OpenApiContractWebAppFactory
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Version_endpoint_loads_without_version_segment()
     {
         using HttpClient client = factory.CreateClient(
