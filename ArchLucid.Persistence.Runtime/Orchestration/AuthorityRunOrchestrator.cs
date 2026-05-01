@@ -434,7 +434,8 @@ public sealed class AuthorityRunOrchestrator(
 
     private async Task<Guid?> TryResolvePreviousCommittedGoldenRunIdAsync(ScopeContext scope, RunRecord run, CancellationToken ct)
     {
-        IReadOnlyList<RunRecord> recent = await runRepository.ListByProjectAsync(scope, run.ProjectId, 100, ct);
+        IReadOnlyList<RunRecord> recent =
+            await runRepository.ListByProjectAsync(scope, run.ProjectId, 100, ct) ?? [];
 
         foreach (RunRecord candidate in recent)
         {
