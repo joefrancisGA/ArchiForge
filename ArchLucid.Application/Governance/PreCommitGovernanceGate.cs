@@ -21,24 +21,26 @@ public sealed class PreCommitGovernanceGate(
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IPolicyPackAssignmentRepository policyPackAssignmentRepository) : IPreCommitGovernanceGate
 {
-    private readonly IOptions<PreCommitGovernanceGateOptions> _options =
-        options ?? throw new ArgumentNullException(nameof(options));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly IRunRepository _runRepository =
-        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
-
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
+    private readonly IOptions<PreCommitGovernanceGateOptions> _options =
+        options ?? throw new ArgumentNullException(nameof(options));
 
     private readonly IPolicyPackAssignmentRepository _policyPackAssignmentRepository =
         policyPackAssignmentRepository ?? throw new ArgumentNullException(nameof(policyPackAssignmentRepository));
 
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <inheritdoc />
-    public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default) =>
-        SimulateSyntheticFindingsInternalAsync(runId, null, 0, cancellationToken);
+    public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default)
+    {
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, cancellationToken);
+    }
 
     /// <inheritdoc />
     public Task<PreCommitGateResult> SimulateSyntheticFindingsAsync(
@@ -47,7 +49,10 @@ public sealed class PreCommitGovernanceGate(
         int syntheticCount,
         CancellationToken cancellationToken = default)
     {
-        return syntheticCount < 0 ? throw new ArgumentOutOfRangeException(nameof(syntheticCount), syntheticCount, "Count must be non-negative.") : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, cancellationToken);
+        return syntheticCount < 0
+            ? throw new ArgumentOutOfRangeException(nameof(syntheticCount), syntheticCount,
+                "Count must be non-negative.")
+            : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, cancellationToken);
     }
 
     private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(
@@ -124,7 +129,7 @@ public sealed class PreCommitGovernanceGate(
                     $"{blockingIds.Count} {severityLabel}+ finding(s) block commit per policy pack assignment (pack {packLabel}).",
                 BlockingFindingIds = blockingIds,
                 PolicyPackId = packLabel,
-                MinimumBlockingSeverity = (int)effectiveSeverityEnum,
+                MinimumBlockingSeverity = (int)effectiveSeverityEnum
             };
 
         string warningMessage =
@@ -138,27 +143,29 @@ public sealed class PreCommitGovernanceGate(
             BlockingFindingIds = blockingIds,
             PolicyPackId = packLabel,
             MinimumBlockingSeverity = (int)effectiveSeverityEnum,
-            Warnings = [warningMessage],
+            Warnings = [warningMessage]
         };
     }
 
-    private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity) => new()
+    private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)
     {
-        FindingId = $"synthetic-precommit-{index}-{Guid.NewGuid():N}",
-        FindingType = "SyntheticPreCommitSimulation",
-        Category = "GovernanceSimulation",
-        EngineType = "Synthetic",
-        Severity = severity,
-        Title = "Synthetic finding (pre-commit simulation)",
-        Rationale = $"Ephemeral-only; not persisted. Run {runId}.",
-        RunIdRef = runId
-    };
+        return new Finding
+        {
+            FindingId = $"synthetic-precommit-{index}-{Guid.NewGuid():N}",
+            FindingType = "SyntheticPreCommitSimulation",
+            Category = "GovernanceSimulation",
+            EngineType = "Synthetic",
+            Severity = severity,
+            Title = "Synthetic finding (pre-commit simulation)",
+            Rationale = $"Ephemeral-only; not persisted. Run {runId}.",
+            RunIdRef = runId
+        };
+    }
 
     private static int ResolveEffectiveMinimumSeverity(PolicyPackAssignment assignment)
     {
         if (assignment.BlockCommitMinimumSeverity.HasValue)
             return assignment.BlockCommitMinimumSeverity.Value;
-
 
         return (int)FindingSeverity.Critical;
     }
@@ -169,7 +176,6 @@ public sealed class PreCommitGovernanceGate(
 
         if (warnOnly is null || warnOnly.Length == 0)
             return false;
-
 
         return warnOnly.Any(w => string.Equals(w, severityLabel, StringComparison.OrdinalIgnoreCase));
     }

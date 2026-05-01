@@ -8,14 +8,15 @@ public sealed class PilotInProductScorecardService(
     IPilotScorecardMetricsReader scorecardMetricsReader,
     IPilotBaselineRepository pilotBaselineRepository) : IPilotInProductScorecardService
 {
+    private readonly IPilotBaselineRepository _pilotBaselineRepository =
+        pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IPilotScorecardMetricsReader _scorecardMetricsReader =
         scorecardMetricsReader ?? throw new ArgumentNullException(nameof(scorecardMetricsReader));
 
-    private readonly IPilotBaselineRepository _pilotBaselineRepository =
-        pilotBaselineRepository ?? throw new ArgumentNullException(nameof(pilotBaselineRepository));
     public async Task<PilotInProductScorecardResult> GetAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -80,7 +81,7 @@ public sealed class PilotInProductScorecardService(
             return null;
 
         if (row.BaselineHoursPerReview is not { } h || row.BaselineReviewsPerQuarter is not { } q
-            || row.BaselineArchitectHourlyCost is not { } c)
+                                                    || row.BaselineArchitectHourlyCost is not { } c)
             return null;
 
         if (h <= 0m || q <= 0 || c <= 0m)
@@ -92,8 +93,7 @@ public sealed class PilotInProductScorecardService(
 
         return new PilotInProductRoiEstimate
         {
-            AnnualReviewCostStatusQuoUsd = statusQuo,
-            AnnualReviewSavingsFromReviewTimeLeverUsd = savings
+            AnnualReviewCostStatusQuoUsd = statusQuo, AnnualReviewSavingsFromReviewTimeLeverUsd = savings
         };
     }
 }

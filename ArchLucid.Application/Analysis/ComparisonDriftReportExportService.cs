@@ -45,13 +45,13 @@ public sealed class ComparisonDriftReportExportService : IComparisonDriftReportE
             if (item.RegeneratedValue is not null)
 
                 sb.AppendLine($"  - Regenerated: `{item.RegeneratedValue}`");
-
         }
 
         return sb.ToString();
     }
 
-    public byte[] GenerateDocx(DriftAnalysisResult drift, string? comparisonRecordId = null) =>
-        _docx.GenerateDocx(drift, comparisonRecordId);
+    public byte[] GenerateDocx(DriftAnalysisResult drift, string? comparisonRecordId = null)
+    {
+        return _docx.GenerateDocx(drift, comparisonRecordId);
+    }
 }
-

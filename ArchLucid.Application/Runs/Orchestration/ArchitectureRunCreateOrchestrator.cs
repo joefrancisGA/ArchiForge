@@ -21,12 +21,12 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
-/// <inheritdoc cref="IArchitectureRunCreateOrchestrator"/>
+/// <inheritdoc cref="IArchitectureRunCreateOrchestrator" />
 /// <remarks>
-/// When HTTP idempotency is used, concurrent requests for the same key are serialized in-process from the
-/// first missed replay through coordination and persistence so only one authority run is created per key.
-/// When SQL persistence is configured, <see cref="IDistributedCreateRunIdempotencyLock"/> uses SQL Server
-/// <c>sp_getapplock</c> so concurrent replicas serialize the same idempotency key.
+///     When HTTP idempotency is used, concurrent requests for the same key are serialized in-process from the
+///     first missed replay through coordination and persistence so only one authority run is created per key.
+///     When SQL persistence is configured, <see cref="IDistributedCreateRunIdempotencyLock" /> uses SQL Server
+///     <c>sp_getapplock</c> so concurrent replicas serialize the same idempotency key.
 /// </remarks>
 public sealed class ArchitectureRunCreateOrchestrator(
     IArchitectureRunAuthorityCoordination authorityCoordination,
@@ -46,44 +46,56 @@ public sealed class ArchitectureRunCreateOrchestrator(
     TimeProvider timeProvider,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
+    private static readonly RunCreateIdempotencyGateCache IdempotencyGates = new();
+
+    private readonly IActorContext
+        _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IArchitectureRunIdempotencyRepository _architectureRunIdempotencyRepository =
+        architectureRunIdempotencyRepository ??
+        throw new ArgumentNullException(nameof(architectureRunIdempotencyRepository));
+
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IArchitectureRunAuthorityCoordination _authorityCoordination =
         authorityCoordination ?? throw new ArgumentNullException(nameof(authorityCoordination));
-    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
-    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IBaselineMutationAuditService _baselineMutationAudit =
+        baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+
+    private readonly IDistributedCreateRunIdempotencyLock _distributedCreateRunIdempotencyLock =
+        distributedCreateRunIdempotencyLock ??
+        throw new ArgumentNullException(nameof(distributedCreateRunIdempotencyLock));
+
+    private readonly int _distributedIdempotencyLockTimeoutMs = ClampDistributedLockTimeout(
+        createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions)));
+
+    private readonly IEvidenceBundleRepository _evidenceBundleRepository =
+        evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
+
+    private readonly ILogger<ArchitectureRunCreateOrchestrator> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IArchitectureRequestRepository _requestRepository =
+        requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-    private readonly IEvidenceBundleRepository _evidenceBundleRepository = evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
-    private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
-    private readonly IArchitectureRunIdempotencyRepository _architectureRunIdempotencyRepository =
-        architectureRunIdempotencyRepository ?? throw new ArgumentNullException(nameof(architectureRunIdempotencyRepository));
-    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-    private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-    private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
-    private readonly IDistributedCreateRunIdempotencyLock _distributedCreateRunIdempotencyLock =
-        distributedCreateRunIdempotencyLock ?? throw new ArgumentNullException(nameof(distributedCreateRunIdempotencyLock));
-    private readonly int _distributedIdempotencyLockTimeoutMs = ClampDistributedLockTimeout(
-        createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions)));
+
+    private readonly IAgentTaskRepository _taskRepository =
+        taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
+
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-    private readonly ILogger<ArchitectureRunCreateOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    /// <summary>
-    /// <c>sp_getapplock</c> wait budget while another request holds the same idempotency key.
-    /// The lock spans coordinator + persistence; parallel bursts must not time out waiting for the first winner.
-    /// </summary>
-    private static int ClampDistributedLockTimeout(IOptions<ArchitectureRunCreateOptions> options)
-    {
-        int ms = options.Value.DistributedIdempotencyLockTimeoutMilliseconds;
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory =
+        unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
-        if (ms < 1_000)
-            return 1_000;
-
-        return ms > 600_000 ? 600_000 : ms;
-    }
-
-    private static readonly RunCreateIdempotencyGateCache IdempotencyGates = new();
+    private readonly IUsageMeteringService _usageMetering =
+        usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
 
     /// <inheritdoc />
     public async Task<CreateRunResult> CreateRunAsync(
@@ -106,7 +118,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
             await using IAsyncDisposable _ = await _distributedCreateRunIdempotencyLock
                 .AcquireExclusiveSessionLockAsync(gateKey, _distributedIdempotencyLockTimeoutMs, cancellationToken)
                 .ConfigureAwait(false);
-            CreateRunResult? replayUnderDistributed = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+            CreateRunResult? replayUnderDistributed =
+                await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
 
             if (replayUnderDistributed is not null)
                 return replayUnderDistributed;
@@ -131,6 +144,20 @@ public sealed class ArchitectureRunCreateOrchestrator(
         }
 
         return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
+    }
+
+    /// <summary>
+    ///     <c>sp_getapplock</c> wait budget while another request holds the same idempotency key.
+    ///     The lock spans coordinator + persistence; parallel bursts must not time out waiting for the first winner.
+    /// </summary>
+    private static int ClampDistributedLockTimeout(IOptions<ArchitectureRunCreateOptions> options)
+    {
+        int ms = options.Value.DistributedIdempotencyLockTimeoutMilliseconds;
+
+        if (ms < 1_000)
+            return 1_000;
+
+        return ms > 600_000 ? 600_000 : ms;
     }
 
     private async Task<CreateRunResult> CreateRunWithCoordinationAsync(
@@ -246,9 +273,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
                                 runId = coordination.Run.RunId,
                                 systemName = request.SystemName,
                                 environment = request.Environment,
-                                cloudProvider = request.CloudProvider.ToString(),
+                                cloudProvider = request.CloudProvider.ToString()
                             },
-                            AuditJsonSerializationOptions.Instance),
+                            AuditJsonSerializationOptions.Instance)
                     },
                     ct);
             },
@@ -276,9 +303,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
                                 requestId = request.RequestId,
                                 runId = coordination.Run.RunId,
                                 rationale =
-                                    "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle.",
+                                    "Run persisted for this ArchitectureRequest — request is scoped as locked relative to drafts until terminal runs settle."
                             },
-                            AuditJsonSerializationOptions.Instance),
+                            AuditJsonSerializationOptions.Instance)
                     },
                     ct);
             },
@@ -294,7 +321,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 LogSanitizer.Sanitize(coordination.Run.RunId),
                 coordination.Tasks.Count);
 
-
         await TryRecordArchitectureRunMeteringAsync(
             _scopeContextProvider.GetCurrentScope(),
             coordination.Run.RunId,
@@ -302,9 +328,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         return new CreateRunResult
         {
-            Run = coordination.Run,
-            EvidenceBundle = coordination.EvidenceBundle,
-            Tasks = coordination.Tasks,
+            Run = coordination.Run, EvidenceBundle = coordination.EvidenceBundle, Tasks = coordination.Tasks
         };
     }
 
@@ -351,7 +375,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                         Kind = UsageMeterKind.ArchitectureRun,
                         Quantity = 1,
                         RecordedUtc = _timeProvider.GetUtcNow(),
-                        CorrelationId = runId,
+                        CorrelationId = runId
                     },
                     cancellationToken)
                 .ConfigureAwait(false);
@@ -364,7 +388,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     ex,
                     "Usage metering failed for architecture run (tenant {TenantId}).",
                     scope.TenantId);
-
         }
     }
 
@@ -378,10 +401,12 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (uow.SupportsExternalTransaction)
         {
             await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
-            await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, uow.Connection, uow.Transaction);
+            await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, uow.Connection,
+                uow.Transaction);
 
             if (coordination.Tasks.Count > 0)
-                await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken, uow.Connection, uow.Transaction);
+                await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken, uow.Connection,
+                    uow.Transaction);
         }
         else
         {
@@ -448,7 +473,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
             throw new ConflictException(
                 "The Idempotency-Key was already used with a different request body.");
 
-
         return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken);
     }
 
@@ -472,7 +496,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
             throw new ConflictException(
                 "The Idempotency-Key was already used with a different request body.");
 
-
         return await RehydrateCreateRunResultAsync(winner.RunId, cancellationToken);
     }
 
@@ -490,7 +513,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (run is null)
             throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
 
-
         IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (tasks.Count == 0)
@@ -499,10 +521,12 @@ public sealed class ArchitectureRunCreateOrchestrator(
         string? bundleRef = tasks[0].EvidenceBundleRef;
 
         if (string.IsNullOrWhiteSpace(bundleRef))
-            throw new InvalidOperationException($"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
+            throw new InvalidOperationException(
+                $"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
 
         EvidenceBundle bundle = await _evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken)
-                                ?? throw new InvalidOperationException($"Evidence bundle '{bundleRef}' for idempotent run was not found.");
+                                ?? throw new InvalidOperationException(
+                                    $"Evidence bundle '{bundleRef}' for idempotent run was not found.");
 
         if (_logger.IsEnabled(LogLevel.Information))
 
@@ -511,13 +535,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 LogSanitizer.Sanitize(runId),
                 tasks.Count);
 
-
         return new CreateRunResult
         {
-            Run = run,
-            EvidenceBundle = bundle,
-            Tasks = tasks.ToList(),
-            IdempotentReplay = true,
+            Run = run, EvidenceBundle = bundle, Tasks = tasks.ToList(), IdempotentReplay = true
         };
     }
 }

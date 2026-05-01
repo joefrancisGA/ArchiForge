@@ -21,17 +21,17 @@ public sealed class FirstTenantFunnelEmitter(
     ILogger<FirstTenantFunnelEmitter> logger)
     : IFirstTenantFunnelEmitter
 {
-    private readonly IOptionsMonitor<FirstTenantFunnelOptions> _optionsMonitor =
-        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-
     private readonly IFirstTenantFunnelEventStore _eventStore =
         eventStore ?? throw new ArgumentNullException(nameof(eventStore));
 
-    private readonly TimeProvider _timeProvider =
-        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
     private readonly ILogger<FirstTenantFunnelEmitter> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOptionsMonitor<FirstTenantFunnelOptions> _optionsMonitor =
+        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc />
     public async Task EmitAsync(string eventName, Guid tenantId, CancellationToken ct = default)
@@ -70,6 +70,8 @@ public sealed class FirstTenantFunnelEmitter(
         }
     }
 
-    private static string NormalizeTenantId(Guid tenantId) =>
-        tenantId == Guid.Empty ? string.Empty : tenantId.ToString("D");
+    private static string NormalizeTenantId(Guid tenantId)
+    {
+        return tenantId == Guid.Empty ? string.Empty : tenantId.ToString("D");
+    }
 }

@@ -13,14 +13,17 @@ internal static class ScimGroupMemberPatchPlanner
             if (op.ValueKind != JsonValueKind.Object)
                 throw new ScimUserResourceParseException("invalidSyntax", "Each operation must be a JSON object.");
 
-            string? opName = op.TryGetProperty("op", out JsonElement on) && on.ValueKind == JsonValueKind.String ? on.GetString() : null;
+            string? opName = op.TryGetProperty("op", out JsonElement on) && on.ValueKind == JsonValueKind.String
+                ? on.GetString()
+                : null;
 
             if (opName is null)
                 throw new ScimUserResourceParseException("invalidSyntax", "Operation missing string 'op'.");
 
             if (!op.TryGetProperty("path", out JsonElement pathEl) || pathEl.ValueKind != JsonValueKind.String ||
                 pathEl.GetString() is not { } pathRaw || string.IsNullOrWhiteSpace(pathRaw))
-                throw new ScimUserResourceParseException("invalidPath", "Each group membership operation requires 'path'.");
+                throw new ScimUserResourceParseException("invalidPath",
+                    "Each group membership operation requires 'path'.");
 
             ScimPatchPathParseOutcome pathModel = ScimPatchValuePathParser.ParseForGroupMemberPath(pathRaw);
 
@@ -144,21 +147,23 @@ internal static class ScimGroupMemberPatchPlanner
             working.Remove(target);
     }
 
-    private static bool ParseStrictBoolean(JsonElement val) =>
-        val.ValueKind switch
+    private static bool ParseStrictBoolean(JsonElement val)
+    {
+        return val.ValueKind switch
         {
             JsonValueKind.True => true,
             JsonValueKind.False => false,
             JsonValueKind.String =>
                 bool.TryParse(val.GetString(), out bool b)
-                ? b
-                : throw new ScimUserResourceParseException(
-                    "invalidValue",
-                    "Members '.active' value must be a boolean."),
+                    ? b
+                    : throw new ScimUserResourceParseException(
+                        "invalidValue",
+                        "Members '.active' value must be a boolean."),
             _ => throw new ScimUserResourceParseException(
                 "invalidValue",
                 "Members '.active' value must be a boolean.")
         };
+    }
 
     private static List<Guid> ExtractMemberUserIds(JsonElement val)
     {

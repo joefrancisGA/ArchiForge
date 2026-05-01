@@ -101,13 +101,7 @@ public sealed class ManifestFinalizationService(
         LockedRunRow? locked = await connection.QuerySingleOrDefaultAsync<LockedRunRow>(
             new CommandDefinition(
                 lockSql,
-                new
-                {
-                    request.RunId,
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId
-                },
+                new { request.RunId, scope.TenantId, scope.WorkspaceId, ScopeProjectId = scope.ProjectId },
                 transaction,
                 cancellationToken: cancellationToken));
 
@@ -127,9 +121,9 @@ public sealed class ManifestFinalizationService(
 
             return new ManifestFinalizationResult(
                 manifestId,
-                WasIdempotentReturn: true,
+                true,
                 locked.CurrentManifestVersion ?? string.Empty,
-                PersistedManifest: null);
+                null);
         }
 
         if (!IsCommitAllowedStatus(locked.LegacyRunStatus))
@@ -161,7 +155,7 @@ public sealed class ManifestFinalizationService(
             cancellationToken,
             connection,
             transaction,
-            authorityPersistBody: request.ManifestModel);
+            request.ManifestModel);
 
         DateTime occurredUtc = DateTime.UtcNow;
         Guid auditEventId = Guid.NewGuid();
@@ -239,7 +233,7 @@ public sealed class ManifestFinalizationService(
 
         return new ManifestFinalizationResult(
             persisted.ManifestId,
-            WasIdempotentReturn: false,
+            false,
             request.Contract.Metadata.ManifestVersion,
             persisted);
     }
@@ -268,9 +262,9 @@ public sealed class ManifestFinalizationService(
 
             return new ManifestFinalizationResult(
                 mid,
-                WasIdempotentReturn: true,
+                true,
                 header.CurrentManifestVersion ?? string.Empty,
-                PersistedManifest: null);
+                null);
         }
 
         if (!IsCommitAllowedStatus(header.LegacyRunStatus))
@@ -365,7 +359,7 @@ public sealed class ManifestFinalizationService(
 
         return new ManifestFinalizationResult(
             persisted.ManifestId,
-            WasIdempotentReturn: false,
+            false,
             request.Contract.Metadata.ManifestVersion,
             persisted);
     }
@@ -384,16 +378,22 @@ public sealed class ManifestFinalizationService(
 
     private static bool IsCommitAllowedStatus(string? legacyRunStatus)
     {
-        return string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase) || string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.TasksGenerated), StringComparison.OrdinalIgnoreCase);
+        return string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit),
+            StringComparison.OrdinalIgnoreCase) || string.Equals(legacyRunStatus,
+            nameof(ArchitectureRunStatus.TasksGenerated), StringComparison.OrdinalIgnoreCase);
     }
 
-    private async Task EnsureFindingsSnapshotFinalizableAsync(Guid findingsSnapshotId, CancellationToken cancellationToken)
+    private async Task EnsureFindingsSnapshotFinalizableAsync(Guid findingsSnapshotId,
+        CancellationToken cancellationToken)
     {
-        Dm.FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId, cancellationToken);
+        Dm.FindingsSnapshot? snapshot =
+            await findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId, cancellationToken);
         if (snapshot is null)
-            throw new InvalidOperationException($"Findings snapshot '{findingsSnapshotId:D}' was not found for finalization.");
+            throw new InvalidOperationException(
+                $"Findings snapshot '{findingsSnapshotId:D}' was not found for finalization.");
 
-        if (snapshot.GenerationStatus is FindingsSnapshotGenerationStatus.Generating or FindingsSnapshotGenerationStatus.Failed)
+        if (snapshot.GenerationStatus is FindingsSnapshotGenerationStatus.Generating
+            or FindingsSnapshotGenerationStatus.Failed)
             throw new InvalidOperationException(
                 $"Findings snapshot '{findingsSnapshotId:D}' is not eligible for finalization (GenerationStatus={snapshot.GenerationStatus}).");
     }

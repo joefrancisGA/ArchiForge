@@ -39,7 +39,6 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
                 foreach (string item in diff.RequestDiff.ChangedFlags)
 
                     builder.AddBullet(item);
-
             }
 
             if (diff.RequestDiff.ChangedValues.Count > 0)
@@ -48,7 +47,6 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
                 foreach (string item in diff.RequestDiff.ChangedValues)
 
                     builder.AddBullet(item);
-
             }
 
             builder.AddSpacer();
@@ -67,4 +65,3 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
         return Task.FromResult(builder.Build());
     }
 }
-

@@ -27,17 +27,8 @@ namespace ArchLucid.Application.Analysis;
 
 public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposable
 {
-    private readonly MemoryStream _stream;
     private readonly WordprocessingDocument _document;
-
-    public Body Body
-    {
-        get;
-    }
-    public MainDocumentPart MainPart
-    {
-        get;
-    }
+    private readonly MemoryStream _stream;
 
     public OpenXmlDocxDocumentBuilder()
     {
@@ -50,6 +41,22 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         MainPart = _document.AddMainDocumentPart();
         MainPart.Document = new Document(new Body());
         Body = MainPart.Document.Body!;
+    }
+
+    public void Dispose()
+    {
+        _document.Dispose();
+        _stream.Dispose();
+    }
+
+    public Body Body
+    {
+        get;
+    }
+
+    public MainDocumentPart MainPart
+    {
+        get;
     }
 
     public void AddHeading(string text, int level)
@@ -68,7 +75,6 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
             run.RunProperties = new WpRunProperties(new Bold());
 
-
         Body.AppendChild(new WpParagraph(run));
     }
 
@@ -83,7 +89,6 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         for (int i = 0; i < lines; i++)
 
             Body.AppendChild(new WpParagraph(new WpRun(new WpText(string.Empty))));
-
     }
 
     public void AddMultilineParagraphs(string text)
@@ -93,7 +98,6 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         foreach (string line in lines)
 
             AddParagraph(line);
-
     }
 
     public void AddCodeBlock(string text, string language)
@@ -113,7 +117,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
     public void AddDiffSection(string title, IReadOnlyCollection<string> items)
     {
-        AddParagraph(title, bold: true);
+        AddParagraph(title, true);
 
         if (items.Count == 0)
         {
@@ -124,7 +128,6 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         foreach (string item in items)
 
             AddBullet(item);
-
     }
 
     public void AddImage(byte[] imageBytes, string imageName, long widthEmus, long heightEmus)
@@ -135,35 +138,20 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
             imagePart.FeedData(stream);
 
-
         string relationshipId = MainPart.GetIdOfPart(imagePart);
 
         Drawing drawing = new(
             new Inline(
                 new Extent { Cx = widthEmus, Cy = heightEmus },
-                new EffectExtent
-                {
-                    LeftEdge = 0L,
-                    TopEdge = 0L,
-                    RightEdge = 0L,
-                    BottomEdge = 0L
-                },
-                new DocProperties
-                {
-                    Id = 1U,
-                    Name = imageName
-                },
+                new EffectExtent { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
+                new DocProperties { Id = 1U, Name = imageName },
                 new WpNonVisualGraphicFrameDrawingProperties(
                     new DrGraphicFrameLocks { NoChangeAspect = true }),
                 new Graphic(
                     new GraphicData(
                         new DrPicture(
                             new DrNonVisualPictureProperties(
-                                new DrNonVisualDrawingProperties
-                                {
-                                    Id = 0U,
-                                    Name = imageName
-                                },
+                                new DrNonVisualDrawingProperties { Id = 0U, Name = imageName },
                                 new DrNonVisualPictureDrawingProperties()),
                             new DrBlipFill(
                                 new DrBlip { Embed = relationshipId },
@@ -172,19 +160,10 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
                                 new Transform2D(
                                     new Offset { X = 0L, Y = 0L },
                                     new Extents { Cx = widthEmus, Cy = heightEmus }),
-                                new PresetGeometry(new AdjustValueList())
-                                {
-                                    Preset = ShapeTypeValues.Rectangle
-                                }))
-                    )
-                    {
-                        Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture"
-                    }))
+                                new PresetGeometry(new AdjustValueList()) { Preset = ShapeTypeValues.Rectangle }))
+                    ) { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" }))
             {
-                DistanceFromTop = 0U,
-                DistanceFromBottom = 0U,
-                DistanceFromLeft = 0U,
-                DistanceFromRight = 0U
+                DistanceFromTop = 0U, DistanceFromBottom = 0U, DistanceFromLeft = 0U, DistanceFromRight = 0U
             });
 
         Body.AppendChild(new WpParagraph(new DrRun(drawing)));
@@ -196,11 +175,4 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         _document.Dispose();
         return _stream.ToArray();
     }
-
-    public void Dispose()
-    {
-        _document.Dispose();
-        _stream.Dispose();
-    }
 }
-

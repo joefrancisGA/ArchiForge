@@ -5,10 +5,11 @@ using ArchLucid.Contracts.Metadata;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Rehydrates a <see cref="PersistedAnalysisExportRequest"/> from the JSON stored on a <see cref="RunExportRecord"/>.
-/// Returns <see langword="null"/> when no analysis request JSON is present (e.g. the record pre-dates this feature).
-/// Wraps <see cref="JsonException"/> in an <see cref="InvalidOperationException"/> so callers receive a clear
-/// diagnostic message when stored JSON is corrupt or was written by an incompatible schema version.
+///     Rehydrates a <see cref="PersistedAnalysisExportRequest" /> from the JSON stored on a <see cref="RunExportRecord" />
+///     .
+///     Returns <see langword="null" /> when no analysis request JSON is present (e.g. the record pre-dates this feature).
+///     Wraps <see cref="JsonException" /> in an <see cref="InvalidOperationException" /> so callers receive a clear
+///     diagnostic message when stored JSON is corrupt or was written by an incompatible schema version.
 /// </summary>
 public static class AnalysisExportRequestRehydrator
 {
@@ -38,4 +39,3 @@ public static class AnalysisExportRequestRehydrator
         }
     }
 }
-

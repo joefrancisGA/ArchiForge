@@ -3,13 +3,13 @@ using System.Collections.Concurrent;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-/// Bounded in-process <see cref="SemaphoreSlim"/> map for create-run idempotency (evicts idle entries under pressure).
+///     Bounded in-process <see cref="SemaphoreSlim" /> map for create-run idempotency (evicts idle entries under
+///     pressure).
 /// </summary>
 internal sealed class RunCreateIdempotencyGateCache
 {
-    private readonly ConcurrentDictionary<string, Entry> _entries = new(StringComparer.Ordinal);
-
     private readonly int _capacity;
+    private readonly ConcurrentDictionary<string, Entry> _entries = new(StringComparer.Ordinal);
 
     private readonly TimeSpan _idleTtl;
 
@@ -61,14 +61,16 @@ internal sealed class RunCreateIdempotencyGateCache
                 && _entries.TryRemove(pair.Key, out Entry? removed))
 
                 removed.Gate.Dispose();
-
         }
     }
 
     private sealed class Entry(SemaphoreSlim gate, long lastUsedTicks)
     {
-        public SemaphoreSlim Gate { get; } = gate;
-
         public long LastUsedTicks = lastUsedTicks;
+
+        public SemaphoreSlim Gate
+        {
+            get;
+        } = gate;
     }
 }

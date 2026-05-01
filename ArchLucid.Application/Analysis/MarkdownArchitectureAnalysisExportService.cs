@@ -26,11 +26,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
 
             sb.AppendLine($"- Completed UTC: {report.Run.CompletedUtc.Value:O}");
 
-
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
 
             sb.AppendLine($"- Current Manifest Version: {report.Run.CurrentManifestVersion}");
-
 
         sb.AppendLine();
 
@@ -42,7 +40,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             foreach (string warning in report.Warnings)
 
                 sb.AppendLine($"- {warning}");
-
 
             sb.AppendLine();
         }
@@ -68,7 +65,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 foreach (string item in report.Evidence.Request.Constraints)
 
                     sb.AppendLine($"  - {item}");
-
             }
 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
@@ -77,7 +73,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 foreach (string item in report.Evidence.Request.RequiredCapabilities)
 
                     sb.AppendLine($"  - {item}");
-
             }
 
             if (report.Evidence.Request.Assumptions.Count > 0)
@@ -86,7 +81,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 foreach (string item in report.Evidence.Request.Assumptions)
 
                     sb.AppendLine($"  - {item}");
-
             }
 
             sb.AppendLine();
@@ -105,7 +99,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     if (policy.RequiredControls.Count > 0)
 
                         sb.AppendLine($"  - Required Controls: {string.Join(", ", policy.RequiredControls)}");
-
                 }
 
                 sb.AppendLine();
@@ -125,7 +118,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     if (service.RecommendedUseCases.Count > 0)
 
                         sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
-
                 }
 
                 sb.AppendLine();
@@ -145,7 +137,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     if (pattern.SuggestedServices.Count > 0)
 
                         sb.AppendLine($"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
-
                 }
 
                 sb.AppendLine();
@@ -175,7 +166,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 if (!string.IsNullOrWhiteSpace(trace.ErrorMessage))
 
                     sb.AppendLine($"- Error: {trace.ErrorMessage}");
-
 
                 sb.AppendLine();
                 sb.AppendLine("#### System Prompt");
@@ -210,7 +200,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine();
             }
 
-
         if (report.Manifest is not null)
         {
             sb.AppendLine("## Architecture Manifest");
@@ -222,7 +211,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             if (!string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
 
                 sb.AppendLine($"- Parent Manifest Version: {report.Manifest.Metadata.ParentManifestVersion}");
-
 
             sb.AppendLine($"- Service Count: {report.Manifest.Services.Count}");
             sb.AppendLine($"- Datastore Count: {report.Manifest.Datastores.Count}");
@@ -244,11 +232,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
 
                         sb.AppendLine($"  - Purpose: {service.Purpose}");
 
-
                     if (service.RequiredControls.Count > 0)
 
                         sb.AppendLine($"  - Required Controls: {string.Join(", ", service.RequiredControls)}");
-
                 }
 
                 sb.AppendLine();
@@ -264,8 +250,10 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     sb.AppendLine($"- **{datastore.DatastoreName}**");
                     sb.AppendLine($"  - Type: {datastore.DatastoreType}");
                     sb.AppendLine($"  - Platform: {datastore.RuntimePlatform}");
-                    sb.AppendLine($"  - Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-                    sb.AppendLine($"  - Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                    sb.AppendLine(
+                        $"  - Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+                    sb.AppendLine(
+                        $"  - Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
                 }
 
                 sb.AppendLine();
@@ -279,7 +267,8 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine();
                 sb.AppendLine($"- Required Controls: {string.Join(", ", report.Manifest.Governance.RequiredControls)}");
                 sb.AppendLine($"- Compliance Tags: {string.Join(", ", report.Manifest.Governance.ComplianceTags)}");
-                sb.AppendLine($"- Policy Constraints: {string.Join(", ", report.Manifest.Governance.PolicyConstraints)}");
+                sb.AppendLine(
+                    $"- Policy Constraints: {string.Join(", ", report.Manifest.Governance.PolicyConstraints)}");
                 sb.AppendLine($"- Risk Classification: {report.Manifest.Governance.RiskClassification}");
                 sb.AppendLine($"- Cost Classification: {report.Manifest.Governance.CostClassification}");
                 sb.AppendLine();
@@ -315,12 +304,14 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine($"- Baseline Replay Run ID: {report.Determinism.BaselineReplayRunId}");
             sb.AppendLine();
 
-            foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
+            foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x =>
+                         x.IterationNumber))
             {
                 sb.AppendLine($"### Iteration {iteration.IterationNumber}");
                 sb.AppendLine();
                 sb.AppendLine($"- Replay Run ID: {iteration.ReplayRunId}");
-                sb.AppendLine($"- Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
+                sb.AppendLine(
+                    $"- Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
                 sb.AppendLine($"- Matches Baseline Manifest: {(iteration.MatchesBaselineManifest ? "Yes" : "No")}");
 
                 if (iteration.AgentDriftWarnings.Count > 0)
@@ -329,7 +320,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     foreach (string warning in iteration.AgentDriftWarnings)
 
                         sb.AppendLine($"  - {warning}");
-
                 }
 
                 if (iteration.ManifestDriftWarnings.Count > 0)
@@ -338,7 +328,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     foreach (string warning in iteration.ManifestDriftWarnings)
 
                         sb.AppendLine($"  - {warning}");
-
                 }
 
                 sb.AppendLine();
@@ -359,7 +348,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             if (report.ManifestDiff.Warnings.Count > 0)
 
                 AppendList(sb, "Warnings", report.ManifestDiff.Warnings);
-
         }
 
         if (report.AgentResultDiff is null)
@@ -374,8 +362,10 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine();
             sb.AppendLine($"- Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             sb.AppendLine($"- Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-            sb.AppendLine($"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-            sb.AppendLine($"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            sb.AppendLine(
+                $"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+            sb.AppendLine(
+                $"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
             sb.AppendLine();
 
             AppendList(sb, "Added Claims", delta.AddedClaims);
@@ -408,7 +398,6 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
         foreach (string item in items)
 
             sb.AppendLine($"- {item}");
-
 
         sb.AppendLine();
     }

@@ -7,7 +7,6 @@ using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Application.Diagnostics;
 
-
 /* This gives you a deterministic way to generate:
     a topology proposal
     a cost proposal
@@ -267,7 +266,6 @@ public static class FakeAgentResultFactory
         if (!requiredControls.Contains("Private Networking", StringComparer.OrdinalIgnoreCase))
 
             requiredControls.Add("Private Networking");
-
 
         return new AgentResult
         {

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Application.Jobs;
 
 /// <summary>
-/// Polymorphic work description for durable background export jobs (serialized to SQL and executed on the worker).
+///     Polymorphic work description for durable background export jobs (serialized to SQL and executed on the worker).
 /// </summary>
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "discriminator")]
 [JsonDerivedType(typeof(AnalysisReportDocxWorkUnit), "analysisReportDocx")]

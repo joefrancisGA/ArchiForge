@@ -22,13 +22,13 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application;
 
 /// <summary>
-/// API-facing orchestration service that coordinates run retrieval, agent result submission,
-/// manifest access, and fake-result seeding for the architecture run lifecycle.
+///     API-facing orchestration service that coordinates run retrieval, agent result submission,
+///     manifest access, and fake-result seeding for the architecture run lifecycle.
 /// </summary>
 /// <remarks>
-/// All run reads are routed through <c>IRunDetailQueryService</c> to ensure a single authoritative
-/// data-loading path. Result and evidence writes execute inside <see cref="IArchLucidUnitOfWork"/> for atomicity;
-/// Authority <c>dbo.Runs</c> lifecycle is updated by dedicated orchestrators, not this application service.
+///     All run reads are routed through <c>IRunDetailQueryService</c> to ensure a single authoritative
+///     data-loading path. Result and evidence writes execute inside <see cref="IArchLucidUnitOfWork" /> for atomicity;
+///     Authority <c>dbo.Runs</c> lifecycle is updated by dedicated orchestrators, not this application service.
 /// </remarks>
 public sealed class ArchitectureApplicationService(
     IRunDetailQueryService runDetailQueryService,
@@ -47,7 +47,8 @@ public sealed class ArchitectureApplicationService(
     : IArchitectureApplicationService
 {
     /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
-    private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
+    private static readonly HashSet<AgentType> RequiredAgentTypes =
+        [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
 
     /// <summary>Run statuses that allow submitting agent results.</summary>
     private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses =
@@ -62,18 +63,20 @@ public sealed class ArchitectureApplicationService(
         return detail is null ? null : new GetRunResult(detail.Run, detail.Tasks, detail.Results);
     }
 
-    public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result, CancellationToken cancellationToken = default)
+    public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result,
+        CancellationToken cancellationToken = default)
     {
         if (result is null)
-            return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);
+            return new SubmitResultResult(false, null, "Agent result is required.",
+                ApplicationServiceFailureKind.BadRequest);
 
         if (string.IsNullOrWhiteSpace(runId))
             return new SubmitResultResult(false, null, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
-            return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
-
+            return new SubmitResultResult(false, null, $"Run '{runId}' was not found.",
+                ApplicationServiceFailureKind.RunNotFound);
 
         ArchitectureRun run = detail.Run;
         List<AgentTask> tasks = detail.Tasks;
@@ -93,7 +96,6 @@ public sealed class ArchitectureApplicationService(
                 $"Result RunId '{result.RunId}' does not match route runId '{runId}'.",
                 ApplicationServiceFailureKind.BadRequest);
 
-
         AgentTask? task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
         if (task is null)
 
@@ -101,20 +103,17 @@ public sealed class ArchitectureApplicationService(
                 $"Task '{result.TaskId}' was not found for run '{runId}'.",
                 ApplicationServiceFailureKind.ResourceNotFound);
 
-
         if (task.AgentType != result.AgentType)
 
             return new SubmitResultResult(false, null,
                 $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.",
                 ApplicationServiceFailureKind.BadRequest);
 
-
         if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
 
             return new SubmitResultResult(false, null,
                 $"A result for task '{result.TaskId}' has already been submitted for this run.",
                 ApplicationServiceFailureKind.BadRequest);
-
 
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
@@ -131,7 +130,6 @@ public sealed class ArchitectureApplicationService(
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformationAgentResultSubmitted(runId, result.ResultId, result.AgentType, newStatus);
 
-
             return new SubmitResultResult(true, result.ResultId, null);
         }
         catch
@@ -139,24 +137,6 @@ public sealed class ArchitectureApplicationService(
             await uow.RollbackAsync(cancellationToken);
             throw;
         }
-    }
-
-    /// <summary>True when there is exactly one result for each required agent type and no extra types.</summary>
-    private static bool HasAllRequiredAgentTypes(IReadOnlyList<AgentResult>? results)
-    {
-        if (results is null)
-            return false;
-
-        if (results.Count != RequiredAgentTypes.Count)
-            return false;
-
-        foreach (AgentType required in RequiredAgentTypes)
-
-            if (results.Count(r => r.AgentType == required) != 1)
-                return false;
-
-
-        return true;
     }
 
     public async Task<GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
@@ -177,8 +157,8 @@ public sealed class ArchitectureApplicationService(
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
-            return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
-
+            return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.",
+                ApplicationServiceFailureKind.RunNotFound);
 
         ArchitectureRun run = detail.Run;
 
@@ -190,19 +170,19 @@ public sealed class ArchitectureApplicationService(
                 ApplicationServiceFailureKind.BadRequest);
         }
 
-        ArchitectureRequest? architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
+        ArchitectureRequest? architectureRequest =
+            await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
         if (architectureRequest is null)
 
             return new SeedFakeResultsResult(false, 0,
                 $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.",
                 ApplicationServiceFailureKind.ResourceNotFound);
 
-
         List<AgentTask> tasks = detail.Tasks;
 
         if (tasks.Count == 0)
-            return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
-
+            return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.",
+                ApplicationServiceFailureKind.BadRequest);
 
         List<AgentResult> existingResults = detail.Results;
 
@@ -218,7 +198,8 @@ public sealed class ArchitectureApplicationService(
             return new SeedFakeResultsResult(true, 0, null);
         }
 
-        IReadOnlyList<AgentResult> fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
+        IReadOnlyList<AgentResult> fakeResults =
+            FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
 
         ArchitectureRunStatus newStatus = HasAllRequiredAgentTypes(fakeResults)
             ? ArchitectureRunStatus.ReadyForCommit
@@ -245,8 +226,24 @@ public sealed class ArchitectureApplicationService(
                 fakeResults.Count,
                 newStatus);
 
-
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
+    }
+
+    /// <summary>True when there is exactly one result for each required agent type and no extra types.</summary>
+    private static bool HasAllRequiredAgentTypes(IReadOnlyList<AgentResult>? results)
+    {
+        if (results is null)
+            return false;
+
+        if (results.Count != RequiredAgentTypes.Count)
+            return false;
+
+        foreach (AgentType required in RequiredAgentTypes)
+
+            if (results.Count(r => r.AgentType == required) != 1)
+                return false;
+
+        return true;
     }
 
     private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(
@@ -293,14 +290,16 @@ public sealed class ArchitectureApplicationService(
     {
         // CommitRunAsync requires a persisted evidence package (normally written during ExecuteRun). Dev-only seed
         // skips execute, so create the package here when missing.
-        AgentEvidencePackage? existingPackage = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        AgentEvidencePackage? existingPackage =
+            await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (existingPackage is null)
         {
             AgentEvidencePackage package = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
             if (uow.SupportsExternalTransaction)
-                await agentEvidencePackageRepository.CreateAsync(package, cancellationToken, uow.Connection, uow.Transaction);
+                await agentEvidencePackageRepository.CreateAsync(package, cancellationToken, uow.Connection,
+                    uow.Transaction);
             else
                 await agentEvidencePackageRepository.CreateAsync(package, cancellationToken);
         }
@@ -312,7 +311,6 @@ public sealed class ArchitectureApplicationService(
         else
 
             await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
-
     }
 
     private async Task TryMarkPilotRealModeFellBackAsync(string runId, CancellationToken cancellationToken)
@@ -325,7 +323,6 @@ public sealed class ArchitectureApplicationService(
 
         if (header is null)
             return;
-
 
         header.RealModeFellBackToSimulator = true;
         header.PilotAoaiDeploymentSnapshot = configuration["AzureOpenAI:DeploymentName"]?.Trim();

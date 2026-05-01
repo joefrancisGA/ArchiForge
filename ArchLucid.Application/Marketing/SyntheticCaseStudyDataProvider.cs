@@ -32,20 +32,20 @@ public sealed class SyntheticCaseStudyDataProvider
         DateTimeOffset utc = capturedUtc ?? new DateTimeOffset(2026, 3, 15, 12, 0, 0, TimeSpan.Zero);
 
         return new ValueReportRawMetrics(
-            RunStatusCounts: [],
-            RunsCompletedCount: 4,
-            ManifestsCommittedCount: 4,
-            GovernanceEventCount: 6,
-            DriftAlertEventCount: 0,
-            FindingFeedbackNetScore: 0,
-            FindingFeedbackVoteCount: 0,
-            TenantBaselineReviewCycleHours: BaselineReviewCycleHours,
-            TenantBaselineReviewCycleSource: "Synthetic case study (Contoso Retail demo tenant)",
-            TenantBaselineReviewCycleCapturedUtc: utc,
-            MeasuredAverageReviewCycleHoursForWindow: PostArchlucidReviewCycleHours,
-            MeasuredReviewCycleSampleSize: 4,
-            TenantBaselineManualPrepHoursPerReview: BaselineEvidenceAssemblyHours,
-            TenantBaselinePeoplePerReview: 4,
-            TenantArchitectureTeamSize: 6);
+            [],
+            4,
+            4,
+            6,
+            0,
+            0,
+            0,
+            BaselineReviewCycleHours,
+            "Synthetic case study (Contoso Retail demo tenant)",
+            utc,
+            PostArchlucidReviewCycleHours,
+            4,
+            BaselineEvidenceAssemblyHours,
+            4,
+            6);
     }
 }

@@ -4,14 +4,14 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Replays persisted comparison records into exportable artifacts (Markdown/HTML/DOCX/PDF),
-/// without requiring users to manually rebuild the comparison.
+///     Replays persisted comparison records into exportable artifacts (Markdown/HTML/DOCX/PDF),
+///     without requiring users to manually rebuild the comparison.
 /// </summary>
 /// <remarks>
-/// This service supports three replay modes:
-/// - <c>artifact</c>: export the stored payload as-is (fastest; does not require source runs/exports to exist)
-/// - <c>regenerate</c>: rebuild the comparison from source data (requires the referenced runs/exports to exist)
-/// - <c>verify</c>: regenerate and compare against stored payload, returning drift analysis
+///     This service supports three replay modes:
+///     - <c>artifact</c>: export the stored payload as-is (fastest; does not require source runs/exports to exist)
+///     - <c>regenerate</c>: rebuild the comparison from source data (requires the referenced runs/exports to exist)
+///     - <c>verify</c>: regenerate and compare against stored payload, returning drift analysis
 /// </remarks>
 public sealed class ComparisonReplayService(
     IComparisonRecordRepository comparisonRecordRepository,
@@ -26,11 +26,11 @@ public sealed class ComparisonReplayService(
     : IComparisonReplayService
 {
     /// <summary>
-    /// Replay a comparison record by ID and return an export payload (text or binary).
+    ///     Replay a comparison record by ID and return an export payload (text or binary).
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the record does not exist, its payload cannot be rehydrated, or the requested
-    /// format/mode is not supported for the record type.
+    ///     Thrown when the record does not exist, its payload cannot be rehydrated, or the requested
+    ///     format/mode is not supported for the record type.
     /// </exception>
     public async Task<ReplayComparisonResult> ReplayAsync(
         ReplayComparisonRequest request,
@@ -42,14 +42,15 @@ public sealed class ComparisonReplayService(
         ComparisonRecord record = await comparisonRecordRepository.GetByIdAsync(
             request.ComparisonRecordId,
             cancellationToken) ?? throw new InvalidOperationException(
-                $"Comparison record '{request.ComparisonRecordId}' was not found.");
+            $"Comparison record '{request.ComparisonRecordId}' was not found.");
         string format = ComparisonReplayRequestParsing.NormalizeFormat(request.Format);
         string profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(request.ReplayMode);
 
         ReplayComparisonResult result = record.ComparisonType switch
         {
-            ComparisonTypes.EndToEndReplay => await ReplayEndToEndAsync(record, format, profile, mode, cancellationToken),
+            ComparisonTypes.EndToEndReplay => await ReplayEndToEndAsync(record, format, profile, mode,
+                cancellationToken),
             ComparisonTypes.ExportRecordDiff => await ReplayExportDiffAsync(record, format, mode, cancellationToken),
             _ => throw new InvalidOperationException(
                 $"Replay is not supported for comparison type '{record.ComparisonType}'.")
@@ -61,9 +62,8 @@ public sealed class ComparisonReplayService(
             // This keeps comparison records immutable and yields an audit trail of replay activity.
             result.PersistedReplayRecordId = await comparisonAuditService.RecordReplayOfAsync(
                 record,
-                notes: $"Replay of comparison record {record.ComparisonRecordId} at {DateTime.UtcNow:O}.",
+                $"Replay of comparison record {record.ComparisonRecordId} at {DateTime.UtcNow:O}.",
                 cancellationToken);
-
 
         return result;
     }
@@ -74,7 +74,9 @@ public sealed class ComparisonReplayService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
 
-        ComparisonRecord record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ?? throw new InvalidOperationException(
+        ComparisonRecord record =
+            await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ??
+            throw new InvalidOperationException(
                 $"Comparison record '{comparisonRecordId}' was not found.");
         return record.ComparisonType switch
         {
@@ -120,8 +122,8 @@ public sealed class ComparisonReplayService(
         {
             case ComparisonReplayMode.ArtifactReplay:
                 report = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record)
-                    ?? throw new InvalidOperationException(
-                        $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
+                         ?? throw new InvalidOperationException(
+                             $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
                 break;
             case ComparisonReplayMode.Regenerate:
                 report = await RegenerateEndToEndAsync(record, cancellationToken);
@@ -143,7 +145,8 @@ public sealed class ComparisonReplayService(
                 throw new InvalidOperationException($"Unsupported replay mode '{mode}'.");
         }
 
-        ReplayComparisonResult result = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
+        ReplayComparisonResult result =
+            await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
         result.ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode);
 
         if (mode != ComparisonReplayMode.Verify)
@@ -163,7 +166,6 @@ public sealed class ComparisonReplayService(
 
             throw new InvalidOperationException(
                 $"Comparison record '{record.ComparisonRecordId}' has no LeftRunId/RightRunId; cannot regenerate end-to-end comparison.");
-
 
         return await endToEndReplayComparisonService.BuildAsync(
             record.LeftRunId,
@@ -201,7 +203,6 @@ public sealed class ComparisonReplayService(
 
         byte[] pdfBytes = await endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
         return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", pdfBytes, profile);
-
     }
 
     private ReplayComparisonResult BuildTextResult(
@@ -254,8 +255,8 @@ public sealed class ComparisonReplayService(
         {
             case ComparisonReplayMode.ArtifactReplay:
                 diff = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record)
-                    ?? throw new InvalidOperationException(
-                        $"Comparison record '{record.ComparisonRecordId}' did not contain a valid export-diff payload.");
+                       ?? throw new InvalidOperationException(
+                           $"Comparison record '{record.ComparisonRecordId}' did not contain a valid export-diff payload.");
                 break;
             case ComparisonReplayMode.Regenerate:
                 diff = await RegenerateExportDiffAsync(record, cancellationToken);
@@ -297,9 +298,9 @@ public sealed class ComparisonReplayService(
                 resultDocx.VerificationPassed = true;
                 resultDocx.VerificationMessage = "Regenerated comparison matches stored payload.";
             }
-            SetRecordMetadata(resultDocx, record, formatProfile: null);
-            return resultDocx;
 
+            SetRecordMetadata(resultDocx, record, null);
+            return resultDocx;
         }
 
         string markdown = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
@@ -312,7 +313,7 @@ public sealed class ComparisonReplayService(
             Content = markdown,
             ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
         };
-        SetRecordMetadata(result, record, formatProfile: null);
+        SetRecordMetadata(result, record, null);
 
         if (mode != ComparisonReplayMode.Verify)
             return result;
@@ -336,20 +337,21 @@ public sealed class ComparisonReplayService(
         ComparisonRecord record,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(record.LeftExportRecordId) || string.IsNullOrWhiteSpace(record.RightExportRecordId))
+        if (string.IsNullOrWhiteSpace(record.LeftExportRecordId) ||
+            string.IsNullOrWhiteSpace(record.RightExportRecordId))
 
             throw new InvalidOperationException(
                 $"Comparison record '{record.ComparisonRecordId}' has no LeftExportRecordId/RightExportRecordId; cannot regenerate export-record diff.");
 
-
-        RunExportRecord left = await runExportRecordRepository.GetByIdAsync(record.LeftExportRecordId, cancellationToken)
-                               ?? throw new InvalidOperationException(
-                                   $"Export record '{record.LeftExportRecordId}' was not found.");
-        RunExportRecord right = await runExportRecordRepository.GetByIdAsync(record.RightExportRecordId, cancellationToken)
-                                ?? throw new InvalidOperationException(
-                                    $"Export record '{record.RightExportRecordId}' was not found.");
+        RunExportRecord left =
+            await runExportRecordRepository.GetByIdAsync(record.LeftExportRecordId, cancellationToken)
+            ?? throw new InvalidOperationException(
+                $"Export record '{record.LeftExportRecordId}' was not found.");
+        RunExportRecord right =
+            await runExportRecordRepository.GetByIdAsync(record.RightExportRecordId, cancellationToken)
+            ?? throw new InvalidOperationException(
+                $"Export record '{record.RightExportRecordId}' was not found.");
 
         return exportRecordDiffService.Compare(left, right);
     }
 }
-

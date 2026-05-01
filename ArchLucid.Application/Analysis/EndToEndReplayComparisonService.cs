@@ -7,14 +7,14 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Builds a full <see cref="EndToEndReplayComparisonReport"/> by loading both runs through
-/// <see cref="IRunDetailQueryService"/>, diffing agent results, manifests, and export records
-/// side-by-side, and appending human-readable interpretation notes.
+///     Builds a full <see cref="EndToEndReplayComparisonReport" /> by loading both runs through
+///     <see cref="IRunDetailQueryService" />, diffing agent results, manifests, and export records
+///     side-by-side, and appending human-readable interpretation notes.
 /// </summary>
 /// <remarks>
-/// Warnings are added to <see cref="EndToEndReplayComparisonReport.Warnings"/> rather than
-/// thrown when optional data (manifests, exports) is missing for one or both runs.
-/// Throws <see cref="RunNotFoundException"/> when either run cannot be resolved.
+///     Warnings are added to <see cref="EndToEndReplayComparisonReport.Warnings" /> rather than
+///     thrown when optional data (manifests, exports) is missing for one or both runs.
+///     Throws <see cref="RunNotFoundException" /> when either run cannot be resolved.
 /// </remarks>
 public sealed class EndToEndReplayComparisonService(
     IRunDetailQueryService runDetailQueryService,
@@ -43,9 +43,7 @@ public sealed class EndToEndReplayComparisonService(
 
         EndToEndReplayComparisonReport report = new()
         {
-            LeftRunId = leftRunId,
-            RightRunId = rightRunId,
-            RunDiff = BuildRunDiff(leftRun, rightRun)
+            LeftRunId = leftRunId, RightRunId = rightRunId, RunDiff = BuildRunDiff(leftRun, rightRun)
         };
 
         List<AgentResult> leftResults = leftDetail.Results;
@@ -63,7 +61,6 @@ public sealed class EndToEndReplayComparisonService(
 
             report.Warnings.Add("Neither run contained agent results.");
 
-
         if (!string.IsNullOrWhiteSpace(leftRun.CurrentManifestVersion) &&
             !string.IsNullOrWhiteSpace(rightRun.CurrentManifestVersion))
 
@@ -75,10 +72,10 @@ public sealed class EndToEndReplayComparisonService(
 
                 report.Warnings.Add("One or both manifests were unavailable for manifest comparison.");
 
-
-
-        IReadOnlyList<RunExportRecord> leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        IReadOnlyList<RunExportRecord> rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+        IReadOnlyList<RunExportRecord> leftExports =
+            await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+        IReadOnlyList<RunExportRecord> rightExports =
+            await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
 
         // Match by ExportType so that ordering differences between runs don't produce nonsensical diffs.
         Dictionary<string, RunExportRecord> leftByType = leftExports
@@ -106,7 +103,6 @@ public sealed class EndToEndReplayComparisonService(
             else
 
                 report.Warnings.Add($"Export type '{exportType}' exists on the left run but not the right.");
-
         }
 
         AddInterpretationNotes(report);
@@ -120,7 +116,8 @@ public sealed class EndToEndReplayComparisonService(
 
         AddIfChanged(result.ChangedFields, "RequestId", leftRun.RequestId, rightRun.RequestId);
         AddIfChanged(result.ChangedFields, "Status", leftRun.Status, rightRun.Status);
-        AddIfChanged(result.ChangedFields, "CurrentManifestVersion", leftRun.CurrentManifestVersion, rightRun.CurrentManifestVersion);
+        AddIfChanged(result.ChangedFields, "CurrentManifestVersion", leftRun.CurrentManifestVersion,
+            rightRun.CurrentManifestVersion);
         AddIfChanged(result.ChangedFields, "CompletedUtc", leftRun.CompletedUtc, rightRun.CompletedUtc);
 
         result.RequestIdsDiffer = !string.Equals(
@@ -183,7 +180,6 @@ public sealed class EndToEndReplayComparisonService(
 
                 report.InterpretationNotes.Add(
                     "Neither agent outputs nor manifest changed materially.");
-
         }
 
         if (report.ExportDiffs.Any(d =>
@@ -193,7 +189,6 @@ public sealed class EndToEndReplayComparisonService(
 
             report.InterpretationNotes.Add(
                 "Export configuration differences were detected, so document outputs may differ even when architecture state is similar.");
-
     }
 
     private static void AddIfChanged<T>(
@@ -205,6 +200,5 @@ public sealed class EndToEndReplayComparisonService(
         if (!EqualityComparer<T>.Default.Equals(left, right))
 
             target.Add(fieldName);
-
     }
 }

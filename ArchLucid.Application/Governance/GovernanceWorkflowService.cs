@@ -22,10 +22,10 @@ using GovernanceGateOptions = ArchLucid.Contracts.Governance.PreCommitGovernance
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Default implementation of <see cref="IGovernanceWorkflowService"/> backed by
-/// <see cref="IGovernanceApprovalRequestRepository"/>,
-/// <see cref="IGovernancePromotionRecordRepository"/>, and
-/// <see cref="IGovernanceEnvironmentActivationRepository"/>.
+///     Default implementation of <see cref="IGovernanceWorkflowService" /> backed by
+///     <see cref="IGovernanceApprovalRequestRepository" />,
+///     <see cref="IGovernancePromotionRecordRepository" />, and
+///     <see cref="IGovernanceEnvironmentActivationRepository" />.
 /// </summary>
 public sealed class GovernanceWorkflowService(
     IGovernanceApprovalRequestRepository approvalRepo,
@@ -48,6 +48,7 @@ public sealed class GovernanceWorkflowService(
 
     private const string OpaqueProdApprovalMismatch =
         "The approval request does not match the promoted run, manifest version, or target environment.";
+
     /// <inheritdoc />
     public async Task<GovernanceApprovalRequest> SubmitApprovalRequestAsync(
         string runId,
@@ -72,7 +73,6 @@ public sealed class GovernanceWorkflowService(
                 $"Governance approval requests must follow environment ordering (dev → test → prod). " +
                 $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid step.");
 
-
         ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
                                           ?? throw new RunNotFoundException(runId);
         ArchitectureRun run = runDetail.Run;
@@ -88,7 +88,7 @@ public sealed class GovernanceWorkflowService(
             RequestedByActorKey = requestedByActorKey,
             RequestComment = requestComment,
             RequestedUtc = DateTime.UtcNow,
-            SlaDeadlineUtc = ComputeSlaDeadlineUtc(),
+            SlaDeadlineUtc = ComputeSlaDeadlineUtc()
         };
 
         StampGovernanceScope(request);
@@ -109,12 +109,12 @@ public sealed class GovernanceWorkflowService(
         await approvalRepo.CreateAsync(request, cancellationToken);
 
         await baselineMutationAudit
-            .RecordAsync(
-                AuditEventTypes.Baseline.Governance.ApprovalRequestSubmitted,
-                requestedBy,
-                request.ApprovalRequestId,
-                $"RunId={runId}; ManifestVersion={manifestVersion}; Source={sourceEnvironment}; Target={targetEnvironment}",
-                cancellationToken)
+                .RecordAsync(
+                    AuditEventTypes.Baseline.Governance.ApprovalRequestSubmitted,
+                    requestedBy,
+                    request.ApprovalRequestId,
+                    $"RunId={runId}; ManifestVersion={manifestVersion}; Source={sourceEnvironment}; Target={targetEnvironment}",
+                    cancellationToken)
             ;
 
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid submittedRunGuid) ? submittedRunGuid : null;
@@ -130,9 +130,9 @@ public sealed class GovernanceWorkflowService(
                         runId = request.RunId,
                         manifestVersion = request.ManifestVersion,
                         sourceEnvironment = request.SourceEnvironment,
-                        targetEnvironment = request.TargetEnvironment,
+                        targetEnvironment = request.TargetEnvironment
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             $"GovernanceApprovalSubmitted:{LogSanitizer.Sanitize(request.ApprovalRequestId)}",
             cancellationToken);
@@ -144,7 +144,6 @@ public sealed class GovernanceWorkflowService(
                 LogSanitizer.Sanitize(request.ApprovalRequestId),
                 LogSanitizer.Sanitize(request.RunId),
                 LogSanitizer.Sanitize(request.ManifestVersion));
-
 
         await TryPublishGovernanceApprovalSubmittedAsync(request, cancellationToken);
 
@@ -164,7 +163,8 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByActorKey);
 
         GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
-                                            ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+                                            ?? throw new InvalidOperationException(
+                                                $"Approval request '{approvalRequestId}' was not found.");
 
         await EnforceSegregationOfDutiesForReviewAsync(
             request,
@@ -197,14 +197,12 @@ public sealed class GovernanceWorkflowService(
             if (fresh is null)
                 throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
-
             if (string.Equals(fresh.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
 
                 throw new GovernanceApprovalReviewConflictException(
                     approvalRequestId,
-                    attemptedOutcome: "approve",
-                    currentStatus: fresh.Status);
-
+                    "approve",
+                    fresh.Status);
 
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be approved from status '{fresh.Status}'. " +
@@ -218,12 +216,12 @@ public sealed class GovernanceWorkflowService(
         request.ReviewedUtc = reviewedUtc;
 
         await baselineMutationAudit
-            .RecordAsync(
-                AuditEventTypes.Baseline.Governance.ApprovalRequestApproved,
-                reviewedBy,
-                approvalRequestId,
-                $"Status={GovernanceApprovalStatus.Approved}",
-                cancellationToken)
+                .RecordAsync(
+                    AuditEventTypes.Baseline.Governance.ApprovalRequestApproved,
+                    reviewedBy,
+                    approvalRequestId,
+                    $"Status={GovernanceApprovalStatus.Approved}",
+                    cancellationToken)
             ;
 
         Guid? approvedRunId = Guid.TryParse(request.RunId, out Guid approvedRunGuid) ? approvedRunGuid : null;
@@ -238,9 +236,9 @@ public sealed class GovernanceWorkflowService(
                         approvalRequestId = request.ApprovalRequestId,
                         runId = request.RunId,
                         reviewedBy,
-                        reviewComment = request.ReviewComment,
+                        reviewComment = request.ReviewComment
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             $"GovernanceApprovalApproved:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
@@ -251,7 +249,6 @@ public sealed class GovernanceWorkflowService(
                 "Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId),
                 LogSanitizer.Sanitize(reviewedBy));
-
 
         return request;
     }
@@ -269,7 +266,8 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedByActorKey);
 
         GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
-                                            ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+                                            ?? throw new InvalidOperationException(
+                                                $"Approval request '{approvalRequestId}' was not found.");
 
         await EnforceSegregationOfDutiesForReviewAsync(
             request,
@@ -302,14 +300,12 @@ public sealed class GovernanceWorkflowService(
             if (fresh is null)
                 throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
-
             if (string.Equals(fresh.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
 
                 throw new GovernanceApprovalReviewConflictException(
                     approvalRequestId,
-                    attemptedOutcome: "reject",
-                    currentStatus: fresh.Status);
-
+                    "reject",
+                    fresh.Status);
 
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be rejected from status '{fresh.Status}'. " +
@@ -323,12 +319,12 @@ public sealed class GovernanceWorkflowService(
         request.ReviewedUtc = reviewedUtc;
 
         await baselineMutationAudit
-            .RecordAsync(
-                AuditEventTypes.Baseline.Governance.ApprovalRequestRejected,
-                reviewedBy,
-                approvalRequestId,
-                $"Status={GovernanceApprovalStatus.Rejected}",
-                cancellationToken)
+                .RecordAsync(
+                    AuditEventTypes.Baseline.Governance.ApprovalRequestRejected,
+                    reviewedBy,
+                    approvalRequestId,
+                    $"Status={GovernanceApprovalStatus.Rejected}",
+                    cancellationToken)
             ;
 
         Guid? rejectedRunId = Guid.TryParse(request.RunId, out Guid rejectedRunGuid) ? rejectedRunGuid : null;
@@ -343,9 +339,9 @@ public sealed class GovernanceWorkflowService(
                         approvalRequestId = request.ApprovalRequestId,
                         runId = request.RunId,
                         reviewedBy,
-                        reviewComment = request.ReviewComment,
+                        reviewComment = request.ReviewComment
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             $"GovernanceApprovalRejected:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
@@ -356,7 +352,6 @@ public sealed class GovernanceWorkflowService(
                 "Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId),
                 LogSanitizer.Sanitize(reviewedBy));
-
 
         return request;
     }
@@ -389,7 +384,6 @@ public sealed class GovernanceWorkflowService(
                 $"Promotion must follow environment ordering (dev → test → prod). " +
                 $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid promotion step.");
 
-
         GovernanceApprovalRequest? prodApprovalToMarkPromoted = null;
 
         if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase))
@@ -399,8 +393,8 @@ public sealed class GovernanceWorkflowService(
                 throw new InvalidOperationException(
                     "Promotion to prod requires an approved approval request. Provide an approvalRequestId.");
 
-
-            GovernanceApprovalRequest? approvalRequest = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+            GovernanceApprovalRequest? approvalRequest =
+                await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
             ThrowIfProdApprovalChainInvalid(
                 approvalRequest,
                 approvalRequestId,
@@ -449,12 +443,12 @@ public sealed class GovernanceWorkflowService(
         await promotionRepo.CreateAsync(record, cancellationToken);
 
         await baselineMutationAudit
-            .RecordAsync(
-                AuditEventTypes.Baseline.Governance.ManifestPromoted,
-                promotedBy,
-                record.PromotionRecordId,
-                $"RunId={runId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}",
-                cancellationToken)
+                .RecordAsync(
+                    AuditEventTypes.Baseline.Governance.ManifestPromoted,
+                    promotedBy,
+                    record.PromotionRecordId,
+                    $"RunId={runId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}",
+                    cancellationToken)
             ;
 
         Guid? promotedRunId = Guid.TryParse(record.RunId, out Guid promotedRunGuid) ? promotedRunGuid : null;
@@ -471,9 +465,9 @@ public sealed class GovernanceWorkflowService(
                         manifestVersion = record.ManifestVersion,
                         sourceEnvironment = record.SourceEnvironment,
                         targetEnvironment = record.TargetEnvironment,
-                        approvalRequestId = record.ApprovalRequestId,
+                        approvalRequestId = record.ApprovalRequestId
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             $"GovernanceManifestPromoted:{LogSanitizer.Sanitize(record.PromotionRecordId)}",
             cancellationToken);
@@ -485,7 +479,6 @@ public sealed class GovernanceWorkflowService(
                 record.RunId,
                 record.ManifestVersion,
                 record.TargetEnvironment);
-
 
         return record;
     }
@@ -506,7 +499,8 @@ public sealed class GovernanceWorkflowService(
         _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
 
-        IReadOnlyList<GovernanceEnvironmentActivation> existing = await activationRepo.GetByEnvironmentAsync(environment, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> existing =
+            await activationRepo.GetByEnvironmentAsync(environment, cancellationToken);
 
         GovernanceEnvironmentActivation activation = new()
         {
@@ -545,7 +539,6 @@ public sealed class GovernanceWorkflowService(
                         uow.Connection,
                         uow.Transaction,
                         cancellationToken);
-
             }
             else
             {
@@ -567,12 +560,12 @@ public sealed class GovernanceWorkflowService(
         }
 
         await baselineMutationAudit
-            .RecordAsync(
-                AuditEventTypes.Baseline.Governance.EnvironmentActivated,
-                activatedBy,
-                activation.ActivationId,
-                $"RunId={runId}; ManifestVersion={manifestVersion}; Environment={environment}",
-                cancellationToken)
+                .RecordAsync(
+                    AuditEventTypes.Baseline.Governance.EnvironmentActivated,
+                    activatedBy,
+                    activation.ActivationId,
+                    $"RunId={runId}; ManifestVersion={manifestVersion}; Environment={environment}",
+                    cancellationToken)
             ;
 
         Guid? activationRunId = Guid.TryParse(activation.RunId, out Guid activationRunGuid) ? activationRunGuid : null;
@@ -588,9 +581,9 @@ public sealed class GovernanceWorkflowService(
                         runId = activation.RunId,
                         manifestVersion = activation.ManifestVersion,
                         environment = activation.Environment,
-                        activatedBy,
+                        activatedBy
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             $"GovernanceEnvironmentActivated:{LogSanitizer.Sanitize(activation.ActivationId)}",
             cancellationToken);
@@ -602,16 +595,14 @@ public sealed class GovernanceWorkflowService(
                 activation.ManifestVersion,
                 activation.Environment);
 
-
         if (!enqueuePromotionInSqlTx)
 
             await TryPublishGovernancePromotionActivatedAsync(
                 activation,
                 activatedBy,
-                connection: null,
-                transaction: null,
+                null,
+                null,
                 cancellationToken);
-
 
         return activation;
     }
@@ -638,9 +629,9 @@ public sealed class GovernanceWorkflowService(
                         requestedBy = request.RequestedBy,
                         requestedByActorKey = request.RequestedByActorKey,
                         attemptedReviewerBy = reviewedByDisplay,
-                        attemptedReviewerActorKey = reviewedByActorKey,
+                        attemptedReviewerActorKey = reviewedByActorKey
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             $"GovernanceSelfApprovalBlocked:{LogSanitizer.Sanitize(approvalRequestId)}",
             cancellationToken);
@@ -744,13 +735,7 @@ public sealed class GovernanceWorkflowService(
         Guid? auditRunId = Guid.TryParse(runId, out Guid rid) ? rid : null;
 
         string dataJson = JsonSerializer.Serialize(
-            new
-            {
-                workflow = "approvalRequest",
-                manifestVersion,
-                sourceEnvironment,
-                targetEnvironment,
-            },
+            new { workflow = "approvalRequest", manifestVersion, sourceEnvironment, targetEnvironment },
             AuditJsonSerializationOptions.Instance);
 
         AuditEvent auditEvent = new()
@@ -762,7 +747,7 @@ public sealed class GovernanceWorkflowService(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             RunId = auditRunId,
-            DataJson = dataJson,
+            DataJson = dataJson
         };
 
         await DurableAuditLogRetry.TryLogAsync(
@@ -791,7 +776,7 @@ public sealed class GovernanceWorkflowService(
                 manifestVersion,
                 sourceEnvironment,
                 targetEnvironment,
-                approvalRequestId,
+                approvalRequestId
             },
             AuditJsonSerializationOptions.Instance);
 
@@ -804,7 +789,7 @@ public sealed class GovernanceWorkflowService(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             RunId = auditRunId,
-            DataJson = dataJson,
+            DataJson = dataJson
         };
 
         await DurableAuditLogRetry.TryLogAsync(
@@ -815,7 +800,8 @@ public sealed class GovernanceWorkflowService(
     }
 
     /// <summary>
-    /// Governance durable rows use bounded retries; failures are logged only so workflow state is not blocked by audit I/O.
+    ///     Governance durable rows use bounded retries; failures are logged only so workflow state is not blocked by audit
+    ///     I/O.
     /// </summary>
     private async Task LogGovernanceDurableWithRetryAsync(
         AuditEvent auditEvent,
@@ -846,7 +832,7 @@ public sealed class GovernanceWorkflowService(
             manifestVersion = request.ManifestVersion,
             sourceEnvironment = request.SourceEnvironment,
             targetEnvironment = request.TargetEnvironment,
-            requestedBy = request.RequestedBy,
+            requestedBy = request.RequestedBy
         };
 
         string messageId = $"{request.ApprovalRequestId}:{IntegrationEventTypes.GovernanceApprovalSubmittedV1}";
@@ -865,8 +851,8 @@ public sealed class GovernanceWorkflowService(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
-            connection: null,
-            transaction: null,
+            null,
+            null,
             cancellationToken);
     }
 
@@ -900,7 +886,7 @@ public sealed class GovernanceWorkflowService(
             manifestVersion = activation.ManifestVersion,
             environment = activation.Environment,
             activatedBy,
-            activatedUtc = activation.ActivatedUtc,
+            activatedUtc = activation.ActivatedUtc
         };
 
         string messageId = $"{activation.ActivationId}:{IntegrationEventTypes.GovernancePromotionActivatedV1}";
@@ -931,7 +917,6 @@ public sealed class GovernanceWorkflowService(
         if (scope.TenantId == Guid.Empty)
             return;
 
-
         request.TenantId = scope.TenantId;
         request.WorkspaceId = scope.WorkspaceId;
         request.ProjectId = scope.ProjectId;
@@ -944,7 +929,6 @@ public sealed class GovernanceWorkflowService(
         if (scope.TenantId == Guid.Empty)
             return;
 
-
         record.TenantId = scope.TenantId;
         record.WorkspaceId = scope.WorkspaceId;
         record.ProjectId = scope.ProjectId;
@@ -956,7 +940,6 @@ public sealed class GovernanceWorkflowService(
 
         if (scope.TenantId == Guid.Empty)
             return;
-
 
         activation.TenantId = scope.TenantId;
         activation.WorkspaceId = scope.WorkspaceId;

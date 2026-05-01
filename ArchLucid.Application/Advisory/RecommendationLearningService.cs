@@ -5,10 +5,12 @@ using ArchLucid.Persistence;
 namespace ArchLucid.Application.Advisory;
 
 /// <summary>
-/// Default <see cref="IRecommendationLearningService"/>: pulls recommendation history, builds a profile via <see cref="IRecommendationLearningAnalyzer"/>, and persists via <see cref="IRecommendationLearningProfileRepository"/>.
+///     Default <see cref="IRecommendationLearningService" />: pulls recommendation history, builds a profile via
+///     <see cref="IRecommendationLearningAnalyzer" />, and persists via
+///     <see cref="IRecommendationLearningProfileRepository" />.
 /// </summary>
 /// <param name="recommendationRepository">Historical rows for the scope (capped batch).</param>
-/// <param name="analyzer">Pure aggregation into <see cref="RecommendationLearningProfile"/>.</param>
+/// <param name="analyzer">Pure aggregation into <see cref="RecommendationLearningProfile" />.</param>
 /// <param name="profileRepository">Stores and loads latest profile.</param>
 public sealed class RecommendationLearningService(
     IRecommendationRepository recommendationRepository,
@@ -16,8 +18,8 @@ public sealed class RecommendationLearningService(
     IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
 {
     /// <summary>
-    /// Maximum number of historical recommendation rows loaded per profile rebuild.
-    /// Caps the working set to keep analysis latency predictable even for high-volume projects.
+    ///     Maximum number of historical recommendation rows loaded per profile rebuild.
+    ///     Caps the working set to keep analysis latency predictable even for high-volume projects.
     /// </summary>
     private const int ProfileRebuildBatchCap = 5000;
 
@@ -29,7 +31,7 @@ public sealed class RecommendationLearningService(
         CancellationToken ct)
     {
         IReadOnlyList<RecommendationRecord> items = await recommendationRepository
-            .ListByScopeAsync(tenantId, workspaceId, projectId, null, ProfileRebuildBatchCap, ct)
+                .ListByScopeAsync(tenantId, workspaceId, projectId, null, ProfileRebuildBatchCap, ct)
             ;
 
         RecommendationLearningProfile profile = analyzer.BuildProfile(tenantId, workspaceId, projectId, items);
@@ -43,6 +45,8 @@ public sealed class RecommendationLearningService(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        CancellationToken ct) =>
-        profileRepository.GetLatestAsync(tenantId, workspaceId, projectId, ct);
+        CancellationToken ct)
+    {
+        return profileRepository.GetLatestAsync(tenantId, workspaceId, projectId, ct);
+    }
 }

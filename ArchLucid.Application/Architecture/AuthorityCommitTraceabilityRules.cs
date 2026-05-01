@@ -1,16 +1,18 @@
 using ArchLucid.Contracts.DecisionTraces;
+
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Architecture;
 
 /// <summary>
-/// Integrity rules for runs committed on the <see cref="Decisioning.Interfaces.IDecisionEngine"/> path:
-/// the projected <see cref="Cm.GoldenManifest"/> must reference the rule-audit trace in <c>Metadata.DecisionTraceIds</c>.
+///     Integrity rules for runs committed on the <see cref="Decisioning.Interfaces.IDecisionEngine" /> path:
+///     the projected <see cref="Cm.GoldenManifest" /> must reference the rule-audit trace in
+///     <c>Metadata.DecisionTraceIds</c>.
 /// </summary>
 public static class AuthorityCommitTraceabilityRules
 {
     /// <summary>
-    /// Returns human-readable gaps when the contract manifest and persisted traces disagree (authority path).
+    ///     Returns human-readable gaps when the contract manifest and persisted traces disagree (authority path).
     /// </summary>
     public static IReadOnlyList<string> GetLinkageGaps(
         Cm.GoldenManifest? manifest,

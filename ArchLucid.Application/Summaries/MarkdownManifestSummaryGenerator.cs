@@ -8,9 +8,9 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Summaries;
 
 /// <summary>
-/// Generates a narrative Markdown summary of a <see cref="GoldenManifest"/>, optionally followed
-/// by an evidence context section when an <see cref="AgentEvidencePackage"/> is supplied.
-/// Intended for LLM-facing and export-facing surfaces.
+///     Generates a narrative Markdown summary of a <see cref="GoldenManifest" />, optionally followed
+///     by an evidence context section when an <see cref="AgentEvidencePackage" /> is supplied.
+///     Intended for LLM-facing and export-facing surfaces.
 /// </summary>
 public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter evidenceFormatter)
     : IManifestSummaryGenerator
@@ -184,12 +184,13 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     }
 
     /// <summary>
-    /// Returns a prose-style label for a relationship (e.g. "reads from", "writes to").
-    /// Intentionally uses fuller prose labels rather than the terse diagram labels in
-    /// <see cref="ArchLucid.Application.Manifests.ManifestPresentation.RelationshipLabel"/>.
+    ///     Returns a prose-style label for a relationship (e.g. "reads from", "writes to").
+    ///     Intentionally uses fuller prose labels rather than the terse diagram labels in
+    ///     <see cref="ArchLucid.Application.Manifests.ManifestPresentation.RelationshipLabel" />.
     /// </summary>
-    private static string FormatRelationshipType(ManifestRelationship relationship) =>
-        relationship.RelationshipType switch
+    private static string FormatRelationshipType(ManifestRelationship relationship)
+    {
+        return relationship.RelationshipType switch
         {
             RelationshipType.Calls => "calls",
             RelationshipType.ReadsFrom => "reads from",
@@ -199,4 +200,5 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             RelationshipType.AuthenticatesWith => "authenticates with",
             _ => relationship.RelationshipType.ToString()
         };
+    }
 }

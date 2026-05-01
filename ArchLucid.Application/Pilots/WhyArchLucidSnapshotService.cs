@@ -10,10 +10,10 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-/// Default <see cref="IWhyArchLucidSnapshotService"/> that combines cumulative
-/// <see cref="ArchLucidInstrumentation"/> counters (via an
-/// <see cref="IInstrumentationCounterSnapshotProvider"/>) with a default-scope audit row count and the
-/// canonical Contoso Retail demo run id.
+///     Default <see cref="IWhyArchLucidSnapshotService" /> that combines cumulative
+///     <see cref="ArchLucidInstrumentation" /> counters (via an
+///     <see cref="IInstrumentationCounterSnapshotProvider" />) with a default-scope audit row count and the
+///     canonical Contoso Retail demo run id.
 /// </summary>
 public sealed class WhyArchLucidSnapshotService(
     IInstrumentationCounterSnapshotProvider counters,
@@ -62,7 +62,7 @@ public sealed class WhyArchLucidSnapshotService(
             RunsCreatedTotal = snapshot.RunsCreatedTotal,
             FindingsProducedBySeverity = snapshot.FindingsProducedBySeverity,
             AuditRowCount = auditCount,
-            AuditRowCountTruncated = truncated,
+            AuditRowCountTruncated = truncated
         };
     }
 }

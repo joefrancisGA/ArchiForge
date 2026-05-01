@@ -3,9 +3,9 @@ using System.Text;
 namespace ArchLucid.Application.Diffs;
 
 /// <summary>
-/// Implements <see cref="IAgentResultDiffSummaryFormatter"/> by rendering a per-agent-type Markdown report
-/// from an <see cref="AgentResultDiffResult"/>. Each agent section lists existence, confidence scores,
-/// and added/removed claims, evidence references, findings, required controls, and warnings.
+///     Implements <see cref="IAgentResultDiffSummaryFormatter" /> by rendering a per-agent-type Markdown report
+///     from an <see cref="AgentResultDiffResult" />. Each agent section lists existence, confidence scores,
+///     and added/removed claims, evidence references, findings, required controls, and warnings.
 /// </summary>
 public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSummaryFormatter
 {
@@ -28,8 +28,10 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
             sb.AppendLine();
             sb.AppendLine($"- Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             sb.AppendLine($"- Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-            sb.AppendLine($"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-            sb.AppendLine($"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            sb.AppendLine(
+                $"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+            sb.AppendLine(
+                $"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
             sb.AppendLine();
 
             AppendSection(sb, "Added Claims", delta.AddedClaims);
@@ -54,7 +56,6 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
 
             sb.AppendLine($"- {warning}");
 
-
         sb.AppendLine();
 
         return sb.ToString();
@@ -78,7 +79,6 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
         foreach (string item in items.OrderBy(x => x))
 
             sb.AppendLine($"- {item}");
-
 
         sb.AppendLine();
     }

@@ -43,7 +43,7 @@ public static class SupportBundleSensitivePatternRedactor
 
     private static readonly HashSet<string> SensitiveEnvironmentNameSubstrings =
     [
-        "PASSWORD", "SECRET", "API_KEY", "APIKEY", "TOKEN", "CREDENTIAL", "PRIVATE_KEY", "CONN", "CONNECTIONSTRING",
+        "PASSWORD", "SECRET", "API_KEY", "APIKEY", "TOKEN", "CREDENTIAL", "PRIVATE_KEY", "CONN", "CONNECTIONSTRING"
     ];
 
     /// <summary>Strips <c>user:pass@</c> userinfo segments from a URL string.</summary>

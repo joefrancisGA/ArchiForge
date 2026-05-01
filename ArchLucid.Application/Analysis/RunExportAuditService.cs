@@ -6,9 +6,9 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Records export operations against a run to the <see cref="IRunExportRecordRepository"/>.
-/// Captures the full export configuration (template profile, included sections, determinism options)
-/// so that exports can be audited, replayed, and diffed after the fact.
+///     Records export operations against a run to the <see cref="IRunExportRecordRepository" />.
+///     Captures the full export configuration (template profile, included sections, determinism options)
+///     so that exports can be audited, replayed, and diffed after the fact.
 /// </summary>
 public sealed class RunExportAuditService(IRunExportRecordRepository repository) : IRunExportAuditService
 {
@@ -71,4 +71,3 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository)
         return record;
     }
 }
-

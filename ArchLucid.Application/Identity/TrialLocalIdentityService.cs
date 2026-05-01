@@ -16,12 +16,6 @@ public sealed class TrialLocalIdentityService(
     TrialPasswordPolicyValidator passwordPolicy,
     PwnedPasswordRangeClient pwnedClient) : ITrialLocalIdentityService
 {
-    private readonly TrialAuthOptions _trial =
-        trialOptions?.Value ?? throw new ArgumentNullException(nameof(trialOptions));
-
-    private readonly ITrialIdentityUserRepository _repository =
-        repository ?? throw new ArgumentNullException(nameof(repository));
-
     private readonly PasswordHasher<TrialIdentityHasherUser> _passwordHasher =
         passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
 
@@ -30,6 +24,12 @@ public sealed class TrialLocalIdentityService(
 
     private readonly PwnedPasswordRangeClient _pwnedClient =
         pwnedClient ?? throw new ArgumentNullException(nameof(pwnedClient));
+
+    private readonly ITrialIdentityUserRepository _repository =
+        repository ?? throw new ArgumentNullException(nameof(repository));
+
+    private readonly TrialAuthOptions _trial =
+        trialOptions?.Value ?? throw new ArgumentNullException(nameof(trialOptions));
 
     /// <inheritdoc />
     public async Task<TrialLocalRegistrationResult> RegisterAsync(
@@ -91,7 +91,8 @@ public sealed class TrialLocalIdentityService(
     }
 
     /// <inheritdoc />
-    public async Task<TrialLocalAuthResult?> AuthenticateAsync(string email, string password, CancellationToken cancellationToken)
+    public async Task<TrialLocalAuthResult?> AuthenticateAsync(string email, string password,
+        CancellationToken cancellationToken)
     {
         EnsureLocalIdentityEnabled();
 
@@ -104,7 +105,8 @@ public sealed class TrialLocalIdentityService(
         if (row is { LockoutEnabled: true, LockoutEnd: { } le } && le > DateTimeOffset.UtcNow)
             return null;
 
-        PasswordVerificationResult verify = _passwordHasher.VerifyHashedPassword(new TrialIdentityHasherUser(), row.PasswordHash, password);
+        PasswordVerificationResult verify =
+            _passwordHasher.VerifyHashedPassword(new TrialIdentityHasherUser(), row.PasswordHash, password);
 
         if (verify != PasswordVerificationResult.Success && verify != PasswordVerificationResult.SuccessRehashNeeded)
         {
@@ -114,7 +116,6 @@ public sealed class TrialLocalIdentityService(
             if (fails >= _trial.LocalIdentity.MaxFailedAccessAttemptsBeforeLockout)
 
                 lockoutEnd = DateTimeOffset.UtcNow.AddMinutes(_trial.LocalIdentity.LockoutMinutes);
-
 
             await _repository.RecordAccessFailedAsync(normalized, fails, lockoutEnd, cancellationToken);
 
@@ -126,12 +127,7 @@ public sealed class TrialLocalIdentityService(
         if (row.EmailVerifiedUtc is null)
             return null;
 
-        return new TrialLocalAuthResult
-        {
-            UserId = row.Id,
-            Email = row.Email,
-            Role = ArchLucidRoles.Reader,
-        };
+        return new TrialLocalAuthResult { UserId = row.Id, Email = row.Email, Role = ArchLucidRoles.Reader };
     }
 
     private void EnsureLocalIdentityEnabled()

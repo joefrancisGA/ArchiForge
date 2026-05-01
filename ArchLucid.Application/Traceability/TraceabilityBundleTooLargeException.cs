@@ -10,7 +10,13 @@ public sealed class TraceabilityBundleTooLargeException : InvalidOperationExcept
         MaxBytes = maxBytes;
     }
 
-    public long AttemptedBytes { get; }
+    public long AttemptedBytes
+    {
+        get;
+    }
 
-    public long MaxBytes { get; }
+    public long MaxBytes
+    {
+        get;
+    }
 }

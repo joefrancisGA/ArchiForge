@@ -57,10 +57,10 @@ public sealed class EvidencePackBuilder(
         byte[] zipBytes = WriteDeterministicZip(finalEntries);
 
         return new EvidencePackArtifact(
-            Bytes: zipBytes,
-            ETag: etag,
-            ContentType: "application/zip",
-            BuiltAtUtc: _timeProvider.GetUtcNow());
+            zipBytes,
+            etag,
+            "application/zip",
+            _timeProvider.GetUtcNow());
     }
 
     private static byte[] BuildReadmeBytes(IReadOnlyList<EvidencePackEntry> sourceEntries)
@@ -93,8 +93,10 @@ public sealed class EvidencePackBuilder(
         readme.AppendLine();
         readme.AppendLine("## What is intentionally NOT included");
         readme.AppendLine();
-        readme.AppendLine("- The **redacted** pen-test summary (`docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`) — that artefact is V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10. Only the SoW (`PEN_TEST_SOW_2026_Q2.md`) is in this pack.");
-        readme.AppendLine("- The **PGP key** (`docs/security/PGP_KEY_GENERATION_RECIPE.md` is a recipe, not a key). Key publication is also V1.1.");
+        readme.AppendLine(
+            "- The **redacted** pen-test summary (`docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`) — that artefact is V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10. Only the SoW (`PEN_TEST_SOW_2026_Q2.md`) is in this pack.");
+        readme.AppendLine(
+            "- The **PGP key** (`docs/security/PGP_KEY_GENERATION_RECIPE.md` is a recipe, not a key). Key publication is also V1.1.");
         readme.AppendLine();
         readme.AppendLine("## Verifying the pack content");
         readme.AppendLine();
@@ -113,25 +115,29 @@ public sealed class EvidencePackBuilder(
         return Convert.ToHexString(digest, 0, 8).ToLowerInvariant();
     }
 
-    private static string DescribeEntry(string zipName) => zipName switch
+    private static string DescribeEntry(string zipName)
     {
-        "DPA-template.md" => "Data Processing Agreement template (`docs/go-to-market/DPA_TEMPLATE.md`).",
-        "SUBPROCESSORS.md" => "Subprocessors register (`docs/go-to-market/SUBPROCESSORS.md`).",
-        "SLA-summary.md" => "SLA summary (`docs/go-to-market/SLA_SUMMARY.md`).",
-        "security.txt" => "RFC 9116 security contact file (`archlucid-ui/public/.well-known/security.txt`).",
-        "CAIQ-Lite.md" => "CAIQ Lite pre-fill 2026 (`docs/security/CAIQ_LITE_2026.md`).",
-        "SIG-Core.md" => "SIG Core pre-fill 2026 (`docs/security/SIG_CORE_2026.md`).",
-        "OWNER_SECURITY_ASSESSMENT_2026_Q2.md" => "Owner-led security self-assessment (owner-conducted, not third-party audited).",
-        "PEN_TEST_SOW_2026_Q2.md" => "2026-Q2 pen-test Statement of Work (engagement in flight).",
-        "AUDIT_COVERAGE_MATRIX.md" => "Mapping of state-changing workflows to durable audit signals.",
-        _ => "(see file).",
-    };
+        return zipName switch
+        {
+            "DPA-template.md" => "Data Processing Agreement template (`docs/go-to-market/DPA_TEMPLATE.md`).",
+            "SUBPROCESSORS.md" => "Subprocessors register (`docs/go-to-market/SUBPROCESSORS.md`).",
+            "SLA-summary.md" => "SLA summary (`docs/go-to-market/SLA_SUMMARY.md`).",
+            "security.txt" => "RFC 9116 security contact file (`archlucid-ui/public/.well-known/security.txt`).",
+            "CAIQ-Lite.md" => "CAIQ Lite pre-fill 2026 (`docs/security/CAIQ_LITE_2026.md`).",
+            "SIG-Core.md" => "SIG Core pre-fill 2026 (`docs/security/SIG_CORE_2026.md`).",
+            "OWNER_SECURITY_ASSESSMENT_2026_Q2.md" =>
+                "Owner-led security self-assessment (owner-conducted, not third-party audited).",
+            "PEN_TEST_SOW_2026_Q2.md" => "2026-Q2 pen-test Statement of Work (engagement in flight).",
+            "AUDIT_COVERAGE_MATRIX.md" => "Mapping of state-changing workflows to durable audit signals.",
+            _ => "(see file)."
+        };
+    }
 
     private static byte[] WriteDeterministicZip(IReadOnlyList<EvidencePackEntry> entries)
     {
         using MemoryStream ms = new();
 
-        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, true))
         {
             foreach (EvidencePackEntry entry in entries)
             {

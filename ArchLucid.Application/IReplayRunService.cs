@@ -1,14 +1,14 @@
 namespace ArchLucid.Application;
 
 /// <summary>
-/// Replays an existing architecture run by re-executing its agents against cloned evidence,
-/// optionally committing the output as a new manifest version.
+///     Replays an existing architecture run by re-executing its agents against cloned evidence,
+///     optionally committing the output as a new manifest version.
 /// </summary>
 public interface IReplayRunService
 {
     /// <summary>
-    /// Creates a replay of <paramref name="originalRunId"/>, running agents under
-    /// <paramref name="executionMode"/> and returning the produced results (and optionally manifest).
+    ///     Creates a replay of <paramref name="originalRunId" />, running agents under
+    ///     <paramref name="executionMode" /> and returning the produced results (and optionally manifest).
     /// </summary>
     /// <exception cref="RunNotFoundException">Thrown when the original run does not exist.</exception>
     Task<ReplayRunResult> ReplayAsync(

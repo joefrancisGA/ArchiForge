@@ -12,8 +12,9 @@ using JetBrains.Annotations;
 namespace ArchLucid.Application.Evolution;
 
 /// <summary>
-/// Read-only simulation: one or two <see cref="IArchitectureAnalysisService.BuildAsync"/> passes with configurable flags.
-/// Never enables determinism checks, replay commits, or writes.
+///     Read-only simulation: one or two <see cref="IArchitectureAnalysisService.BuildAsync" /> passes with configurable
+///     flags.
+///     Never enables determinism checks, replay commits, or writes.
 /// </summary>
 public sealed class SimulationEngine(IArchitectureAnalysisService analysisService) : ISimulationEngine
 {
@@ -23,11 +24,12 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = false,
+        WriteIndented = false
     };
 
     /// <inheritdoc />
-    public async Task<SimulationResult> SimulateAsync(SimulationRequest request, CancellationToken cancellationToken = default)
+    public async Task<SimulationResult> SimulateAsync(SimulationRequest request,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(request.CandidateChangeSet);
@@ -59,7 +61,6 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
                     ToAnalysisRequest(request.BaselineArchitectureRunId, simulatedProfile),
                     cancellationToken);
 
-
         SimulationArtifactsSnapshot artifacts = BuildArtifacts(baselineReport, simulatedReport);
         SimulationDiff diff = BuildDiff(
             request.CandidateChangeSet,
@@ -79,7 +80,7 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
             Diff = diff,
             Artifacts = artifacts,
             Warnings = warnings,
-            CompletedUtc = DateTime.UtcNow,
+            CompletedUtc = DateTime.UtcNow
         };
     }
 
@@ -97,7 +98,7 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
             IncludeManifestCompare = profile.IncludeManifestCompare,
             CompareManifestVersion = profile.CompareManifestVersion,
             IncludeAgentResultCompare = profile.IncludeAgentResultCompare,
-            CompareRunId = profile.CompareRunId,
+            CompareRunId = profile.CompareRunId
         };
     }
 
@@ -117,7 +118,7 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
             BaselineSummaryLength = baselineSummary?.Length ?? 0,
             SimulatedSummaryLength = simulatedSummary?.Length ?? 0,
             BaselineSummaryPreview = TruncatePreview(baselineSummary),
-            SimulatedSummaryPreview = TruncatePreview(simulatedSummary),
+            SimulatedSummaryPreview = TruncatePreview(simulatedSummary)
         };
     }
 
@@ -125,7 +126,6 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
     {
         if (string.IsNullOrEmpty(text))
             return null;
-
 
         return text.Length <= SummaryPreviewMaxChars ? text : text.Substring(0, SummaryPreviewMaxChars);
     }
@@ -142,26 +142,22 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         string summary = BuildDiffSummary(singlePass, baseline, simulated, manifestDiff);
 
         SimulationDiffDetailDto detail = new(
-            CandidateChangeSetId: candidate.ChangeSetId.ToString("D"),
-            BaselineRunId: baselineRunId,
-            SinglePass: singlePass,
-            BaselineWarningCount: baseline.Warnings.Count,
-            SimulatedWarningCount: simulated.Warnings.Count,
-            BaselineSummaryLength: baseline.Summary?.Length ?? 0,
-            SimulatedSummaryLength: simulated.Summary?.Length ?? 0,
-            HadManifestDiff: manifestDiff is not null,
-            ManifestAddedServices: manifestDiff?.AddedServices.Count,
-            ManifestRemovedServices: manifestDiff?.RemovedServices.Count,
-            ManifestAddedDatastores: manifestDiff?.AddedDatastores.Count,
-            ManifestRemovedDatastores: manifestDiff?.RemovedDatastores.Count);
+            candidate.ChangeSetId.ToString("D"),
+            baselineRunId,
+            singlePass,
+            baseline.Warnings.Count,
+            simulated.Warnings.Count,
+            baseline.Summary?.Length ?? 0,
+            simulated.Summary?.Length ?? 0,
+            manifestDiff is not null,
+            manifestDiff?.AddedServices.Count,
+            manifestDiff?.RemovedServices.Count,
+            manifestDiff?.AddedDatastores.Count,
+            manifestDiff?.RemovedDatastores.Count);
 
         string detailJson = JsonSerializer.Serialize(detail, JsonOptions);
 
-        return new SimulationDiff
-        {
-            Summary = summary,
-            DetailJson = detailJson,
-        };
+        return new SimulationDiff { Summary = summary, DetailJson = detailJson };
     }
 
     private static string BuildDiffSummary(
@@ -177,7 +173,6 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
                 "Single read-only pass: warnings={0}, summary length={1}.",
                 baseline.Warnings.Count,
                 baseline.Summary?.Length ?? 0);
-
 
         string manifestLine = manifestDiff is null
             ? "No manifest diff in simulated pass."
@@ -207,9 +202,7 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
 
         return new EvaluationScore
         {
-            SimulationScore = simulationScore,
-            DeterminismScore = null,
-            RegressionRiskScore = regressionRisk,
+            SimulationScore = simulationScore, DeterminismScore = null, RegressionRiskScore = regressionRisk
         };
     }
 
@@ -225,7 +218,6 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         if (singlePass)
             return Math.Max(0, 1.0 - Math.Min(1.0, baselineWarnings / 20.0));
 
-
         int delta = baselineWarnings - simulatedWarnings;
 
         return Math.Clamp(0.5 + delta * 0.05, 0, 1);
@@ -236,7 +228,6 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         if (diff is null)
             return null;
 
-
         int removals =
             diff.RemovedServices.Count +
             diff.RemovedDatastores.Count +
@@ -245,7 +236,6 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
 
         if (removals == 0)
             return 0;
-
 
         return Math.Min(1.0, removals / 10.0);
     }
@@ -258,18 +248,15 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         if (singlePass)
             return [.. baseline.Warnings];
 
-
         List<string> merged = [];
 
         foreach (string w in baseline.Warnings)
 
             merged.Add(string.Concat("Baseline: ", w));
 
-
         foreach (string w in simulated.Warnings)
 
             merged.Add(string.Concat("Simulated: ", w));
-
 
         return merged;
     }

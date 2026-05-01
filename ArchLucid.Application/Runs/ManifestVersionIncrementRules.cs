@@ -3,12 +3,12 @@ using ArchLucid.Contracts.Metadata;
 namespace ArchLucid.Application.Runs;
 
 /// <summary>
-/// Pure helpers for manifest version strings used at commit time (extracted for unit/property testing).
+///     Pure helpers for manifest version strings used at commit time (extracted for unit/property testing).
 /// </summary>
 internal static class ManifestVersionIncrementRules
 {
     /// <summary>
-    /// Parses a <c>vN</c> manifest version string and returns <c>v(N+1)</c>.
+    ///     Parses a <c>vN</c> manifest version string and returns <c>v(N+1)</c>.
     /// </summary>
     internal static string IncrementManifestVersion(string currentVersion)
     {
@@ -25,13 +25,15 @@ internal static class ManifestVersionIncrementRules
     }
 
     /// <summary>
-    /// Version string used when persisting a new committed manifest for <paramref name="run"/>.
+    ///     Version string used when persisting a new committed manifest for <paramref name="run" />.
     /// </summary>
     internal static string BuildManifestVersionForCommit(ArchitectureRun run, string runId)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        return string.IsNullOrWhiteSpace(run.CurrentManifestVersion) ? $"v1-{runId}" : IncrementManifestVersion(run.CurrentManifestVersion);
+        return string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+            ? $"v1-{runId}"
+            : IncrementManifestVersion(run.CurrentManifestVersion);
     }
 }

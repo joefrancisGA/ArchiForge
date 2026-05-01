@@ -1,11 +1,11 @@
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Generates a Docx-format comparison drift report from a <see cref="DriftAnalysisResult"/>.
+///     Generates a Docx-format comparison drift report from a <see cref="DriftAnalysisResult" />.
 /// </summary>
 /// <remarks>
-/// Uses <see cref="OpenXmlDocxDocumentBuilder"/> to produce a structured document with a
-/// header, drift summary, and a differences table where applicable.
+///     Uses <see cref="OpenXmlDocxDocumentBuilder" /> to produce a structured document with a
+///     header, drift summary, and a differences table where applicable.
 /// </remarks>
 public sealed class DriftReportDocxExport : IDriftReportDocxExport
 {
@@ -21,6 +21,7 @@ public sealed class DriftReportDocxExport : IDriftReportDocxExport
             builder.AddParagraph($"Comparison record: {comparisonRecordId}");
             builder.AddSpacer();
         }
+
         builder.AddParagraph($"Drift detected: {(drift.DriftDetected ? "Yes" : "No")}");
         if (!string.IsNullOrWhiteSpace(drift.Summary))
             builder.AddParagraph(drift.Summary);
@@ -31,7 +32,7 @@ public sealed class DriftReportDocxExport : IDriftReportDocxExport
 
         foreach (DriftItem item in drift.Items)
         {
-            builder.AddParagraph($"{item.Category} — {item.Path}", bold: true);
+            builder.AddParagraph($"{item.Category} — {item.Path}", true);
             if (!string.IsNullOrEmpty(item.Description))
                 builder.AddParagraph(item.Description);
 
@@ -43,6 +44,7 @@ public sealed class DriftReportDocxExport : IDriftReportDocxExport
             if (item.RegeneratedValue is not null)
                 builder.AddBullet($"Regenerated: {item.RegeneratedValue}");
         }
+
         builder.AddSpacer();
         return builder.Build();
     }

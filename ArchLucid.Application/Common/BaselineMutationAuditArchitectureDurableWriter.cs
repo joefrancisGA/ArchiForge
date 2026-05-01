@@ -51,7 +51,7 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new { runId = entityId, reason = details }),
+                        DataJson = JsonSerializer.Serialize(new { runId = entityId, reason = details })
                     };
 
                     await auditService.LogAsync(failed, ct);
@@ -84,11 +84,7 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new
-                        {
-                            requestId,
-                            systemName
-                        }),
+                        DataJson = JsonSerializer.Serialize(new { requestId, systemName })
                     };
 
                     await auditService.LogAsync(created, ct);
@@ -117,10 +113,7 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new
-                        {
-                            runId = entityId
-                        }),
+                        DataJson = JsonSerializer.Serialize(new { runId = entityId })
                     };
 
                     await auditService.LogAsync(executeStarted, ct);
@@ -132,7 +125,8 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
             return;
         }
 
-        if (string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, StringComparison.Ordinal))
+        if (string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded,
+                StringComparison.Ordinal))
         {
             await DurableAuditLogRetry.TryLogAsync(
                 async ct =>
@@ -150,11 +144,7 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
-                        DataJson = JsonSerializer.Serialize(new
-                        {
-                            runId = entityId,
-                            resultCount
-                        }),
+                        DataJson = JsonSerializer.Serialize(new { runId = entityId, resultCount })
                     };
 
                     await auditService.LogAsync(executeSucceeded, ct);
@@ -180,12 +170,7 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                     string? commitPath = GetDetailOrNull(kv, "CommitPath");
 
                     string commitJson = string.IsNullOrWhiteSpace(commitPath)
-                        ? JsonSerializer.Serialize(new
-                        {
-                            runId = entityId,
-                            manifestVersion,
-                            systemName
-                        })
+                        ? JsonSerializer.Serialize(new { runId = entityId, manifestVersion, systemName })
                         : JsonSerializer.Serialize(
                             new
                             {
@@ -193,7 +178,7 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                                 manifestVersion,
                                 systemName,
                                 warningCount,
-                                commitPath,
+                                commitPath
                             });
 
                     AuditEvent commitCompleted = new()
@@ -205,7 +190,7 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
                         WorkspaceId = scope.WorkspaceId,
                         ProjectId = scope.ProjectId,
                         RunId = runGuid,
-                        DataJson = commitJson,
+                        DataJson = commitJson
                     };
 
                     await auditService.LogAsync(commitCompleted, ct);
@@ -233,7 +218,8 @@ internal static class BaselineMutationAuditArchitectureDurableWriter
         if (string.IsNullOrWhiteSpace(details))
             return map;
 
-        foreach (string segment in details.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        foreach (string segment in details.Split(';',
+                     StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
         {
             int eq = segment.IndexOf('=');
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Common;
 
-/// <inheritdoc cref="IBaselineMutationAuditService"/>
+/// <inheritdoc cref="IBaselineMutationAuditService" />
 public sealed class BaselineMutationAuditService(
     ILogger<BaselineMutationAuditService> logger,
     IAuditService auditService,
@@ -36,7 +36,8 @@ public sealed class BaselineMutationAuditService(
                 LogSanitizer.Sanitize(eventType),
                 LogSanitizer.Sanitize(actor),
                 LogSanitizer.Sanitize(entityId),
-                LogSanitizer.Sanitize(safeDetails)); // codeql[cs/log-forging]: string placeholders sanitized via LogSanitizer; details length-capped in TruncateDetails.
+                LogSanitizer
+                    .Sanitize(safeDetails)); // codeql[cs/log-forging]: string placeholders sanitized via LogSanitizer; details length-capped in TruncateDetails.
         }
 
         if (!IsArchitectureBaselineMutationEvent(eventType))
@@ -71,12 +72,16 @@ public sealed class BaselineMutationAuditService(
         }
     }
 
-    private static bool IsArchitectureBaselineMutationEvent(string eventType) =>
-        string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunFailed, StringComparison.Ordinal)
-        || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunCreated, StringComparison.Ordinal)
-        || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunStarted, StringComparison.Ordinal)
-        || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, StringComparison.Ordinal)
-        || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunCompleted, StringComparison.Ordinal);
+    private static bool IsArchitectureBaselineMutationEvent(string eventType)
+    {
+        return string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunFailed, StringComparison.Ordinal)
+               || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunCreated, StringComparison.Ordinal)
+               || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunStarted, StringComparison.Ordinal)
+               || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded,
+                   StringComparison.Ordinal)
+               || string.Equals(eventType, AuditEventTypes.Baseline.Architecture.RunCompleted,
+                   StringComparison.Ordinal);
+    }
 
     private static string TruncateDetails(string? details)
     {

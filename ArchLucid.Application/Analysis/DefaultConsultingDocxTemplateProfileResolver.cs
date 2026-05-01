@@ -1,12 +1,12 @@
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Built-in implementation of <see cref="IConsultingDocxTemplateProfileResolver"/> that
-/// returns the four standard consulting template profiles.
+///     Built-in implementation of <see cref="IConsultingDocxTemplateProfileResolver" /> that
+///     returns the four standard consulting template profiles.
 /// </summary>
 /// <remarks>
-/// Profile names match the constants in <see cref="ConsultingDocxProfiles"/>. Replace or
-/// extend this resolver via DI when custom profiles are needed.
+///     Profile names match the constants in <see cref="ConsultingDocxProfiles" />. Replace or
+///     extend this resolver via DI when custom profiles are needed.
 /// </remarks>
 public sealed class DefaultConsultingDocxTemplateProfileResolver : IConsultingDocxTemplateProfileResolver
 {

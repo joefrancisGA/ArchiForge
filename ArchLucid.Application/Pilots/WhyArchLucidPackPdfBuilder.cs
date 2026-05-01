@@ -1,3 +1,4 @@
+using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -7,18 +8,19 @@ using QuestPdfDocument = QuestPDF.Fluent.Document;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-/// PDF projection for <see cref="WhyArchLucidPackBuilder"/> Markdown — same QuestPDF + <see cref="MarkdownPdfRenderer"/>
-/// stack as <see cref="FirstValueReportPdfBuilder"/>.
+///     PDF projection for <see cref="WhyArchLucidPackBuilder" /> Markdown — same QuestPDF +
+///     <see cref="MarkdownPdfRenderer" />
+///     stack as <see cref="FirstValueReportPdfBuilder" />.
 /// </summary>
 public sealed class WhyArchLucidPackPdfBuilder
 {
-    /// <summary>Serializes <paramref name="markdown"/> to PDF bytes (single flowing document).</summary>
+    /// <summary>Serializes <paramref name="markdown" /> to PDF bytes (single flowing document).</summary>
     public byte[] Build(string markdown)
     {
         if (markdown is null)
             throw new ArgumentNullException(nameof(markdown));
 
-        QuestPDF.Settings.License = LicenseType.Community;
+        Settings.License = LicenseType.Community;
 
         QuestPdfDocument doc = QuestPdfDocument.Create(container =>
         {

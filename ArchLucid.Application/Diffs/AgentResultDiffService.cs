@@ -4,14 +4,14 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.Application.Diffs;
 
 /// <summary>
-/// Compares two sets of <see cref="AgentResult"/> objects (one per run) and produces a per-agent-type diff
-/// covering claims, findings, evidence references, required controls, and warnings.
+///     Compares two sets of <see cref="AgentResult" /> objects (one per run) and produces a per-agent-type diff
+///     covering claims, findings, evidence references, required controls, and warnings.
 /// </summary>
 public sealed class AgentResultDiffService : IAgentResultDiffService
 {
     /// <summary>
-    /// Produces an <see cref="AgentResultDiffResult"/> describing the differences between the latest
-    /// result for each agent type across the two runs.
+    ///     Produces an <see cref="AgentResultDiffResult" /> describing the differences between the latest
+    ///     result for each agent type across the two runs.
     /// </summary>
     public AgentResultDiffResult Compare(
         string leftRunId,
@@ -24,11 +24,7 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         ArgumentNullException.ThrowIfNull(leftResults);
         ArgumentNullException.ThrowIfNull(rightResults);
 
-        AgentResultDiffResult result = new()
-        {
-            LeftRunId = leftRunId,
-            RightRunId = rightRunId
-        };
+        AgentResultDiffResult result = new() { LeftRunId = leftRunId, RightRunId = rightRunId };
 
         List<AgentType> allAgentTypes = leftResults.Select(r => r.AgentType)
             .Union(rightResults.Select(r => r.AgentType))
@@ -55,12 +51,11 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
 
             result.Warnings.Add("No agent results were available to compare.");
 
-
         return result;
     }
 
     /// <summary>
-    /// Builds the per-agent-type delta by diffing claims, evidence refs, findings, required controls, and warnings.
+    ///     Builds the per-agent-type delta by diffing claims, evidence refs, findings, required controls, and warnings.
     /// </summary>
     private static AgentResultDelta BuildDelta(
         AgentType agentType,
@@ -82,8 +77,10 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         List<string> leftEvidence = left?.EvidenceRefs ?? [];
         List<string> rightEvidence = right?.EvidenceRefs ?? [];
 
-        List<string> leftFindings = left?.Findings.Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
-        List<string> rightFindings = right?.Findings.Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
+        List<string> leftFindings =
+            left?.Findings.Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
+        List<string> rightFindings =
+            right?.Findings.Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
 
         List<string> leftControls = left?.ProposedChanges?.RequiredControls ?? [];
         List<string> rightControls = right?.ProposedChanges?.RequiredControls ?? [];

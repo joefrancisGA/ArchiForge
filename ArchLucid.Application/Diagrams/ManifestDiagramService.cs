@@ -5,9 +5,9 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
-/// Generates a Mermaid flowchart from a <see cref="GoldenManifest"/> with configurable layout,
-/// relationship labels, and optional subgraph grouping via <see cref="ManifestDiagramOptions"/>.
-/// Produces collision-safe, sanitized node IDs for all services and datastores.
+///     Generates a Mermaid flowchart from a <see cref="GoldenManifest" /> with configurable layout,
+///     relationship labels, and optional subgraph grouping via <see cref="ManifestDiagramOptions" />.
+///     Produces collision-safe, sanitized node IDs for all services and datastores.
 /// </summary>
 public sealed class ManifestDiagramService : IManifestDiagramService
 {
@@ -37,7 +37,8 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
             if (groupBy == ManifestDiagramConstants.GroupByNone)
 
-                foreach (ManifestService service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
+                foreach (ManifestService service in services.OrderBy(s => s.ServiceName,
+                             StringComparer.OrdinalIgnoreCase))
                 {
                     string nodeId = GetOrCreateNodeId("svc", service.ServiceId, service.ServiceName);
                     string label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
@@ -61,12 +62,13 @@ public sealed class ManifestDiagramService : IManifestDiagramService
                         string label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
                         sb.AppendLine($"        {nodeId}[\"{EscapeLabel(label)}\"]");
                     }
+
                     sb.AppendLine("    end");
                 }
             }
 
-
-        foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
+        foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName,
+                     StringComparer.OrdinalIgnoreCase))
         {
             string nodeId = GetOrCreateNodeId("ds", datastore.DatastoreId, datastore.DatastoreName);
             string label = BuildDatastoreLabel(datastore, options.IncludeRuntimePlatform);
@@ -141,7 +143,8 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             return null;
 
         string datastoreKey = $"ds:{ds.DatastoreId}";
-        if (!string.IsNullOrWhiteSpace(ds.DatastoreId) && nodeIds.TryGetValue(datastoreKey, out string? datastoreNodeId))
+        if (!string.IsNullOrWhiteSpace(ds.DatastoreId) &&
+            nodeIds.TryGetValue(datastoreKey, out string? datastoreNodeId))
             return datastoreNodeId;
         return SanitizeId(string.IsNullOrWhiteSpace(ds.DatastoreId) ? ds.DatastoreName : ds.DatastoreId);
     }
@@ -182,9 +185,15 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         return guidCandidate;
     }
 
-    private static string SanitizeId(string value) => DiagramIdSanitizer.Sanitize(value);
+    private static string SanitizeId(string value)
+    {
+        return DiagramIdSanitizer.Sanitize(value);
+    }
 
-    private static string EscapeLabel(string value) => value.Replace("\"", "\\\"");
+    private static string EscapeLabel(string value)
+    {
+        return value.Replace("\"", "\\\"");
+    }
 
     private static string NormalizeLayout(string? value)
     {
@@ -217,4 +226,3 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         };
     }
 }
-

@@ -4,15 +4,15 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Determines whether a governance review is a self-approval for segregation-of-duties purposes:
-/// matches Entra JWT canonical keys when present, otherwise compares display names (legacy / API key).
+///     Determines whether a governance review is a self-approval for segregation-of-duties purposes:
+///     matches Entra JWT canonical keys when present, otherwise compares display names (legacy / API key).
 /// </summary>
 public static class GovernanceSegregationRules
 {
     /// <summary>
-    /// Returns <see langword="true"/> when the reviewer is the same logical actor as the submitter.
-    /// When both sides carry <see cref="ActorContext.JwtActorKeyPrefix"/> keys, compares those; otherwise
-    /// compares <see cref="GovernanceApprovalRequest.RequestedBy"/> to <paramref name="reviewedByDisplay"/>.
+    ///     Returns <see langword="true" /> when the reviewer is the same logical actor as the submitter.
+    ///     When both sides carry <see cref="ActorContext.JwtActorKeyPrefix" /> keys, compares those; otherwise
+    ///     compares <see cref="GovernanceApprovalRequest.RequestedBy" /> to <paramref name="reviewedByDisplay" />.
     /// </summary>
     public static bool IsSameActorForReview(
         GovernanceApprovalRequest request,
@@ -29,11 +29,12 @@ public static class GovernanceSegregationRules
         if (requestJwt && reviewerJwt)
             return string.Equals(request.RequestedByActorKey, reviewedByActorKey, StringComparison.OrdinalIgnoreCase);
 
-
         return string.Equals(request.RequestedBy, reviewedByDisplay, StringComparison.OrdinalIgnoreCase);
     }
 
-    internal static bool LooksLikeJwtCanonicalActorKey(string? key) =>
-        !string.IsNullOrWhiteSpace(key) &&
-        key.StartsWith(ActorContext.JwtActorKeyPrefix, StringComparison.Ordinal);
+    internal static bool LooksLikeJwtCanonicalActorKey(string? key)
+    {
+        return !string.IsNullOrWhiteSpace(key) &&
+               key.StartsWith(ActorContext.JwtActorKeyPrefix, StringComparison.Ordinal);
+    }
 }

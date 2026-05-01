@@ -2,10 +2,13 @@ using System.Globalization;
 
 namespace ArchLucid.Application.Pilots;
 
-/// <summary>Resolves inclusive UTC quarter windows for <see cref="BoardPackPdfBuilder"/>.</summary>
+/// <summary>Resolves inclusive UTC quarter windows for <see cref="BoardPackPdfBuilder" />.</summary>
 public static class BoardPackQuarterWindow
 {
-    /// <summary>Returns UTC half-open window <c>[start, end)</c> for the calendar quarter, or overridden bounds when both are set.</summary>
+    /// <summary>
+    ///     Returns UTC half-open window <c>[start, end)</c> for the calendar quarter, or overridden bounds when both are
+    ///     set.
+    /// </summary>
     public static (DateTimeOffset StartUtc, DateTimeOffset EndUtc) Resolve(
         int year,
         int quarter,
@@ -14,7 +17,10 @@ public static class BoardPackQuarterWindow
     {
         if (overrideStartUtc is { } os && overrideEndUtc is { } oe)
         {
-            return oe <= os ? throw new ArgumentOutOfRangeException(nameof(overrideEndUtc), "Override window end must be after start.") : (os, oe);
+            return oe <= os
+                ? throw new ArgumentOutOfRangeException(nameof(overrideEndUtc),
+                    "Override window end must be after start.")
+                : (os, oe);
         }
 
         if (year is < 2000 or > 2100)
@@ -30,7 +36,10 @@ public static class BoardPackQuarterWindow
         return (start, end);
     }
 
-    /// <summary>Pick one ISO week inside the quarter (mid-quarter anchor) for <see cref="ExecDigest.ExecDigestComposer"/> reuse.</summary>
+    /// <summary>
+    ///     Pick one ISO week inside the quarter (mid-quarter anchor) for <see cref="ExecDigest.ExecDigestComposer" />
+    ///     reuse.
+    /// </summary>
     public static (DateTime WeekStartUtcInclusive, DateTime WeekEndUtcExclusive) DigestWeekInsideQuarter(
         DateTimeOffset quarterStartUtc,
         DateTimeOffset quarterEndUtc)
@@ -40,7 +49,8 @@ public static class BoardPackQuarterWindow
         DateTime refDay = DateTime.SpecifyKind(mid.UtcDateTime.Date, DateTimeKind.Utc);
         int isoYear = ISOWeek.GetYear(refDay);
         int isoWeek = ISOWeek.GetWeekOfYear(refDay);
-        DateTime weekStartUtc = DateTime.SpecifyKind(ISOWeek.ToDateTime(isoYear, isoWeek, DayOfWeek.Monday), DateTimeKind.Utc);
+        DateTime weekStartUtc =
+            DateTime.SpecifyKind(ISOWeek.ToDateTime(isoYear, isoWeek, DayOfWeek.Monday), DateTimeKind.Utc);
         DateTime weekEndUtc = weekStartUtc.AddDays(7);
 
         return (weekStartUtc, weekEndUtc);

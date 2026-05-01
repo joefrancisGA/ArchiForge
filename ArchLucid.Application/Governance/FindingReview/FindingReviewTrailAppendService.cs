@@ -13,11 +13,11 @@ public sealed class FindingReviewTrailAppendService(
     IFindingReviewTrailRepository trailRepository,
     IAuditService auditService) : IFindingReviewTrailAppendService
 {
-    private readonly IFindingReviewTrailRepository _trailRepository =
-        trailRepository ?? throw new ArgumentNullException(nameof(trailRepository));
-
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IFindingReviewTrailRepository _trailRepository =
+        trailRepository ?? throw new ArgumentNullException(nameof(trailRepository));
 
     /// <inheritdoc />
     public async Task AppendAsync(FindingReviewEventRecord reviewEvent, CancellationToken cancellationToken = default)
@@ -45,9 +45,9 @@ public sealed class FindingReviewTrailAppendService(
                         reviewEvent.FindingId,
                         reviewEvent.Action,
                         reviewEvent.Notes,
-                        reviewEvent.OccurredAtUtc,
+                        reviewEvent.OccurredAtUtc
                     },
-                    AuditJsonSerializationOptions.Instance),
+                    AuditJsonSerializationOptions.Instance)
             },
             cancellationToken);
     }

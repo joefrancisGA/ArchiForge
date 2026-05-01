@@ -4,7 +4,7 @@ using RazorLight;
 
 namespace ArchLucid.Application.Notifications.Email;
 
-/// <summary>Renders embedded Razor (<c>.cshtml</c>) views shipped with <see cref="ArchLucid.Application"/>.</summary>
+/// <summary>Renders embedded Razor (<c>.cshtml</c>) views shipped with <see cref="ArchLucid.Application" />.</summary>
 public sealed class RazorLightEmailTemplateRenderer : IEmailTemplateRenderer
 {
     private static readonly Regex StripTags = new("<[^>]+>", RegexOptions.Compiled);
@@ -35,9 +35,10 @@ public sealed class RazorLightEmailTemplateRenderer : IEmailTemplateRenderer
     /// <summary>Visible for template snapshot tests.</summary>
     internal static string TemplateKey(string templateId)
     {
-        return string.IsNullOrWhiteSpace(templateId) ? throw new ArgumentException("Template id is required.", nameof(templateId)) :
+        return string.IsNullOrWhiteSpace(templateId)
+            ? throw new ArgumentException("Template id is required.", nameof(templateId))
+            :
             // RazorLight resolves views relative to <see cref="EmailTemplateAnchor"/>'s namespace (ArchLucid.Application.Notifications.Email).
             $"Templates.{templateId.Trim()}.cshtml";
     }
-
 }

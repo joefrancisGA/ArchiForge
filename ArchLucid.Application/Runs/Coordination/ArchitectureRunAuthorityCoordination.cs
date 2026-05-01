@@ -58,7 +58,6 @@ public sealed class ArchitectureRunAuthorityCoordination(
                     request.SystemName,
                     string.Join("; ", validationErrors));
 
-
             return output;
         }
 
@@ -100,7 +99,6 @@ public sealed class ArchitectureRunAuthorityCoordination(
                 evidenceBundle.EvidenceBundleId,
                 deferred);
 
-
         return output;
     }
 
@@ -121,7 +119,6 @@ public sealed class ArchitectureRunAuthorityCoordination(
                     "Authority run header {RunId} not found for lifecycle patch (RequestId={RequestId}).",
                     authorityRunId,
                     LogSanitizer.Sanitize(requestId));
-
 
             return;
         }

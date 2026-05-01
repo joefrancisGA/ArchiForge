@@ -4,7 +4,8 @@ using ArchLucid.Core.Tenancy;
 namespace ArchLucid.Application.Tenancy;
 
 /// <summary>
-/// Reserves a trial seat for the authenticated principal on first use per tenant (idempotent per tenant + principal key).
+///     Reserves a trial seat for the authenticated principal on first use per tenant (idempotent per tenant + principal
+///     key).
 /// </summary>
 public sealed class TrialSeatAccountant(ITenantRepository tenantRepository)
 {
@@ -12,7 +13,7 @@ public sealed class TrialSeatAccountant(ITenantRepository tenantRepository)
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     /// <summary>
-    /// Attempts to claim a seat for <paramref name="principalKey"/> when the tenant is on a metered active trial.
+    ///     Attempts to claim a seat for <paramref name="principalKey" /> when the tenant is on a metered active trial.
     /// </summary>
     public Task TryReserveSeatAsync(ScopeContext scope, string principalKey, CancellationToken cancellationToken)
     {
@@ -21,6 +22,8 @@ public sealed class TrialSeatAccountant(ITenantRepository tenantRepository)
         if (scope.TenantId == Guid.Empty)
             return Task.CompletedTask;
 
-        return string.IsNullOrWhiteSpace(principalKey) ? Task.CompletedTask : _tenantRepository.TryClaimTrialSeatAsync(scope.TenantId, principalKey, cancellationToken);
+        return string.IsNullOrWhiteSpace(principalKey)
+            ? Task.CompletedTask
+            : _tenantRepository.TryClaimTrialSeatAsync(scope.TenantId, principalKey, cancellationToken);
     }
 }

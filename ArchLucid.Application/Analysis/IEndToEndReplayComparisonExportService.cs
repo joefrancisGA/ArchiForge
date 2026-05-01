@@ -16,4 +16,3 @@ public interface IEndToEndReplayComparisonExportService
         CancellationToken cancellationToken = default,
         string? profile = null);
 }
-

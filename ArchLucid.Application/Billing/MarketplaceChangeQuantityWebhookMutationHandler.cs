@@ -9,7 +9,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Billing;
 
-/// <summary>Maps Marketplace <c>ChangeQuantity</c> payloads to <see cref="IBillingLedger.ChangeQuantityAsync"/> when GA is enabled.</summary>
+/// <summary>
+///     Maps Marketplace <c>ChangeQuantity</c> payloads to <see cref="IBillingLedger.ChangeQuantityAsync" /> when GA
+///     is enabled.
+/// </summary>
 public sealed class MarketplaceChangeQuantityWebhookMutationHandler(
     IOptionsMonitor<BillingOptions> billingOptions,
     IBillingLedger ledger,

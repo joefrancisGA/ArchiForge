@@ -9,12 +9,14 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Application.Runs;
 
 /// <summary>
-/// Loads <see cref="ArchitectureRun"/> from <see cref="IRunRepository"/> within the current <see cref="ScopeContext"/>.
+///     Loads <see cref="ArchitectureRun" /> from <see cref="IRunRepository" /> within the current
+///     <see cref="ScopeContext" />.
 /// </summary>
 public static class ArchitectureRunAuthorityReader
 {
     /// <summary>
-    /// Returns <see langword="null"/> when <paramref name="runId"/> is not a GUID, the run is outside scope, or it is archived.
+    ///     Returns <see langword="null" /> when <paramref name="runId" /> is not a GUID, the run is outside scope, or it is
+    ///     archived.
     /// </summary>
     public static async Task<ArchitectureRun?> TryGetArchitectureRunAsync(
         IRunRepository runRepository,

@@ -16,8 +16,9 @@ public sealed class TrialArchitecturePreseedExecutor(
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     ILogger<TrialArchitecturePreseedExecutor> logger)
 {
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+    private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
+        architectureRunCommitOrchestrator ??
+        throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
 
     private readonly IArchitectureRunCreateOrchestrator _architectureRunCreateOrchestrator =
         architectureRunCreateOrchestrator ??
@@ -27,12 +28,11 @@ public sealed class TrialArchitecturePreseedExecutor(
         architectureRunExecuteOrchestrator ??
         throw new ArgumentNullException(nameof(architectureRunExecuteOrchestrator));
 
-    private readonly IArchitectureRunCommitOrchestrator _architectureRunCommitOrchestrator =
-        architectureRunCommitOrchestrator ??
-        throw new ArgumentNullException(nameof(architectureRunCommitOrchestrator));
-
     private readonly ILogger<TrialArchitecturePreseedExecutor> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     public async Task TryProcessTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
@@ -48,9 +48,7 @@ public sealed class TrialArchitecturePreseedExecutor(
 
         ScopeContext scope = new()
         {
-            TenantId = tenantId,
-            WorkspaceId = link.WorkspaceId,
-            ProjectId = link.DefaultProjectId,
+            TenantId = tenantId, WorkspaceId = link.WorkspaceId, ProjectId = link.DefaultProjectId
         };
 
         using (SqlRowLevelSecurityBypassAmbient.Enter())
@@ -59,7 +57,7 @@ public sealed class TrialArchitecturePreseedExecutor(
             ArchitectureRequest request = BuildRequest(tenantId);
 
             CreateRunResult created =
-                await _architectureRunCreateOrchestrator.CreateRunAsync(request, idempotency: null, cancellationToken);
+                await _architectureRunCreateOrchestrator.CreateRunAsync(request, null, cancellationToken);
 
             string runId = created.Run.RunId;
 
@@ -70,12 +68,14 @@ public sealed class TrialArchitecturePreseedExecutor(
             if (!Guid.TryParseExact(runId, "N", out Guid welcomeRunId))
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError("Trial pre-seed produced non-Guid run id {RunId} for tenant {TenantId}.", runId, tenantId);
+                    _logger.LogError("Trial pre-seed produced non-Guid run id {RunId} for tenant {TenantId}.", runId,
+                        tenantId);
 
                 return;
             }
 
-            await _tenantRepository.MarkTrialArchitecturePreseedCompletedAsync(tenantId, welcomeRunId, cancellationToken);
+            await _tenantRepository.MarkTrialArchitecturePreseedCompletedAsync(tenantId, welcomeRunId,
+                cancellationToken);
 
             if (_logger.IsEnabled(LogLevel.Information))
             {
@@ -101,7 +101,7 @@ public sealed class TrialArchitecturePreseedExecutor(
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
             Constraints = ["Private connectivity", "Managed identity"],
-            RequiredCapabilities = ["Azure SQL", "App Service or Container Apps"],
+            RequiredCapabilities = ["Azure SQL", "App Service or Container Apps"]
         };
     }
 }

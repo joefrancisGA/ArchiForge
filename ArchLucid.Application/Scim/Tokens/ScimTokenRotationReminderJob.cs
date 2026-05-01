@@ -12,19 +12,22 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Scim.Tokens;
 
-/// <summary>Daily posture scan that warns when active SCIM tokens exceed <see cref="ScimOptions.TokenRotationReminderDays"/>.</summary>
+/// <summary>
+///     Daily posture scan that warns when active SCIM tokens exceed
+///     <see cref="ScimOptions.TokenRotationReminderDays" />.
+/// </summary>
 public sealed class ScimTokenRotationReminderJob(
     IServiceScopeFactory scopeFactory,
     IOptions<ScimOptions> options,
     ILogger<ScimTokenRotationReminderJob> logger) : BackgroundService
 {
-    private readonly IServiceScopeFactory _scopeFactory =
-        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+    private readonly ILogger<ScimTokenRotationReminderJob> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly IOptions<ScimOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
 
-    private readonly ILogger<ScimTokenRotationReminderJob> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -73,16 +76,15 @@ public sealed class ScimTokenRotationReminderJob(
         if (reminderDays <= 0)
             return;
 
-
         DateTimeOffset cutoffUtc = DateTimeOffset.UtcNow.AddDays(-reminderDays);
 
         using IServiceScope scope = _scopeFactory.CreateScope();
         IScimTenantTokenRepository tokens = scope.ServiceProvider.GetRequiredService<IScimTenantTokenRepository>();
-        IAdminNotificationsRepository notices = scope.ServiceProvider.GetRequiredService<IAdminNotificationsRepository>();
+        IAdminNotificationsRepository notices =
+            scope.ServiceProvider.GetRequiredService<IAdminNotificationsRepository>();
 
         IReadOnlyList<ScimTokenRotationCandidate> due =
             await tokens.ListActiveCreatedOnOrBeforeAsync(cutoffUtc, ct).ConfigureAwait(false);
-
 
         foreach (ScimTokenRotationCandidate row in due)
         {

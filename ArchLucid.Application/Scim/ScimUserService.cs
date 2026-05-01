@@ -20,13 +20,13 @@ public sealed class ScimUserService(
 {
     internal const string ManualResolvedRoleFlatPath = "manualResolvedRole";
 
-    private readonly IScimUserRepository _users = users ?? throw new ArgumentNullException(nameof(users));
-
-    private readonly ITenantRepository _tenants = tenants ?? throw new ArgumentNullException(nameof(tenants));
+    private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
 
     private readonly IGroupToRoleMapper _roleMapper = roleMapper ?? throw new ArgumentNullException(nameof(roleMapper));
 
-    private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
+    private readonly ITenantRepository _tenants = tenants ?? throw new ArgumentNullException(nameof(tenants));
+
+    private readonly IScimUserRepository _users = users ?? throw new ArgumentNullException(nameof(users));
 
     /// <inheritdoc />
     public async Task<(IReadOnlyList<ScimUserRecord> items, int totalResults)> ListAsync(
@@ -50,9 +50,11 @@ public sealed class ScimUserService(
     }
 
     /// <inheritdoc />
-    public async Task<ScimUserRecord> CreateAsync(Guid tenantId, JsonElement resource, CancellationToken cancellationToken)
+    public async Task<ScimUserRecord> CreateAsync(Guid tenantId, JsonElement resource,
+        CancellationToken cancellationToken)
     {
-        (string userName, string? displayName, bool active, string externalId) = ScimUserResourceParser.ParseUser(resource);
+        (string userName, string? displayName, bool active, string externalId) =
+            ScimUserResourceParser.ParseUser(resource);
 
         if (await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken) is not null)
             throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
@@ -66,7 +68,8 @@ public sealed class ScimUserService(
         }
 
         ScimUserRecord created =
-            await _users.InsertAsync(tenantId, externalId, userName, displayName, active, null, ScimResolvedRoleOrigin.Unknown, cancellationToken);
+            await _users.InsertAsync(tenantId, externalId, userName, displayName, active, null,
+                ScimResolvedRoleOrigin.Unknown, cancellationToken);
 
         string? role = await ResolveRoleAsync(tenantId, created.Id, cancellationToken);
         ScimResolvedRoleOrigin origin =
@@ -74,7 +77,6 @@ public sealed class ScimUserService(
 
         if (!string.Equals(role, created.ResolvedRole, StringComparison.Ordinal))
             await _users.PatchAsync(tenantId, created.Id, null, null, null, null, role, origin, cancellationToken);
-
 
         created = await _users.GetByIdAsync(tenantId, created.Id, cancellationToken) ?? created;
 
@@ -93,7 +95,8 @@ public sealed class ScimUserService(
         ScimUserRecord existing = await _users.GetByIdAsync(tenantId, id, cancellationToken)
                                   ?? throw new ScimNotFoundException("User not found.");
 
-        (string userName, string? displayName, bool active, string externalId) = ScimUserResourceParser.ParseUser(resource);
+        (string userName, string? displayName, bool active, string externalId) =
+            ScimUserResourceParser.ParseUser(resource);
 
         await TransitionSeatAsync(tenantId, existing.Active, active, cancellationToken);
 
@@ -103,7 +106,6 @@ public sealed class ScimUserService(
 
         if (choices.ShouldEmitManualOverriddenAudit)
             await EmitRoleOverriddenAuditAsync(tenantId, existing, choices.FinalRole, cancellationToken);
-
 
         await _users.ReplaceAsync(
             tenantId,
@@ -160,7 +162,6 @@ public sealed class ScimUserService(
         if (choices.ShouldEmitManualOverriddenAudit)
             await EmitRoleOverriddenAuditAsync(tenantId, existing, choices.FinalRole, cancellationToken);
 
-
         await _users.PatchAsync(
             tenantId,
             id,
@@ -188,7 +189,6 @@ public sealed class ScimUserService(
         if (existing.Active)
             await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
 
-
         await _users.DeactivateAsync(tenantId, id, cancellationToken);
 
         await LogAsync(
@@ -202,18 +202,13 @@ public sealed class ScimUserService(
     {
         Dictionary<string, JsonElement> core = new(next, StringComparer.OrdinalIgnoreCase);
 
-        foreach (string k in core.Keys.Where(
-                     static k => string.Equals(k, ManualResolvedRoleFlatPath, StringComparison.OrdinalIgnoreCase))
+        foreach (string k in core.Keys.Where(static k =>
+                         string.Equals(k, ManualResolvedRoleFlatPath, StringComparison.OrdinalIgnoreCase))
                      .ToList())
             core.Remove(k);
 
         return core;
     }
-
-    private sealed record ResolveRoleChoices(
-        string? FinalRole,
-        ScimResolvedRoleOrigin FinalOrigin,
-        bool ShouldEmitManualOverriddenAudit);
 
     private ResolveRoleChoices DecideResolvedRole(
         ScimUserRecord existing,
@@ -230,10 +225,10 @@ public sealed class ScimUserService(
             && !string.Equals(existing.ResolvedRole, groupMapped, StringComparison.OrdinalIgnoreCase);
 
         return new ResolveRoleChoices(groupMapped, ScimResolvedRoleOrigin.ScimGroups, fire);
-
     }
 
-    private Task EmitRoleOverriddenAuditAsync(Guid tenantId, ScimUserRecord existing, string? incomingGroupRole, CancellationToken ct)
+    private Task EmitRoleOverriddenAuditAsync(Guid tenantId, ScimUserRecord existing, string? incomingGroupRole,
+        CancellationToken ct)
     {
         string payload = JsonSerializer.Serialize(
             new
@@ -302,7 +297,8 @@ public sealed class ScimUserService(
         return string.IsNullOrWhiteSpace(v) ? fallback : v.Trim();
     }
 
-    private static string? ReadOptionalString(IReadOnlyDictionary<string, JsonElement> next, string key, string? fallback)
+    private static string? ReadOptionalString(IReadOnlyDictionary<string, JsonElement> next, string key,
+        string? fallback)
     {
         if (!next.TryGetValue(key, out JsonElement el) || el.ValueKind == JsonValueKind.Null)
             return fallback;
@@ -310,7 +306,8 @@ public sealed class ScimUserService(
         return el.ValueKind != JsonValueKind.String ? fallback : el.GetString();
     }
 
-    private static string? TryReadOptionalTrimmed(IReadOnlyDictionary<string, JsonElement> next, string key, StringComparer comparer)
+    private static string? TryReadOptionalTrimmed(IReadOnlyDictionary<string, JsonElement> next, string key,
+        StringComparer comparer)
     {
         foreach (KeyValuePair<string, JsonElement> p in next)
         {
@@ -360,8 +357,9 @@ public sealed class ScimUserService(
         return chosen;
     }
 
-    private static int RoleRank(string role) =>
-        role.Trim() switch
+    private static int RoleRank(string role)
+    {
+        return role.Trim() switch
         {
             "Admin" => 4,
             "Operator" => 3,
@@ -369,6 +367,7 @@ public sealed class ScimUserService(
             "Reader" => 1,
             _ => 0
         };
+    }
 
     private async Task LogAsync(Guid tenantId, string eventType, string dataJson, CancellationToken ct)
     {
@@ -386,7 +385,10 @@ public sealed class ScimUserService(
             ct);
     }
 
-    private static string JsonEncoded(string s) => JsonSerializer.Serialize(s).Trim('"');
+    private static string JsonEncoded(string s)
+    {
+        return JsonSerializer.Serialize(s).Trim('"');
+    }
 
     private static string? TryReadManualResolvedRoleFromUserResource(JsonElement resource)
     {
@@ -398,6 +400,11 @@ public sealed class ScimUserService(
 
         return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
+
+    private sealed record ResolveRoleChoices(
+        string? FinalRole,
+        ScimResolvedRoleOrigin FinalOrigin,
+        bool ShouldEmitManualOverriddenAudit);
 }
 
 public sealed class ScimConflictException : Exception

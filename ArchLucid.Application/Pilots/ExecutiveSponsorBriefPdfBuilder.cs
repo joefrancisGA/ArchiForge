@@ -1,3 +1,4 @@
+using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -7,8 +8,9 @@ using QuestPdfDocument = QuestPDF.Fluent.Document;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-/// PDF projection of <c>docs/EXECUTIVE_SPONSOR_BRIEF.md</c> — same QuestPDF stack as <see cref="FirstValueReportPdfBuilder"/>;
-/// does not mutate the Markdown file (read-only IO at controller).
+///     PDF projection of <c>docs/EXECUTIVE_SPONSOR_BRIEF.md</c> — same QuestPDF stack as
+///     <see cref="FirstValueReportPdfBuilder" />;
+///     does not mutate the Markdown file (read-only IO at controller).
 /// </summary>
 public sealed class ExecutiveSponsorBriefPdfBuilder
 {
@@ -17,7 +19,7 @@ public sealed class ExecutiveSponsorBriefPdfBuilder
     {
         ArgumentNullException.ThrowIfNull(markdown);
 
-        QuestPDF.Settings.License = LicenseType.Community;
+        Settings.License = LicenseType.Community;
 
         QuestPdfDocument doc = QuestPdfDocument.Create(container =>
         {

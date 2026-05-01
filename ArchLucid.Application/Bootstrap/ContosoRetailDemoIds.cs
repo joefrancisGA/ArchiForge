@@ -6,10 +6,10 @@ using ArchLucid.Core.Scoping;
 namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>
-/// Tenant-scoped identifiers for the Contoso Retail Modernization demo seed. The SQL schema uses
-/// global primary keys on several demo tables (for example <c>dbo.Runs.RunId</c>, <c>dbo.AgentTasks.TaskId</c>),
-/// so a second self-service tenant in the same catalog cannot reuse the same keys as another tenant.
-/// <see cref="ScopeIds.DefaultTenant"/> keeps the historical canonical constants so local dev URLs stay stable.
+///     Tenant-scoped identifiers for the Contoso Retail Modernization demo seed. The SQL schema uses
+///     global primary keys on several demo tables (for example <c>dbo.Runs.RunId</c>, <c>dbo.AgentTasks.TaskId</c>),
+///     so a second self-service tenant in the same catalog cannot reuse the same keys as another tenant.
+///     <see cref="ScopeIds.DefaultTenant" /> keeps the historical canonical constants so local dev URLs stay stable.
 /// </summary>
 public readonly record struct ContosoRetailDemoIds(
     string RequestId,
@@ -44,48 +44,48 @@ public readonly record struct ContosoRetailDemoIds(
         Guid hardenedRun = DeriveDemoRunGuid(tenantId, "hardened");
 
         return new ContosoRetailDemoIds(
-            RequestId: $"req-contoso-demo-{suffix}",
-            AuthorityRunBaselineId: baselineRun,
-            AuthorityRunHardenedId: hardenedRun,
-            RunBaseline: baselineRun.ToString("N"),
-            RunHardened: hardenedRun.ToString("N"),
-            ManifestBaseline: $"contoso-baseline-v1-{suffix}",
-            ManifestHardened: $"contoso-hardened-v1-{suffix}",
-            ApprovalRequest: $"apr-demo-{suffix}",
-            PromotionRecord: $"promo-demo-{suffix}",
-            ActivationDev: $"act-demo-dev-{suffix}",
-            ActivationTest: $"act-demo-test-{suffix}",
-            ExportRecord: $"export-demo-bl-{suffix}",
-            TaskBaseline: $"task-baseline-demo-topo-{suffix}",
-            TaskHardened: $"task-hardened-demo-topo-{suffix}",
-            ResultBaseline: $"result-baseline-demo-topo-{suffix}",
-            ResultHardened: $"result-hardened-demo-topo-{suffix}",
-            TraceBaseline: $"trace-baseline-demo-{suffix}",
-            TraceHardened: $"trace-hardened-demo-{suffix}");
+            $"req-contoso-demo-{suffix}",
+            baselineRun,
+            hardenedRun,
+            baselineRun.ToString("N"),
+            hardenedRun.ToString("N"),
+            $"contoso-baseline-v1-{suffix}",
+            $"contoso-hardened-v1-{suffix}",
+            $"apr-demo-{suffix}",
+            $"promo-demo-{suffix}",
+            $"act-demo-dev-{suffix}",
+            $"act-demo-test-{suffix}",
+            $"export-demo-bl-{suffix}",
+            $"task-baseline-demo-topo-{suffix}",
+            $"task-hardened-demo-topo-{suffix}",
+            $"result-baseline-demo-topo-{suffix}",
+            $"result-hardened-demo-topo-{suffix}",
+            $"trace-baseline-demo-{suffix}",
+            $"trace-hardened-demo-{suffix}");
     }
 
     /// <summary>Historical single-tenant keys (development default scope) documented in <c>docs/TRUSTED_BASELINE.md</c>.</summary>
     private static ContosoRetailDemoIds CanonicalSingleCatalog()
     {
         return new ContosoRetailDemoIds(
-            RequestId: ContosoRetailDemoIdentifiers.RequestContoso,
-            AuthorityRunBaselineId: ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
-            AuthorityRunHardenedId: ContosoRetailDemoIdentifiers.AuthorityRunHardenedId,
-            RunBaseline: ContosoRetailDemoIdentifiers.RunBaseline,
-            RunHardened: ContosoRetailDemoIdentifiers.RunHardened,
-            ManifestBaseline: ContosoRetailDemoIdentifiers.ManifestBaseline,
-            ManifestHardened: ContosoRetailDemoIdentifiers.ManifestHardened,
-            ApprovalRequest: ContosoRetailDemoIdentifiers.ApprovalRequest,
-            PromotionRecord: ContosoRetailDemoIdentifiers.PromotionRecord,
-            ActivationDev: ContosoRetailDemoIdentifiers.ActivationDev,
-            ActivationTest: ContosoRetailDemoIdentifiers.ActivationTest,
-            ExportRecord: ContosoRetailDemoIdentifiers.ExportRecord,
-            TaskBaseline: "task-baseline-demo-topo",
-            TaskHardened: "task-hardened-demo-topo",
-            ResultBaseline: "result-baseline-demo-topo",
-            ResultHardened: "result-hardened-demo-topo",
-            TraceBaseline: "trace-baseline-demo-001",
-            TraceHardened: "trace-hardened-demo-001");
+            ContosoRetailDemoIdentifiers.RequestContoso,
+            ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
+            ContosoRetailDemoIdentifiers.AuthorityRunHardenedId,
+            ContosoRetailDemoIdentifiers.RunBaseline,
+            ContosoRetailDemoIdentifiers.RunHardened,
+            ContosoRetailDemoIdentifiers.ManifestBaseline,
+            ContosoRetailDemoIdentifiers.ManifestHardened,
+            ContosoRetailDemoIdentifiers.ApprovalRequest,
+            ContosoRetailDemoIdentifiers.PromotionRecord,
+            ContosoRetailDemoIdentifiers.ActivationDev,
+            ContosoRetailDemoIdentifiers.ActivationTest,
+            ContosoRetailDemoIdentifiers.ExportRecord,
+            "task-baseline-demo-topo",
+            "task-hardened-demo-topo",
+            "result-baseline-demo-topo",
+            "result-hardened-demo-topo",
+            "trace-baseline-demo-001",
+            "trace-hardened-demo-001");
     }
 
     private static Guid DeriveDemoRunGuid(Guid tenantId, string role)

@@ -52,7 +52,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
         stylePart.Styles = new Styles(
             BuildParagraphStyle("Title", "Title", options.PrimaryColorHex, "36"),
             BuildParagraphStyle("Subtitle", "Subtitle", options.SecondaryColorHex, "24"),
-            BuildParagraphStyle("Strong", "Strong", options.BodyColorHex, "22", bold: true),
+            BuildParagraphStyle("Strong", "Strong", options.BodyColorHex, "22", true),
             BuildParagraphStyle("Subtle", "Subtle", options.SubtleColorHex, "18"),
             BuildParagraphStyle("BodyText", "BodyText", options.BodyColorHex, "22"));
         stylePart.Styles.Save();
@@ -65,12 +65,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
         string fontSizeHalfPoints,
         bool bold = false)
     {
-        Style style = new()
-        {
-            Type = StyleValues.Paragraph,
-            StyleId = styleId,
-            CustomStyle = true
-        };
+        Style style = new() { Type = StyleValues.Paragraph, StyleId = styleId, CustomStyle = true };
 
         style.Append(new StyleName { Val = styleName });
         style.Append(new BasedOn { Val = "Normal" });
@@ -85,14 +80,10 @@ internal static class ConsultingDocxOpenXmlPrimitives
 
             runProps.Append(new Bold());
 
-
         style.Append(new StyleParagraphProperties(
             new SpacingBetweenLines
             {
-                Before = "120",
-                After = "120",
-                Line = "300",
-                LineRule = LineSpacingRuleValues.Auto
+                Before = "120", After = "120", Line = "300", LineRule = LineSpacingRuleValues.Auto
             }));
 
         style.Append(runProps);
@@ -129,7 +120,6 @@ internal static class ConsultingDocxOpenXmlPrimitives
         for (int i = 0; i < count; i++)
 
             body.AppendChild(new WpParagraph(new WpRun(new WpText(string.Empty))));
-
     }
 
     internal static void AddPageBreak(Body body)
@@ -142,17 +132,10 @@ internal static class ConsultingDocxOpenXmlPrimitives
     {
         WpParagraph paragraph = new(
             new WpParagraphProperties(
-                new WpShading
-                {
-                    Val = ShadingPatternValues.Clear,
-                    Fill = options.AccentFillHex
-                },
+                new WpShading { Val = ShadingPatternValues.Clear, Fill = options.AccentFillHex },
                 new WpSpacingBetweenLines
                 {
-                    Before = "120",
-                    After = "120",
-                    Line = "280",
-                    LineRule = LineSpacingRuleValues.Auto
+                    Before = "120", After = "120", Line = "280", LineRule = LineSpacingRuleValues.Auto
                 }),
             new WpRun(
                 new WpRunProperties(new Bold(), new Color { Val = options.SecondaryColorHex }),
@@ -176,11 +159,7 @@ internal static class ConsultingDocxOpenXmlPrimitives
 
             body.AppendChild(new WpParagraph(
                 new WpParagraphProperties(
-                    new WpShading
-                    {
-                        Val = ShadingPatternValues.Clear,
-                        Fill = "F4F6F6"
-                    }),
+                    new WpShading { Val = ShadingPatternValues.Clear, Fill = "F4F6F6" }),
                 run));
         }
     }
@@ -206,8 +185,8 @@ internal static class ConsultingDocxOpenXmlPrimitives
             WpTableRow tr = new();
 
             tr.Append(
-                BuildCell(key, bold: true, width: "2800"),
-                BuildCell(value, bold: false, width: "6200"));
+                BuildCell(key, true, "2800"),
+                BuildCell(value, false, "6200"));
 
             table.Append(tr);
         }
@@ -223,7 +202,6 @@ internal static class ConsultingDocxOpenXmlPrimitives
         if (bold)
 
             run.RunProperties = new WpRunProperties(new Bold());
-
 
         return new WpTableCell(
             new WpTableCellProperties(
@@ -248,35 +226,20 @@ internal static class ConsultingDocxOpenXmlPrimitives
 
             imagePart.FeedData(stream);
 
-
         string relationshipId = mainPart.GetIdOfPart(imagePart);
 
         Drawing drawing = new(
             new Inline(
                 new Extent { Cx = widthEmus, Cy = heightEmus },
-                new EffectExtent
-                {
-                    LeftEdge = 0L,
-                    TopEdge = 0L,
-                    RightEdge = 0L,
-                    BottomEdge = 0L
-                },
-                new DocProperties
-                {
-                    Id = 1U,
-                    Name = imageName
-                },
+                new EffectExtent { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
+                new DocProperties { Id = 1U, Name = imageName },
                 new WpNonVisualGraphicFrameDrawingProperties(
                     new DrGraphicFrameLocks { NoChangeAspect = true }),
                 new Graphic(
                     new GraphicData(
                         new DrPicture(
                             new DrNonVisualPictureProperties(
-                                new DrNonVisualDrawingProperties
-                                {
-                                    Id = 0U,
-                                    Name = imageName
-                                },
+                                new DrNonVisualDrawingProperties { Id = 0U, Name = imageName },
                                 new DrNonVisualPictureDrawingProperties()),
                             new DrBlipFill(
                                 new DrBlip { Embed = relationshipId },
@@ -285,19 +248,10 @@ internal static class ConsultingDocxOpenXmlPrimitives
                                 new Transform2D(
                                     new Offset { X = 0L, Y = 0L },
                                     new Extents { Cx = widthEmus, Cy = heightEmus }),
-                                new PresetGeometry(new AdjustValueList())
-                                {
-                                    Preset = ShapeTypeValues.Rectangle
-                                }))
-                    )
-                    {
-                        Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture"
-                    }))
+                                new PresetGeometry(new AdjustValueList()) { Preset = ShapeTypeValues.Rectangle }))
+                    ) { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" }))
             {
-                DistanceFromTop = 0U,
-                DistanceFromBottom = 0U,
-                DistanceFromLeft = 0U,
-                DistanceFromRight = 0U
+                DistanceFromTop = 0U, DistanceFromBottom = 0U, DistanceFromLeft = 0U, DistanceFromRight = 0U
             });
 
         body.AppendChild(new WpParagraph(new WpRun(drawing)));

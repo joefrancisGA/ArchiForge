@@ -1,12 +1,11 @@
 using ArchLucid.Core.Integration;
-
 using ArchLucid.Persistence;
 
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Notifications.Email;
 
-/// <summary>Publishes <see cref="IntegrationEventTypes.TrialLifecycleEmailV1"/> through the transactional outbox helper.</summary>
+/// <summary>Publishes <see cref="IntegrationEventTypes.TrialLifecycleEmailV1" /> through the transactional outbox helper.</summary>
 public static class TrialLifecycleIntegrationEventPublisher
 {
     public static Task TryPublishAsync(
@@ -33,12 +32,12 @@ public static class TrialLifecycleIntegrationEventPublisher
             IntegrationEventTypes.TrialLifecycleEmailV1,
             envelope,
             messageId,
-            runId: envelope.RunId,
+            envelope.RunId,
             envelope.TenantId,
             envelope.WorkspaceId,
             envelope.ProjectId,
-            connection: null,
-            transaction: null,
+            null,
+            null,
             cancellationToken);
     }
 }

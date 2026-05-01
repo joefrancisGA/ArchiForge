@@ -1,40 +1,56 @@
 @model ArchLucid.Application.Notifications.Email.Models.ExecDigestEmailModel
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8" /></head>
+<head>
+    <meta charset="utf-8"/>
+</head>
 <body>
 @if (!string.IsNullOrWhiteSpace(Model.LogoImageUrl))
 {
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 16px 0;">
-  <tr><td><img src="@Model.LogoImageUrl" alt="@Model.ProductName" width="96" height="96" style="display:block;width:96px;height:96px;border:0;" /></td></tr>
-</table>
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 16px 0;">
+        <tr>
+            <td>
+                <img src="@Model.LogoImageUrl" alt="@Model.ProductName" width="96" height="96" style="display:block;width:96px;height:96px;border:0;"/>
+            </td>
+        </tr>
+    </table>
 }
 <p>Weekly executive digest from @Model.ProductName.</p>
-<p><strong>@Model.WeekLabel</strong></p>
+<p>
+    <strong>@Model.WeekLabel</strong>
+</p>
 @if (Model.CommittedManifestsInWeek is { } mc)
 {
-  <p>Manifests committed this period: <strong>@mc</strong></p>
+    <p>Manifests committed this period: <strong>@mc</strong></p>
 }
 @if (Model.TopRuns is { Count: > 0 } runs)
 {
-  <p>Top runs (by finding-volume proxy):</p>
-  <ul>
-  @foreach (ArchLucid.Application.ExecDigest.ExecDigestHighlightedRun r in runs)
-  {
-    <li><code>@r.RunIdHex</code> — score @r.SignificanceScore@if (r.Caption is not null) { <text> — @r.Caption</text> }</li>
-  }
-  </ul>
+    <p>Top runs (by finding-volume proxy):</p>
+    <ul>
+        @foreach (var r in runs)
+        {
+            <li>
+                <code>@r.RunIdHex</code> — score @r.SignificanceScore
+                @if (r.Caption is not null)
+                {
+                    <text> — @r.Caption</text>
+                }
+            </li>
+        }
+    </ul>
 }
 @if (!string.IsNullOrWhiteSpace(Model.ComplianceDriftMarkdown))
 {
-  <p>Compliance drift (policy pack change log, daily buckets):</p>
-  <pre style="white-space:pre-wrap;font-family:Consolas,monospace;font-size:12px;">@Model.ComplianceDriftMarkdown</pre>
+    <p>Compliance drift (policy pack change log, daily buckets):</p>
+    <pre style="white-space:pre-wrap;font-family:Consolas,monospace;font-size:12px;">@Model.ComplianceDriftMarkdown</pre>
 }
 @if (!string.IsNullOrWhiteSpace(Model.FindingsDeltaSummary))
 {
-  <p>@Model.FindingsDeltaSummary</p>
+    <p>@Model.FindingsDeltaSummary</p>
 }
 <p><a href="@Model.DashboardUrl">Open operator dashboard</a> · <a href="@Model.SponsorValueReportUrl">Open latest committed run (sponsor collateral)</a></p>
-<p style="font-size:12px;color:#555;"><a href="@Model.UnsubscribeUrl">Unsubscribe from this digest</a></p>
+<p style="font-size:12px;color:#555;">
+    <a href="@Model.UnsubscribeUrl">Unsubscribe from this digest</a>
+</p>
 </body>
 </html>

@@ -1,15 +1,15 @@
 namespace ArchLucid.Application.DataConsistency;
 
-/// <summary>Published by <see cref="DataConsistencyReconciliationHostedService"/> after each reconciliation attempt.</summary>
+/// <summary>Published by <see cref="DataConsistencyReconciliationHostedService" /> after each reconciliation attempt.</summary>
 public sealed class DataConsistencyReconciliationHealthState
 {
     private readonly Lock _sync = new();
 
     private bool _hasCompletedRun;
 
-    private DataConsistencyReport? _lastReport;
-
     private string? _lastErrorMessage;
+
+    private DataConsistencyReport? _lastReport;
 
     public void RecordSuccess(DataConsistencyReport report)
     {
@@ -35,7 +35,8 @@ public sealed class DataConsistencyReconciliationHealthState
         }
     }
 
-    public bool TrySnapshot(out bool hasCompletedRun, out DataConsistencyReport? lastReport, out string? lastErrorMessage)
+    public bool TrySnapshot(out bool hasCompletedRun, out DataConsistencyReport? lastReport,
+        out string? lastErrorMessage)
     {
         lock (_sync)
         {

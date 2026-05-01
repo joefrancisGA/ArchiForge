@@ -26,13 +26,14 @@ namespace ArchLucid.Application.Support;
 ///     environment snapshot from <see cref="SupportBundleSensitivePatternRedactor" />,
 ///     and a static references section) and keep the file-name conventions identical so
 ///     a support engineer reading the ZIP cannot tell which side produced it.
-///
 ///     <b>Redaction.</b> Every text section is filtered through
 ///     <see cref="SupportBundleSensitivePatternRedactor.RedactSensitivePatterns" /> before
 ///     being written to the archive. The environment snapshot also masks values for
 ///     names matching the secret-shaped pattern list.
 /// </remarks>
-public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMonitor<SupportBundleOptions> supportBundleOptions)
+public sealed class SupportBundleAssembler(
+    TimeProvider timeProvider,
+    IOptionsMonitor<SupportBundleOptions> supportBundleOptions)
     : ISupportBundleAssembler
 {
     /// <summary>File names mirror the CLI <c>SupportBundleArchiveWriter</c> constants.</summary>
@@ -58,11 +59,11 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
 
     private static readonly JsonSerializerOptions JsonWrite = new() { WriteIndented = true };
 
-    private readonly TimeProvider _timeProvider =
-        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
     private readonly IOptionsMonitor<SupportBundleOptions> _supportBundleOptions =
         supportBundleOptions ?? throw new ArgumentNullException(nameof(supportBundleOptions));
+
+    private readonly TimeProvider _timeProvider =
+        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc />
     public Task<SupportBundleArtifact> AssembleAsync(
@@ -84,8 +85,10 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
             ? "(no tenant context)"
             : request.TenantDisplayName;
 
-        IReadOnlyDictionary<string, string> envSnapshot = SupportBundleSensitivePatternRedactor.SnapshotEnvironmentForBundle();
-        SupportBundleNextStepsDocument nextSteps = SupportBundleNextStepsBuilder.BuildForApiHost(createdUtcIso, envSnapshot);
+        IReadOnlyDictionary<string, string> envSnapshot =
+            SupportBundleSensitivePatternRedactor.SnapshotEnvironmentForBundle();
+        SupportBundleNextStepsDocument nextSteps =
+            SupportBundleNextStepsBuilder.BuildForApiHost(createdUtcIso, envSnapshot);
 
         string manifestJson = SerializeIndented(BuildManifest(createdUtcIso, requesterDisplay, tenantDisplay));
         string buildJson = SerializeIndented(BuildBuildSection());
@@ -101,7 +104,7 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
             new SupportBundleZipEntry(ManifestFileName, RedactToBytes(manifestJson)),
             new SupportBundleZipEntry(BuildFileName, RedactToBytes(buildJson)),
             new SupportBundleZipEntry(EnvironmentFileName, RedactToBytes(environmentJson)),
-            new SupportBundleZipEntry(ReferencesFileName, RedactToBytes(referencesJson)),
+            new SupportBundleZipEntry(ReferencesFileName, RedactToBytes(referencesJson))
         ]);
 
         string fileName = "archlucid-support-bundle-" +
@@ -111,31 +114,41 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         int retentionDays = Math.Max(1, _supportBundleOptions.CurrentValue.BundleRetentionDays);
         DateTimeOffset retentionDiscardAfterUtc = generatedUtc.AddDays(retentionDays);
 
-        return Task.FromResult(new SupportBundleArtifact(zipBytes, fileName, ZipContentType, generatedUtc, retentionDiscardAfterUtc));
+        return Task.FromResult(new SupportBundleArtifact(zipBytes, fileName, ZipContentType, generatedUtc,
+            retentionDiscardAfterUtc));
     }
 
-    private static byte[] RedactToBytes(string text) =>
-        Encoding.UTF8.GetBytes(SupportBundleSensitivePatternRedactor.RedactSensitivePatterns(text));
-
-    private static object BuildManifest(string createdUtcIso, string requesterDisplay, string tenantDisplay) => new
+    private static byte[] RedactToBytes(string text)
     {
-        bundleFormatVersion = BundleFormatVersion,
-        source = "api",
-        createdUtc = createdUtcIso,
-        requesterDisplayId = requesterDisplay,
-        tenantDisplayName = tenantDisplay,
-        triageReadOrder = new object[]
+        return Encoding.UTF8.GetBytes(SupportBundleSensitivePatternRedactor.RedactSensitivePatterns(text));
+    }
+
+    private static object BuildManifest(string createdUtcIso, string requesterDisplay, string tenantDisplay)
+    {
+        return new
         {
-            new { file = ReadmeFileName, why = "Plain-text overview — open first." },
-            new { file = SupportBundleLayout.NextStepsFileName, why = "Machine-generated triage summary (advisory only)." },
-            new { file = ManifestFileName, why = "Bundle metadata + read order in machine-readable form." },
-            new { file = BuildFileName, why = "Host build identity (assembly version, runtime)." },
-            new { file = EnvironmentFileName, why = "Redacted host environment snapshot." },
-            new { file = ReferencesFileName, why = "Doc links and correlation hints." },
-        },
-        notes = "Server-assembled bundle. Sensitive env-var values appear only as (set)/(not set); " +
-                "bearer tokens, X-Api-Key headers, and connection-string passwords are replaced with [REDACTED].",
-    };
+            bundleFormatVersion = BundleFormatVersion,
+            source = "api",
+            createdUtc = createdUtcIso,
+            requesterDisplayId = requesterDisplay,
+            tenantDisplayName = tenantDisplay,
+            triageReadOrder = new object[]
+            {
+                new { file = ReadmeFileName, why = "Plain-text overview — open first." },
+                new
+                {
+                    file = SupportBundleLayout.NextStepsFileName,
+                    why = "Machine-generated triage summary (advisory only)."
+                },
+                new { file = ManifestFileName, why = "Bundle metadata + read order in machine-readable form." },
+                new { file = BuildFileName, why = "Host build identity (assembly version, runtime)." },
+                new { file = EnvironmentFileName, why = "Redacted host environment snapshot." },
+                new { file = ReferencesFileName, why = "Doc links and correlation hints." }
+            },
+            notes = "Server-assembled bundle. Sensitive env-var values appear only as (set)/(not set); " +
+                    "bearer tokens, X-Api-Key headers, and connection-string passwords are replaced with [REDACTED]."
+        };
+    }
 
     private static object BuildBuildSection()
     {
@@ -155,36 +168,40 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
             osDescription = RuntimeInformation.OSDescription,
             osArchitecture = RuntimeInformation.OSArchitecture.ToString(),
             processArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
-            timeZoneId = TimeZoneInfo.Local.Id,
+            timeZoneId = TimeZoneInfo.Local.Id
         };
     }
 
-    private static object BuildEnvironmentSection(IReadOnlyDictionary<string, string> archlucidAndDotnetEnvironment) => new
+    private static object BuildEnvironmentSection(IReadOnlyDictionary<string, string> archlucidAndDotnetEnvironment)
     {
-        archlucidAndDotnetEnvironment,
-        notes = "Only ARCHLUCID_* and DOTNET_* variables are included. Secret-shaped names show (set)/(not set) only.",
-    };
+        return new
+        {
+            archlucidAndDotnetEnvironment,
+            notes =
+                "Only ARCHLUCID_* and DOTNET_* variables are included. Secret-shaped names show (set)/(not set) only."
+        };
+    }
 
-    private static object BuildReferencesSection() => new
+    private static object BuildReferencesSection()
     {
-        apiEndpoints = new[]
+        return new
         {
-            "GET /version — build identity (no auth)",
-            "GET /health/live — liveness",
-            "GET /health/ready — readiness",
-            "GET /health — combined detailed checks (ReadAuthority)",
-            "GET /openapi/v1.json — OpenAPI document",
-        },
-        documentation = new[]
-        {
-            SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage",
-            "docs/TROUBLESHOOTING.md",
-            "docs/OPERATOR_QUICKSTART.md",
-            "docs/library/OPERATOR_ATLAS.md",
-            "docs/PENDING_QUESTIONS.md (item 37 — support-bundle redaction policy still open at owner level)",
-        },
-        correlation = "Match X-Correlation-ID response header / problem JSON correlationId against API logs.",
-    };
+            apiEndpoints =
+                new[]
+                {
+                    "GET /version — build identity (no auth)", "GET /health/live — liveness",
+                    "GET /health/ready — readiness", "GET /health — combined detailed checks (ReadAuthority)",
+                    "GET /openapi/v1.json — OpenAPI document"
+                },
+            documentation = new[]
+            {
+                SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage",
+                "docs/TROUBLESHOOTING.md", "docs/OPERATOR_QUICKSTART.md", "docs/library/OPERATOR_ATLAS.md",
+                "docs/PENDING_QUESTIONS.md (item 37 — support-bundle redaction policy still open at owner level)"
+            },
+            correlation = "Match X-Correlation-ID response header / problem JSON correlationId against API logs."
+        };
+    }
 
     private static string BuildReadme(
         string createdUtcIso,
@@ -216,10 +233,14 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         body.Append(" 1. ").Append(ReadmeFileName).AppendLine("              — this file");
         body.Append(" 2. ").Append(SupportBundleLayout.NextStepsFileName)
             .AppendLine(" — same summary as JSON + structured hints");
-        body.Append(" 3. ").Append(ManifestFileName).AppendLine("            — bundle metadata + machine-readable read order");
-        body.Append(" 4. ").Append(BuildFileName).AppendLine("               — host build identity (assembly version + runtime)");
-        body.Append(" 5. ").Append(EnvironmentFileName).AppendLine("         — redacted ARCHLUCID_* / DOTNET_* env vars");
-        body.Append(" 6. ").Append(ReferencesFileName).AppendLine("          — API endpoints, doc links, correlation tip");
+        body.Append(" 3. ").Append(ManifestFileName)
+            .AppendLine("            — bundle metadata + machine-readable read order");
+        body.Append(" 4. ").Append(BuildFileName)
+            .AppendLine("               — host build identity (assembly version + runtime)");
+        body.Append(" 5. ").Append(EnvironmentFileName)
+            .AppendLine("         — redacted ARCHLUCID_* / DOTNET_* env vars");
+        body.Append(" 6. ").Append(ReferencesFileName)
+            .AppendLine("          — API endpoints, doc links, correlation tip");
         body.AppendLine();
         body.AppendLine("Redaction");
         body.AppendLine("---------");
@@ -237,13 +258,16 @@ public sealed class SupportBundleAssembler(TimeProvider timeProvider, IOptionsMo
         return body.ToString();
     }
 
-    private static string SerializeIndented<T>(T value) => JsonSerializer.Serialize(value, JsonWrite);
+    private static string SerializeIndented<T>(T value)
+    {
+        return JsonSerializer.Serialize(value, JsonWrite);
+    }
 
     private static byte[] WriteZip(IReadOnlyList<SupportBundleZipEntry> entries)
     {
         using MemoryStream ms = new();
 
-        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive archive = new(ms, ZipArchiveMode.Create, true))
         {
             foreach (SupportBundleZipEntry entry in entries)
             {

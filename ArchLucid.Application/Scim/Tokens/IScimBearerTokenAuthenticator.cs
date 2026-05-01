@@ -2,7 +2,8 @@ namespace ArchLucid.Application.Scim.Tokens;
 
 public interface IScimBearerTokenAuthenticator
 {
-    Task<ScimBearerAuthenticationResult?> TryAuthenticateAsync(string plaintextToken, CancellationToken cancellationToken);
+    Task<ScimBearerAuthenticationResult?> TryAuthenticateAsync(string plaintextToken,
+        CancellationToken cancellationToken);
 }
 
 public sealed class ScimBearerAuthenticationResult

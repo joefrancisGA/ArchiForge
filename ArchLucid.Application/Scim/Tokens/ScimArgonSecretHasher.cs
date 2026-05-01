@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Security.Cryptography;
+using System.Text;
 
 using Konscious.Security.Cryptography;
 
@@ -16,7 +18,7 @@ public static class ScimArgonSecretHasher
 
     public static byte[] HashSecret(ReadOnlySpan<byte> secret, Guid tenantId)
     {
-        byte[] salt = System.Text.Encoding.UTF8.GetBytes(tenantId.ToString("D", System.Globalization.CultureInfo.InvariantCulture));
+        byte[] salt = Encoding.UTF8.GetBytes(tenantId.ToString("D", CultureInfo.InvariantCulture));
         byte[] secretCopy = secret.ToArray();
 
         using Argon2id argon2 = new(secretCopy);

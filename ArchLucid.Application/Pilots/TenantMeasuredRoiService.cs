@@ -9,11 +9,11 @@ public sealed class TenantMeasuredRoiService(
     IWhyArchLucidSnapshotService snapshotService,
     ITenantCostEstimateService costEstimateService) : ITenantMeasuredRoiService
 {
-    private readonly IWhyArchLucidSnapshotService _snapshotService =
-        snapshotService ?? throw new ArgumentNullException(nameof(snapshotService));
-
     private readonly ITenantCostEstimateService _costEstimateService =
         costEstimateService ?? throw new ArgumentNullException(nameof(costEstimateService));
+
+    private readonly IWhyArchLucidSnapshotService _snapshotService =
+        snapshotService ?? throw new ArgumentNullException(nameof(snapshotService));
 
     /// <inheritdoc />
     public async Task<TenantMeasuredRoiSummary> GetAsync(Guid tenantId, CancellationToken cancellationToken = default)

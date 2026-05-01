@@ -3,47 +3,80 @@ using ArchLucid.Application.Analysis;
 namespace ArchLucid.Application.Jobs;
 
 /// <summary>
-/// Serializable export parameters for async analysis-report DOCX jobs (no preloaded run detail).
+///     Serializable export parameters for async analysis-report DOCX jobs (no preloaded run detail).
 /// </summary>
 public sealed record AnalysisReportDocxJobPayload
 {
-    public string RunId { get; init; } = string.Empty;
+    public string RunId
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public bool IncludeEvidence { get; init; } = true;
+    public bool IncludeEvidence
+    {
+        get;
+        init;
+    } = true;
 
-    public bool IncludeExecutionTraces { get; init; } = true;
+    public bool IncludeExecutionTraces
+    {
+        get;
+        init;
+    } = true;
 
-    public bool IncludeManifest { get; init; } = true;
+    public bool IncludeManifest
+    {
+        get;
+        init;
+    } = true;
 
-    public bool IncludeDiagram { get; init; } = true;
+    public bool IncludeDiagram
+    {
+        get;
+        init;
+    } = true;
 
-    public bool IncludeSummary { get; init; } = true;
+    public bool IncludeSummary
+    {
+        get;
+        init;
+    } = true;
 
     public bool IncludeDeterminismCheck
     {
-        get; init;
+        get;
+        init;
     }
 
-    public int DeterminismIterations { get; init; } = 3;
+    public int DeterminismIterations
+    {
+        get;
+        init;
+    } = 3;
 
     public bool IncludeManifestCompare
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? CompareManifestVersion
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool IncludeAgentResultCompare
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? CompareRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public static AnalysisReportDocxJobPayload FromAnalysisRequest(ArchitectureAnalysisRequest request)
@@ -67,8 +100,9 @@ public sealed record AnalysisReportDocxJobPayload
         };
     }
 
-    public ArchitectureAnalysisRequest ToAnalysisRequest() =>
-        new()
+    public ArchitectureAnalysisRequest ToAnalysisRequest()
+    {
+        return new ArchitectureAnalysisRequest
         {
             RunId = RunId,
             IncludeEvidence = IncludeEvidence,
@@ -83,4 +117,5 @@ public sealed record AnalysisReportDocxJobPayload
             IncludeAgentResultCompare = IncludeAgentResultCompare,
             CompareRunId = CompareRunId
         };
+    }
 }

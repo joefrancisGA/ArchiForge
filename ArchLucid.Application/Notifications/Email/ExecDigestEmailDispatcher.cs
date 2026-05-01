@@ -21,19 +21,20 @@ public sealed class ExecDigestEmailDispatcher(
 
     private const string DefaultProductName = "ArchLucid";
 
-    private readonly IEmailTemplateRenderer _templateRenderer =
-        templateRenderer ?? throw new ArgumentNullException(nameof(templateRenderer));
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
+        emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
 
-    private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
+    private readonly IEmailProvider _emailProvider =
+        emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
+
+    private readonly ILogger<ExecDigestEmailDispatcher> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly ISentEmailLedger _sentEmailLedger =
         sentEmailLedger ?? throw new ArgumentNullException(nameof(sentEmailLedger));
 
-    private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
-        emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
-
-    private readonly ILogger<ExecDigestEmailDispatcher> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IEmailTemplateRenderer _templateRenderer =
+        templateRenderer ?? throw new ArgumentNullException(nameof(templateRenderer));
 
     /// <inheritdoc />
     public async Task<bool> TryDispatchAsync(
@@ -78,7 +79,7 @@ public sealed class ExecDigestEmailDispatcher(
             DashboardUrl = composition.DashboardUrl,
             SponsorValueReportUrl = composition.SponsorValueReportUrl,
             UnsubscribeUrl = unsubscribeAbsoluteUrl.Trim(),
-            LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase),
+            LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
         };
 
         string idempotencyKey = $"exec-digest:{tenantId:N}:{isoWeekIdempotencyKey}";
@@ -88,13 +89,12 @@ public sealed class ExecDigestEmailDispatcher(
             tenantId,
             TemplateId,
             _emailProvider.ProviderName,
-            ProviderMessageId: null);
+            null);
 
         bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
 
         if (!reserved)
             return false;
-
 
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
@@ -106,7 +106,6 @@ public sealed class ExecDigestEmailDispatcher(
             if (string.IsNullOrWhiteSpace(mailbox))
                 continue;
 
-
             EmailMessage message = new()
             {
                 To = mailbox.Trim(),
@@ -114,11 +113,7 @@ public sealed class ExecDigestEmailDispatcher(
                 HtmlBody = html,
                 TextBody = text,
                 IdempotencyKey = idempotencyKey + ":" + mailbox.Trim(),
-                Tags = new EmailMessageTags
-                {
-                    TenantId = tenantId,
-                    EventType = "exec-digest-weekly",
-                },
+                Tags = new EmailMessageTags { TenantId = tenantId, EventType = "exec-digest-weekly" }
             };
 
             try

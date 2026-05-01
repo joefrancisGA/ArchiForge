@@ -1,13 +1,13 @@
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Well-known consulting Docx template profile names used across the recommendation
-/// and resolution pipeline.
+///     Well-known consulting Docx template profile names used across the recommendation
+///     and resolution pipeline.
 /// </summary>
 /// <remarks>
-/// These constants match the <see cref="ConsultingDocxTemplateProfileInfo.ProfileName"/> values
-/// registered in <see cref="DefaultConsultingDocxTemplateProfileResolver"/>. Any resolver that
-/// adds custom profiles should still honour these names when present.
+///     These constants match the <see cref="ConsultingDocxTemplateProfileInfo.ProfileName" /> values
+///     registered in <see cref="DefaultConsultingDocxTemplateProfileResolver" />. Any resolver that
+///     adds custom profiles should still honour these names when present.
 /// </remarks>
 public static class ConsultingDocxProfiles
 {

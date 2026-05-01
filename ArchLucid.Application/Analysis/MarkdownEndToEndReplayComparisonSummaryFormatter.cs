@@ -3,8 +3,8 @@ using System.Text;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Formats an <see cref="EndToEndReplayComparisonReport"/> as Markdown, listing run-metadata changes,
-/// agents with material results changes, manifest structural changes, and export-record diffs.
+///     Formats an <see cref="EndToEndReplayComparisonReport" /> as Markdown, listing run-metadata changes,
+///     agents with material results changes, manifest structural changes, and export-record diffs.
 /// </summary>
 public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
     : IEndToEndReplayComparisonSummaryFormatter
@@ -84,8 +84,6 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
 
             sb.AppendLine($"- {item}");
 
-
         sb.AppendLine();
     }
 }
-

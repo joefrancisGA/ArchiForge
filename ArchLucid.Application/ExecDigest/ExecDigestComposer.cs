@@ -27,20 +27,20 @@ public sealed class ExecDigestComposer(
 
     private const int TopRunCount = 3;
 
-    private readonly IComplianceDriftTrendService _complianceDriftTrendService =
-        complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
-
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
 
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IComplianceDriftTrendService _complianceDriftTrendService =
+        complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
+
+    private readonly ILogger<ExecDigestComposer> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer =
         pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
 
-    private readonly ILogger<ExecDigestComposer> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     /// <inheritdoc />
     public async Task<ExecDigestComposition> ComposeAsync(
@@ -112,7 +112,6 @@ public sealed class ExecDigestComposer(
             if (points.Count == 0)
                 return null;
 
-
             StringBuilder sb = new();
             sb.AppendLine("| Day (UTC) | Total changes | Top change types |");
             sb.AppendLine("| --- | ---: | --- |");
@@ -136,13 +135,15 @@ public sealed class ExecDigestComposer(
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(ex, "Exec digest: compliance drift section omitted for tenant {TenantId}.", tenantId);
+                _logger.LogWarning(ex, "Exec digest: compliance drift section omitted for tenant {TenantId}.",
+                    tenantId);
 
             return null;
         }
     }
 
-    private async Task<(int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta)>
+    private async Task<(int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string?
+            findingsDelta)>
         TryBuildManifestAndFindingSectionsAsync(
             ScopeContext authorityScope,
             DateTime weekStartUtcInclusive,
@@ -152,7 +153,8 @@ public sealed class ExecDigestComposer(
         try
         {
             IReadOnlyList<RunSummaryDto> summaries =
-                await _authorityQueryService.ListRunsByProjectAsync(authorityScope, "default", MaxListRuns, cancellationToken);
+                await _authorityQueryService.ListRunsByProjectAsync(authorityScope, "default", MaxListRuns,
+                    cancellationToken);
 
             List<Guid> candidateRunIds = summaries
                 .Where(static s => s.HasGoldenManifest)
@@ -163,12 +165,10 @@ public sealed class ExecDigestComposer(
 
             List<(Guid RunId, DateTime? CommittedUtc, int Score)> scored = [];
 
-
             foreach (Guid runId in candidateRunIds)
             {
                 if (scored.Count >= MaxRunDetailLookups)
                     break;
-
 
                 string runHex = runId.ToString("N");
                 ArchitectureRunDetail? detail =
@@ -177,20 +177,16 @@ public sealed class ExecDigestComposer(
                 if (detail is null)
                     continue;
 
-
                 if (detail.Run.Status is not ArchitectureRunStatus.Committed)
                     continue;
-
 
                 DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
 
                 if (committedUtc is null)
                     continue;
 
-
                 if (committedUtc < weekStartUtcInclusive || committedUtc >= weekEndUtcExclusive)
                     continue;
-
 
                 PilotRunDeltas deltas = await _pilotRunDeltaComputer.ComputeAsync(detail, cancellationToken);
                 int score = deltas.FindingsBySeverity.Sum(static p => p.Value);
@@ -203,11 +199,10 @@ public sealed class ExecDigestComposer(
                 .OrderByDescending(static x => x.Score)
                 .ThenByDescending(static x => x.CommittedUtc)
                 .Take(TopRunCount)
-                .Select(
-                    static x => new ExecDigestHighlightedRun(
-                        x.RunId.ToString("N"),
-                        x.Score,
-                        x.CommittedUtc is { } c ? $"Committed {c:yyyy-MM-dd} UTC" : null))
+                .Select(static x => new ExecDigestHighlightedRun(
+                    x.RunId.ToString("N"),
+                    x.Score,
+                    x.CommittedUtc is { } c ? $"Committed {c:yyyy-MM-dd} UTC" : null))
                 .ToList();
 
             string? latestHex = scored
@@ -235,7 +230,6 @@ public sealed class ExecDigestComposer(
         if (scored.Count < 2)
             return null;
 
-
         List<(Guid RunId, DateTime? CommittedUtc, int Score)> ordered = scored
             .OrderBy(static x => x.CommittedUtc)
             .ToList();
@@ -254,14 +248,14 @@ public sealed class ExecDigestComposer(
             if (older is null || newer is null)
                 return null;
 
-
             PilotRunDeltas olderDeltas = await _pilotRunDeltaComputer.ComputeAsync(older, cancellationToken);
             PilotRunDeltas newerDeltas = await _pilotRunDeltaComputer.ComputeAsync(newer, cancellationToken);
 
             int olderTotal = olderDeltas.FindingsBySeverity.Sum(static p => p.Value);
             int newerTotal = newerDeltas.FindingsBySeverity.Sum(static p => p.Value);
 
-            return $"Findings (total severities) moved from {olderTotal} → {newerTotal} between earliest and latest commits in this UTC window.";
+            return
+                $"Findings (total severities) moved from {olderTotal} → {newerTotal} between earliest and latest commits in this UTC window.";
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
@@ -274,7 +268,9 @@ public sealed class ExecDigestComposer(
 
     private static string NormalizeBaseUrl(string operatorBaseUrl)
     {
-        return string.IsNullOrWhiteSpace(operatorBaseUrl) ? "http://localhost:3000" : operatorBaseUrl.Trim().TrimEnd('/');
+        return string.IsNullOrWhiteSpace(operatorBaseUrl)
+            ? "http://localhost:3000"
+            : operatorBaseUrl.Trim().TrimEnd('/');
     }
 
     private static string FormatWeekLabel(DateTime startUtc, DateTime endUtc)

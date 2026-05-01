@@ -3,8 +3,8 @@ using ArchLucid.Contracts.Common;
 namespace ArchLucid.Application.Diffs;
 
 /// <summary>
-/// Maps a <see cref="ManifestDiffResult"/> to a three-state sponsor badge (ADR 0023).
-/// Persisted labels are lowercase: unchanged / changed / breaking.
+///     Maps a <see cref="ManifestDiffResult" /> to a three-state sponsor badge (ADR 0023).
+///     Persisted labels are lowercase: unchanged / changed / breaking.
 /// </summary>
 public static class ManifestDiffBadgeClassifier
 {
@@ -16,12 +16,17 @@ public static class ManifestDiffBadgeClassifier
         nameof(RelationshipType.AuthenticatesWith)
     ];
 
-    /// <inheritdoc cref="Classify(ManifestDiffResult,bool)"/>
-    public static ManifestDiffBadgeState Classify(ManifestDiffResult diff) =>
-        Classify(diff, isFirstCommitOnProject: false);
+    /// <inheritdoc cref="Classify(ManifestDiffResult,bool)" />
+    public static ManifestDiffBadgeState Classify(ManifestDiffResult diff)
+    {
+        return Classify(diff, false);
+    }
 
     /// <param name="diff"></param>
-    /// <param name="isFirstCommitOnProject">When true, returns <see cref="ManifestDiffBadgeState.Unchanged"/> regardless of diff lists.</param>
+    /// <param name="isFirstCommitOnProject">
+    ///     When true, returns <see cref="ManifestDiffBadgeState.Unchanged" /> regardless of
+    ///     diff lists.
+    /// </param>
     public static ManifestDiffBadgeState Classify(ManifestDiffResult diff, bool isFirstCommitOnProject)
     {
         ArgumentNullException.ThrowIfNull(diff);
@@ -36,13 +41,16 @@ public static class ManifestDiffBadgeClassifier
     }
 
     /// <summary>Lowercase label stored in SQL and Confluence macros.</summary>
-    public static string ToPersistedLabel(ManifestDiffBadgeState state) => state switch
+    public static string ToPersistedLabel(ManifestDiffBadgeState state)
     {
-        ManifestDiffBadgeState.Unchanged => "unchanged",
-        ManifestDiffBadgeState.Changed => "changed",
-        ManifestDiffBadgeState.Breaking => "breaking",
-        _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
-    };
+        return state switch
+        {
+            ManifestDiffBadgeState.Unchanged => "unchanged",
+            ManifestDiffBadgeState.Changed => "changed",
+            ManifestDiffBadgeState.Breaking => "breaking",
+            _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
+        };
+    }
 
     public static bool TryParsePersistedLabel(string? label, out ManifestDiffBadgeState state)
     {
@@ -68,15 +76,17 @@ public static class ManifestDiffBadgeClassifier
         return false;
     }
 
-    private static bool HasAnyStructuralChange(ManifestDiffResult diff) =>
-        diff.AddedServices.Count > 0
-        || diff.RemovedServices.Count > 0
-        || diff.AddedDatastores.Count > 0
-        || diff.RemovedDatastores.Count > 0
-        || diff.AddedRequiredControls.Count > 0
-        || diff.RemovedRequiredControls.Count > 0
-        || diff.AddedRelationships.Count > 0
-        || diff.RemovedRelationships.Count > 0;
+    private static bool HasAnyStructuralChange(ManifestDiffResult diff)
+    {
+        return diff.AddedServices.Count > 0
+               || diff.RemovedServices.Count > 0
+               || diff.AddedDatastores.Count > 0
+               || diff.RemovedDatastores.Count > 0
+               || diff.AddedRequiredControls.Count > 0
+               || diff.RemovedRequiredControls.Count > 0
+               || diff.AddedRelationships.Count > 0
+               || diff.RemovedRelationships.Count > 0;
+    }
 
     private static bool IsBreaking(ManifestDiffResult diff)
     {
@@ -86,7 +96,6 @@ public static class ManifestDiffBadgeClassifier
         if (diff.RemovedDatastores.Count > 0)
             return true;
 
-        return diff.RemovedRelationships.Any(
-            r => BreakingRelationshipTypeNames.Contains(r.RelationshipType));
+        return diff.RemovedRelationships.Any(r => BreakingRelationshipTypeNames.Contains(r.RelationshipType));
     }
 }

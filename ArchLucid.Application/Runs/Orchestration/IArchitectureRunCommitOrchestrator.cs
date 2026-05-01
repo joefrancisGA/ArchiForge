@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-/// Merges agent outputs into a golden manifest and persists commit artifacts (commit phase).
+///     Merges agent outputs into a golden manifest and persists commit artifacts (commit phase).
 /// </summary>
 public interface IArchitectureRunCommitOrchestrator
 {

@@ -13,15 +13,6 @@ namespace ArchLucid.Application.Pilots;
 /// </remarks>
 public interface IRecentPilotRunDeltasService
 {
-    /// <summary>
-    ///     Returns the most recent <paramref name="count" /> committed runs in scope (newest first), with
-    ///     server-computed median aggregates over <c>TotalFindings</c> and <c>TimeToCommittedManifest</c>.
-    ///     <paramref name="count" /> is clamped to <see cref="MinCount" />..<see cref="MaxCount" />.
-    /// </summary>
-    Task<RecentPilotRunDeltasResponse> GetRecentDeltasAsync(
-        int count,
-        CancellationToken cancellationToken = default);
-
     /// <summary>Hard floor — a single run still produces a meaningful "median" (= the value itself).</summary>
     public const int MinCount = 1;
 
@@ -33,4 +24,13 @@ public interface IRecentPilotRunDeltasService
 
     /// <summary>Default when the caller omits <c>?count=</c> on the HTTP surface.</summary>
     public const int DefaultCount = 5;
+
+    /// <summary>
+    ///     Returns the most recent <paramref name="count" /> committed runs in scope (newest first), with
+    ///     server-computed median aggregates over <c>TotalFindings</c> and <c>TimeToCommittedManifest</c>.
+    ///     <paramref name="count" /> is clamped to <see cref="MinCount" />..<see cref="MaxCount" />.
+    /// </summary>
+    Task<RecentPilotRunDeltasResponse> GetRecentDeltasAsync(
+        int count,
+        CancellationToken cancellationToken = default);
 }

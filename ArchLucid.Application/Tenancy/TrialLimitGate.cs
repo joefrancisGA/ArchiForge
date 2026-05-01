@@ -4,8 +4,8 @@ using ArchLucid.Core.Tenancy;
 namespace ArchLucid.Application.Tenancy;
 
 /// <summary>
-/// Server-side trial gate: loads <c>dbo.Tenants</c> trial columns and rejects mutating work when the tenant is on a
-/// self-service trial that has expired, exhausted limits, or entered a post-active lifecycle phase.
+///     Server-side trial gate: loads <c>dbo.Tenants</c> trial columns and rejects mutating work when the tenant is on a
+///     self-service trial that has expired, exhausted limits, or entered a post-active lifecycle phase.
 /// </summary>
 public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvider timeProvider)
 {
@@ -15,8 +15,8 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <summary>
-    /// Throws <see cref="TrialLimitExceededException"/> when the tenant must not accept mutating authority operations
-    /// (non-DELETE verbs).
+    ///     Throws <see cref="TrialLimitExceededException" /> when the tenant must not accept mutating authority operations
+    ///     (non-DELETE verbs).
     /// </summary>
     public async Task GuardWriteAsync(ScopeContext scope, CancellationToken cancellationToken)
     {
@@ -35,13 +35,11 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
 
             return;
 
-
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
 
-            throw new TrialLimitExceededException(TrialLimitReason.LifecycleWritesFrozen, daysRemaining: 0);
-
+            throw new TrialLimitExceededException(TrialLimitReason.LifecycleWritesFrozen, 0);
 
         if (IsPostActiveLifecycleWriteFrozen(tenant.TrialStatus))
         {
@@ -56,18 +54,15 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
         int daysRemainingActive = ComputeDaysRemaining(tenant.TrialExpiresUtc, now);
 
         if (tenant.TrialExpiresUtc is { } exp && exp <= now)
-            throw new TrialLimitExceededException(TrialLimitReason.Expired, daysRemaining: 0);
-
+            throw new TrialLimitExceededException(TrialLimitReason.Expired, 0);
 
         if (tenant.TrialRunsLimit is { } runLimit && tenant.TrialRunsUsed >= runLimit)
 
             throw new TrialLimitExceededException(TrialLimitReason.RunsExceeded, daysRemainingActive);
 
-
         if (tenant.TrialSeatsLimit is { } seatLimit && tenant.TrialSeatsUsed >= seatLimit)
 
             throw new TrialLimitExceededException(TrialLimitReason.SeatsExceeded, daysRemainingActive);
-
     }
 
     /// <summary>Throws when HTTP DELETE must be blocked in ReadOnly / ExportOnly / Deleted lifecycle phases.</summary>
@@ -88,7 +83,6 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
 
             return;
 
-
         DateTimeOffset now = _timeProvider.GetUtcNow();
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) ||
@@ -101,10 +95,12 @@ public sealed class TrialLimitGate(ITenantRepository tenantRepository, TimeProvi
         }
     }
 
-    private static bool IsPostActiveLifecycleWriteFrozen(string trialStatus) =>
-        string.Equals(trialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal) ||
-        string.Equals(trialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) ||
-        string.Equals(trialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal);
+    private static bool IsPostActiveLifecycleWriteFrozen(string trialStatus)
+    {
+        return string.Equals(trialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal) ||
+               string.Equals(trialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal) ||
+               string.Equals(trialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal);
+    }
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc, DateTimeOffset now)
     {

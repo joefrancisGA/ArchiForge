@@ -7,14 +7,14 @@ using Cm = ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Authority;
 
 /// <summary>
-/// Persists <c>dbo.ContextSnapshots</c> → <c>dbo.GraphSnapshots</c> → <c>dbo.FindingsSnapshots</c> →
-/// <c>dbo.DecisioningTraces</c> → <c>dbo.GoldenManifests</c> so demo seed and replay satisfy authority FKs.
+///     Persists <c>dbo.ContextSnapshots</c> → <c>dbo.GraphSnapshots</c> → <c>dbo.FindingsSnapshots</c> →
+///     <c>dbo.DecisioningTraces</c> → <c>dbo.GoldenManifests</c> so demo seed and replay satisfy authority FKs.
 /// </summary>
 public interface IAuthorityCommittedManifestChainWriter
 {
     /// <summary>
-    /// Inserts the full authority chain for a committed manifest keyed by <paramref name="chainIds"/>.
-    /// When <paramref name="connection"/> is supplied, all writes enlist in <paramref name="transaction"/>.
+    ///     Inserts the full authority chain for a committed manifest keyed by <paramref name="chainIds" />.
+    ///     When <paramref name="connection" /> is supplied, all writes enlist in <paramref name="transaction" />.
     /// </summary>
     Task<AuthorityManifestPersistResult> PersistCommittedChainAsync(
         ScopeContext scope,

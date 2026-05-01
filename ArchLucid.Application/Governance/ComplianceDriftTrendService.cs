@@ -21,14 +21,11 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
-
         if (fromUtc >= toUtc)
             throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
 
-
         if (bucketSize <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(bucketSize));
-
 
         IReadOnlyList<PolicyPackChangeLogEntry> entries =
             await _changeLogRepository.GetByTenantInRangeAsync(tenantId, fromUtc, toUtc, cancellationToken);
@@ -43,13 +40,11 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
             if (offsetTicks < 0)
                 continue;
 
-
             long bucketIndex = offsetTicks / bucketTicks;
             DateTime bucketUtc = fromUtc.AddTicks(bucketIndex * bucketTicks);
 
             if (bucketUtc >= toUtc)
                 continue;
-
 
             if (!buckets.TryGetValue(bucketUtc, out Dictionary<string, int>? byType))
             {
@@ -71,7 +66,7 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
                     {
                         BucketUtc = bucket,
                         ChangeCount = 0,
-                        ChangesByType = new Dictionary<string, int>(StringComparer.Ordinal),
+                        ChangesByType = new Dictionary<string, int>(StringComparer.Ordinal)
                     });
 
                 continue;
@@ -82,12 +77,7 @@ public sealed class ComplianceDriftTrendService(IPolicyPackChangeLogRepository c
                 new Dictionary<string, int>(byType, StringComparer.Ordinal);
 
             points.Add(
-                new ComplianceDriftTrendPoint
-                {
-                    BucketUtc = bucket,
-                    ChangeCount = total,
-                    ChangesByType = frozen,
-                });
+                new ComplianceDriftTrendPoint { BucketUtc = bucket, ChangeCount = total, ChangesByType = frozen });
         }
 
         return points;

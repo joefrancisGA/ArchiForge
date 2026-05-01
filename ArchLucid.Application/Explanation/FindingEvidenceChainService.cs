@@ -36,26 +36,22 @@ public sealed class FindingEvidenceChainService(
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return null;
 
-
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runGuid, cancellationToken);
 
         if (detail?.Run is null)
             return null;
 
-
         FindingsSnapshot? snapshot = detail.FindingsSnapshot;
 
         if (snapshot?.Findings is not { Count: > 0 } findings)
             return null;
-
 
         Finding? match = findings.FirstOrDefault(f =>
             string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
 
         if (match is null)
             return null;
-
 
         IReadOnlyList<AgentExecutionTrace> traces =
             await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);

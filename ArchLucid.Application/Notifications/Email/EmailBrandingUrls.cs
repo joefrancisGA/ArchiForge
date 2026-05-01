@@ -6,16 +6,14 @@ public static class EmailBrandingUrls
     /// <summary>Default logo under the operator static site: PNG app tile.</summary>
     public const string DefaultLogoRelativePath = "/logo/icon-192.png";
 
-    /// <summary>Returns <see langword="null"/> when <paramref name="operatorBaseUrl"/> is blank.</summary>
+    /// <summary>Returns <see langword="null" /> when <paramref name="operatorBaseUrl" /> is blank.</summary>
     public static string? TryBuildLogoImageUrl(string? operatorBaseUrl, string relativePath = DefaultLogoRelativePath)
     {
         if (string.IsNullOrWhiteSpace(operatorBaseUrl))
             return null;
 
-
         if (string.IsNullOrWhiteSpace(relativePath))
             return null;
-
 
         string trimmedBase = operatorBaseUrl.TrimEnd('/');
 

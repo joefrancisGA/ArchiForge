@@ -5,7 +5,7 @@ namespace ArchLucid.Application.Tenancy;
 /// <summary>Derives URL-safe tenant slugs from display names.</summary>
 public static class TenantSlugNormalizer
 {
-    /// <summary>Normalizes <paramref name="name"/> to a lowercase slug (letters, digits, hyphen).</summary>
+    /// <summary>Normalizes <paramref name="name" /> to a lowercase slug (letters, digits, hyphen).</summary>
     public static string FromName(string name)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -38,6 +38,9 @@ public static class TenantSlugNormalizer
         if (slug.Length > 100)
             slug = slug[..100].TrimEnd('-');
 
-        return string.IsNullOrEmpty(slug) ? throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.") : slug;
+        return string.IsNullOrEmpty(slug)
+            ? throw new InvalidOperationException(
+                "Tenant name must contain at least one letter or digit for slug generation.")
+            : slug;
     }
 }

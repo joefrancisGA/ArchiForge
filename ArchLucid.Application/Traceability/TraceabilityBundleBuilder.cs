@@ -16,15 +16,14 @@ public sealed class TraceabilityBundleBuilder(
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
-
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     private readonly IAuditRepository _auditRepository =
         auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     /// <inheritdoc />
     public async Task<byte[]?> BuildAsync(
@@ -70,12 +69,14 @@ public sealed class TraceabilityBundleBuilder(
             detail.IsCommitted,
             TaskCount = detail.Tasks.Count,
             ResultCount = detail.Results.Count,
-            DecisionTraceCount = detail.DecisionTraces.Count,
+            DecisionTraceCount = detail.DecisionTraces.Count
         };
 
         byte[] zipBytes = BuildZipInMemory(summary, audits, detail.DecisionTraces);
 
-        return zipBytes.LongLength > maxZipBytes ? throw new TraceabilityBundleTooLargeException(zipBytes.LongLength, maxZipBytes) : zipBytes;
+        return zipBytes.LongLength > maxZipBytes
+            ? throw new TraceabilityBundleTooLargeException(zipBytes.LongLength, maxZipBytes)
+            : zipBytes;
     }
 
     private static byte[] BuildZipInMemory(
@@ -84,7 +85,7 @@ public sealed class TraceabilityBundleBuilder(
         IReadOnlyList<DecisionTrace> traces)
     {
         using MemoryStream ms = new();
-        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive zip = new(ms, ZipArchiveMode.Create, true))
         {
             AddJsonEntry(zip, "run-summary.json", runSummary);
             AddJsonEntry(zip, "audit-events.json", audits);
@@ -92,7 +93,8 @@ public sealed class TraceabilityBundleBuilder(
             ZipArchiveEntry readme = zip.CreateEntry("README.txt", CompressionLevel.Fastest);
             using StreamWriter w = new(readme.Open());
             w.WriteLine("ArchLucid traceability bundle — audit slice, decision traces, and run summary.");
-            w.WriteLine("LLM full prompts may be omitted per export policy; use admin evidence export when explicitly authorized.");
+            w.WriteLine(
+                "LLM full prompts may be omitted per export policy; use admin evidence export when explicitly authorized.");
         }
 
         return ms.ToArray();

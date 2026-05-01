@@ -9,28 +9,33 @@ public sealed class SimulationEvaluationRequest
 {
     public required ArchitectureAnalysisReport BaselineReport
     {
-        get; init;
+        get;
+        init;
     }
 
     public ArchitectureAnalysisReport? SimulatedReport
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary>When set, takes precedence over <see cref="ArchitectureAnalysisReport.Determinism"/> on the baseline report.</summary>
+    /// <summary>When set, takes precedence over <see cref="ArchitectureAnalysisReport.Determinism" /> on the baseline report.</summary>
     public DeterminismCheckResult? SuppliedDeterminism
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Optional run id for live determinism when options do not specify one.</summary>
     public string? BaselineArchitectureRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public SimulationEvaluationOptions? Options
     {
-        get; init;
+        get;
+        init;
     }
 }

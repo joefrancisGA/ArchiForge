@@ -3,12 +3,12 @@ using ArchLucid.Contracts.Metadata;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Persists comparison outputs as immutable audit records so they can be replayed or inspected later.
+///     Persists comparison outputs as immutable audit records so they can be replayed or inspected later.
 /// </summary>
 public interface IComparisonAuditService
 {
     /// <summary>
-    /// Persists an end-to-end replay comparison report together with its Markdown summary.
+    ///     Persists an end-to-end replay comparison report together with its Markdown summary.
     /// </summary>
     /// <returns>The newly created <c>ComparisonRecordId</c>.</returns>
     Task<string> RecordEndToEndAsync(
@@ -17,7 +17,7 @@ public interface IComparisonAuditService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Persists an export-record diff result together with its Markdown summary.
+    ///     Persists an export-record diff result together with its Markdown summary.
     /// </summary>
     /// <returns>The newly created <c>ComparisonRecordId</c>.</returns>
     Task<string> RecordExportDiffAsync(
@@ -32,4 +32,3 @@ public interface IComparisonAuditService
         string? notes = null,
         CancellationToken cancellationToken = default);
 }
-

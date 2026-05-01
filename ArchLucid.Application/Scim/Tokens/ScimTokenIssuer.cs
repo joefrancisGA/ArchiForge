@@ -22,12 +22,7 @@ public sealed class ScimTokenIssuer(IScimTenantTokenRepository tokens) : IScimTo
 
         CryptographicOperations.ZeroMemory(secretBytes);
 
-        return new ScimTokenIssueResult
-        {
-            TokenId = id,
-            PlaintextToken = plaintext,
-            PublicLookupKey = publicKey
-        };
+        return new ScimTokenIssueResult { TokenId = id, PlaintextToken = plaintext, PublicLookupKey = publicKey };
     }
 
     private static string Base64UrlEncode(byte[] data)

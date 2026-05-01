@@ -6,14 +6,14 @@ using static ArchLucid.Core.Requests.RequestConstraintClassifier;
 namespace ArchLucid.Application.Evidence;
 
 /// <summary>
-/// Default implementation of <see cref="IEvidenceBuilder"/> that produces a deterministic,
-/// stub-catalog evidence package from an <see cref="ArchitectureRequest"/>.
+///     Default implementation of <see cref="IEvidenceBuilder" /> that produces a deterministic,
+///     stub-catalog evidence package from an <see cref="ArchitectureRequest" />.
 /// </summary>
 /// <remarks>
-/// This implementation is suitable for development, integration tests, and demo environments.
-/// It injects a fixed set of enterprise policies and service catalog entries rather than
-/// querying a live policy or catalog store. Replace or decorate it in production when dynamic
-/// catalog resolution is required.
+///     This implementation is suitable for development, integration tests, and demo environments.
+///     It injects a fixed set of enterprise policies and service catalog entries rather than
+///     querying a live policy or catalog store. Replace or decorate it in production when dynamic
+///     catalog resolution is required.
 /// </remarks>
 public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 {
@@ -78,7 +78,6 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 Tags = ["identity", "security"]
             });
 
-
         if (HasPrivateNetworkingConstraint(request))
 
             policies.Add(new PolicyEvidence
@@ -90,7 +89,6 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 Tags = ["network", "security"]
             });
 
-
         if (HasEncryptionConstraint(request))
 
             policies.Add(new PolicyEvidence
@@ -101,7 +99,6 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 RequiredControls = ["Encryption At Rest"],
                 Tags = ["data", "security"]
             });
-
 
         return policies;
     }
@@ -143,7 +140,6 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 RecommendedUseCases = ["EnterpriseSearch", "RagRetrieval"]
             });
 
-
         if (RequiresAiCapability(request))
 
             services.Add(new ServiceCatalogEvidence
@@ -155,7 +151,6 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 Tags = ["ai", "llm", "generation"],
                 RecommendedUseCases = ["Chat", "Summarization", "RagGeneration"]
             });
-
 
         return services;
     }
@@ -174,7 +169,6 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 ApplicableCapabilities = ["Azure AI Search", "SQL", "Managed Identity"],
                 SuggestedServices = ["Azure App Service", "Azure AI Search", "Azure OpenAI", "Azure SQL"]
             });
-
 
         return patterns;
     }
@@ -207,7 +201,6 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                           "but prior manifest hydration is not yet implemented. Agents should treat this as a greenfield design."
             });
 
-
         if (RequiresSearchCapability(request))
 
             notes.Add(new EvidenceNote
@@ -215,7 +208,6 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 NoteType = EvidenceNoteTypes.PatternHint,
                 Message = "Search-oriented architecture requested; enterprise RAG pattern is applicable."
             });
-
 
         return notes;
     }

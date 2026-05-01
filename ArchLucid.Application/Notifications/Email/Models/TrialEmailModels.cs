@@ -6,7 +6,11 @@ public sealed record TrialFirstRunEmailModel(string ProductName, string GettingS
 
 public sealed record TrialMidTrialEmailModel(string ProductName, string DashboardUrl, string? LogoImageUrl = null);
 
-public sealed record TrialApproachingRunLimitEmailModel(string ProductName, int RunsUsed, int RunsLimit, string? LogoImageUrl = null);
+public sealed record TrialApproachingRunLimitEmailModel(
+    string ProductName,
+    int RunsUsed,
+    int RunsLimit,
+    string? LogoImageUrl = null);
 
 public sealed record TrialExpiringSoonEmailModel(string ProductName, int DaysRemaining, string? LogoImageUrl = null);
 

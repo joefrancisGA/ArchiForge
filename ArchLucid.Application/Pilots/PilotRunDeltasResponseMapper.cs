@@ -2,11 +2,12 @@ using ArchLucid.Contracts.Pilots;
 
 namespace ArchLucid.Application.Pilots;
 
-/// <summary>Maps <see cref="PilotRunDeltas"/> to the HTTP JSON contract <see cref="PilotRunDeltasResponse"/>.</summary>
+/// <summary>Maps <see cref="PilotRunDeltas" /> to the HTTP JSON contract <see cref="PilotRunDeltasResponse" />.</summary>
 public static class PilotRunDeltasResponseMapper
 {
-    public static PilotRunDeltasResponse ToResponse(PilotRunDeltas deltas) =>
-        new()
+    public static PilotRunDeltasResponse ToResponse(PilotRunDeltas deltas)
+    {
+        return new PilotRunDeltasResponse
         {
             TimeToCommittedManifestTotalSeconds = deltas.TimeToCommittedManifest?.TotalSeconds,
             ManifestCommittedUtc = deltas.ManifestCommittedUtc,
@@ -20,6 +21,7 @@ public static class PilotRunDeltasResponseMapper
             TopFindingSeverity = deltas.TopFindingSeverity,
             TopFindingId = deltas.TopFindingId,
             TopFindingEvidenceChain = deltas.TopFindingEvidenceChain,
-            IsDemoTenant = deltas.IsDemoTenant,
+            IsDemoTenant = deltas.IsDemoTenant
         };
+    }
 }

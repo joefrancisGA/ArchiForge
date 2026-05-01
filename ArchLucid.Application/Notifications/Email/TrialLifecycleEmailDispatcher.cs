@@ -21,28 +21,30 @@ public sealed class TrialLifecycleEmailDispatcher(
 {
     private const string DefaultProductName = "ArchLucid";
 
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
     private readonly ITenantTrialEmailContactLookup _contactLookup =
         contactLookup ?? throw new ArgumentNullException(nameof(contactLookup));
-
-    private readonly IEmailTemplateRenderer _templateRenderer =
-        templateRenderer ?? throw new ArgumentNullException(nameof(templateRenderer));
-
-    private readonly IEmailProvider _emailProvider = emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
-
-    private readonly ISentEmailLedger _sentEmailLedger =
-        sentEmailLedger ?? throw new ArgumentNullException(nameof(sentEmailLedger));
 
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
 
+    private readonly IEmailProvider _emailProvider =
+        emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
+
     private readonly ILogger<TrialLifecycleEmailDispatcher> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private readonly ISentEmailLedger _sentEmailLedger =
+        sentEmailLedger ?? throw new ArgumentNullException(nameof(sentEmailLedger));
+
+    private readonly IEmailTemplateRenderer _templateRenderer =
+        templateRenderer ?? throw new ArgumentNullException(nameof(templateRenderer));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <inheritdoc />
-    public async Task DispatchAsync(TrialLifecycleEmailIntegrationEnvelope envelope, CancellationToken cancellationToken)
+    public async Task DispatchAsync(TrialLifecycleEmailIntegrationEnvelope envelope,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(envelope);
 
@@ -53,7 +55,6 @@ public sealed class TrialLifecycleEmailDispatcher(
                 _logger.LogWarning(
                     "Ignoring trial lifecycle email envelope with unsupported schemaVersion {SchemaVersion}.",
                     envelope.SchemaVersion);
-
 
             return;
         }
@@ -66,7 +67,6 @@ public sealed class TrialLifecycleEmailDispatcher(
 
                 _logger.LogWarning("Trial lifecycle email skipped; tenant {TenantId} not found.", envelope.TenantId);
 
-
             return;
         }
 
@@ -74,7 +74,6 @@ public sealed class TrialLifecycleEmailDispatcher(
 
         if (!PassesTriggerGate(envelope.Trigger, tenant, utcNow))
             return;
-
 
         string? to = await _contactLookup.TryResolveAdminEmailAsync(envelope.TenantId, cancellationToken);
 
@@ -85,7 +84,6 @@ public sealed class TrialLifecycleEmailDispatcher(
                 _logger.LogInformation(
                     "Trial lifecycle email skipped; no mailbox resolved for tenant {TenantId}.",
                     envelope.TenantId);
-
 
             return;
         }
@@ -104,19 +102,17 @@ public sealed class TrialLifecycleEmailDispatcher(
         if (plan is null)
             return;
 
-
         SentEmailLedgerEntry ledgerEntry = new(
             plan.IdempotencyKey,
             envelope.TenantId,
             plan.TemplateId,
             _emailProvider.ProviderName,
-            ProviderMessageId: null);
+            null);
 
         bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
 
         if (!reserved)
             return;
-
 
         string html = await _templateRenderer
             .RenderHtmlAsync(plan.TemplateId, plan.Model, cancellationToken)
@@ -136,8 +132,8 @@ public sealed class TrialLifecycleEmailDispatcher(
             Tags = new EmailMessageTags
             {
                 TenantId = envelope.TenantId,
-                EventType = $"{IntegrationEventTypes.TrialLifecycleEmailV1}:{envelope.Trigger}",
-            },
+                EventType = $"{IntegrationEventTypes.TrialLifecycleEmailV1}:{envelope.Trigger}"
+            }
         };
 
         try
@@ -154,34 +150,29 @@ public sealed class TrialLifecycleEmailDispatcher(
                     envelope.TenantId,
                     plan.TemplateId);
 
-
             throw;
         }
     }
 
-    private static bool PassesTriggerGate(TrialLifecycleEmailTrigger trigger, TenantRecord tenant, DateTimeOffset utcNow)
+    private static bool PassesTriggerGate(TrialLifecycleEmailTrigger trigger, TenantRecord tenant,
+        DateTimeOffset utcNow)
     {
         if (trigger is TrialLifecycleEmailTrigger.Converted)
             return string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal);
 
-
         if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
             return false;
-
 
         if (trigger is TrialLifecycleEmailTrigger.TrialProvisioned)
             return true;
 
-
         if (trigger is TrialLifecycleEmailTrigger.FirstRunCommitted)
             return tenant.TrialRunsLimit is not null && tenant.TrialRunsUsed == 1;
-
 
         if (trigger is TrialLifecycleEmailTrigger.MidTrialDay7)
         {
             if (tenant.TrialStartUtc is null)
                 return false;
-
 
             if (tenant.TrialExpiresUtc is { } expMid && expMid <= utcNow)
                 return false;
@@ -235,7 +226,7 @@ public sealed class TrialLifecycleEmailDispatcher(
             return new TrialDispatchPlan(
                 idempotencyKey,
                 EmailTemplateIds.TrialWelcome,
-                Subject: $"Welcome to {productName}",
+                $"Welcome to {productName}",
                 model);
         }
 
@@ -246,7 +237,7 @@ public sealed class TrialLifecycleEmailDispatcher(
             return new TrialDispatchPlan(
                 idempotencyKey,
                 EmailTemplateIds.TrialFirstRunComplete,
-                Subject: "Your first architecture run completed",
+                "Your first architecture run completed",
                 model);
         }
 
@@ -257,7 +248,7 @@ public sealed class TrialLifecycleEmailDispatcher(
             return new TrialDispatchPlan(
                 idempotencyKey,
                 EmailTemplateIds.TrialMidTrialDay7,
-                Subject: $"Day 7 check-in — your {productName} trial",
+                $"Day 7 check-in — your {productName} trial",
                 model);
         }
 
@@ -266,13 +257,12 @@ public sealed class TrialLifecycleEmailDispatcher(
             if (tenant.TrialRunsLimit is not { } limit)
                 return null;
 
-
             TrialApproachingRunLimitEmailModel model = new(productName, tenant.TrialRunsUsed, limit, logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,
                 EmailTemplateIds.TrialApproachingRunLimit,
-                Subject: "Approaching your trial run limit",
+                "Approaching your trial run limit",
                 model);
         }
 
@@ -281,7 +271,6 @@ public sealed class TrialLifecycleEmailDispatcher(
             if (tenant.TrialExpiresUtc is null)
                 return null;
 
-
             int daysRemaining = (int)Math.Max(0d, Math.Ceiling((tenant.TrialExpiresUtc.Value - utcNow).TotalDays));
 
             TrialExpiringSoonEmailModel model = new(productName, daysRemaining, logoImageUrl);
@@ -289,7 +278,7 @@ public sealed class TrialLifecycleEmailDispatcher(
             return new TrialDispatchPlan(
                 idempotencyKey,
                 EmailTemplateIds.TrialExpiringSoon,
-                Subject: "Your trial is ending soon",
+                "Your trial is ending soon",
                 model);
         }
 
@@ -300,31 +289,31 @@ public sealed class TrialLifecycleEmailDispatcher(
             return new TrialDispatchPlan(
                 idempotencyKey,
                 EmailTemplateIds.TrialExpired,
-                Subject: $"Your {productName} trial has ended",
+                $"Your {productName} trial has ended",
                 model);
         }
 
         if (envelope.Trigger is not TrialLifecycleEmailTrigger.Converted)
             return null;
         {
-            string tier = string.IsNullOrWhiteSpace(envelope.TargetTier) ? tenant.Tier.ToString() : envelope.TargetTier.Trim();
+            string tier = string.IsNullOrWhiteSpace(envelope.TargetTier)
+                ? tenant.Tier.ToString()
+                : envelope.TargetTier.Trim();
 
             TrialConvertedEmailModel model = new(productName, tier, logoImageUrl);
 
             return new TrialDispatchPlan(
                 idempotencyKey,
                 EmailTemplateIds.TrialConverted,
-                Subject: $"Welcome to {tier}",
+                $"Welcome to {tier}",
                 model);
         }
-
     }
 
     private static string CombineUrl(string? baseUrl, string relativePath)
     {
         if (string.IsNullOrWhiteSpace(baseUrl))
             return relativePath.StartsWith('/') ? relativePath : "/" + relativePath;
-
 
         string rel = relativePath.StartsWith('/') ? relativePath : "/" + relativePath;
 

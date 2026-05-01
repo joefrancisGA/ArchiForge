@@ -1,8 +1,10 @@
+using System.Text;
+
 namespace ArchLucid.Application.Scim.Patching;
 
 /// <summary>
-/// RFC 7644 §3.5.2 — minimal <c>valuePath</c> support: <c>attrPath "[" valFilter "]" ["." subAttr]</c>.
-/// Production interop focuses on Entra-style <c>members[value eq "{uuid}"]</c> (+ optional <c>.active</c>).
+///     RFC 7644 §3.5.2 — minimal <c>valuePath</c> support: <c>attrPath "[" valFilter "]" ["." subAttr]</c>.
+///     Production interop focuses on Entra-style <c>members[value eq "{uuid}"]</c> (+ optional <c>.active</c>).
 /// </summary>
 public static class ScimPatchValuePathParser
 {
@@ -28,7 +30,7 @@ public static class ScimPatchValuePathParser
 
         try
         {
-            return ParseMembersValuePath(trimmed, requireMembersAttribute: true);
+            return ParseMembersValuePath(trimmed, true);
         }
         catch (ScimPatchException ex)
         {
@@ -37,8 +39,8 @@ public static class ScimPatchValuePathParser
     }
 
     /// <summary>
-    /// Interprets a path for User flat PATCH via <see cref="ScimPatchOpEvaluator" />.
-    /// Any complex <c>valuePath</c> is rejected (not implemented on this resource).
+    ///     Interprets a path for User flat PATCH via <see cref="ScimPatchOpEvaluator" />.
+    ///     Any complex <c>valuePath</c> is rejected (not implemented on this resource).
     /// </summary>
     public static string ParseForUserFlatPatchPath(string path)
     {
@@ -61,7 +63,7 @@ public static class ScimPatchValuePathParser
             return trimmed;
         }
 
-        ScimPatchPathParseOutcome complex = ParseMembersValuePath(trimmed, requireMembersAttribute: false);
+        ScimPatchPathParseOutcome complex = ParseMembersValuePath(trimmed, false);
 
         return complex switch
         {
@@ -157,7 +159,6 @@ public static class ScimPatchValuePathParser
         throw new ScimPatchException(
             "invalidPath",
             "Member filter must be 'value eq \"<guid>\"' (RFC 7644 subset).");
-
     }
 
     internal static bool TryParseValueEqFilter(ReadOnlySpan<char> filterTrimmed, out Guid memberId)
@@ -195,7 +196,7 @@ public static class ScimPatchValuePathParser
         if (rest[0] is '"')
         {
             int i = 1;
-            System.Text.StringBuilder sb = new();
+            StringBuilder sb = new();
 
             while (i < rest.Length)
             {
@@ -265,7 +266,9 @@ public static class ScimPatchValuePathParser
                || ContainsI(f, " le ")
                || ContainsI(f, " pr");
 
-        static bool ContainsI(string s, string needle) =>
-            s.Contains(needle, StringComparison.OrdinalIgnoreCase);
+        static bool ContainsI(string s, string needle)
+        {
+            return s.Contains(needle, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

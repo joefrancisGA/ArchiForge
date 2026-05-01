@@ -19,18 +19,21 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>
-/// Idempotent seed for the Contoso Retail Modernization **trusted baseline** (two committed runs, governance workflow, activations).
+///     Idempotent seed for the Contoso Retail Modernization **trusted baseline** (two committed runs, governance workflow,
+///     activations).
 /// </summary>
 /// <remarks>
-/// Persists via <c>ArchLucid.Persistence</c> repositories. **Authority-only after ADR 0030 PR A3 (2026-04-24):**
-/// each demo run is inserted into <c>dbo.Runs</c> via <see cref="IRunRepository.SaveAsync"/> (project slug
-/// <c>Contoso Retail Platform</c>, matching system-name-as-project-id from coordinator ingestion mapping).
-/// Committed manifest bodies AND decision traces are written through
-/// <see cref="IAuthorityCommittedManifestChainWriter"/> in a single FK-chain insert
-/// (Snapshot rows + GoldenManifest + AuthorityDecisionTrace). The previous
-/// <c>ICoordinatorDecisionTraceRepository</c> second write to <c>dbo.DecisionTraces</c> was removed when
-/// the coordinator interfaces themselves were deleted in PR A3 — see <c>docs/adr/0030-coordinator-authority-pipeline-unification.md</c>.
-/// The export row is optional metadata for export history — not required for consulting DOCX replay. See <c>docs/TRUSTED_BASELINE.md</c>.
+///     Persists via <c>ArchLucid.Persistence</c> repositories. **Authority-only after ADR 0030 PR A3 (2026-04-24):**
+///     each demo run is inserted into <c>dbo.Runs</c> via <see cref="IRunRepository.SaveAsync" /> (project slug
+///     <c>Contoso Retail Platform</c>, matching system-name-as-project-id from coordinator ingestion mapping).
+///     Committed manifest bodies AND decision traces are written through
+///     <see cref="IAuthorityCommittedManifestChainWriter" /> in a single FK-chain insert
+///     (Snapshot rows + GoldenManifest + AuthorityDecisionTrace). The previous
+///     <c>ICoordinatorDecisionTraceRepository</c> second write to <c>dbo.DecisionTraces</c> was removed when
+///     the coordinator interfaces themselves were deleted in PR A3 — see
+///     <c>docs/adr/0030-coordinator-authority-pipeline-unification.md</c>.
+///     The export row is optional metadata for export history — not required for consulting DOCX replay. See
+///     <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>
 public sealed class DemoSeedService(
     IArchitectureRequestRepository requestRepository,
@@ -48,18 +51,20 @@ public sealed class DemoSeedService(
     IActorContext actorContext,
     ILogger<DemoSeedService> logger) : IDemoSeedService
 {
+    private static readonly DateTime DemoUtc = new(2025, 3, 1, 12, 0, 0, DateTimeKind.Utc);
+
+    private readonly IActorContext
+        _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
         authorityCommittedManifestChainWriter
         ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
 
     private readonly IOptionsMonitor<DemoOptions> _demoOptions =
         demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-
-    private static readonly DateTime DemoUtc = new(2025, 3, 1, 12, 0, 0, DateTimeKind.Utc);
 
     /// <inheritdoc />
     public async Task SeedAsync(CancellationToken cancellationToken = default)
@@ -75,7 +80,7 @@ public sealed class DemoSeedService(
                 demo.ResultBaseline,
                 demo.ManifestBaseline,
                 demo.TraceBaseline,
-                isHardened: false,
+                false,
                 cancellationToken)
             ;
         await EnsureCommittedRunAsync(
@@ -85,7 +90,7 @@ public sealed class DemoSeedService(
                 demo.ResultHardened,
                 demo.ManifestHardened,
                 demo.TraceHardened,
-                isHardened: true,
+                true,
                 cancellationToken)
             ;
         await EnsureGovernanceAsync(demo, cancellationToken);
@@ -97,7 +102,6 @@ public sealed class DemoSeedService(
                 "Demo seed completed (Contoso Retail Modernization). Runs: {Baseline}, {Hardened}.",
                 demo.RunBaseline,
                 demo.RunHardened);
-
     }
 
     private async Task EnsureRequestAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
@@ -105,11 +109,11 @@ public sealed class DemoSeedService(
         if (await requestRepository.GetByIdAsync(demo.RequestId, cancellationToken) is not null)
             return;
 
-
         ArchitectureRequest request = new()
         {
             RequestId = demo.RequestId,
-            Description = "Contoso Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
+            Description =
+                "Contoso Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
             SystemName = "Contoso Retail Platform",
             Environment = "prod",
             CloudProvider = CloudProvider.Azure,
@@ -134,7 +138,6 @@ public sealed class DemoSeedService(
         if (await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken) is not null)
             return;
 
-
         string legacyRunId = authorityRunId.ToString("N");
 
         RunRecord authorityRow = new()
@@ -149,7 +152,7 @@ public sealed class DemoSeedService(
                 : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
             CreatedUtc = DemoUtc,
             ArchitectureRequestId = demo.RequestId,
-            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created)
         };
 
         await runRepository.SaveAsync(authorityRow, cancellationToken);
@@ -196,11 +199,11 @@ public sealed class DemoSeedService(
         bool richSeed = IsVerticalDemoSeedDepth(_demoOptions.CurrentValue.SeedDepth);
         GoldenManifest manifest = BuildManifest(legacyRunId, manifestVersion, isHardened, richSeed);
         AuthorityChainKeying chainKeying = new(
-            ManifestId: AuthorityDemoChainIds.Manifest(authorityRunId),
-            ContextSnapshotId: AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
-            GraphSnapshotId: AuthorityDemoChainIds.GraphSnapshot(authorityRunId),
-            FindingsSnapshotId: AuthorityDemoChainIds.FindingsSnapshot(authorityRunId),
-            DecisionTraceId: AuthorityDemoChainIds.DecisionTrace(authorityRunId));
+            AuthorityDemoChainIds.Manifest(authorityRunId),
+            AuthorityDemoChainIds.ContextSnapshot(authorityRunId),
+            AuthorityDemoChainIds.GraphSnapshot(authorityRunId),
+            AuthorityDemoChainIds.FindingsSnapshot(authorityRunId),
+            AuthorityDemoChainIds.DecisionTrace(authorityRunId));
 
         AuthorityManifestPersistResult authorityChain = await _authorityCommittedManifestChainWriter
             .PersistCommittedChainAsync(
@@ -212,8 +215,8 @@ public sealed class DemoSeedService(
                 DemoUtc,
                 richSeed,
                 cancellationToken,
-                connection: null,
-                transaction: null);
+                null,
+                null);
 
         await AuthorityCommittedChainDurableAudit.TryLogAsync(
             _auditService,
@@ -223,7 +226,7 @@ public sealed class DemoSeedService(
             authorityRunId,
             "Contoso Retail Platform",
             authorityChain,
-            source: "demo-seed",
+            "demo-seed",
             richSeed,
             cancellationToken);
 
@@ -475,7 +478,6 @@ public sealed class DemoSeedService(
         if (rows.Any(r => r.ActivationId == activationId))
             return;
 
-
         GovernanceEnvironmentActivation activation = new()
         {
             ActivationId = activationId,
@@ -496,7 +498,6 @@ public sealed class DemoSeedService(
         if (scope.TenantId == Guid.Empty)
             return;
 
-
         row.TenantId = scope.TenantId;
         row.WorkspaceId = scope.WorkspaceId;
         row.ProjectId = scope.ProjectId;
@@ -506,7 +507,6 @@ public sealed class DemoSeedService(
     {
         if (scope.TenantId == Guid.Empty)
             return;
-
 
         row.TenantId = scope.TenantId;
         row.WorkspaceId = scope.WorkspaceId;
@@ -518,18 +518,19 @@ public sealed class DemoSeedService(
         if (scope.TenantId == Guid.Empty)
             return;
 
-
         row.TenantId = scope.TenantId;
         row.WorkspaceId = scope.WorkspaceId;
         row.ProjectId = scope.ProjectId;
     }
 
-    /// <summary>Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no AnalysisRequestJson).</summary>
+    /// <summary>
+    ///     Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no
+    ///     AnalysisRequestJson).
+    /// </summary>
     private async Task EnsureExportRecordAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
         if (await runExportRecordRepository.GetByIdAsync(demo.ExportRecord, cancellationToken) is not null)
             return;
-
 
         RunExportRecord record = new()
         {

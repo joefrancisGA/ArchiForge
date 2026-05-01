@@ -2,80 +2,116 @@ namespace ArchLucid.Application.Analysis;
 
 public sealed class ReplayComparisonResult
 {
-    public string ComparisonRecordId { get; set; } = string.Empty;
-    public string ComparisonType { get; set; } = string.Empty;
-    public string Format { get; set; } = string.Empty;
-    public string FileName { get; set; } = string.Empty;
+    public string ComparisonRecordId
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    public string ComparisonType
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    public string Format
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    public string FileName
+    {
+        get;
+        set;
+    } = string.Empty;
+
     public string? Content
     {
-        get; set;
+        get;
+        set;
     }
+
     public byte[]? BinaryContent
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Replay mode used: artifact, regenerate, verify.</summary>
-    public string ReplayMode { get; set; } = "artifact";
+    public string ReplayMode
+    {
+        get;
+        set;
+    } = "artifact";
 
     /// <summary>When replay mode is Verify: true if regenerated payload matched stored payload.</summary>
     public bool VerificationPassed
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>When replay mode is Verify: message describing verification outcome.</summary>
     public string? VerificationMessage
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>When replay mode is Verify and drift detected: structured drift analysis.</summary>
     public DriftAnalysisResult? DriftAnalysis
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Left run ID (end-to-end or run that owns left export).</summary>
     public string? LeftRunId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Right run ID (end-to-end or run that owns right export).</summary>
     public string? RightRunId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Left export record ID (export-record-diff).</summary>
     public string? LeftExportRecordId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Right export record ID (export-record-diff).</summary>
     public string? RightExportRecordId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>When the comparison record was created (UTC).</summary>
     public DateTime? CreatedUtc
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Export format profile used (e.g. default, detailed).</summary>
     public string? FormatProfile
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>When PersistReplay was true: the new comparison record ID created for this replay.</summary>
     public string? PersistedReplayRecordId
     {
-        get; set;
+        get;
+        set;
     }
 }
-

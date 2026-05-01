@@ -8,8 +8,8 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.Application.Runs;
 
 /// <summary>
-/// Normalises <c>Idempotency-Key</c> and builds a stable SHA-256 fingerprint of <see cref="ArchitectureRequest"/>
-/// (same <see cref="ContractJson.Default"/> options used when persisting <c>ArchitectureRequests.RequestJson</c>).
+///     Normalises <c>Idempotency-Key</c> and builds a stable SHA-256 fingerprint of <see cref="ArchitectureRequest" />
+///     (same <see cref="ContractJson.Default" /> options used when persisting <c>ArchitectureRequests.RequestJson</c>).
 /// </summary>
 public static class ArchitectureRunIdempotencyHashing
 {

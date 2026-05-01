@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
@@ -37,7 +39,8 @@ public sealed class ArchitectureRunProvenanceService(
         ArchitectureRequest? request = await requestRepository
             .GetByIdAsync(detail.Run.RequestId, cancellationToken);
 
-        EvidenceBundle? bundle = await TryResolveEvidenceBundleAsync(detail, evidenceBundleRepository, cancellationToken);
+        EvidenceBundle? bundle =
+            await TryResolveEvidenceBundleAsync(detail, evidenceBundleRepository, cancellationToken);
 
         IReadOnlyList<DecisionNode> decisionNodes = await decisionNodeRepository
             .GetByRunIdAsync(runId, cancellationToken);
@@ -69,8 +72,7 @@ public sealed class ArchitectureRunProvenanceService(
         ArchitectureRun run = detail.Run;
         ArchitectureRunProvenanceGraph graph = new()
         {
-            RunId = run.RunId,
-            TraceabilityGaps = [.. CommittedManifestTraceabilityRules.GetLinkageGaps(detail)]
+            RunId = run.RunId, TraceabilityGaps = [.. CommittedManifestTraceabilityRules.GetLinkageGaps(detail)]
         };
 
         Dictionary<string, ArchitectureLinkageNode> nodes = new(StringComparer.Ordinal);
@@ -136,7 +138,8 @@ public sealed class ArchitectureRunProvenanceService(
 
         AddSnapshotNodes(run, runNodeId, AddNode, AddEdge);
 
-        foreach (AgentTask task in detail.Tasks.OrderBy(t => t.CreatedUtc).ThenBy(t => t.TaskId, StringComparer.Ordinal))
+        foreach (AgentTask task in detail.Tasks.OrderBy(t => t.CreatedUtc)
+                     .ThenBy(t => t.TaskId, StringComparer.Ordinal))
         {
             string taskNodeId = $"task:{task.TaskId}";
             AddNode(
@@ -148,8 +151,7 @@ public sealed class ArchitectureRunProvenanceService(
                     Name = task.Objective.Length > 120 ? task.Objective[..120] + "…" : task.Objective,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["agentType"] = task.AgentType.ToString(),
-                        ["status"] = task.Status.ToString()
+                        ["agentType"] = task.AgentType.ToString(), ["status"] = task.Status.ToString()
                     }
                 });
 
@@ -175,7 +177,8 @@ public sealed class ArchitectureRunProvenanceService(
                     });
         }
 
-        foreach (AgentResult result in detail.Results.OrderBy(r => r.CreatedUtc).ThenBy(r => r.ResultId, StringComparer.Ordinal))
+        foreach (AgentResult result in detail.Results.OrderBy(r => r.CreatedUtc)
+                     .ThenBy(r => r.ResultId, StringComparer.Ordinal))
         {
             string resultNodeId = $"result:{result.ResultId}";
             AddNode(
@@ -187,7 +190,7 @@ public sealed class ArchitectureRunProvenanceService(
                     Name = $"{result.AgentType} result",
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["confidence"] = result.Confidence.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                        ["confidence"] = result.Confidence.ToString("F2", CultureInfo.InvariantCulture),
                         ["taskId"] = result.TaskId
                     }
                 });
@@ -243,8 +246,7 @@ public sealed class ArchitectureRunProvenanceService(
                     Name = $"Manifest {manifestVersion}",
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["systemName"] = manifest.SystemName,
-                        ["runId"] = manifest.RunId
+                        ["systemName"] = manifest.SystemName, ["runId"] = manifest.RunId
                     }
                 });
 
@@ -281,8 +283,7 @@ public sealed class ArchitectureRunProvenanceService(
                     Name = ev.EventType,
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
-                        ["eventDescription"] = ev.EventDescription,
-                        ["eventType"] = ev.EventType
+                        ["eventDescription"] = ev.EventDescription, ["eventType"] = ev.EventType
                     }
                 });
 
@@ -310,7 +311,8 @@ public sealed class ArchitectureRunProvenanceService(
                 });
         }
 
-        foreach (DecisionNode decision in decisionNodes.OrderBy(d => d.CreatedUtc).ThenBy(d => d.DecisionId, StringComparer.Ordinal))
+        foreach (DecisionNode decision in decisionNodes.OrderBy(d => d.CreatedUtc)
+                     .ThenBy(d => d.DecisionId, StringComparer.Ordinal))
         {
             string decisionNodeId = $"decisionNode:{decision.DecisionId}";
             AddNode(
@@ -323,7 +325,7 @@ public sealed class ArchitectureRunProvenanceService(
                     Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                     {
                         ["selectedOptionId"] = decision.SelectedOptionId ?? "",
-                        ["confidence"] = decision.Confidence.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)
+                        ["confidence"] = decision.Confidence.ToString("F2", CultureInfo.InvariantCulture)
                     }
                 });
 

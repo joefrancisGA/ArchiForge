@@ -5,9 +5,9 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Diffs;
 
 /// <summary>
-/// Implements <see cref="IManifestDiffExportService"/> by rendering a full Markdown export document
-/// that pairs a pre-formatted summary with snapshot metadata for both the left and right
-/// <see cref="GoldenManifest"/> versions. Intended for download or persisted audit records.
+///     Implements <see cref="IManifestDiffExportService" /> by rendering a full Markdown export document
+///     that pairs a pre-formatted summary with snapshot metadata for both the left and right
+///     <see cref="GoldenManifest" /> versions. Intended for download or persisted audit records.
 /// </summary>
 public sealed class MarkdownManifestDiffExportService : IManifestDiffExportService
 {

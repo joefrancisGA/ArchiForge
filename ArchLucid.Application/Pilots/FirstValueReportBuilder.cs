@@ -16,14 +16,14 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-/// Builds a sponsor-facing Markdown summary for a single architecture run (read-only projection).
+///     Builds a sponsor-facing Markdown summary for a single architecture run (read-only projection).
 /// </summary>
 /// <remarks>
-/// Computed deltas (wall-clock, findings-by-severity, audit rows, LLM calls, top-severity evidence chain) are
-/// resolved by <see cref="IPilotRunDeltaComputer"/> so this builder and <see cref="SponsorOnePagerPdfBuilder"/>
-/// stay in lockstep — the same numbers appear in the Markdown sibling and in the sponsor PDF wrapper.
-/// The review-cycle delta section uses the same <see cref="ValueReportSnapshot"/> as the tenant value-report DOCX
-/// (default 30-day UTC window ending now; see <c>ValueReportController</c>).
+///     Computed deltas (wall-clock, findings-by-severity, audit rows, LLM calls, top-severity evidence chain) are
+///     resolved by <see cref="IPilotRunDeltaComputer" /> so this builder and <see cref="SponsorOnePagerPdfBuilder" />
+///     stay in lockstep — the same numbers appear in the Markdown sibling and in the sponsor PDF wrapper.
+///     The review-cycle delta section uses the same <see cref="ValueReportSnapshot" /> as the tenant value-report DOCX
+///     (default 30-day UTC window ending now; see <c>ValueReportController</c>).
 /// </remarks>
 public sealed class FirstValueReportBuilder(
     IRunDetailQueryService runDetailQuery,
@@ -37,30 +37,30 @@ public sealed class FirstValueReportBuilder(
     /// <summary>Sponsor-facing banner appended above any computed line for runs that match the demo seed.</summary>
     private const string DemoTenantBanner = "_demo tenant — replace before publishing._";
 
-    private readonly IRunDetailQueryService _runDetailQuery =
-        runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
+    private readonly IConfiguration _configuration =
+        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     private readonly IPilotRunDeltaComputer _deltaComputer =
         deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
 
-    private readonly ValueReportBuilder _valueReportBuilder =
-        valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
-
-    private readonly IScopeContextProvider _scopeProvider =
-        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-
     private readonly IExecutionProvenanceFooterRenderer _executionProvenanceFooter =
         executionProvenanceFooter ?? throw new ArgumentNullException(nameof(executionProvenanceFooter));
-
-    private readonly IConfiguration _configuration =
-        configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     private readonly ILogger<FirstValueReportBuilder> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private readonly IRunDetailQueryService _runDetailQuery =
+        runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
+
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly ValueReportBuilder _valueReportBuilder =
+        valueReportBuilder ?? throw new ArgumentNullException(nameof(valueReportBuilder));
+
     /// <summary>
-    /// Returns Markdown, or <see langword="null"/> when the run does not exist.
-    /// When the run exists but is not committed, returns Markdown that states the gap explicitly.
+    ///     Returns Markdown, or <see langword="null" /> when the run does not exist.
+    ///     When the run exists but is not committed, returns Markdown that states the gap explicitly.
     /// </summary>
     public async Task<string?> BuildMarkdownAsync(
         string runId,
@@ -102,7 +102,8 @@ public sealed class FirstValueReportBuilder(
 
         sb.AppendLine("# ArchLucid — first value report (pilot)");
         sb.AppendLine();
-        sb.AppendLine("This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
+        sb.AppendLine(
+            "This one-page summary is generated from committed run data in ArchLucid. The **computed deltas** below replace the legacy baseline placeholders for the numbers ArchLucid can derive on its own; the qualitative baseline table at the bottom is still operator-filled. See repository `docs/PILOT_ROI_MODEL.md` §4 for the full metric catalog.");
         sb.AppendLine();
 
         if (run.RealModeFellBackToSimulator)
@@ -113,7 +114,8 @@ public sealed class FirstValueReportBuilder(
 
         if (deltas.IsDemoTenant)
         {
-            sb.AppendLine("> " + DemoTenantBanner + " The numbers below come from the seeded Contoso Retail Modernization dataset and MUST NOT be quoted as a real-customer outcome.");
+            sb.AppendLine("> " + DemoTenantBanner +
+                          " The numbers below come from the seeded Contoso Retail Modernization dataset and MUST NOT be quoted as a real-customer outcome.");
             sb.AppendLine();
         }
 
@@ -133,7 +135,8 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         sb.AppendLine("---");
         sb.AppendLine();
-        sb.AppendLine("**Sponsor narrative (canonical):** repository `docs/EXECUTIVE_SPONSOR_BRIEF.md` (not served by this HTTP endpoint).");
+        sb.AppendLine(
+            "**Sponsor narrative (canonical):** repository `docs/EXECUTIVE_SPONSOR_BRIEF.md` (not served by this HTTP endpoint).");
         sb.AppendLine();
         sb.AppendLine($"*Generated from run `{run.RunId}`.*");
 
@@ -153,7 +156,8 @@ public sealed class FirstValueReportBuilder(
             deltas.LlmCallCount);
     }
 
-    private static void AppendRunSection(StringBuilder sb, ArchitectureRun run, GoldenManifest? manifest, string baseUrl)
+    private static void AppendRunSection(StringBuilder sb, ArchitectureRun run, GoldenManifest? manifest,
+        string baseUrl)
     {
         sb.AppendLine("## Run");
         sb.AppendLine();
@@ -163,7 +167,8 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine($"| Status | `{run.Status}` |");
         sb.AppendLine($"| Request id | `{run.RequestId}` |");
         sb.AppendLine($"| Created (UTC) | `{run.CreatedUtc:O}` |");
-        sb.AppendLine($"| Completed (UTC) | `{(run.CompletedUtc is null ? "(pending)" : run.CompletedUtc.Value.ToString("O", CultureInfo.InvariantCulture))}` |");
+        sb.AppendLine(
+            $"| Completed (UTC) | `{(run.CompletedUtc is null ? "(pending)" : run.CompletedUtc.Value.ToString("O", CultureInfo.InvariantCulture))}` |");
 
         if (manifest is null)
         {
@@ -180,14 +185,16 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
         sb.AppendLine("### Evidence links");
         sb.AppendLine();
-        sb.AppendLine($"- [Run detail JSON]({baseUrl}/v1/architecture/run/{run.RunId}) (`GET /v1/architecture/run/{{runId}}`)");
-        sb.AppendLine($"- [Decision nodes]({baseUrl}/v1/architecture/run/{run.RunId}/decisions) (`GET /v1/architecture/run/{{runId}}/decisions`) — after commit");
+        sb.AppendLine(
+            $"- [Run detail JSON]({baseUrl}/v1/architecture/run/{run.RunId}) (`GET /v1/architecture/run/{{runId}}`)");
+        sb.AppendLine(
+            $"- [Decision nodes]({baseUrl}/v1/architecture/run/{run.RunId}/decisions) (`GET /v1/architecture/run/{{runId}}/decisions`) — after commit");
         sb.AppendLine();
     }
 
     /// <summary>
-    /// Computed-deltas table — the single block sponsors should look at first. Every row is derived from persisted
-    /// run state via <see cref="IPilotRunDeltaComputer"/>; see field-by-field docs on <see cref="PilotRunDeltas"/>.
+    ///     Computed-deltas table — the single block sponsors should look at first. Every row is derived from persisted
+    ///     run state via <see cref="IPilotRunDeltaComputer" />; see field-by-field docs on <see cref="PilotRunDeltas" />.
     /// </summary>
     private static void AppendFindingFeedbackMarkdownSection(StringBuilder sb, ValueReportSnapshot snapshot)
     {
@@ -215,16 +222,22 @@ public sealed class FirstValueReportBuilder(
 
         sb.AppendLine("| Metric | Value | Source |");
         sb.AppendLine("| --- | --- | --- |");
-        sb.AppendLine($"| Time to committed manifest | {FormatTimeToCommit(deltas)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
-        sb.AppendLine($"| Findings (total) | {deltas.FindingsBySeverity.Sum(static p => p.Value)} | `ArchitectureRunDetail.Results[*].Findings` |");
-        sb.AppendLine($"| LLM calls for this run | {deltas.LlmCallCount} | `archlucid_llm_calls_per_run` (per-run trace count) |");
-        sb.AppendLine($"| Audit rows for this run | {FormatAuditRowCount(deltas)} | `IAuditRepository.GetFilteredAsync(RunId)` |");
+        sb.AppendLine(
+            $"| Time to committed manifest | {FormatTimeToCommit(deltas)} | `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc` |");
+        sb.AppendLine(
+            $"| Findings (total) | {deltas.FindingsBySeverity.Sum(static p => p.Value)} | `ArchitectureRunDetail.Results[*].Findings` |");
+        sb.AppendLine(
+            $"| LLM calls for this run | {deltas.LlmCallCount} | `archlucid_llm_calls_per_run` (per-run trace count) |");
+        sb.AppendLine(
+            $"| Audit rows for this run | {FormatAuditRowCount(deltas)} | `IAuditRepository.GetFilteredAsync(RunId)` |");
         sb.AppendLine();
     }
 
     private static string FormatTimeToCommit(PilotRunDeltas deltas)
     {
-        return deltas.TimeToCommittedManifest is not { } wall ? "_(pending — no committed manifest yet)_" : $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
+        return deltas.TimeToCommittedManifest is not { } wall
+            ? "_(pending — no committed manifest yet)_"
+            : $"**{wall:c}** (committed `{deltas.ManifestCommittedUtc:O}`)";
     }
 
     private static string FormatAuditRowCount(PilotRunDeltas deltas)
@@ -277,7 +290,8 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
     }
 
-    private static void AppendDecisionTraceSection(StringBuilder sb, ArchitectureRunDetail detail, string runId, string baseUrl)
+    private static void AppendDecisionTraceSection(StringBuilder sb, ArchitectureRunDetail detail, string runId,
+        string baseUrl)
     {
         sb.AppendLine("## Decision trace summary (top 5)");
         sb.AppendLine();
@@ -299,7 +313,8 @@ public sealed class FirstValueReportBuilder(
             if (trace is RuleAuditTrace rule)
             {
                 RuleAuditTracePayload p = rule.RuleAudit;
-                sb.AppendLine($"{index}. **Rule audit** — rule set `{p.RuleSetId}` v`{p.RuleSetVersion}`; applied rules: {p.AppliedRuleIds.Count}, accepted findings: {p.AcceptedFindingIds.Count}, rejected: {p.RejectedFindingIds.Count}.");
+                sb.AppendLine(
+                    $"{index}. **Rule audit** — rule set `{p.RuleSetId}` v`{p.RuleSetVersion}`; applied rules: {p.AppliedRuleIds.Count}, accepted findings: {p.AcceptedFindingIds.Count}, rejected: {p.RejectedFindingIds.Count}.");
             }
             else if (trace is RunEventTrace runEvent)
             {
@@ -315,13 +330,14 @@ public sealed class FirstValueReportBuilder(
         }
 
         sb.AppendLine();
-        sb.AppendLine($"Full trace payloads: [GET /v1/architecture/run/{runId}]({baseUrl}/v1/architecture/run/{runId}) (`decisionTraces` array when present).");
+        sb.AppendLine(
+            $"Full trace payloads: [GET /v1/architecture/run/{runId}]({baseUrl}/v1/architecture/run/{runId}) (`decisionTraces` array when present).");
         sb.AppendLine();
     }
 
     /// <summary>
-    /// Renders the top-severity finding's evidence-chain pointers (manifest version, snapshot ids, related graph
-    /// nodes, agent execution traces) so a sponsor can hand a reviewer a single ID list to trace the decision.
+    ///     Renders the top-severity finding's evidence-chain pointers (manifest version, snapshot ids, related graph
+    ///     nodes, agent execution traces) so a sponsor can hand a reviewer a single ID list to trace the decision.
     /// </summary>
     private static void AppendEvidenceChainSection(StringBuilder sb, PilotRunDeltas deltas)
     {
@@ -336,14 +352,16 @@ public sealed class FirstValueReportBuilder(
             return;
         }
 
-        sb.AppendLine($"Selected finding: `{deltas.TopFindingId}` (severity `{deltas.TopFindingSeverity ?? "Unknown"}`).");
+        sb.AppendLine(
+            $"Selected finding: `{deltas.TopFindingId}` (severity `{deltas.TopFindingSeverity ?? "Unknown"}`).");
         sb.AppendLine();
 
         FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
 
         if (chain is null)
         {
-            sb.AppendLine("_(Evidence chain unavailable — the top-severity finding is not present in the persisted FindingsSnapshot, or the chain service could not resolve it. Review the full run detail JSON for an alternate selection.)_");
+            sb.AppendLine(
+                "_(Evidence chain unavailable — the top-severity finding is not present in the persisted FindingsSnapshot, or the chain service could not resolve it. Review the full run detail JSON for an alternate selection.)_");
             sb.AppendLine();
 
             return;
@@ -362,13 +380,17 @@ public sealed class FirstValueReportBuilder(
         sb.AppendLine();
     }
 
-    private static string FormatGuid(Guid? id) => id is null ? "(none)" : id.Value.ToString("D");
+    private static string FormatGuid(Guid? id)
+    {
+        return id is null ? "(none)" : id.Value.ToString("D");
+    }
 
     private static void AppendBaselinePlaceholderTable(StringBuilder sb)
     {
         sb.AppendLine("## Qualitative baseline (operator-filled)");
         sb.AppendLine();
-        sb.AppendLine("Use this table for the qualitative metrics ArchLucid cannot derive on its own. The numeric metrics (time-to-commit, findings counts, audit rows, LLM calls) are now in the **Computed deltas** section above.");
+        sb.AppendLine(
+            "Use this table for the qualitative metrics ArchLucid cannot derive on its own. The numeric metrics (time-to-commit, findings counts, audit rows, LLM calls) are now in the **Computed deltas** section above.");
         sb.AppendLine();
         sb.AppendLine("| Pilot metric (see PILOT_ROI_MODEL.md) | Baseline (before) | During pilot | Notes |");
         sb.AppendLine("| --- | --- | --- | --- |");

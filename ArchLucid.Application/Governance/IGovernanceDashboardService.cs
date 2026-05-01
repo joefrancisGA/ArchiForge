@@ -3,7 +3,7 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Builds read-only governance dashboard aggregates for a tenant scope.
+///     Builds read-only governance dashboard aggregates for a tenant scope.
 /// </summary>
 public interface IGovernanceDashboardService
 {

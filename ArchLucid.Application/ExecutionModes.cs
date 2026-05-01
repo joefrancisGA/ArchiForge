@@ -1,8 +1,8 @@
 namespace ArchLucid.Application;
 
 /// <summary>
-/// Well-known agent execution mode identifiers passed to
-/// <see cref="ArchLucid.Application.Agents.IAgentExecutorResolver.Resolve"/>.
+///     Well-known agent execution mode identifiers passed to
+///     <see cref="ArchLucid.Application.Agents.IAgentExecutorResolver.Resolve" />.
 /// </summary>
 public static class ExecutionModes
 {

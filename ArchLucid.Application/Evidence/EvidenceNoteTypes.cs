@@ -1,9 +1,9 @@
 namespace ArchLucid.Application.Evidence;
 
 /// <summary>
-/// Well-known <c>NoteType</c> values written to <see cref="ArchLucid.Contracts.Agents.EvidenceNote.NoteType"/>
-/// by the evidence-building pipeline. Centralised here to prevent typos and keep
-/// note-type strings consistent across producers, consumers, and tests.
+///     Well-known <c>NoteType</c> values written to <see cref="ArchLucid.Contracts.Agents.EvidenceNote.NoteType" />
+///     by the evidence-building pipeline. Centralised here to prevent typos and keep
+///     note-type strings consistent across producers, consumers, and tests.
 /// </summary>
 public static class EvidenceNoteTypes
 {
@@ -11,8 +11,8 @@ public static class EvidenceNoteTypes
     public const string ExecutionMode = "ExecutionMode";
 
     /// <summary>
-    /// Indicates a <c>PriorManifestVersion</c> was requested but prior-manifest
-    /// hydration is not yet implemented. Agents should treat the run as greenfield.
+    ///     Indicates a <c>PriorManifestVersion</c> was requested but prior-manifest
+    ///     hydration is not yet implemented. Agents should treat the run as greenfield.
     /// </summary>
     public const string PriorManifestUnavailable = "PriorManifestUnavailable";
 

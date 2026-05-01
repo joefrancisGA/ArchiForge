@@ -23,26 +23,26 @@ public sealed class SponsorEvidencePackService(
 {
     private const int GovernanceListCap = 50;
 
-    private readonly IWhyArchLucidSnapshotService _whyArchLucidSnapshotService =
-        whyArchLucidSnapshotService ?? throw new ArgumentNullException(nameof(whyArchLucidSnapshotService));
-
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
-
-    private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer =
-        pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
-
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
 
     private readonly IGovernanceDashboardService _governanceDashboardService =
         governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
 
+    private readonly ILogger<SponsorEvidencePackService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer =
+        pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
+
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    private readonly ILogger<SponsorEvidencePackService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IWhyArchLucidSnapshotService _whyArchLucidSnapshotService =
+        whyArchLucidSnapshotService ?? throw new ArgumentNullException(nameof(whyArchLucidSnapshotService));
 
     /// <inheritdoc />
     public async Task<SponsorEvidencePackResponse> BuildAsync(CancellationToken cancellationToken)
@@ -62,7 +62,8 @@ public sealed class SponsorEvidencePackService(
 
         FindingsSnapshot resolved = await ResolveFindingsSnapshotAsync(detail, cancellationToken);
         TraceCompletenessSummary traceSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(resolved);
-        ExplainabilityTraceCompletenessPack explainability = SponsorEvidenceExplainabilityMapper.ToContract(traceSummary);
+        ExplainabilityTraceCompletenessPack explainability =
+            SponsorEvidenceExplainabilityMapper.ToContract(traceSummary);
 
         SponsorEvidenceGovernanceOutcomes governance = await TryBuildGovernanceOutcomesAsync(cancellationToken);
 
@@ -73,7 +74,7 @@ public sealed class SponsorEvidencePackService(
             ProcessInstrumentation = process,
             ExplainabilityTrace = explainability,
             DemoRunValueReportDelta = deltas,
-            GovernanceOutcomes = governance,
+            GovernanceOutcomes = governance
         };
     }
 
@@ -117,16 +118,16 @@ public sealed class SponsorEvidencePackService(
         {
             GovernanceDashboardSummary dash = await _governanceDashboardService.GetDashboardAsync(
                 tenantId,
-                maxPending: GovernanceListCap,
-                maxDecisions: GovernanceListCap,
-                maxChanges: GovernanceListCap,
+                GovernanceListCap,
+                GovernanceListCap,
+                GovernanceListCap,
                 cancellationToken);
 
             return new SponsorEvidenceGovernanceOutcomes
             {
                 PendingApprovalCount = dash.PendingCount,
                 RecentTerminalDecisionCount = dash.RecentDecisions.Count,
-                RecentPolicyPackChangeCount = dash.RecentChanges.Count,
+                RecentPolicyPackChangeCount = dash.RecentChanges.Count
             };
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -136,9 +137,7 @@ public sealed class SponsorEvidencePackService(
 
             return new SponsorEvidenceGovernanceOutcomes
             {
-                PendingApprovalCount = 0,
-                RecentTerminalDecisionCount = 0,
-                RecentPolicyPackChangeCount = 0,
+                PendingApprovalCount = 0, RecentTerminalDecisionCount = 0, RecentPolicyPackChangeCount = 0
             };
         }
     }

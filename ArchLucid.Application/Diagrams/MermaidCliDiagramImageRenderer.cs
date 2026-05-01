@@ -2,17 +2,17 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Diagrams;
 
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
-/// Renders a Mermaid diagram to a PNG image by invoking the <c>mmdc</c> Mermaid CLI tool.
-/// Writes the diagram to a temporary file, runs <c>mmdc</c>, reads the output PNG, and cleans up.
-/// Register <see cref="NullDiagramImageRenderer"/> in environments where <c>mmdc</c> is not installed.
+///     Renders a Mermaid diagram to a PNG image by invoking the <c>mmdc</c> Mermaid CLI tool.
+///     Writes the diagram to a temporary file, runs <c>mmdc</c>, reads the output PNG, and cleans up.
+///     Register <see cref="NullDiagramImageRenderer" /> in environments where <c>mmdc</c> is not installed.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Requires external mmdc CLI tool installed on the host; tested manually.")]
 public sealed class MermaidCliDiagramImageRenderer(
@@ -28,7 +28,6 @@ public sealed class MermaidCliDiagramImageRenderer(
     {
         if (string.IsNullOrWhiteSpace(mermaidDiagram))
             return null;
-
 
         string tempDir = Path.Combine(Path.GetTempPath(), "archlucid-mermaid", Guid.NewGuid().ToString("N"));
 
@@ -48,7 +47,7 @@ public sealed class MermaidCliDiagramImageRenderer(
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true,
+                CreateNoWindow = true
             };
 
             using CancellationTokenSource timeoutCts = new(ProcessTimeout);
@@ -73,7 +72,6 @@ public sealed class MermaidCliDiagramImageRenderer(
                         process.ExitCode,
                         LogSanitizer.Sanitize(stdErr));
 
-
                 return null;
             }
 
@@ -86,13 +84,12 @@ public sealed class MermaidCliDiagramImageRenderer(
                     "Mermaid CLI reported success but output PNG was missing at {OutputPath}.",
                     LogSanitizer.Sanitize(outputPath));
 
-
             return null;
-
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            logger.LogWarning(ex, "Mermaid CLI diagram render failed; callers should fall back to Mermaid source text.");
+            logger.LogWarning(ex,
+                "Mermaid CLI diagram render failed; callers should fall back to Mermaid source text.");
 
             return null;
         }
@@ -102,8 +99,7 @@ public sealed class MermaidCliDiagramImageRenderer(
             {
                 if (Directory.Exists(tempDir))
 
-                    Directory.Delete(tempDir, recursive: true);
-
+                    Directory.Delete(tempDir, true);
             }
             catch (Exception ex)
             {
@@ -113,7 +109,6 @@ public sealed class MermaidCliDiagramImageRenderer(
                         ex,
                         "Failed to delete temporary Mermaid work directory '{TempDir}'.",
                         LogSanitizer.Sanitize(tempDir));
-
             }
         }
     }

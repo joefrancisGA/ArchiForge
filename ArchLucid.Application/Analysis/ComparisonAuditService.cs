@@ -6,7 +6,7 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Persists comparison results as immutable <see cref="ComparisonRecord"/> entries for audit and replay.
+///     Persists comparison results as immutable <see cref="ComparisonRecord" /> entries for audit and replay.
 /// </summary>
 public sealed class ComparisonAuditService(IComparisonRecordRepository repository) : IComparisonAuditService
 {
@@ -96,4 +96,3 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         return record.ComparisonRecordId;
     }
 }
-

@@ -3,7 +3,7 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Builds time-bucketed aggregates of policy pack change log activity for a tenant.
+///     Builds time-bucketed aggregates of policy pack change log activity for a tenant.
 /// </summary>
 public interface IComplianceDriftTrendService
 {

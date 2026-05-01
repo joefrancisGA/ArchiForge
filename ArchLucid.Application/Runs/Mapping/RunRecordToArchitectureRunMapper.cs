@@ -5,12 +5,12 @@ using ArchLucid.Persistence.Models;
 namespace ArchLucid.Application.Runs.Mapping;
 
 /// <summary>
-/// Maps authority <see cref="RunRecord"/> + task ids into the API contract <see cref="ArchitectureRun"/>.
+///     Maps authority <see cref="RunRecord" /> + task ids into the API contract <see cref="ArchitectureRun" />.
 /// </summary>
 public static class RunRecordToArchitectureRunMapper
 {
     /// <summary>
-    /// Builds <see cref="ArchitectureRun"/> from <paramref name="record"/> and ordered <paramref name="taskIds"/>.
+    ///     Builds <see cref="ArchitectureRun" /> from <paramref name="record" /> and ordered <paramref name="taskIds" />.
     /// </summary>
     public static ArchitectureRun ToArchitectureRun(RunRecord record, IReadOnlyList<string> taskIds)
     {
@@ -45,13 +45,11 @@ public static class RunRecordToArchitectureRunMapper
         if (string.IsNullOrWhiteSpace(legacyRunStatus))
             return ArchitectureRunStatus.Created;
 
-
-        if (!Enum.TryParse(legacyRunStatus, ignoreCase: true, out ArchitectureRunStatus parsed))
+        if (!Enum.TryParse(legacyRunStatus, true, out ArchitectureRunStatus parsed))
 
             throw new InvalidOperationException(
                 $"Unrecognised ArchitectureRunStatus '{legacyRunStatus}'. " +
                 "The authority row may have been written by a newer version of the application.");
-
 
         return parsed;
     }

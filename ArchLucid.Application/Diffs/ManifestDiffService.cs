@@ -3,14 +3,14 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Diffs;
 
 /// <summary>
-/// Produces a structural diff between two <see cref="GoldenManifest"/> instances, reporting added/removed
-/// services, datastores, required controls, and relationships.
+///     Produces a structural diff between two <see cref="GoldenManifest" /> instances, reporting added/removed
+///     services, datastores, required controls, and relationships.
 /// </summary>
 public sealed class ManifestDiffService : IManifestDiffService
 {
     /// <summary>
-    /// Compares <paramref name="left"/> (baseline) against <paramref name="right"/> (candidate) and returns
-    /// a <see cref="ManifestDiffResult"/> describing all structural changes.
+    ///     Compares <paramref name="left" /> (baseline) against <paramref name="right" /> (candidate) and returns
+    ///     a <see cref="ManifestDiffResult" /> describing all structural changes.
     /// </summary>
     public ManifestDiffResult Compare(
         GoldenManifest left,
@@ -171,11 +171,9 @@ public sealed class ManifestDiffService : IManifestDiffService
 
             warnings.Add("SystemName differs between compared manifests.");
 
-
         if (!string.Equals(left.RunId, right.RunId, StringComparison.OrdinalIgnoreCase))
 
             warnings.Add("RunId differs between compared manifests.");
-
 
         return warnings;
     }

@@ -30,17 +30,17 @@ public sealed class AuthorityCommittedManifestChainWriter(
     private readonly IContextSnapshotRepository _contextSnapshots =
         contextSnapshots ?? throw new ArgumentNullException(nameof(contextSnapshots));
 
-    private readonly IGraphSnapshotRepository _graphSnapshots =
-        graphSnapshots ?? throw new ArgumentNullException(nameof(graphSnapshots));
+    private readonly IDecisionTraceRepository _decisionTraces =
+        decisionTraces ?? throw new ArgumentNullException(nameof(decisionTraces));
 
     private readonly IFindingsSnapshotRepository _findingsSnapshots =
         findingsSnapshots ?? throw new ArgumentNullException(nameof(findingsSnapshots));
 
-    private readonly IDecisionTraceRepository _decisionTraces =
-        decisionTraces ?? throw new ArgumentNullException(nameof(decisionTraces));
-
     private readonly IGoldenManifestRepository _goldenManifests =
         goldenManifests ?? throw new ArgumentNullException(nameof(goldenManifests));
+
+    private readonly IGraphSnapshotRepository _graphSnapshots =
+        graphSnapshots ?? throw new ArgumentNullException(nameof(graphSnapshots));
 
     private readonly IManifestHashService _manifestHash =
         manifestHash ?? throw new ArgumentNullException(nameof(manifestHash));
@@ -67,7 +67,8 @@ public sealed class AuthorityCommittedManifestChainWriter(
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
 
-        ContextSnapshot context = BuildContextSnapshot(chainIds.ContextSnapshotId, authorityRunId, projectSlug, createdUtc);
+        ContextSnapshot context =
+            BuildContextSnapshot(chainIds.ContextSnapshotId, authorityRunId, projectSlug, createdUtc);
         GraphSnapshot graph = BuildGraphSnapshot(
             chainIds.GraphSnapshotId,
             chainIds.ContextSnapshotId,
@@ -84,7 +85,8 @@ public sealed class AuthorityCommittedManifestChainWriter(
                 createdUtc,
                 richFindingsAndGraph);
 
-        RuleAuditTrace ruleAudit = BuildRuleAudit(scope, chainIds.DecisionTraceId, authorityRunId, createdUtc, acceptedFindingIds);
+        RuleAuditTrace ruleAudit = BuildRuleAudit(scope, chainIds.DecisionTraceId, authorityRunId, createdUtc,
+            acceptedFindingIds);
 
         await _contextSnapshots.SaveAsync(context, cancellationToken, connection, transaction);
         await _graphSnapshots.SaveAsync(graph, cancellationToken, connection, transaction);
@@ -102,7 +104,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
             RuleSetId = DemoRuleSetId,
             RuleSetVersion = DemoRuleSetVersion,
             RuleSetHash = DemoRuleSetHash,
-            CreatedUtc = createdUtc,
+            CreatedUtc = createdUtc
         };
 
         await _goldenManifests.SaveAsync(
@@ -113,7 +115,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
             cancellationToken,
             connection,
             transaction,
-            authorityPersistBody: null);
+            null);
 
         return new AuthorityManifestPersistResult(
             chainIds.ContextSnapshotId,
@@ -142,12 +144,12 @@ public sealed class AuthorityCommittedManifestChainWriter(
                     ObjectType = "system",
                     Name = projectSlug,
                     SourceType = "authority-seed",
-                    SourceId = runId.ToString("N"),
-                },
+                    SourceId = runId.ToString("N")
+                }
             ],
             Warnings = [],
             Errors = [],
-            SourceHashes = new Dictionary<string, string> { ["demo"] = "1" },
+            SourceHashes = new Dictionary<string, string> { ["demo"] = "1" }
         };
     }
 
@@ -164,7 +166,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
             ContextSnapshotId = contextSnapshotId,
             RunId = runId,
             CreatedUtc = createdUtc,
-            Warnings = [],
+            Warnings = []
         };
 
         if (!rich)
@@ -178,7 +180,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
                 Label = "Checkout API",
                 Category = "compute",
                 SourceType = "demo",
-                SourceId = "seed",
+                SourceId = "seed"
             });
 
         graph.Nodes.Add(
@@ -189,7 +191,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
                 Label = "Orders DB",
                 Category = "data",
                 SourceType = "demo",
-                SourceId = "seed",
+                SourceId = "seed"
             });
 
         graph.Edges.Add(
@@ -199,7 +201,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
                 FromNodeId = "node-checkout-api",
                 ToNodeId = "node-orders-db",
                 EdgeType = "dependsOn",
-                Weight = 1d,
+                Weight = 1d
             });
 
         return graph;
@@ -220,7 +222,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
             ContextSnapshotId = contextSnapshotId,
             GraphSnapshotId = graphSnapshotId,
             CreatedUtc = createdUtc,
-            EngineFailures = [],
+            EngineFailures = []
         };
 
         Finding primary = new()
@@ -231,7 +233,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
             EngineType = "DemoSeed",
             Severity = FindingSeverity.Warning,
             Title = "Demo finding — cost posture",
-            Rationale = "Seeded finding so authority decision trace accepts at least one finding id.",
+            Rationale = "Seeded finding so authority decision trace accepts at least one finding id."
         };
 
         snapshot.Findings.Add(primary);
@@ -247,7 +249,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
                     EngineType = "DemoSeed",
                     Severity = FindingSeverity.Info,
                     Title = "Demo finding — security control coverage",
-                    Rationale = "Secondary seeded finding for vertical-style demo density.",
+                    Rationale = "Secondary seeded finding for vertical-style demo density."
                 });
         }
 
@@ -276,7 +278,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
             AppliedRuleIds = ["demo-seed-rule"],
             AcceptedFindingIds = [.. acceptedFindingIds],
             RejectedFindingIds = [],
-            Notes = ["Seeded authority rule-audit trace (demo / replay FK chain)."],
+            Notes = ["Seeded authority rule-audit trace (demo / replay FK chain)."]
         };
 
         return RuleAuditTrace.From(payload);

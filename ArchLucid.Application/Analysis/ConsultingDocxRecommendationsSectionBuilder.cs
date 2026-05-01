@@ -13,8 +13,8 @@ internal static class ConsultingDocxRecommendationsSectionBuilder
         if (report.Warnings.Count <= 0)
             return;
 
-
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
-        ConsultingDocxOpenXmlPrimitives.AddCallout(body, "Open warnings remain and should be resolved or explicitly accepted.", options);
+        ConsultingDocxOpenXmlPrimitives.AddCallout(body,
+            "Open warnings remain and should be resolved or explicitly accepted.", options);
     }
 }

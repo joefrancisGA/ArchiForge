@@ -1,8 +1,8 @@
 namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
-/// Well-known string values for <see cref="ManifestDiagramOptions"/> properties and the
-/// normalization helpers in <see cref="ManifestDiagramService"/>.
+///     Well-known string values for <see cref="ManifestDiagramOptions" /> properties and the
+///     normalization helpers in <see cref="ManifestDiagramService" />.
 /// </summary>
 public static class ManifestDiagramConstants
 {

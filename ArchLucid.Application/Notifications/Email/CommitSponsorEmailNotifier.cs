@@ -1,4 +1,5 @@
 using System.Net;
+
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Tenancy;
@@ -21,11 +22,11 @@ public sealed class CommitSponsorEmailNotifier(
     private readonly ITenantTrialEmailContactLookup _contactLookup =
         contactLookup ?? throw new ArgumentNullException(nameof(contactLookup));
 
-    private readonly IEmailProvider _emailProvider =
-        emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
-
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
+    private readonly IEmailProvider _emailProvider =
+        emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
 
     private readonly ILogger<CommitSponsorEmailNotifier> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -106,11 +107,7 @@ public sealed class CommitSponsorEmailNotifier(
             HtmlBody = html,
             TextBody = text,
             IdempotencyKey = idempotencyKey,
-            Tags = new EmailMessageTags
-            {
-                TenantId = tenantId,
-                EventType = TemplateId,
-            },
+            Tags = new EmailMessageTags { TenantId = tenantId, EventType = TemplateId }
         };
 
         try

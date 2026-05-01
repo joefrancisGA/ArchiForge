@@ -12,6 +12,7 @@ public sealed class ValueReportBuilder(
 {
     private readonly IValueReportMetricsReader _metricsReader =
         metricsReader ?? throw new ArgumentNullException(nameof(metricsReader));
+
     private readonly IOptionsMonitor<ValueReportComputationOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
@@ -33,8 +34,9 @@ public sealed class ValueReportBuilder(
             cancellationToken);
 
         decimal perManifestHours = raw.TenantBaselineManualPrepHoursPerReview
-            ?? o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest;
-        decimal manifestHours = raw.ManifestsCommittedCount * perManifestHours * o.ArchitectHoursSavedFractionVsBaseline;
+                                   ?? o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest;
+        decimal manifestHours =
+            raw.ManifestsCommittedCount * perManifestHours * o.ArchitectHoursSavedFractionVsBaseline;
 
         decimal governanceHours = raw.GovernanceEventCount * o.GovernanceReviewHoursPerGovernanceEvent;
 
@@ -80,15 +82,16 @@ public sealed class ValueReportBuilder(
         else
         {
             decimal measuredHours = raw.MeasuredAverageReviewCycleHoursForWindow.Value;
-            decimal baselineReviewHours = raw.TenantBaselineReviewCycleHours ?? o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest;
+            decimal baselineReviewHours = raw.TenantBaselineReviewCycleHours ??
+                                          o.BaselineArchitectHoursBeforeArchLucidPerCommittedManifest;
 
             reviewProvenance = raw.TenantBaselineReviewCycleHours is not null
-                ? (string.Equals(
+                ? string.Equals(
                     raw.TenantBaselineReviewCycleSource,
                     "baseline_settings",
                     StringComparison.OrdinalIgnoreCase)
                     ? ReviewCycleBaselineProvenance.TenantSuppliedViaSettings
-                    : ReviewCycleBaselineProvenance.TenantSuppliedAtSignup)
+                    : ReviewCycleBaselineProvenance.TenantSuppliedAtSignup
                 : ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions;
 
             reviewDeltaHours = baselineReviewHours - measuredHours;

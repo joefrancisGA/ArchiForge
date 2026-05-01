@@ -19,7 +19,8 @@ internal static class ConsultingDocxCoverPageBuilder
 
             if (logoBytes is not null && logoBytes.Length > 0)
             {
-                ConsultingDocxOpenXmlPrimitives.AddImageToBody(mainPart, body, logoBytes, "Document Logo", 2_200_000L, 700_000L);
+                ConsultingDocxOpenXmlPrimitives.AddImageToBody(mainPart, body, logoBytes, "Document Logo", 2_200_000L,
+                    700_000L);
                 ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 2);
             }
         }
@@ -49,7 +50,6 @@ internal static class ConsultingDocxCoverPageBuilder
                 body,
                 $"Manifest Version: {report.Run.CurrentManifestVersion}",
                 "BodyText");
-
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 6);
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.GeneratedByLine, "Subtle");

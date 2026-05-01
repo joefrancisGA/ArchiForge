@@ -4,7 +4,7 @@ using ArchLucid.Contracts.Architecture;
 namespace ArchLucid.Application.Jobs;
 
 /// <summary>
-/// Loads run detail from persistence and runs DOCX export pipelines for queued work units.
+///     Loads run detail from persistence and runs DOCX export pipelines for queued work units.
 /// </summary>
 public sealed class BackgroundJobWorkUnitExecutor(
     IRunDetailQueryService runDetailQuery,
@@ -12,7 +12,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
     IArchitectureAnalysisDocxExportService docxExportService,
     IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService) : IBackgroundJobWorkUnitExecutor
 {
-    public async Task<BackgroundJobFile> ExecuteAsync(BackgroundJobWorkUnit workUnit, CancellationToken cancellationToken)
+    public async Task<BackgroundJobFile> ExecuteAsync(BackgroundJobWorkUnit workUnit,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(workUnit);
 
@@ -20,7 +21,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
         {
             AnalysisReportDocxWorkUnit w => await ExecuteAnalysisReportDocxAsync(w, cancellationToken),
             ConsultingDocxWorkUnit w => await ExecuteConsultingDocxAsync(w, cancellationToken),
-            _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")
+            _ => throw new InvalidOperationException(
+                $"Unsupported background job work unit: {workUnit.GetType().Name}.")
         };
     }
 

@@ -6,7 +6,8 @@ using ArchLucid.Contracts.Architecture;
 namespace ArchLucid.Application.Evolution;
 
 /// <summary>
-/// Produces a deep copy of <see cref="ArchitectureRunDetail"/> so shadow overlays do not share mutable graphs with the loaded aggregate.
+///     Produces a deep copy of <see cref="ArchitectureRunDetail" /> so shadow overlays do not share mutable graphs with
+///     the loaded aggregate.
 /// </summary>
 internal static class ArchitectureRunDetailIsolatingCloner
 {
@@ -14,7 +15,7 @@ internal static class ArchitectureRunDetailIsolatingCloner
     {
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
         WriteIndented = false,
-        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     };
 
     internal static ArchitectureRunDetail Clone(ArchitectureRunDetail source)

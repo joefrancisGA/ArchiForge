@@ -18,14 +18,14 @@ public sealed class RecentPilotRunDeltasService(
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     ILogger<RecentPilotRunDeltasService> logger) : IRecentPilotRunDeltasService
 {
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly ILogger<RecentPilotRunDeltasService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer =
         pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
 
-    private readonly ILogger<RecentPilotRunDeltasService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     /// <inheritdoc />
     public async Task<RecentPilotRunDeltasResponse> GetRecentDeltasAsync(
@@ -66,11 +66,14 @@ public sealed class RecentPilotRunDeltasService(
             RequestedCount = requested,
             ReturnedCount = rows.Count,
             MedianTotalFindings = medianFindings,
-            MedianTimeToCommittedManifestTotalSeconds = medianSeconds,
+            MedianTimeToCommittedManifestTotalSeconds = medianSeconds
         };
     }
 
-    private static bool IsCommitted(RunSummary r) => !string.IsNullOrWhiteSpace(r.CurrentManifestVersion);
+    private static bool IsCommitted(RunSummary r)
+    {
+        return !string.IsNullOrWhiteSpace(r.CurrentManifestVersion);
+    }
 
     private async Task<RecentPilotRunDeltaSummaryResponse?> TryProjectAsync(
         RunSummary summary,
@@ -78,7 +81,8 @@ public sealed class RecentPilotRunDeltasService(
     {
         try
         {
-            ArchitectureRunDetail? detail = await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken);
+            ArchitectureRunDetail? detail =
+                await _runDetailQueryService.GetRunDetailAsync(summary.RunId, cancellationToken);
 
             if (detail is null)
                 return null;
@@ -101,7 +105,7 @@ public sealed class RecentPilotRunDeltasService(
                 TimeToCommittedManifestTotalSeconds = deltas.TimeToCommittedManifest?.TotalSeconds,
                 TotalFindings = totalFindings,
                 TopFindingSeverity = deltas.TopFindingSeverity,
-                IsDemoTenant = isDemo,
+                IsDemoTenant = isDemo
             };
         }
         catch (Exception ex) when (ex is not OperationCanceledException)

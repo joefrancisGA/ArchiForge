@@ -4,8 +4,9 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Replays a persisted <see cref="RunExportRecord"/> by rehydrating the original analysis request and
-/// regenerating the export artifact (consulting or standard analysis DOCX), optionally recording the replay as a new export record.
+///     Replays a persisted <see cref="RunExportRecord" /> by rehydrating the original analysis request and
+///     regenerating the export artifact (consulting or standard analysis DOCX), optionally recording the replay as a new
+///     export record.
 /// </summary>
 public sealed class ExportReplayService(
     IRunExportRecordRepository runExportRecordRepository,
@@ -18,18 +19,19 @@ public sealed class ExportReplayService(
     private const string ExportTypeConsultingDocx = "analysis-report-consulting-docx";
 
     /// <summary>
-    /// Standard (non-consulting) analysis DOCX exports; must match the <see cref="RunExportRecord.ExportType"/>
-    /// stored when those exports are audited.
+    ///     Standard (non-consulting) analysis DOCX exports; must match the <see cref="RunExportRecord.ExportType" />
+    ///     stored when those exports are audited.
     /// </summary>
     private const string ExportTypeAnalysisDocx = "analysis-report-docx";
 
     private const string FallbackReplayFileName = "replayed_export.docx";
+
     /// <summary>
-    /// Replays the export identified by <see cref="ReplayExportRequest.ExportRecordId"/>.
+    ///     Replays the export identified by <see cref="ReplayExportRequest.ExportRecordId" />.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the export record does not exist, its persisted request cannot be rehydrated,
-    /// or the export type is not supported for replay.
+    ///     Thrown when the export record does not exist, its persisted request cannot be rehydrated,
+    ///     or the export type is not supported for replay.
     /// </exception>
     public async Task<ReplayExportResult> ReplayAsync(
         ReplayExportRequest request,
@@ -46,7 +48,6 @@ public sealed class ExportReplayService(
 
             throw new InvalidOperationException(
                 $"Export record '{request.ExportRecordId}' was not found.");
-
 
         PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record)
                                                           ?? throw new InvalidOperationException(
@@ -125,18 +126,18 @@ public sealed class ExportReplayService(
                 ResolutionReason = record.ResolutionReason
             };
         RunExportRecord persisted = await runExportAuditService.RecordAsync(
-            runId: record.RunId,
-            exportType: record.ExportType,
-            format: record.Format,
-            fileName: replayFileName,
-            templateProfile: record.TemplateProfile,
-            templateProfileDisplayName: record.TemplateProfileDisplayName,
-            wasAutoSelected: record.WasAutoSelected,
-            resolutionReason: record.ResolutionReason,
-            manifestVersion: report.Manifest?.Metadata.ManifestVersion,
-            analysisRequest: persistedRequest,
-            notes: $"Replay generated from export record {record.ExportRecordId}.",
-            cancellationToken: cancellationToken);
+            record.RunId,
+            record.ExportType,
+            record.Format,
+            replayFileName,
+            record.TemplateProfile,
+            record.TemplateProfileDisplayName,
+            record.WasAutoSelected,
+            record.ResolutionReason,
+            report.Manifest?.Metadata.ManifestVersion,
+            persistedRequest,
+            $"Replay generated from export record {record.ExportRecordId}.",
+            cancellationToken);
 
         recordedReplayExportRecordId = persisted.ExportRecordId;
 
@@ -157,14 +158,13 @@ public sealed class ExportReplayService(
     }
 
     /// <summary>
-    /// Appends <c>_replay</c> to the base file name while preserving the original extension.
-    /// Returns <c>replayed_export.docx</c> when the original name is blank.
+    ///     Appends <c>_replay</c> to the base file name while preserving the original extension.
+    ///     Returns <c>replayed_export.docx</c> when the original name is blank.
     /// </summary>
     private static string BuildReplayFileName(string originalFileName)
     {
         if (string.IsNullOrWhiteSpace(originalFileName))
             return FallbackReplayFileName;
-
 
         string extension = Path.GetExtension(originalFileName);
         string baseName = Path.GetFileNameWithoutExtension(originalFileName);
@@ -172,4 +172,3 @@ public sealed class ExportReplayService(
         return $"{baseName}_replay{extension}";
     }
 }
-

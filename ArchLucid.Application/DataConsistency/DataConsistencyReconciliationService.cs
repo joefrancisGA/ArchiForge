@@ -5,7 +5,6 @@ using System.Globalization;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
-
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -25,14 +24,14 @@ public sealed class DataConsistencyReconciliationService(
     private readonly IDbConnectionFactory _connectionFactory =
         connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
 
+    private readonly ILogger<DataConsistencyReconciliationService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
     private readonly IArchLucidStorageMode _storageMode =
         storageMode ?? throw new ArgumentNullException(nameof(storageMode));
-
-    private readonly ILogger<DataConsistencyReconciliationService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<DataConsistencyReport> RunReconciliationAsync(CancellationToken cancellationToken)
     {
@@ -140,10 +139,15 @@ public sealed class DataConsistencyReconciliationService(
         return report;
     }
 
-    private DbConnection OpenConnection() => (DbConnection)_connectionFactory.CreateConnection();
+    private DbConnection OpenConnection()
+    {
+        return (DbConnection)_connectionFactory.CreateConnection();
+    }
 
-    private static bool IsHealthy(IReadOnlyList<DataConsistencyFinding> findings) =>
-        findings.All(f => f.Severity == DataConsistencyFindingSeverity.Info);
+    private static bool IsHealthy(IReadOnlyList<DataConsistencyFinding> findings)
+    {
+        return findings.All(f => f.Severity == DataConsistencyFindingSeverity.Info);
+    }
 
     private static void RecordInstrumentation(double elapsedMs, IReadOnlyList<DataConsistencyFinding> findings)
     {
@@ -175,7 +179,6 @@ public sealed class DataConsistencyReconciliationService(
         if (count <= 0)
             return;
 
-
         IReadOnlyList<string> ids = await ReadStringColumnAsync(connection, sampleSql, ct).ConfigureAwait(false);
 
         findings.Add(
@@ -204,7 +207,6 @@ public sealed class DataConsistencyReconciliationService(
 
         if (count <= 0)
             return;
-
 
         IReadOnlyList<string> ids =
             await ReadStringColumnAsync(connection, DataConsistencyReconciliationSql.SampleStaleRunIds, ct)
@@ -256,9 +258,7 @@ public sealed class DataConsistencyReconciliationService(
         {
             ScopeContext scope = new()
             {
-                TenantId = row.TenantId,
-                WorkspaceId = row.WorkspaceId,
-                ProjectId = row.ScopeProjectId
+                TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId
             };
 
             RunRecord? cached = await _runRepository.GetByIdAsync(scope, row.RunId, ct).ConfigureAwait(false);
@@ -270,8 +270,8 @@ public sealed class DataConsistencyReconciliationService(
                 continue;
             }
 
-
-            if (!string.Equals(NormalizeStatus(cached.LegacyRunStatus), NormalizeStatus(row.LegacyRunStatus), StringComparison.Ordinal))
+            if (!string.Equals(NormalizeStatus(cached.LegacyRunStatus), NormalizeStatus(row.LegacyRunStatus),
+                    StringComparison.Ordinal))
                 mismatched.Add($"{row.RunId:D}|legacy_status");
 
             if (!string.Equals(
@@ -286,7 +286,6 @@ public sealed class DataConsistencyReconciliationService(
 
         if (mismatched.Count <= 0)
             return;
-
 
         findings.Add(
             new DataConsistencyFinding(
@@ -313,11 +312,15 @@ public sealed class DataConsistencyReconciliationService(
         return a!.Value.ToUniversalTime() == b!.Value.ToUniversalTime();
     }
 
-    private static string NormalizeStatus(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "" : value.Trim();
+    private static string NormalizeStatus(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "" : value.Trim();
+    }
 
-    private static string NormalizeVersion(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? "" : value.Trim();
+    private static string NormalizeVersion(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "" : value.Trim();
+    }
 
     private static async Task<long> ExecuteCountAsync(DbConnection connection, string sql, CancellationToken ct)
     {

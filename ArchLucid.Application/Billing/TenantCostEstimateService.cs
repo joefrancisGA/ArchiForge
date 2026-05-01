@@ -9,14 +9,15 @@ public sealed class TenantCostEstimateService(
     ITenantRepository tenantRepository,
     IOptionsMonitor<BillingUnitRatesOptions> ratesMonitor) : ITenantCostEstimateService
 {
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
     private readonly IOptionsMonitor<BillingUnitRatesOptions> _ratesMonitor =
         ratesMonitor ?? throw new ArgumentNullException(nameof(ratesMonitor));
 
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     /// <inheritdoc />
-    public async Task<TenantCostEstimate?> TryGetEstimateAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    public async Task<TenantCostEstimate?> TryGetEstimateAsync(Guid tenantId,
+        CancellationToken cancellationToken = default)
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
@@ -27,7 +28,7 @@ public sealed class TenantCostEstimateService(
         List<string> factors =
         [
             $"Tenant tier: {tenant.Tier}.",
-            "Band widened to cover optional Azure OpenAI attach for authority runs.",
+            "Band widened to cover optional Azure OpenAI attach for authority runs."
         ];
 
         (decimal low, decimal high) = tenant.Tier switch
@@ -35,7 +36,7 @@ public sealed class TenantCostEstimateService(
             TenantTier.Standard => (rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh),
             TenantTier.Enterprise => (rates.EnterpriseMonthlyUsdLow, rates.EnterpriseMonthlyUsdHigh),
             TenantTier.Free => (0, 0),
-            _ => (rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh),
+            _ => (rates.StandardMonthlyUsdLow, rates.StandardMonthlyUsdHigh)
         };
 
         if (tenant.Tier is TenantTier.Free)

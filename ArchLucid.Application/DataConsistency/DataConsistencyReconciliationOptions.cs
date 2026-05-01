@@ -7,12 +7,14 @@ public sealed class DataConsistencyReconciliationOptions
     /// <summary>Background reconciliation cadence; default 6 hours.</summary>
     public int ReconciliationIntervalMinutes
     {
-        get; set;
+        get;
+        set;
     } = 360;
 
     /// <summary>Delay before the first reconciliation pass (startup spacing). Default 120 seconds.</summary>
     public int InitialDelaySeconds
     {
-        get; set;
+        get;
+        set;
     } = 120;
 }

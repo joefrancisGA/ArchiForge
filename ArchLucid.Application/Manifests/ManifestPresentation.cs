@@ -4,13 +4,13 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Manifests;
 
 /// <summary>
-/// Presentation-layer helpers for resolving human-readable names and labels from manifest data.
+///     Presentation-layer helpers for resolving human-readable names and labels from manifest data.
 /// </summary>
 public static class ManifestPresentation
 {
     /// <summary>
-    /// Resolves a component identifier to its display name by looking up services and datastores in
-    /// <paramref name="manifest"/>. Returns <paramref name="componentId"/> unchanged when no match is found.
+    ///     Resolves a component identifier to its display name by looking up services and datastores in
+    ///     <paramref name="manifest" />. Returns <paramref name="componentId" /> unchanged when no match is found.
     /// </summary>
     public static string ResolveComponentName(string componentId, GoldenManifest manifest)
     {
@@ -28,8 +28,8 @@ public static class ManifestPresentation
     }
 
     /// <summary>
-    /// Returns a concise lowercase label for a <see cref="RelationshipType"/> suitable for diagram annotations
-    /// (e.g. <c>"calls"</c>, <c>"reads"</c>). Falls back to <see cref="Enum.ToString()"/> for unmapped values.
+    ///     Returns a concise lowercase label for a <see cref="RelationshipType" /> suitable for diagram annotations
+    ///     (e.g. <c>"calls"</c>, <c>"reads"</c>). Falls back to <see cref="Enum.ToString()" /> for unmapped values.
     /// </summary>
     public static string RelationshipLabel(RelationshipType relationshipType)
     {
@@ -45,4 +45,3 @@ public static class ManifestPresentation
         };
     }
 }
-

@@ -30,7 +30,6 @@ public sealed class RunRationaleService(
         if (detail is null)
             return null;
 
-
         bool explanationAvailable = detail.GoldenManifest is not null;
         bool provenanceAvailable =
             detail.GoldenManifest is not null
@@ -43,7 +42,9 @@ public sealed class RunRationaleService(
 
         ArchitectureRunDetail? coordinator = await runDetailQuery.GetRunDetailAsync(runId.ToString("N"), ct);
 
-        return coordinator is not null ? BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable) : BuildAuthorityRationaleWithoutFindings(detail, runId, provenanceAvailable, explanationAvailable);
+        return coordinator is not null
+            ? BuildCoordinatorRationale(detail, coordinator, runId, provenanceAvailable, explanationAvailable)
+            : BuildAuthorityRationaleWithoutFindings(detail, runId, provenanceAvailable, explanationAvailable);
     }
 
     private static RunRationale BuildAuthorityRationale(
@@ -55,24 +56,23 @@ public sealed class RunRationaleService(
         List<Finding> findings = snapshot.Findings;
 
         List<FindingRationale> mapped = findings
-            .Select(
-                f =>
-                {
-                    TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f);
+            .Select(f =>
+            {
+                TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f);
 
-                    return new FindingRationale
-                    {
-                        FindingId = f.FindingId,
-                        Title = f.Title,
-                        Severity = f.Severity.ToString(),
-                        Rationale = f.Rationale,
-                        Category = f.Category,
-                        EngineType = f.EngineType,
-                        RelatedNodeIds = f.RelatedNodeIds,
-                        RecommendedActions = f.RecommendedActions,
-                        TraceCompleteness = ToApiScore(score),
-                    };
-                })
+                return new FindingRationale
+                {
+                    FindingId = f.FindingId,
+                    Title = f.Title,
+                    Severity = f.Severity.ToString(),
+                    Rationale = f.Rationale,
+                    Category = f.Category,
+                    EngineType = f.EngineType,
+                    RelatedNodeIds = f.RelatedNodeIds,
+                    RecommendedActions = f.RecommendedActions,
+                    TraceCompleteness = ToApiScore(score)
+                };
+            })
             .ToList();
 
         List<DecisionTraceEntry> traces = MapAuthorityDecisionTraces(detail);
@@ -85,7 +85,7 @@ public sealed class RunRationaleService(
             Findings = mapped,
             DecisionTraceEntries = traces,
             ProvenanceAvailable = provenanceAvailable,
-            ExplanationAvailable = explanationAvailable,
+            ExplanationAvailable = explanationAvailable
         };
     }
 
@@ -101,11 +101,11 @@ public sealed class RunRationaleService(
         {
             RunId = runId,
             PipelineType = PipelineAuthority,
-            Summary = BuildAuthoritySummary(detail, findingCount: 0),
+            Summary = BuildAuthoritySummary(detail, 0),
             Findings = [],
             DecisionTraceEntries = traces,
             ProvenanceAvailable = provenanceAvailable,
-            ExplanationAvailable = explanationAvailable,
+            ExplanationAvailable = explanationAvailable
         };
     }
 
@@ -135,7 +135,7 @@ public sealed class RunRationaleService(
             Findings = findings,
             DecisionTraceEntries = traces,
             ProvenanceAvailable = provenanceAvailable,
-            ExplanationAvailable = explanationAvailable,
+            ExplanationAvailable = explanationAvailable
         };
     }
 
@@ -143,7 +143,6 @@ public sealed class RunRationaleService(
     {
         if (detail.AuthorityTrace is not RuleAuditTrace ruleAudit)
             return [];
-
 
         return [MapRuleAudit(ruleAudit.RuleAudit)];
     }
@@ -187,8 +186,8 @@ public sealed class RunRationaleService(
                 ["appliedRuleIds"] = p.AppliedRuleIds,
                 ["acceptedFindingIds"] = p.AcceptedFindingIds,
                 ["rejectedFindingIds"] = p.RejectedFindingIds,
-                ["notes"] = p.Notes,
-            },
+                ["notes"] = p.Notes
+            }
         };
     }
 
@@ -208,7 +207,7 @@ public sealed class RunRationaleService(
             CreatedUtc = ToUtcOffset(p.CreatedUtc),
             Kind = KindRunEvent,
             Description = string.IsNullOrWhiteSpace(p.EventDescription) ? p.EventType : p.EventDescription,
-            Details = details,
+            Details = details
         };
     }
 
@@ -226,7 +225,7 @@ public sealed class RunRationaleService(
             EngineType = f.SourceAgent.ToString(),
             RelatedNodeIds = f.EvidenceRefs,
             RecommendedActions = [],
-            TraceCompleteness = null,
+            TraceCompleteness = null
         };
     }
 
@@ -243,7 +242,7 @@ public sealed class RunRationaleService(
             HasNotes = s.HasNotes,
             PopulatedFieldCount = s.PopulatedFieldCount,
             CompletenessRatio = s.CompletenessRatio,
-            MissingTraceFields = [..s.MissingTraceFields],
+            MissingTraceFields = [..s.MissingTraceFields]
         };
     }
 
@@ -271,7 +270,9 @@ public sealed class RunRationaleService(
 
         if (coordinator.Manifest is { } manifest)
         {
-            return !string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription) ? manifest.Metadata.ChangeDescription.Trim() : $"{manifest.SystemName}: coordinator run ({coordinator.Run.Status}), {findingCount} agent finding(s).";
+            return !string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription)
+                ? manifest.Metadata.ChangeDescription.Trim()
+                : $"{manifest.SystemName}: coordinator run ({coordinator.Run.Status}), {findingCount} agent finding(s).";
         }
 
         return $"Coordinator run ({coordinator.Run.Status}) with {findingCount} agent finding(s).";

@@ -3,17 +3,14 @@ using System.Text.Json;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Compares two object graphs by serializing them to JSON and performing a recursive field-level diff,
-/// returning a <see cref="DriftAnalysisResult"/> that describes any detected changes.
+///     Compares two object graphs by serializing them to JSON and performing a recursive field-level diff,
+///     returning a <see cref="DriftAnalysisResult" /> that describes any detected changes.
 /// </summary>
 public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
 {
     // Use CLR property names in serialized JSON so drift paths match model members (e.g. $.Outer.Inner),
     // not camelCase wire format. Both sides use the same options, so comparison stays consistent.
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = false
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = false };
 
     /// <inheritdoc />
     public DriftAnalysisResult Analyze(object stored, object regenerated)
@@ -117,11 +114,9 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                         Description = "Array length changed."
                     });
 
-
                 for (int i = 0; i < Math.Min(leftArray.Count, rightArray.Count); i++)
 
                     CompareElement($"{path}[{i}]", leftArray[i], rightArray[i], items);
-
 
                 break;
 
@@ -136,7 +131,6 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                         RegeneratedValue = right.ToString(),
                         Description = "Value changed."
                     });
-
 
                 break;
         }

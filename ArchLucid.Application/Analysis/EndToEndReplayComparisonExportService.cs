@@ -12,26 +12,27 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 using QuestPdfDocument = QuestPDF.Fluent.Document;
+using Settings = QuestPDF.Settings;
 using WpDocument = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Generates exportable artifacts (Markdown, HTML, DOCX, PDF) from an
-/// <see cref="EndToEndReplayComparisonReport"/>. Output verbosity is controlled by the
-/// <see cref="EndToEndComparisonExportProfile"/> constants (<c>detailed</c>, <c>executive</c>, <c>short</c>).
+///     Generates exportable artifacts (Markdown, HTML, DOCX, PDF) from an
+///     <see cref="EndToEndReplayComparisonReport" />. Output verbosity is controlled by the
+///     <see cref="EndToEndComparisonExportProfile" /> constants (<c>detailed</c>, <c>executive</c>, <c>short</c>).
 /// </summary>
 public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayComparisonSummaryFormatter summaryFormatter)
     : IEndToEndReplayComparisonExportService
 {
     static EndToEndReplayComparisonExportService()
     {
-        QuestPDF.Settings.License = LicenseType.Community;
+        Settings.License = LicenseType.Community;
     }
 
     /// <summary>
-    /// Renders <paramref name="report"/> as a Markdown document under the given export <paramref name="profile"/>.
-    /// Defaults to <see cref="EndToEndComparisonExportProfile.Default"/> when <paramref name="profile"/> is <c>null</c>.
+    ///     Renders <paramref name="report" /> as a Markdown document under the given export <paramref name="profile" />.
+    ///     Defaults to <see cref="EndToEndComparisonExportProfile.Default" /> when <paramref name="profile" /> is <c>null</c>.
     /// </summary>
     public string GenerateMarkdown(EndToEndReplayComparisonReport report, string? profile = null)
     {
@@ -45,7 +46,6 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
         if (EndToEndComparisonExportProfile.IsShort(p))
             return sb.ToString();
-
 
         sb.AppendLine("---");
         sb.AppendLine();
@@ -69,7 +69,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     }
 
     /// <summary>
-    /// Renders <paramref name="report"/> as a self-contained HTML document under the given export <paramref name="profile"/>.
+    ///     Renders <paramref name="report" /> as a self-contained HTML document under the given export
+    ///     <paramref name="profile" />.
     /// </summary>
     public string GenerateHtml(EndToEndReplayComparisonReport report, string? profile = null)
     {
@@ -78,7 +79,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         StringBuilder sb = new();
         sb.AppendLine("<!DOCTYPE html>");
         sb.AppendLine("<html lang=\"en\">");
-        sb.AppendLine("<head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>");
+        sb.AppendLine(
+            "<head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>");
         sb.AppendLine("<title>ArchLucid End-to-End Replay Comparison</title>");
         sb.AppendLine("<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:1rem auto;padding:0 1rem;}");
         sb.AppendLine("h1{font-size:1.5rem;} h2{font-size:1.2rem;margin-top:1.25rem;} h3{font-size:1rem;}");
@@ -110,6 +112,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                 AppendHtmlManifestDiff(sb, report);
                 AppendHtmlExportDiffs(sb, report);
             }
+
             AppendHtmlList(sb, "Interpretation Notes", report.InterpretationNotes);
             AppendHtmlList(sb, "Warnings", report.Warnings);
         }
@@ -119,7 +122,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     }
 
     /// <summary>
-    /// Renders <paramref name="report"/> as a DOCX byte array using OpenXml under the given export <paramref name="profile"/>.
+    ///     Renders <paramref name="report" /> as a DOCX byte array using OpenXml under the given export
+    ///     <paramref name="profile" />.
     /// </summary>
     public Task<byte[]> GenerateDocxAsync(
         EndToEndReplayComparisonReport report,
@@ -179,11 +183,13 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                     AddHeading(body, "Agent Result Diff", 2);
                     foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
                     {
-                        AddParagraph(body, delta.AgentType.ToString(), bold: true);
+                        AddParagraph(body, delta.AgentType.ToString(), true);
                         AddBullet(body, $"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
                         AddBullet(body, $"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-                        AddBullet(body, $"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-                        AddBullet(body, $"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+                        AddBullet(body,
+                            $"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+                        AddBullet(body,
+                            $"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
                         AddDiffSection(body, "Added Claims", delta.AddedClaims);
                         AddDiffSection(body, "Removed Claims", delta.RemovedClaims);
                         AddDiffSection(body, "Added Findings", delta.AddedFindings);
@@ -213,7 +219,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                     AddHeading(body, "Export Diffs", 2);
                     foreach (ExportRecordDiffResult diff in report.ExportDiffs)
                     {
-                        AddParagraph(body, $"{diff.LeftExportRecordId} -> {diff.RightExportRecordId}", bold: true);
+                        AddParagraph(body, $"{diff.LeftExportRecordId} -> {diff.RightExportRecordId}", true);
                         AddDiffSection(body, "Changed Top-Level Fields", diff.ChangedTopLevelFields);
                         AddDiffSection(body, "Changed Request Flags", diff.RequestDiff.ChangedFlags);
                         AddDiffSection(body, "Changed Request Values", diff.RequestDiff.ChangedValues);
@@ -235,7 +241,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     }
 
     /// <summary>
-    /// Renders <paramref name="report"/> as a PDF byte array using QuestPDF under the given export <paramref name="profile"/>.
+    ///     Renders <paramref name="report" /> as a PDF byte array using QuestPDF under the given export
+    ///     <paramref name="profile" />.
     /// </summary>
     public Task<byte[]> GeneratePdfAsync(
         EndToEndReplayComparisonReport report,
@@ -257,7 +264,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                 page.Header().Text("ArchLucid End-to-End Replay Comparison").Bold().FontSize(14);
                 page.Content().Column(column =>
                 {
-                    column.Item().PaddingBottom(5).Text($"Left: {report.LeftRunId}  |  Right: {report.RightRunId}  |  Profile: {p}");
+                    column.Item().PaddingBottom(5)
+                        .Text($"Left: {report.LeftRunId}  |  Right: {report.RightRunId}  |  Profile: {p}");
                     column.Item().PaddingBottom(10).Text($"Generated: {DateTime.UtcNow:O}");
                     column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
 
@@ -272,17 +280,22 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                     else
                     {
                         column.Item().PaddingTop(5).Text("Key counts").Bold().FontSize(12);
-                        column.Item().Text($"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
+                        column.Item()
+                            .Text(
+                                $"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
                         if (report.AgentResultDiff is not null)
                         {
                             int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
                                 d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 ||
-                                d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 ||
+                                d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 ||
+                                d.RemovedRequiredControls.Count > 0 ||
                                 d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
                             column.Item().Text($"Agent deltas: {withChanges} agent(s) with material changes");
                         }
+
                         if (report.ManifestDiff is not null)
-                            column.Item().Text($"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+                            column.Item().Text(
+                                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
                         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
                         column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                         column.Item().PaddingTop(5).Text("Interpretation Notes").Bold();
@@ -316,17 +329,21 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     {
         sb.AppendLine("## Key counts");
         sb.AppendLine();
-        sb.AppendLine($"- Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
+        sb.AppendLine(
+            $"- Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
         if (report.AgentResultDiff is not null)
         {
             int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
                 d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 ||
-                d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 ||
+                d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 ||
+                d.RemovedRequiredControls.Count > 0 ||
                 d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
             sb.AppendLine($"- Agent deltas: {withChanges} agent(s) with material changes");
         }
+
         if (report.ManifestDiff is not null)
-            sb.AppendLine($"- Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+            sb.AppendLine(
+                $"- Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
         sb.AppendLine($"- Export diffs: {report.ExportDiffs.Count}");
         sb.AppendLine();
     }
@@ -355,8 +372,10 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
             sb.AppendLine();
             sb.AppendLine($"- Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             sb.AppendLine($"- Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-            sb.AppendLine($"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-            sb.AppendLine($"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            sb.AppendLine(
+                $"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+            sb.AppendLine(
+                $"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
             sb.AppendLine();
             AppendList(sb, "Added Claims", delta.AddedClaims);
             AppendList(sb, "Removed Claims", delta.RemovedClaims);
@@ -418,7 +437,10 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         }
     }
 
-    private static string EscapeHtml(string text) => WebUtility.HtmlEncode(text);
+    private static string EscapeHtml(string text)
+    {
+        return WebUtility.HtmlEncode(text);
+    }
 
     private static string MarkdownToSimpleHtml(string markdown)
     {
@@ -439,23 +461,31 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
             else
                 sb.AppendLine("<br/>");
         }
+
         return sb.ToString();
     }
 
     private void AppendHtmlExecutiveSummary(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
         sb.AppendLine("<h2>Key counts</h2><ul>");
-        sb.AppendLine("<li>Run metadata: " + report.RunDiff.ChangedFields.Count + " changed field(s); Request IDs differ: " + (report.RunDiff.RequestIdsDiffer ? "Yes" : "No") + "</li>");
+        sb.AppendLine("<li>Run metadata: " + report.RunDiff.ChangedFields.Count +
+                      " changed field(s); Request IDs differ: " + (report.RunDiff.RequestIdsDiffer ? "Yes" : "No") +
+                      "</li>");
         if (report.AgentResultDiff is not null)
         {
             int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
                 d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 ||
-                d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 ||
+                d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 ||
+                d.RemovedRequiredControls.Count > 0 ||
                 d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
             sb.AppendLine("<li>Agent deltas: " + withChanges + " agent(s) with material changes</li>");
         }
+
         if (report.ManifestDiff is not null)
-            sb.AppendLine("<li>Manifest: +" + report.ManifestDiff.AddedServices.Count + " / -" + report.ManifestDiff.RemovedServices.Count + " services; +" + report.ManifestDiff.AddedDatastores.Count + " / -" + report.ManifestDiff.RemovedDatastores.Count + " datastores</li>");
+            sb.AppendLine("<li>Manifest: +" + report.ManifestDiff.AddedServices.Count + " / -" +
+                          report.ManifestDiff.RemovedServices.Count + " services; +" +
+                          report.ManifestDiff.AddedDatastores.Count + " / -" +
+                          report.ManifestDiff.RemovedDatastores.Count + " datastores</li>");
         sb.AppendLine("<li>Export diffs: " + report.ExportDiffs.Count + "</li></ul>");
     }
 
@@ -463,9 +493,11 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     {
         sb.AppendLine("<h2>Run Metadata Diff</h2><ul>");
         sb.AppendLine("<li>Request IDs Differ: " + (report.RunDiff.RequestIdsDiffer ? "Yes" : "No") + "</li>");
-        sb.AppendLine("<li>Manifest Versions Differ: " + (report.RunDiff.ManifestVersionsDiffer ? "Yes" : "No") + "</li>");
+        sb.AppendLine("<li>Manifest Versions Differ: " + (report.RunDiff.ManifestVersionsDiffer ? "Yes" : "No") +
+                      "</li>");
         sb.AppendLine("<li>Status Differs: " + (report.RunDiff.StatusDiffers ? "Yes" : "No") + "</li>");
-        sb.AppendLine("<li>Completion State Differs: " + (report.RunDiff.CompletionStateDiffers ? "Yes" : "No") + "</li>");
+        sb.AppendLine("<li>Completion State Differs: " + (report.RunDiff.CompletionStateDiffers ? "Yes" : "No") +
+                      "</li>");
         foreach (string f in report.RunDiff.ChangedFields)
             sb.AppendLine("<li>Changed field: " + EscapeHtml(f) + "</li>");
         sb.AppendLine("</ul>");
@@ -516,7 +548,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine("<h2>Export Diffs</h2>");
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
         {
-            sb.AppendLine("<h3>" + EscapeHtml(diff.LeftExportRecordId + " -> " + diff.RightExportRecordId) + "</h3><ul>");
+            sb.AppendLine(
+                "<h3>" + EscapeHtml(diff.LeftExportRecordId + " -> " + diff.RightExportRecordId) + "</h3><ul>");
             foreach (string f in diff.ChangedTopLevelFields)
                 sb.AppendLine("<li>" + EscapeHtml(f) + "</li>");
             foreach (string w in diff.Warnings)
@@ -539,17 +572,21 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     private void AddDocxExecutiveSummary(Body body, EndToEndReplayComparisonReport report)
     {
         AddHeading(body, "Key counts", 2);
-        AddBullet(body, $"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
+        AddBullet(body,
+            $"Run metadata: {report.RunDiff.ChangedFields.Count} changed field(s); Request IDs differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
         if (report.AgentResultDiff is not null)
         {
             int withChanges = report.AgentResultDiff.AgentDeltas.Count(d =>
                 d.AddedClaims.Count > 0 || d.RemovedClaims.Count > 0 || d.AddedFindings.Count > 0 ||
-                d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 || d.RemovedRequiredControls.Count > 0 ||
+                d.RemovedFindings.Count > 0 || d.AddedRequiredControls.Count > 0 ||
+                d.RemovedRequiredControls.Count > 0 ||
                 d.AddedWarnings.Count > 0 || d.RemovedWarnings.Count > 0);
             AddBullet(body, $"Agent deltas: {withChanges} agent(s) with material changes");
         }
+
         if (report.ManifestDiff is not null)
-            AddBullet(body, $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
+            AddBullet(body,
+                $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
         AddBullet(body, $"Export diffs: {report.ExportDiffs.Count}");
         AddSpacer(body);
     }
@@ -570,7 +607,6 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
             sb.AppendLine($"- {item}");
 
-
         sb.AppendLine();
     }
 
@@ -590,7 +626,6 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
             run.RunProperties = new RunProperties(new Bold());
 
-
         body.AppendChild(new Paragraph(run));
     }
 
@@ -607,7 +642,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AddDiffSection(Body body, string title, IReadOnlyCollection<string> items)
     {
-        AddParagraph(body, title, bold: true);
+        AddParagraph(body, title, true);
 
         if (items.Count == 0)
         {
@@ -618,7 +653,5 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         foreach (string item in items)
 
             AddBullet(body, item);
-
     }
 }
-

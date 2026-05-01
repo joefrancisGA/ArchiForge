@@ -48,7 +48,6 @@ public sealed class SimulationEvaluationService(
                 throw new InvalidOperationException(
                     "InvokeLiveDeterminismCheck requires BaselineArchitectureRunIdForDeterminism or BaselineArchitectureRunId.");
 
-
         ArchitectureAnalysisReport baseline = request.BaselineReport;
         ArchitectureAnalysisReport? simulated = request.SimulatedReport;
 
@@ -115,9 +114,7 @@ public sealed class SimulationEvaluationService(
 
         return new SimulationEvaluationResult
         {
-            Score = score,
-            ExplanationSummary = summary,
-            ExplanationDetailJson = detailJson
+            Score = score, ExplanationSummary = summary, ExplanationDetailJson = detailJson
         };
     }
 
@@ -135,17 +132,14 @@ public sealed class SimulationEvaluationService(
         if (simulated is null)
             return (null, false, false);
 
-
         if (simulated.ManifestDiff is not null)
             return (simulated.ManifestDiff, true, false);
-
 
         GoldenManifest? left = baseline.Manifest;
         GoldenManifest? right = simulated.Manifest;
 
         if (left is null || right is null)
             return (null, false, false);
-
 
         ManifestDiffResult computed = manifestDiffService.Compare(left, right);
 
@@ -160,10 +154,8 @@ public sealed class SimulationEvaluationService(
         if (request.SuppliedDeterminism is not null)
             return new DeterminismResolution(request.SuppliedDeterminism, "Supplied");
 
-
         if (request.BaselineReport.Determinism is not null)
             return new DeterminismResolution(request.BaselineReport.Determinism, "BaselineReport");
-
 
         if (options?.InvokeLiveDeterminismCheck != true)
             return new DeterminismResolution(null, "None");
@@ -186,7 +178,6 @@ public sealed class SimulationEvaluationService(
         if (diff is null)
             return null;
 
-
         int removals =
             diff.RemovedServices.Count +
             diff.RemovedDatastores.Count +
@@ -195,7 +186,6 @@ public sealed class SimulationEvaluationService(
 
         if (removals == 0)
             return 0;
-
 
         return Math.Min(1.0, removals / 10.0);
     }
@@ -217,7 +207,6 @@ public sealed class SimulationEvaluationService(
         if (determinism is not null && !determinism.IsDeterministic)
 
             signals.Add("Determinism.ReplayDrift");
-
 
         return signals;
     }
@@ -242,7 +231,6 @@ public sealed class SimulationEvaluationService(
         if (diff is null)
             return Math.Clamp(fromWarnings, -1, 1);
 
-
         int adds =
             diff.AddedServices.Count +
             diff.AddedDatastores.Count +
@@ -265,7 +253,6 @@ public sealed class SimulationEvaluationService(
         if (determinism is null)
             return null;
 
-
         return determinism.IsDeterministic ? 1 : 0;
     }
 
@@ -282,21 +269,17 @@ public sealed class SimulationEvaluationService(
 
             confidence -= 0.2;
 
-
         if (simulated is null)
 
             confidence -= 0.15;
-
 
         if (simulated is not null && baseline.Manifest is not null && simulated.Manifest is not null && diff is null)
 
             confidence -= 0.1;
 
-
         if (determinism is null && options?.InvokeLiveDeterminismCheck != true)
 
             confidence -= 0.1;
-
 
         return Math.Clamp(confidence, 0, 1);
     }

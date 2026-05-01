@@ -1,3 +1,4 @@
+using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -7,16 +8,16 @@ using QuestPdfDocument = QuestPDF.Fluent.Document;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-/// PDF projection of the canonical first-value-report Markdown produced by <see cref="FirstValueReportBuilder"/>.
-/// One sponsor-shareable PDF per committed run; the Markdown body remains the source of truth so PDF output
-/// cannot drift from the existing <c>GET /v1/pilots/runs/{runId}/first-value-report</c> response.
+///     PDF projection of the canonical first-value-report Markdown produced by <see cref="FirstValueReportBuilder" />.
+///     One sponsor-shareable PDF per committed run; the Markdown body remains the source of truth so PDF output
+///     cannot drift from the existing <c>GET /v1/pilots/runs/{runId}/first-value-report</c> response.
 /// </summary>
 public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownBuilder)
 {
     private readonly FirstValueReportBuilder _markdownBuilder =
         markdownBuilder ?? throw new ArgumentNullException(nameof(markdownBuilder));
 
-    /// <summary>Returns PDF bytes, or <see langword="null"/> when the run is missing (mirrors the Markdown sibling).</summary>
+    /// <summary>Returns PDF bytes, or <see langword="null" /> when the run is missing (mirrors the Markdown sibling).</summary>
     public async Task<byte[]?> BuildPdfAsync(
         string runId,
         string apiBaseForLinks,
@@ -29,7 +30,7 @@ public sealed class FirstValueReportPdfBuilder(FirstValueReportBuilder markdownB
         if (markdown is null)
             return null;
 
-        QuestPDF.Settings.License = LicenseType.Community;
+        Settings.License = LicenseType.Community;
 
         QuestPdfDocument doc = QuestPdfDocument.Create(container =>
         {

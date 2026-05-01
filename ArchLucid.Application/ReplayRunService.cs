@@ -1,7 +1,7 @@
-using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Common;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -22,11 +22,11 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application;
 
 /// <summary>
-/// Replays an existing architecture run by cloning its tasks and evidence, re-executing agents,
-/// and optionally committing the result as a new manifest version. Persists the replay run id to
-/// <c>dbo.Runs</c> via <see cref="IRunRepository"/> (no legacy <c>ArchitectureRuns</c> insert).
-/// Used by <see cref="ArchLucid.Application.Determinism.DeterminismCheckService"/> for multi-iteration
-/// determinism checks and by comparison services for regenerating stored payloads.
+///     Replays an existing architecture run by cloning its tasks and evidence, re-executing agents,
+///     and optionally committing the result as a new manifest version. Persists the replay run id to
+///     <c>dbo.Runs</c> via <see cref="IRunRepository" /> (no legacy <c>ArchitectureRuns</c> insert).
+///     Used by <see cref="ArchLucid.Application.Determinism.DeterminismCheckService" /> for multi-iteration
+///     determinism checks and by comparison services for regenerating stored payloads.
 /// </summary>
 public sealed class ReplayRunService(
     IAgentExecutorResolver agentExecutorResolver,
@@ -43,23 +43,25 @@ public sealed class ReplayRunService(
     ILogger<ReplayRunService> logger)
     : IReplayRunService
 {
+    private readonly IActorContext
+        _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     private readonly IAuthorityCommittedManifestChainWriter _authorityCommittedManifestChainWriter =
         authorityCommittedManifestChainWriter
         ?? throw new ArgumentNullException(nameof(authorityCommittedManifestChainWriter));
 
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-
     private readonly ILogger<ReplayRunService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>
-    /// Creates a new run record seeded from <paramref name="originalRunId"/>, re-executes agents,
-    /// and (when <paramref name="commitReplay"/> is <c>true</c>) commits a new manifest.
+    ///     Creates a new run record seeded from <paramref name="originalRunId" />, re-executes agents,
+    ///     and (when <paramref name="commitReplay" /> is <c>true</c>) commits a new manifest.
     /// </summary>
-    /// <exception cref="RunNotFoundException">Thrown when <paramref name="originalRunId"/> does not exist.</exception>
+    /// <exception cref="RunNotFoundException">Thrown when <paramref name="originalRunId" /> does not exist.</exception>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the original run has no tasks, no evidence package, or merge fails.
+    ///     Thrown when the original run has no tasks, no evidence package, or merge fails.
     /// </exception>
     public async Task<ReplayRunResult> ReplayAsync(
         string originalRunId,
@@ -73,8 +75,9 @@ public sealed class ReplayRunService(
         ArgumentNullException.ThrowIfNull(authorityRunRepository);
         ArgumentNullException.ThrowIfNull(scopeContextProvider);
 
-        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
-                                             ?? throw new RunNotFoundException(originalRunId);
+        ArchitectureRunDetail sourceDetail =
+            await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
+            ?? throw new RunNotFoundException(originalRunId);
 
         ArchitectureRun originalRun = sourceDetail.Run;
         List<AgentTask> tasks = sourceDetail.Tasks;
@@ -84,12 +87,13 @@ public sealed class ReplayRunService(
         if (tasks.Count == 0)
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
 
-
         ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
-                                      ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
+                                      ?? throw new InvalidOperationException(
+                                          $"Request '{originalRun.RequestId}' not found.");
 
-        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
-                                        ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
+        AgentEvidencePackage evidence =
+            await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
+            ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         string replayRunId = Guid.NewGuid().ToString("N");
         Guid replayGuid = Guid.Parse(replayRunId);
@@ -100,7 +104,6 @@ public sealed class ReplayRunService(
         if (Guid.TryParse(originalRunId, out Guid originalGuid))
 
             sourceAuthorityRun = await authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
-
 
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(
             replayGuid,
@@ -165,15 +168,14 @@ public sealed class ReplayRunService(
             request,
             manifestVersion,
             results,
-            evaluations: [],
-            decisionNodes: [],
-            parentManifestVersion: originalRun.CurrentManifestVersion);
+            [],
+            [],
+            originalRun.CurrentManifestVersion);
 
         if (!merge.Success)
 
             throw new InvalidOperationException(
                 $"Replay merge failed: {string.Join("; ", merge.Errors)}");
-
 
         manifest = merge.Manifest;
         decisionTraces = merge.DecisionTraces;
@@ -185,11 +187,11 @@ public sealed class ReplayRunService(
         Guid findingsSnapshotId = Guid.NewGuid();
         Guid authorityDecisionTraceId = Guid.NewGuid();
         AuthorityChainKeying chainKeying = new(
-            ManifestId: manifestId,
-            ContextSnapshotId: contextSnapshotId,
-            GraphSnapshotId: graphSnapshotId,
-            FindingsSnapshotId: findingsSnapshotId,
-            DecisionTraceId: authorityDecisionTraceId);
+            manifestId,
+            contextSnapshotId,
+            graphSnapshotId,
+            findingsSnapshotId,
+            authorityDecisionTraceId);
 
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
@@ -209,7 +211,7 @@ public sealed class ReplayRunService(
                     manifest,
                     chainKeying,
                     DateTime.UtcNow,
-                    richFindingsAndGraph: true,
+                    true,
                     cancellationToken,
                     uow.Connection,
                     uow.Transaction);
@@ -221,10 +223,10 @@ public sealed class ReplayRunService(
                     manifest,
                     chainKeying,
                     DateTime.UtcNow,
-                    richFindingsAndGraph: true,
+                    true,
                     cancellationToken,
-                    connection: null,
-                    transaction: null);
+                    null,
+                    null);
 
             await uow.CommitAsync(cancellationToken);
 
@@ -236,8 +238,8 @@ public sealed class ReplayRunService(
                 replayGuid,
                 request.SystemName,
                 chainPersisted,
-                source: "replay-commit",
-                richFindingsAndGraph: true,
+                "replay-commit",
+                true,
                 cancellationToken);
         }
         catch
@@ -259,9 +261,9 @@ public sealed class ReplayRunService(
     }
 
     /// <summary>
-    /// Creates a deep copy of <paramref name="original"/> bound to <paramref name="replayRunId"/>.
-    /// A clone is required so the replay run's evidence is isolated from the original run's mutable
-    /// collections — shared references would corrupt both runs if either were mutated.
+    ///     Creates a deep copy of <paramref name="original" /> bound to <paramref name="replayRunId" />.
+    ///     A clone is required so the replay run's evidence is isolated from the original run's mutable
+    ///     collections — shared references would corrupt both runs if either were mutated.
     /// </summary>
     private static AgentEvidencePackage CloneEvidenceForReplay(
         AgentEvidencePackage original,
@@ -275,21 +277,23 @@ public sealed class ReplayRunService(
             SystemName = original.SystemName,
             Environment = original.Environment,
             CloudProvider = original.CloudProvider,
-            Request = new RequestEvidence
-            {
-                Description = original.Request.Description,
-                Constraints = original.Request.Constraints.ToList(),
-                RequiredCapabilities = original.Request.RequiredCapabilities.ToList(),
-                Assumptions = original.Request.Assumptions.ToList()
-            },
-            Policies = original.Policies.Select(p => new PolicyEvidence
-            {
-                PolicyId = p.PolicyId,
-                Title = p.Title,
-                Summary = p.Summary,
-                RequiredControls = p.RequiredControls.ToList(),
-                Tags = p.Tags.ToList()
-            }).ToList(),
+            Request =
+                new RequestEvidence
+                {
+                    Description = original.Request.Description,
+                    Constraints = original.Request.Constraints.ToList(),
+                    RequiredCapabilities = original.Request.RequiredCapabilities.ToList(),
+                    Assumptions = original.Request.Assumptions.ToList()
+                },
+            Policies =
+                original.Policies.Select(p => new PolicyEvidence
+                {
+                    PolicyId = p.PolicyId,
+                    Title = p.Title,
+                    Summary = p.Summary,
+                    RequiredControls = p.RequiredControls.ToList(),
+                    Tags = p.Tags.ToList()
+                }).ToList(),
             ServiceCatalog = original.ServiceCatalog.Select(s => new ServiceCatalogEvidence
             {
                 ServiceId = s.ServiceId,
@@ -317,18 +321,15 @@ public sealed class ReplayRunService(
                     ExistingDatastores = original.PriorManifest.ExistingDatastores.ToList(),
                     ExistingRequiredControls = original.PriorManifest.ExistingRequiredControls.ToList()
                 },
-            Notes = original.Notes.Select(n => new EvidenceNote
-            {
-                NoteType = n.NoteType,
-                Message = n.Message
-            }).ToList(),
+            Notes =
+                original.Notes.Select(n => new EvidenceNote { NoteType = n.NoteType, Message = n.Message }).ToList(),
             CreatedUtc = DateTime.UtcNow
         };
     }
 
     /// <summary>
-    /// Derives a replay manifest version by appending <c>-replay</c> to the current version,
-    /// or returns <c>v1-replay</c> when no current version exists.
+    ///     Derives a replay manifest version by appending <c>-replay</c> to the current version,
+    ///     or returns <c>v1-replay</c> when no current version exists.
     /// </summary>
     private static string BuildReplayManifestVersion(string? currentManifestVersion)
     {

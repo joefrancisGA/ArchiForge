@@ -26,7 +26,7 @@ internal static class SponsorEvidenceExplainabilityMapper
                     AlternativePathsPopulatedCount = e.AlternativePathsPopulatedCount,
                     NotesPopulatedCount = e.NotesPopulatedCount
                 })
-                .ToList(),
+                .ToList()
         };
     }
 }

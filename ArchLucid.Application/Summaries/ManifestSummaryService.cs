@@ -6,9 +6,9 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Summaries;
 
 /// <summary>
-/// Options-driven Markdown summary of a <see cref="GoldenManifest"/>.
-/// Unlike <see cref="MarkdownManifestSummaryGenerator"/>, this service is evidence-agnostic
-/// and controlled by <see cref="ManifestSummaryOptions"/> for selective section inclusion.
+///     Options-driven Markdown summary of a <see cref="GoldenManifest" />.
+///     Unlike <see cref="MarkdownManifestSummaryGenerator" />, this service is evidence-agnostic
+///     and controlled by <see cref="ManifestSummaryOptions" /> for selective section inclusion.
 /// </summary>
 public sealed class ManifestSummaryService : IManifestSummaryService
 {
@@ -50,7 +50,6 @@ public sealed class ManifestSummaryService : IManifestSummaryService
 
                 sb.AppendLine($"- {control}");
 
-
             sb.AppendLine();
         }
 
@@ -70,16 +69,15 @@ public sealed class ManifestSummaryService : IManifestSummaryService
 
                     sb.AppendLine($"- **Purpose:** {service.Purpose}");
 
-
                 if (options.IncludeComponentControls && service.RequiredControls.Count > 0)
 
-                    sb.AppendLine($"- **Required Controls:** {string.Join(", ", service.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
-
+                    sb.AppendLine(
+                        $"- **Required Controls:** {string.Join(", ", service.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
 
                 if (options.IncludeTags && service.Tags.Count > 0)
 
-                    sb.AppendLine($"- **Tags:** {string.Join(", ", service.Tags.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
-
+                    sb.AppendLine(
+                        $"- **Tags:** {string.Join(", ", service.Tags.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
 
                 sb.AppendLine();
             }
@@ -90,7 +88,8 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine("## Datastores");
             sb.AppendLine();
 
-            foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
+            foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName,
+                         StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"### {datastore.DatastoreName}");
                 sb.AppendLine();
@@ -101,9 +100,9 @@ public sealed class ManifestSummaryService : IManifestSummaryService
 
                     sb.AppendLine($"- **Purpose:** {datastore.Purpose}");
 
-
                 sb.AppendLine($"- **Private Endpoint Required:** {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-                sb.AppendLine($"- **Encryption At Rest Required:** {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                sb.AppendLine(
+                    $"- **Encryption At Rest Required:** {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
                 sb.AppendLine();
             }
         }
@@ -127,12 +126,12 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                          .ThenBy(x => x.TypeLabel, StringComparer.OrdinalIgnoreCase)
                          .Take(max))
             {
-                sb.AppendLine($"- **{relationship.SourceName}** -> **{relationship.TargetName}** ({relationship.TypeLabel})");
+                sb.AppendLine(
+                    $"- **{relationship.SourceName}** -> **{relationship.TargetName}** ({relationship.TypeLabel})");
 
                 if (!string.IsNullOrWhiteSpace(relationship.Relationship.Description))
 
                     sb.AppendLine($"  - {relationship.Relationship.Description}");
-
             }
 
             sb.AppendLine();
@@ -149,10 +148,8 @@ public sealed class ManifestSummaryService : IManifestSummaryService
 
             sb.AppendLine($"- {tag}");
 
-
         sb.AppendLine();
 
         return sb.ToString().TrimEnd();
     }
 }
-

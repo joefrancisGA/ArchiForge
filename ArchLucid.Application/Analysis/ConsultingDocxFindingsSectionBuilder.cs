@@ -12,7 +12,8 @@ internal static class ConsultingDocxFindingsSectionBuilder
 
         if (report.Evidence is null)
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No evidence package was available for this run.", "BodyText");
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No evidence package was available for this run.",
+                "BodyText");
 
             return;
         }
@@ -27,7 +28,6 @@ internal static class ConsultingDocxFindingsSectionBuilder
             foreach (string item in report.Evidence.Request.Constraints)
 
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
-
         }
 
         if (report.Evidence.Request.RequiredCapabilities.Count > 0)
@@ -37,12 +37,10 @@ internal static class ConsultingDocxFindingsSectionBuilder
             foreach (string item in report.Evidence.Request.RequiredCapabilities)
 
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
-
         }
 
         if (report.Evidence.Policies.Count <= 0)
             return;
-
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Policy Evidence", 2);
 
@@ -54,8 +52,8 @@ internal static class ConsultingDocxFindingsSectionBuilder
 
             if (policy.RequiredControls.Count > 0)
 
-                ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Required Controls: {string.Join(", ", policy.RequiredControls)}");
-
+                ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                    $"Required Controls: {string.Join(", ", policy.RequiredControls)}");
         }
     }
 }

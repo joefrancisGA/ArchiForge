@@ -1,7 +1,8 @@
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-///     Aggregated pilot / proof-of-ROI metrics for a tenant and UTC window (audit export uses [<see cref="FromUtc" />, <see cref="ToUtc" />) half-open).
+///     Aggregated pilot / proof-of-ROI metrics for a tenant and UTC window (audit export uses [<see cref="FromUtc" />,
+///     <see cref="ToUtc" />) half-open).
 /// </summary>
 public sealed class PilotValueReport
 {
@@ -31,7 +32,10 @@ public sealed class PilotValueReport
         init;
     }
 
-    /// <summary>When true, finding/agent/timing aggregates consider at most <see cref="RunDetailCap" /> committed runs (earliest in window by <c>CreatedUtc</c>).</summary>
+    /// <summary>
+    ///     When true, finding/agent/timing aggregates consider at most <see cref="RunDetailCap" /> committed runs
+    ///     (earliest in window by <c>CreatedUtc</c>).
+    /// </summary>
     public bool RunDetailsTruncated
     {
         get;
@@ -107,7 +111,10 @@ public sealed class PilotValueReport
         init;
     } = [];
 
-    /// <summary>Point-in-time pending approvals (from <see cref="ArchLucid.Application.Governance.IGovernanceDashboardService" />).</summary>
+    /// <summary>
+    ///     Point-in-time pending approvals (from
+    ///     <see cref="ArchLucid.Application.Governance.IGovernanceDashboardService" />).
+    /// </summary>
     public int GovernancePendingApprovalsNow
     {
         get;

@@ -5,16 +5,16 @@ using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Audit;
 
-/// <inheritdoc cref="IRunPipelineAuditTimelineService"/>
+/// <inheritdoc cref="IRunPipelineAuditTimelineService" />
 public sealed class RunPipelineAuditTimelineService(
     IAuthorityQueryService authorityQuery,
     IAuditRepository auditRepository) : IRunPipelineAuditTimelineService
 {
-    private readonly IAuthorityQueryService _authorityQuery =
-        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
-
     private readonly IAuditRepository _auditRepository =
         auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+
+    private readonly IAuthorityQueryService _authorityQuery =
+        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<RunPipelineTimelineItemDto>?> GetTimelineAsync(
@@ -27,12 +27,7 @@ public sealed class RunPipelineAuditTimelineService(
         if (run is null)
             return null;
 
-
-        AuditEventFilter filter = new()
-        {
-            RunId = runId,
-            Take = 200,
-        };
+        AuditEventFilter filter = new() { RunId = runId, Take = 200 };
 
         IReadOnlyList<AuditEvent> rows = await _auditRepository.GetFilteredAsync(
             scope.TenantId,

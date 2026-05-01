@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Well-known string constants used to identify comparison record types and payload formats.
+///     Well-known string constants used to identify comparison record types and payload formats.
 /// </summary>
 public static class ComparisonTypes
 {

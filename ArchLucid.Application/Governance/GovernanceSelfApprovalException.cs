@@ -1,7 +1,8 @@
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Thrown when a governance reviewer attempts to approve or reject an approval request they submitted (segregation of duties).
+///     Thrown when a governance reviewer attempts to approve or reject an approval request they submitted (segregation of
+///     duties).
 /// </summary>
 public sealed class GovernanceSelfApprovalException : InvalidOperationException
 {

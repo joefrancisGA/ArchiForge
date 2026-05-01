@@ -6,10 +6,10 @@ using QuestPDF.Helpers;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-/// Minimal Markdown→QuestPDF renderer scoped to the subset emitted by <see cref="FirstValueReportBuilder"/>:
-/// ATX headings (#, ##, ###), GFM pipe tables, horizontal rules, unordered/ordered lists, paragraphs,
-/// inline <c>**bold**</c>, <c>_italic_</c>, <c>`code`</c>, and <c>[text](url)</c> links.
-/// Lives next to the builder so the PDF endpoint cannot drift from the canonical Markdown body.
+///     Minimal Markdown→QuestPDF renderer scoped to the subset emitted by <see cref="FirstValueReportBuilder" />:
+///     ATX headings (#, ##, ###), GFM pipe tables, horizontal rules, unordered/ordered lists, paragraphs,
+///     inline <c>**bold**</c>, <c>_italic_</c>, <c>`code`</c>, and <c>[text](url)</c> links.
+///     Lives next to the builder so the PDF endpoint cannot drift from the canonical Markdown body.
 /// </summary>
 internal static class MarkdownPdfRenderer
 {
@@ -17,7 +17,7 @@ internal static class MarkdownPdfRenderer
         @"(?<bold>\*\*[^*]+\*\*)|(?<italic>(?<![A-Za-z0-9_])_[^_]+_(?![A-Za-z0-9_]))|(?<code>`[^`]+`)|(?<link>\[[^\]]+\]\([^)]+\))",
         RegexOptions.Compiled);
 
-    /// <summary>Renders <paramref name="markdown"/> into the supplied QuestPDF <paramref name="column"/>.</summary>
+    /// <summary>Renders <paramref name="markdown" /> into the supplied QuestPDF <paramref name="column" />.</summary>
     public static void Render(ColumnDescriptor column, string markdown)
     {
         if (column is null)
@@ -76,10 +76,15 @@ internal static class MarkdownPdfRenderer
         }
     }
 
-    private static IReadOnlyList<string> NormalizeLines(string markdown) =>
-        markdown.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+    private static IReadOnlyList<string> NormalizeLines(string markdown)
+    {
+        return markdown.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+    }
 
-    private static bool IsHorizontalRule(string line) => line.Trim() is "---" or "***" or "___";
+    private static bool IsHorizontalRule(string line)
+    {
+        return line.Trim() is "---" or "***" or "___";
+    }
 
     private static bool TryParseHeading(string line, out int level, out string text)
     {
@@ -89,7 +94,6 @@ internal static class MarkdownPdfRenderer
 
         while (level < trimmed.Length && trimmed[level] == '#' && level < 6)
             level++;
-
 
         if (level == 0 || level >= trimmed.Length || trimmed[level] != ' ')
         {
@@ -114,7 +118,7 @@ internal static class MarkdownPdfRenderer
         };
 
         float topPadding = level == 1 ? 0f : 8f;
-        column.Item().PaddingTop(topPadding).Text(t => RenderInline(t, text, baseSize: size, bold: true));
+        column.Item().PaddingTop(topPadding).Text(t => RenderInline(t, text, size, true));
     }
 
     private static bool IsListItem(string line)
@@ -134,7 +138,8 @@ internal static class MarkdownPdfRenderer
         while (i < lines.Count && IsListItem(lines[i]))
         {
             string raw = lines[i].TrimStart();
-            string itemText = raw.StartsWith("- ", StringComparison.Ordinal) || raw.StartsWith("* ", StringComparison.Ordinal)
+            string itemText = raw.StartsWith("- ", StringComparison.Ordinal) ||
+                              raw.StartsWith("* ", StringComparison.Ordinal)
                 ? raw[2..]
                 : Regex.Replace(raw, @"^\d+\.\s+", string.Empty);
 
@@ -171,7 +176,8 @@ internal static class MarkdownPdfRenderer
             return false;
         IEnumerable<string> cells = SplitRow(t).Select(c => c.Trim());
 
-        return cells.All(c => c.Length > 0 && c.Replace(":", string.Empty, StringComparison.Ordinal).All(ch => ch == '-'));
+        return cells.All(c =>
+            c.Length > 0 && c.Replace(":", string.Empty, StringComparison.Ordinal).All(ch => ch == '-'));
     }
 
     private static List<string> SplitRow(string line)
@@ -215,7 +221,8 @@ internal static class MarkdownPdfRenderer
                 table.Cell().Background(Colors.Grey.Lighten3).Padding(3).Text(t => RenderInline(t, header, bold: true));
 
             foreach (string cell in rows.SelectMany(row => row))
-                table.Cell().BorderTop(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(t => RenderInline(t, cell));
+                table.Cell().BorderTop(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3)
+                    .Text(t => RenderInline(t, cell));
         });
 
         return i - start;
@@ -227,11 +234,11 @@ internal static class MarkdownPdfRenderer
         List<string> chunk = [];
 
         while (i < lines.Count
-            && !string.IsNullOrWhiteSpace(lines[i])
-            && !IsHorizontalRule(lines[i])
-            && !TryParseHeading(lines[i], out _, out _)
-            && !IsListItem(lines[i])
-            && !IsTableRow(lines[i]))
+               && !string.IsNullOrWhiteSpace(lines[i])
+               && !IsHorizontalRule(lines[i])
+               && !TryParseHeading(lines[i], out _, out _)
+               && !IsListItem(lines[i])
+               && !IsTableRow(lines[i]))
         {
             chunk.Add(lines[i].TrimEnd());
             i++;
@@ -241,7 +248,6 @@ internal static class MarkdownPdfRenderer
 
         if (joined.Length > 0)
             column.Item().PaddingVertical(2).Text(t => RenderInline(t, joined));
-
 
         return Math.Max(1, i - start);
     }
@@ -256,7 +262,6 @@ internal static class MarkdownPdfRenderer
         {
             if (m.Index > cursor)
                 text.Span(content[cursor..m.Index]);
-
 
             string raw = m.Value;
 

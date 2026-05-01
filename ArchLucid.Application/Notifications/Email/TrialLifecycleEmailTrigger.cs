@@ -17,5 +17,5 @@ public enum TrialLifecycleEmailTrigger
 
     Expired,
 
-    Converted,
+    Converted
 }

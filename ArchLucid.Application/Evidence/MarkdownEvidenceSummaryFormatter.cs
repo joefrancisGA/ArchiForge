@@ -5,9 +5,9 @@ using ArchLucid.Contracts.Agents;
 namespace ArchLucid.Application.Evidence;
 
 /// <summary>
-/// Formats an <see cref="AgentEvidencePackage"/> as a Markdown document, producing sections for
-/// request context, constraints, capabilities, assumptions, policy evidence, service catalog hints,
-/// pattern hints, prior manifest context, and evidence notes.
+///     Formats an <see cref="AgentEvidencePackage" /> as a Markdown document, producing sections for
+///     request context, constraints, capabilities, assumptions, policy evidence, service catalog hints,
+///     pattern hints, prior manifest context, and evidence notes.
 /// </summary>
 public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 {
@@ -39,7 +39,6 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             foreach (string constraint in request.Constraints)
 
                 sb.AppendLine($"- {constraint}");
-
         }
 
         if (request.RequiredCapabilities.Count > 0)
@@ -51,7 +50,6 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             foreach (string capability in request.RequiredCapabilities)
 
                 sb.AppendLine($"- {capability}");
-
         }
 
         if (request.Assumptions.Count > 0)
@@ -63,7 +61,6 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             foreach (string assumption in request.Assumptions)
 
                 sb.AppendLine($"- {assumption}");
-
         }
 
         if (evidence.Policies.Count > 0)
@@ -82,11 +79,9 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
                     sb.AppendLine($"  - Required Controls: {string.Join(", ", policy.RequiredControls)}");
 
-
                 if (policy.Tags.Count > 0)
 
                     sb.AppendLine($"  - Tags: {string.Join(", ", policy.Tags)}");
-
             }
         }
 
@@ -106,11 +101,9 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
                     sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
 
-
                 if (service.Tags.Count > 0)
 
                     sb.AppendLine($"  - Tags: {string.Join(", ", service.Tags)}");
-
             }
         }
 
@@ -130,11 +123,9 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
                     sb.AppendLine($"  - Applicable Capabilities: {string.Join(", ", pattern.ApplicableCapabilities)}");
 
-
                 if (pattern.SuggestedServices.Count > 0)
 
                     sb.AppendLine($"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
-
             }
         }
 
@@ -150,16 +141,14 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
                 sb.AppendLine($"- Existing Services: {string.Join(", ", evidence.PriorManifest.ExistingServices)}");
 
-
             if (evidence.PriorManifest.ExistingDatastores.Count > 0)
 
                 sb.AppendLine($"- Existing Datastores: {string.Join(", ", evidence.PriorManifest.ExistingDatastores)}");
 
-
             if (evidence.PriorManifest.ExistingRequiredControls.Count > 0)
 
-                sb.AppendLine($"- Existing Required Controls: {string.Join(", ", evidence.PriorManifest.ExistingRequiredControls)}");
-
+                sb.AppendLine(
+                    $"- Existing Required Controls: {string.Join(", ", evidence.PriorManifest.ExistingRequiredControls)}");
         }
 
         if (evidence.Notes.Count <= 0)
@@ -172,7 +161,6 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
         foreach (EvidenceNote note in evidence.Notes)
 
             sb.AppendLine($"- **{note.NoteType}**: {note.Message}");
-
 
         return sb.ToString();
     }

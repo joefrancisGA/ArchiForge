@@ -5,7 +5,8 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Default <see cref="IGovernanceDashboardService"/> combining cross-run approval views and tenant-scoped policy change log rows.
+///     Default <see cref="IGovernanceDashboardService" /> combining cross-run approval views and tenant-scoped policy
+///     change log rows.
 /// </summary>
 public sealed class GovernanceDashboardService(
     IGovernanceApprovalRequestRepository approvalRequestRepository,
@@ -28,18 +29,14 @@ public sealed class GovernanceDashboardService(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
-
         if (maxPending <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxPending));
-
 
         if (maxDecisions <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxDecisions));
 
-
         if (maxChanges <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxChanges));
-
 
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
             _approvalRequestRepository.GetPendingAsync(maxPending, cancellationToken);
@@ -61,7 +58,7 @@ public sealed class GovernanceDashboardService(
             PendingApprovals = pending,
             RecentDecisions = decisions,
             RecentChanges = changes,
-            PendingCount = pending.Count,
+            PendingCount = pending.Count
         };
     }
 }

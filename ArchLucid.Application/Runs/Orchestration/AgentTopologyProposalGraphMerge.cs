@@ -86,8 +86,9 @@ public static class AgentTopologyProposalGraphMerge
         };
     }
 
-    private static GraphNode TopologyServiceNode(ManifestService svc) =>
-        new()
+    private static GraphNode TopologyServiceNode(ManifestService svc)
+    {
+        return new GraphNode
         {
             NodeId = !string.IsNullOrWhiteSpace(svc.ServiceId) ? svc.ServiceId : $"svc-{svc.ServiceName}",
             NodeType = GraphNodeTypes.TopologyResource,
@@ -97,9 +98,11 @@ public static class AgentTopologyProposalGraphMerge
             SourceId = "ProposedChanges",
             Properties = EnumProperties("serviceType", svc.ServiceType, "runtimePlatform", svc.RuntimePlatform)
         };
+    }
 
-    private static GraphNode TopologyDatastoreNode(ManifestDatastore ds) =>
-        new()
+    private static GraphNode TopologyDatastoreNode(ManifestDatastore ds)
+    {
+        return new GraphNode
         {
             NodeId = !string.IsNullOrWhiteSpace(ds.DatastoreId) ? ds.DatastoreId : $"ds-{ds.DatastoreName}",
             NodeType = GraphNodeTypes.TopologyResource,
@@ -109,6 +112,7 @@ public static class AgentTopologyProposalGraphMerge
             SourceId = "ProposedChanges",
             Properties = EnumProperties("datastoreType", ds.DatastoreType, "runtimePlatform", ds.RuntimePlatform)
         };
+    }
 
     private static Dictionary<string, string> EnumProperties(
         string key1,
@@ -118,8 +122,7 @@ public static class AgentTopologyProposalGraphMerge
     {
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            [key1] = e1.ToString(),
-            [key2] = e2.ToString()
+            [key1] = e1.ToString(), [key2] = e2.ToString()
         };
     }
 }

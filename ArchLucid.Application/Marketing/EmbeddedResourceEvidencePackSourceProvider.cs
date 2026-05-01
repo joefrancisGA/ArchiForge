@@ -45,7 +45,7 @@ public sealed class EmbeddedResourceEvidencePackSourceProvider : IEvidencePackSo
         "SIG-Core.md",
         "OWNER_SECURITY_ASSESSMENT_2026_Q2.md",
         "PEN_TEST_SOW_2026_Q2.md",
-        "AUDIT_COVERAGE_MATRIX.md",
+        "AUDIT_COVERAGE_MATRIX.md"
     ];
 
     private static readonly Assembly OwnerAssembly = typeof(EmbeddedResourceEvidencePackSourceProvider).Assembly;

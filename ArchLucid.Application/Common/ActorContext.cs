@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 namespace ArchLucid.Application.Common;
 
 /// <summary>
-/// HTTP-scoped actor resolution from <see cref="HttpContext.User"/> (display name + JWT object id for SoD).
+///     HTTP-scoped actor resolution from <see cref="HttpContext.User" /> (display name + JWT object id for SoD).
 /// </summary>
 public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IActorContext
 {
@@ -15,6 +15,7 @@ public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IAc
 
     private const string TidClaimType = "tid";
     private const string OidShortClaimType = "oid";
+
     private const string OidLongClaimType =
         "http://schemas.microsoft.com/identity/claims/objectidentifier";
 
@@ -47,7 +48,9 @@ public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IAc
         string oidNormalized = oid.Trim();
         string? tid = TryGetClaimValue(user, TidClaimType);
 
-        return string.IsNullOrWhiteSpace(tid) ? $"{JwtActorKeyPrefix}{oidNormalized}" : $"{JwtActorKeyPrefix}{tid.Trim()}:{oidNormalized}";
+        return string.IsNullOrWhiteSpace(tid)
+            ? $"{JwtActorKeyPrefix}{oidNormalized}"
+            : $"{JwtActorKeyPrefix}{tid.Trim()}:{oidNormalized}";
     }
 
     private static string? TryGetClaimValue(ClaimsPrincipal? user, string claimType)

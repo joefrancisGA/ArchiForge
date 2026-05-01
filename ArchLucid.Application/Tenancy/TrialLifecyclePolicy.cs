@@ -85,12 +85,10 @@ public static class TrialLifecyclePolicy
         if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus))
             return null;
 
-
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal) ||
             string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
 
             return null;
-
 
         DateTimeOffset T = tenant.TrialExpiresUtc.Value;
         DateTimeOffset readOnlyNotBefore = T.AddDays(options.ReadOnlyAfterExpireDays);
@@ -103,7 +101,7 @@ public static class TrialLifecyclePolicy
             TrialLifecycleStatus.Expired => readOnlyNotBefore,
             TrialLifecycleStatus.ReadOnly => exportOnlyNotBefore,
             TrialLifecycleStatus.ExportOnly => purgeNotBefore,
-            _ => T,
+            _ => T
         };
 
         double totalDays = (deadline - utcNow).TotalDays;

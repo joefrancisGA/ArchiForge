@@ -7,8 +7,8 @@ using DocumentFormat.OpenXml.Wordprocessing;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Consolidates all OpenXML usage for the consulting DOCX export into one place.
-/// Export services should depend on this composer instead of manipulating OpenXML types directly.
+///     Consolidates all OpenXML usage for the consulting DOCX export into one place.
+///     Export services should depend on this composer instead of manipulating OpenXML types directly.
 /// </summary>
 internal static class ConsultingDocxOpenXmlComposer
 {
@@ -37,7 +37,8 @@ internal static class ConsultingDocxOpenXmlComposer
 
             ConsultingDocxOpenXmlPrimitives.AddStylesPart(mainPart, options);
 
-            await ConsultingDocxCoverPageBuilder.AddAsync(mainPart, body, report, options, logoProvider, cancellationToken);
+            await ConsultingDocxCoverPageBuilder.AddAsync(mainPart, body, report, options, logoProvider,
+                cancellationToken);
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
 
             if (options.IncludeDocumentControl)
@@ -56,7 +57,6 @@ internal static class ConsultingDocxOpenXmlComposer
 
                 ConsultingDocxSupplementalSections.AddExecutiveSummary(body, report, options);
 
-
             if (options.IncludeArchitectureOverview)
 
                 await ConsultingDocxSupplementalSections.AddArchitectureOverviewAsync(
@@ -67,31 +67,25 @@ internal static class ConsultingDocxOpenXmlComposer
                     diagramImageRenderer,
                     cancellationToken);
 
-
             if (options.IncludeEvidenceAndConstraints)
 
                 ConsultingDocxFindingsSectionBuilder.Add(body, report);
-
 
             if (options.IncludeArchitectureDetails)
 
                 ConsultingDocxSupplementalSections.AddArchitectureDetails(body, report);
 
-
             if (options.IncludeGovernanceAndControls)
 
                 ConsultingDocxSupplementalSections.AddGovernanceAndControls(body, report);
-
 
             if (options.IncludeExplainabilitySection)
 
                 ConsultingDocxSupplementalSections.AddExplainabilitySection(body, report, options);
 
-
             if (options.IncludeConclusions)
 
                 ConsultingDocxRecommendationsSectionBuilder.Add(body, report, options);
-
 
             ConsultingDocxSupplementalSections.AddAppendices(body, report, options);
 

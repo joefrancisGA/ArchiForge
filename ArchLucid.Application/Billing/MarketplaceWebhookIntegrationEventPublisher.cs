@@ -1,13 +1,15 @@
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Integration;
-
 using ArchLucid.Persistence;
 
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Billing;
 
-/// <summary>Publishes <see cref="IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1"/> for downstream Azure Logic Apps / partner automation.</summary>
+/// <summary>
+///     Publishes <see cref="IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1" /> for downstream Azure Logic
+///     Apps / partner automation.
+/// </summary>
 public static class MarketplaceWebhookIntegrationEventPublisher
 {
     public static Task TryPublishAsync(
@@ -33,7 +35,7 @@ public static class MarketplaceWebhookIntegrationEventPublisher
             providerDedupeKey = payload.ProviderDedupeKey,
             action = payload.Action,
             subscriptionId = payload.SubscriptionId,
-            billingProvider = payload.BillingProvider,
+            billingProvider = payload.BillingProvider
         };
 
         string messageId = $"{payload.ProviderDedupeKey}:{IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1}";
@@ -46,12 +48,12 @@ public static class MarketplaceWebhookIntegrationEventPublisher
             IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1,
             body,
             messageId,
-            runId: null,
+            null,
             payload.TenantId,
             payload.WorkspaceId,
             payload.ProjectId,
-            connection: null,
-            transaction: null,
+            null,
+            null,
             cancellationToken);
     }
 }

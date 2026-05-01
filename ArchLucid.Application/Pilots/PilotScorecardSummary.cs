@@ -5,26 +5,31 @@ public sealed class PilotScorecardSummary
 {
     public required Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required DateTimeOffset PeriodStart
     {
-        get; init;
+        get;
+        init;
     }
 
     public required DateTimeOffset PeriodEnd
     {
-        get; init;
+        get;
+        init;
     }
 
     public int RunsInPeriod
     {
-        get; init;
+        get;
+        init;
     }
 
     public int RunsWithCommittedManifest
     {
-        get; init;
+        get;
+        init;
     }
 }

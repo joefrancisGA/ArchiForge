@@ -9,8 +9,10 @@ using ArchLucid.Contracts.Evolution;
 namespace ArchLucid.Application.Evolution;
 
 /// <summary>
-/// Shadow execution: single DB read (<see cref="IRunDetailQueryService.GetRunDetailAsync"/>), then an in-memory-only analysis pass.
-/// Does not call replay, determinism, or repository writes; optional manifest compare/agent compare are disabled to avoid extra DB reads.
+///     Shadow execution: single DB read (<see cref="IRunDetailQueryService.GetRunDetailAsync" />), then an in-memory-only
+///     analysis pass.
+///     Does not call replay, determinism, or repository writes; optional manifest compare/agent compare are disabled to
+///     avoid extra DB reads.
 /// </summary>
 public sealed class ShadowExecutionService(
     IRunDetailQueryService runDetailQueryService,
@@ -32,7 +34,6 @@ public sealed class ShadowExecutionService(
         if (loaded is null)
             throw new RunNotFoundException(request.BaselineArchitectureRunId);
 
-
         ArchitectureRunDetail isolated = ArchitectureRunDetailIsolatingCloner.Clone(loaded);
 
         ApplyCandidateChangeSet(isolated, request.CandidateChangeSet);
@@ -50,7 +51,7 @@ public sealed class ShadowExecutionService(
             IncludeSummary = pipeline.IncludeSummary,
             IncludeDeterminismCheck = false,
             IncludeManifestCompare = false,
-            IncludeAgentResultCompare = false,
+            IncludeAgentResultCompare = false
         };
 
         return await architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
@@ -89,13 +90,16 @@ public sealed class ShadowExecutionService(
                     step.ActionType,
                     step.Description),
                 CreatedUtc = stamp,
-                Metadata = { ["ChangeSetId"] = changeSet.ChangeSetId.ToString("D"), ["StepOrdinal"] = step.Ordinal.ToString(CultureInfo.InvariantCulture) }
+                Metadata =
+                {
+                    ["ChangeSetId"] = changeSet.ChangeSetId.ToString("D"),
+                    ["StepOrdinal"] = step.Ordinal.ToString(CultureInfo.InvariantCulture)
+                }
             };
 
             if (!string.IsNullOrEmpty(step.AcceptanceCriteria))
 
                 payload.Metadata["AcceptanceCriteria"] = step.AcceptanceCriteria;
-
 
             detail.DecisionTraces.Add(RunEventTrace.From(payload));
         }

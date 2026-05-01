@@ -6,4 +6,3 @@ public interface IDocumentLogoProvider
         ConsultingDocxTemplateOptions options,
         CancellationToken cancellationToken = default);
 }
-

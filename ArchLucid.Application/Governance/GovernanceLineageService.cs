@@ -9,7 +9,7 @@ using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance;
 
-/// <inheritdoc cref="IGovernanceLineageService"/>
+/// <inheritdoc cref="IGovernanceLineageService" />
 public sealed class GovernanceLineageService(
     IGovernanceApprovalRequestRepository approvalRepo,
     IGovernancePromotionRecordRepository promotionRepo,
@@ -20,14 +20,14 @@ public sealed class GovernanceLineageService(
     private readonly IGovernanceApprovalRequestRepository _approvalRepo =
         approvalRepo ?? throw new ArgumentNullException(nameof(approvalRepo));
 
+    private readonly IAuthorityQueryService _authorityQuery =
+        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
+
     private readonly IGovernancePromotionRecordRepository _promotionRepo =
         promotionRepo ?? throw new ArgumentNullException(nameof(promotionRepo));
 
     private readonly IRunDetailQueryService _runDetailQuery =
         runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
-
-    private readonly IAuthorityQueryService _authorityQuery =
-        authorityQuery ?? throw new ArgumentNullException(nameof(authorityQuery));
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
@@ -40,15 +40,14 @@ public sealed class GovernanceLineageService(
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
 
         GovernanceApprovalRequest? approval = await _approvalRepo
-            .GetByIdAsync(approvalRequestId, cancellationToken)
+                .GetByIdAsync(approvalRequestId, cancellationToken)
             ;
 
         if (approval is null)
             return null;
 
-
         ArchitectureRunDetail? coordinatorDetail = await _runDetailQuery
-            .GetRunDetailAsync(approval.RunId, cancellationToken)
+                .GetRunDetailAsync(approval.RunId, cancellationToken)
             ;
 
         GovernanceLineageRunSummary? runSummary = coordinatorDetail is null
@@ -59,11 +58,11 @@ public sealed class GovernanceLineageService(
                 Status = coordinatorDetail.Run.Status.ToString(),
                 CreatedUtc = coordinatorDetail.Run.CreatedUtc,
                 CompletedUtc = coordinatorDetail.Run.CompletedUtc,
-                CurrentManifestVersion = coordinatorDetail.Run.CurrentManifestVersion,
+                CurrentManifestVersion = coordinatorDetail.Run.CurrentManifestVersion
             };
 
         IReadOnlyList<GovernancePromotionRecord> promotions = await _promotionRepo
-            .GetByRunIdAsync(approval.RunId, cancellationToken)
+                .GetByRunIdAsync(approval.RunId, cancellationToken)
             ;
 
         GovernanceLineageManifestSummary? manifestSummary = null;
@@ -78,7 +77,7 @@ public sealed class GovernanceLineageService(
                 Manifest = manifestSummary,
                 TopFindings = topFindings,
                 RiskPosture = riskPosture,
-                Promotions = promotions.ToList(),
+                Promotions = promotions.ToList()
             };
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -94,7 +93,7 @@ public sealed class GovernanceLineageService(
                 ManifestVersion = gm.Metadata.Version,
                 DecisionCount = gm.Decisions.Count,
                 UnresolvedIssueCount = gm.UnresolvedIssues.Items.Count,
-                ComplianceGapCount = gm.Compliance.Gaps.Count,
+                ComplianceGapCount = gm.Compliance.Gaps.Count
             };
 
             riskPosture = AuthorityManifestRiskPosture.Derive(gm);
@@ -108,7 +107,7 @@ public sealed class GovernanceLineageService(
                 Manifest = manifestSummary,
                 TopFindings = topFindings,
                 RiskPosture = riskPosture,
-                Promotions = promotions.ToList(),
+                Promotions = promotions.ToList()
             };
 
         IEnumerable<Finding> ordered = findings
@@ -116,16 +115,16 @@ public sealed class GovernanceLineageService(
             .ThenBy(f => f.Title, StringComparer.OrdinalIgnoreCase);
 
         topFindings.AddRange(from f in ordered.Take(10)
-                             let score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f)
-                             select new GovernanceLineageFindingSummary
-                             {
-                                 FindingId = f.FindingId,
-                                 Title = f.Title,
-                                 EngineType = f.EngineType,
-                                 Severity = f.Severity.ToString(),
-                                 TraceCompletenessRatio = score.CompletenessRatio,
-                                 SourceAgentExecutionTraceId = f.Trace.SourceAgentExecutionTraceId,
-                             });
+            let score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f)
+            select new GovernanceLineageFindingSummary
+            {
+                FindingId = f.FindingId,
+                Title = f.Title,
+                EngineType = f.EngineType,
+                Severity = f.Severity.ToString(),
+                TraceCompletenessRatio = score.CompletenessRatio,
+                SourceAgentExecutionTraceId = f.Trace.SourceAgentExecutionTraceId
+            });
 
         return new GovernanceLineageResult
         {
@@ -134,7 +133,7 @@ public sealed class GovernanceLineageService(
             Manifest = manifestSummary,
             TopFindings = topFindings,
             RiskPosture = riskPosture,
-            Promotions = promotions.ToList(),
+            Promotions = promotions.ToList()
         };
     }
 }

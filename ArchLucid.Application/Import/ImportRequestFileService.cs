@@ -26,7 +26,8 @@ public sealed class ImportRequestFileService(
     private const int MaxFileBytes = 512 * 1024;
     private const int MaxSourceFileNameLength = 400;
 
-    public async Task<ImportRequestFileResult> ImportAsync(IFormFile? file, CancellationToken ct, string? correlationId = null)
+    public async Task<ImportRequestFileResult> ImportAsync(IFormFile? file, CancellationToken ct,
+        string? correlationId = null)
     {
         ct.ThrowIfCancellationRequested();
 
@@ -77,7 +78,7 @@ public sealed class ImportRequestFileService(
             {
                 Succeeded = false,
                 FailureDetail = "Request content failed safety precheck.",
-                ContentSafetyReasons = safety.Reasons,
+                ContentSafetyReasons = safety.Reasons
             };
         }
 
@@ -90,7 +91,7 @@ public sealed class ImportRequestFileService(
             {
                 Succeeded = false,
                 FailureDetail = "Imported request failed validation.",
-                ValidationErrors = validation.Errors,
+                ValidationErrors = validation.Errors
             };
         }
 
@@ -101,7 +102,8 @@ public sealed class ImportRequestFileService(
         if (safeName.Length > MaxSourceFileNameLength)
             safeName = safeName[..MaxSourceFileNameLength];
 
-        string requestJson = JsonSerializer.Serialize(request, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+        string requestJson =
+            JsonSerializer.Serialize(request, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
         Guid importId = Guid.NewGuid();
 
         ImportedArchitectureRequestRecord record = new()
@@ -114,18 +116,12 @@ public sealed class ImportRequestFileService(
             SourceFileName = safeName,
             Format = format,
             Status = "Draft",
-            RequestJson = requestJson,
+            RequestJson = requestJson
         };
 
         await importedRequestRepository.InsertAsync(record, ct);
 
-        object payload = new
-        {
-            importId,
-            requestId = request.RequestId,
-            format,
-            sourceFileName = safeName
-        };
+        object payload = new { importId, requestId = request.RequestId, format, sourceFileName = safeName };
         string dataJson = JsonSerializer.Serialize(
             payload,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
@@ -140,25 +136,20 @@ public sealed class ImportRequestFileService(
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
                 DataJson = dataJson,
-                CorrelationId = correlationId,
+                CorrelationId = correlationId
             },
             ct);
 
         return new ImportRequestFileResult
         {
-            Succeeded = true,
-            ImportedRequestId = importId,
-            Status = "Draft",
-            Warnings = [],
+            Succeeded = true, ImportedRequestId = importId, Status = "Draft", Warnings = []
         };
     }
 
     private static ImportRequestFileResult Fail(string detail)
-        => new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-        };
+    {
+        return new ImportRequestFileResult { Succeeded = false, FailureDetail = detail };
+    }
 
     private static bool TryGetFormat(string fileName, out string format, out string? error)
     {
@@ -185,13 +176,15 @@ public sealed class ImportRequestFileService(
 
     private static ArchitectureRequest DeserializeForImport(string text, string format)
     {
-        return string.Equals(format, "json", StringComparison.OrdinalIgnoreCase) ? JsonRequestDeserializer.DeserializeText(text) : TomlRequestDeserializer.Deserialize(text);
+        return string.Equals(format, "json", StringComparison.OrdinalIgnoreCase)
+            ? JsonRequestDeserializer.DeserializeText(text)
+            : TomlRequestDeserializer.Deserialize(text);
     }
 
     private static async Task<string> ReadUtf8CappedAsync(IFormFile file, CancellationToken ct)
     {
         await using Stream stream = file.OpenReadStream();
-        using MemoryStream ms = new(capacity: Math.Min(MaxFileBytes, 64 * 1024));
+        using MemoryStream ms = new(Math.Min(MaxFileBytes, 64 * 1024));
         byte[] buffer = new byte[8192];
         int total = 0;
 

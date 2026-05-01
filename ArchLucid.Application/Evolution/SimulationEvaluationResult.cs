@@ -7,16 +7,19 @@ public sealed class SimulationEvaluationResult
 {
     public required EvaluationScore Score
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ExplanationSummary
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? ExplanationDetailJson
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -4,18 +4,18 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Governance.Preview;
 
 /// <summary>
-/// Compares governance-relevant fields from <see cref="ManifestGovernance"/> (or objects that expose it).
-/// Unchanged keys are omitted from the result for a compact preview.
+///     Compares governance-relevant fields from <see cref="ManifestGovernance" /> (or objects that expose it).
+///     Unchanged keys are omitted from the result for a compact preview.
 /// </summary>
 public static class GovernanceManifestComparer
 {
     /// <summary>
-    /// Compares governance snapshots. Accepts <see cref="ManifestGovernance"/>,
-    /// <see cref="GoldenManifest"/> (uses <c>.Governance</c>), or <see langword="null"/>.
+    ///     Compares governance snapshots. Accepts <see cref="ManifestGovernance" />,
+    ///     <see cref="GoldenManifest" /> (uses <c>.Governance</c>), or <see langword="null" />.
     /// </summary>
     /// <exception cref="ArgumentException">
-    /// Thrown when either argument is a type other than <see cref="ManifestGovernance"/>,
-    /// <see cref="GoldenManifest"/>, or <see langword="null"/>.
+    ///     Thrown when either argument is a type other than <see cref="ManifestGovernance" />,
+    ///     <see cref="GoldenManifest" />, or <see langword="null" />.
     /// </exception>
     public static List<GovernanceDiffItem> Compare(object? currentGovernance, object? previewGovernance)
     {
@@ -24,19 +24,22 @@ public static class GovernanceManifestComparer
         return CompareDictionaries(current, preview);
     }
 
-    private static ManifestGovernance? ToManifestGovernance(object? o) => o switch
+    private static ManifestGovernance? ToManifestGovernance(object? o)
     {
-        null => null,
-        ManifestGovernance mg => mg,
-        GoldenManifest gm => gm.Governance,
-        _ => throw new ArgumentException(
-            $"Unsupported governance type '{o.GetType().FullName}'. " +
-            $"Pass a {nameof(ManifestGovernance)}, a {nameof(GoldenManifest)}, or null.",
-            nameof(o))
-    };
+        return o switch
+        {
+            null => null,
+            ManifestGovernance mg => mg,
+            GoldenManifest gm => gm.Governance,
+            _ => throw new ArgumentException(
+                $"Unsupported governance type '{o.GetType().FullName}'. " +
+                $"Pass a {nameof(ManifestGovernance)}, a {nameof(GoldenManifest)}, or null.",
+                nameof(o))
+        };
+    }
 
     /// <summary>
-    /// Maps <see cref="ManifestGovernance"/> properties to stable string keys for diffing.
+    ///     Maps <see cref="ManifestGovernance" /> properties to stable string keys for diffing.
     /// </summary>
     private static Dictionary<string, string?> ExtractGovernanceFields(ManifestGovernance? g)
     {
@@ -49,12 +52,14 @@ public static class GovernanceManifestComparer
             ["PolicyConstraints"] = NormalizeList(g.PolicyConstraints),
             ["RequiredControls"] = NormalizeList(g.RequiredControls),
             ["RiskClassification"] = NullIfWhiteSpace(g.RiskClassification),
-            ["CostClassification"] = NullIfWhiteSpace(g.CostClassification),
+            ["CostClassification"] = NullIfWhiteSpace(g.CostClassification)
         };
     }
 
-    private static string? NullIfWhiteSpace(string? s) =>
-        string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+    private static string? NullIfWhiteSpace(string? s)
+    {
+        return string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+    }
 
     private static string? NormalizeList(IReadOnlyList<string>? list)
     {

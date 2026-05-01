@@ -1,11 +1,13 @@
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Thrown when approve/reject lost a race: another request already transitioned the approval request out of a reviewable state.
+///     Thrown when approve/reject lost a race: another request already transitioned the approval request out of a
+///     reviewable state.
 /// </summary>
 public sealed class GovernanceApprovalReviewConflictException : InvalidOperationException
 {
-    public GovernanceApprovalReviewConflictException(string approvalRequestId, string attemptedOutcome, string currentStatus)
+    public GovernanceApprovalReviewConflictException(string approvalRequestId, string attemptedOutcome,
+        string currentStatus)
         : base(BuildMessage(approvalRequestId, attemptedOutcome, currentStatus))
     {
         ApprovalRequestId = approvalRequestId;

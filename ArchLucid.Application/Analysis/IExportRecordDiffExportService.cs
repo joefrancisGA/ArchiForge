@@ -6,4 +6,3 @@ public interface IExportRecordDiffExportService
         ExportRecordDiffResult diff,
         CancellationToken cancellationToken = default);
 }
-

@@ -18,10 +18,11 @@ public sealed class DefaultRequestContentSafetyPrecheck : IRequestContentSafetyP
         "you are now",
         "new system prompt",
         "override safety",
-        "jailbreak",
+        "jailbreak"
     ];
 
-    public Task<RequestContentSafetyResult> EvaluateAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
+    public Task<RequestContentSafetyResult> EvaluateAsync(ArchitectureRequest request,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
@@ -40,11 +41,7 @@ public sealed class DefaultRequestContentSafetyPrecheck : IRequestContentSafetyP
             Accumulate(doc.Content, $"{nameof(request.Documents)}.{nameof(ContextDocumentRequest.Content)}", reasons);
         }
 
-        return Task.FromResult(new RequestContentSafetyResult
-        {
-            IsAllowed = reasons.Count == 0,
-            Reasons = reasons,
-        });
+        return Task.FromResult(new RequestContentSafetyResult { IsAllowed = reasons.Count == 0, Reasons = reasons });
     }
 
     private static void Accumulate(string? text, string fieldLabel, List<string> reasons)
@@ -54,6 +51,9 @@ public sealed class DefaultRequestContentSafetyPrecheck : IRequestContentSafetyP
 
         string normalized = text.Trim().ToLowerInvariant();
 
-        reasons.AddRange(from phrase in BlockedPhrases where normalized.Contains(phrase, StringComparison.Ordinal) select string.Format(CultureInfo.InvariantCulture, "Field {0} matches blocked phrase \"{1}\".", fieldLabel, phrase));
+        reasons.AddRange(from phrase in BlockedPhrases
+            where normalized.Contains(phrase, StringComparison.Ordinal)
+            select string.Format(CultureInfo.InvariantCulture, "Field {0} matches blocked phrase \"{1}\".", fieldLabel,
+                phrase));
     }
 }

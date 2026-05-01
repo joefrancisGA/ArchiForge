@@ -6,5 +6,6 @@ namespace ArchLucid.Application.Runs.Orchestration;
 public interface IRequestContentSafetyPrecheck
 {
     /// <summary>Returns reasons when the request should not be dispatched to agents.</summary>
-    Task<RequestContentSafetyResult> EvaluateAsync(ArchitectureRequest request, CancellationToken cancellationToken = default);
+    Task<RequestContentSafetyResult> EvaluateAsync(ArchitectureRequest request,
+        CancellationToken cancellationToken = default);
 }

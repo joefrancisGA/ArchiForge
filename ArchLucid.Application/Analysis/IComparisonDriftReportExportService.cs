@@ -6,4 +6,3 @@ public interface IComparisonDriftReportExportService
 
     byte[] GenerateDocx(DriftAnalysisResult drift, string? comparisonRecordId = null);
 }
-

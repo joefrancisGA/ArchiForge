@@ -1,7 +1,10 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
@@ -13,9 +16,9 @@ namespace ArchLucid.Application.Pilots;
 
 /// <inheritdoc cref="IPilotRunDeltaComputer" />
 /// <remarks>
-/// Read-only by construction: makes one filtered audit query, one trace query, and at most one evidence-chain
-/// query per call. Failures in the audit / trace / evidence queries are swallowed (warning-logged) so a sponsor
-/// report still renders for runs whose ancillary stores are temporarily unavailable.
+///     Read-only by construction: makes one filtered audit query, one trace query, and at most one evidence-chain
+///     query per call. Failures in the audit / trace / evidence queries are swallowed (warning-logged) so a sponsor
+///     report still renders for runs whose ancillary stores are temporarily unavailable.
 /// </remarks>
 public sealed class PilotRunDeltaComputer(
     IFindingEvidenceChainService evidenceChainService,
@@ -27,20 +30,20 @@ public sealed class PilotRunDeltaComputer(
     /// <summary>Hard cap on audit-row scans for a single run; keeps the sponsor report O(1) even on noisy runs.</summary>
     private const int AuditRowQueryCap = 500;
 
-    private readonly IFindingEvidenceChainService _evidenceChainService =
-        evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
-
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
     private readonly IAuditRepository _auditRepository =
         auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
 
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IFindingEvidenceChainService _evidenceChainService =
+        evidenceChainService ?? throw new ArgumentNullException(nameof(evidenceChainService));
 
     private readonly ILogger<PilotRunDeltaComputer> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc />
     public async Task<PilotRunDeltas> ComputeAsync(
@@ -50,7 +53,7 @@ public sealed class PilotRunDeltaComputer(
         if (detail is null)
             throw new ArgumentNullException(nameof(detail));
 
-        Contracts.Metadata.ArchitectureRun run = detail.Run;
+        ArchitectureRun run = detail.Run;
         string runId = run.RunId;
 
         DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
@@ -63,7 +66,7 @@ public sealed class PilotRunDeltaComputer(
 
         int llmCallCount = await TryCountLlmCallsAsync(runId, cancellationToken);
         (int auditCount, bool auditTruncated) = await TryCountAuditRowsAsync(runId, cancellationToken);
-        Contracts.Explanation.FindingEvidenceChainResponse? chain = topFinding is null
+        FindingEvidenceChainResponse? chain = topFinding is null
             ? null
             : await TryBuildEvidenceChainAsync(runId, topFinding.FindingId, cancellationToken);
 
@@ -83,13 +86,14 @@ public sealed class PilotRunDeltaComputer(
             TopFindingId = topFinding?.FindingId,
             TopFindingSeverity = topFinding?.Severity.ToString(),
             TopFindingEvidenceChain = chain,
-            IsDemoTenant = isDemo,
+            IsDemoTenant = isDemo
         };
     }
 
     /// <summary>Returns severity counts in descending order (highest count first), grouped case-insensitively.</summary>
-    private static IReadOnlyList<KeyValuePair<string, int>> AggregateFindingsBySeverity(ArchitectureRunDetail detail) =>
-        detail.Results
+    private static IReadOnlyList<KeyValuePair<string, int>> AggregateFindingsBySeverity(ArchitectureRunDetail detail)
+    {
+        return detail.Results
             .Where(_ => true)
             .SelectMany(static r => r.Findings)
             .Where(_ => true)
@@ -100,21 +104,24 @@ public sealed class PilotRunDeltaComputer(
             .OrderByDescending(static p => p.Value)
             .ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
 
     /// <summary>Picks the single highest-severity finding; ties broken by first-seen order to keep output deterministic.</summary>
-    private static ArchitectureFinding? SelectTopSeverityFinding(ArchitectureRunDetail detail) =>
-        detail.Results
+    private static ArchitectureFinding? SelectTopSeverityFinding(ArchitectureRunDetail detail)
+    {
+        return detail.Results
             .Where(_ => true)
             .SelectMany(static r => r.Findings)
             .Where(_ => true)
             .OrderByDescending(static f => (int)f.Severity)
             .FirstOrDefault();
+    }
 
     private async Task<int> TryCountLlmCallsAsync(string runId, CancellationToken cancellationToken)
     {
         try
         {
-            IReadOnlyList<Contracts.Agents.AgentExecutionTrace> traces =
+            IReadOnlyList<AgentExecutionTrace> traces =
                 await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
             return traces.Count;
@@ -127,7 +134,8 @@ public sealed class PilotRunDeltaComputer(
         }
     }
 
-    private async Task<(int Count, bool Truncated)> TryCountAuditRowsAsync(string runId, CancellationToken cancellationToken)
+    private async Task<(int Count, bool Truncated)> TryCountAuditRowsAsync(string runId,
+        CancellationToken cancellationToken)
     {
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return (0, false);
@@ -135,11 +143,7 @@ public sealed class PilotRunDeltaComputer(
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            AuditEventFilter filter = new()
-            {
-                RunId = runGuid,
-                Take = AuditRowQueryCap,
-            };
+            AuditEventFilter filter = new() { RunId = runGuid, Take = AuditRowQueryCap };
 
             IReadOnlyList<AuditEvent> events = await _auditRepository.GetFilteredAsync(
                 scope.TenantId,
@@ -161,7 +165,7 @@ public sealed class PilotRunDeltaComputer(
         }
     }
 
-    private async Task<Contracts.Explanation.FindingEvidenceChainResponse?> TryBuildEvidenceChainAsync(
+    private async Task<FindingEvidenceChainResponse?> TryBuildEvidenceChainAsync(
         string runId,
         string findingId,
         CancellationToken cancellationToken)

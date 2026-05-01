@@ -6,23 +6,26 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Architecture;
 
 /// <summary>
-/// Integrity rules for committed coordinator runs: golden manifest metadata must list every persisted
-/// <see cref="DecisionTrace"/> id (populated by <c>AttachDecisionTraceIds</c> during merge).
+///     Integrity rules for committed coordinator runs: golden manifest metadata must list every persisted
+///     <see cref="DecisionTrace" /> id (populated by <c>AttachDecisionTraceIds</c> during merge).
 /// </summary>
 public static class CommittedManifestTraceabilityRules
 {
     /// <summary>
-    /// Returns human-readable gaps when <paramref name="detail"/> is committed but manifest trace ids are inconsistent.
+    ///     Returns human-readable gaps when <paramref name="detail" /> is committed but manifest trace ids are inconsistent.
     /// </summary>
     public static IReadOnlyList<string> GetLinkageGaps(ArchitectureRunDetail detail)
     {
         ArgumentNullException.ThrowIfNull(detail);
 
-        return detail.Run.Status != ArchitectureRunStatus.Committed ? [] : GetLinkageGaps(detail.Manifest, detail.DecisionTraces);
+        return detail.Run.Status != ArchitectureRunStatus.Committed
+            ? []
+            : GetLinkageGaps(detail.Manifest, detail.DecisionTraces);
     }
 
     /// <summary>
-    /// Validates manifest <see cref="ManifestMetadata.DecisionTraceIds"/> against coordinator <see cref="DecisionTrace"/> rows.
+    ///     Validates manifest <see cref="ManifestMetadata.DecisionTraceIds" /> against coordinator
+    ///     <see cref="DecisionTrace" /> rows.
     /// </summary>
     public static IReadOnlyList<string> GetLinkageGaps(
         GoldenManifest? manifest,
@@ -40,7 +43,6 @@ public static class CommittedManifestTraceabilityRules
                 gaps.Add("Manifest.Metadata.DecisionTraceIds contains an empty entry.");
             else
                 idsOnManifest.Add(id);
-
 
         List<string> coordinatorTraceIds = [];
 
@@ -69,12 +71,10 @@ public static class CommittedManifestTraceabilityRules
             if (!idsOnManifest.Contains(tid))
                 gaps.Add($"Trace '{tid}' is missing from Manifest.Metadata.DecisionTraceIds.");
 
-
         foreach (string mid in idsOnManifest)
 
             if (!coordinatorSet.Contains(mid))
                 gaps.Add($"Manifest.Metadata.DecisionTraceIds lists unknown trace id '{mid}'.");
-
 
         return gaps;
     }

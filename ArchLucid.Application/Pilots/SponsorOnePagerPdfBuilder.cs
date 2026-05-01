@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 
+using QuestPDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -14,13 +15,13 @@ using QuestPdfDocument = QuestPDF.Fluent.Document;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-/// One-page QuestPDF sponsor summary keyed to a single run plus tenant pilot scorecard aggregates (read-only).
+///     One-page QuestPDF sponsor summary keyed to a single run plus tenant pilot scorecard aggregates (read-only).
 /// </summary>
 /// <remarks>
-/// The headline numbers come from <see cref="IPilotRunDeltaComputer"/> so the sponsor PDF, the Markdown sibling
-/// (<see cref="FirstValueReportBuilder"/>), and the canonical first-value-report PDF wrapper all show the same
-/// computed deltas. When the run is a Contoso Retail demo seed the page is stamped "demo tenant — replace before
-/// publishing" so the seeded numbers cannot be quoted as a real-customer outcome.
+///     The headline numbers come from <see cref="IPilotRunDeltaComputer" /> so the sponsor PDF, the Markdown sibling
+///     (<see cref="FirstValueReportBuilder" />), and the canonical first-value-report PDF wrapper all show the same
+///     computed deltas. When the run is a Contoso Retail demo seed the page is stamped "demo tenant — replace before
+///     publishing" so the seeded numbers cannot be quoted as a real-customer outcome.
 /// </remarks>
 public sealed class SponsorOnePagerPdfBuilder(
     IRunDetailQueryService runDetailQuery,
@@ -29,16 +30,16 @@ public sealed class SponsorOnePagerPdfBuilder(
 {
     private const string DemoTenantBanner = "demo tenant — replace before publishing";
 
+    private readonly IPilotRunDeltaComputer _deltaComputer =
+        deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
+
     private readonly IRunDetailQueryService _runDetailQuery =
         runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
 
     private readonly PilotScorecardBuilder _scorecardBuilder =
         scorecardBuilder ?? throw new ArgumentNullException(nameof(scorecardBuilder));
 
-    private readonly IPilotRunDeltaComputer _deltaComputer =
-        deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
-
-    /// <summary>Returns PDF bytes, or <see langword="null"/> when the run is missing.</summary>
+    /// <summary>Returns PDF bytes, or <see langword="null" /> when the run is missing.</summary>
     public async Task<byte[]?> BuildPdfAsync(
         string runId,
         string baseUrlForFooter,
@@ -58,7 +59,7 @@ public sealed class SponsorOnePagerPdfBuilder(
         DateTimeOffset start = end.AddDays(-30);
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
 
-        QuestPDF.Settings.License = LicenseType.Community;
+        Settings.License = LicenseType.Community;
 
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
@@ -88,7 +89,6 @@ public sealed class SponsorOnePagerPdfBuilder(
                         column.Item().PaddingTop(4).Background(Colors.Yellow.Lighten3).Padding(4)
                             .Text(DemoTenantBanner).Bold().FontColor(Colors.Red.Darken2);
 
-
                     column.Item().PaddingTop(8).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
 
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
@@ -99,19 +99,25 @@ public sealed class SponsorOnePagerPdfBuilder(
 
                     if (manifest is not null)
                     {
-                        column.Item().PaddingTop(4).Text($"Committed manifest version: {manifest.Metadata.ManifestVersion}");
+                        column.Item().PaddingTop(4)
+                            .Text($"Committed manifest version: {manifest.Metadata.ManifestVersion}");
                         column.Item().Text($"System: {manifest.SystemName}");
                     }
                     else
                     {
-                        column.Item().PaddingTop(4).Text("Committed manifest: not available on this run (fill baseline per docs/PILOT_ROI_MODEL.md).");
+                        column.Item().PaddingTop(4)
+                            .Text(
+                                "Committed manifest: not available on this run (fill baseline per docs/PILOT_ROI_MODEL.md).");
                     }
 
                     column.Item().PaddingTop(12).Text("Top-severity finding — evidence chain").Bold().FontSize(12);
                     column.Item().Element(c => RenderEvidenceChain(c, deltas));
 
-                    column.Item().PaddingTop(12).Text("Illustrative waterfall (pilot activity mix)").Bold().FontSize(12);
-                    column.Item().Text("Bar heights are proportional to: total runs in window, committed runs, remainder (not dollar estimates).");
+                    column.Item().PaddingTop(12).Text("Illustrative waterfall (pilot activity mix)").Bold()
+                        .FontSize(12);
+                    column.Item()
+                        .Text(
+                            "Bar heights are proportional to: total runs in window, committed runs, remainder (not dollar estimates).");
                     column.Item().PaddingTop(6).Row(row =>
                     {
                         float h1 = 80f;
@@ -136,7 +142,9 @@ public sealed class SponsorOnePagerPdfBuilder(
                     });
 
                     column.Item().PaddingTop(12).Text("Canonical narrative").Bold();
-                    column.Item().Text("Repository docs/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
+                    column.Item()
+                        .Text(
+                            "Repository docs/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
 
                     column.Item().PaddingTop(10).Text($"Deep link: {footer}/v1/architecture/run/{run.RunId}");
                 });
@@ -149,7 +157,10 @@ public sealed class SponsorOnePagerPdfBuilder(
         return stream.ToArray();
     }
 
-    /// <summary>Renders the four computed-delta rows (time-to-commit, findings total, LLM calls, audit rows) as a 2-column table.</summary>
+    /// <summary>
+    ///     Renders the four computed-delta rows (time-to-commit, findings total, LLM calls, audit rows) as a 2-column
+    ///     table.
+    /// </summary>
     private static void RenderComputedDeltasTable(IContainer column, PilotRunDeltas deltas)
     {
         column.PaddingTop(4).Table(table =>
@@ -161,7 +172,8 @@ public sealed class SponsorOnePagerPdfBuilder(
             });
 
             AddDeltaRow(table, "Time to committed manifest", FormatTimeToCommit(deltas));
-            AddDeltaRow(table, "Findings (total)", deltas.FindingsBySeverity.Sum(static p => p.Value).ToString(CultureInfo.InvariantCulture));
+            AddDeltaRow(table, "Findings (total)",
+                deltas.FindingsBySeverity.Sum(static p => p.Value).ToString(CultureInfo.InvariantCulture));
             AddDeltaRow(table, "Findings by severity", FormatFindingsBySeverity(deltas));
             AddDeltaRow(table, "LLM calls for this run", deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture));
             AddDeltaRow(table, "Audit rows for this run", FormatAuditRows(deltas));
@@ -176,7 +188,9 @@ public sealed class SponsorOnePagerPdfBuilder(
 
     private static string FormatTimeToCommit(PilotRunDeltas deltas)
     {
-        return deltas.TimeToCommittedManifest is not { } wall ? "(pending — no committed manifest)" : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
+        return deltas.TimeToCommittedManifest is not { } wall
+            ? "(pending — no committed manifest)"
+            : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
     }
 
     private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
@@ -210,24 +224,32 @@ public sealed class SponsorOnePagerPdfBuilder(
 
         column.Column(c =>
         {
-            c.Item().Text($"Selected finding: {deltas.TopFindingId} (severity {deltas.TopFindingSeverity ?? "Unknown"}).");
+            c.Item().Text(
+                $"Selected finding: {deltas.TopFindingId} (severity {deltas.TopFindingSeverity ?? "Unknown"}).");
 
             FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
 
             if (chain is null)
             {
-                c.Item().Text("(Evidence chain unavailable — finding not present in persisted FindingsSnapshot.)").Italic();
+                c.Item().Text("(Evidence chain unavailable — finding not present in persisted FindingsSnapshot.)")
+                    .Italic();
 
                 return;
             }
 
             c.Item().Text($"Manifest version: {chain.ManifestVersion ?? "(none)"}");
-            c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId)} · context: {FormatGuid(chain.ContextSnapshotId)}");
-            c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId)} · decision trace: {FormatGuid(chain.DecisionTraceId)}");
+            c.Item().Text(
+                $"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId)} · context: {FormatGuid(chain.ContextSnapshotId)}");
+            c.Item().Text(
+                $"Graph snapshot: {FormatGuid(chain.GraphSnapshotId)} · decision trace: {FormatGuid(chain.DecisionTraceId)}");
             c.Item().Text($"Golden manifest: {FormatGuid(chain.GoldenManifestId)}");
-            c.Item().Text($"Related graph nodes: {chain.RelatedGraphNodeIds.Count} · agent execution traces: {chain.AgentExecutionTraceIds.Count}");
+            c.Item().Text(
+                $"Related graph nodes: {chain.RelatedGraphNodeIds.Count} · agent execution traces: {chain.AgentExecutionTraceIds.Count}");
         });
     }
 
-    private static string FormatGuid(Guid? id) => id is null ? "(none)" : id.Value.ToString("D");
+    private static string FormatGuid(Guid? id)
+    {
+        return id is null ? "(none)" : id.Value.ToString("D");
+    }
 }

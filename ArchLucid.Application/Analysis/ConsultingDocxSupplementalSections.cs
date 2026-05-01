@@ -1,7 +1,7 @@
-using ArchLucid.Core.Diagrams;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Diagrams;
 
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -45,20 +45,13 @@ internal static class ConsultingDocxSupplementalSections
 
         foreach (string item in new[]
                  {
-                     "1. Executive Summary",
-                     "2. Architecture Overview",
-                     "3. Evidence and Constraints",
-                     "4. Architecture Details",
-                     "5. Governance and Controls",
-                     "6. Explainability and Execution Review",
-                     "7. Conclusions",
-                     "Appendix A. Mermaid Source",
-                     "Appendix B. Execution Trace Index",
-                     "Appendix C. Determinism and Comparison"
+                     "1. Executive Summary", "2. Architecture Overview", "3. Evidence and Constraints",
+                     "4. Architecture Details", "5. Governance and Controls",
+                     "6. Explainability and Execution Review", "7. Conclusions", "Appendix A. Mermaid Source",
+                     "Appendix B. Execution Trace Index", "Appendix C. Determinism and Comparison"
                  })
 
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
-
     }
 
     public static void AddExecutiveSummary(
@@ -91,7 +84,6 @@ internal static class ConsultingDocxSupplementalSections
                 body,
                 "Key warnings were identified during analysis and should be reviewed before approval.",
                 options);
-
     }
 
     public static async Task AddArchitectureOverviewAsync(
@@ -106,7 +98,8 @@ internal static class ConsultingDocxSupplementalSections
 
         if (report.Manifest is null)
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No manifest was available for this run.", "BodyText");
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No manifest was available for this run.",
+                "BodyText");
 
             return;
         }
@@ -115,7 +108,6 @@ internal static class ConsultingDocxSupplementalSections
 
         if (string.IsNullOrWhiteSpace(report.Diagram))
             return;
-
 
         byte[]? imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
             report.Diagram,
@@ -137,7 +129,6 @@ internal static class ConsultingDocxSupplementalSections
                 body,
                 "Diagram image rendering was unavailable. Mermaid source is included in Appendix A.",
                 options);
-
     }
 
     public static void AddArchitectureDetails(Body body, ArchitectureAnalysisReport report)
@@ -146,7 +137,8 @@ internal static class ConsultingDocxSupplementalSections
 
         if (report.Manifest is null)
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No manifest was available for this run.", "BodyText");
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No manifest was available for this run.",
+                "BodyText");
 
             return;
         }
@@ -165,11 +157,10 @@ internal static class ConsultingDocxSupplementalSections
 
                     ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Purpose: {service.Purpose}");
 
-
                 if (service.RequiredControls.Count > 0)
 
-                    ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Required Controls: {string.Join(", ", service.RequiredControls)}");
-
+                    ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                        $"Required Controls: {string.Join(", ", service.RequiredControls)}");
 
                 ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
             }
@@ -178,7 +169,6 @@ internal static class ConsultingDocxSupplementalSections
         if (report.Manifest.Datastores.Count <= 0)
             return;
 
-
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Datastores", 2);
 
         foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
@@ -186,8 +176,10 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, datastore.DatastoreName, "Strong");
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Type: {datastore.DatastoreType}");
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
             ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         }
     }
@@ -198,7 +190,8 @@ internal static class ConsultingDocxSupplementalSections
 
         if (report.Manifest is null)
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No manifest was available for this run.", "BodyText");
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No manifest was available for this run.",
+                "BodyText");
 
             return;
         }
@@ -223,7 +216,8 @@ internal static class ConsultingDocxSupplementalSections
 
         if (report.ExecutionTraces.Count == 0)
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No execution traces were available for this run.", "BodyText");
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No execution traces were available for this run.",
+                "BodyText");
 
             return;
         }
@@ -253,12 +247,12 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "Determinism Snapshot", "Strong");
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Iterations: {report.Determinism.Iterations}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
         }
 
         if (report.ManifestDiff is null && report.AgentResultDiff is null)
             return;
-
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         ConsultingDocxOpenXmlPrimitives.AddCallout(
@@ -278,12 +272,13 @@ internal static class ConsultingDocxSupplementalSections
 
             if (!string.IsNullOrWhiteSpace(report.Diagram))
 
-                ConsultingDocxOpenXmlPrimitives.AddCodeBlock(body, report.Diagram, ConsultingDocxOpenXmlPrimitives.MermaidLanguage);
+                ConsultingDocxOpenXmlPrimitives.AddCodeBlock(body, report.Diagram,
+                    ConsultingDocxOpenXmlPrimitives.MermaidLanguage);
 
             else
 
-                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No Mermaid diagram source was available.", "BodyText");
-
+                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No Mermaid diagram source was available.",
+                    "BodyText");
 
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
         }
@@ -294,17 +289,17 @@ internal static class ConsultingDocxSupplementalSections
 
             if (report.ExecutionTraces.Count > 0)
 
-                foreach (AgentExecutionTrace trace in report.ExecutionTraces.OrderBy(x => x.AgentType).ThenBy(x => x.CreatedUtc))
+                foreach (AgentExecutionTrace trace in report.ExecutionTraces.OrderBy(x => x.AgentType)
+                             .ThenBy(x => x.CreatedUtc))
 
                     ConsultingDocxOpenXmlPrimitives.AddBullet(
                         body,
                         $"{trace.AgentType} | Task {trace.TaskId} | Parse {(trace.ParseSucceeded ? "Succeeded" : "Failed")} | {trace.CreatedUtc:O}");
 
-
             else
 
-                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No execution traces were available.", "BodyText");
-
+                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No execution traces were available.",
+                    "BodyText");
 
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
         }
@@ -312,32 +307,36 @@ internal static class ConsultingDocxSupplementalSections
         if (!options.IncludeAppendixDeterminismAndComparison)
             return;
 
-
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Appendix C. Determinism and Comparison", 1);
 
         if (report.Determinism is not null)
         {
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "Determinism", "Strong");
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Iterations: {report.Determinism.Iterations}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
         }
 
         if (report.ManifestDiff is not null)
         {
             ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "Manifest Diff", "Strong");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Added Services: {report.ManifestDiff.AddedServices.Count}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Removed Services: {report.ManifestDiff.RemovedServices.Count}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Added Required Controls: {report.ManifestDiff.AddedRequiredControls.Count}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Removed Required Controls: {report.ManifestDiff.RemovedRequiredControls.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Added Services: {report.ManifestDiff.AddedServices.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Removed Services: {report.ManifestDiff.RemovedServices.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Added Required Controls: {report.ManifestDiff.AddedRequiredControls.Count}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+                $"Removed Required Controls: {report.ManifestDiff.RemovedRequiredControls.Count}");
         }
 
         if (report.AgentResultDiff is null)
             return;
 
-
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "Agent Result Diff", "Strong");
-        ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Agent Delta Count: {report.AgentResultDiff.AgentDeltas.Count}");
+        ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+            $"Agent Delta Count: {report.AgentResultDiff.AgentDeltas.Count}");
     }
 }

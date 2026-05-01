@@ -3,9 +3,9 @@ using System.Text;
 namespace ArchLucid.Application.Diffs;
 
 /// <summary>
-/// Implements <see cref="IManifestDiffSummaryFormatter"/> by rendering a structured Markdown summary
-/// of a <see cref="ManifestDiffResult"/>, covering added/removed services, datastores, required controls,
-/// and relationships. Used as input to <see cref="IManifestDiffExportService"/> and inline report sections.
+///     Implements <see cref="IManifestDiffSummaryFormatter" /> by rendering a structured Markdown summary
+///     of a <see cref="ManifestDiffResult" />, covering added/removed services, datastores, required controls,
+///     and relationships. Used as input to <see cref="IManifestDiffExportService" /> and inline report sections.
 /// </summary>
 public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryFormatter
 {
@@ -45,7 +45,6 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
 
             sb.AppendLine($"- {warning}");
 
-
         sb.AppendLine();
 
         return sb.ToString();
@@ -69,7 +68,6 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
         foreach (string item in items.OrderBy(x => x))
 
             sb.AppendLine($"- {item}");
-
 
         sb.AppendLine();
     }
@@ -99,7 +97,6 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
             if (!string.IsNullOrWhiteSpace(item.Description))
 
                 sb.AppendLine($"  - {item.Description}");
-
         }
 
         sb.AppendLine();

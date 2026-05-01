@@ -3,7 +3,10 @@ using System.Text;
 
 namespace ArchLucid.Application.Pilots;
 
-/// <summary>Markdown export for sponsor / executive sharing (pairs with JSON from the same <see cref="PilotValueReport" />).</summary>
+/// <summary>
+///     Markdown export for sponsor / executive sharing (pairs with JSON from the same <see cref="PilotValueReport" />
+///     ).
+/// </summary>
 public static class PilotValueReportMarkdown
 {
     public static string Format(PilotValueReport r)
@@ -17,9 +20,11 @@ public static class PilotValueReportMarkdown
         sb.AppendLine("| Field | Value |");
         sb.AppendLine("| --- | --- |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Tenant | `{r.TenantId}` |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Window (UTC) | `{r.FromUtc:O}` inclusive → `{r.ToUtc:O}` exclusive |");
+        sb.AppendLine(CultureInfo.InvariantCulture,
+            $"| Window (UTC) | `{r.FromUtc:O}` inclusive → `{r.ToUtc:O}` exclusive |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Committed runs | {r.TotalRunsCommitted} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Run-detail cap | {r.RunDetailCap} (truncated: {r.RunDetailsTruncated}) |");
+        sb.AppendLine(CultureInfo.InvariantCulture,
+            $"| Run-detail cap | {r.RunDetailCap} (truncated: {r.RunDetailsTruncated}) |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Audit export truncated | {r.AuditExportTruncated} |");
         sb.AppendLine();
 
@@ -32,11 +37,13 @@ public static class PilotValueReportMarkdown
             CultureInfo.InvariantCulture,
             $"| Avg pipeline completion | {FormatAvgSeconds(r.AveragePipelineCompletionSeconds)} |");
 
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Recommendations generated (audit) | {r.TotalRecommendationsProduced} |");
+        sb.AppendLine(CultureInfo.InvariantCulture,
+            $"| Recommendations generated (audit) | {r.TotalRecommendationsProduced} |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Governance approvals | {r.GovernanceApprovals} |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Governance rejections | {r.GovernanceRejections} |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Policy pack assignments | {r.PolicyPackAssignments} |");
-        sb.AppendLine(CultureInfo.InvariantCulture, $"| Comparison / drift detections | {r.ComparisonOrDriftDetections} |");
+        sb.AppendLine(CultureInfo.InvariantCulture,
+            $"| Comparison / drift detections | {r.ComparisonOrDriftDetections} |");
         sb.AppendLine(CultureInfo.InvariantCulture, $"| Pending approvals (now) | {r.GovernancePendingApprovalsNow} |");
         sb.AppendLine();
 

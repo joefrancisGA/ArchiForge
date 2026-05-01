@@ -8,10 +8,10 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Decisions;
 
 /// <summary>
-/// Minimal deterministic evaluator used in dev/test environments.
-/// Returns no evaluations; decision scoring relies entirely on agent result confidence.
-/// Register a real <see cref="IAgentEvaluationService"/> in production to enable
-/// critic-signal weighting.
+///     Minimal deterministic evaluator used in dev/test environments.
+///     Returns no evaluations; decision scoring relies entirely on agent result confidence.
+///     Register a real <see cref="IAgentEvaluationService" /> in production to enable
+///     critic-signal weighting.
 /// </summary>
 public sealed class DefaultAgentEvaluationService(ILogger<DefaultAgentEvaluationService> logger)
     : IAgentEvaluationService
@@ -38,7 +38,6 @@ public sealed class DefaultAgentEvaluationService(ILogger<DefaultAgentEvaluation
                 "No evaluations will be produced; critic-signal weighting is disabled. " +
                 "Register a real IAgentEvaluationService for production use.",
                 LogSanitizer.Sanitize(runId));
-
 
         return Task.FromResult<IReadOnlyList<AgentEvaluation>>([]);
     }

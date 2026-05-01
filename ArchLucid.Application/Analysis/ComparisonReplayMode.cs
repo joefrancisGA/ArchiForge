@@ -1,7 +1,7 @@
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// How to replay a persisted comparison record.
+///     How to replay a persisted comparison record.
 /// </summary>
 public enum ComparisonReplayMode
 {

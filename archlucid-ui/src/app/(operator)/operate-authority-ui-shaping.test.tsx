@@ -11,7 +11,7 @@
  * (GET **Refresh** stays enabled); rank cues on the same page use **`useNavCallerAuthorityRank`** in production — here the
  * mocked hook isolates the write-boundary copy from **`GovernanceResolutionRankCue`**.
  */
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mutateCapability = vi.hoisted(() => ({ current: false }));
@@ -422,9 +422,18 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
     expect(screen.getByText(governanceResolutionChangeRelatedControlsReaderSupplement)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: governanceResolutionEffectivePolicyHeadingReader })).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: governanceResolutionResolutionDetailsHeadingReader }),
-    ).toBeInTheDocument();
+
+    // Resolution details `h3` lives inside the second default-closed `AdvancedOptionsAccordion` (progressive disclosure).
+    const advancedToggles = screen.getAllByRole("button", { name: /^Advanced Options$/ });
+
+    expect(advancedToggles.length).toBeGreaterThanOrEqual(2);
+    fireEvent.click(advancedToggles[1]!);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: governanceResolutionResolutionDetailsHeadingReader }),
+      ).toBeInTheDocument();
+    });
   });
 
   it("Governance resolution: Change related controls omits reader supplement when mutation capability is true", async () => {

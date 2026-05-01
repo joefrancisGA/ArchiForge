@@ -26,7 +26,8 @@ public interface IPilotValueReportService
 
 /// <summary>
 ///     Read-only aggregate: run summaries + run details + scoped audit export + governance dashboard snapshot.
-///     Durable audit reads use <see cref="IAuditRepository" /> (existing product pattern; <see cref="IAuditService" /> is append-only).
+///     Durable audit reads use <see cref="IAuditRepository" /> (existing product pattern; <see cref="IAuditService" /> is
+///     append-only).
 /// </summary>
 public sealed class PilotValueReportService(
     IRunDetailQueryService runDetailQuery,
@@ -36,7 +37,10 @@ public sealed class PilotValueReportService(
     IGovernanceDashboardService governanceDashboardService,
     ILogger<PilotValueReportService> logger) : IPilotValueReportService
 {
-    /// <summary>Max committed runs fully loaded for finding/agent/timing aggregation per report (defense against huge tenants).</summary>
+    /// <summary>
+    ///     Max committed runs fully loaded for finding/agent/timing aggregation per report (defense against huge
+    ///     tenants).
+    /// </summary>
     public const int DefaultRunDetailCap = 400;
 
     /// <summary>Audit export row cap (matches <see cref="DapperAuditRepository.GetExportAsync" /> clamp).</summary>
@@ -70,23 +74,23 @@ public sealed class PilotValueReportService(
         AuditEventTypes.InternalArchitectureDeterminismCheckExecuted
     ];
 
-    private readonly IRunDetailQueryService _runDetailQuery =
-        runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
-
     private readonly IAuditRepository _auditRepository =
         auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
-
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly IGovernanceDashboardService _governanceDashboardService =
         governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
 
     private readonly ILogger<PilotValueReportService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IRunDetailQueryService _runDetailQuery =
+        runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     /// <inheritdoc />
     public async Task<PilotValueReport?> BuildAsync(
@@ -104,7 +108,7 @@ public sealed class PilotValueReportService(
         DateTime from = fromUtc ?? tenant.CreatedUtc.UtcDateTime;
 
         if (toExclusive <= from)
-            return EmptyReport(scope.TenantId, from, toExclusive, dashboardPending: 0);
+            return EmptyReport(scope.TenantId, from, toExclusive, 0);
 
         List<CommittedRunRef> committedRuns = await CollectCommittedRunsAsync(from, toExclusive, cancellationToken)
             .ConfigureAwait(false);
@@ -118,13 +122,15 @@ public sealed class PilotValueReportService(
 
         IReadOnlyList<AuditEvent> auditRows =
             await _auditRepository
-                .GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive, AuditExportMaxRows, cancellationToken)
+                .GetExportAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, from, toExclusive,
+                    AuditExportMaxRows, cancellationToken)
                 .ConfigureAwait(false);
 
         bool auditTruncated = auditRows.Count >= AuditExportMaxRows;
 
         if (auditTruncated && _logger.IsEnabled(LogLevel.Warning))
-            _logger.LogWarning("Pilot value report: audit export capped at {Cap} for tenant {TenantId}.", AuditExportMaxRows, scope.TenantId);
+            _logger.LogWarning("Pilot value report: audit export capped at {Cap} for tenant {TenantId}.",
+                AuditExportMaxRows, scope.TenantId);
 
         int approvals = auditRows.Count(e => ApprovalEventTypes.Contains(e.EventType));
         int rejections = auditRows.Count(e => RejectionEventTypes.Contains(e.EventType));
@@ -224,8 +230,6 @@ public sealed class PilotValueReportService(
         };
     }
 
-    private readonly record struct CommittedRunRef(string RunId, DateTime CreatedUtc);
-
     private async Task<List<CommittedRunRef>> CollectCommittedRunsAsync(
         DateTime fromInclusive,
         DateTime toExclusive,
@@ -238,7 +242,8 @@ public sealed class PilotValueReportService(
         while (true)
         {
             (IReadOnlyList<RunSummary> items, bool hasMore, string? next) =
-                await _runDetailQuery.ListRunSummariesKeysetAsync(cursor, take, cancellationToken).ConfigureAwait(false);
+                await _runDetailQuery.ListRunSummariesKeysetAsync(cursor, take, cancellationToken)
+                    .ConfigureAwait(false);
 
             bool stopPaging = false;
 
@@ -302,8 +307,10 @@ public sealed class PilotValueReportService(
         }
     }
 
-    private static PilotValueReport EmptyReport(Guid tenantId, DateTime from, DateTime toExclusive, int dashboardPending) =>
-        new()
+    private static PilotValueReport EmptyReport(Guid tenantId, DateTime from, DateTime toExclusive,
+        int dashboardPending)
+    {
+        return new PilotValueReport
         {
             TenantId = tenantId,
             FromUtc = from,
@@ -324,4 +331,7 @@ public sealed class PilotValueReportService(
             GovernancePendingApprovalsNow = dashboardPending,
             AuditExportTruncated = false
         };
+    }
+
+    private readonly record struct CommittedRunRef(string RunId, DateTime CreatedUtc);
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Requests;
@@ -8,8 +9,8 @@ using Tomlyn.Model;
 namespace ArchLucid.Application.Import;
 
 /// <summary>
-/// Strict TOML import: parse to <see cref="TomlTable"/>, convert to JSON, then
-/// <see cref="JsonRequestDeserializer"/> (unknown fields rejected).
+///     Strict TOML import: parse to <see cref="TomlTable" />, convert to JSON, then
+///     <see cref="JsonRequestDeserializer" /> (unknown fields rejected).
 /// </summary>
 public static class TomlRequestDeserializer
 {
@@ -31,7 +32,7 @@ public static class TomlRequestDeserializer
             throw new InvalidOperationException($"Malformed TOML: {ex.Message}", ex);
         }
 
-        JsonElement json = TomlTableToJsonElement(model, depth: 0);
+        JsonElement json = TomlTableToJsonElement(model, 0);
         string jsonText = json.GetRawText();
 
         return JsonRequestDeserializer.DeserializeText(jsonText);
@@ -59,24 +60,32 @@ public static class TomlRequestDeserializer
     private static JsonElement TomlValueToJson(object? value, int depth)
     {
         if (value is null)
-            return JsonSerializer.SerializeToElement<object?>(null, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+            return JsonSerializer.SerializeToElement<object?>(null,
+                ImportArchitectureRequestSerializerOptions.StrictDeserialize);
 
         switch (value)
         {
             case string s:
-                return JsonSerializer.SerializeToElement(s, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(s,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             case bool b:
-                return JsonSerializer.SerializeToElement(b, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(b,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             case int i:
-                return JsonSerializer.SerializeToElement(i, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(i,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             case long l:
-                return JsonSerializer.SerializeToElement(l, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(l,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             case double d:
-                return JsonSerializer.SerializeToElement(d, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(d,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             case DateTimeOffset dto:
-                return JsonSerializer.SerializeToElement(dto, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(dto,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             case DateTime dt:
-                return JsonSerializer.SerializeToElement(dt, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(dt,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             case TomlTable nested:
                 return TomlTableToJsonElement(nested, depth);
             case TomlArray arr:
@@ -88,10 +97,11 @@ public static class TomlRequestDeserializer
                 foreach (object? item in arr)
                     items.Add(TomlValueToJson(item, depth));
 
-                return JsonSerializer.SerializeToElement(items, ImportArchitectureRequestSerializerOptions.StrictDeserialize);
+                return JsonSerializer.SerializeToElement(items,
+                    ImportArchitectureRequestSerializerOptions.StrictDeserialize);
             default:
                 return JsonSerializer.SerializeToElement(
-                    Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                    Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty,
                     ImportArchitectureRequestSerializerOptions.StrictDeserialize);
         }
     }

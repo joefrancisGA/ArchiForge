@@ -17,11 +17,11 @@ public sealed class MarketingPricingQuoteSalesNotifier(
 {
     private const string EventType = "marketing-pricing-quote";
 
-    private readonly IEmailProvider _emailProvider =
-        emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
-
     private readonly IOptionsMonitor<EmailNotificationOptions> _emailOptionsMonitor =
         emailOptionsMonitor ?? throw new ArgumentNullException(nameof(emailOptionsMonitor));
+
+    private readonly IEmailProvider _emailProvider =
+        emailProvider ?? throw new ArgumentNullException(nameof(emailProvider));
 
     private readonly ILogger<MarketingPricingQuoteSalesNotifier> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -86,10 +86,7 @@ public sealed class MarketingPricingQuoteSalesNotifier(
             HtmlBody = html,
             TextBody = text,
             IdempotencyKey = $"{EventType}:{insert.Id:N}",
-            Tags = new EmailMessageTags
-            {
-                EventType = EventType,
-            },
+            Tags = new EmailMessageTags { EventType = EventType }
         };
 
         try
@@ -99,7 +96,8 @@ public sealed class MarketingPricingQuoteSalesNotifier(
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning(ex, "Marketing pricing quote sales email failed for request id {RequestId}.", insert.Id);
+                _logger.LogWarning(ex, "Marketing pricing quote sales email failed for request id {RequestId}.",
+                    insert.Id);
         }
     }
 }

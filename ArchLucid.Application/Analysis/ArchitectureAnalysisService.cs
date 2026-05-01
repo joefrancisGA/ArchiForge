@@ -12,8 +12,8 @@ using ArchLucid.Persistence.Data.Repositories;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Builds an <see cref="ArchitectureAnalysisReport"/> by orchestrating manifest, evidence, trace,
-/// diagram, summary, determinism, and diff sub-services for a given run.
+///     Builds an <see cref="ArchitectureAnalysisReport" /> by orchestrating manifest, evidence, trace,
+///     diagram, summary, determinism, and diff sub-services for a given run.
 /// </summary>
 public sealed class ArchitectureAnalysisService(
     IRunDetailQueryService runDetailQueryService,
@@ -50,7 +50,6 @@ public sealed class ArchitectureAnalysisService(
                     "PreloadedRunDetail.Run.RunId must match RunId.",
                     nameof(request));
 
-
             run = primaryDetail.Run;
         }
         else if (request.PreloadedRun is not null)
@@ -60,14 +59,11 @@ public sealed class ArchitectureAnalysisService(
         else
         {
             primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
-                ?? throw new RunNotFoundException(request.RunId);
+                            ?? throw new RunNotFoundException(request.RunId);
             run = primaryDetail.Run;
         }
 
-        ArchitectureAnalysisReport report = new()
-        {
-            Run = run
-        };
+        ArchitectureAnalysisReport report = new() { Run = run };
 
         if (request.IncludeEvidence)
         {
@@ -75,7 +71,6 @@ public sealed class ArchitectureAnalysisService(
             if (report.Evidence is null)
 
                 report.Warnings.Add("Evidence package was not found for this run.");
-
         }
 
         if (request.IncludeExecutionTraces)
@@ -84,7 +79,6 @@ public sealed class ArchitectureAnalysisService(
             if (report.ExecutionTraces.Count == 0)
 
                 report.Warnings.Add("No execution traces were found for this run.");
-
         }
 
         if (request.IncludeManifest)
@@ -97,19 +91,18 @@ public sealed class ArchitectureAnalysisService(
 
             if (report.Manifest is null)
             {
-                report.Manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
+                report.Manifest =
+                    await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
 
                 if (report.Manifest is not null &&
                     !string.Equals(report.Manifest.RunId, run.RunId, StringComparison.Ordinal))
 
                     report.Manifest = null;
-
             }
 
             if (report.Manifest is null)
 
                 report.Warnings.Add($"Manifest '{manifestVersionKey}' was not found.");
-
         }
 
         if (request.IncludeDiagram)
@@ -120,9 +113,8 @@ public sealed class ArchitectureAnalysisService(
 
             else
 
-                report.Warnings.Add("Diagram was requested but the manifest is unavailable; diagram was not generated.");
-
-
+                report.Warnings.Add(
+                    "Diagram was requested but the manifest is unavailable; diagram was not generated.");
 
         if (request.IncludeSummary)
 
@@ -132,9 +124,8 @@ public sealed class ArchitectureAnalysisService(
 
             else
 
-                report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
-
-
+                report.Warnings.Add(
+                    "Summary was requested but the manifest is unavailable; summary was not generated.");
 
         if (request.IncludeDeterminismCheck)
 
@@ -147,7 +138,6 @@ public sealed class ArchitectureAnalysisService(
                     CommitReplays = false
                 },
                 cancellationToken);
-
 
         if (request.IncludeManifestCompare)
 
@@ -172,9 +162,7 @@ public sealed class ArchitectureAnalysisService(
                 else
 
                     report.ManifestDiff = manifestDiffService.Compare(report.Manifest, compareManifest);
-
             }
-
 
         if (!request.IncludeAgentResultCompare)
             return report;
@@ -185,7 +173,8 @@ public sealed class ArchitectureAnalysisService(
 
         else
         {
-            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
+            ArchitectureRunDetail? compareDetail =
+                await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
 
             if (compareDetail is null)
 
@@ -194,7 +183,8 @@ public sealed class ArchitectureAnalysisService(
             else
             {
                 IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results
-                                                         ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+                                                         ?? await resultRepository.GetByRunIdAsync(request.RunId,
+                                                             cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
 
                 report.AgentResultDiff = agentResultDiffService.Compare(

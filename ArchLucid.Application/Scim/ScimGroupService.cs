@@ -9,9 +9,8 @@ namespace ArchLucid.Application.Scim;
 
 public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService audit) : IScimGroupService
 {
-    private readonly IScimGroupRepository _groups = groups ?? throw new ArgumentNullException(nameof(groups));
-
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
+    private readonly IScimGroupRepository _groups = groups ?? throw new ArgumentNullException(nameof(groups));
 
     /// <inheritdoc />
     public Task<(IReadOnlyList<ScimGroupRecord> items, int totalResults)> ListAsync(
@@ -30,7 +29,8 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
     }
 
     /// <inheritdoc />
-    public async Task<ScimGroupRecord> CreateAsync(Guid tenantId, JsonElement resource, CancellationToken cancellationToken)
+    public async Task<ScimGroupRecord> CreateAsync(Guid tenantId, JsonElement resource,
+        CancellationToken cancellationToken)
     {
         (string displayName, string externalId) = ScimGroupResourceParser.ParseGroup(resource);
         ScimGroupRecord g = await _groups.InsertAsync(tenantId, externalId, displayName, cancellationToken);
@@ -54,7 +54,8 @@ public sealed class ScimGroupService(IScimGroupRepository groups, IAuditService 
 
         await _groups.ReplaceAsync(tenantId, id, externalId, displayName, cancellationToken);
 
-        await LogAsync(tenantId, AuditEventTypes.ScimGroupMembershipChanged, $"{{\"groupId\":\"{id:D}\"}}", cancellationToken);
+        await LogAsync(tenantId, AuditEventTypes.ScimGroupMembershipChanged, $"{{\"groupId\":\"{id:D}\"}}",
+            cancellationToken);
     }
 
     /// <inheritdoc />

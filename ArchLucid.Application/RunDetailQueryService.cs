@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
@@ -17,18 +18,18 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application;
 
 /// <summary>
-/// Assembles the canonical <see cref="ArchitectureRunDetail"/> from individual repositories.
-/// This is the single, authoritative query path for run state — controllers, API application
-/// services, analysis/export/compare, governance, and <see cref="ReplayRunService"/> should use this
-/// instead of assembling run metadata, tasks, results, manifest, and traces from repositories separately.
+///     Assembles the canonical <see cref="ArchitectureRunDetail" /> from individual repositories.
+///     This is the single, authoritative query path for run state — controllers, API application
+///     services, analysis/export/compare, governance, and <see cref="ReplayRunService" /> should use this
+///     instead of assembling run metadata, tasks, results, manifest, and traces from repositories separately.
 /// </summary>
 /// <remarks>
-/// ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> read path was
-/// removed along with the interface itself. Decision traces are now read from
-/// <see cref="IDecisionTraceRepository">Decisioning.Interfaces.IDecisionTraceRepository</see> via
-/// <see cref="Persistence.Models.RunRecord.DecisionTraceId"/> on the run header — the authority FK
-/// chain populates that pointer at commit time (<see cref="ReplayRunService"/> + demo seed both go
-/// through <c>IAuthorityCommittedManifestChainWriter.PersistCommittedChainAsync</c>).
+///     ADR 0030 PR A3 (2026-04-24): the legacy <c>ICoordinatorDecisionTraceRepository</c> read path was
+///     removed along with the interface itself. Decision traces are now read from
+///     <see cref="IDecisionTraceRepository">Decisioning.Interfaces.IDecisionTraceRepository</see> via
+///     <see cref="Persistence.Models.RunRecord.DecisionTraceId" /> on the run header — the authority FK
+///     chain populates that pointer at commit time (<see cref="ReplayRunService" /> + demo seed both go
+///     through <c>IAuthorityCommittedManifestChainWriter.PersistCommittedChainAsync</c>).
 /// </remarks>
 public sealed class RunDetailQueryService(
     IRunRepository runRepository,
@@ -81,7 +82,7 @@ public sealed class RunDetailQueryService(
         IReadOnlyList<AgentResult> results =
             await resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        Contracts.Manifest.GoldenManifest? manifest =
+        GoldenManifest? manifest =
             await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
 
         List<DecisionTrace> decisionTraces = [];

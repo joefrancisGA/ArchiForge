@@ -5,7 +5,8 @@ namespace ArchLucid.Application.Templates;
 
 /// <summary>
 ///     Pre-built <see cref="ArchitectureRequest" /> payloads aligned with <c>POST /v1/architecture/request</c>.
-///     Each template records <c>templateId</c> as the first inline document named <c>ArchLucid.TemplateId</c> (<c>text/plain</c>)
+///     Each template records <c>templateId</c> as the first inline document named <c>ArchLucid.TemplateId</c> (
+///     <c>text/plain</c>)
 ///     so clients can track catalog selection without extending the core request contract.
 /// </summary>
 public static class ArchitectureRequestTemplates
@@ -40,38 +41,35 @@ public static class ArchitectureRequestTemplates
             "Patient-data system: HIPAA constraints, auditability, encryption, access control, and data residency.")
     ];
 
-    public static ArchitectureRequest MicroservicesWebPlatform(string? requestId = null) =>
-        Build(
-            templateId: "microservices-web-platform",
-            requestId: requestId,
-            title: "Microservices web platform",
-            descriptionBody: """
-                Design a baseline microservices platform for customer-facing web workloads. The north-south edge is an API gateway;
-                core domains are expressed as independently deployable services. All east-west traffic must use TLS.
-                Produce a target topology, data ownership boundaries, and operational concerns (observability, rollout, secrets).
-                """,
-            systemName: "MicroservicesWebPlatform",
-            environment: "prod",
-            cloudProvider: CloudProvider.Azure,
-            assumptions:
+    public static ArchitectureRequest MicroservicesWebPlatform(string? requestId = null)
+    {
+        return Build(
+            "microservices-web-platform",
+            requestId,
+            "Microservices web platform",
+            """
+            Design a baseline microservices platform for customer-facing web workloads. The north-south edge is an API gateway;
+            core domains are expressed as independently deployable services. All east-west traffic must use TLS.
+            Produce a target topology, data ownership boundaries, and operational concerns (observability, rollout, secrets).
+            """,
+            "MicroservicesWebPlatform",
+            "prod",
+            CloudProvider.Azure,
             [
                 "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
                 "Kubernetes is the preferred runtime; cloud control plane is Azure-aligned (Azure Kubernetes Service or equivalent).",
                 "PostgreSQL is the system of record; Redis is used for caching and ephemeral coordination."
             ],
-            constraints:
             [
                 "East-west service calls must use HTTPS (TLS) — no cleartext on the mesh or cluster network.",
                 "No more than four domain services in the first delivery increment (gateway + three domains as listed)."
             ],
-            requiredCapabilities:
             [
                 "API gateway (ingress, authn delegation, rate limits)",
                 "User, order, and notification domain services",
                 "PostgreSQL and Redis",
                 "Kubernetes deployment with rolling updates"
             ],
-            evidenceDocuments:
             [
                 (
                     "Evidence — API Gateway",
@@ -121,40 +119,38 @@ public static class ArchitectureRequestTemplates
                     """
                 )
             ],
-            topologyHints: ["microservices", "kubernetes", "api-gateway", "postgres", "redis", "tls-east-west"],
-            securityBaselineHints: ["tls-everywhere", "least-privilege-service-accounts", "no-cleartext-internal-rpc"]);
+            ["microservices", "kubernetes", "api-gateway", "postgres", "redis", "tls-east-west"],
+            ["tls-everywhere", "least-privilege-service-accounts", "no-cleartext-internal-rpc"]);
+    }
 
-    public static ArchitectureRequest MonolithMigrationAssessment(string? requestId = null) =>
-        Build(
-            templateId: "monolith-migration-assessment",
-            requestId: requestId,
-            title: "Monolith migration assessment",
-            descriptionBody: """
-                Assess decomposition options for a legacy ASP.NET MVC / Web API monolith on .NET Framework backed by SQL Server.
-                Current pain: scaling bottlenecks, deployment coupling (big-bang releases), and lack of team autonomy around modules.
-                Deliver a migration path (strangler vs. big-bang), candidate service boundaries, data split risks, and test strategy.
-                """,
-            systemName: "LegacyMonolithAssessment",
-            environment: "prod",
-            cloudProvider: CloudProvider.Azure,
-            assumptions:
+    public static ArchitectureRequest MonolithMigrationAssessment(string? requestId = null)
+    {
+        return Build(
+            "monolith-migration-assessment",
+            requestId,
+            "Monolith migration assessment",
+            """
+            Assess decomposition options for a legacy ASP.NET MVC / Web API monolith on .NET Framework backed by SQL Server.
+            Current pain: scaling bottlenecks, deployment coupling (big-bang releases), and lack of team autonomy around modules.
+            Deliver a migration path (strangler vs. big-bang), candidate service boundaries, data split risks, and test strategy.
+            """,
+            "LegacyMonolithAssessment",
+            "prod",
+            CloudProvider.Azure,
             [
                 "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
                 "The monolith remains authoritative until cutover; dual-write is only introduced with explicit approval.",
                 "Teams are organized around business capabilities, not technical layers."
             ],
-            constraints:
             [
                 "Preserve regulatory and audit trails currently stored in SQL Server until a verified migration is complete.",
                 "Avoid breaking existing public interfaces during incremental extraction."
             ],
-            requiredCapabilities:
             [
                 "Read scaling for high-traffic read models without rewriting the entire monolith on day one",
                 "Independent deployment units for at least two candidate bounded contexts",
                 "SQL Server integration and eventual per-service data ownership"
             ],
-            evidenceDocuments:
             [
                 (
                     "Evidence — Legacy monolith",
@@ -189,41 +185,39 @@ public static class ArchitectureRequestTemplates
                     """
                 )
             ],
-            topologyHints: ["strangler-fig", "domain-aligned-services", "legacy-sql-server", "incremental-extraction"],
-            securityBaselineHints: ["audit-retention", "least-privilege-db-access"]);
+            ["strangler-fig", "domain-aligned-services", "legacy-sql-server", "incremental-extraction"],
+            ["audit-retention", "least-privilege-db-access"]);
+    }
 
-    public static ArchitectureRequest EventDrivenProcessingPipeline(string? requestId = null) =>
-        Build(
-            templateId: "event-driven-processing-pipeline",
-            requestId: requestId,
-            title: "Event-driven processing pipeline",
-            descriptionBody: """
-                Architect a high-throughput event pipeline: ingestion from producers through a durable log (Kafka-style or cloud event hub),
-                stream processing, and fan-out to multiple consumers. Address ordering, replay, idempotency, exactly-once *effects*
-                (end-to-end guarantees), poison-message handling, and observability across stages.
-                """,
-            systemName: "EventProcessingPipeline",
-            environment: "prod",
-            cloudProvider: CloudProvider.Azure,
-            assumptions:
+    public static ArchitectureRequest EventDrivenProcessingPipeline(string? requestId = null)
+    {
+        return Build(
+            "event-driven-processing-pipeline",
+            requestId,
+            "Event-driven processing pipeline",
+            """
+            Architect a high-throughput event pipeline: ingestion from producers through a durable log (Kafka-style or cloud event hub),
+            stream processing, and fan-out to multiple consumers. Address ordering, replay, idempotency, exactly-once *effects*
+            (end-to-end guarantees), poison-message handling, and observability across stages.
+            """,
+            "EventProcessingPipeline",
+            "prod",
+            CloudProvider.Azure,
             [
                 "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
                 "Cross-region disaster recovery is a later phase unless stated in constraints.",
                 "Consumers may be owned by different teams with independent release cycles."
             ],
-            constraints:
             [
                 "Dead-letter queues or topics must exist for every subscription with automated replay tooling defined.",
                 "Sensitive payloads must be encrypted at rest in the log and access-controlled via IAM."
             ],
-            requiredCapabilities:
             [
                 "Ordered partitions where the business key requires ordering",
                 "At-least-once delivery to consumers with idempotent handlers",
                 "Exactly-once or effectively-once side effects for financial adjacency (where required)",
                 "Stream aggregation windows for near-real-time metrics"
             ],
-            evidenceDocuments:
             [
                 (
                     "Evidence — Ingestion bus",
@@ -267,41 +261,39 @@ public static class ArchitectureRequestTemplates
                     """
                 )
             ],
-            topologyHints: ["event-sourcing-adjacent", "cqrs-read-models", "partitioned-log", "consumer-groups"],
-            securityBaselineHints: ["encrypt-events-at-rest", "fine-grained-publish-subscribe-iam"]);
+            ["event-sourcing-adjacent", "cqrs-read-models", "partitioned-log", "consumer-groups"],
+            ["encrypt-events-at-rest", "fine-grained-publish-subscribe-iam"]);
+    }
 
-    public static ArchitectureRequest CloudNativeMigration(string? requestId = null) =>
-        Build(
-            templateId: "cloud-native-migration-azure",
-            requestId: requestId,
-            title: "Cloud-native migration to Azure",
-            descriptionBody: """
-                Plan migration of an on-premises VM-hosted application stack to Azure. Target reference: App Service for compute,
-                Azure SQL for relational data, Azure Blob Storage for object artifacts. Include network boundaries (private access
-                where possible), identity (Entra ID / managed identity), backup/DR, cost controls, and compliance attestations.
-                """,
-            systemName: "VmToAzureMigration",
-            environment: "prod",
-            cloudProvider: CloudProvider.Azure,
-            assumptions:
+    public static ArchitectureRequest CloudNativeMigration(string? requestId = null)
+    {
+        return Build(
+            "cloud-native-migration-azure",
+            requestId,
+            "Cloud-native migration to Azure",
+            """
+            Plan migration of an on-premises VM-hosted application stack to Azure. Target reference: App Service for compute,
+            Azure SQL for relational data, Azure Blob Storage for object artifacts. Include network boundaries (private access
+            where possible), identity (Entra ID / managed identity), backup/DR, cost controls, and compliance attestations.
+            """,
+            "VmToAzureMigration",
+            "prod",
+            CloudProvider.Azure,
             [
                 "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
                 "Lift-and-shift to IaaS is an interim option only if PaaS blockers are documented with expiry dates.",
                 "Existing RTO/RPO targets must be met or revised explicitly in the plan."
             ],
-            constraints:
             [
                 "No public SQL endpoints — private connectivity or approved exceptions only.",
                 "Customer-owned encryption keys required for regulated blob containers where applicable."
             ],
-            requiredCapabilities:
             [
                 "Azure App Service hosting with deployment slots",
                 "Azure SQL with automated backups and geo-redundant options",
                 "Blob storage for static assets and integration file drops",
                 "Entra ID–backed authentication and managed identities for service calls"
             ],
-            evidenceDocuments:
             [
                 (
                     "Evidence — Current on-premises footprint",
@@ -335,41 +327,39 @@ public static class ArchitectureRequestTemplates
                     """
                 )
             ],
-            topologyHints: ["azure-paas", "app-service", "azure-sql", "private-link", "blob-storage"],
-            securityBaselineHints: ["managed-identity", "private-endpoints", "defender-for-cloud"]);
+            ["azure-paas", "app-service", "azure-sql", "private-link", "blob-storage"],
+            ["managed-identity", "private-endpoints", "defender-for-cloud"]);
+    }
 
-    public static ArchitectureRequest RegulatedHealthcareSystem(string? requestId = null) =>
-        Build(
-            templateId: "regulated-healthcare-hipaa",
-            requestId: requestId,
-            title: "Regulated healthcare information system",
-            descriptionBody: """
-                Design or review a patient data processing system subject to HIPAA. Cover minimum necessary access, auditability
-                (who accessed what PHI and when), encryption in transit and at rest, breach notification hooks, BAA-covered flows,
-                and residency constraints for PHI storage and processing.
-                """,
-            systemName: "HealthcarePhiPlatform",
-            environment: "prod",
-            cloudProvider: CloudProvider.Azure,
-            assumptions:
+    public static ArchitectureRequest RegulatedHealthcareSystem(string? requestId = null)
+    {
+        return Build(
+            "regulated-healthcare-hipaa",
+            requestId,
+            "Regulated healthcare information system",
+            """
+            Design or review a patient data processing system subject to HIPAA. Cover minimum necessary access, auditability
+            (who accessed what PHI and when), encryption in transit and at rest, breach notification hooks, BAA-covered flows,
+            and residency constraints for PHI storage and processing.
+            """,
+            "HealthcarePhiPlatform",
+            "prod",
+            CloudProvider.Azure,
             [
                 "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
                 "Business Associate Agreements cover all subprocessors in the critical path for PHI.",
                 "Clinical workflows require sub-second reads for certain hot paths — document latency SLOs."
             ],
-            constraints:
             [
                 "PHI must remain in approved geographic regions; cross-border replication disabled unless legally cleared.",
                 "All PHI access paths must emit tamper-evident audit records with 7-year (or policy-defined) retention."
             ],
-            requiredCapabilities:
             [
                 "Role-based and attribute-based access control for clinician vs. operational roles",
                 "Full-disk and database TDE; TLS 1.2+ for all API traffic",
                 "Break-glass access with post-incident review workflow",
                 "Disaster recovery without PHI leakage to non-production environments"
             ],
-            evidenceDocuments:
             [
                 (
                     "Evidence — HIPAA scope",
@@ -412,14 +402,14 @@ public static class ArchitectureRequestTemplates
                     """
                 )
             ],
-            topologyHints: ["hipaa-aligned-azure", "phi-partitioning", "audit-everything", "cmk-option"],
-            securityBaselineHints:
+            ["hipaa-aligned-azure", "phi-partitioning", "audit-everything", "cmk-option"],
             [
                 "hipaa-security-rule",
                 "nist-800-66r2-aligned",
                 "break-glass-audited",
                 "minimum-necessary-access"
             ]);
+    }
 
     private static ArchitectureRequest Build(
         string templateId,
@@ -441,15 +431,11 @@ public static class ArchitectureRequestTemplates
 
         List<ContextDocumentRequest> docs =
         [
-            new()
-            {
-                Name = TemplateIdDocumentName,
-                ContentType = "text/plain",
-                Content = templateId
-            }
+            new() { Name = TemplateIdDocumentName, ContentType = "text/plain", Content = templateId }
         ];
 
-        docs.AddRange(evidenceDocuments.Select(doc => new ContextDocumentRequest { Name = doc.Name, ContentType = "text/markdown", Content = doc.Content }));
+        docs.AddRange(evidenceDocuments.Select(doc =>
+            new ContextDocumentRequest { Name = doc.Name, ContentType = "text/markdown", Content = doc.Content }));
 
         string description = $"{title}\n\n{descriptionBody}".Trim();
 

@@ -6,8 +6,8 @@ using ArchLucid.Contracts.Manifest;
 namespace ArchLucid.Application.Exports;
 
 /// <summary>
-/// Produces a Markdown export document containing the architecture diagram (as a Mermaid code fence),
-/// the Markdown summary, and an optional compact evidence snapshot.
+///     Produces a Markdown export document containing the architecture diagram (as a Mermaid code fence),
+///     the Markdown summary, and an optional compact evidence snapshot.
 /// </summary>
 public sealed class MarkdownArchitectureExportService : IArchitectureExportService
 {

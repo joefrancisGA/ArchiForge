@@ -8,21 +8,24 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Tenancy;
 
-/// <inheritdoc cref="ITenantProvisioningService"/>
+/// <inheritdoc cref="ITenantProvisioningService" />
 public sealed class TenantProvisioningService(
     ITenantRepository tenantRepository,
     IActorContext actorContext,
     IAuditService auditService,
     ILogger<TenantProvisioningService> logger) : ITenantProvisioningService
 {
+    private readonly IActorContext
+        _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ILogger<TenantProvisioningService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly ILogger<TenantProvisioningService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public async Task<TenantProvisioningResult> ProvisionAsync(TenantProvisioningRequest request, CancellationToken ct)
@@ -32,7 +35,8 @@ public sealed class TenantProvisioningService(
         if (string.IsNullOrWhiteSpace(request.Name))
             throw new ArgumentException("Tenant name is required.", nameof(request));
 
-        if (string.IsNullOrWhiteSpace(request.AdminEmail) || !request.AdminEmail.Contains('@', StringComparison.Ordinal))
+        if (string.IsNullOrWhiteSpace(request.AdminEmail) ||
+            !request.AdminEmail.Contains('@', StringComparison.Ordinal))
             throw new ArgumentException("Admin email is required.", nameof(request));
 
         string slug = TenantSlugNormalizer.FromName(request.Name);
@@ -48,13 +52,12 @@ public sealed class TenantProvisioningService(
                 throw new InvalidOperationException(
                     $"Tenant '{existing.Id:D}' exists without a workspace row; data is inconsistent.");
 
-
             return new TenantProvisioningResult
             {
                 TenantId = existing.Id,
                 DefaultWorkspaceId = link.WorkspaceId,
                 DefaultProjectId = link.DefaultProjectId,
-                WasAlreadyProvisioned = true,
+                WasAlreadyProvisioned = true
             };
         }
 
@@ -76,7 +79,7 @@ public sealed class TenantProvisioningService(
                 workspaceId,
                 tenantId,
                 "Default",
-                defaultProjectId: projectId,
+                projectId,
                 ct);
         }
         catch (Exception ex)
@@ -87,7 +90,6 @@ public sealed class TenantProvisioningService(
                     ex,
                     "Tenant {TenantId} inserted but default workspace insert failed; manual cleanup may be required.",
                     tenantId);
-
 
             throw;
         }
@@ -106,12 +108,7 @@ public sealed class TenantProvisioningService(
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        slug,
-                        request.AdminEmail,
-                        tier = request.Tier.ToString(),
-                    }),
+                    new { slug, request.AdminEmail, tier = request.Tier.ToString() })
             },
             ct);
 
@@ -120,7 +117,7 @@ public sealed class TenantProvisioningService(
             TenantId = tenantId,
             DefaultWorkspaceId = workspaceId,
             DefaultProjectId = projectId,
-            WasAlreadyProvisioned = false,
+            WasAlreadyProvisioned = false
         };
     }
 }

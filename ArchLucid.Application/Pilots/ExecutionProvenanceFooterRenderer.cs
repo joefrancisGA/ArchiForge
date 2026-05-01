@@ -9,9 +9,9 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
     public string BuildYellowSimulatorSubstitutionCallout()
     {
         return """
-            > [!WARNING]
-            > Real Azure OpenAI execution failed and was substituted with simulator output. The numbers below are deterministic placeholders, not LLM-generated. See `docs/runbooks/AGENT_EXECUTION_FAILURES.md` for triage.
-            """;
+               > [!WARNING]
+               > Real Azure OpenAI execution failed and was substituted with simulator output. The numbers below are deterministic placeholders, not LLM-generated. See `docs/runbooks/AGENT_EXECUTION_FAILURES.md` for triage.
+               """;
     }
 
     /// <inheritdoc />
@@ -21,24 +21,24 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
 
         string modeLabel = ResolveModeLabel(input);
         string deployment = input.RealModeFellBackToSimulator
-            ? (string.IsNullOrWhiteSpace(input.PilotAoaiDeploymentSnapshot)
+            ? string.IsNullOrWhiteSpace(input.PilotAoaiDeploymentSnapshot)
                 ? "(unknown at fallback)"
-                : input.PilotAoaiDeploymentSnapshot)
-            : (string.IsNullOrWhiteSpace(input.HostAzureOpenAiDeploymentName)
+                : input.PilotAoaiDeploymentSnapshot
+            : string.IsNullOrWhiteSpace(input.HostAzureOpenAiDeploymentName)
                 ? "(n/a)"
-                : input.HostAzureOpenAiDeploymentName);
+                : input.HostAzureOpenAiDeploymentName;
 
         return $"""
-            ## Execution provenance
+                ## Execution provenance
 
-            | Field | Value |
-            | --- | --- |
-            | Mode | {modeLabel} |
-            | LLM completion traces (this run) | {input.LlmCompletionTraceCount.ToString(CultureInfo.InvariantCulture)} |
-            | Azure OpenAI deployment (when known) | `{deployment}` |
+                | Field | Value |
+                | --- | --- |
+                | Mode | {modeLabel} |
+                | LLM completion traces (this run) | {input.LlmCompletionTraceCount.ToString(CultureInfo.InvariantCulture)} |
+                | Azure OpenAI deployment (when known) | `{deployment}` |
 
-            _Token totals per provider are not aggregated in this report; trace count reflects persisted completion attempts._
-            """;
+                _Token totals per provider are not aggregated in this report; trace count reflects persisted completion attempts._
+                """;
     }
 
     private static string ResolveModeLabel(ExecutionProvenanceFooterInput input)
@@ -46,6 +46,8 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
         if (input.RealModeFellBackToSimulator)
             return "Real → Simulator (fallback)";
 
-        return string.Equals(input.HostAgentExecutionMode, "Real", StringComparison.OrdinalIgnoreCase) ? "Real" : "Simulator";
+        return string.Equals(input.HostAgentExecutionMode, "Real", StringComparison.OrdinalIgnoreCase)
+            ? "Real"
+            : "Simulator";
     }
 }

@@ -19,30 +19,30 @@ public sealed class TrialLifecycleTransitionEngine(
     TimeProvider timeProvider,
     ILogger<TrialLifecycleTransitionEngine> logger)
 {
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
-    private readonly ITenantHardPurgeService _tenantHardPurgeService =
-        tenantHardPurgeService ?? throw new ArgumentNullException(nameof(tenantHardPurgeService));
-
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IAuditService
+        _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _lifecycleOptions =
         lifecycleOptions ?? throw new ArgumentNullException(nameof(lifecycleOptions));
 
-    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
     private readonly ILogger<TrialLifecycleTransitionEngine> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    /// <summary>Attempts at most one forward transition for <paramref name="tenantId"/>.</summary>
+    private readonly ITenantHardPurgeService _tenantHardPurgeService =
+        tenantHardPurgeService ?? throw new ArgumentNullException(nameof(tenantHardPurgeService));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
+    /// <summary>Attempts at most one forward transition for <paramref name="tenantId" />.</summary>
     public async Task<bool> TryAdvanceTenantAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken);
 
         if (tenant is null)
             return false;
-
 
         TrialLifecycleSchedulerOptions options = _lifecycleOptions.CurrentValue;
 
@@ -52,8 +52,7 @@ public sealed class TrialLifecycleTransitionEngine(
                 tenantId,
                 new TenantHardPurgeOptions
                 {
-                    DryRun = false,
-                    MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement,
+                    DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement
                 },
                 cancellationToken);
 
@@ -68,7 +67,6 @@ public sealed class TrialLifecycleTransitionEngine(
         if (advancement is null)
             return false;
 
-
         if (string.Equals(advancement.ToStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
         {
             bool recorded = await _tenantRepository.TryRecordTrialLifecycleTransitionAsync(
@@ -81,7 +79,6 @@ public sealed class TrialLifecycleTransitionEngine(
             if (!recorded)
                 return false;
 
-
             await EmitAuditAsync(tenant, advancement, cancellationToken);
 
             ArchLucidInstrumentation.RecordTrialExpiration($"{advancement.FromStatus}->{advancement.ToStatus}");
@@ -90,8 +87,7 @@ public sealed class TrialLifecycleTransitionEngine(
                 tenantId,
                 new TenantHardPurgeOptions
                 {
-                    DryRun = false,
-                    MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement,
+                    DryRun = false, MaxRowsPerStatement = options.HardPurgeMaxRowsPerStatement
                 },
                 cancellationToken);
 
@@ -112,7 +108,6 @@ public sealed class TrialLifecycleTransitionEngine(
 
         if (!ok)
             return false;
-
 
         await EmitAuditAsync(tenant, advancement, cancellationToken);
 
@@ -147,8 +142,8 @@ public sealed class TrialLifecycleTransitionEngine(
                     {
                         fromStatus = advancement.FromStatus,
                         toStatus = advancement.ToStatus,
-                        reason = advancement.Reason,
-                    }),
+                        reason = advancement.Reason
+                    })
             },
             cancellationToken);
     }

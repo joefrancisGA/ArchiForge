@@ -3,7 +3,7 @@ using ArchLucid.Contracts.Requests;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <summary>
-/// Coordinates and persists a new architecture run (create phase).
+///     Coordinates and persists a new architecture run (create phase).
 /// </summary>
 public interface IArchitectureRunCreateOrchestrator
 {

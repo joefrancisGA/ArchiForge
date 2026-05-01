@@ -25,12 +25,6 @@ public sealed class DataConsistencyReconciliationHostedService(
     /// <summary>Sentinel tenancy for platform-scope reconciliation events (no single tenant/workspace).</summary>
     private static readonly Guid PlatformScopeSentinelTenantId = Guid.Empty;
 
-    private readonly IServiceScopeFactory _scopeFactory =
-        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-
-    private readonly IOptionsMonitor<DataConsistencyReconciliationOptions> _optionsMonitor =
-        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-
     private readonly ILeaderElectionWorkRunner _electionWorkRunner =
         electionWorkRunner ?? throw new ArgumentNullException(nameof(electionWorkRunner));
 
@@ -45,6 +39,12 @@ public sealed class DataConsistencyReconciliationHostedService(
 
     private readonly ILogger<DataConsistencyReconciliationHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOptionsMonitor<DataConsistencyReconciliationOptions> _optionsMonitor =
+        optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly IServiceScopeFactory _scopeFactory =
+        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -116,21 +116,21 @@ public sealed class DataConsistencyReconciliationHostedService(
             {
                 report.CheckedAtUtc,
                 report.IsHealthy,
-                Findings = report.Findings.Select(
-                        f => new
-                        {
-                            f.CheckName,
-                            Severity = f.Severity.ToString(),
-                            f.Description,
-                            AffectedEntityIds = f.AffectedEntityIds.Take(50).ToArray()
-                        })
+                Findings = report.Findings.Select(f => new
+                    {
+                        f.CheckName,
+                        Severity = f.Severity.ToString(),
+                        f.Description,
+                        AffectedEntityIds = f.AffectedEntityIds.Take(50).ToArray()
+                    })
                     .ToArray()
             };
 
             string messageId = $"data-consistency-check:{report.CheckedAtUtc:o}";
 
             using IServiceScope scope = _scopeFactory.CreateScope();
-            IIntegrationEventOutboxRepository outbox = scope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
+            IIntegrationEventOutboxRepository outbox =
+                scope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
 
             await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
                     outbox,
@@ -140,12 +140,12 @@ public sealed class DataConsistencyReconciliationHostedService(
                     IntegrationEventTypes.DataConsistencyCheckCompletedV1,
                     payload,
                     messageId,
-                    runId: null,
+                    null,
                     PlatformScopeSentinelTenantId,
                     PlatformScopeSentinelTenantId,
                     PlatformScopeSentinelTenantId,
-                    connection: null,
-                    transaction: null,
+                    null,
+                    null,
                     ct)
                 .ConfigureAwait(false);
         }

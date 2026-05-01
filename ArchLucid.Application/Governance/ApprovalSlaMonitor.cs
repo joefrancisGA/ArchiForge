@@ -17,9 +17,9 @@ public sealed class ApprovalSlaMonitor
 {
     private readonly IGovernanceApprovalRequestRepository _approvalRequestRepository;
     private readonly IAuditService _auditService;
-    private readonly IOptions<PreCommitGovernanceGateOptions> _options;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<ApprovalSlaMonitor> _logger;
+    private readonly IOptions<PreCommitGovernanceGateOptions> _options;
 
     public ApprovalSlaMonitor(
         IGovernanceApprovalRequestRepository approvalRequestRepository,
@@ -28,7 +28,8 @@ public sealed class ApprovalSlaMonitor
         IHttpClientFactory httpClientFactory,
         ILogger<ApprovalSlaMonitor> logger)
     {
-        _approvalRequestRepository = approvalRequestRepository ?? throw new ArgumentNullException(nameof(approvalRequestRepository));
+        _approvalRequestRepository = approvalRequestRepository ??
+                                     throw new ArgumentNullException(nameof(approvalRequestRepository));
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -41,7 +42,6 @@ public sealed class ApprovalSlaMonitor
 
         if (slaHours is null)
             return;
-
 
         IReadOnlyList<GovernanceApprovalRequest> breached = await _approvalRequestRepository
             .GetPendingSlaBreachedAsync(DateTime.UtcNow, cancellationToken);
@@ -62,8 +62,9 @@ public sealed class ApprovalSlaMonitor
                             runId = request.RunId,
                             requestedBy = request.RequestedBy,
                             slaDeadlineUtc = request.SlaDeadlineUtc,
-                            breachedByMinutes = (int)(DateTime.UtcNow - request.SlaDeadlineUtc!.Value).TotalMinutes,
-                        }),
+                            breachedByMinutes =
+                                (int)(DateTime.UtcNow - request.SlaDeadlineUtc!.Value).TotalMinutes
+                        })
                     },
                     cancellationToken);
 
@@ -82,18 +83,16 @@ public sealed class ApprovalSlaMonitor
                         ex,
                         "SLA breach processing failed for ApprovalRequestId={Id}",
                         LogSanitizer.Sanitize(request.ApprovalRequestId));
-
             }
-
     }
 
-    private async Task TrySendEscalationWebhookAsync(GovernanceApprovalRequest request, CancellationToken cancellationToken)
+    private async Task TrySendEscalationWebhookAsync(GovernanceApprovalRequest request,
+        CancellationToken cancellationToken)
     {
         string? webhookUrl = _options.Value.ApprovalSlaEscalationWebhookUrl;
 
         if (string.IsNullOrWhiteSpace(webhookUrl))
             return;
-
 
         try
         {
@@ -103,7 +102,7 @@ public sealed class ApprovalSlaMonitor
                 runId = request.RunId,
                 requestedBy = request.RequestedBy,
                 slaDeadlineUtc = request.SlaDeadlineUtc,
-                breachedByMinutes = (int)(DateTime.UtcNow - request.SlaDeadlineUtc!.Value).TotalMinutes,
+                breachedByMinutes = (int)(DateTime.UtcNow - request.SlaDeadlineUtc!.Value).TotalMinutes
             });
 
             using HttpClient client = _httpClientFactory.CreateClient("SlaEscalation");
@@ -131,8 +130,6 @@ public sealed class ApprovalSlaMonitor
                         "SLA escalation webhook returned {StatusCode} for ApprovalRequestId={Id}",
                         (int)response.StatusCode,
                         LogSanitizer.Sanitize(request.ApprovalRequestId));
-
-
         }
         catch (Exception ex)
         {
@@ -142,7 +139,6 @@ public sealed class ApprovalSlaMonitor
                     ex,
                     "SLA escalation webhook failed for ApprovalRequestId={Id}",
                     LogSanitizer.Sanitize(request.ApprovalRequestId));
-
         }
     }
 }

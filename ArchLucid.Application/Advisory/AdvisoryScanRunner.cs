@@ -30,17 +30,21 @@ using Serilog.Context;
 namespace ArchLucid.Application.Advisory;
 
 /// <summary>
-/// Executes a scheduled advisory scan: compares runs, builds an improvement plan, merges effective policy defaults, evaluates alerts, and delivers a digest.
+///     Executes a scheduled advisory scan: compares runs, builds an improvement plan, merges effective policy defaults,
+///     evaluates alerts, and delivers a digest.
 /// </summary>
 /// <param name="authorityQueryService">Loads latest runs and golden manifests for the project slug.</param>
-/// <param name="improvementAdvisorService">Generates <see cref="ImprovementPlan"/> from findings.</param>
+/// <param name="improvementAdvisorService">Generates <see cref="ImprovementPlan" /> from findings.</param>
 /// <param name="comparisonService">Optional run-to-run comparison when a previous run exists.</param>
 /// <param name="digestBuilder">Builds the architecture digest payload from plan + alerts.</param>
 /// <param name="digestRepository">Persists digest rows.</param>
 /// <param name="deliveryDispatcher">Sends digest to configured channels.</param>
 /// <param name="alertService">Simple alert evaluation for the scan context.</param>
 /// <param name="compositeAlertService">Composite alert evaluation for the same context.</param>
-/// <param name="effectiveGovernanceLoader">Supplies merged policy content for advisory defaults and alert/compliance filtering.</param>
+/// <param name="effectiveGovernanceLoader">
+///     Supplies merged policy content for advisory defaults and alert/compliance
+///     filtering.
+/// </param>
 /// <param name="recommendationRepository">Historical recommendations for the run.</param>
 /// <param name="recommendationLearningService">Learning profile for advisory context.</param>
 /// <param name="executionRepository">Tracks scan execution lifecycle.</param>
@@ -48,10 +52,12 @@ namespace ArchLucid.Application.Advisory;
 /// <param name="scheduleCalculator">Next-run scheduling.</param>
 /// <param name="auditService">Audit events for scan, digest, and related actions.</param>
 /// <remarks>
-/// Pushes <see cref="AmbientScopeContext"/> for the schedule’s tenant/workspace/project so downstream providers (compliance, governance) resolve the correct scope.
-/// Loads <see cref="IEffectiveGovernanceLoader.LoadEffectiveContentAsync"/> once per successful scan and passes it into <see cref="AlertEvaluationContextFactory.ForAdvisoryScan"/> so alert services avoid a second governance load.
+///     Pushes <see cref="AmbientScopeContext" /> for the schedule’s tenant/workspace/project so downstream providers
+///     (compliance, governance) resolve the correct scope.
+///     Loads <see cref="IEffectiveGovernanceLoader.LoadEffectiveContentAsync" /> once per successful scan and passes it
+///     into <see cref="AlertEvaluationContextFactory.ForAdvisoryScan" /> so alert services avoid a second governance load.
 /// </remarks>
-/// <seealso cref="IAdvisoryScanRunner"/>
+/// <seealso cref="IAdvisoryScanRunner" />
 public sealed class AdvisoryScanRunner(
     IAuthorityQueryService authorityQueryService,
     IImprovementAdvisorService improvementAdvisorService,
@@ -78,7 +84,8 @@ public sealed class AdvisoryScanRunner(
     private const string StatusFailed = "Failed";
 
     /// <summary>
-    /// Creates an execution record, runs the scan under ambient scope, and advances the schedule; failures are recorded and the schedule still advances.
+    ///     Creates an execution record, runs the scan under ambient scope, and advances the schedule; failures are recorded
+    ///     and the schedule still advances.
     /// </summary>
     /// <param name="schedule">Tenant/workspace/project and cadence metadata.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -95,9 +102,7 @@ public sealed class AdvisoryScanRunner(
 
         ScopeContext scope = new()
         {
-            TenantId = schedule.TenantId,
-            WorkspaceId = schedule.WorkspaceId,
-            ProjectId = schedule.ProjectId
+            TenantId = schedule.TenantId, WorkspaceId = schedule.WorkspaceId, ProjectId = schedule.ProjectId
         };
 
         AdvisoryScanExecution execution = new()
@@ -119,7 +124,6 @@ public sealed class AdvisoryScanRunner(
             using (AmbientScopeContext.Push(scope))
 
                 await RunScheduleCoreAsync(schedule, scope, execution, ct);
-
         }
         catch (OperationCanceledException)
         {
@@ -144,7 +148,7 @@ public sealed class AdvisoryScanRunner(
                             failed = true,
                             error = ex.Message
                         },
-                        AuditJsonSerializationOptions.Instance),
+                        AuditJsonSerializationOptions.Instance)
                 },
                 ct);
 
@@ -153,14 +157,16 @@ public sealed class AdvisoryScanRunner(
     }
 
     /// <summary>
-    /// Core scan path after ambient scope is pushed: plan generation, governance merge into the plan, alert evaluation, digest persistence and delivery.
+    ///     Core scan path after ambient scope is pushed: plan generation, governance merge into the plan, alert evaluation,
+    ///     digest persistence and delivery.
     /// </summary>
     /// <param name="schedule">Active schedule row.</param>
     /// <param name="scope">Same ids as the schedule; used for queries.</param>
     /// <param name="execution">Execution row updated to completed/failed states by this method and helpers.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <remarks>
-    /// Copies merged <see cref="PolicyPackContentDocument.AdvisoryDefaults"/> into <see cref="ImprovementPlan.PolicyPackAdvisoryDefaults"/> before building <see cref="AlertEvaluationContext"/>.
+    ///     Copies merged <see cref="PolicyPackContentDocument.AdvisoryDefaults" /> into
+    ///     <see cref="ImprovementPlan.PolicyPackAdvisoryDefaults" /> before building <see cref="AlertEvaluationContext" />.
     /// </remarks>
     private async Task RunScheduleCoreAsync(
         AdvisoryScanSchedule schedule,
@@ -170,7 +176,7 @@ public sealed class AdvisoryScanRunner(
     {
         string slug = string.IsNullOrWhiteSpace(schedule.RunProjectSlug) ? "default" : schedule.RunProjectSlug.Trim();
         IReadOnlyList<RunSummaryDto> runs = await authorityQueryService
-            .ListRunsByProjectAsync(scope, slug, 2, ct)
+                .ListRunsByProjectAsync(scope, slug, 2, ct)
             ;
 
         List<RunSummaryDto> ordered = runs.OrderByDescending(x => x.CreatedUtc).ToList();
@@ -182,7 +188,7 @@ public sealed class AdvisoryScanRunner(
         }
 
         RunDetailDto? latestDetail = await authorityQueryService
-            .GetRunDetailAsync(scope, latest.RunId, ct)
+                .GetRunDetailAsync(scope, latest.RunId, ct)
             ;
 
         if (latestDetail?.GoldenManifest is null)
@@ -205,41 +211,40 @@ public sealed class AdvisoryScanRunner(
         if (compareTo is not null)
         {
             RunDetailDto? previousDetail = await authorityQueryService
-                .GetRunDetailAsync(scope, compareTo.RunId, ct)
+                    .GetRunDetailAsync(scope, compareTo.RunId, ct)
                 ;
 
             if (previousDetail?.GoldenManifest is not null)
             {
-                comparisonResult = comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
+                comparisonResult =
+                    comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
                 comparedToRunId = compareTo.RunId;
                 plan = await improvementAdvisorService
-                    .GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparisonResult, ct)
+                        .GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparisonResult, ct)
                     ;
             }
             else
 
                 plan = await improvementAdvisorService
-                    .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
+                        .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
                     ;
-
         }
         else
 
             plan = await improvementAdvisorService
-                .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
+                    .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
                 ;
 
-
         IReadOnlyList<RecommendationRecord> recommendationRecords = await recommendationRepository
-            .ListByRunAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, ct)
+                .ListByRunAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, ct)
             ;
 
         RecommendationLearningProfile? learningProfile = await recommendationLearningService
-            .GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
+                .GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
             ;
 
         PolicyPackContentDocument effectiveGovernance = await effectiveGovernanceLoader
-            .LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
+                .LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
             ;
 
         foreach (KeyValuePair<string, string> kvp in effectiveGovernance.AdvisoryDefaults)
@@ -260,7 +265,7 @@ public sealed class AdvisoryScanRunner(
         AlertEvaluationOutcome alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct);
 
         CompositeAlertEvaluationResult compositeOutcome = await compositeAlertService
-            .EvaluateAndPersistAsync(alertContext, ct)
+                .EvaluateAndPersistAsync(alertContext, ct)
             ;
 
         List<AlertRecord> digestAlerts = alertOutcome.Evaluated
@@ -280,7 +285,8 @@ public sealed class AdvisoryScanRunner(
 
         await deliveryDispatcher.DeliverAsync(digest, ct);
 
-        TraceCompletenessSummary traceCompletenessSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(findings);
+        TraceCompletenessSummary traceCompletenessSummary =
+            ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(findings);
 
         ArchLucidInstrumentation.ExplainabilityTraceCompleteness.Record(
             traceCompletenessSummary.OverallCompletenessRatio,
@@ -305,20 +311,19 @@ public sealed class AdvisoryScanRunner(
                     totalFindings = traceCompletenessSummary.TotalFindings,
                     overallCompletenessRatio = traceCompletenessSummary.OverallCompletenessRatio,
                     byEngine = traceCompletenessSummary.ByEngine
-                        .Select(
-                            e => new
-                            {
-                                engineType = e.EngineType,
-                                findingCount = e.FindingCount,
-                                completenessRatio = e.CompletenessRatio,
-                                graphNodeIdsPopulatedCount = e.GraphNodeIdsPopulatedCount,
-                                rulesAppliedPopulatedCount = e.RulesAppliedPopulatedCount,
-                                decisionsTakenPopulatedCount = e.DecisionsTakenPopulatedCount,
-                                alternativePathsPopulatedCount = e.AlternativePathsPopulatedCount,
-                                notesPopulatedCount = e.NotesPopulatedCount,
-                            })
-                        .ToList(),
-                },
+                        .Select(e => new
+                        {
+                            engineType = e.EngineType,
+                            findingCount = e.FindingCount,
+                            completenessRatio = e.CompletenessRatio,
+                            graphNodeIdsPopulatedCount = e.GraphNodeIdsPopulatedCount,
+                            rulesAppliedPopulatedCount = e.RulesAppliedPopulatedCount,
+                            decisionsTakenPopulatedCount = e.DecisionsTakenPopulatedCount,
+                            alternativePathsPopulatedCount = e.AlternativePathsPopulatedCount,
+                            notesPopulatedCount = e.NotesPopulatedCount
+                        })
+                        .ToList()
+                }
             },
             AuditJsonSerializationOptions.Instance);
 
@@ -330,12 +335,8 @@ public sealed class AdvisoryScanRunner(
                 EventType = AuditEventTypes.AdvisoryScanExecuted,
                 RunId = latest.RunId,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        scheduleId = schedule.ScheduleId,
-                        executionId = execution.ExecutionId
-                    },
-                    AuditJsonSerializationOptions.Instance),
+                    new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId },
+                    AuditJsonSerializationOptions.Instance)
             },
             ct);
 
@@ -344,7 +345,10 @@ public sealed class AdvisoryScanRunner(
             {
                 EventType = AuditEventTypes.ArchitectureDigestGenerated,
                 RunId = latest.RunId,
-                DataJson = JsonSerializer.Serialize(new { digestId = digest.DigestId, scheduleId = schedule.ScheduleId }),
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    digestId = digest.DigestId, scheduleId = schedule.ScheduleId
+                })
             },
             ct);
 
@@ -354,7 +358,7 @@ public sealed class AdvisoryScanRunner(
             latest.RunId,
             comparedToRunId,
             digest.DigestId,
-            hasRuns: true,
+            true,
             ct);
 
         await AdvanceScheduleAsync(schedule, ct);
@@ -375,22 +379,18 @@ public sealed class AdvisoryScanRunner(
             {
                 EventType = AuditEventTypes.AdvisoryScanExecuted,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        scheduleId = schedule.ScheduleId,
-                        message = "no_runs"
-                    },
-                    AuditJsonSerializationOptions.Instance),
+                    new { scheduleId = schedule.ScheduleId, message = "no_runs" },
+                    AuditJsonSerializationOptions.Instance)
             },
             ct);
 
         await TryPublishAdvisoryScanCompletedAsync(
             schedule,
             execution,
-            runId: null,
-            comparedToRunId: null,
-            digestId: null,
-            hasRuns: false,
+            null,
+            null,
+            null,
+            false,
             ct);
 
         await AdvanceScheduleAsync(schedule, ct);
@@ -412,13 +412,8 @@ public sealed class AdvisoryScanRunner(
             {
                 EventType = AuditEventTypes.AdvisoryScanExecuted,
                 DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        scheduleId = schedule.ScheduleId,
-                        failed = true,
-                        message
-                    },
-                    AuditJsonSerializationOptions.Instance),
+                    new { scheduleId = schedule.ScheduleId, failed = true, message },
+                    AuditJsonSerializationOptions.Instance)
             },
             ct);
 
@@ -454,7 +449,7 @@ public sealed class AdvisoryScanRunner(
             runId,
             comparedToRunId,
             digestId,
-            completedUtc = execution.CompletedUtc ?? DateTime.UtcNow,
+            completedUtc = execution.CompletedUtc ?? DateTime.UtcNow
         };
 
         string messageId = $"{execution.ExecutionId:D}:{IntegrationEventTypes.AdvisoryScanCompletedV1}";
@@ -471,13 +466,14 @@ public sealed class AdvisoryScanRunner(
             schedule.TenantId,
             schedule.WorkspaceId,
             schedule.ProjectId,
-            connection: null,
-            transaction: null,
+            null,
+            null,
             ct);
     }
 
-    private static FindingsSnapshot CreateEmptyFindings(ManifestDocument manifest) =>
-        new()
+    private static FindingsSnapshot CreateEmptyFindings(ManifestDocument manifest)
+    {
+        return new FindingsSnapshot
         {
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
             FindingsSnapshotId = manifest.FindingsSnapshotId,
@@ -487,4 +483,5 @@ public sealed class AdvisoryScanRunner(
             CreatedUtc = manifest.CreatedUtc,
             Findings = []
         };
+    }
 }

@@ -31,7 +31,6 @@ public sealed class ExecDigestUnsubscribeTokenFactory(IDataProtectionProvider da
         if (string.IsNullOrWhiteSpace(token))
             return false;
 
-
         try
         {
             IDataProtector protector = _dataProtectionProvider.CreateProtector(Purpose);

@@ -11,8 +11,8 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Authority;
 
 /// <summary>
-/// Appends <see cref="AuditEventTypes.AuthorityCommittedChainPersisted"/> after the authority snapshot chain
-/// and golden manifest rows are committed (caller must invoke only after successful SQL persistence / UoW commit).
+///     Appends <see cref="AuditEventTypes.AuthorityCommittedChainPersisted" /> after the authority snapshot chain
+///     and golden manifest rows are committed (caller must invoke only after successful SQL persistence / UoW commit).
 /// </summary>
 public static class AuthorityCommittedChainDurableAudit
 {
@@ -57,7 +57,7 @@ public static class AuthorityCommittedChainDurableAudit
                 graphSnapshotId = chainResult.GraphSnapshotId,
                 findingsSnapshotId = chainResult.FindingsSnapshotId,
                 decisionTraceId = chainResult.DecisionTraceId,
-                manifestId = chainResult.GoldenManifestId,
+                manifestId = chainResult.GoldenManifestId
             };
 
             AuditEvent auditEvent = new()
@@ -71,7 +71,7 @@ public static class AuthorityCommittedChainDurableAudit
                 RunId = authorityRunId,
                 ManifestId = chainResult.GoldenManifestId,
                 DataJson = JsonSerializer.Serialize(payload),
-                CorrelationId = correlationId,
+                CorrelationId = correlationId
             };
 
             await auditService.LogAsync(auditEvent, cancellationToken).ConfigureAwait(false);

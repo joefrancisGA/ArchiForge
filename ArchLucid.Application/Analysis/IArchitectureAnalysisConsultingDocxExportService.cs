@@ -6,4 +6,3 @@ public interface IArchitectureAnalysisConsultingDocxExportService
         ArchitectureAnalysisReport report,
         CancellationToken cancellationToken = default);
 }
-

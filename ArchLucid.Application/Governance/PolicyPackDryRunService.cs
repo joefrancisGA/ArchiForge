@@ -37,8 +37,11 @@ public sealed class PolicyPackDryRunService(
     IAuditService auditService,
     ILogger<PolicyPackDryRunService> logger) : IPolicyPackDryRunService
 {
-    private readonly IRunDetailQueryService _runDetailQueryService =
-        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ILogger<PolicyPackDryRunService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     private readonly IPilotRunDeltaComputer _pilotRunDeltaComputer =
         pilotRunDeltaComputer ?? throw new ArgumentNullException(nameof(pilotRunDeltaComputer));
@@ -46,11 +49,8 @@ public sealed class PolicyPackDryRunService(
     private readonly IPromptRedactor _promptRedactor =
         promptRedactor ?? throw new ArgumentNullException(nameof(promptRedactor));
 
-    private readonly IAuditService _auditService =
-        auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly ILogger<PolicyPackDryRunService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IRunDetailQueryService _runDetailQueryService =
+        runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
 
     /// <inheritdoc />
     public async Task<PolicyPackDryRunResponse> EvaluateAsync(
@@ -106,7 +106,7 @@ public sealed class PolicyPackDryRunService(
             ReturnedRuns = pageItems.Count,
             ProposedThresholdsRedactedJson = redactedThresholdsJson,
             DeltaCounts = deltaCounts,
-            Items = pageItems,
+            Items = pageItems
         };
 
         await TryLogAuditAsync(policyPackId, redactedThresholdsJson, cleanedRunIds, deltaCounts, cancellationToken);
@@ -116,7 +116,9 @@ public sealed class PolicyPackDryRunService(
 
     private static int ClampPageSize(int? pageSize)
     {
-        return pageSize is null ? IPolicyPackDryRunService.DefaultPageSize : Math.Clamp(pageSize.Value, 1, IPolicyPackDryRunService.MaxPageSize);
+        return pageSize is null
+            ? IPolicyPackDryRunService.DefaultPageSize
+            : Math.Clamp(pageSize.Value, 1, IPolicyPackDryRunService.MaxPageSize);
     }
 
     private static int ClampPage(int? page, int totalItems, int pageSize)
@@ -154,7 +156,7 @@ public sealed class PolicyPackDryRunService(
             RunMissing = false,
             FindingsBySeverity = findingsBySeverity,
             ThresholdOutcomes = outcomes,
-            WouldBlock = wouldBlock,
+            WouldBlock = wouldBlock
         };
     }
 
@@ -171,10 +173,12 @@ public sealed class PolicyPackDryRunService(
         }
     }
 
-    private static IReadOnlyList<PolicyPackDryRunSeverityCount> ProjectSeverityCounts(PilotRunDeltas deltas) =>
-        deltas.FindingsBySeverity
+    private static IReadOnlyList<PolicyPackDryRunSeverityCount> ProjectSeverityCounts(PilotRunDeltas deltas)
+    {
+        return deltas.FindingsBySeverity
             .Select(p => new PolicyPackDryRunSeverityCount { Severity = p.Key, Count = p.Value })
             .ToList();
+    }
 
     /// <summary>
     ///     Maps each supported threshold key to a per-run breach result. Keys not present in
@@ -197,38 +201,43 @@ public sealed class PolicyPackDryRunService(
 
             outcomes.Add(new PolicyPackDryRunThresholdOutcome
             {
-                Key = key,
-                ProposedValue = proposed,
-                ActualValue = actual,
-                WouldBreach = breach,
+                Key = key, ProposedValue = proposed, ActualValue = actual, WouldBreach = breach
             });
         }
 
         return outcomes;
     }
 
-    private static double ComputeActualForKey(string key, PilotRunDeltas deltas) => key switch
+    private static double ComputeActualForKey(string key, PilotRunDeltas deltas)
     {
-        PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings => CountForSeverity(deltas, "critical"),
-        PolicyPackDryRunSupportedThresholdKeys.MaxHighFindings => CountForSeverity(deltas, "error"),
-        PolicyPackDryRunSupportedThresholdKeys.MaxTotalFindings => deltas.FindingsBySeverity.Sum(p => p.Value),
-        PolicyPackDryRunSupportedThresholdKeys.MaxTimeToCommitMinutes => deltas.TimeToCommittedManifest?.TotalMinutes ?? 0d,
-        _ => 0d,
-    };
+        return key switch
+        {
+            PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings => CountForSeverity(deltas, "critical"),
+            PolicyPackDryRunSupportedThresholdKeys.MaxHighFindings => CountForSeverity(deltas, "error"),
+            PolicyPackDryRunSupportedThresholdKeys.MaxTotalFindings => deltas.FindingsBySeverity.Sum(p => p.Value),
+            PolicyPackDryRunSupportedThresholdKeys.MaxTimeToCommitMinutes => deltas.TimeToCommittedManifest
+                ?.TotalMinutes ?? 0d,
+            _ => 0d
+        };
+    }
 
-    private static double CountForSeverity(PilotRunDeltas deltas, string severity) =>
-        deltas.FindingsBySeverity
+    private static double CountForSeverity(PilotRunDeltas deltas, string severity)
+    {
+        return deltas.FindingsBySeverity
             .Where(p => string.Equals(p.Key, severity, StringComparison.OrdinalIgnoreCase))
             .Sum(p => p.Value);
+    }
 
-    private static PolicyPackDryRunDeltaCounts TallyDeltaCounts(IReadOnlyList<PolicyPackDryRunRunItem> items) =>
-        new()
+    private static PolicyPackDryRunDeltaCounts TallyDeltaCounts(IReadOnlyList<PolicyPackDryRunRunItem> items)
+    {
+        return new PolicyPackDryRunDeltaCounts
         {
             Evaluated = items.Count,
             WouldBlock = items.Count(i => i is { RunMissing: false, WouldBlock: true }),
             WouldAllow = items.Count(i => i is { RunMissing: false, WouldBlock: false }),
-            RunMissing = items.Count(i => i.RunMissing),
+            RunMissing = items.Count(i => i.RunMissing)
         };
+    }
 
     /// <summary>
     ///     Parses opaque <c>string</c> threshold values to <see cref="double" />. Invalid / non-numeric
@@ -288,16 +297,12 @@ public sealed class PolicyPackDryRunService(
                     evaluated = deltaCounts.Evaluated,
                     wouldBlock = deltaCounts.WouldBlock,
                     wouldAllow = deltaCounts.WouldAllow,
-                    runMissing = deltaCounts.RunMissing,
-                },
+                    runMissing = deltaCounts.RunMissing
+                }
             },
             AuditJsonSerializationOptions.Instance);
 
-        AuditEvent auditEvent = new()
-        {
-            EventType = AuditEventTypes.GovernanceDryRunRequested,
-            DataJson = dataJson,
-        };
+        AuditEvent auditEvent = new() { EventType = AuditEventTypes.GovernanceDryRunRequested, DataJson = dataJson };
 
         await DurableAuditLogRetry.TryLogAsync(
             ct => _auditService.LogAsync(auditEvent, ct),

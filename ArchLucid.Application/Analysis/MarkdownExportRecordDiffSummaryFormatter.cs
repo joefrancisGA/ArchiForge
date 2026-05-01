@@ -3,8 +3,8 @@ using System.Text;
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Formats an <see cref="ExportRecordDiffResult"/> as Markdown, reporting changed top-level
-/// export fields, changed request flags, changed request values, and any warnings.
+///     Formats an <see cref="ExportRecordDiffResult" /> as Markdown, reporting changed top-level
+///     export fields, changed request flags, changed request values, and any warnings.
 /// </summary>
 public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiffSummaryFormatter
 {
@@ -29,7 +29,6 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
 
             AppendSection(sb, "Warnings", diff.Warnings);
 
-
         return sb.ToString();
     }
 
@@ -52,8 +51,6 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
 
             sb.AppendLine($"- {item}");
 
-
         sb.AppendLine();
     }
 }
-

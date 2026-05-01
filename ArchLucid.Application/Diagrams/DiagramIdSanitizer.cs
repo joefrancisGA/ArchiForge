@@ -1,15 +1,15 @@
 namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
-/// Shared helper that converts arbitrary strings into Mermaid-safe node identifiers.
-/// Replaces non-alphanumeric characters with underscores, prefixes digit-leading IDs with
-/// <c>n_</c>, and returns <c>node_unknown</c> when the input is blank or sanitizes to empty.
+///     Shared helper that converts arbitrary strings into Mermaid-safe node identifiers.
+///     Replaces non-alphanumeric characters with underscores, prefixes digit-leading IDs with
+///     <c>n_</c>, and returns <c>node_unknown</c> when the input is blank or sanitizes to empty.
 /// </summary>
 internal static class DiagramIdSanitizer
 {
     /// <summary>
-    /// Sanitizes <paramref name="value"/> into a valid Mermaid node identifier.
-    /// Returns <c>node_unknown</c> when the result would otherwise be blank.
+    ///     Sanitizes <paramref name="value" /> into a valid Mermaid node identifier.
+    ///     Returns <c>node_unknown</c> when the result would otherwise be blank.
     /// </summary>
     public static string Sanitize(string value)
     {

@@ -1,13 +1,13 @@
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Default implementation of <see cref="IConsultingDocxExportProfileSelector"/>.
+///     Default implementation of <see cref="IConsultingDocxExportProfileSelector" />.
 /// </summary>
 /// <remarks>
-/// When an explicit profile name is given it is passed through directly after a
-/// catalog look-up to enrich the display name. When no profile is given,
-/// <see cref="IConsultingDocxTemplateRecommendationService.Recommend"/> is called
-/// to infer the best profile from context signals.
+///     When an explicit profile name is given it is passed through directly after a
+///     catalog look-up to enrich the display name. When no profile is given,
+///     <see cref="IConsultingDocxTemplateRecommendationService.Recommend" /> is called
+///     to infer the best profile from context signals.
 /// </remarks>
 public sealed class ConsultingDocxExportProfileSelector(
     IConsultingDocxTemplateProfileResolver profileResolver,

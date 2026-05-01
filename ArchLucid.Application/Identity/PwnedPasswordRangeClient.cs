@@ -14,14 +14,14 @@ public sealed class PwnedPasswordRangeClient(
     IMemoryCache cache,
     IOptions<TrialAuthOptions>? trialOptions)
 {
-    /// <summary>How long downloaded HIBP range lines stay in <see cref="IMemoryCache"/> (per SHA-1 prefix).</summary>
-    public static readonly TimeSpan RangeResponseCacheDuration = TimeSpan.FromHours(24);
-
     private const string CacheKeyPrefix = "pwned-range:";
 
-    private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+    /// <summary>How long downloaded HIBP range lines stay in <see cref="IMemoryCache" /> (per SHA-1 prefix).</summary>
+    public static readonly TimeSpan RangeResponseCacheDuration = TimeSpan.FromHours(24);
 
     private readonly IMemoryCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+
+    private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
     private readonly TrialAuthOptions _trial =
         trialOptions?.Value ?? throw new ArgumentNullException(nameof(trialOptions));

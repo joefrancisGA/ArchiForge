@@ -8,4 +8,3 @@ public interface IExportRecordDiffService
         RunExportRecord left,
         RunExportRecord right);
 }
-

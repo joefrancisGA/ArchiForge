@@ -1,18 +1,19 @@
 using ArchLucid.Application.Determinism;
-using ArchLucid.Core.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Generates a structured DOCX analysis report from an <see cref="ArchitectureAnalysisReport"/>,
-/// rendering the Mermaid diagram as an embedded PNG image where possible.
+///     Generates a structured DOCX analysis report from an <see cref="ArchitectureAnalysisReport" />,
+///     rendering the Mermaid diagram as an embedded PNG image where possible.
 /// </summary>
 public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer diagramImageRenderer)
     : IArchitectureAnalysisDocxExportService
 {
     private const string MermaidLanguage = "mermaid";
+
     public async Task<byte[]> GenerateDocxAsync(
         ArchitectureAnalysisReport report,
         CancellationToken cancellationToken = default)
@@ -32,11 +33,9 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
             builder.AddParagraph($"Completed UTC: {report.Run.CompletedUtc.Value:O}");
 
-
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
 
             builder.AddParagraph($"Current Manifest Version: {report.Run.CurrentManifestVersion}");
-
 
         builder.AddSpacer();
 
@@ -60,7 +59,6 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 foreach (string item in report.Evidence.Request.Constraints)
 
                     builder.AddBullet(item);
-
             }
 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
@@ -69,7 +67,6 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 foreach (string item in report.Evidence.Request.RequiredCapabilities)
 
                     builder.AddBullet(item);
-
             }
 
             builder.AddSpacer();
@@ -94,7 +91,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
                 foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
                 {
-                    builder.AddParagraph(service.ServiceName, bold: true);
+                    builder.AddParagraph(service.ServiceName, true);
                     builder.AddBullet($"Type: {service.ServiceType}");
                     builder.AddBullet($"Platform: {service.RuntimePlatform}");
 
@@ -102,11 +99,9 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
                         builder.AddBullet($"Purpose: {service.Purpose}");
 
-
                     if (service.RequiredControls.Count > 0)
 
                         builder.AddBullet($"Required Controls: {string.Join(", ", service.RequiredControls)}");
-
                 }
 
                 builder.AddSpacer();
@@ -118,11 +113,13 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
                 foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
                 {
-                    builder.AddParagraph(datastore.DatastoreName, bold: true);
+                    builder.AddParagraph(datastore.DatastoreName, true);
                     builder.AddBullet($"Type: {datastore.DatastoreType}");
                     builder.AddBullet($"Platform: {datastore.RuntimePlatform}");
-                    builder.AddBullet($"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-                    builder.AddBullet($"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+                    builder.AddBullet(
+                        $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+                    builder.AddBullet(
+                        $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
                 }
 
                 builder.AddSpacer();
@@ -169,22 +166,22 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
             builder.AddSpacer();
 
-            foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
+            foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x =>
+                         x.IterationNumber))
             {
-                builder.AddParagraph($"Iteration {iteration.IterationNumber}", bold: true);
+                builder.AddParagraph($"Iteration {iteration.IterationNumber}", true);
                 builder.AddBullet($"Replay Run ID: {iteration.ReplayRunId}");
-                builder.AddBullet($"Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
+                builder.AddBullet(
+                    $"Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
                 builder.AddBullet($"Matches Baseline Manifest: {(iteration.MatchesBaselineManifest ? "Yes" : "No")}");
 
                 foreach (string warning in iteration.AgentDriftWarnings)
 
                     builder.AddBullet($"Agent Drift Warning: {warning}");
 
-
                 foreach (string warning in iteration.ManifestDriftWarnings)
 
                     builder.AddBullet($"Manifest Drift Warning: {warning}");
-
 
                 builder.AddSpacer();
             }
@@ -209,12 +206,14 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
         foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
         {
-            builder.AddParagraph(delta.AgentType.ToString(), bold: true);
+            builder.AddParagraph(delta.AgentType.ToString(), true);
 
             builder.AddBullet($"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
             builder.AddBullet($"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-            builder.AddBullet($"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-            builder.AddBullet($"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            builder.AddBullet(
+                $"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+            builder.AddBullet(
+                $"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
 
             builder.AddDiffSection("Added Claims", delta.AddedClaims);
             builder.AddDiffSection("Removed Claims", delta.RemovedClaims);

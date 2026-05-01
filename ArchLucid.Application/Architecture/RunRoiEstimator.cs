@@ -48,6 +48,8 @@ public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions>? optionsMon
         };
     }
 
-    private static int ManifestElementCount(GoldenManifest m) =>
-        m.Services.Count + m.Datastores.Count + m.Relationships.Count;
+    private static int ManifestElementCount(GoldenManifest m)
+    {
+        return m.Services.Count + m.Datastores.Count + m.Relationships.Count;
+    }
 }

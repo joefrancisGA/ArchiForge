@@ -22,12 +22,10 @@ public sealed class TrialPasswordPolicyValidator(IOptions<TrialAuthOptions> tria
             return TrialPasswordValidationResult.Fail(
                 $"Password must be at least {local.MinimumPasswordLength} characters.");
 
-
         if (password.Length > local.MaximumPasswordLength)
 
             return TrialPasswordValidationResult.Fail(
                 $"Password must be at most {local.MaximumPasswordLength} characters.");
-
 
         return TrialPasswordValidationResult.Valid();
     }
@@ -51,7 +49,13 @@ public readonly struct TrialPasswordValidationResult
         get;
     }
 
-    public static TrialPasswordValidationResult Valid() => new(true, null);
+    public static TrialPasswordValidationResult Valid()
+    {
+        return new TrialPasswordValidationResult(true, null);
+    }
 
-    public static TrialPasswordValidationResult Fail(string message) => new(false, message);
+    public static TrialPasswordValidationResult Fail(string message)
+    {
+        return new TrialPasswordValidationResult(false, message);
+    }
 }

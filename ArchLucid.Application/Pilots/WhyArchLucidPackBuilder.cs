@@ -3,14 +3,13 @@ using System.Text;
 namespace ArchLucid.Application.Pilots;
 
 /// <summary>
-/// Builds the canonical Markdown body for the public <c>GET /v1/marketing/why-archlucid-pack.pdf</c> bundle:
-/// demo-seed run excerpts (caller-supplied fragments) plus **five benchmarked differentiation rows**
-/// kept in sync with <c>archlucid-ui/src/marketing/why-archlucid-comparison.ts</c>.
+///     Builds the canonical Markdown body for the public <c>GET /v1/marketing/why-archlucid-pack.pdf</c> bundle:
+///     demo-seed run excerpts (caller-supplied fragments) plus **five benchmarked differentiation rows**
+///     kept in sync with <c>archlucid-ui/src/marketing/why-archlucid-comparison.ts</c>.
 /// </summary>
 public static class WhyArchLucidPackBuilder
 {
-
-    /// <summary>Assembles the full Markdown document passed to <see cref="WhyArchLucidPackPdfBuilder"/>.</summary>
+    /// <summary>Assembles the full Markdown document passed to <see cref="WhyArchLucidPackPdfBuilder" />.</summary>
     public static string BuildMarkdown(WhyArchLucidPackSourceDto source)
     {
         if (source is null)
@@ -22,7 +21,8 @@ public static class WhyArchLucidPackBuilder
         body.AppendLine();
         body.AppendLine("> **Panel banner:** *demo tenant — replace before publishing*");
         body.AppendLine();
-        body.AppendLine("This pack is generated from the **cached anonymous** demo commit preview (`GET /v1/demo/preview`). It contains **no tenant-specific production data**.");
+        body.AppendLine(
+            "This pack is generated from the **cached anonymous** demo commit preview (`GET /v1/demo/preview`). It contains **no tenant-specific production data**.");
         body.AppendLine();
         body.AppendLine("---");
         body.AppendLine();
@@ -110,14 +110,15 @@ public static class WhyArchLucidPackBuilder
                 "`ArchLucid.Application/Explanation/IFindingEvidenceChainService.cs` · `ArchLucid.Api/Controllers/Authority/AuthorityQueryController.cs` (provenance action) · `docs/library/KNOWLEDGE_GRAPH.md`",
                 "Static architecture decision logs **without traversable evidence linkage** force readers to **manually open** ten attachments per finding (**first-party assertion (no external citation yet)**).",
                 "https://en.wikipedia.org/wiki/Data_provenance",
-                "The provenance endpoint deliberately returns **422** until the golden manifest, graph snapshot, findings snapshot, and trace exist — that honesty avoids marketing a graph that is not there. The evidence-chain service is what feeds richer explanations and pilot deltas when data is present. The knowledge-graph doc is the operator-facing map of how to read the UI graph modes."),
+                "The provenance endpoint deliberately returns **422** until the golden manifest, graph snapshot, findings snapshot, and trace exist — that honesty avoids marketing a graph that is not there. The evidence-chain service is what feeds richer explanations and pilot deltas when data is present. The knowledge-graph doc is the operator-facing map of how to read the UI graph modes.")
         ];
 
         StringBuilder t = new();
         t.AppendLine("| Claim | ArchLucid evidence | Competitor baseline | Citation | Narrative (≤4 sentences) |");
         t.AppendLine("|-------|--------------------|--------------------|----------|---------------------------|");
 
-        foreach ((string claim, string archlucidEvidence, string competitorBaseline, string citation, string narrative) in rows)
+        foreach ((string claim, string archlucidEvidence, string competitorBaseline, string citation,
+                     string narrative) in rows)
         {
             t.AppendLine(
                 $"| {EscapePipe(claim)} | {EscapePipe(archlucidEvidence)} | {EscapePipe(competitorBaseline)} | {EscapePipe(citation)} | {EscapePipe(narrative)} |");
@@ -126,5 +127,8 @@ public static class WhyArchLucidPackBuilder
         return t.ToString();
     }
 
-    private static string EscapePipe(string value) => value.Replace("|", "\\|", StringComparison.Ordinal);
+    private static string EscapePipe(string value)
+    {
+        return value.Replace("|", "\\|", StringComparison.Ordinal);
+    }
 }

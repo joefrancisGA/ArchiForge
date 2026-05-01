@@ -6,6 +6,7 @@ using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 
@@ -23,15 +24,8 @@ public sealed class ReferenceEvidenceAdminExportService(
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true
     };
-
-    private readonly IReferenceEvidenceRunLookup _runLookup =
-        runLookup ?? throw new ArgumentNullException(nameof(runLookup));
-
-    private readonly IRunDetailQueryService _runDetailQuery =
-        runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
 
     private readonly IPilotRunDeltaComputer _deltaComputer =
         deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
@@ -42,11 +36,17 @@ public sealed class ReferenceEvidenceAdminExportService(
     private readonly FirstValueReportPdfBuilder _firstValueReportPdfBuilder =
         firstValueReportPdfBuilder ?? throw new ArgumentNullException(nameof(firstValueReportPdfBuilder));
 
-    private readonly SponsorOnePagerPdfBuilder _sponsorOnePagerPdfBuilder =
-        sponsorOnePagerPdfBuilder ?? throw new ArgumentNullException(nameof(sponsorOnePagerPdfBuilder));
-
     private readonly ILogger<ReferenceEvidenceAdminExportService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IRunDetailQueryService _runDetailQuery =
+        runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
+
+    private readonly IReferenceEvidenceRunLookup _runLookup =
+        runLookup ?? throw new ArgumentNullException(nameof(runLookup));
+
+    private readonly SponsorOnePagerPdfBuilder _sponsorOnePagerPdfBuilder =
+        sponsorOnePagerPdfBuilder ?? throw new ArgumentNullException(nameof(sponsorOnePagerPdfBuilder));
 
     /// <inheritdoc />
     public async Task<byte[]?> BuildZipAsync(
@@ -55,19 +55,22 @@ public sealed class ReferenceEvidenceAdminExportService(
         string apiBaseForLinks,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<Persistence.Models.ReferenceEvidenceRunCandidate> candidates =
+        IReadOnlyList<ReferenceEvidenceRunCandidate> candidates =
             await _runLookup.ListRecentCommittedRunsAsync(tenantId, 200, cancellationToken);
 
-        Persistence.Models.ReferenceEvidenceRunCandidate? selected = (from row in candidates let runKey = row.RunId.ToString("N") where includeDemo || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey) && !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId)) select row).FirstOrDefault();
+        ReferenceEvidenceRunCandidate? selected =
+            (from row in candidates
+                let runKey = row.RunId.ToString("N")
+                where includeDemo || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey) &&
+                                      !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId))
+                select row).FirstOrDefault();
 
         if (selected is null)
             return null;
 
         ScopeContext scope = new()
         {
-            TenantId = tenantId,
-            WorkspaceId = selected.WorkspaceId,
-            ProjectId = selected.ScopeProjectId,
+            TenantId = tenantId, WorkspaceId = selected.WorkspaceId, ProjectId = selected.ScopeProjectId
         };
 
         string runId = selected.RunId.ToString("N");
@@ -76,7 +79,7 @@ public sealed class ReferenceEvidenceAdminExportService(
             : apiBaseForLinks.Trim().TrimEnd('/');
 
         using MemoryStream zipStream = new();
-        await using (ZipArchive zip = new(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+        await using (ZipArchive zip = new(zipStream, ZipArchiveMode.Create, true))
         {
             using (IDisposable _ = AmbientScopeContext.Push(scope))
             {
@@ -105,7 +108,8 @@ public sealed class ReferenceEvidenceAdminExportService(
 
                 try
                 {
-                    byte[]? firstPdf = await _firstValueReportPdfBuilder.BuildPdfAsync(runId, baseUrl, cancellationToken);
+                    byte[]? firstPdf =
+                        await _firstValueReportPdfBuilder.BuildPdfAsync(runId, baseUrl, cancellationToken);
 
                     if (firstPdf is { Length: > 0 })
                     {
@@ -121,7 +125,8 @@ public sealed class ReferenceEvidenceAdminExportService(
 
                 try
                 {
-                    byte[]? sponsorPdf = await _sponsorOnePagerPdfBuilder.BuildPdfAsync(runId, baseUrl, cancellationToken);
+                    byte[]? sponsorPdf =
+                        await _sponsorOnePagerPdfBuilder.BuildPdfAsync(runId, baseUrl, cancellationToken);
 
                     if (sponsorPdf is { Length: > 0 })
                     {
@@ -176,34 +181,34 @@ public sealed class ReferenceEvidenceAdminExportService(
     private static string BuildProofPackReadmeMarkdown(Guid tenantId, string runId, bool includeDemo)
     {
         return $"""
-            # ArchLucid proof pack (reference evidence)
+                # ArchLucid proof pack (reference evidence)
 
-            This ZIP packages **committed-run** artifacts for diligence: deltas JSON, first-value narrative (Markdown/PDF when built), and sponsor one-pager (PDF when available).
+                This ZIP packages **committed-run** artifacts for diligence: deltas JSON, first-value narrative (Markdown/PDF when built), and sponsor one-pager (PDF when available).
 
-            ## Redaction and external use
+                ## Redaction and external use
 
-            - Treat as **confidential** until your legal team approves external sharing.
-            - When redacting for buyers or anonymous benchmarks, follow **`docs/library/PROOF_PACK_REDACTION_PROFILES.md`** in the ArchLucid repository.
+                - Treat as **confidential** until your legal team approves external sharing.
+                - When redacting for buyers or anonymous benchmarks, follow **`docs/library/PROOF_PACK_REDACTION_PROFILES.md`** in the ArchLucid repository.
 
-            ## Files
+                ## Files
 
-            | File | Description |
-            | --- | --- |
-            | `pilot-run-deltas.json` | Proof-of-ROI / delta numbers backing the narrative. |
-            | `first-value-report.md` | Sponsor Markdown when the builder produced it. |
-            | `first-value-report.pdf` | Rendered first-value report when PDF generation succeeded. |
-            | `sponsor-one-pager.pdf` | Standard-tier scorecard path when available. |
-            | `README.txt` | Short bundle metadata. |
-            | `proof-pack-readme.md` | This file (Markdown overview for humans). |
+                | File | Description |
+                | --- | --- |
+                | `pilot-run-deltas.json` | Proof-of-ROI / delta numbers backing the narrative. |
+                | `first-value-report.md` | Sponsor Markdown when the builder produced it. |
+                | `first-value-report.pdf` | Rendered first-value report when PDF generation succeeded. |
+                | `sponsor-one-pager.pdf` | Standard-tier scorecard path when available. |
+                | `README.txt` | Short bundle metadata. |
+                | `proof-pack-readme.md` | This file (Markdown overview for humans). |
 
-            ## Bundle metadata
+                ## Bundle metadata
 
-            - **TenantId:** `{tenantId:D}`
-            - **RunId:** `{runId}`
-            - **IncludeDemo:** {includeDemo}
-            - **GeneratedUtc:** {DateTime.UtcNow:O}
+                - **TenantId:** `{tenantId:D}`
+                - **RunId:** `{runId}`
+                - **IncludeDemo:** {includeDemo}
+                - **GeneratedUtc:** {DateTime.UtcNow:O}
 
-            Obtain a **signed reference agreement** before publishing customer-specific metrics externally.
-            """;
+                Obtain a **signed reference agreement** before publishing customer-specific metrics externally.
+                """;
     }
 }
