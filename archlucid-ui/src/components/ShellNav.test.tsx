@@ -62,6 +62,8 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
       fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
+      fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
+
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
       expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
         "title",
@@ -92,6 +94,8 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
       fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.extended.show }));
       fireEvent.click(screen.getByRole("button", { name: "Close" }));
+
+      fireEvent.click(screen.getByRole("button", { name: /Show all features/ }));
 
       expect(screen.getByRole("navigation", { name: "Analysis" })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");

@@ -1,7 +1,7 @@
 ---
 description: Simple C# auto-properties one line; no blank lines between consecutive simple properties
 globs: "**/*.cs"
-alwaysApply: false
+alwaysApply: true
 ---
 
 # C# simple properties: one line per property

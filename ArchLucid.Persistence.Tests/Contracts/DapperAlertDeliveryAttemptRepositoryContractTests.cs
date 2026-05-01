@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Alerts.Delivery;
+﻿using ArchLucid.Decisioning.Alerts.Delivery;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -9,7 +9,7 @@ public sealed class DapperAlertDeliveryAttemptRepositoryContractTests(SqlServerP
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IAlertDeliveryAttemptRepository CreateRepository()

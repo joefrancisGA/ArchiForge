@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Connections;
+﻿using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -15,10 +15,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SessionContextSqlConnectionFactoryTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task CreateOpenConnectionAsync_when_applicator_throws_disposes_connection_and_rethrows()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection shared = new(fixture.ConnectionString);
         await shared.OpenAsync();

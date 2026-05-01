@@ -116,6 +116,9 @@ public static partial class ServiceCollectionExtensions
         services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
         services.Configure<LlmDailyTenantBudgetOptions>(configuration.GetSection(LlmDailyTenantBudgetOptions.SectionName));
         services.AddSingleton<LlmDailyTenantBudgetTracker>();
+        services.Configure<LlmMonthlyTenantDollarBudgetOptions>(
+            configuration.GetSection(LlmMonthlyTenantDollarBudgetOptions.SectionName));
+        services.AddSingleton<LlmMonthlyTenantDollarBudgetTracker>();
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
         services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
         services.Configure<AgentExecutionTraceStorageOptions>(
@@ -380,6 +383,10 @@ public static partial class ServiceCollectionExtensions
             IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyBudgetOpts =
                 sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantBudgetOptions>>();
             LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
+            IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarOpts =
+                sp.GetRequiredService<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>>();
+            LlmMonthlyTenantDollarBudgetTracker monthlyDollarTracker =
+                sp.GetRequiredService<LlmMonthlyTenantDollarBudgetTracker>();
             IAuditService auditService = sp.GetRequiredService<IAuditService>();
             ILogger<LlmCompletionAccountingClient> accountingLogger =
                 sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
@@ -396,6 +403,8 @@ public static partial class ServiceCollectionExtensions
                 usageMetering,
                 dailyBudgetOpts,
                 dailyBudgetTracker,
+                monthlyDollarOpts,
+                monthlyDollarTracker,
                 auditService,
                 accountingLogger);
 
@@ -705,6 +714,10 @@ public static partial class ServiceCollectionExtensions
         IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyBudgetOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantBudgetOptions>>();
         LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
+        IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>>();
+        LlmMonthlyTenantDollarBudgetTracker monthlyDollarTracker =
+            sp.GetRequiredService<LlmMonthlyTenantDollarBudgetTracker>();
         IAuditService auditService = sp.GetRequiredService<IAuditService>();
         ILogger<LlmCompletionAccountingClient> accountingLogger =
             sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
@@ -721,6 +734,8 @@ public static partial class ServiceCollectionExtensions
             usageMetering,
             dailyBudgetOpts,
             dailyBudgetTracker,
+            monthlyDollarOpts,
+            monthlyDollarTracker,
             auditService,
             accountingLogger);
 

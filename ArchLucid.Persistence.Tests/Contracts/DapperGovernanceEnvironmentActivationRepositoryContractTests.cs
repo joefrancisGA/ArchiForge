@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Repositories;
+﻿using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -9,7 +9,7 @@ public sealed class DapperGovernanceEnvironmentActivationRepositoryContractTests
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IGovernanceEnvironmentActivationRepository CreateRepository()

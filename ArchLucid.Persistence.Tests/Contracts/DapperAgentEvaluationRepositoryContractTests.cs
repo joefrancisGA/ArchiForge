@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Tests.Support;
@@ -14,7 +14,7 @@ public sealed class DapperAgentEvaluationRepositoryContractTests(SqlServerPersis
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IAgentEvaluationRepository CreateRepository()

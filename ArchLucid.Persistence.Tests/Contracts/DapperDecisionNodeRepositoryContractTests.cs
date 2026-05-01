@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Repositories;
+﻿using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;
@@ -12,7 +12,7 @@ public sealed class DapperDecisionNodeRepositoryContractTests(SqlServerPersisten
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IDecisionNodeRepository CreateRepository()

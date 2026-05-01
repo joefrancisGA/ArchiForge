@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Repositories;
@@ -85,10 +85,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
 
     private static readonly Guid SeedScopeProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030");
 
-    [SkippableFact]
+    [Fact]
     public async Task After_archival_child_rows_remain_consistent_with_probe_queries()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string runId = Guid.NewGuid().ToString("N");
         Guid runGuid = Guid.ParseExact(runId, "N");
@@ -242,7 +242,7 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         goldenOrphans.Should().Be(0L, "GoldenManifests.RunId probe after archival");
         findingsOrphans.Should().Be(0L, "FindingsSnapshots.RunId probe after archival");
 
-        // Same rows the admin POST …/orphan-findings-snapshots would list (not referenced by a golden manifest as orphan).
+        // Same rows the admin POST â€¦/orphan-findings-snapshots would list (not referenced by a golden manifest as orphan).
         IReadOnlyList<Guid> adminOrphanList = (await verify.QueryAsync<Guid>(
             new CommandDefinition(
                 AdminStyleOrphanFindingsSnapshotSelect,

@@ -1766,6 +1766,53 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenLlmMonthlyTenantDollarBudgetEnabledWithoutCostEstimation_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["LlmMonthlyTenantDollarBudget:Enabled"] = "true",
+            ["LlmMonthlyTenantDollarBudget:IncludedUsdPerUtcMonth"] = "50",
+            ["LlmMonthlyTenantDollarBudget:HardCutoffUsdPerUtcMonth"] = "75",
+            ["AgentExecution:LlmCostEstimation:Enabled"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("LlmCostEstimation:Enabled", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenLlmMonthlyTenantDollarBudgetHardBelowIncluded_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["LlmMonthlyTenantDollarBudget:Enabled"] = "true",
+            ["LlmMonthlyTenantDollarBudget:IncludedUsdPerUtcMonth"] = "80",
+            ["LlmMonthlyTenantDollarBudget:HardCutoffUsdPerUtcMonth"] = "50",
+            ["WebhookDelivery:UseHttpClient"] = "false"
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e =>
+            e.Contains("HardCutoffUsdPerUtcMonth", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenCosmosFeatureEnabledWithoutConnectionString_contains_error()
     {
         Dictionary<string, string?> data = new()

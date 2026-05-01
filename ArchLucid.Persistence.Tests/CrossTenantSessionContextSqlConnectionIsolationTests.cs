@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tests.Support;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 ///     Cross-tenant isolation using the production-style stack:
-///     <see cref="SqlConnectionFactory" /> → <see cref="ResilientSqlConnectionFactory" /> →
+///     <see cref="SqlConnectionFactory" /> â†’ <see cref="ResilientSqlConnectionFactory" /> â†’
 ///     <see cref="SessionContextSqlConnectionFactory" />
 ///     with <see cref="RlsSessionContextApplicator" /> and <see cref="IOptionsMonitor{SqlServerOptions}" />.
 /// </summary>
@@ -23,10 +23,10 @@ public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServ
     private static readonly Guid ProjectP = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1");
     private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
 
-    [SkippableFact]
+    [Fact]
     public async Task SessionContext_factory_path_filters_runs_per_tenant_scope()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection admin = new(fixture.ConnectionString);
         await admin.OpenAsync();

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Metadata;
+﻿using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -32,7 +32,7 @@ public abstract class ComparisonRecordRepositoryContractTests
         };
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetById_returns_same_record()
     {
         SkipIfSqlServerUnavailable();
@@ -50,7 +50,7 @@ public abstract class ComparisonRecordRepositoryContractTests
         loaded.Tags.Should().BeEquivalentTo(row.Tags);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_nonexistent_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -62,7 +62,7 @@ public abstract class ComparisonRecordRepositoryContractTests
         result.Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByRunId_returns_matches()
     {
         SkipIfSqlServerUnavailable();
@@ -82,7 +82,7 @@ public abstract class ComparisonRecordRepositoryContractTests
         list.Select(x => x.ComparisonRecordId).Should().Contain(a.ComparisonRecordId, b.ComparisonRecordId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task UpdateLabelAndTags_persists()
     {
         SkipIfSqlServerUnavailable();
@@ -100,7 +100,7 @@ public abstract class ComparisonRecordRepositoryContractTests
         loaded.Tags.Should().BeEquivalentTo("x");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task SearchAsync_filters_by_comparison_type()
     {
         SkipIfSqlServerUnavailable();
@@ -132,7 +132,7 @@ public abstract class ComparisonRecordRepositoryContractTests
         list.Should().NotContain(r => r.ComparisonRecordId == e2e.ComparisonRecordId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task SearchByCursor_invalid_sort_throws()
     {
         SkipIfSqlServerUnavailable();

@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Models;
+﻿using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
@@ -23,10 +23,10 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
     private static readonly Guid WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     private static readonly Guid ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
-    [SkippableFact]
+    [Fact]
     public async Task RunAsync_populates_context_relational_from_json_and_second_run_is_noop()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

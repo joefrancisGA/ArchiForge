@@ -1,4 +1,4 @@
-using ArchLucid.Core.Conversation;
+﻿using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -44,7 +44,7 @@ public abstract class ConversationThreadRepositoryContractTests
         };
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetById_returns_same_thread()
     {
         SkipIfSqlServerUnavailable();
@@ -61,7 +61,7 @@ public abstract class ConversationThreadRepositoryContractTests
         loaded.TenantId.Should().Be(TenantId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_nonexistent_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -72,7 +72,7 @@ public abstract class ConversationThreadRepositoryContractTests
         result.Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListByScope_returns_only_matching_scope()
     {
         SkipIfSqlServerUnavailable();
@@ -94,7 +94,7 @@ public abstract class ConversationThreadRepositoryContractTests
         list.Should().NotContain(t => t.ThreadId == otherProject.ThreadId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListByScope_orders_by_LastUpdatedUtc_descending()
     {
         SkipIfSqlServerUnavailable();
@@ -119,7 +119,7 @@ public abstract class ConversationThreadRepositoryContractTests
         i1.Should().BeGreaterThan(i2);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListByScopePaged_respects_skip_and_total()
     {
         SkipIfSqlServerUnavailable();
@@ -142,7 +142,7 @@ public abstract class ConversationThreadRepositoryContractTests
         page.Should().HaveCount(1);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task UpdateLastUpdatedAsync_changes_GetById()
     {
         SkipIfSqlServerUnavailable();
@@ -159,10 +159,10 @@ public abstract class ConversationThreadRepositoryContractTests
         loaded.LastUpdatedUtc.Should().BeCloseTo(updated, TimeSpan.FromSeconds(2));
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveThreadsLastUpdatedBefore_excludes_from_get()
     {
-        Skip.IfNot(
+        Assert.SkipUnless(
             IncludeArchiveContractTest,
             "Shared SQL: ArchiveThreadsLastUpdatedBeforeAsync is global to conversation threads.");
 

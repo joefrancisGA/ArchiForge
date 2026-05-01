@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;
@@ -13,10 +13,10 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "SqlServerContainer")]
 public sealed class JournalDriftBaselineRepairSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task Empty_SchemaVersions_then_DatabaseMigrator_Run_repairs_journal_without_duplicate_object_errors()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidJournalDrift_" + suffix;

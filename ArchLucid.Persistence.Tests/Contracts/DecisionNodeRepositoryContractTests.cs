@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Decisions;
+﻿using ArchLucid.Contracts.Decisions;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -23,7 +23,7 @@ public abstract class DecisionNodeRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Two_CreateMany_batches_append_for_same_run()
     {
         SkipIfSqlServerUnavailable();

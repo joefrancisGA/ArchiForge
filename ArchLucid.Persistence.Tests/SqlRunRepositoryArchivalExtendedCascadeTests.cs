@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
@@ -21,15 +21,15 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Persistence")]
 public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveRunsByIdsAsync_cascades_ArchivedUtc_to_artifact_bundle_agent_trace_and_comparison_record()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection probe = new(fixture.ConnectionString);
         await probe.OpenAsync(CancellationToken.None);
 
-        Skip.IfNot(
+        Assert.SkipUnless(
             await ExtendedArchiveColumnsExistAsync(probe, CancellationToken.None),
             "Migration 073 ArchivedUtc columns on ArtifactBundles, AgentExecutionTraces, ComparisonRecords are required.");
 

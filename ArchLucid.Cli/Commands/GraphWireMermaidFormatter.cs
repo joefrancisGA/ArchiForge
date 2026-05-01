@@ -13,18 +13,14 @@ internal static class GraphWireMermaidFormatter
 
         Dictionary<string, GraphNodeWire?> byId =
             vm.Nodes
-                .Where(static n => n is { Id: not null } && !string.IsNullOrWhiteSpace(n.Id))
+                .Where(static n => !string.IsNullOrWhiteSpace(n.Id))
                 .GroupBy(static n => n.Id.Trim(), StringComparer.Ordinal)
                 .ToDictionary(static g => g.Key, static g => (GraphNodeWire?)g.First(), StringComparer.Ordinal);
 
         HashSet<string> edgeReferenced = [];
 
-        foreach (GraphEdgeWire? e in vm.Edges)
+        foreach (GraphEdgeWire e in vm.Edges.OfType<GraphEdgeWire>().Where(e => !string.IsNullOrWhiteSpace(e.Source) && !string.IsNullOrWhiteSpace(e.Target)))
         {
-            if (e is null || string.IsNullOrWhiteSpace(e.Source) || string.IsNullOrWhiteSpace(e.Target))
-                continue;
-
-
             edgeReferenced.Add(e.Source.Trim());
             edgeReferenced.Add(e.Target.Trim());
         }
@@ -40,24 +36,23 @@ internal static class GraphWireMermaidFormatter
         {
             string mid = ToMermaidNodeId(kv.Key);
             GraphNodeWire? n = kv.Value;
-            string lbl = n is null ? _unknown : FormatNodeLabel(n);
+            string lbl = n is null ? Unknown : FormatNodeLabel(n);
             sb.Append($"{mid}[\"");
             sb.Append(EscapeQuotes(lbl));
             sb.AppendLine("\"]");
         }
 
 
-        foreach (GraphEdgeWire? e in vm.Edges)
+        foreach (GraphEdgeWire e in vm.Edges.OfType<GraphEdgeWire>().Where(e => !string.IsNullOrWhiteSpace(e.Source) && !string.IsNullOrWhiteSpace(e.Target)))
         {
-            if (e is null || string.IsNullOrWhiteSpace(e.Source) || string.IsNullOrWhiteSpace(e.Target))
+            if (string.IsNullOrWhiteSpace(e.Source) || string.IsNullOrWhiteSpace(e.Target))
                 continue;
-
 
             string s = ToMermaidNodeId(e.Source.Trim());
             string t = ToMermaidNodeId(e.Target.Trim());
             sb.Append(s);
 
-            string edgeLbl = EscapeQuotes(e.Type?.Trim() ?? string.Empty);
+            string edgeLbl = EscapeQuotes(e.Type.Trim());
             if (edgeLbl.Length != 0)
 
                 sb.Append($" -- \"{edgeLbl}\" --> ");
@@ -72,12 +67,12 @@ internal static class GraphWireMermaidFormatter
         return sb.ToString().TrimEnd();
     }
 
-    private const string _unknown = "?";
+    private const string Unknown = "?";
 
     private static string FormatNodeLabel(GraphNodeWire n)
     {
         StringBuilder lbl = new();
-        lbl.Append(n.Label?.Trim() ?? string.Empty);
+        lbl.Append(n.Label.Trim());
 
         if (!string.IsNullOrWhiteSpace(n.Type))
         {
@@ -89,16 +84,12 @@ internal static class GraphWireMermaidFormatter
 
         string s = lbl.ToString();
 
-        return s.Length != 0 ? s : _unknown;
+        return s.Length != 0 ? s : Unknown;
     }
 
     private static string EscapeQuotes(string? s)
     {
-        if (string.IsNullOrEmpty(s))
-            return string.Empty;
-
-
-        return s.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "'", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(s) ? string.Empty : s.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "'", StringComparison.Ordinal);
     }
 
     /// <remarks>

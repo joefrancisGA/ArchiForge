@@ -29,6 +29,8 @@ public sealed class LlmCompletionAccountingClient(
     IUsageMeteringService usageMetering,
     IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyTenantBudgetOptions,
     LlmDailyTenantBudgetTracker dailyTenantBudgetTracker,
+    IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarBudgetOptions,
+    LlmMonthlyTenantDollarBudgetTracker monthlyDollarBudgetTracker,
     IAuditService auditService,
     ILogger<LlmCompletionAccountingClient> logger)
     : IAgentCompletionClient
@@ -68,6 +70,12 @@ public sealed class LlmCompletionAccountingClient(
     private readonly LlmDailyTenantBudgetTracker _dailyTenantBudgetTracker =
         dailyTenantBudgetTracker ?? throw new ArgumentNullException(nameof(dailyTenantBudgetTracker));
 
+    private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _monthlyDollarBudgetOptions =
+        monthlyDollarBudgetOptions ?? throw new ArgumentNullException(nameof(monthlyDollarBudgetOptions));
+
+    private readonly LlmMonthlyTenantDollarBudgetTracker _monthlyDollarBudgetTracker =
+        monthlyDollarBudgetTracker ?? throw new ArgumentNullException(nameof(monthlyDollarBudgetTracker));
+
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
@@ -86,6 +94,9 @@ public sealed class LlmCompletionAccountingClient(
         {
             if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
                 _dailyTenantBudgetTracker.EnsureWithinBudgetBeforeCall(scope.TenantId, providerKind);
+
+            if (_monthlyDollarBudgetOptions.CurrentValue.Enabled)
+                _monthlyDollarBudgetTracker.EnsureWithinBudgetBeforeCall(scope.TenantId, providerKind);
 
             if (_quotaOptions.CurrentValue.Enabled)
                 _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
@@ -132,6 +143,14 @@ public sealed class LlmCompletionAccountingClient(
                 _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
 
                 _dailyTenantBudgetTracker.RecordUsageAndMaybeWarn(
+                    scope.TenantId,
+                    providerKind,
+                    _scopeProvider,
+                    _auditService,
+                    promptTok,
+                    completionTok);
+
+                _monthlyDollarBudgetTracker.RecordUsageAndMaybeWarn(
                     scope.TenantId,
                     providerKind,
                     _scopeProvider,

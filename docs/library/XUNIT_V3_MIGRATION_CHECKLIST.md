@@ -1,3 +1,5 @@
+> **Scope:** For ArchLucid engineers migrating test projects from xUnit v2 to v3; a sequential work checklist, not a substitute for the official xUnit migration guide or general unit-testing policy.
+
 # xUnit.net v3 migration checklist (ArchLucid)
 
 Use this as a sequential work list when moving test projects from **xUnit v2** (`xunit`) to **xUnit v3** (`xunit.v3.*`). Official references: [What’s new in v3](https://xunit.net/docs/getting-started/v3/whats-new), [Migrating from v2 to v3](https://xunit.net/docs/getting-started/v3/migration).

@@ -1,16 +1,15 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-using Xunit.Abstractions;
 
 namespace ArchLucid.Api.Tests.Performance;
 
 /// <summary>
-///     In-process performance gate for the pilot path: create → seed fake results → commit → get manifest, using the
+///     In-process performance gate for the pilot path: create â†’ seed fake results â†’ commit â†’ get manifest, using the
 ///     same simulator + in-memory storage profile as the fast integration suite (not production SQL latency).
 /// </summary>
 [Trait("Suite", "Core")]
@@ -82,7 +81,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         }
 
         ms.Sort();
-        // Nearest-rank p95: 1-based rank ceil(0.95 * n) → 0-based index.
+        // Nearest-rank p95: 1-based rank ceil(0.95 * n) â†’ 0-based index.
         int rank1Based = (int)Math.Ceiling(0.95 * ms.Count);
         int p95Index = Math.Max(0, Math.Min(ms.Count - 1, rank1Based - 1));
         long p95 = ms[p95Index];

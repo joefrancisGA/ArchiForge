@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -21,10 +21,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveRunsByIdsAsync_four_parallel_calls_first_archives_others_see_already_archived()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);

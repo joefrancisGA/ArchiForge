@@ -1,4 +1,4 @@
-using ArchLucid.KnowledgeGraph.Models;
+﻿using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GraphSnapshots;
 using ArchLucid.Persistence.Repositories;
@@ -14,7 +14,7 @@ namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 /// <summary>
 ///     Branch coverage for <see cref="GraphSnapshotRelationalRead.LoadEdgesRelationalAsync" /> when
 ///     <c>mergeMetadataFromJson</c> is <see langword="true" /> but <c>EdgesJson</c> omits an edge id present
-///     relationally — <c>jsonById.TryGetValue</c> is <see langword="false" /> for that row.
+///     relationally â€” <c>jsonById.TryGetValue</c> is <see langword="false" /> for that row.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -22,10 +22,10 @@ namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlIntegrationTests(
     SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_skips_EdgesJson_merge_for_relational_edges_missing_from_JSON_dictionary()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

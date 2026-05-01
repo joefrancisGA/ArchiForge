@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.DecisionTraces;
+﻿using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 
@@ -35,7 +35,7 @@ public abstract class DecisionTraceRepositoryContractTests
         });
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Save_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();
@@ -63,7 +63,7 @@ public abstract class DecisionTraceRepositoryContractTests
         audit.AppliedRuleIds.Should().Equal("r1");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_wrong_scope_returns_null()
     {
         SkipIfSqlServerUnavailable();

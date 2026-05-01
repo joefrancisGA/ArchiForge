@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -30,7 +30,7 @@ public abstract class PolicyPackRepositoryContractTests
         };
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetById_returns_pack()
     {
         SkipIfSqlServerUnavailable();
@@ -48,7 +48,7 @@ public abstract class PolicyPackRepositoryContractTests
         loaded.TenantId.Should().Be(tenantId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_unknown_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -59,7 +59,7 @@ public abstract class PolicyPackRepositoryContractTests
         loaded.Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListByScope_filters_other_project()
     {
         SkipIfSqlServerUnavailable();
@@ -80,7 +80,7 @@ public abstract class PolicyPackRepositoryContractTests
         list.Should().NotContain(x => x.PolicyPackId == other.PolicyPackId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task UpdateAsync_modifies_GetById()
     {
         SkipIfSqlServerUnavailable();

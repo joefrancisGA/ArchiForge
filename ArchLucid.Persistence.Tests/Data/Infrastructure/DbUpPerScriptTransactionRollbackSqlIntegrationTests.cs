@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.TestSupport;
 
 using DbUp;
@@ -10,17 +10,17 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
 /// <summary>
 ///     Verifies DbUp <see cref="UpgradeEngine" /> with <see cref="UpgradeEngineBuilder.WithTransactionPerScript" />
-///     rolls back earlier batches in the same script when a later batch fails — matching production
+///     rolls back earlier batches in the same script when a later batch fails â€” matching production
 ///     <see cref="DatabaseMigrator" /> behaviour.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 public sealed class DbUpPerScriptTransactionRollbackSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task Second_batch_failure_in_one_script_rolls_back_first_batch_DDL()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidDbUpTx_" + suffix;

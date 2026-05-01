@@ -338,12 +338,15 @@ export function DemoPreviewMarketingBody({
                       })
                     : "—";
 
+                const nameLabel = typeof a.name === "string" && a.name.trim().length > 0 ? a.name.trim() : "—";
+
                 return (
                   <tr
                     key={artifactKey}
                     className="border-t border-neutral-200 dark:border-neutral-800"
                     title={typeof a.contentHash === "string" ? `Content hash: ${a.contentHash}` : undefined}
                   >
+                    <td className="px-3 py-2">{nameLabel}</td>
                     <td className="px-3 py-2">{typeLabel}</td>
                     <td className="px-3 py-2 text-xs text-neutral-500 dark:text-neutral-400" title={a.format ?? undefined}>
                       {getArtifactTypeLabel(a.artifactType)}

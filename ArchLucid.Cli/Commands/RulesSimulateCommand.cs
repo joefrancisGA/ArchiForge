@@ -37,25 +37,19 @@ internal static class RulesSimulateCommand
             if (string.Equals(a, "--run", StringComparison.Ordinal) && i + 1 < args.Length)
             {
                 runId = args[++i].Trim();
-
                 continue;
             }
-
 
             if (string.Equals(a, "--severity", StringComparison.Ordinal) && i + 1 < args.Length)
             {
                 if (!Enum.TryParse(args[++i].Trim(), ignoreCase: true, out severity))
                 {
-
-
                     Console.Error.WriteLine("Invalid --severity. Use Critical, Error, Warning, Info.");
-
                     return CliExitCode.UsageError;
                 }
 
                 continue;
             }
-
 
             if (string.Equals(a, "--count", StringComparison.Ordinal) && i + 1 < args.Length)
             {
@@ -63,35 +57,24 @@ internal static class RulesSimulateCommand
 
                 if (!int.TryParse(rawCount, out count) || count < 0 || count > 500)
                 {
-
-
                     Console.Error.WriteLine("--count must be an integer in [0, 500].");
-
                     return CliExitCode.UsageError;
                 }
 
                 continue;
             }
 
-
             Console.Error.WriteLine(
                 "Usage: archlucid rules simulate --run <runGuid> [--severity Warning] [--count 3]");
-
-
             return CliExitCode.UsageError;
         }
 
         if (string.IsNullOrWhiteSpace(runId))
         {
-
-
             Console.Error.WriteLine(
                 "Usage: archlucid rules simulate --run <runGuid> [--severity Warning] [--count 3]");
-
-
             return CliExitCode.UsageError;
         }
-
 
         string baseUrl = CliCommandShared.GetBaseUrl(config);
 
@@ -100,136 +83,75 @@ internal static class RulesSimulateCommand
         if (connection != ApiConnectionOutcome.Connected)
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
-
         SimulateRequestBody body =
             new() { RunId = runId!, SyntheticSeverity = severity, SyntheticCount = count };
 
-
         Uri relativeUri = new("v1/governance/pre-commit/simulate", UriKind.Relative);
-
 
         using HttpClient http = ArchLucidApiClient.CreateSharedApiHttpClient(baseUrl, config);
 
-
         HttpResponseMessage response =
             await http.PostAsJsonAsync(relativeUri, body, SimulateJson);
-
 
         string respJson = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
-
-
             Console.Error.WriteLine($"{(int)response.StatusCode} {response.StatusCode}: {TrimPreview(respJson, 560)}");
-
             return CliExitCode.OperationFailed;
         }
-
 
         PreCommitGateResult? result;
 
-
         try
-
         {
-
-
             result = JsonSerializer.Deserialize<PreCommitGateResult>(respJson, SimulateJson);
         }
-
-
         catch (JsonException)
-
-
         {
-
-
             Console.Error.WriteLine($"Could not parse gate result JSON ({TrimPreview(respJson, 400)}).");
-
             return CliExitCode.OperationFailed;
         }
 
-
         if (CliExecutionContext.JsonOutput)
-
-
             Console.WriteLine(respJson.Trim());
-
         else
-
             EmitHumanReadable(result);
 
-
         return CliExitCode.Success;
-
-
     }
-
 
     private sealed class SimulateRequestBody
     {
-
-
         public string RunId { get; init; } = "";
-
-
         public FindingSeverity SyntheticSeverity { get; init; }
-
-
         public int SyntheticCount { get; init; }
-
-
     }
 
     private static void EmitHumanReadable(PreCommitGateResult? result)
     {
-
-
         if (result is null)
-
-
         {
-
-
             Console.Error.WriteLine("Empty response body.");
-
             return;
-
-
         }
-
 
         Console.WriteLine(
             $"{(result.Blocked ? "BLOCKED" : "ALLOW")} — warnOnly={result.WarnOnly} policyPackId={result.PolicyPackId ?? "(none)"}");
 
-
         if (!string.IsNullOrWhiteSpace(result.Reason))
-
-
             Console.WriteLine($"Reason: {result.Reason}");
 
         Console.WriteLine($"Blocking finding ids ({result.BlockingFindingIds.Count}):");
 
-
         foreach (string id in result.BlockingFindingIds)
-
-
             Console.WriteLine($"  {id}");
-
-
     }
-
 
     private static string TrimPreview(string raw, int max)
     {
-
-
         raw = raw.ReplaceLineEndings(" ");
 
         return raw.Length <= max ? raw : raw[..max];
-
     }
-
-
 }

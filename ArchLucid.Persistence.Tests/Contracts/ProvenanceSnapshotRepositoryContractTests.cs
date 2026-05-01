@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Provenance;
 
@@ -37,7 +37,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         };
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Save_then_GetByRunId_returns_snapshot()
     {
         SkipIfSqlServerUnavailable();
@@ -57,7 +57,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         loaded.TenantId.Should().Be(TenantId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByRunId_wrong_scope_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -79,7 +79,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         loaded.Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Save_twice_same_run_latest_wins_on_read()
     {
         SkipIfSqlServerUnavailable();

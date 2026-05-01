@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Models;
+﻿using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
@@ -20,10 +20,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task Save_then_GetById_round_trips_relational_collections()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
@@ -75,10 +75,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.SourceHashes["file.cs"].Should().Be("abc123");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_falls_back_to_json_when_no_relational_child_rows()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
@@ -148,10 +148,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.SourceHashes["other"].Should().Be("bb");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_json_fallback_deserializes_canonical_object_properties()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
@@ -239,10 +239,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.CanonicalObjects[1].Properties.Should().BeEmpty();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_when_all_json_columns_null_returns_empty_collections()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
@@ -290,10 +290,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.DeltaSummary.Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_when_all_json_columns_are_empty_strings_returns_empty_collections()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
@@ -359,10 +359,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.SourceHashes.Should().BeEmpty();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task SaveAsync_with_explicit_transaction_commits_header_and_children()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 

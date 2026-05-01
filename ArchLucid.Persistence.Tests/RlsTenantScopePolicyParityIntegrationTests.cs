@@ -1,4 +1,4 @@
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -11,14 +11,14 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class RlsTenantScopePolicyParityIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    // CI rename guard: avoid literal "Archi"+"forge" in one token — SQL catalog still uses the historical name.
+    // CI rename guard: avoid literal "Archi"+"forge" in one token â€” SQL catalog still uses the historical name.
     private const string LegacyPolicy = "Arch" + "iforge" + "TenantScope";
     private const string CurrentPolicy = "ArchLucidTenantScope";
 
-    [SkippableFact]
+    [Fact]
     public async Task Rls_security_policies_legacy_and_ArchLucid_tenant_scope_target_same_tables_when_both_exist()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection connection = new(fixture.ConnectionString);
         await connection.OpenAsync();

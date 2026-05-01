@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Decisions;
+﻿using ArchLucid.Contracts.Decisions;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -24,7 +24,7 @@ public abstract class AgentEvaluationRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task CreateMany_replaces_prior_batch_for_same_run()
     {
         SkipIfSqlServerUnavailable();
@@ -53,7 +53,7 @@ public abstract class AgentEvaluationRepositoryContractTests
         loaded[0].EvaluationType.Should().Be(EvaluationTypes.Oppose);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task CreateMany_then_GetByRunId_orders_by_CreatedUtc()
     {
         SkipIfSqlServerUnavailable();

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Connections;
@@ -23,10 +23,10 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [SkippableFact]
+    [Fact]
     public async Task Save_then_GetById_round_trips_phase1_relational_slices()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -117,10 +117,10 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         d.RawDecisionJson.Should().Be("""{"x":1}""");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_when_no_phase1_rows_falls_back_to_json_columns()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -274,10 +274,10 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
     ///     Empty string exercises the same hydration path as null/whitespace in code (<c>string.IsNullOrWhiteSpace</c>
     ///     fallbacks).
     /// </summary>
-    [SkippableFact]
+    [Fact]
     public async Task GetById_when_no_phase1_rows_and_json_columns_empty_string_returns_default_sections()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

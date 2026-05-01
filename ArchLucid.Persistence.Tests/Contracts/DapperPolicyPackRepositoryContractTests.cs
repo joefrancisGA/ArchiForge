@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Governance;
 
@@ -14,7 +14,7 @@ public sealed class DapperPolicyPackRepositoryContractTests(SqlServerPersistence
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IPolicyPackRepository CreateRepository()

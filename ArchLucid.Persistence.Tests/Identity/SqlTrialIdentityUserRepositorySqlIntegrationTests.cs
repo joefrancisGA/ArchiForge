@@ -1,4 +1,4 @@
-using ArchLucid.Application.Identity;
+﻿using ArchLucid.Application.Identity;
 using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Tests.Tenancy;
@@ -17,10 +17,10 @@ namespace ArchLucid.Persistence.Tests.Identity;
 [Trait("Suite", "Core")]
 public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task TryLinkLocalIdentityToEntraAsync_persists_oid_and_utc()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlTrialIdentityUserRepository sut = new(factory);
@@ -50,10 +50,10 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
         row.LinkedUtc.Should().NotBeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task TryLinkLocalIdentityToEntraAsync_false_when_oid_conflict()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlTrialIdentityUserRepository sut = new(factory);
@@ -78,10 +78,10 @@ public sealed class SqlTrialIdentityUserRepositorySqlIntegrationTests(SqlServerP
         (await sut.GetByNormalizedEmailAsync(normalized, CancellationToken.None))!.LinkedEntraOid.Should().Be("oid-first");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task TryLinkLocalIdentityToEntraAsync_false_for_unknown_email()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlTrialIdentityUserRepository sut = new(factory);

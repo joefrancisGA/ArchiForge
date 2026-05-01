@@ -1,4 +1,4 @@
-using ArchLucid.KnowledgeGraph.Models;
+﻿using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GraphSnapshots;
 using ArchLucid.Persistence.Repositories;
@@ -105,10 +105,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         return await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row, CancellationToken.None);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_edgesCount_zero_returns_early_with_relational_nodes_only()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "e0");
@@ -140,10 +140,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Edges.Should().BeEmpty();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_edgesCount_zero_relational_warnings_only()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "w0");
@@ -171,10 +171,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Warnings.Should().Equal("w-a");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_relational_edge_label_from_reserved_property_key()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "elbl");
@@ -215,10 +215,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Edges.Should().ContainSingle(e => e.EdgeId == "e1" && e.Label == "from-sql-label");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_relational_edge_non_label_properties_only()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) =
@@ -262,10 +262,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         edge.Properties.Should().ContainKey("k1").WhoseValue.Should().Be("v1");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_relational_edge_label_and_extra_properties()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "emix");
@@ -310,10 +310,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         edge.Properties.Should().ContainKey("p").WhoseValue.Should().Be("q");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_mergeMetadata_fills_label_from_json_when_relational_label_missing()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "mj1");
@@ -354,10 +354,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Edges.Should().ContainSingle(e => e.EdgeId == "e4" && e.Label == "json-label");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_mergeMetadata_fills_properties_from_json_when_relational_props_empty()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "mj2");
@@ -400,10 +400,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Edges.Should().ContainSingle(e => e.EdgeId == "e5" && e.Properties["x"] == "y");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_mergeMetadata_keeps_relational_label_when_json_also_has_label()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "mj3");
@@ -446,10 +446,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Edges.Should().ContainSingle(e => e.EdgeId == "e6" && e.Label == "sql-label");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_mergeMetadata_keeps_relational_properties_when_json_has_props()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "mj4");
@@ -494,10 +494,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Edges.Should().ContainSingle(e => e.EdgeId == "e7" && e.Properties["from"] == "sql");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_mergeMetadata_json_missing_edge_id_skips_merge_branch()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "mj5");
@@ -539,10 +539,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         string.IsNullOrEmpty(edge.Label).Should().BeTrue();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_relational_nodes_without_property_rows_yield_empty_properties_dict()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "np0");
@@ -572,10 +572,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         node.Properties.Should().BeEmpty();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_relational_nodes_with_property_rows_merge_into_node()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "np1");
@@ -608,10 +608,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Nodes.Should().ContainSingle(n => n.NodeId == "n3" && n.Properties["a"] == "b");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_edge_properties_present_disables_json_merge_even_when_json_rich()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) =
@@ -660,10 +660,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         edge.Properties.Should().ContainKey("only").WhoseValue.Should().Be("sql");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_two_edges_one_merge_one_full_relational()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "two");
@@ -719,11 +719,11 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Edges.Should().Contain(e => e.EdgeId == "eb" && e.Label == "sql-b");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task
         HydrateAsync_relational_warnings_with_empty_nodes_and_edges_uses_row_warnings_json_fallback_false()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) = await SeedHeaderIntoAsync(connection, "wrn");
@@ -751,10 +751,10 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
         snap.Warnings.Should().Equal("rel-w");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_relational_nodes_and_edges_without_merge_second_edge_has_no_json()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         (Guid runId, Guid contextId, Guid graphId, DateTime createdUtc) =

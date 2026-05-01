@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 
 using ArchLucid.TestSupport;
 
@@ -9,7 +9,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 ///     Ensures <see cref="OpenApiContractWebAppFactory" /> (InMemory storage, no SQL) and
 ///     <see cref="GreenfieldSqlApiFactory" /> (Sql + DbUp) expose the same anonymous public HTTP surface
-///     for health and OpenAPI — catches wiring regressions that break only one storage path.
+///     for health and OpenAPI â€” catches wiring regressions that break only one storage path.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -44,10 +44,10 @@ public sealed class StorageProviderPublicSurfaceParityIntegrationTests
         (await client.GetAsync("/openapi/v1.json")).StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Sql_greenfield_host_exposes_live_ready_and_openapi()
     {
-        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();

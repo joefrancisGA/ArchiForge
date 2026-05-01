@@ -68,10 +68,8 @@ internal static class GraphExportCommand
                 continue;
             }
 
-
-            Console.Error.WriteLine(
+            await Console.Error.WriteLineAsync(
                 "Usage: archlucid graph export <runId> [--format mermaid] [--decision <key>] [--out <path>]");
-
 
             return CliExitCode.UsageError;
         }
@@ -83,7 +81,7 @@ internal static class GraphExportCommand
         {
 
 
-            Console.Error.WriteLine(
+            await Console.Error.WriteLineAsync(
                 "Usage: archlucid graph export <runId> [--format mermaid] [--decision <key>] [--out <path>]");
 
 
@@ -95,7 +93,7 @@ internal static class GraphExportCommand
         {
 
 
-            Console.Error.WriteLine("Only --format mermaid is supported.");
+            await Console.Error.WriteLineAsync("Only --format mermaid is supported.");
 
             return CliExitCode.UsageError;
         }
@@ -105,7 +103,7 @@ internal static class GraphExportCommand
         {
 
 
-            Console.Error.WriteLine("runId must be a GUID (authority graph routes use v1 GUID paths).");
+            await Console.Error.WriteLineAsync("runId must be a GUID (authority graph routes use v1 GUID paths).");
 
             return CliExitCode.UsageError;
         }
@@ -132,7 +130,7 @@ internal static class GraphExportCommand
             {
 
 
-                Console.Error.WriteLine($"{(int)response.StatusCode} {response.StatusCode}: {TrimPreview(bodyJson, 480)}");
+                await Console.Error.WriteLineAsync($"{(int)response.StatusCode} {response.StatusCode}: {TrimPreview(bodyJson, 480)}");
 
 
                 return CliExitCode.OperationFailed;

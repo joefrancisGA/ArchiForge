@@ -1,4 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
+﻿using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Manifest.Sections;
@@ -25,10 +25,10 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
     private static readonly Guid WorkspaceId = Guid.Parse("55555555-5555-5555-5555-555555555555");
     private static readonly Guid ProjectId = Guid.Parse("66666666-6666-6666-6666-666666666666");
 
-    [SkippableFact]
+    [Fact]
     public async Task Save_then_GetByManifestId_round_trips_relational_slices()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -107,7 +107,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     ArtifactType = "ArchitectureNarrative",
                     Name = "narrative.md",
                     Format = "markdown",
-                    Content = "Plain text body — not JSON-encoded.",
+                    Content = "Plain text body â€” not JSON-encoded.",
                     ContentHash = "sha256:abc",
                     Metadata = new Dictionary<string, string>(StringComparer.Ordinal)
                     {
@@ -139,7 +139,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.BundleId.Should().Be(bundleId);
         loaded.Artifacts.Should().ContainSingle();
         SynthesizedArtifact a = loaded.Artifacts[0];
-        a.Content.Should().Be("Plain text body — not JSON-encoded.");
+        a.Content.Should().Be("Plain text body â€” not JSON-encoded.");
         a.Metadata.Should().HaveCount(2);
         a.Metadata["Section"].Should().Be("Overview");
         a.ContributingDecisionIds.Should().Equal("dec-a", "dec-b");
@@ -149,10 +149,10 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.Trace.TraceId.Should().Be(synthTraceId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByManifestId_when_no_relational_rows_falls_back_to_json_columns()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -296,10 +296,10 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.Trace.Notes.Should().Equal("n");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByManifestId_json_fallback_with_multiple_artifacts_preserves_order_and_metadata()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -468,10 +468,10 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.Trace.TraceId.Should().Be(trace.TraceId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByManifestId_when_ArtifactsJson_is_null_and_no_relational_rows_returns_empty_artifacts()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -583,11 +583,11 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.Trace.Notes.Should().BeEmpty();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task
         GetByManifestId_when_both_ArtifactsJson_and_TraceJson_null_returns_empty_artifacts_and_default_trace()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

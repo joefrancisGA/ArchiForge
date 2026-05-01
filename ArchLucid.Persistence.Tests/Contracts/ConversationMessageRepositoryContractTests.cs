@@ -1,4 +1,4 @@
-using ArchLucid.Core.Conversation;
+﻿using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -35,7 +35,7 @@ public abstract class ConversationMessageRepositoryContractTests
         };
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Add_then_GetByThreadId_returns_oldest_first_within_window()
     {
         SkipIfSqlServerUnavailable();
@@ -72,7 +72,7 @@ public abstract class ConversationMessageRepositoryContractTests
         window[1].MessageId.Should().Be(second.MessageId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByThreadId_respects_take()
     {
         SkipIfSqlServerUnavailable();

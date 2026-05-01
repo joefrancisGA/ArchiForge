@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;
@@ -7,16 +7,16 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
 /// <summary>
 ///     Verifies hand-maintained rollback scripts under <c>Migrations/Rollback/</c> execute cleanly against a catalog that
-///     has applied the matching forward migration (manual rollback path — not invoked by DbUp).
+///     has applied the matching forward migration (manual rollback path â€” not invoked by DbUp).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 public sealed class MigrationRollbackScriptsSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task R124_FindingRecords_FilterIndexes_drops_expected_indexes_after_forward_migration()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidRb124_" + suffix;
@@ -73,10 +73,10 @@ public sealed class MigrationRollbackScriptsSqlIntegrationTests(SqlServerPersist
         Convert.ToInt32(await category.ExecuteScalarAsync(CancellationToken.None), System.Globalization.CultureInfo.InvariantCulture).Should().Be(0);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task R128_Runs_RetrySupport_removes_columns_after_forward_migration()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidRb128_" + suffix;

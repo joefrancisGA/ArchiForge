@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Common;
+﻿using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -15,7 +15,7 @@ public abstract class ArchitectureRequestRepositoryContractTests
 
     protected abstract IArchitectureRequestRepository CreateRepository();
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();

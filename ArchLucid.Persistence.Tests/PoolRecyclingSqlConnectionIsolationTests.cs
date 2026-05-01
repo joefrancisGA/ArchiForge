@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tests.Support;
@@ -23,10 +23,10 @@ public sealed class PoolRecyclingSqlConnectionIsolationTests(SqlServerPersistenc
 
     private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
 
-    [SkippableFact]
+    [Fact]
     public async Task Recycled_connection_overwrites_stale_tenant_session_context()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         SqlConnection.ClearAllPools();
 
@@ -85,10 +85,10 @@ public sealed class PoolRecyclingSqlConnectionIsolationTests(SqlServerPersistenc
         }
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Recycled_connection_overwrites_stale_bypass_session_context()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         SqlConnection.ClearAllPools();
 

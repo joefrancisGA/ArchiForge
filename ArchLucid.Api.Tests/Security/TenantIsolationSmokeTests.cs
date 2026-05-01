@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -69,10 +69,10 @@ public sealed class TenantIsolationSmokeTests
         }
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Tenant_b_cannot_see_tenant_a_run_sql_rls()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Assert.SkipUnless(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
@@ -114,10 +114,10 @@ public sealed class TenantIsolationSmokeTests
         getOwn.EnsureSuccessStatusCode();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Tenant_b_cannot_access_tenant_a_run_roi_sql_rls()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Assert.SkipUnless(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
@@ -149,10 +149,10 @@ public sealed class TenantIsolationSmokeTests
         roi.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Tenant_b_cannot_read_tenant_a_artifact_manifest_list_sql_rls()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Assert.SkipUnless(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
@@ -167,7 +167,7 @@ public sealed class TenantIsolationSmokeTests
         Guid? manifestId =
             await TryGetAnyGoldenManifestIdForTenantAsync(factory.SqlConnectionString, ScopeIds.DefaultTenant);
 
-        Skip.If(!manifestId.HasValue, "Greenfield catalog has no GoldenManifest row for the default tenant yet.");
+        Assert.SkipWhen(!manifestId.HasValue, "Greenfield catalog has no GoldenManifest row for the default tenant yet.");
 
         using HttpClient clientB = factory.CreateClient();
         clientB.Timeout = TimeSpan.FromMinutes(2);
@@ -177,10 +177,10 @@ public sealed class TenantIsolationSmokeTests
         art.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Admin_archive_batch_with_tenant_a_headers_does_not_archive_tenant_b_runs()
     {
-        Skip.IfNot(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
+        Assert.SkipUnless(IsSqlServerReachableWithShortTimeout(), SqlExplicitUnavailable);
 
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
@@ -281,7 +281,7 @@ public sealed class TenantIsolationSmokeTests
         return false;
     }
 
-    /// <summary>Inserts a second registry row so <c>CommercialTenantTierFilter</c> allows tenant B’s HTTP scope.</summary>
+    /// <summary>Inserts a second registry row so <c>CommercialTenantTierFilter</c> allows tenant Bâ€™s HTTP scope.</summary>
     private static async Task EnsureAlternateTenantAndWorkspaceAsync(
         string connectionString,
         Guid tenantId,

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Governance;
+﻿using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -42,7 +42,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         };
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task AppendAsync_InsertsEntry_GetByPolicyPackIdReturnsIt()
     {
         SkipIfSqlServerUnavailable();
@@ -57,7 +57,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         list.Should().ContainSingle(e => e.PolicyPackId == packId && e.SummaryText == "first");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByPolicyPackId_MultipleEntries_ReturnsDescendingByChangedUtc()
     {
         SkipIfSqlServerUnavailable();
@@ -80,7 +80,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         list[2].SummaryText.Should().Be("old");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByTenant_FiltersCorrectly()
     {
         SkipIfSqlServerUnavailable();
@@ -98,7 +98,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         forA.Should().NotContain(e => e.SummaryText == "tenant-b");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByPolicyPackId_RespectsMaxRows()
     {
         SkipIfSqlServerUnavailable();
@@ -121,7 +121,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         list[1].SummaryText.Should().Be("row-3");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByTenantInRangeAsync_ReturnsAscending_ExcludesEnds()
     {
         SkipIfSqlServerUnavailable();

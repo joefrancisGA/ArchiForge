@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Repositories;
+﻿using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -12,7 +12,7 @@ public sealed class DapperComparisonRecordRepositoryContractTests(SqlServerPersi
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IComparisonRecordRepository CreateRepository()

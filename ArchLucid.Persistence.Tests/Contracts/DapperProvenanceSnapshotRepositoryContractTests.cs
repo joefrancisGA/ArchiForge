@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Provenance;
+﻿using ArchLucid.Persistence.Provenance;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -13,7 +13,7 @@ public sealed class DapperProvenanceSnapshotRepositoryContractTests(SqlServerPer
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IProvenanceSnapshotRepository CreateRepository()

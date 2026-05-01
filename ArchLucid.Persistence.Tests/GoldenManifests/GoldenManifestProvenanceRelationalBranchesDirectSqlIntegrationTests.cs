@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Manifest.Sections;
+﻿using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GoldenManifests;
@@ -26,10 +26,10 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
     private static readonly Guid WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     private static readonly Guid ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_provenance_relational_applied_rules_only_uses_empty_lists_for_findings_and_nodes()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
@@ -116,10 +116,10 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
         hydrated.Provenance.SourceGraphNodeIds.Should().BeEmpty();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_provenance_total_count_zero_falls_back_to_ProvenanceJson()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
@@ -204,10 +204,10 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
         hydrated.Provenance.AppliedRuleIds.Should().ContainSingle().Which.Should().Be("r-json");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_assumptions_count_zero_uses_AssumptionsJson_fallback()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);

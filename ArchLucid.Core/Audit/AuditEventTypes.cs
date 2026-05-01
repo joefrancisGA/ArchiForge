@@ -360,6 +360,12 @@ public static class AuditEventTypes
     /// </summary>
     public const string LlmTenantDailyBudgetApproaching = "LlmTenantDailyBudgetApproaching";
 
+    /// <summary>
+    ///     Tenant crossed the configured warn threshold for the UTC-month estimated LLM dollar budget (emitted at most once
+    ///     per tenant per UTC month).
+    /// </summary>
+    public const string LlmTenantMonthlyDollarBudgetApproaching = "LlmTenantMonthlyDollarBudgetApproaching";
+
     public const string ScimTokenIssued = "ScimTokenIssued";
 
     public const string ScimTokenRevoked = "ScimTokenRevoked";

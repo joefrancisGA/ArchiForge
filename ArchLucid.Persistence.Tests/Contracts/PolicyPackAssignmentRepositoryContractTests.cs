@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Governance.PolicyPacks;
+﻿using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -43,7 +43,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         };
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_ListByScope_project_row_visible_in_that_project()
     {
         SkipIfSqlServerUnavailable();
@@ -58,7 +58,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         list.Should().ContainSingle(a => a.AssignmentId == row.AssignmentId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_tenant_scope_ListByScope_visible_for_any_workspace_in_tenant()
     {
         SkipIfSqlServerUnavailable();
@@ -73,7 +73,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         list.Should().ContainSingle(a => a.AssignmentId == row.AssignmentId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_workspace_scope_ListByScope_requires_matching_workspace()
     {
         SkipIfSqlServerUnavailable();
@@ -92,7 +92,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         noMatch.Should().NotContain(a => a.AssignmentId == row.AssignmentId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Update_persists_IsEnabled()
     {
         SkipIfSqlServerUnavailable();
@@ -111,7 +111,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         updated.IsEnabled.Should().BeFalse();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveAsync_excludes_row_from_ListByScope()
     {
         SkipIfSqlServerUnavailable();
@@ -129,7 +129,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         list.Should().NotContain(a => a.AssignmentId == row.AssignmentId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByTenantAndAssignmentId_after_Create_returns_row()
     {
         SkipIfSqlServerUnavailable();
@@ -146,7 +146,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         found.PolicyPackId.Should().Be(row.PolicyPackId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveAsync_unknown_assignment_returns_false()
     {
         SkipIfSqlServerUnavailable();
@@ -157,7 +157,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
         ok.Should().BeFalse();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveAsync_wrong_tenant_returns_false()
     {
         SkipIfSqlServerUnavailable();

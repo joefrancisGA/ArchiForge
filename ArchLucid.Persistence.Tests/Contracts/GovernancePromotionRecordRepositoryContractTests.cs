@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Governance;
+﻿using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -15,7 +15,7 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
 
     protected abstract IGovernancePromotionRecordRepository CreateRepository();
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetByRunId_contains_record()
     {
         SkipIfSqlServerUnavailable();
@@ -34,7 +34,7 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
         list[0].PromotionRecordId.Should().Be(promotionId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByRunId_orders_descending_by_PromotedUtc()
     {
         SkipIfSqlServerUnavailable();

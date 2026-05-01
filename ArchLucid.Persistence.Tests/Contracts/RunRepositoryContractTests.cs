@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -47,7 +47,7 @@ public abstract class RunRepositoryContractTests
         };
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Save_then_GetById_returns_same_record()
     {
         SkipIfSqlServerUnavailable();
@@ -65,7 +65,7 @@ public abstract class RunRepositoryContractTests
         loaded.TenantId.Should().Be(scope.TenantId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetById_wrong_scope_returns_null()
     {
         SkipIfSqlServerUnavailable();
@@ -85,7 +85,7 @@ public abstract class RunRepositoryContractTests
         loaded.Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListByProjectAsync_orders_newest_first_and_respects_take()
     {
         SkipIfSqlServerUnavailable();
@@ -107,7 +107,7 @@ public abstract class RunRepositoryContractTests
         list[0].RunId.Should().Be(second.RunId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListByProjectKeysetAsync_returns_slices_newest_first()
     {
         SkipIfSqlServerUnavailable();
@@ -145,7 +145,7 @@ public abstract class RunRepositoryContractTests
         page2.Items[0].RunId.Should().Be(a.RunId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListRecentInScopeAsync_orders_newest_first_and_spans_project_slugs()
     {
         SkipIfSqlServerUnavailable();
@@ -167,7 +167,7 @@ public abstract class RunRepositoryContractTests
         list[1].RunId.Should().Be(first.RunId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task UpdateAsync_changes_fields_visible_on_GetById()
     {
         SkipIfSqlServerUnavailable();
@@ -187,10 +187,10 @@ public abstract class RunRepositoryContractTests
         loaded.Description.Should().Be("updated");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveRunsCreatedBefore_async_marks_rows_and_excludes_from_get()
     {
-        Skip.IfNot(
+        Assert.SkipUnless(
             IncludeArchiveRunsCreatedBeforeContractTest,
             "Shared SQL: ArchiveRunsCreatedBeforeAsync is global to dbo.Runs.");
 
@@ -211,10 +211,10 @@ public abstract class RunRepositoryContractTests
         after.Should().BeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveRunsByIds_async_archives_only_requested_rows_and_classifies_failures()
     {
-        Skip.IfNot(
+        Assert.SkipUnless(
             IncludeArchiveRunsByIdsContractTest,
             "Shared SQL: ArchiveRunsByIdsAsync is not isolated per test on dbo.Runs.");
 

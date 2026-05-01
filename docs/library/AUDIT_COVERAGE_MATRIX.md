@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:146 -->
+<!-- audit-core-const-count:147 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` in `ArchLucid.Core/Audit/AuditEventTypes.cs` (top-level, `Run`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -125,6 +125,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Trial converted (billing integration stub) | `TenantTrialController` (`POST …/convert`) | `TenantTrialConverted` | Tenant from ambient scope | `{ targetTier }` from request body when present |
 | Trial lifecycle automation (expiry → read-only → export-only → purge) | `TrialLifecycleTransitionEngine` (Worker) | `TrialLifecycleTransition` | Tenant + default workspace when known | `{ fromStatus, toStatus, reason }` JSON |
 | LLM tenant daily budget warn (fire-and-forget) | `LlmDailyTenantBudgetTracker` | `AuditEventTypes.LlmTenantDailyBudgetApproaching` | Tenant/Workspace/Project from ambient scope | `{ utcDay, usedTotal, warnAt, maxTotal }` — emitted at most **once per tenant per UTC day**; scheduled on the thread pool with exception swallowing so the LLM completion path is never blocked. |
+| LLM tenant monthly dollar budget warn (fire-and-forget) | `LlmMonthlyTenantDollarBudgetTracker` | `AuditEventTypes.LlmTenantMonthlyDollarBudgetApproaching` | Tenant/Workspace/Project from ambient scope | `{ utcMonth, spentUsd, warnAtUsd, includedUsd, hardCutoffUsd }` — emitted at most **once per tenant per UTC month** when estimated spend crosses `IncludedUsdPerUtcMonth * WarnFraction`; same non-blocking audit scheduling as daily budget. |
 | SCIM bearer token minted (Enterprise) | `ScimTokensAdminController` (`POST /v1/admin/scim/tokens`) | `ScimTokenIssued` | Tenant from ambient scope | `{ tokenId, publicLookupKey }` — plaintext token returned once in response body only. |
 | SCIM bearer token revoked | `ScimTokensAdminController` (`DELETE /v1/admin/scim/tokens/{id}`) | `ScimTokenRevoked` | Tenant from ambient scope | `{ tokenId }` |
 | SCIM user provisioned | `ScimUserService` (`POST /scim/v2/Users`) | `ScimUserProvisioned` | Tenant from `IScopeContextProvider` | SCIM user id / externalId summary (JSON) |
@@ -323,6 +324,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | `AgentTraceBlobPersistenceFailed` | `AgentTraceBlobPersistenceFailed` | `AgentExecutionTraceRecorder` |
 | `AgentTraceInlineFallbackFailed` | `AgentTraceInlineFallbackFailed` | `AgentExecutionTraceRecorder` |
 | `LlmTenantDailyBudgetApproaching` | `LlmTenantDailyBudgetApproaching` | `LlmDailyTenantBudgetTracker` (fire-and-forget; one row per tenant per UTC day) |
+| `LlmTenantMonthlyDollarBudgetApproaching` | `LlmTenantMonthlyDollarBudgetApproaching` | `LlmMonthlyTenantDollarBudgetTracker` (fire-and-forget; one row per tenant per UTC month) |
 | `ScimTokenIssued` | `ScimTokenIssued` | `ScimTokensAdminController` |
 | `ScimTokenRevoked` | `ScimTokenRevoked` | `ScimTokensAdminController` |
 | `ScimUserProvisioned` | `ScimUserProvisioned` | `ScimUserService` |

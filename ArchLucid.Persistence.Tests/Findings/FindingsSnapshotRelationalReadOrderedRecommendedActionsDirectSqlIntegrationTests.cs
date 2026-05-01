@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Tests.Support;
@@ -19,10 +19,10 @@ namespace ArchLucid.Persistence.Tests.Findings;
 public sealed class FindingsSnapshotRelationalReadOrderedRecommendedActionsDirectSqlIntegrationTests(
     SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task LoadRelationalSnapshotAsync_returns_recommended_actions_in_SortOrder()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

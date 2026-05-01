@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.TestSupport;
@@ -8,17 +8,17 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-///     Verifies DbUp can migrate from N−1 (all scripts except the latest) and then apply the tail in a second run (CI
+///     Verifies DbUp can migrate from Nâˆ’1 (all scripts except the latest) and then apply the tail in a second run (CI
 ///     upgrade path).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
 public sealed class DatabaseMigratorUpgradePathSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task RunExcludingLatest_then_full_run_succeeds()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidMigr_" + suffix;

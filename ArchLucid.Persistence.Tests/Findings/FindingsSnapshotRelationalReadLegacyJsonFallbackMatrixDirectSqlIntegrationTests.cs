@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Findings;
@@ -27,7 +27,7 @@ public sealed class FindingsSnapshotRelationalReadLegacyJsonFallbackMatrixDirect
     [InlineData(1)]
     public async Task LoadRelationalSnapshotAsync_when_no_FindingRecords_handles_legacy_json_shape(int branch)
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

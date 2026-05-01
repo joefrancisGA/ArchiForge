@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -23,7 +23,7 @@ public abstract class AgentEvidencePackageRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetByRunId_and_GetById_round_trip()
     {
         SkipIfSqlServerUnavailable();

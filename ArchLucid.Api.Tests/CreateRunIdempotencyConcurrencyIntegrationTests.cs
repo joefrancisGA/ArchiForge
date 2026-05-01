@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -37,10 +37,10 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)) || OperatingSystem.IsWindows();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Parallel_posts_with_same_idempotency_key_yield_single_run_id()
     {
-        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         HttpClient client = factory.CreateClient();

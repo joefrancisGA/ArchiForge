@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Interfaces;
+﻿using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
 
@@ -17,7 +17,7 @@ public sealed class DapperRunRepositoryContractTests(SqlServerPersistenceFixture
 
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IRunRepository CreateRepository()

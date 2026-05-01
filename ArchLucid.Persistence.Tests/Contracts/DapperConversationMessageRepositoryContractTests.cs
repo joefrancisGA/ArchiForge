@@ -1,4 +1,4 @@
-using ArchLucid.Core.Conversation;
+﻿using ArchLucid.Core.Conversation;
 using ArchLucid.Persistence.Conversation;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -14,7 +14,7 @@ public sealed class DapperConversationMessageRepositoryContractTests(SqlServerPe
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IConversationMessageRepository CreateRepository()

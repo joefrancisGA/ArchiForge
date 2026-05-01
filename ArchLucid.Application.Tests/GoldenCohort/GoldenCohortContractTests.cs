@@ -1,8 +1,7 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using ArchLucid.Core.GoldenCorpus;
 
-using Xunit.Abstractions;
 
 namespace ArchLucid.Application.Tests.GoldenCohort;
 
@@ -15,7 +14,7 @@ public sealed class GoldenCohortContractTests(ITestOutputHelper output)
     public void Cohort_json_exists_has_twenty_items_and_valid_sha_fields()
     {
         string path = Path.Combine(AppContext.BaseDirectory, "golden-cohort", "cohort.json");
-        Assert.True(File.Exists(path), $"Missing {path} — ensure cohort.json is copied to output.");
+        Assert.True(File.Exists(path), $"Missing {path} â€” ensure cohort.json is copied to output.");
 
         GoldenCohortDocument document = GoldenCohortDocument.Load(path);
 
@@ -33,7 +32,7 @@ public sealed class GoldenCohortContractTests(ITestOutputHelper output)
         if (allShaPlaceholders)
         {
             output.WriteLine(
-                "Baseline not yet locked — run `archlucid golden-cohort lock-baseline --write` against a Simulator API host "
+                "Baseline not yet locked â€” run `archlucid golden-cohort lock-baseline --write` against a Simulator API host "
                 + "after explicit owner approval (set ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true for that shell only; "
                 + "see docs/PENDING_QUESTIONS.md item 33).");
         }

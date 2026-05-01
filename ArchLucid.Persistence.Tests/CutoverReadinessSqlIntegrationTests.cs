@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Models;
+﻿using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
@@ -21,16 +21,16 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    // ── Seed helpers ───────────────────────────────────────────────
+    // â”€â”€ Seed helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [SkippableFact]
+    [Fact]
     public async Task AssessAsync_MixedState_ReportsCorrectCounts()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
 
         // Seed one JSON-only ContextSnapshot (no relational children)
@@ -59,10 +59,10 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
         canonicalSlice.HeadersMissingRelationalRows.Should().BeGreaterThanOrEqualTo(1);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task AssessAsync_AllSlicesPresent()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
 
         SqlCutoverReadinessService service = new(factory, NullLogger<SqlCutoverReadinessService>.Instance);
@@ -88,10 +88,10 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
         sliceNames.Should().HaveCount(14);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task AssessAsync_ReportAggregates_AreConsistent()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
 
         SqlCutoverReadinessService service = new(factory, NullLogger<SqlCutoverReadinessService>.Instance);

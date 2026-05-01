@@ -405,9 +405,12 @@ export function SidebarNav() {
               <>
                 Show all features
                 {extraLinksBehindCollapsedPilot > 0 ? (
-                  <span className="ml-1 rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
-                    {extraLinksBehindCollapsedPilot} more
-                  </span>
+                  <>
+                    {" "}
+                    <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
+                      {extraLinksBehindCollapsedPilot} more
+                    </span>
+                  </>
                 ) : null}
               </>
             )}

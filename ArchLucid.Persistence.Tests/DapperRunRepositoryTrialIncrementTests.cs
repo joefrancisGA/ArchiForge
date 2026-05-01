@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -19,10 +19,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Core")]
 public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task SaveAsync_parallel_creates_respect_trial_run_cap()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
@@ -103,10 +103,10 @@ public sealed class DapperRunRepositoryTrialIncrementTests(SqlServerPersistenceF
         used.Should().Be(5);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task SaveAsync_does_not_increment_when_trial_not_active()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);

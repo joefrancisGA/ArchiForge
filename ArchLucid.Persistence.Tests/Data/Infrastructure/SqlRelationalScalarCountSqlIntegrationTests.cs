@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.TestSupport;
 
@@ -16,15 +16,15 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "Integration")]
 public sealed class SqlRelationalScalarCountSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task ExecuteAsync_returns_count_for_simple_aggregate()
     {
-        Skip.If(
+        Assert.SkipWhen(
             string.IsNullOrWhiteSpace(
                 Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)),
             "Set " + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable + " to run this SQL integration test.");
 
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         TestSqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);

@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Scheduling;
+﻿using ArchLucid.Decisioning.Advisory.Scheduling;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -13,7 +13,7 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
 
     protected abstract IAdvisoryScanScheduleRepository CreateRepository();
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();
@@ -33,7 +33,7 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
         loaded.CronExpression.Should().Be(schedule.CronExpression);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Update_is_visible_in_GetById()
     {
         SkipIfSqlServerUnavailable();
@@ -54,7 +54,7 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
         loaded.NextRunUtc.Should().BeCloseTo(schedule.NextRunUtc!.Value, TimeSpan.FromSeconds(2));
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListByScope_returns_only_matching_tenant_workspace_project()
     {
         SkipIfSqlServerUnavailable();
@@ -78,7 +78,7 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
         list.Should().ContainSingle(s => s.ScheduleId == a.ScheduleId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ListDue_returns_enabled_schedules_with_NextRunUtc_not_after_utcNow_ordered_oldest_first()
     {
         SkipIfSqlServerUnavailable();

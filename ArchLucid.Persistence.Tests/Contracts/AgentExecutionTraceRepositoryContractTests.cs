@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -25,7 +25,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_GetByRunId_orders_by_CreatedUtc()
     {
         SkipIfSqlServerUnavailable();
@@ -49,7 +49,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         list[1].TraceId.Should().Be("t2");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetPagedByRunIdAsync_returns_slice_and_total()
     {
         SkipIfSqlServerUnavailable();
@@ -77,7 +77,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         page.Should().ContainSingle();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByTaskIdAsync_filters_task()
     {
         SkipIfSqlServerUnavailable();
@@ -99,7 +99,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         forA[0].TraceId.Should().Be("x1");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task PatchBlobStorageFieldsAsync_updates_blob_keys_on_read()
     {
         SkipIfSqlServerUnavailable();
@@ -127,7 +127,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         t.FullResponseBlobKey.Should().Be("file:///rsp");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task PatchInlinePromptFallbackAsync_merges_inline_fields_on_read()
     {
         SkipIfSqlServerUnavailable();
@@ -168,7 +168,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         t.FullResponseInline.Should().Be("resp-full");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByTraceIdAsync_returns_single_row()
     {
         SkipIfSqlServerUnavailable();
@@ -188,7 +188,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         found.RunId.Should().Be(runId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task PatchInlineFallbackFailedAsync_persists_on_read()
     {
         SkipIfSqlServerUnavailable();

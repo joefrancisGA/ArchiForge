@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -26,7 +26,7 @@ public abstract class AgentResultRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetByRunId_returns_result()
     {
         SkipIfSqlServerUnavailable();
@@ -48,7 +48,7 @@ public abstract class AgentResultRepositoryContractTests
         loaded[0].ResultId.Should().Be("r1");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task CreateMany_replaces_prior_results_for_same_run()
     {
         SkipIfSqlServerUnavailable();

@@ -1,0 +1,27 @@
+---
+description: Cap consecutive blank lines in C#; avoid compounding spacing rules into vertical gaps.
+globs:
+  - "**/*.cs"
+alwaysApply: false
+---
+
+# C# whitespace — never stack blank lines
+
+## Rule
+
+Inside `*.cs` files, never use **more than one** consecutive blank line. **Two** `\n\n` sequences in a row (empty line sandwiched, i.e. three newlines visually between token lines in some editors) counts as stacking — **disallowed**.
+
+Interpret other rules (**blank line before `if` / `foreach`**, readability before the next sibling statement) as **at most one** separating newline between logical lines. Combining “blank line after `continue;`”, “blank line before next `if`”, and “blank line after `{`” does **not** mean multiple empties — it still means **one** blank between the preceding non-empty logical line and the next.
+
+## Guidance
+
+After `continue;`, `return …;`, `throw …;`, or a closing `}` before the **next peer** statement **in the same block**, normally use **zero** blanks unless the peer is an `if`/`foreach`/etc. and the blank-before-control-flow rule applies — **one** blank total, never two or three.
+
+Avoid blank lines inside braced bodies when the member is only **one** guarded block or **one** trivial expression (unless a project rule explicitly requires separating two distinct clauses).
+
+Nested `try` / `catch` / `finally` stays the normal C# shape: `try\n{\n...\n}\ncatch (...) \n{\n...\n}` with **no** extra empty lines injected between `try`, `{`, closing `}`, `catch`, and `{`.
+
+## Why
+
+Models routinely “respect” multiple spacing bullets by inserting multiple blank lines, which defeats readability and wastes diff noise. This rule **overrides** that failure mode.
+

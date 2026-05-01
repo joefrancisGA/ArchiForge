@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Metadata;
+﻿using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -23,7 +23,7 @@ public abstract class RunExportRecordRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();
@@ -44,7 +44,7 @@ public abstract class RunExportRecordRepositoryContractTests
         loaded.RunId.Should().Be(runId);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByRunId_orders_descending_by_CreatedUtc()
     {
         SkipIfSqlServerUnavailable();

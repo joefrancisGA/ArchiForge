@@ -1,4 +1,9 @@
 <Project>
+  <!-- xUnit.net v3: test projects compile as standalone executables (see docs/library/XUNIT_V3_MIGRATION_CHECKLIST.md). -->
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('.Tests'))">
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AnalysisLevel>latest</AnalysisLevel>

@@ -1,4 +1,4 @@
-using ArchLucid.KnowledgeGraph.Models;
+﻿using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GraphSnapshots;
 using ArchLucid.Persistence.Repositories;
@@ -22,10 +22,10 @@ namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 public sealed class GraphSnapshotRelationalReadJsonMergeLabelFromEdgesJsonDirectSqlIntegrationTests(
     SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_merges_edge_label_from_EdgesJson_when_relational_properties_absent()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

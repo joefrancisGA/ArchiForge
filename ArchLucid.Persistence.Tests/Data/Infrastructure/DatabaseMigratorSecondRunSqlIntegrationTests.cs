@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Infrastructure;
+﻿using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;
@@ -15,15 +15,15 @@ namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 [Trait("Category", "Integration")]
 public sealed class DatabaseMigratorSecondRunSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task Second_run_on_same_catalog_does_not_throw()
     {
-        Skip.If(
+        Assert.SkipWhen(
             string.IsNullOrWhiteSpace(
                 Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)),
             "Set " + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable + " to run this SQL integration test.");
 
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
         string databaseName = "ArchLucidDbUp2x_" + suffix;

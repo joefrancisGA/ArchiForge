@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -14,7 +14,7 @@ public abstract class EvidenceBundleRepositoryContractTests
 
     protected abstract IEvidenceBundleRepository CreateRepository();
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();

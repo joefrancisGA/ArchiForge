@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -21,10 +21,10 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "GoldenCohort")]
 public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    [SkippableFact]
+    [Fact]
     public async Task Simulator_path_matches_locked_baseline_when_enabled()
     {
-        Skip.IfNot(
+        Assert.SkipUnless(
             string.Equals(
                 Environment.GetEnvironmentVariable("ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED"),
                 "true",
@@ -125,7 +125,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
         }
 
         string preamble =
-            "Simulator path: POST /v1/architecture/request → execute → commit; SHA from `GoldenManifestFingerprint`; "
+            "Simulator path: POST /v1/architecture/request â†’ execute â†’ commit; SHA from `GoldenManifestFingerprint`; "
             + "categories from distinct finding categories across agent results after execute.";
 
         string markdown = GoldenCohortDriftMarkdown.BuildReport(DateTimeOffset.UtcNow, rows, preamble);

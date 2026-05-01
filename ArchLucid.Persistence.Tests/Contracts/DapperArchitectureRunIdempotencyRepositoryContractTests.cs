@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Repositories;
+﻿using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;
@@ -12,7 +12,7 @@ public sealed class DapperArchitectureRunIdempotencyRepositoryContractTests(SqlS
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IArchitectureRunIdempotencyRepository CreateRepository()
@@ -32,11 +32,11 @@ public sealed class DapperArchitectureRunIdempotencyRepositoryContractTests(SqlS
     ///     Concurrent callers racing on the same idempotency key: SQL unique constraint / first-wins semantics
     ///     must leave exactly one row (same as <see cref="ArchitectureRunCreateOrchestrator" /> persistence race).
     /// </summary>
-    [SkippableFact]
+    [Fact]
     [Trait("Suite", "SqlServer")]
     public async Task TryInsert_parallel_same_key_only_one_wins()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         IArchitectureRunIdempotencyRepository repo = CreateRepository();
         byte[] keyHash = [0xC0, 0xDE, 0xFA, 0x11, 0xD0, 0x00];

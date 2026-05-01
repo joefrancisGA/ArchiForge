@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Repositories;
+﻿using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -26,7 +26,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task TryInsert_then_TryGet_round_trips()
     {
         SkipIfSqlServerUnavailable();
@@ -60,7 +60,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
         lookup.RequestFingerprint.Should().Equal(fingerprint);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task TryInsert_twice_same_key_second_fails()
     {
         SkipIfSqlServerUnavailable();

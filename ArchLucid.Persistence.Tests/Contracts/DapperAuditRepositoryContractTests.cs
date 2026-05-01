@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Audit;
+﻿using ArchLucid.Persistence.Audit;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -12,7 +12,7 @@ public sealed class DapperAuditRepositoryContractTests(SqlServerPersistenceFixtu
 {
     protected override void SkipIfSqlServerUnavailable()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
     protected override IAuditRepository CreateRepository()

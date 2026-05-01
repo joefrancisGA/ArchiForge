@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.Tests.Support;
@@ -11,7 +11,7 @@ namespace ArchLucid.Persistence.Tests.Findings;
 
 /// <summary>
 ///     Branch coverage for <see cref="FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync" /> when
-///     <c>FindingRecords</c> exist but no child rows — <c>GetValueOrDefault</c> / empty collection paths.
+///     <c>FindingRecords</c> exist but no child rows â€” <c>GetValueOrDefault</c> / empty collection paths.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -19,10 +19,10 @@ namespace ArchLucid.Persistence.Tests.Findings;
 public sealed class FindingsSnapshotRelationalReadMinimalChildrenDirectSqlIntegrationTests(
     SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task LoadRelationalSnapshotAsync_hydrates_relational_finding_with_empty_child_collections()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

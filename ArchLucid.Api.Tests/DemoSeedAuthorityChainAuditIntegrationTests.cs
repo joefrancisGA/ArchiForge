@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net;
 
 using ArchLucid.Application.Bootstrap;
@@ -40,10 +40,10 @@ public sealed class DemoSeedAuthorityChainAuditIntegrationTests
             Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)) || OperatingSystem.IsWindows();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task SeedAsync_authority_chain_audit_is_idempotent_against_sql()
     {
-        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+        Assert.SkipUnless(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
 
         await using GreenfieldSqlApiFactory factory = new();
         using HttpClient client = factory.CreateClient();

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Governance;
+﻿using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
@@ -14,7 +14,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
 
     protected abstract IGovernanceApprovalRequestRepository CreateRepository();
 
-    [SkippableFact]
+    [Fact]
     public async Task Create_then_GetById_round_trips()
     {
         SkipIfSqlServerUnavailable();
@@ -35,7 +35,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         loaded.Status.Should().Be(GovernanceApprovalStatus.Submitted);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Update_then_GetById_reflects_status()
     {
         SkipIfSqlServerUnavailable();
@@ -60,7 +60,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         loaded.ReviewedUtc.Should().Be(new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc));
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task TryTransitionFromReviewableAsync_second_approve_returns_false()
     {
         SkipIfSqlServerUnavailable();
@@ -102,7 +102,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         loaded.ReviewComment.Should().Be("ok");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task TryTransitionFromReviewableAsync_parallel_approves_only_one_wins()
     {
         SkipIfSqlServerUnavailable();
@@ -141,7 +141,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         loaded.Status.Should().Be(GovernanceApprovalStatus.Approved);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetByRunId_orders_descending_by_RequestedUtc()
     {
         SkipIfSqlServerUnavailable();
@@ -160,7 +160,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         list[1].ApprovalRequestId.Should().Be("apr-old");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetPendingAsync_returns_draft_and_submitted_ordered_by_RequestedUtc_desc()
     {
         SkipIfSqlServerUnavailable();
@@ -186,7 +186,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         mine[1].ApprovalRequestId.Should().Be("apr-draft-old");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetPendingAsync_respects_maxRows()
     {
         SkipIfSqlServerUnavailable();
@@ -208,7 +208,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         pending[1].ApprovalRequestId.Should().Be("apr-b");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task GetRecentDecisionsAsync_orders_by_ReviewedUtc_desc_and_excludes_pending()
     {
         SkipIfSqlServerUnavailable();

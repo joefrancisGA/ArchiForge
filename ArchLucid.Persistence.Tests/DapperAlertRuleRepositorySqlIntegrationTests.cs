@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Alerts;
+﻿using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Persistence.Tests;
@@ -10,10 +10,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class DapperAlertRuleRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task Create_Get_Update_ListByScope_round_trips_on_sql_server()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperAlertRuleRepository repository = new(factory);
 

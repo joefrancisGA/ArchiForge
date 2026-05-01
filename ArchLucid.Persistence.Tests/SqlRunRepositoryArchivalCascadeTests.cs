@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
@@ -19,15 +19,15 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Suite", "Persistence")]
 public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveRunsCreatedBeforeAsync_cascades_ArchivedUtc_to_context_graph_decisioning_and_findings()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection probe = new(fixture.ConnectionString);
         await probe.OpenAsync(CancellationToken.None);
 
-        Skip.IfNot(
+        Assert.SkipUnless(
             await RunArchiveCascadeArchivedUtcColumnsExistAsync(probe, CancellationToken.None),
             "dbo.FindingsSnapshots.ArchivedUtc (066) and context/graph/decisioning ArchivedUtc (067) are required.");
 
@@ -91,15 +91,15 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
             .NotBeNull("FindingsSnapshots.ArchivedUtc should be set when column exists (migration 066).");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveRunsByIdsAsync_cascades_ArchivedUtc_to_context_graph_decisioning_and_findings()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection probe = new(fixture.ConnectionString);
         await probe.OpenAsync(CancellationToken.None);
 
-        Skip.IfNot(
+        Assert.SkipUnless(
             await RunArchiveCascadeArchivedUtcColumnsExistAsync(probe, CancellationToken.None),
             "dbo.FindingsSnapshots.ArchivedUtc (066) and context/graph/decisioning ArchivedUtc (067) are required.");
 
@@ -155,15 +155,15 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         findingsArchived.Should().NotBeNull();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task ArchiveRunsByIdsAsync_cascades_ArchivedUtc_to_golden_manifest_row()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         await using SqlConnection probe = new(fixture.ConnectionString);
         await probe.OpenAsync(CancellationToken.None);
 
-        Skip.IfNot(
+        Assert.SkipUnless(
             await GoldenManifestArchivedUtcExistsAsync(probe, CancellationToken.None),
             "dbo.GoldenManifests.ArchivedUtc (066) is required.");
 

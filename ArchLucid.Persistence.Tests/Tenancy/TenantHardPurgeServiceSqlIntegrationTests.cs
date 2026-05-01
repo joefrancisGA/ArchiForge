@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -19,10 +19,10 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
         _fixture = fixture;
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task PurgeTenantAsync_removes_tenant_scoped_rows_and_retains_audit_events()
     {
-        Skip.IfNot(_fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(_fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();

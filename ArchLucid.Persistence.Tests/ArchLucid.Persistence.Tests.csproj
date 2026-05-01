@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -20,9 +20,8 @@
     <PackageReference Include="Moq" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Polly.Extensions" />
-    <PackageReference Include="xunit" />
-    <PackageReference Include="Xunit.SkippableFact" />
-    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="xunit.v3" />
+<PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,7 +37,7 @@
   </ItemGroup>
 
   <!-- DbUp does not create AuditEvents / ProvenanceSnapshots / Conversation* tables. We apply a minimal
-       supplement only — not full ArchLucid.sql — because the consolidated script adds FK hardening
+       supplement only â€” not full ArchLucid.sql â€” because the consolidated script adds FK hardening
        (ContextSnapshots->Runs, ComparisonRecords->ArchitectureRuns, etc.) that breaks integration tests. -->
   <ItemGroup>
     <None Include="Scripts\PersistenceContractSupplement.sql">

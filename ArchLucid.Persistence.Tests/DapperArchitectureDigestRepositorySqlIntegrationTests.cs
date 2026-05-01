@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Scheduling;
+﻿using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Persistence.Tests;
@@ -11,10 +11,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class DapperArchitectureDigestRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task Create_GetById_ListByScope_round_trips_on_sql_server()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         DapperArchitectureDigestRepository repository = new(factory);
 

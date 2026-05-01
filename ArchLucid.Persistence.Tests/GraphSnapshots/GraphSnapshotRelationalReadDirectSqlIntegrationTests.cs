@@ -1,4 +1,4 @@
-using ArchLucid.KnowledgeGraph.Models;
+﻿using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GraphSnapshots;
 using ArchLucid.Persistence.Repositories;
@@ -20,10 +20,10 @@ namespace ArchLucid.Persistence.Tests.GraphSnapshots;
 [Trait("Suite", "Core")]
 public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_loads_edge_label_and_properties_from_relational_tables()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -197,10 +197,10 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
         edge.Weight.Should().Be(1.5d);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_prefers_relational_warnings_over_WarningsJson()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -285,10 +285,10 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
         snapshot.Warnings.Should().Equal("relational-graph-warning");
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task HydrateAsync_merges_edge_label_and_properties_from_EdgesJson_when_edge_properties_table_empty()
     {
-        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        Assert.SkipUnless(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
