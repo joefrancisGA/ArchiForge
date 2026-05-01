@@ -62,14 +62,13 @@ public static class QuickStartPresets
     /// <returns><see langword="false"/> when <paramref name="presetId"/> is null/empty or unknown.</returns>
     public static bool TryGet(string? presetId, out PresetPayload payload)
     {
-        payload = default!;
+        payload = null!;
 
         if (string.IsNullOrWhiteSpace(presetId))
             return false;
 
         if (!Items.TryGetValue(presetId.Trim(), out PresetPayload? found))
             return false;
-
 
         payload = found;
 

@@ -1,3 +1,5 @@
+> **Scope:** Owner-conducted 2026-Q2 penetration-style exercise — empty findings tracker, methodology, and Trust Center cross-links only; not Aeronova deliverables, exploit reproductions, or attestations.
+
 > **Publication:** Owner-conducted security exercise — summary structure only. **Detailed findings and reproducible exploitation steps are intentionally omitted from the public repo**; redacted artefacts follow NDA posture in [`docs/go-to-market/TRUST_CENTER.md`](../../go-to-market/TRUST_CENTER.md).
 >
 > **Spine:** [Five-document onboarding spine](../../FIRST_5_DOCS.md)

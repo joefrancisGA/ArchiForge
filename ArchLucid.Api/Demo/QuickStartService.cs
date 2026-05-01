@@ -83,7 +83,7 @@ public sealed class QuickStartService(
             .ConfigureAwait(false);
 
         string manifestVersion = committed.Manifest.Metadata.ManifestVersion;
-        string trimmedBaseUrl = (_publicSiteOptions.CurrentValue.BaseUrl ?? string.Empty).TrimEnd('/');
+        string trimmedBaseUrl = (_publicSiteOptions.CurrentValue.BaseUrl).TrimEnd('/');
         string runDetailUrl = $"{trimmedBaseUrl}/runs/{Uri.EscapeDataString(runId)}";
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -161,7 +161,7 @@ public sealed class QuickStartService(
         else
             constraints =
             [
-                .. preset!.Constraints.Where(static s => !string.IsNullOrWhiteSpace(s)),
+                .. preset.Constraints.Where(static s => !string.IsNullOrWhiteSpace(s)),
             ];
 
 

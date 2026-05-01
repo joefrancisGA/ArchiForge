@@ -1,3 +1,5 @@
+> **Scope:** Operators and API integrators importing Terraform state via `terraform-show-json` on architecture requests — wire format, parser behavior, and limits; not host Terraform CLI installation or non-Azure provider guarantees beyond documented mappings.
+
 # Terraform state (`terraform show -json`) as infrastructure context
 
 **Purpose:** ingest **existing Terraform state** without running `terraform` on the ArchLucid host, by attaching a **full** `terraform show -json` document to an architecture request.

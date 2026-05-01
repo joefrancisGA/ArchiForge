@@ -10,6 +10,8 @@ using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
+using JetBrains.Annotations;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.DataConsistency;
@@ -35,13 +37,13 @@ public sealed class DataConsistencyReconciliationService(
     public async Task<DataConsistencyReport> RunReconciliationAsync(CancellationToken cancellationToken)
     {
         DateTime checkedAt = DateTime.UtcNow;
-        var sw = Stopwatch.StartNew();
+        Stopwatch sw = Stopwatch.StartNew();
 
         if (_storageMode.IsInMemory)
         {
             IReadOnlyList<DataConsistencyFinding> findings =
             [
-                new DataConsistencyFinding(
+                new(
                     "reconciliation_skipped_in_memory",
                     DataConsistencyFindingSeverity.Info,
                     "Relational reconciliation skipped: host storage is InMemory.",
@@ -254,7 +256,9 @@ public sealed class DataConsistencyReconciliationService(
         {
             ScopeContext scope = new()
             {
-                TenantId = row.TenantId, WorkspaceId = row.WorkspaceId, ProjectId = row.ScopeProjectId
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ScopeProjectId
             };
 
             RunRecord? cached = await _runRepository.GetByIdAsync(scope, row.RunId, ct).ConfigureAwait(false);
@@ -351,5 +355,5 @@ public sealed class DataConsistencyReconciliationService(
         string? LegacyRunStatus,
         string? CurrentManifestVersion,
         DateTime? CompletedUtc,
-        DateTime CreatedUtc);
+        [UsedImplicitly] DateTime CreatedUtc);
 }

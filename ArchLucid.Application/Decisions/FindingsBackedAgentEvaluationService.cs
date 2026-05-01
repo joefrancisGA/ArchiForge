@@ -39,7 +39,12 @@ public sealed class FindingsBackedAgentEvaluationService : IAgentEvaluationServi
         string? topologyTaskId = topologyTask?.TaskId;
 
         List<AgentEvaluation> evaluations = [];
-        evaluations.AddRange((from result in results from finding in result.Findings select TryMapFinding(runId, result, finding, topologyTaskId)).OfType<AgentEvaluation>());
+        evaluations.AddRange(
+            from result in results
+            from finding in result.Findings
+            let mapped = TryMapFinding(runId, result, finding, topologyTaskId)
+            where mapped is not null
+            select mapped);
 
         return Task.FromResult<IReadOnlyList<AgentEvaluation>>(evaluations);
     }

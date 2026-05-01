@@ -1,3 +1,5 @@
+> **Scope:** Internal engineering triage of external OpenAI-operator UI feedback (round 2) — assessment, agreed items, and task references; not procurement commitments or a substitute for staging/prod smoke verification.
+
 # OpenAI UI Feedback Round 2 — Assessment & To-Do List
 **Received:** 2026-05-01 ~5:00 AM EDT  
 **Previous round:** 2026-05-01 4:12 AM EDT  

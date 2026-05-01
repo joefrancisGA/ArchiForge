@@ -3,7 +3,7 @@ namespace ArchLucid.Application.DataConsistency;
 /// <summary>Published by <see cref="DataConsistencyReconciliationHostedService"/> after each reconciliation attempt.</summary>
 public sealed class DataConsistencyReconciliationHealthState
 {
-    private readonly object _sync = new();
+    private readonly Lock _sync = new();
 
     private bool _hasCompletedRun;
 

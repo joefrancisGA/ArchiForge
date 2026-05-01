@@ -28,10 +28,6 @@ public sealed class DataConsistencyHealthCheck(DataConsistencyReconciliationHeal
             return Task.FromResult(
                 HealthCheckResult.Unhealthy("Critical data consistency findings detected in the last reconciliation."));
 
-        if (report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Warning))
-            return Task.FromResult(
-                HealthCheckResult.Degraded("Warning-level data consistency findings detected in the last reconciliation."));
-
-        return Task.FromResult(HealthCheckResult.Healthy("Last data consistency reconciliation reported no warnings or critical issues."));
+        return Task.FromResult(report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Warning) ? HealthCheckResult.Degraded("Warning-level data consistency findings detected in the last reconciliation.") : HealthCheckResult.Healthy("Last data consistency reconciliation reported no warnings or critical issues."));
     }
 }

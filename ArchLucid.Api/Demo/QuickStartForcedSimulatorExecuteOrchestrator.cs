@@ -54,7 +54,6 @@ public sealed class QuickStartForcedSimulatorExecuteOrchestrator(
     private readonly SimulatorExecutionTraceRecordingExecutor _forcedSimulatorExecutor =
         new(deterministicAgentSimulator, agentExecutionTraceRecorder);
 
-    /// <inheritdoc />
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
