@@ -112,6 +112,26 @@ public sealed class DataConsistencyReconciliationService(
 
             await AddCountAndFindingsAsync(
                     connection,
+                    DataConsistencyReconciliationSql.ContextSnapshotsRunId,
+                    "orphan_context_snapshots_run",
+                    "ContextSnapshots reference a RunId with no dbo.Runs row.",
+                    DataConsistencyReconciliationSql.SampleContextSnapshotOrphans,
+                    list,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await AddCountAndFindingsAsync(
+                    connection,
+                    DataConsistencyReconciliationSql.GraphSnapshotsRunId,
+                    "orphan_graph_snapshots_run",
+                    "GraphSnapshots reference a RunId with no dbo.Runs row.",
+                    DataConsistencyReconciliationSql.SampleGraphSnapshotOrphans,
+                    list,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            await AddCountAndFindingsAsync(
+                    connection,
                     DataConsistencyReconciliationSql.ArtifactBundlesRunId,
                     "orphan_artifact_bundles_run",
                     "ArtifactBundles reference a RunId with no dbo.Runs row.",

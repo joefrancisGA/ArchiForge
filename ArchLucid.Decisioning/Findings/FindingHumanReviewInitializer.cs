@@ -31,7 +31,8 @@ public static class FindingHumanReviewInitializer
                 continue;
 
             bool deterministic = f.Trace.AlternativePathsConsidered.Any(static p =>
-                string.Equals(p, ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote, StringComparison.Ordinal));
+                string.Equals(p, ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote,
+                    StringComparison.Ordinal));
 
             bool severityTriggers = options.RequireForCriticalOrErrorWhenNotDeterministic
                                     && !deterministic

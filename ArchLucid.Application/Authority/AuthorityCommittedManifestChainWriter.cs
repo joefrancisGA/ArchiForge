@@ -114,8 +114,7 @@ public sealed class AuthorityCommittedManifestChainWriter(
             _manifestHash,
             cancellationToken,
             connection,
-            transaction,
-            null);
+            transaction);
 
         return new AuthorityManifestPersistResult(
             chainIds.ContextSnapshotId,

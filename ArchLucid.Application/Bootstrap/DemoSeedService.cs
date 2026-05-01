@@ -214,9 +214,7 @@ public sealed class DemoSeedService(
                 chainKeying,
                 DemoUtc,
                 richSeed,
-                cancellationToken,
-                null,
-                null);
+                cancellationToken);
 
         await AuthorityCommittedChainDurableAudit.TryLogAsync(
             _auditService,

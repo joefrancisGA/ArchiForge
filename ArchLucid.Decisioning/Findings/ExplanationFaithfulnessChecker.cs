@@ -129,19 +129,16 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
         if (snapshot is null || snapshot.Findings.Count == 0)
             return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
 
-
         string traceBlob = BuildTraceBlob(snapshot);
         string explanationBlob = BuildExplanationBlob(explanation);
 
         if (string.IsNullOrWhiteSpace(explanationBlob))
             return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
 
-
         HashSet<string> distinctTokens = CollectTokens(explanationBlob);
 
         if (distinctTokens.Count == 0)
             return new ExplanationFaithfulnessReport(0, 0, 0, 1.0, []);
-
 
         int supported = 0;
         List<string> unsupported = [];
@@ -155,7 +152,6 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
             else if (unsupported.Count < MaxUnsupportedListed)
 
                 unsupported.Add(token);
-
 
         int checkedCount = distinctTokens.Count;
         int unsupportedCount = checkedCount - supported;
@@ -181,26 +177,21 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
             Append(sb, line);
 
-
         foreach (string line in r.RiskImplications)
 
             Append(sb, line);
-
 
         foreach (string line in r.CostImplications)
 
             Append(sb, line);
 
-
         foreach (string line in r.ComplianceImplications)
 
             Append(sb, line);
 
-
         if (r.Structured is not null)
 
             Append(sb, r.Structured.Reasoning);
-
 
         return sb.ToString();
     }
@@ -209,7 +200,6 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
     {
         if (string.IsNullOrWhiteSpace(value))
             return;
-
 
         sb.Append(' ');
         sb.Append(value);
@@ -232,7 +222,6 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
                 Append(sb, id);
 
-
             ExplainabilityTrace t = f.Trace;
             Append(sb, t.SourceAgentExecutionTraceId);
 
@@ -240,21 +229,17 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
                 Append(sb, s);
 
-
             foreach (string s in t.RulesApplied)
 
                 Append(sb, s);
-
 
             foreach (string s in t.DecisionsTaken)
 
                 Append(sb, s);
 
-
             foreach (string s in t.AlternativePathsConsidered)
 
                 Append(sb, s);
-
 
             foreach (string s in t.Notes)
 
@@ -276,29 +261,24 @@ public sealed class ExplanationFaithfulnessChecker : IExplanationFaithfulnessChe
 
                 i++;
 
-
             int start = i;
 
             while (i < span.Length && (char.IsLetterOrDigit(span[i]) || span[i] == '-' || span[i] == '_'))
 
                 i++;
 
-
             int len = i - start;
 
             if (len < MinTokenLength)
                 continue;
-
 
             string token = span.Slice(start, len).ToString();
 
             if (Stopwords.Contains(token))
                 continue;
 
-
             if (long.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
                 continue;
-
 
             _ = tokens.Add(token);
         }

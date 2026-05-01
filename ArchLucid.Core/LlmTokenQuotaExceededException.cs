@@ -8,5 +8,8 @@ public sealed class LlmTokenQuotaExceededException(string message, DateTimeOffse
     ///     Earliest UTC instant when a retry may succeed (sliding-window expiry or next UTC-day budget); <see langword="null" />
     ///     when not computed.
     /// </summary>
-    public DateTimeOffset? RetryAfterUtc { get; } = retryAfterUtc;
+    public DateTimeOffset? RetryAfterUtc
+    {
+        get;
+    } = retryAfterUtc;
 }

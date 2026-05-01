@@ -96,7 +96,7 @@ public sealed class AdminDiagnosticsService(
         CancellationToken cancellationToken = default)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new DataConsistencyOrphanCounts(0, 0, 0, 0);
+            return new DataConsistencyOrphanCounts(0, 0, 0, 0, 0, 0);
 
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
         await using DbConnection _ = connection;
@@ -110,8 +110,12 @@ public sealed class AdminDiagnosticsService(
             cancellationToken);
         long findings = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.FindingsSnapshotsRunId,
             cancellationToken);
+        long contextSnapshots = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ContextSnapshotsRunId,
+            cancellationToken);
+        long graphSnapshots = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.GraphSnapshotsRunId,
+            cancellationToken);
 
-        return new DataConsistencyOrphanCounts(left, right, golden, findings);
+        return new DataConsistencyOrphanCounts(left, right, golden, findings, contextSnapshots, graphSnapshots);
     }
 
     /// <inheritdoc />

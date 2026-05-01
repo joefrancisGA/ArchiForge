@@ -34,26 +34,24 @@ public sealed class MarketingPricingQuoteRequestEndpointTests
 
         Mock<IMarketingPricingQuoteSalesNotifier> notifier = new();
         notifier
-            .Setup(
-                n => n.NotifyAsync(
-                    It.IsAny<MarketingPricingQuoteRequestInsertResult>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(n => n.NotifyAsync(
+                It.IsAny<MarketingPricingQuoteRequestInsertResult>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         await using OpenApiContractWebAppFactory baseFactory = new();
-        await using WebApplicationFactory<Program> factory = baseFactory.WithWebHostBuilder(
-            b => b.ConfigureTestServices(
-                services =>
-                {
-                    services.RemoveAll<IMarketingPricingQuoteRequestRepository>();
-                    services.AddSingleton<IMarketingPricingQuoteRequestRepository>(repo);
-                    services.RemoveAll<IMarketingPricingQuoteSalesNotifier>();
-                    services.AddSingleton(notifier.Object);
-                }));
+        await using WebApplicationFactory<Program> factory = baseFactory.WithWebHostBuilder(b =>
+            b.ConfigureTestServices(services =>
+            {
+                services.RemoveAll<IMarketingPricingQuoteRequestRepository>();
+                services.AddSingleton<IMarketingPricingQuoteRequestRepository>(repo);
+                services.RemoveAll<IMarketingPricingQuoteSalesNotifier>();
+                services.AddSingleton(notifier.Object);
+            }));
 
         HttpClient client = factory.CreateClient();
 
@@ -71,8 +69,8 @@ public sealed class MarketingPricingQuoteRequestEndpointTests
 
         notifier.Verify(
             n => n.NotifyAsync(
-                It.Is<MarketingPricingQuoteRequestInsertResult>(
-                    r => r.Id == SeededRequestId && r.CreatedUtc == createdUtc),
+                It.Is<MarketingPricingQuoteRequestInsertResult>(r =>
+                    r.Id == SeededRequestId && r.CreatedUtc == createdUtc),
                 "buyer@example.com",
                 "Contoso",
                 "Team",

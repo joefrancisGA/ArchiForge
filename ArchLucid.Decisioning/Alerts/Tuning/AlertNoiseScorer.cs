@@ -44,14 +44,12 @@ public sealed class AlertNoiseScorer : IAlertNoiseScorer
             result.Notes.Add(
                 "A large share of matched outcomes would be suppressed, which suggests redundant triggering.");
 
-
         double density = (double)created / evaluated;
         result.DensityPenalty = density > 1.0 ? (density - 1.0) * 20 : 0;
 
         if (density > 1.0)
 
             result.Notes.Add("Average alert density exceeds one alert per evaluated run.");
-
 
         result.FinalScore =
             result.CoverageScore

@@ -24,11 +24,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     [SkippableFact]
     public void ComparisonVerificationFailedException_Produces422WithDriftExtensions()
     {
-        DriftAnalysisResult drift = new()
-        {
-            DriftDetected = true,
-            Summary = "payload mismatch"
-        };
+        DriftAnalysisResult drift = new() { DriftDetected = true, Summary = "payload mismatch" };
         ComparisonVerificationFailedException ex = new("Verification failed.", drift);
 
         ExceptionContext context = CreateExceptionContext(ex, "/v1/architecture/comparisons/r1/replay");
@@ -257,11 +253,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
 
     private static ExceptionContext CreateExceptionContext(Exception ex, string path)
     {
-        DefaultHttpContext httpContext = new()
-        {
-            TraceIdentifier = "exception-filter-cid",
-            Request = { Path = path }
-        };
+        DefaultHttpContext httpContext = new() { TraceIdentifier = "exception-filter-cid", Request = { Path = path } };
         ActionContext actionContext = new(
             httpContext,
             new RouteData(),

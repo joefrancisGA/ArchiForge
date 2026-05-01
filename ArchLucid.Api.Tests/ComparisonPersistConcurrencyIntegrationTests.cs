@@ -21,8 +21,7 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     [SkippableFact]
@@ -49,7 +48,8 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
         }
 
         IReadOnlyList<string> recordIds = await Task.WhenAll(tasks);
-        recordIds.Select(static r => r).ToHashSet().Count.Should().Be(parallel, "each persist should create a new record id");
+        recordIds.Select(static r => r).ToHashSet().Count.Should()
+            .Be(parallel, "each persist should create a new record id");
 
         IReadOnlyList<ComparisonRecord> matches = await repository.SearchAsync(
             comparisonType: null,
@@ -67,9 +67,8 @@ public sealed class ComparisonPersistConcurrencyIntegrationTests
             limit: 100,
             cancellationToken: CancellationToken.None);
 
-        int pairMatches = matches.Count(
-            m => string.Equals(m.LeftRunId, runId, StringComparison.Ordinal)
-            && string.Equals(m.RightRunId, replayRunId, StringComparison.Ordinal));
+        int pairMatches = matches.Count(m => string.Equals(m.LeftRunId, runId, StringComparison.Ordinal)
+                                             && string.Equals(m.RightRunId, replayRunId, StringComparison.Ordinal));
         pairMatches.Should().BeGreaterThanOrEqualTo(parallel);
     }
 }

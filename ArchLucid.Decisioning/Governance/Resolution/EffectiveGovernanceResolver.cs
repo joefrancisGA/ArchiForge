@@ -122,7 +122,6 @@ public sealed class EffectiveGovernanceResolver(
 
                     ArchLucidInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
 
-
                 resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
             }
 

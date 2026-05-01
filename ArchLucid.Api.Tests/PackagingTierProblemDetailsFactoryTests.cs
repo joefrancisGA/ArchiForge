@@ -23,10 +23,7 @@ public sealed class PackagingTierProblemDetailsFactoryTests
                     new Dictionary<string, string?> { ["ArchLucid:PublicSite:BaseUrl"] = "https://branded.example" })
                 .Build());
         ServiceProvider sp = services.BuildServiceProvider();
-        DefaultHttpContext http = new()
-        {
-            RequestServices = sp
-        };
+        DefaultHttpContext http = new() { RequestServices = sp };
 
         ObjectResult result = PackagingTierProblemDetailsFactory.CreateObfuscatedNotFound(http, "/v1/policy-packs");
 
@@ -47,10 +44,7 @@ public sealed class PackagingTierProblemDetailsFactoryTests
         ServiceCollection services = [];
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
         ServiceProvider sp = services.BuildServiceProvider();
-        DefaultHttpContext http = new()
-        {
-            RequestServices = sp
-        };
+        DefaultHttpContext http = new() { RequestServices = sp };
 
         ObjectResult result = PackagingTierProblemDetailsFactory.CreateObfuscatedNotFound(http, null);
 
@@ -65,10 +59,7 @@ public sealed class PackagingTierProblemDetailsFactoryTests
         ServiceCollection services = [];
         services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
         ServiceProvider sp = services.BuildServiceProvider();
-        DefaultHttpContext http = new()
-        {
-            RequestServices = sp
-        };
+        DefaultHttpContext http = new() { RequestServices = sp };
 
         ObjectResult result = PackagingTierProblemDetailsFactory.CreateTenantProductInsufficientTier(
             http,

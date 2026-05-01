@@ -53,7 +53,6 @@ public sealed record BuildProvenance(
         if (plusIndex < 0 || plusIndex == informationalVersion.Length - 1)
             return null;
 
-
         string candidate = informationalVersion[(plusIndex + 1)..];
 
         return string.IsNullOrWhiteSpace(candidate) ? null : candidate;

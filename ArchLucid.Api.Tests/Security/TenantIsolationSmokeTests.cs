@@ -54,11 +54,9 @@ public sealed class TenantIsolationSmokeTests
 
         try
         {
-            string connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
-            SqlConnectionStringBuilder builder = new(connectionString)
-            {
-                ConnectTimeout = 4
-            };
+            string connectionString =
+                SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString("master");
+            SqlConnectionStringBuilder builder = new(connectionString) { ConnectTimeout = 4 };
             using SqlConnection connection = new(builder.ConnectionString);
             connection.Open();
             return true;

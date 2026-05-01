@@ -7,7 +7,8 @@ public sealed class ProductLearningImprovementThemeRecord
 {
     public Guid ThemeId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid TenantId

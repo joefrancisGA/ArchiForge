@@ -167,7 +167,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                     Severity = ImprovementSignalSeverities.High
                 });
 
-
         foreach (CostDelta delta in comparison.CostChanges)
 
             if (delta is { BaseCost: not null, TargetCost: not null } && delta.TargetCost > delta.BaseCost)
@@ -180,7 +179,6 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
                     Description = $"{delta.BaseCost:0.00} → {delta.TargetCost:0.00}",
                     Severity = ImprovementSignalSeverities.Medium
                 });
-
 
         foreach (DecisionDelta d in comparison.DecisionChanges)
 

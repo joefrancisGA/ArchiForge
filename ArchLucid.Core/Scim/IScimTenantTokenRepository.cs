@@ -10,7 +10,8 @@ public interface IScimTenantTokenRepository
 
     Task<ScimTokenRow?> FindActiveByPublicLookupKeyAsync(string publicLookupKey, CancellationToken cancellationToken);
 
-    Task<Guid> InsertAsync(Guid tenantId, string publicLookupKey, byte[] secretHash, CancellationToken cancellationToken);
+    Task<Guid> InsertAsync(Guid tenantId, string publicLookupKey, byte[] secretHash,
+        CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ScimTokenSummaryRow>> ListForTenantAsync(Guid tenantId, CancellationToken cancellationToken);
 

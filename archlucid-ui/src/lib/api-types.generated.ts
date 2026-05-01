@@ -19409,9 +19409,13 @@ export interface components {
             /** Format: int64 */
             comparisonRecordsRightRunIdOrphans: number | string;
             /** Format: int64 */
+            contextSnapshotsRunIdOrphans: number | string;
+            /** Format: int64 */
             findingsSnapshotsRunIdOrphans: number | string;
             /** Format: int64 */
             goldenManifestsRunIdOrphans: number | string;
+            /** Format: int64 */
+            graphSnapshotsRunIdOrphans: number | string;
         };
         DatastoreType: number;
         DecisionDelta: {

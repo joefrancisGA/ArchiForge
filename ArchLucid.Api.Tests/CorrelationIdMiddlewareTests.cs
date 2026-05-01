@@ -16,10 +16,7 @@ public sealed class CorrelationIdMiddlewareTests
     [SkippableFact]
     public async Task InvokeAsync_valid_header_sets_response_and_trace_identifier()
     {
-        DefaultHttpContext context = new()
-        {
-            TraceIdentifier = "default-trace"
-        };
+        DefaultHttpContext context = new() { TraceIdentifier = "default-trace" };
         context.Request.Headers["X-Correlation-ID"] = "safe-id_01";
 
         CorrelationIdMiddleware middleware = new(_ => Task.CompletedTask);
@@ -33,10 +30,7 @@ public sealed class CorrelationIdMiddlewareTests
     [SkippableFact]
     public async Task InvokeAsync_invalid_header_falls_back_to_trace_identifier()
     {
-        DefaultHttpContext context = new()
-        {
-            TraceIdentifier = "fallback-trace"
-        };
+        DefaultHttpContext context = new() { TraceIdentifier = "fallback-trace" };
         context.Request.Headers["X-Correlation-ID"] = "bad id has spaces";
 
         CorrelationIdMiddleware middleware = new(_ => Task.CompletedTask);

@@ -161,9 +161,8 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(
-            e => e.Contains("ArchLucidAuth:Mode", StringComparison.OrdinalIgnoreCase)
-                 && e.Contains("Unrecognized", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e => e.Contains("ArchLucidAuth:Mode", StringComparison.OrdinalIgnoreCase)
+                                     && e.Contains("Unrecognized", StringComparison.OrdinalIgnoreCase));
     }
 
     [SkippableFact]
@@ -512,8 +511,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "InMemory",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
+            ["ArchLucid:StorageProvider"] = "InMemory", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -530,8 +528,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "Sql",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
+            ["ArchLucid:StorageProvider"] = "Sql", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -549,8 +546,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "InMemory",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
+            ["ArchLucid:StorageProvider"] = "InMemory", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -567,8 +563,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchLucid:StorageProvider"] = "Blob",
-            ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
+            ["ArchLucid:StorageProvider"] = "Blob", ["ArchLucidAuth:Mode"] = "DevelopmentBypass"
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -2219,7 +2214,8 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should()
-            .Contain(e => e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
+            .Contain(e => e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference",
+                StringComparison.Ordinal));
     }
 
     [SkippableFact]
@@ -2271,8 +2267,7 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new(ProductionApiBaselineWithBillingNoop())
         {
-            ["AzureDevOps:Enabled"] = "false",
-            ["AzureDevOps:PersonalAccessToken"] = "ignored-when-disabled",
+            ["AzureDevOps:Enabled"] = "false", ["AzureDevOps:PersonalAccessToken"] = "ignored-when-disabled",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();

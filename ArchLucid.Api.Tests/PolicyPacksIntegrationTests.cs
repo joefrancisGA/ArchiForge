@@ -22,8 +22,7 @@ public sealed class PolicyPacksIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     private static StringContent JsonContent(object value)
@@ -74,10 +73,7 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "1.0.0"
-                }));
+                JsonContent(new { version = "1.0.0" }));
 
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -135,10 +131,7 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "1.0.0"
-                }));
+                JsonContent(new { version = "1.0.0" }));
 
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             PolicyPackAssignment? assignment =
@@ -192,10 +185,7 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "1.0.0"
-                }));
+                JsonContent(new { version = "1.0.0" }));
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
@@ -242,10 +232,7 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "1.0.0"
-                }));
+                JsonContent(new { version = "1.0.0" }));
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
@@ -277,11 +264,7 @@ public sealed class PolicyPacksIntegrationTests
                 await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
-            object body = new
-            {
-                version = "2.0.0",
-                contentJson = """{"metadata":{"k":"parallel"}}"""
-            };
+            object body = new { version = "2.0.0", contentJson = """{"metadata":{"k":"parallel"}}""" };
 
             const int parallel = 8;
             Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
@@ -341,16 +324,8 @@ public sealed class PolicyPacksIntegrationTests
                 await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
             Guid packId = created!.PolicyPackId;
 
-            var bodyA = new
-            {
-                version = "1.0.0",
-                contentJson = """{"metadata":{"k":"a"}}"""
-            };
-            var bodyB = new
-            {
-                version = "1.0.0",
-                contentJson = """{"metadata":{"k":"b"}}"""
-            };
+            var bodyA = new { version = "1.0.0", contentJson = """{"metadata":{"k":"a"}}""" };
+            var bodyB = new { version = "1.0.0", contentJson = """{"metadata":{"k":"b"}}""" };
 
             HttpResponseMessage p1 = await client.PostAsync($"/v1/policy-packs/{packId}/publish", JsonContent(bodyA));
             p1.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -432,10 +407,7 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage assign = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new
-                {
-                    version = "99.0.0"
-                }));
+                JsonContent(new { version = "99.0.0" }));
 
             assign.StatusCode.Should().Be(HttpStatusCode.NotFound);
             string text = await assign.Content.ReadAsStringAsync();
@@ -479,12 +451,7 @@ public sealed class PolicyPacksIntegrationTests
 
             (await client.PostAsync(
                     $"/v1/policy-packs/{packId}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0",
-                        scopeLevel = "Project",
-                        isPinned = false
-                    })))
+                    JsonContent(new { version = "1.0.0", scopeLevel = "Project", isPinned = false })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage res = await client.GetAsync($"/{ApiV1Routes.GovernanceResolution}");
@@ -550,17 +517,11 @@ public sealed class PolicyPacksIntegrationTests
 
             (await client.PostAsync(
                     $"/v1/policy-packs/{packA!.PolicyPackId}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0"
-                    })))
+                    JsonContent(new { version = "1.0.0" })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
             (await client.PostAsync(
                     $"/v1/policy-packs/{packB!.PolicyPackId}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0"
-                    })))
+                    JsonContent(new { version = "1.0.0" })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
@@ -588,17 +549,11 @@ public sealed class PolicyPacksIntegrationTests
 
             (await client.PostAsync(
                     $"/v1/policy-packs/{packA}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0"
-                    })))
+                    JsonContent(new { version = "1.0.0" })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
             (await client.PostAsync(
                     $"/v1/policy-packs/{packB}/assign",
-                    JsonContent(new
-                    {
-                        version = "1.0.0"
-                    })))
+                    JsonContent(new { version = "1.0.0" })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage effectiveResponse = await client.GetAsync("/v1/policy-packs/effective");
@@ -632,13 +587,7 @@ public sealed class PolicyPacksIntegrationTests
             HttpResponseMessage createResponse = await http.PostAsync(
                 "/v1/policy-packs",
                 JsonContent(
-                    new
-                    {
-                        name,
-                        description = "",
-                        packType = "ProjectCustom",
-                        initialContentJson = contentJson
-                    }));
+                    new { name, description = "", packType = "ProjectCustom", initialContentJson = contentJson }));
             createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             PolicyPackResponse? created =
                 await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);

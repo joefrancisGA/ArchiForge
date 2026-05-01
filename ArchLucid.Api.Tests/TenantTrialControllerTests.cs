@@ -41,7 +41,8 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -82,7 +83,8 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -128,7 +130,8 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -178,7 +181,8 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };
@@ -324,7 +328,8 @@ public sealed class TenantTrialControllerTests
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
         TenantTrialController sut =
-            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(), schedulerOpts.Object)
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
             {
                 ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
             };

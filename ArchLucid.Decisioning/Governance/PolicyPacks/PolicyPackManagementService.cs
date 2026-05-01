@@ -39,8 +39,7 @@ public sealed class PolicyPackManagementService(
 
     private static readonly JsonSerializerOptions ChangeLogJsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = false
     };
 
     /// <inheritdoc />
@@ -121,13 +120,7 @@ public sealed class PolicyPackManagementService(
         }
 
         string newValueJson = JsonSerializer.Serialize(
-            new
-            {
-                name,
-                description,
-                packType,
-                initialVersion = InitialVersion
-            },
+            new { name, description, packType, initialVersion = InitialVersion },
             ChangeLogJsonOptions);
 
         await AppendChangeLogAsync(
@@ -211,7 +204,6 @@ public sealed class PolicyPackManagementService(
 
             proj = Guid.Empty;
 
-
         PolicyPackAssignment assignment = new()
         {
             AssignmentId = Guid.NewGuid(),
@@ -229,12 +221,7 @@ public sealed class PolicyPackManagementService(
         await assignmentRepository.CreateAsync(assignment, ct);
 
         string assignJson = JsonSerializer.Serialize(
-            new
-            {
-                scopeLevel = normalized,
-                version,
-                isPinned
-            },
+            new { scopeLevel = normalized, version, isPinned },
             ChangeLogJsonOptions);
 
         await AppendChangeLogAsync(

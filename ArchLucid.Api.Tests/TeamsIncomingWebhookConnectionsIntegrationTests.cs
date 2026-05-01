@@ -43,10 +43,7 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         HttpClient client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        TeamsIncomingWebhookConnectionUpsertRequest body = new()
-        {
-            KeyVaultSecretName = "teams-incoming-webhook-demo"
-        };
+        TeamsIncomingWebhookConnectionUpsertRequest body = new() { KeyVaultSecretName = "teams-incoming-webhook-demo" };
 
         HttpResponseMessage res = await client.PostAsJsonAsync(
             new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),

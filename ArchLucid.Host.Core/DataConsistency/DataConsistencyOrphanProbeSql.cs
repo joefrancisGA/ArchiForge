@@ -48,4 +48,24 @@ public static class DataConsistencyOrphanProbeSql
             FROM dbo.Runs r
             WHERE r.RunId = f.RunId);
         """;
+
+    /// <summary>Orphan <c>ContextSnapshots</c> rows whose <c>RunId</c> is missing from <c>dbo.Runs</c>.</summary>
+    public const string ContextSnapshotsRunId = """
+        SELECT COUNT_BIG(1)
+        FROM dbo.ContextSnapshots c
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM dbo.Runs r
+            WHERE r.RunId = c.RunId);
+        """;
+
+    /// <summary>Orphan <c>GraphSnapshots</c> rows whose <c>RunId</c> is missing from <c>dbo.Runs</c>.</summary>
+    public const string GraphSnapshotsRunId = """
+        SELECT COUNT_BIG(1)
+        FROM dbo.GraphSnapshots g
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM dbo.Runs r
+            WHERE r.RunId = g.RunId);
+        """;
 }

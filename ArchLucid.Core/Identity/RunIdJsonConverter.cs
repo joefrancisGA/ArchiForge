@@ -12,11 +12,9 @@ public sealed class RunIdJsonConverter : JsonConverter<RunId>
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string for RunId.");
 
-
         string? s = reader.GetString();
         if (string.IsNullOrWhiteSpace(s) || !Guid.TryParse(s, out Guid g))
             throw new JsonException("RunId must be a valid GUID string.");
-
 
         return new RunId(g);
     }

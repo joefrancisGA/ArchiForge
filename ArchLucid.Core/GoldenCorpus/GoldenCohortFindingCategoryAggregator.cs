@@ -15,7 +15,8 @@ public static class GoldenCohortFindingCategoryAggregator
 
         foreach (AgentResult result in results)
         {
-            foreach (ArchitectureFinding finding in result.Findings.Where(finding => !string.IsNullOrWhiteSpace(finding.Category)))
+            foreach (ArchitectureFinding finding in result.Findings.Where(finding =>
+                         !string.IsNullOrWhiteSpace(finding.Category)))
                 set.Add(finding.Category.Trim());
         }
 

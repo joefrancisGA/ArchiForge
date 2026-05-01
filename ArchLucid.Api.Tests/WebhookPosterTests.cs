@@ -103,21 +103,16 @@ public sealed class WebhookPosterTests
             "https://x/webhook/private",
             new { ok = true },
             CancellationToken.None,
-            new WebhookPostOptions
-            {
-                EventType = "tenant.digest",
-                TenantId = tenantId,
-            });
+            new WebhookPostOptions { EventType = "tenant.digest", TenantId = tenantId, });
 
         inner.Verify(
             i => i.PostJsonAsync(
                 "https://x/webhook/private",
                 It.IsAny<object>(),
                 It.IsAny<CancellationToken>(),
-                It.Is<WebhookPostOptions>(
-                    w => w.HmacSha256SharedSecret == "cfg-secret"
-                         && w.EventType == "tenant.digest"
-                         && w.TenantId == tenantId)),
+                It.Is<WebhookPostOptions>(w => w.HmacSha256SharedSecret == "cfg-secret"
+                                               && w.EventType == "tenant.digest"
+                                               && w.TenantId == tenantId)),
             Times.Once);
     }
 }

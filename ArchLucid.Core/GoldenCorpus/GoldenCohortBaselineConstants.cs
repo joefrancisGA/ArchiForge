@@ -4,5 +4,6 @@ namespace ArchLucid.Core.GoldenCorpus;
 public static class GoldenCohortBaselineConstants
 {
     /// <summary>Placeholder SHA-256 in <c>cohort.json</c> before an owner-approved lock-baseline run.</summary>
-    public const string UnlockedManifestSha256Placeholder = "0000000000000000000000000000000000000000000000000000000000000000";
+    public const string UnlockedManifestSha256Placeholder =
+        "0000000000000000000000000000000000000000000000000000000000000000";
 }

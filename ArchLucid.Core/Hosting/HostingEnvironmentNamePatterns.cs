@@ -22,6 +22,6 @@ public static class HostingEnvironmentNamePatterns
             return false;
 
         return !trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase)
-            && trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
+               && trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
     }
 }

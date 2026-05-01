@@ -103,7 +103,8 @@ public static class IntegrationEventTypes
         foreach (string canonical in canonicalTypes)
         {
             if (!canonical.StartsWith(CanonicalVendorPrefix, StringComparison.Ordinal))
-                throw new InvalidOperationException($"Integration event constant '{canonical}' must start with '{CanonicalVendorPrefix}'.");
+                throw new InvalidOperationException(
+                    $"Integration event constant '{canonical}' must start with '{CanonicalVendorPrefix}'.");
 
             string suffix = canonical[CanonicalVendorPrefix.Length..];
             map[legacyVendorPrefix + suffix] = canonical;

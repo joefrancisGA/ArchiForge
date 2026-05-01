@@ -92,7 +92,6 @@ public sealed class ThresholdRecommendationService(
 
                 continue;
 
-
             NoiseScoreBreakdown score = noiseScorer.Score(
                 simulation,
                 request.TargetCreatedAlertCountMin,
@@ -129,7 +128,6 @@ public sealed class ThresholdRecommendationService(
 
             result.SummaryNotes.Add(
                 "No candidates were evaluated. Check RuleKind, base rule, and candidate thresholds.");
-
 
         result.SummaryNotes.Add($"Evaluated {result.Candidates.Count} candidate threshold(s).");
 

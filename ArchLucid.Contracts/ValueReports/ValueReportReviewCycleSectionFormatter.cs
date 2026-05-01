@@ -75,9 +75,10 @@ public static class ValueReportReviewCycleSectionFormatter
         {
             if (snapshot.TenantBaselineReviewCycleCapturedUtc is { } captured)
             {
-                string when = snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.TenantSuppliedViaSettings
-                    ? "Captured in baseline settings (UTC)"
-                    : "Captured at signup (UTC)";
+                string when =
+                    snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.TenantSuppliedViaSettings
+                        ? "Captured in baseline settings (UTC)"
+                        : "Captured at signup (UTC)";
 
                 list.Add(
                     new ValueReportReviewCycleParagraph(

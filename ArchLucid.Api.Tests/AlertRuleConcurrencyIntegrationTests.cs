@@ -22,8 +22,7 @@ public sealed class AlertRuleConcurrencyIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     [SkippableFact]
@@ -83,11 +82,10 @@ public sealed class AlertRuleConcurrencyIntegrationTests
                     CancellationToken.None);
             list.Should().NotBeNull();
             IReadOnlyList<AlertRule> inScope = list
-                .Where(
-                    r => r.TenantId == ScopeIds.DefaultTenant
-                    && r.WorkspaceId == ScopeIds.DefaultWorkspace
-                    && r.ProjectId == ScopeIds.DefaultProject
-                    && string.Equals(r.Name, name, StringComparison.Ordinal))
+                .Where(r => r.TenantId == ScopeIds.DefaultTenant
+                            && r.WorkspaceId == ScopeIds.DefaultWorkspace
+                            && r.ProjectId == ScopeIds.DefaultProject
+                            && string.Equals(r.Name, name, StringComparison.Ordinal))
                 .ToList();
 
             inScope.Count.Should().Be(parallel);

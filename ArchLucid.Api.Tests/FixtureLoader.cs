@@ -7,8 +7,7 @@ public static class FixtureLoader
 {
     private static readonly JsonSerializerOptions FixtureJsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     public static T Load<T>(string relativePath)

@@ -42,7 +42,6 @@ public static class SqlRowLevelSecurityBypassAmbient
                 "SQL RLS bypass is blocked: when SqlServer:RowLevelSecurity:ApplySessionContext is true, "
                 + "SqlRowLevelSecurityBypassAmbient.Enter requires ARCHLUCID_ALLOW_RLS_BYPASS=true and ArchLucid:Persistence:AllowRlsBypass=true.");
 
-
         Depth.Value++;
         return new PopScope();
     }

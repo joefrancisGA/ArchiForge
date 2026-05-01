@@ -1,4 +1,5 @@
 ﻿using System.Net;
+
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Host.Core.Services.Delivery;
 
@@ -29,11 +30,7 @@ public sealed class HttpWebhookPosterInstrumentationTests
             "https://hooks.partner.test/with/secret/token",
             new { Hello = "world" },
             CancellationToken.None,
-            new WebhookPostOptions
-            {
-                EventType = "archlucid.digest.sent",
-                TenantId = tenantId,
-            });
+            new WebhookPostOptions { EventType = "archlucid.digest.sent", TenantId = tenantId, });
 
         telemetryLogger.ScopeStates.Should().ContainSingle();
 
@@ -207,10 +204,7 @@ public sealed class HttpWebhookPosterInstrumentationTests
 
         bool ILogger.IsEnabled(LogLevel logLevel)
         {
-            if (logLevel is LogLevel.None)
-                return false;
-
-            return true;
+            return logLevel is not LogLevel.None;
         }
 
         void ILogger.Log<TState>(
@@ -228,7 +222,8 @@ public sealed class HttpWebhookPosterInstrumentationTests
             LogWrites.Add((logLevel, formatted));
         }
 
-        public string MessagesJoined() => string.Join("|", LogWrites.ConvertAll(static tuple => $"{tuple.Level}:{tuple.Message}"));
+        public string MessagesJoined() =>
+            string.Join("|", LogWrites.ConvertAll(static tuple => $"{tuple.Level}:{tuple.Message}"));
 
         public void Dispose()
         {

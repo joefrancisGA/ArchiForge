@@ -41,8 +41,8 @@ public sealed class TrialFunnelHealthProbeTests
     [SkippableFact]
     public async Task RunSingleProbeForTestsAsync_returns_true_on_200()
     {
-        using TestHttpMessageHandler handler = new(
-            _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{}") });
+        using TestHttpMessageHandler handler = new(_ =>
+            new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{}") });
         using HttpClient http = new(handler);
         Mock<IHttpClientFactory> factory = new();
         _ = factory.Setup(f => f.CreateClient(TrialFunnelHealthProbe.HttpClientName)).Returns(http);
@@ -67,8 +67,7 @@ public sealed class TrialFunnelHealthProbeTests
     [SkippableFact]
     public async Task RunSingleProbeForTestsAsync_returns_false_on_non_200()
     {
-        using TestHttpMessageHandler handler = new(
-            _ => new HttpResponseMessage(HttpStatusCode.NotFound));
+        using TestHttpMessageHandler handler = new(_ => new HttpResponseMessage(HttpStatusCode.NotFound));
         using HttpClient http = new(handler);
         Mock<IHttpClientFactory> factory = new();
         _ = factory.Setup(f => f.CreateClient(TrialFunnelHealthProbe.HttpClientName)).Returns(http);
@@ -92,9 +91,20 @@ public sealed class TrialFunnelHealthProbeTests
 
     private sealed class ImmediateApplicationLifetime : IHostApplicationLifetime
     {
-        public CancellationToken ApplicationStarted { get; } = new(canceled: true);
-        public CancellationToken ApplicationStopped { get; } = CancellationToken.None;
-        public CancellationToken ApplicationStopping { get; } = CancellationToken.None;
+        public CancellationToken ApplicationStarted
+        {
+            get;
+        } = new(canceled: true);
+
+        public CancellationToken ApplicationStopped
+        {
+            get;
+        } = CancellationToken.None;
+
+        public CancellationToken ApplicationStopping
+        {
+            get;
+        } = CancellationToken.None;
 
         public void StopApplication()
         {

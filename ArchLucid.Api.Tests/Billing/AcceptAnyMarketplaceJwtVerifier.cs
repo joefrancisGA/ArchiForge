@@ -9,6 +9,8 @@ internal sealed class AcceptAnyMarketplaceJwtVerifier : IMarketplaceWebhookToken
 {
     public Task<ClaimsPrincipal?> ValidateAsync(string bearerToken, CancellationToken cancellationToken)
     {
-        return string.IsNullOrWhiteSpace(bearerToken) ? Task.FromResult<ClaimsPrincipal?>(null) : Task.FromResult<ClaimsPrincipal?>(new ClaimsPrincipal(new ClaimsIdentity()));
+        return string.IsNullOrWhiteSpace(bearerToken)
+            ? Task.FromResult<ClaimsPrincipal?>(null)
+            : Task.FromResult<ClaimsPrincipal?>(new ClaimsPrincipal(new ClaimsIdentity()));
     }
 }

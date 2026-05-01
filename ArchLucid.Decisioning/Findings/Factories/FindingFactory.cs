@@ -175,7 +175,8 @@ public static class FindingFactory
             FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
             FindingId = finding.FindingId,
             FindingType = $"AgentArchitectureFinding-{agentResult.AgentType}",
-            Category = string.IsNullOrWhiteSpace(finding.Category) ? agentResult.AgentType.ToString() : finding.Category,
+            Category =
+                string.IsNullOrWhiteSpace(finding.Category) ? agentResult.AgentType.ToString() : finding.Category,
             EngineType = agentResult.AgentType.ToString(),
             Severity = finding.Severity,
             Title = finding.Message.Length > 500 ? finding.Message[..500] : finding.Message,

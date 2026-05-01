@@ -206,19 +206,9 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         JsonElement sensitiveRoot,
         Dictionary<string, string> properties)
     {
-        foreach (JsonProperty sp in sensitiveRoot.EnumerateObject())
+        foreach (string? pk in from sp in sensitiveRoot.EnumerateObject() where sp.Value.ValueKind == JsonValueKind.True select SanitizePropertyKey(sp.Name) into k where !string.IsNullOrEmpty(k) select $"tf.{k}" into pk where properties.ContainsKey(pk) select pk)
         {
-            if (sp.Value.ValueKind != JsonValueKind.True)
-                continue;
-
-            string k = SanitizePropertyKey(sp.Name);
-            if (string.IsNullOrEmpty(k))
-                continue;
-
-            string pk = $"tf.{k}";
-
-            if (properties.ContainsKey(pk))
-                properties[pk] = "[REDACTED]";
+            properties[pk] = "[REDACTED]";
         }
     }
 

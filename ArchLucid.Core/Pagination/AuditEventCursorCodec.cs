@@ -62,8 +62,16 @@ public static class AuditEventCursorCodec
 
     private sealed class AuditListCursorDto
     {
-        public string Ou { get; set; } = "";
+        public string Ou
+        {
+            get;
+            set;
+        } = "";
 
-        public Guid Ei { get; set; }
+        public Guid Ei
+        {
+            get;
+            set;
+        }
     }
 }

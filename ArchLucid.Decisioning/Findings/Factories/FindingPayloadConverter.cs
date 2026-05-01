@@ -58,7 +58,6 @@ public static class FindingPayloadConverter
                     $"Finding payload cannot be deserialized as {typeof(T).Name} (FindingId={finding.FindingId}).", ex);
             }
 
-
         try
         {
             string json = JsonSerializer.Serialize(finding.Payload);

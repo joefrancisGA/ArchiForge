@@ -17,25 +17,29 @@ public sealed class RecentPilotRunDeltasResponse
     /// <summary>The committed runs included in the aggregate (newest first), each pre-projected for slim transport.</summary>
     public IReadOnlyList<RecentPilotRunDeltaSummaryResponse> Items
     {
-        get; init;
+        get;
+        init;
     } = [];
 
     /// <summary>Number requested by the caller via <c>?count=</c> (clamped to the service's hard upper bound before this query ran).</summary>
     public int RequestedCount
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>How many committed runs were actually found in scope and used for the aggregates (≤ <see cref="RequestedCount" />).</summary>
     public int ReturnedCount
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Median of <c>TotalFindings</c> across <see cref="Items" />; <see langword="null" /> when the list is empty.</summary>
     public double? MedianTotalFindings
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>
@@ -45,6 +49,7 @@ public sealed class RecentPilotRunDeltasResponse
     /// </summary>
     public double? MedianTimeToCommittedManifestTotalSeconds
     {
-        get; init;
+        get;
+        init;
     }
 }

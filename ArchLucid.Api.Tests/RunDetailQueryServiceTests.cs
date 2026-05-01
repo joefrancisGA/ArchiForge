@@ -36,9 +36,7 @@ public sealed class RunDetailQueryServiceTests
 
     private readonly ScopeContext _scope = new()
     {
-        TenantId = Guid.NewGuid(),
-        WorkspaceId = Guid.NewGuid(),
-        ProjectId = Guid.NewGuid()
+        TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
     };
 
     private readonly RunDetailQueryService _sut;
@@ -74,9 +72,7 @@ public sealed class RunDetailQueryServiceTests
     {
         return new GoldenManifest
         {
-            RunId = runId,
-            SystemName = "TestSystem",
-            Metadata = new ManifestMetadata { ManifestVersion = version }
+            RunId = runId, SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = version }
         };
     }
 
@@ -131,16 +127,8 @@ public sealed class RunDetailQueryServiceTests
         Guid traceId = Guid.NewGuid();
         RunRecord record = CommittedRunRecord(decisionTraceId: traceId);
         GoldenManifest manifest = Manifest(Run1N);
-        AgentTask task = new()
-        {
-            TaskId = "t1",
-            RunId = Run1N
-        };
-        AgentResult agentResult = new()
-        {
-            ResultId = "r1",
-            RunId = Run1N
-        };
+        AgentTask task = new() { TaskId = "t1", RunId = Run1N };
+        AgentResult agentResult = new() { ResultId = "r1", RunId = Run1N };
         DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload { TraceId = "tr1", RunId = Run1N });
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))

@@ -23,8 +23,7 @@ public sealed class MarketingShowcaseEndpointTests : IClassFixture<ArchLucidApiF
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     private readonly ArchLucidApiFactory _factory;

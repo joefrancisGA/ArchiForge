@@ -3671,6 +3671,14 @@
               "string"
             ]
           },
+          "contextSnapshotsRunIdOrphans": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
           "findingsSnapshotsRunIdOrphans": {
             "format": "int64",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
@@ -3686,13 +3694,23 @@
               "integer",
               "string"
             ]
+          },
+          "graphSnapshotsRunIdOrphans": {
+            "format": "int64",
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
         "required": [
           "comparisonRecordsLeftRunIdOrphans",
           "comparisonRecordsRightRunIdOrphans",
+          "contextSnapshotsRunIdOrphans",
           "goldenManifestsRunIdOrphans",
-          "findingsSnapshotsRunIdOrphans"
+          "findingsSnapshotsRunIdOrphans",
+          "graphSnapshotsRunIdOrphans"
         ],
         "type": "object"
       },

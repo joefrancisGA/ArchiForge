@@ -29,7 +29,6 @@ public static class DurableAuditLogRetry
         if (maxAttempts < 1)
             throw new ArgumentOutOfRangeException(nameof(maxAttempts));
 
-
         Exception? last = null;
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
@@ -57,12 +56,10 @@ public static class DurableAuditLogRetry
                         maxAttempts,
                         operationLabel);
 
-
                 if (attempt < maxAttempts)
 
                     await Task.Delay(TimeSpan.FromMilliseconds(50 * (1 << (attempt - 1))), cancellationToken);
             }
-
 
         if (last is not null)
         {

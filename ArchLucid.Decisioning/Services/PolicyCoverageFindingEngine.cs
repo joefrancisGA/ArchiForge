@@ -86,7 +86,6 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                 }
             });
 
-
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 }

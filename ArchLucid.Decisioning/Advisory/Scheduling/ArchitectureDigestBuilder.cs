@@ -73,7 +73,6 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
                 sb.AppendLine();
             }
 
-
         IReadOnlyList<AlertRecord> alerts = evaluatedAlerts ?? [];
         int highCritical = alerts
             .Count(a =>
@@ -89,7 +88,6 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
 
             foreach (AlertRecord alert in alerts)
                 sb.AppendLine($"- [{alert.Severity}] {alert.Title} — {alert.Description}");
-
 
         sb.AppendLine();
 

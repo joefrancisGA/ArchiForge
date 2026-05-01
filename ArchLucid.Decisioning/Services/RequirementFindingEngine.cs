@@ -34,7 +34,6 @@ public class RequirementFindingEngine : IFindingEngine
 
                 relatedNodeIds.Add(id);
 
-
             Finding finding = FindingFactory.CreateRequirementFinding(
                 EngineType,
                 $"Requirement detected: {node.Label}",

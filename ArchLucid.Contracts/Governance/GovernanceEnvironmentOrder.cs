@@ -20,7 +20,6 @@ public static class GovernanceEnvironmentOrder
         if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target))
             return false;
 
-
         return Order.TryGetValue(source, out int s)
                && Order.TryGetValue(target, out int t)
                && t == s + 1;

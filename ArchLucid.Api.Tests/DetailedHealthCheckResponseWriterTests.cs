@@ -34,10 +34,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(260));
 
-        DefaultHttpContext httpContext = new()
-        {
-            Response = { Body = new MemoryStream() }
-        };
+        DefaultHttpContext httpContext = new() { Response = { Body = new MemoryStream() } };
 
         await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report);
 
@@ -72,10 +69,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(2));
 
-        DefaultHttpContext httpContext = new()
-        {
-            Response = { Body = new MemoryStream() }
-        };
+        DefaultHttpContext httpContext = new() { Response = { Body = new MemoryStream() } };
 
         await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report);
 
@@ -99,10 +93,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(15));
-        DefaultHttpContext httpContext = new()
-        {
-            Response = { Body = new MemoryStream() }
-        };
+        DefaultHttpContext httpContext = new() { Response = { Body = new MemoryStream() } };
 
         await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report);
 
@@ -147,10 +138,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(5));
-        DefaultHttpContext httpContext = new()
-        {
-            Response = { Body = new MemoryStream() }
-        };
+        DefaultHttpContext httpContext = new() { Response = { Body = new MemoryStream() } };
 
         await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report);
 
@@ -200,10 +188,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(6));
-        DefaultHttpContext httpContext = new()
-        {
-            Response = { Body = new MemoryStream() }
-        };
+        DefaultHttpContext httpContext = new() { Response = { Body = new MemoryStream() } };
 
         await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report);
 
@@ -229,10 +214,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         };
 
         HealthReport report = new(entries, TimeSpan.FromMilliseconds(15));
-        DefaultHttpContext httpContext = new()
-        {
-            Response = { Body = new MemoryStream() }
-        };
+        DefaultHttpContext httpContext = new() { Response = { Body = new MemoryStream() } };
 
         await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report, HealthCheckResponseDetailLevel.Summary);
 

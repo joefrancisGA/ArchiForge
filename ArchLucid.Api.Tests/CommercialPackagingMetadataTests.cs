@@ -3,7 +3,6 @@
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Controllers.Pilots;
-
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Tenancy;
 
@@ -60,7 +59,8 @@ public sealed class CommercialPackagingMetadataTests
             BindingFlags.Instance | BindingFlags.Public);
 
         MethodInfo method = methodCandidate
-            ?? throw new InvalidOperationException("Could not resolve PostSponsorOnePager on PilotsController.");
+                            ?? throw new InvalidOperationException(
+                                "Could not resolve PostSponsorOnePager on PilotsController.");
 
         RequiresCommercialTenantTierAttribute? attr =
             method.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false);
@@ -78,7 +78,8 @@ public sealed class CommercialPackagingMetadataTests
             BindingFlags.Instance | BindingFlags.Public);
 
         MethodInfo method = methodCandidate
-            ?? throw new InvalidOperationException("Could not resolve GetSponsorEvidencePack on PilotsController.");
+                            ?? throw new InvalidOperationException(
+                                "Could not resolve GetSponsorEvidencePack on PilotsController.");
 
         RequiresCommercialTenantTierAttribute? attr =
             method.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false);
@@ -87,7 +88,8 @@ public sealed class CommercialPackagingMetadataTests
         attr.Arguments.Should().HaveCount(1);
         attr.Arguments[0].Should().Be(TenantTier.Standard);
 
-        ProducesResponseTypeAttribute[] produces = method.GetCustomAttributes<ProducesResponseTypeAttribute>().ToArray();
+        ProducesResponseTypeAttribute[]
+            produces = method.GetCustomAttributes<ProducesResponseTypeAttribute>().ToArray();
 
         produces.Should().ContainSingle(a =>
             a.StatusCode == StatusCodes.Status200OK &&
@@ -102,7 +104,7 @@ public sealed class CommercialPackagingMetadataTests
             BindingFlags.Instance | BindingFlags.Public);
 
         MethodInfo method = methodCandidate
-            ?? throw new InvalidOperationException("Could not resolve ExportAudit on AuditController.");
+                            ?? throw new InvalidOperationException("Could not resolve ExportAudit on AuditController.");
 
         RequiresCommercialTenantTierAttribute? attr =
             method.GetCustomAttribute<RequiresCommercialTenantTierAttribute>(inherit: false);

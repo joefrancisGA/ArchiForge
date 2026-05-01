@@ -31,6 +31,8 @@ public static class GoldenManifestFingerprint
 
         GoldenManifest? manifest = JsonSerializer.Deserialize<GoldenManifest>(manifestJson, ContractJson.Default);
 
-        return manifest is null ? throw new JsonException("Manifest JSON deserialized to null.") : ComputeSha256Hex(manifest);
+        return manifest is null
+            ? throw new JsonException("Manifest JSON deserialized to null.")
+            : ComputeSha256Hex(manifest);
     }
 }

@@ -12,7 +12,8 @@ namespace ArchLucid.Api.Tests.Security;
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
-public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiFactory factory) : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>
+public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiFactory factory)
+    : IClassFixture<ApiKeyReaderAndAdminArchLucidApiFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -20,7 +21,8 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
     public async Task Reader_key_cannot_POST_architecture_request_returns_403()
     {
         using HttpClient client = CreateReaderClient();
-        string body = JsonSerializer.Serialize(TestRequestFactory.CreateArchitectureRequest("REQ-BDR-POST-001"), JsonOptions);
+        string body = JsonSerializer.Serialize(TestRequestFactory.CreateArchitectureRequest("REQ-BDR-POST-001"),
+            JsonOptions);
         using HttpResponseMessage response = await client.PostAsync(
             "/v1/architecture/request",
             new StringContent(body, Encoding.UTF8, "application/json"));
@@ -99,7 +101,8 @@ public sealed class AuthorizationBoundaryTests(ApiKeyReaderAndAdminArchLucidApiF
     private HttpClient CreateReaderClient()
     {
         HttpClient client = factory.CreateClient();
-        client.DefaultRequestHeaders.Add("X-Api-Key", ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestReaderApiKey);
+        client.DefaultRequestHeaders.Add("X-Api-Key",
+            ApiKeyReaderAndAdminArchLucidApiFactory.IntegrationTestReaderApiKey);
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         return client;
     }

@@ -14,11 +14,10 @@ public sealed class SqlRlsTenantIsolationApiFactory : GreenfieldSqlApiFactory
     {
         base.ConfigureWebHost(builder);
         builder.UseSetting("SqlServer:RowLevelSecurity:ApplySessionContext", "true");
-        builder.ConfigureAppConfiguration(
-            (_, config) =>
-            {
-                config.AddInMemoryCollection(
-                    new Dictionary<string, string?> { ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true" });
-            });
+        builder.ConfigureAppConfiguration((_, config) =>
+        {
+            config.AddInMemoryCollection(
+                new Dictionary<string, string?> { ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true" });
+        });
     }
 }

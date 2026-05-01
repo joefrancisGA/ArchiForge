@@ -23,8 +23,7 @@ public sealed class PolicyPackConcurrencyIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     private static StringContent JsonContent(object value)
@@ -92,11 +91,10 @@ public sealed class PolicyPackConcurrencyIntegrationTests
                     CancellationToken.None);
             list.Should().NotBeNull();
             IReadOnlyList<PolicyPack> inScope = list
-                .Where(
-                    p => p.TenantId == ScopeIds.DefaultTenant
-                    && p.WorkspaceId == ScopeIds.DefaultWorkspace
-                    && p.ProjectId == ScopeIds.DefaultProject
-                    && string.Equals(p.Name, packName, StringComparison.Ordinal))
+                .Where(p => p.TenantId == ScopeIds.DefaultTenant
+                            && p.WorkspaceId == ScopeIds.DefaultWorkspace
+                            && p.ProjectId == ScopeIds.DefaultProject
+                            && string.Equals(p.Name, packName, StringComparison.Ordinal))
                 .ToList();
 
             inScope.Count.Should().Be(parallel);

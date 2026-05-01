@@ -148,7 +148,6 @@ public sealed class SchemaValidationService : ISchemaValidationService
         if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached))
             return cached;
 
-
         SchemaValidationResult fresh = ValidateCore(json, schema, objectName);
         AddToCache(cacheKey, fresh);
         return fresh;
@@ -171,7 +170,6 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
                 _logger.LogWarning("Validation failed for {ObjectName}: Empty payload", objectName);
 
-
             EmitMetrics(objectName, false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
@@ -190,7 +188,6 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
                 _logger.LogWarning(ex, "Validation failed for {ObjectName}: Invalid JSON", objectName);
 
-
             EmitMetrics(objectName, false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
@@ -207,7 +204,6 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
                     _logger.LogDebug("Validation succeeded for {ObjectName}", objectName);
 
-
                 EmitMetrics(objectName, true, sw.Elapsed.TotalMilliseconds);
                 return result;
             }
@@ -221,7 +217,6 @@ public sealed class SchemaValidationService : ISchemaValidationService
                     objectName,
                     result.Errors.Count);
 
-
             EmitMetrics(objectName, false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
@@ -232,11 +227,9 @@ public sealed class SchemaValidationService : ISchemaValidationService
         if (_resultCache is null)
             return;
 
-
         if (_resultCache.Count >= _options.ResultCacheMaxSize)
 
             _resultCache.Clear();
-
 
         _resultCache.TryAdd(key, result);
     }
@@ -296,10 +289,8 @@ public sealed class SchemaValidationService : ISchemaValidationService
                     });
             }
 
-
         if (evaluation.Details is null)
             return;
-
 
         foreach (EvaluationResults detail in evaluation.Details)
 

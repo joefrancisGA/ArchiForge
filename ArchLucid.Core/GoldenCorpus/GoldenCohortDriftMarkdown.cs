@@ -26,8 +26,10 @@ public static class GoldenCohortDriftMarkdown
             return sb.ToString();
         }
 
-        sb.AppendLine("| Item | Expected SHA | Actual SHA | SHA match | Expected categories | Actual categories | Category match |");
-        sb.AppendLine("|------|--------------|------------|-----------|---------------------|-------------------|----------------|");
+        sb.AppendLine(
+            "| Item | Expected SHA | Actual SHA | SHA match | Expected categories | Actual categories | Category match |");
+        sb.AppendLine(
+            "|------|--------------|------------|-----------|---------------------|-------------------|----------------|");
 
         foreach (GoldenCohortDriftRow row in rows)
         {

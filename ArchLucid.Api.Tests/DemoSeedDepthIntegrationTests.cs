@@ -106,8 +106,7 @@ public sealed class DemoSeedDepthIntegrationTests
             {
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
-                    ["Demo:Enabled"] = "true",
-                    ["Demo:SeedDepth"] = seedDepth
+                    ["Demo:Enabled"] = "true", ["Demo:SeedDepth"] = seedDepth
                 });
             });
         }

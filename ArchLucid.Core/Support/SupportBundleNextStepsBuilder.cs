@@ -16,19 +16,23 @@ public static class SupportBundleNextStepsBuilder
         string generatedAtUtcIso,
         IReadOnlyDictionary<string, string> archlucidAndDotnetEnvironment)
     {
-        if (string.IsNullOrWhiteSpace(generatedAtUtcIso)) throw new ArgumentException("Value must be provided.", nameof(generatedAtUtcIso));
-        if (archlucidAndDotnetEnvironment is null) throw new ArgumentNullException(nameof(archlucidAndDotnetEnvironment));
+        if (string.IsNullOrWhiteSpace(generatedAtUtcIso))
+            throw new ArgumentException("Value must be provided.", nameof(generatedAtUtcIso));
+        if (archlucidAndDotnetEnvironment is null)
+            throw new ArgumentNullException(nameof(archlucidAndDotnetEnvironment));
 
         List<SupportBundleNextStepHint> hints = [];
         List<string> lines = [];
 
-        if (archlucidAndDotnetEnvironment.TryGetValue("ARCHLUCID_API_URL", out string? apiUrl) && string.IsNullOrWhiteSpace(apiUrl))
+        if (archlucidAndDotnetEnvironment.TryGetValue("ARCHLUCID_API_URL", out string? apiUrl) &&
+            string.IsNullOrWhiteSpace(apiUrl))
         {
             SupportBundleNextStepHint hint = new()
             {
                 Id = "archlucid-api-url-empty",
                 Severity = "warning",
-                Message = "ARCHLUCID_API_URL is present but empty in the captured host environment — outbound automation from this host may lack a target URL.",
+                Message =
+                    "ARCHLUCID_API_URL is present but empty in the captured host environment — outbound automation from this host may lack a target URL.",
                 DocReference = OperatorQuickstartDoc,
             };
 
@@ -52,16 +56,16 @@ public static class SupportBundleNextStepsBuilder
                 "Host process reports DOTNET_ENVIRONMENT=Production — ensure reported symptoms are not from a misconfigured non-production expectation.");
         }
 
-        lines.Add("Attach this ZIP to your support thread and include the X-Correlation-ID from any failing API response (see references.json).");
-        lines.Add("Compare build.json against the CLI or client version reporting the issue to rule out a version skew.");
-        lines.Add($"Review environment.json and {PendingQuestionsDoc} before forwarding this bundle outside your organization.");
+        lines.Add(
+            "Attach this ZIP to your support thread and include the X-Correlation-ID from any failing API response (see references.json).");
+        lines.Add(
+            "Compare build.json against the CLI or client version reporting the issue to rule out a version skew.");
+        lines.Add(
+            $"Review environment.json and {PendingQuestionsDoc} before forwarding this bundle outside your organization.");
 
         return new SupportBundleNextStepsDocument
         {
-            Source = "api",
-            GeneratedUtc = generatedAtUtcIso,
-            SummaryLines = lines,
-            Hints = hints,
+            Source = "api", GeneratedUtc = generatedAtUtcIso, SummaryLines = lines, Hints = hints,
         };
     }
 
@@ -76,7 +80,8 @@ public static class SupportBundleNextStepsBuilder
         bool archlucidJsonPresent,
         bool hasLocalLogExcerpt)
     {
-        if (string.IsNullOrWhiteSpace(generatedAtUtcIso)) throw new ArgumentException("Value must be provided.", nameof(generatedAtUtcIso));
+        if (string.IsNullOrWhiteSpace(generatedAtUtcIso))
+            throw new ArgumentException("Value must be provided.", nameof(generatedAtUtcIso));
 
         List<SupportBundleNextStepHint> hints = [];
         List<string> lines = [];
@@ -101,7 +106,8 @@ public static class SupportBundleNextStepsBuilder
             {
                 Id = "health-live-http-non-200",
                 Severity = "action",
-                Message = $"GET /health/live returned HTTP {healthLiveStatus}. Open health.json for the response body and see {TroubleshootingDoc}.",
+                Message =
+                    $"GET /health/live returned HTTP {healthLiveStatus}. Open health.json for the response body and see {TroubleshootingDoc}.",
                 DocReference = TroubleshootingDoc,
             };
 
@@ -190,7 +196,8 @@ public static class SupportBundleNextStepsBuilder
 
         if (hints.Count == 0)
         {
-            lines.Add("Core HTTP probes in this bundle reported success — if symptoms persist, use health.json bodies and server-side logs.");
+            lines.Add(
+                "Core HTTP probes in this bundle reported success — if symptoms persist, use health.json bodies and server-side logs.");
         }
 
         lines.Add("Include X-Correlation-ID / correlationId from API errors with server-side logs when you escalate.");
@@ -198,10 +205,7 @@ public static class SupportBundleNextStepsBuilder
 
         return new SupportBundleNextStepsDocument
         {
-            Source = "cli",
-            GeneratedUtc = generatedAtUtcIso,
-            SummaryLines = lines,
-            Hints = hints,
+            Source = "cli", GeneratedUtc = generatedAtUtcIso, SummaryLines = lines, Hints = hints,
         };
     }
 }

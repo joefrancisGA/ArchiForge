@@ -80,7 +80,6 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
         if (_channel.Writer.TryWrite(copy))
             return true;
 
-
         ArchLucidInstrumentation.AuditRetryEnqueueDroppedTotal.Add(1);
 
         _ = Interlocked.Decrement(ref _pending);

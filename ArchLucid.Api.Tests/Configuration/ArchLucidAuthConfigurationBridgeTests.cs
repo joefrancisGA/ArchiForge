@@ -16,14 +16,12 @@ public sealed class ArchLucidAuthConfigurationBridgeTests
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchLucidAuth:Mode"] = "ApiKey",
-                    ["ArchLucidAuth:Audience"] = "api://legacy"
+                    ["ArchLucidAuth:Mode"] = "ApiKey", ["ArchLucidAuth:Audience"] = "api://legacy"
                 })
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchLucidAuth:Mode"] = "JwtBearer",
-                    ["ArchLucidAuth:Authority"] = "https://login.example/"
+                    ["ArchLucidAuth:Mode"] = "JwtBearer", ["ArchLucidAuth:Authority"] = "https://login.example/"
                 })
             .Build();
 

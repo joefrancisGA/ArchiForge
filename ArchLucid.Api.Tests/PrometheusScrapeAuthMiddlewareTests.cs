@@ -28,15 +28,12 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
     {
         ObservabilityPrometheusOptions prometheus = new()
         {
-            ScrapeUsername = "scraper",
-            ScrapePassword = "secret",
-            ScrapePath = "/metrics"
+            ScrapeUsername = "scraper", ScrapePassword = "secret", ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
         {
-            Request = { Method = "GET", Path = "/metrics" },
-            Response = { Body = new MemoryStream() }
+            Request = { Method = "GET", Path = "/metrics" }, Response = { Body = new MemoryStream() }
         };
 
         await middleware.InvokeAsync(http);
@@ -49,15 +46,12 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
     {
         ObservabilityPrometheusOptions prometheus = new()
         {
-            ScrapeUsername = "scraper",
-            ScrapePassword = "secret",
-            ScrapePath = "/metrics"
+            ScrapeUsername = "scraper", ScrapePassword = "secret", ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
         {
-            Request = { Method = "GET", Path = "/metrics" },
-            Response = { Body = new MemoryStream() }
+            Request = { Method = "GET", Path = "/metrics" }, Response = { Body = new MemoryStream() }
         };
         string basic = Convert.ToBase64String("scraper:secret"u8.ToArray());
         http.Request.Headers.Authorization = $"Basic {basic}";
@@ -72,15 +66,12 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
     {
         ObservabilityPrometheusOptions prometheus = new()
         {
-            ScrapeUsername = "scraper",
-            ScrapePassword = "secret",
-            ScrapePath = "/metrics"
+            ScrapeUsername = "scraper", ScrapePassword = "secret", ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
         {
-            Request = { Method = "GET", Path = "/health/live" },
-            Response = { Body = new MemoryStream() }
+            Request = { Method = "GET", Path = "/health/live" }, Response = { Body = new MemoryStream() }
         };
 
         await middleware.InvokeAsync(http);
@@ -93,15 +84,12 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
     {
         ObservabilityPrometheusOptions prometheus = new()
         {
-            ScrapeUsername = "",
-            ScrapePassword = "",
-            ScrapePath = "/metrics"
+            ScrapeUsername = "", ScrapePassword = "", ScrapePath = "/metrics"
         };
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
         {
-            Request = { Method = "GET", Path = "/metrics" },
-            Response = { Body = new MemoryStream() }
+            Request = { Method = "GET", Path = "/metrics" }, Response = { Body = new MemoryStream() }
         };
 
         await middleware.InvokeAsync(http);
@@ -123,8 +111,7 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
         PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new()
         {
-            Request = { Method = "GET", Path = "/metrics" },
-            Response = { Body = new MemoryStream() }
+            Request = { Method = "GET", Path = "/metrics" }, Response = { Body = new MemoryStream() }
         };
 
         await middleware.InvokeAsync(http);

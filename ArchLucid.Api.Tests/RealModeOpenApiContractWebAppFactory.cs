@@ -12,15 +12,14 @@ public sealed class RealModeOpenApiContractWebAppFactory : OpenApiContractWebApp
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         base.ConfigureWebHost(builder);
-        builder.ConfigureAppConfiguration(
-            (_, config) => config.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["AgentExecution:Mode"] = "Real",
-                    ["AzureOpenAI:Endpoint"] = "https://integration-test.openai.azure.com/",
-                    ["AzureOpenAI:ApiKey"] = "test-key-not-real",
-                    ["AzureOpenAI:DeploymentName"] = "gpt-test-deploy",
-                    ["AzureOpenAI:MaxCompletionTokens"] = "1024"
-                }));
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                ["AgentExecution:Mode"] = "Real",
+                ["AzureOpenAI:Endpoint"] = "https://integration-test.openai.azure.com/",
+                ["AzureOpenAI:ApiKey"] = "test-key-not-real",
+                ["AzureOpenAI:DeploymentName"] = "gpt-test-deploy",
+                ["AzureOpenAI:MaxCompletionTokens"] = "1024"
+            }));
     }
 }

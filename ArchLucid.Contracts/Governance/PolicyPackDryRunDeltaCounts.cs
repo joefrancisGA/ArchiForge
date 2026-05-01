@@ -9,19 +9,22 @@ public sealed class PolicyPackDryRunDeltaCounts
     /// <summary>Total number of run ids the caller asked the service to evaluate (all pages combined).</summary>
     public int Evaluated
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>How many runs the proposed thresholds would have blocked from commit.</summary>
     public int WouldBlock
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>How many runs the proposed thresholds would have allowed.</summary>
     public int WouldAllow
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>
@@ -30,6 +33,7 @@ public sealed class PolicyPackDryRunDeltaCounts
     /// </summary>
     public int RunMissing
     {
-        get; init;
+        get;
+        init;
     }
 }

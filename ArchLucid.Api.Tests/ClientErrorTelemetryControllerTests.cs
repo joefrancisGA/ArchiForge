@@ -41,7 +41,10 @@ public sealed class ClientErrorTelemetryControllerTests
     /// </summary>
     private sealed class CapturingFirstTenantFunnelEmitter : IFirstTenantFunnelEmitter
     {
-        public List<(string EventName, Guid TenantId)> Calls { get; } = [];
+        public List<(string EventName, Guid TenantId)> Calls
+        {
+            get;
+        } = [];
 
         public Task EmitAsync(string eventName, Guid tenantId, CancellationToken ct = default)
         {
@@ -191,9 +194,7 @@ public sealed class ClientErrorTelemetryControllerTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
         {
-            TenantId = Guid.Empty,
-            WorkspaceId = Guid.Empty,
-            ProjectId = Guid.Empty
+            TenantId = Guid.Empty, WorkspaceId = Guid.Empty, ProjectId = Guid.Empty
         });
         CapturingFirstTenantFunnelEmitter emitter = new();
         ClientErrorTelemetryController controller = CreateController(scope.Object, emitter);

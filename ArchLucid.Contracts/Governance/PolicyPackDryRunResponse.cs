@@ -16,37 +16,43 @@ public sealed class PolicyPackDryRunResponse
     /// <summary>The policy pack the dry-run was evaluated against (route id).</summary>
     public Guid PolicyPackId
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>UTC timestamp when the dry-run was evaluated.</summary>
     public DateTime EvaluatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>1-based page index actually returned (clamped to a valid range).</summary>
     public int Page
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Page size actually returned (default 20, server-clamped to 1..100).</summary>
     public int PageSize
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Total number of run ids the caller asked the service to evaluate.</summary>
     public int TotalRequestedRuns
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Number of items in <see cref="Items" /> on this page.</summary>
     public int ReturnedRuns
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>
@@ -56,7 +62,8 @@ public sealed class PolicyPackDryRunResponse
     /// </summary>
     public string ProposedThresholdsRedactedJson
     {
-        get; init;
+        get;
+        init;
     } = "{}";
 
     /// <summary>
@@ -65,12 +72,14 @@ public sealed class PolicyPackDryRunResponse
     /// </summary>
     public PolicyPackDryRunDeltaCounts DeltaCounts
     {
-        get; init;
+        get;
+        init;
     } = new();
 
     /// <summary>Per-run dry-run results for the current page (newest first when input order is preserved).</summary>
     public IReadOnlyList<PolicyPackDryRunRunItem> Items
     {
-        get; init;
+        get;
+        init;
     } = [];
 }

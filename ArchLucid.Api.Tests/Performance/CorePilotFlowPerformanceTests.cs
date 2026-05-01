@@ -16,7 +16,8 @@ namespace ArchLucid.Api.Tests.Performance;
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Slow")]
-public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, ITestOutputHelper output) : IntegrationTestBase(factory)
+public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, ITestOutputHelper output)
+    : IntegrationTestBase(factory)
 {
     private const int TotalCapMs = 10_000;
     private const int ManifestP95MaxMs = 500;
@@ -37,11 +38,13 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
             JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-E2E-{Guid.NewGuid():N}")));
         tCreate.Sw.Stop();
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
         tSeed.Sw.Start();
-        HttpResponseMessage seedResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
+        HttpResponseMessage seedResponse =
+            await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
         tSeed.Sw.Stop();
         seedResponse.EnsureSuccessStatusCode();
 
@@ -49,7 +52,8 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         tCommit.Sw.Stop();
         commitResponse.EnsureSuccessStatusCode();
-        CommitRunResponseDto? commit = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        CommitRunResponseDto? commit =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();
 
@@ -87,7 +91,8 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         int rank1Based = (int)Math.Ceiling(0.95 * ms.Count);
         int p95Index = Math.Max(0, Math.Min(ms.Count - 1, rank1Based - 1));
         long p95 = ms[p95Index];
-        output.WriteLine($"[perf] manifest GET x{ManifestSamples} ms=[{string.Join(", ", ms)}] p95={p95}ms (max {ManifestP95MaxMs}ms)");
+        output.WriteLine(
+            $"[perf] manifest GET x{ManifestSamples} ms=[{string.Join(", ", ms)}] p95={p95}ms (max {ManifestP95MaxMs}ms)");
 
         p95.Should()
             .BeLessThan(
@@ -101,15 +106,18 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest($"REQ-PERF-MANIFEST-{Guid.NewGuid():N}")));
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage seedResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
+        HttpResponseMessage seedResponse =
+            await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
         seedResponse.EnsureSuccessStatusCode();
 
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
-        CommitRunResponseDto? commit = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        CommitRunResponseDto? commit =
+            await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commit!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().NotBeNullOrWhiteSpace();
         return (manifestVersion, runId, commit);

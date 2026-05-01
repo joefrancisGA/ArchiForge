@@ -201,7 +201,6 @@ public sealed class ComparisonService : IComparisonService
 
             result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Added" });
 
-
         foreach (string r in baseSet.Where(r => !targetSet.Contains(r)))
 
             result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Removed" });

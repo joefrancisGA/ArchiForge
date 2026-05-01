@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Globalization;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
@@ -18,6 +19,8 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     IOptions<ArchLucidOptions> archLucidOptions,
     ILogger<DataConsistencyOrphanProbeExecutor> logger) : IDataConsistencyOrphanProbeExecutor
 {
+    private const int TenantBreakdownTopN = 8;
+
     private readonly IOptionsMonitor<DataConsistencyProbeOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
@@ -80,21 +83,56 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 "RunId",
                 cancellationToken)
             .ConfigureAwait(false);
+        long contextCount = await LogAndCountOrphansAsync(
+                connection,
+                DataConsistencyOrphanProbeSql.ContextSnapshotsRunId,
+                "ContextSnapshots",
+                "RunId",
+                cancellationToken)
+            .ConfigureAwait(false);
+        long graphCount = await LogAndCountOrphansAsync(
+                connection,
+                DataConsistencyOrphanProbeSql.GraphSnapshotsRunId,
+                "GraphSnapshots",
+                "RunId",
+                cancellationToken)
+            .ConfigureAwait(false);
 
-        await ApplyEnforcementAsync(connection, leftCount, rightCount, goldenCount, findingsCount, cancellationToken)
+        await ApplyEnforcementAsync(
+                connection,
+                leftCount,
+                rightCount,
+                goldenCount,
+                findingsCount,
+                contextCount,
+                graphCount,
+                cancellationToken)
             .ConfigureAwait(false);
 
         if (sampleCap <= 0)
             return;
 
 
-        bool anyOrphans = leftCount > 0 || rightCount > 0 || goldenCount > 0 || findingsCount > 0;
+        bool anyOrphans =
+            leftCount > 0
+            || rightCount > 0
+            || goldenCount > 0
+            || findingsCount > 0
+            || contextCount > 0
+            || graphCount > 0;
 
         if (!anyOrphans)
             return;
 
 
-        await LogRemediationDryRunSamplesAsync(connection, sampleCap, leftCount, rightCount, goldenCount, findingsCount, cancellationToken)
+        await LogRemediationDryRunSamplesAsync(
+                connection,
+                sampleCap,
+                leftCount,
+                rightCount,
+                goldenCount,
+                findingsCount,
+                cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -104,6 +142,8 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         long rightCount,
         long goldenCount,
         long findingsCount,
+        long contextCount,
+        long graphCount,
         CancellationToken ct)
     {
         DataConsistencyEnforcementOptions enf = _enforcementOptionsMonitor.CurrentValue;
@@ -119,6 +159,41 @@ public sealed class DataConsistencyOrphanProbeExecutor(
             TryRecordAlert(rightCount, threshold, "ComparisonRecords", "RightRunId");
             TryRecordAlert(goldenCount, threshold, "GoldenManifests", "RunId");
             TryRecordAlert(findingsCount, threshold, "FindingsSnapshots", "RunId");
+            TryRecordAlert(contextCount, threshold, "ContextSnapshots", "RunId");
+            TryRecordAlert(graphCount, threshold, "GraphSnapshots", "RunId");
+
+            await LogTenantOrphanRollupWhenAlertingAsync(
+                    connection,
+                    enf.Mode,
+                    goldenCount,
+                    threshold,
+                    "GoldenManifests",
+                    "RunId",
+                    DataConsistencyOrphanTenantBreakdownSql.GoldenManifestsByTenant,
+                    ct)
+                .ConfigureAwait(false);
+
+            await LogTenantOrphanRollupWhenAlertingAsync(
+                    connection,
+                    enf.Mode,
+                    findingsCount,
+                    threshold,
+                    "FindingsSnapshots",
+                    "RunId",
+                    DataConsistencyOrphanTenantBreakdownSql.FindingsSnapshotsByTenant,
+                    ct)
+                .ConfigureAwait(false);
+
+            await LogTenantOrphanRollupWhenAlertingAsync(
+                    connection,
+                    enf.Mode,
+                    contextCount,
+                    threshold,
+                    "ContextSnapshots",
+                    "RunId",
+                    DataConsistencyOrphanTenantBreakdownSql.ContextSnapshotsByTenant,
+                    ct)
+                .ConfigureAwait(false);
         }
 
         if (goldenCount <= 0)
@@ -143,15 +218,71 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         int inserted = await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
 
-        if (inserted > 0)
-        {
-            ArchLucidInstrumentation.DataConsistencyOrphansQuarantined.Add(
-                inserted,
-                new KeyValuePair<string, object?>("table", "GoldenManifests"),
-                new KeyValuePair<string, object?>("column", "RunId"));
+        if (inserted <= 0)
+            return;
 
-            _logger.LogWarning("Data consistency quarantine inserted {Inserted} orphan GoldenManifests row(s).", inserted);
+
+        ArchLucidInstrumentation.DataConsistencyOrphansQuarantined.Add(
+            inserted,
+            new KeyValuePair<string, object?>("table", "GoldenManifests"),
+            new KeyValuePair<string, object?>("column", "RunId"));
+
+        _logger.LogWarning("Data consistency quarantine inserted {Inserted} orphan GoldenManifests row(s).", inserted);
+    }
+
+    private async Task LogTenantOrphanRollupWhenAlertingAsync(
+        DbConnection connection,
+        DataConsistencyEnforcementMode mode,
+        long count,
+        int threshold,
+        string table,
+        string column,
+        string breakdownSql,
+        CancellationToken ct)
+    {
+        if (count < threshold)
+            return;
+
+        if (mode != DataConsistencyEnforcementMode.Alert && mode != DataConsistencyEnforcementMode.Quarantine)
+            return;
+
+
+        if (!_logger.IsEnabled(LogLevel.Warning))
+            return;
+
+
+        List<string> parts = [];
+
+        await using (DbCommand command = connection.CreateCommand())
+        {
+            command.CommandText = breakdownSql;
+            DbParameter topN = command.CreateParameter();
+            topN.ParameterName = "@TopN";
+            topN.Value = TenantBreakdownTopN;
+            command.Parameters.Add(topN);
+
+            await using DbDataReader reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false);
+
+            while (await reader.ReadAsync(ct).ConfigureAwait(false))
+            {
+                string tenantKey = reader.GetString(0);
+                long tenantOrphans =
+                    reader.GetInt64(1);
+
+                parts.Add($"{tenantKey}={tenantOrphans}");
+            }
         }
+
+        if (parts.Count == 0)
+            return;
+
+
+        _logger.LogWarning(
+            "Data consistency orphan tenant rollup (detection exceeds threshold={Threshold}; table={Table}; column={Column}): top tenants by orphan count — {TenantRollup}",
+            threshold,
+            table,
+            column,
+            string.Join(", ", parts));
     }
 
     private static void TryRecordAlert(long count, int threshold, string table, string column)
@@ -257,7 +388,7 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         while (await reader.ReadAsync(ct).ConfigureAwait(false))
 
-            ids.Add(reader.GetGuid(0).ToString("D", System.Globalization.CultureInfo.InvariantCulture));
+            ids.Add(reader.GetGuid(0).ToString("D", CultureInfo.InvariantCulture));
 
 
         return ids;
@@ -281,7 +412,7 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         while (await reader.ReadAsync(ct).ConfigureAwait(false))
 
-            ids.Add(reader.GetGuid(0).ToString("D", System.Globalization.CultureInfo.InvariantCulture));
+            ids.Add(reader.GetGuid(0).ToString("D", CultureInfo.InvariantCulture));
 
 
         return ids;
@@ -297,7 +428,7 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         await using DbCommand command = connection.CreateCommand();
         command.CommandText = sql;
         object? scalar = await command.ExecuteScalarAsync(ct).ConfigureAwait(false);
-        long count = scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, System.Globalization.CultureInfo.InvariantCulture);
+        long count = scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
 
         if (count <= 0)
             return count;

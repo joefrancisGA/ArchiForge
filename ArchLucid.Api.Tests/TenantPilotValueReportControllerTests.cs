@@ -27,7 +27,8 @@ public sealed class TenantPilotValueReportControllerTests
             GovernancePendingApprovalsNow = 0
         };
 
-        svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>())).ReturnsAsync(body);
+        svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(body);
 
         TenantPilotValueReportController sut = new(svc.Object)
         {
@@ -44,7 +45,8 @@ public sealed class TenantPilotValueReportControllerTests
     public async Task GetPilotValueReport_returns_problem_details_when_tenant_missing()
     {
         Mock<IPilotValueReportService> svc = new();
-        svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>())).ReturnsAsync((PilotValueReport?)null);
+        svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PilotValueReport?)null);
 
         TenantPilotValueReportController sut = new(svc.Object)
         {
@@ -79,15 +81,13 @@ public sealed class TenantPilotValueReportControllerTests
             [
                 new PilotValueReportRunTimelinePoint
                 {
-                    RunId = "run",
-                    CreatedUtc = fromUtc,
-                    CommittedUtc = fromUtc.AddHours(1),
-                    SystemName = "sys"
+                    RunId = "run", CreatedUtc = fromUtc, CommittedUtc = fromUtc.AddHours(1), SystemName = "sys"
                 }
             ]
         };
 
-        svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>())).ReturnsAsync(body);
+        svc.Setup(s => s.BuildAsync(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(body);
 
         DefaultHttpContext http = new();
         http.Request.Headers.Accept = "text/markdown";

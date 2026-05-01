@@ -95,7 +95,6 @@ public static class FindingExplainabilityNarrativeBuilder
         if (candidates is null)
             return;
 
-
         foreach (string raw in candidates)
         {
             if (string.IsNullOrWhiteSpace(raw))
@@ -141,7 +140,6 @@ public static class FindingExplainabilityNarrativeBuilder
         if (string.IsNullOrWhiteSpace(findingId) && string.IsNullOrWhiteSpace(title))
             return;
 
-
         string idPart = string.IsNullOrWhiteSpace(findingId) ? "Finding" : $"Finding {findingId}";
         string titlePart = string.IsNullOrWhiteSpace(title) ? string.Empty : $": {title}";
         string enginePart = string.IsNullOrWhiteSpace(engineType) ? string.Empty : $" (engine: {engineType})";
@@ -162,7 +160,6 @@ public static class FindingExplainabilityNarrativeBuilder
         if (string.IsNullOrWhiteSpace(value))
             return;
 
-
         sb.Append(label);
         sb.Append(": ");
         sb.Append(value);
@@ -177,7 +174,6 @@ public static class FindingExplainabilityNarrativeBuilder
         if (nodeIds is null || nodeIds.Count == 0)
             return;
 
-
         List<string> nonEmpty = nodeIds
             .Where(static s => !string.IsNullOrWhiteSpace(s))
             .Select(static s => s.Trim())
@@ -185,7 +181,6 @@ public static class FindingExplainabilityNarrativeBuilder
 
         if (nonEmpty.Count == 0)
             return;
-
 
         sb.Append("Graph nodes examined");
         sb.AppendLine();
@@ -200,7 +195,6 @@ public static class FindingExplainabilityNarrativeBuilder
 
                 line = $"{label.Trim()} ({id})";
 
-
             sb.Append("- ");
             sb.Append(line);
             sb.AppendLine();
@@ -214,7 +208,6 @@ public static class FindingExplainabilityNarrativeBuilder
         if (items is null || items.Count == 0)
             return;
 
-
         List<string> nonEmpty = items
             .Where(static s => !string.IsNullOrWhiteSpace(s))
             .Select(static s => s.Trim())
@@ -222,7 +215,6 @@ public static class FindingExplainabilityNarrativeBuilder
 
         if (nonEmpty.Count == 0)
             return;
-
 
         sb.Append(heading);
         sb.AppendLine();

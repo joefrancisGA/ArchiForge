@@ -50,24 +50,19 @@ public static class AgentTypeKeys
         if (string.IsNullOrWhiteSpace(agentTypeKey))
             return null;
 
-
         string k = agentTypeKey.Trim();
 
         if (string.Equals(k, Topology, StringComparison.OrdinalIgnoreCase))
             return AgentType.Topology;
 
-
         if (string.Equals(k, Cost, StringComparison.OrdinalIgnoreCase))
             return AgentType.Cost;
-
 
         if (string.Equals(k, Compliance, StringComparison.OrdinalIgnoreCase))
             return AgentType.Compliance;
 
-
         if (string.Equals(k, Critic, StringComparison.OrdinalIgnoreCase))
             return AgentType.Critic;
-
 
         return null;
     }

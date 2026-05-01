@@ -52,8 +52,16 @@ public static class ArtifactCursorCodec
 
     private sealed class ArtifactListCursorDto
     {
-        public int So { get; set; }
+        public int So
+        {
+            get;
+            set;
+        }
 
-        public Guid Ai { get; set; }
+        public Guid Ai
+        {
+            get;
+            set;
+        }
     }
 }

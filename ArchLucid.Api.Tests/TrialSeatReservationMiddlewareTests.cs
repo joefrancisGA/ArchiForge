@@ -26,9 +26,7 @@ public sealed class TrialSeatReservationMiddlewareTests
     {
         DefaultHttpContext http = new()
         {
-            Request = { Path = path },
-            User = user,
-            Response = { Body = new MemoryStream() }
+            Request = { Path = path }, User = user, Response = { Body = new MemoryStream() }
         };
 
         ServiceCollection services = [];

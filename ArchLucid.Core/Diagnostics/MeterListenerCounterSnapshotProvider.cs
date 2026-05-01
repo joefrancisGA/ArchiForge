@@ -61,7 +61,8 @@ public sealed class MeterListenerCounterSnapshotProvider : IInstrumentationCount
         if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
             return false;
 
-        return instrument.Name is RunsCreatedInstrumentName or FindingsProducedInstrumentName or OperatorTaskSuccessInstrumentName;
+        return instrument.Name is RunsCreatedInstrumentName or FindingsProducedInstrumentName
+            or OperatorTaskSuccessInstrumentName;
     }
 
     private void OnInstrumentPublished(Instrument instrument, MeterListener listener)

@@ -17,7 +17,10 @@ public sealed class InfrastructureDeclarationRequestValidatorTests
 
     private static InfrastructureDeclarationRequest ValidDecl()
     {
-        return new InfrastructureDeclarationRequest { Name = "primary", Format = "json", Content = """{"resources":[]}""" };
+        return new InfrastructureDeclarationRequest
+        {
+            Name = "primary", Format = "json", Content = """{"resources":[]}"""
+        };
     }
 
     [SkippableFact]

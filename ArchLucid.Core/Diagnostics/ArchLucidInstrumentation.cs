@@ -577,7 +577,8 @@ public static class ArchLucidInstrumentation
     public static readonly Counter<long> DataConsistencyOrphansQuarantined =
         AppMeter.CreateCounter<long>(
             "archlucid_data_consistency_orphans_quarantined_total",
-            description: "Orphan rows quarantined (inserted into dbo.DataConsistencyQuarantine; labels table, column).");
+            description:
+            "Orphan rows quarantined (inserted into dbo.DataConsistencyQuarantine; labels table, column).");
 
     /// <summary>Wall time for scheduled read-only data consistency reconciliation (full pass).</summary>
     public static readonly Histogram<double> DataConsistencyReconciliationDurationMilliseconds =
@@ -692,7 +693,6 @@ public static class ArchLucidInstrumentation
         if (Interlocked.Exchange(ref _outboxObservableGaugesRegistered, 1) != 0)
             return;
 
-
         OutboxDepthGaugeState s = OutboxDepthGauges;
 
         AppMeter.CreateObservableGauge(
@@ -753,7 +753,6 @@ public static class ArchLucidInstrumentation
         if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0)
             return;
 
-
         AppMeter.CreateObservableGauge(
             "archlucid_trial_active_tenants",
             () => new Measurement<long>(Volatile.Read(ref _trialActiveTenantsCached)),
@@ -770,7 +769,6 @@ public static class ArchLucidInstrumentation
 
             return;
 
-
         AppMeter.CreateObservableGauge(
             "archlucid_llm_cache_hit_ratio",
             () =>
@@ -783,7 +781,8 @@ public static class ArchLucidInstrumentation
 
                 return new Measurement<double>(ratio);
             },
-            description: "Process-wide LLM completion cache hit ratio (hits / (hits + misses)) from CachingLlmCompletionClient.");
+            description:
+            "Process-wide LLM completion cache hit ratio (hits / (hits + misses)) from CachingLlmCompletionClient.");
     }
 
     /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>
@@ -792,7 +791,6 @@ public static class ArchLucidInstrumentation
         if (count < 0)
 
             count = 0;
-
 
         Volatile.Write(ref _trialActiveTenantsCached, count);
     }
@@ -815,9 +813,7 @@ public static class ArchLucidInstrumentation
     {
         AgentExecutionLlmCallAccumulator? acc = LlmCallsPerRunAccumulator.Value;
 
-        if (acc is not null)
-
-            acc.AddCompletions(1);
+        acc?.AddCompletions(1);
     }
 
     /// <summary>Records one LLM completion response cache hit (label <c>agent_type</c>).</summary>
@@ -827,7 +823,7 @@ public static class ArchLucidInstrumentation
 
         _ = Interlocked.Increment(ref _llmCompletionCacheHitsAggregate);
 
-        TagList tags = new();
+        TagList tags = [];
         tags.Add("agent_type", label);
 
         LlmCompletionCacheHitsTotal.Add(1, tags);
@@ -840,7 +836,7 @@ public static class ArchLucidInstrumentation
 
         _ = Interlocked.Increment(ref _llmCompletionCacheMissesAggregate);
 
-        TagList tags = new();
+        TagList tags = [];
         tags.Add("agent_type", label);
 
         LlmCompletionCacheMissesTotal.Add(1, tags);
@@ -957,7 +953,6 @@ public static class ArchLucidInstrumentation
         if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
             return;
 
-
         TrialFirstRunSeconds.Record(seconds);
     }
 
@@ -968,7 +963,6 @@ public static class ArchLucidInstrumentation
     {
         if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
             return;
-
 
         string k = string.IsNullOrWhiteSpace(tenantKind) ? "unknown" : tenantKind.Trim();
 
@@ -983,7 +977,6 @@ public static class ArchLucidInstrumentation
     {
         if (double.IsNaN(ratio) || double.IsInfinity(ratio))
             return;
-
 
         TrialRunsUsedRatio.Record(Math.Max(0, ratio));
     }
@@ -1094,7 +1087,6 @@ public static class ArchLucidInstrumentation
         if (matchCount <= 0)
             return;
 
-
         string c = string.IsNullOrWhiteSpace(category) ? "unknown" : category.Trim();
         TagList tags = new() { { "category", c } };
 
@@ -1106,7 +1098,6 @@ public static class ArchLucidInstrumentation
     {
         if (count <= 0)
             return;
-
 
         LlmPromptRedactionSkippedTotal.Add(count);
     }
@@ -1129,7 +1120,6 @@ public static class ArchLucidInstrumentation
     {
         if (estimatedCostUsd <= 0m)
             return;
-
 
         string tenant = string.IsNullOrWhiteSpace(tenantLabel) ? "unknown" : tenantLabel.Trim();
         TagList tags = new() { { "tenant", tenant } };

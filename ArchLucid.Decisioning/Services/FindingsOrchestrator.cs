@@ -5,7 +5,6 @@ using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Contracts.Findings;
-
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -60,7 +59,8 @@ public partial class FindingsOrchestrator(
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingPayloadValidator validator)
-        : this(engines, validator, SilentLogger.Instance, Options.Create(new HumanReviewFindingOptions()), TimeProvider.System)
+        : this(engines, validator, SilentLogger.Instance, Options.Create(new HumanReviewFindingOptions()),
+            TimeProvider.System)
     {
     }
 
@@ -125,7 +125,6 @@ public partial class FindingsOrchestrator(
 
                     throw new InvalidOperationException(
                         $"Finding category '{finding.Category}' did not match engine category '{engine.Category}' for engine '{engine.EngineType}'.");
-
 
                 allFindings.Add(finding);
             }

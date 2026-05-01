@@ -23,40 +23,38 @@ public sealed class ProductionLikeMisconfigurationWarningsApiTests
     [SkippableFact]
     public void Development_host_with_archlucid_staging_env_surfaces_jwt_authority_advisory_from_bound_configuration()
     {
-        using WebApplicationFactory<Program> factory = new OpenApiContractWebAppFactory().WithWebHostBuilder(
-            builder =>
+        using WebApplicationFactory<Program> factory = new OpenApiContractWebAppFactory().WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((_, config) =>
             {
-                builder.ConfigureAppConfiguration(
-                    (_, config) =>
-                    {
-                        config.AddInMemoryCollection(
-                            new Dictionary<string, string?> { ["ARCHLUCID_ENVIRONMENT"] = "Staging" });
+                config.AddInMemoryCollection(
+                    new Dictionary<string, string?> { ["ARCHLUCID_ENVIRONMENT"] = "Staging" });
 
-                        config.AddJsonStream(
-                            new MemoryStream(
-                                Encoding.UTF8.GetBytes(
-                                    """
-                                    {
-                                      "ArchLucid": {
-                                        "ContentSafety": {
-                                          "Endpoint": "https://example.invalid/content-safety",
-                                          "ApiKey": "01234567890123456789012345678901234567890123456789012345678901234"
-                                        }
-                                      },
-                                      "ArchLucidAuth": {
-                                        "Mode": "JwtBearer",
-                                        "Authority": "",
-                                        "JwtSigningPublicKeyPemPath": ""
-                                      },
-                                      "Authentication": {
-                                        "ApiKey": {
-                                          "Enabled": false
-                                        }
-                                      }
-                                    }
-                                    """)));
-                    });
+                config.AddJsonStream(
+                    new MemoryStream(
+                        Encoding.UTF8.GetBytes(
+                            """
+                            {
+                              "ArchLucid": {
+                                "ContentSafety": {
+                                  "Endpoint": "https://example.invalid/content-safety",
+                                  "ApiKey": "01234567890123456789012345678901234567890123456789012345678901234"
+                                }
+                              },
+                              "ArchLucidAuth": {
+                                "Mode": "JwtBearer",
+                                "Authority": "",
+                                "JwtSigningPublicKeyPemPath": ""
+                              },
+                              "Authentication": {
+                                "ApiKey": {
+                                  "Enabled": false
+                                }
+                              }
+                            }
+                            """)));
             });
+        });
 
         factory.CreateClient();
 

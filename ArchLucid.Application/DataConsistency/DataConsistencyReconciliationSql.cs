@@ -56,6 +56,24 @@ internal static class DataConsistencyReconciliationSql
                                                        WHERE r.RunId = f.RunId);
                                                    """;
 
+    internal const string ContextSnapshotsRunId = """
+                                                  SELECT COUNT_BIG(1)
+                                                  FROM dbo.ContextSnapshots c
+                                                  WHERE NOT EXISTS (
+                                                      SELECT 1
+                                                      FROM dbo.Runs r
+                                                      WHERE r.RunId = c.RunId);
+                                                  """;
+
+    internal const string GraphSnapshotsRunId = """
+                                                SELECT COUNT_BIG(1)
+                                                FROM dbo.GraphSnapshots g
+                                                WHERE NOT EXISTS (
+                                                    SELECT 1
+                                                    FROM dbo.Runs r
+                                                    WHERE r.RunId = g.RunId);
+                                                """;
+
     internal const string ArtifactBundlesRunId = """
                                                  SELECT COUNT_BIG(1)
                                                  FROM dbo.ArtifactBundles ab
@@ -129,6 +147,26 @@ internal static class DataConsistencyReconciliationSql
                                                               WHERE r.RunId = f.RunId)
                                                           ORDER BY f.CreatedUtc DESC;
                                                           """;
+
+    internal const string SampleContextSnapshotOrphans = """
+                                                         SELECT TOP (50) CAST(c.SnapshotId AS NVARCHAR(36))
+                                                         FROM dbo.ContextSnapshots c
+                                                         WHERE NOT EXISTS (
+                                                             SELECT 1
+                                                             FROM dbo.Runs r
+                                                             WHERE r.RunId = c.RunId)
+                                                         ORDER BY c.CreatedUtc DESC;
+                                                         """;
+
+    internal const string SampleGraphSnapshotOrphans = """
+                                                       SELECT TOP (50) CAST(g.GraphSnapshotId AS NVARCHAR(36))
+                                                       FROM dbo.GraphSnapshots g
+                                                       WHERE NOT EXISTS (
+                                                           SELECT 1
+                                                           FROM dbo.Runs r
+                                                           WHERE r.RunId = g.RunId)
+                                                       ORDER BY g.CreatedUtc DESC;
+                                                       """;
 
     internal const string SampleArtifactBundleOrphans = """
                                                         SELECT TOP (50) CAST(ab.BundleId AS NVARCHAR(36))

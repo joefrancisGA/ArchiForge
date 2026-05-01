@@ -101,7 +101,7 @@ public static class RealLlmOutputStructuralValidator
                 new RealLlmStructuralCheckItem("agentTypeMatch", true, $"agentType is {expectedEnum} as required."));
 
             if (!root.TryGetProperty("findings", out JsonElement findings) || findings.ValueKind != JsonValueKind.Array
-                || findings.GetArrayLength() == 0)
+                                                                           || findings.GetArrayLength() == 0)
             {
                 checks.Add(
                     new RealLlmStructuralCheckItem(
@@ -196,7 +196,8 @@ public static class RealLlmOutputStructuralValidator
         if (Enum.TryParse(input, true, out type) && Enum.IsDefined(type))
             return true;
 
-        if (int.TryParse(input, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int n)
+        if (int.TryParse(input, System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out int n)
             && Enum.IsDefined(typeof(AgentType), n))
         {
             type = (AgentType)n;
@@ -216,7 +217,8 @@ public static class RealLlmOutputStructuralValidator
         return agentTypeEl.ValueKind switch
         {
             JsonValueKind.String => EnumTryParseLenient(agentTypeEl.GetString(), expected, out message),
-            JsonValueKind.Number => agentTypeEl.TryGetInt32(out int n) && Enum.IsDefined(typeof(AgentType), n) && (AgentType)n == expected || SetMsg(out message, "agentType number does not match the expected type."),
+            JsonValueKind.Number => agentTypeEl.TryGetInt32(out int n) && Enum.IsDefined(typeof(AgentType), n) &&
+                (AgentType)n == expected || SetMsg(out message, "agentType number does not match the expected type."),
             _ => SetFalse(out message, "agentType must be a string or number.")
         };
     }

@@ -29,7 +29,8 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
     /// </summary>
     public static IReadOnlyList<string> DescribeWarnings(IConfiguration configuration, string hostingEnvironmentName)
     {
-        IReadOnlyList<HostingMisconfigurationWarning> structured = DescribeWarningRecords(configuration, hostingEnvironmentName);
+        IReadOnlyList<HostingMisconfigurationWarning> structured =
+            DescribeWarningRecords(configuration, hostingEnvironmentName);
 
         return structured.Count is 0
             ? []
@@ -66,7 +67,8 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(environment);
 
-        foreach (HostingMisconfigurationWarning warning in DescribeWarningRecords(configuration, environment.EnvironmentName))
+        foreach (HostingMisconfigurationWarning warning in DescribeWarningRecords(configuration,
+                     environment.EnvironmentName))
         {
             if (logger.IsEnabled(LogLevel.Warning))
                 logger.LogWarning("[HostingMisconfiguration] {Warning}", warning.Message);
@@ -127,7 +129,7 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
         string trimmed = value.Trim();
 
         return string.Equals(trimmed, "Production", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase);
+               || string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void AppendCorsWarnings(IConfiguration configuration, List<HostingMisconfigurationWarning> warnings)
@@ -143,16 +145,17 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
         if (string.IsNullOrWhiteSpace(hostingRole))
             hostingRole = "Combined";
 
-
         string message =
             string.Format(
                 CultureInfo.InvariantCulture,
                 "Cors:AllowedOrigins has no entries on a staging/production-like API host (Hosting:Role={0}); "
-                    + "browsers cannot call the API cross-origin until origins are configured.",
+                + "browsers cannot call the API cross-origin until origins are configured.",
                 hostingRole);
 
         warnings.Add(
-            new HostingMisconfigurationWarning(ProductionLikeHostingMisconfigurationAdvisorRuleNames.CorsAllowedOriginsEmptyProductionLikeHost, message));
+            new HostingMisconfigurationWarning(
+                ProductionLikeHostingMisconfigurationAdvisorRuleNames.CorsAllowedOriginsEmptyProductionLikeHost,
+                message));
     }
 
     private static bool IsWorkerOnlyHost(IConfiguration configuration)
@@ -186,7 +189,7 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
                     new HostingMisconfigurationWarning(
                         ProductionLikeHostingMisconfigurationAdvisorRuleNames.JwtBearerMissingAuthorityAndPem,
                         "ArchLucidAuth:Mode is JwtBearer but neither ArchLucidAuth:Authority nor "
-                            + "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; JWT authentication cannot succeed."));
+                        + "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; JWT authentication cannot succeed."));
 
             return;
         }
@@ -199,7 +202,7 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
                 new HostingMisconfigurationWarning(
                     ProductionLikeHostingMisconfigurationAdvisorRuleNames.ApiKeyModeDisabledWhenConfigured,
                     "ArchLucidAuth:Mode is ApiKey but Authentication:ApiKey:Enabled is false; "
-                        + "configure API keys or switch ArchLucidAuth:Mode."));
+                    + "configure API keys or switch ArchLucidAuth:Mode."));
     }
 
     private static string? ResolveArchLucidAuth(IConfiguration configuration, string relativeKey) =>

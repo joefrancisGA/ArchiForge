@@ -1,6 +1,5 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-
 using ArchLucid.Persistence.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;

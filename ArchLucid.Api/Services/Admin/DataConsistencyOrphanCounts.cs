@@ -5,4 +5,6 @@ public sealed record DataConsistencyOrphanCounts(
     long ComparisonRecordsLeftRunIdOrphans,
     long ComparisonRecordsRightRunIdOrphans,
     long GoldenManifestsRunIdOrphans,
-    long FindingsSnapshotsRunIdOrphans);
+    long FindingsSnapshotsRunIdOrphans,
+    long ContextSnapshotsRunIdOrphans,
+    long GraphSnapshotsRunIdOrphans);

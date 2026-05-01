@@ -34,7 +34,8 @@ public sealed class GreenfieldSqlBootIntegrationTests
             return true;
 
         return !string.IsNullOrWhiteSpace(
-            Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)) || OperatingSystem.IsWindows();
+                   Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable)) ||
+               OperatingSystem.IsWindows();
     }
 
     [SkippableFact]

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using FluentAssertions;
 
@@ -47,6 +47,7 @@ public sealed class EvalCorpusQualityEvidenceShapeTests
         foreach (JsonElement rel in scenarios.EnumerateArray())
         {
             string? scenarioFile = rel.GetString();
+
             if (string.IsNullOrWhiteSpace(scenarioFile))
             {
                 continue;
@@ -66,13 +67,12 @@ public sealed class EvalCorpusQualityEvidenceShapeTests
             string mode = qe.GetProperty("mode").GetString()!;
             mode.Should().NotBeNullOrWhiteSpace();
 
-            if (string.Equals(mode, "simulator", StringComparison.OrdinalIgnoreCase))
-            {
-                string agentPath = qe.GetProperty("agentResultPath").GetString()!;
-                agentPath.Should().NotBeNullOrWhiteSpace();
-                File.Exists(Path.Combine(corpusDir, agentPath)).Should().BeTrue(
-                    $"scenario {scenarioFile} missing {agentPath}");
-            }
+            if (!string.Equals(mode, "simulator", StringComparison.OrdinalIgnoreCase))
+                continue;
+            string agentPath = qe.GetProperty("agentResultPath").GetString()!;
+            agentPath.Should().NotBeNullOrWhiteSpace();
+            File.Exists(Path.Combine(corpusDir, agentPath)).Should().BeTrue(
+                $"scenario {scenarioFile} missing {agentPath}");
         }
     }
 }

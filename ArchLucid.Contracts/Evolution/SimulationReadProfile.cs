@@ -72,10 +72,8 @@ public sealed class SimulationReadProfile : IEquatable<SimulationReadProfile>
         if (other is null)
             return false;
 
-
         if (ReferenceEquals(this, other))
             return true;
-
 
         return IncludeEvidence == other.IncludeEvidence &&
                IncludeExecutionTraces == other.IncludeExecutionTraces &&

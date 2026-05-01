@@ -368,9 +368,7 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-draft",
-            Status = GovernanceApprovalStatus.Draft,
-            RequestedBy = "alice"
+            ApprovalRequestId = "apr-draft", Status = GovernanceApprovalStatus.Draft, RequestedBy = "alice"
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-draft", It.IsAny<CancellationToken>()))
@@ -402,8 +400,7 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-rejected",
-            Status = GovernanceApprovalStatus.Rejected
+            ApprovalRequestId = "apr-rejected", Status = GovernanceApprovalStatus.Rejected
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-rejected", It.IsAny<CancellationToken>()))
@@ -489,9 +486,7 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-sod-ci",
-            Status = GovernanceApprovalStatus.Submitted,
-            RequestedBy = "Alice"
+            ApprovalRequestId = "apr-sod-ci", Status = GovernanceApprovalStatus.Submitted, RequestedBy = "Alice"
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-sod-ci", It.IsAny<CancellationToken>()))
@@ -591,9 +586,7 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-2",
-            Status = GovernanceApprovalStatus.Submitted,
-            RequestedBy = "alice"
+            ApprovalRequestId = "apr-2", Status = GovernanceApprovalStatus.Submitted, RequestedBy = "alice"
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-2", It.IsAny<CancellationToken>()))
@@ -636,8 +629,7 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-approved",
-            Status = GovernanceApprovalStatus.Approved
+            ApprovalRequestId = "apr-approved", Status = GovernanceApprovalStatus.Approved
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-approved", It.IsAny<CancellationToken>()))
@@ -667,9 +659,7 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest existing = new()
         {
-            ApprovalRequestId = "apr-rej-sod",
-            Status = GovernanceApprovalStatus.Submitted,
-            RequestedBy = "dana"
+            ApprovalRequestId = "apr-rej-sod", Status = GovernanceApprovalStatus.Submitted, RequestedBy = "dana"
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-rej-sod", It.IsAny<CancellationToken>()))
@@ -763,8 +753,7 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest pendingApproval = new()
         {
-            ApprovalRequestId = "apr-pending",
-            Status = GovernanceApprovalStatus.Submitted
+            ApprovalRequestId = "apr-pending", Status = GovernanceApprovalStatus.Submitted
         };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
@@ -798,8 +787,7 @@ public sealed class GovernanceWorkflowServiceTests
     {
         GovernanceApprovalRequest pendingApproval = new()
         {
-            ApprovalRequestId = "apr-pending",
-            Status = GovernanceApprovalStatus.Submitted
+            ApprovalRequestId = "apr-pending", Status = GovernanceApprovalStatus.Submitted
         };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))

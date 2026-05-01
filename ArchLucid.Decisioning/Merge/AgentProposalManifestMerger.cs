@@ -277,7 +277,6 @@ public sealed class AgentProposalManifestMerger
                 if (!manifest.Governance.ComplianceTags.Contains(finding.Message, StringComparer.OrdinalIgnoreCase))
                     manifest.Governance.ComplianceTags.Add(finding.Message);
 
-
             DecisionMergeTraceRecorder.AddTrace(
                 output,
                 manifest.RunId,

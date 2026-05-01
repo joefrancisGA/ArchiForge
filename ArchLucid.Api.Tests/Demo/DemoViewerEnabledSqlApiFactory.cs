@@ -15,11 +15,10 @@ public sealed class DemoViewerEnabledSqlApiFactory : GreenfieldSqlApiFactory
 
         builder.UseSetting("Demo:AnonymousViewer:Enabled", "true");
 
-        builder.ConfigureAppConfiguration(
-            (_, config) =>
-            {
-                config.AddInMemoryCollection(
-                    new Dictionary<string, string?> { ["Demo:AnonymousViewer:Enabled"] = "true" });
-            });
+        builder.ConfigureAppConfiguration((_, config) =>
+        {
+            config.AddInMemoryCollection(
+                new Dictionary<string, string?> { ["Demo:AnonymousViewer:Enabled"] = "true" });
+        });
     }
 }

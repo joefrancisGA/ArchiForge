@@ -83,7 +83,6 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
             if (matchCount <= 0)
                 continue;
 
-
             try
             {
                 working = pattern.Replace(working, replacement);
@@ -108,7 +107,6 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
             if (string.IsNullOrWhiteSpace(expr))
                 continue;
 
-
             try
             {
                 Regex rx = new(
@@ -120,7 +118,6 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
 
                 if (matchCount <= 0)
                     continue;
-
 
                 working = rx.Replace(working, replacement);
                 counts["custom"] = counts.GetValueOrDefault("custom", 0) + matchCount;

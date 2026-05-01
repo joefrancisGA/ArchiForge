@@ -354,7 +354,6 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 manifest.Compliance.Gaps.Add(
                     $"{payload.ControlName}: {string.Join(", ", payload.AffectedResources)}");
 
-
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
             {
                 IssueType = "ComplianceGap",

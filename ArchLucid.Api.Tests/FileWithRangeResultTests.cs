@@ -14,10 +14,7 @@ public sealed class FileWithRangeResultTests
     [SkippableFact]
     public async Task ExecuteResultAsync_empty_payload_returns_200_with_zero_length()
     {
-        DefaultHttpContext http = new()
-        {
-            Response = { Body = new MemoryStream() }
-        };
+        DefaultHttpContext http = new() { Response = { Body = new MemoryStream() } };
         ActionContext actionContext = new(http, new RouteData(), new ActionDescriptor());
         FileWithRangeResult sut = new(http.Request, [], "application/octet-stream", "empty.bin");
 
@@ -32,10 +29,7 @@ public sealed class FileWithRangeResultTests
     public async Task ExecuteResultAsync_full_body_when_range_header_absent()
     {
         byte[] payload = [0x01, 0x02, 0x03];
-        DefaultHttpContext http = new()
-        {
-            Response = { Body = new MemoryStream() }
-        };
+        DefaultHttpContext http = new() { Response = { Body = new MemoryStream() } };
         ActionContext actionContext = new(http, new RouteData(), new ActionDescriptor());
         FileWithRangeResult sut = new(http.Request, payload, "application/octet-stream", "blob.bin");
 

@@ -27,6 +27,7 @@ public static class AuditEventTypes
 
     /// <summary>Governance approval request created (<c>POST /v1/governance/approval-requests</c>).</summary>
     public const string GovernanceApprovalRequested = "GovernanceApprovalRequested";
+
     public const string ArtifactsGenerated = "ArtifactsGenerated";
 
     /// <summary>Artifact synthesis ended in hard failure (no usable bundle).</summary>
@@ -168,6 +169,7 @@ public static class AuditEventTypes
 
     /// <summary>Operator set pilot scorecard ROI baselines (<c>PUT /v1/pilots/scorecard/baselines</c>).</summary>
     public const string PilotScorecardBaselinesUpdated = "PilotScorecardBaselinesUpdated";
+
     public const string GovernanceApprovalRejected = "GovernanceApprovalRejected";
 
     /// <summary>

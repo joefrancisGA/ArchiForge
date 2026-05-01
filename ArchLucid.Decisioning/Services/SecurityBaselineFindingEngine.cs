@@ -35,7 +35,6 @@ public class SecurityBaselineFindingEngine : IFindingEngine
 
                 relatedNodeIds.Add(id);
 
-
             List<string> examined = [.. relatedNodeIds];
 
             findings.Add(new Finding

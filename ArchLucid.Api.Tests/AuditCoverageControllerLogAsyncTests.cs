@@ -42,10 +42,7 @@ public sealed class AnalysisReportsControllerAuditTests
     public async Task AnalyzeRun_AfterSuccessfulBuild_LogsArchitectureAnalysisReportGeneratedWithDataJson()
     {
         string runId = Guid.NewGuid().ToString("N");
-        ArchitectureRunDetail detail = new()
-        {
-            Run = new ArchitectureRun { RunId = runId }
-        };
+        ArchitectureRunDetail detail = new() { Run = new ArchitectureRun { RunId = runId } };
 
         ArchitectureAnalysisReport report = new()
         {
@@ -76,10 +73,7 @@ public sealed class AnalysisReportsControllerAuditTests
             Mock.Of<IRunExportAuditService>(),
             Mock.Of<IBackgroundJobQueue>(),
             audit.Object,
-            NullLogger<AnalysisReportsController>.Instance)
-        {
-            ControllerContext = CreateControllerContext()
-        };
+            NullLogger<AnalysisReportsController>.Instance) { ControllerContext = CreateControllerContext() };
 
         IActionResult response = await sut.AnalyzeRun(runId, new ArchitectureAnalysisRequest(), CancellationToken.None);
 
@@ -125,11 +119,7 @@ public sealed class DocxExportControllerAuditTests
             ManifestHash = "mh"
         };
 
-        RunDetailDto runDetail = new()
-        {
-            Run = new RunRecord { RunId = runId },
-            GoldenManifest = manifest
-        };
+        RunDetailDto runDetail = new() { Run = new RunRecord { RunId = runId }, GoldenManifest = manifest };
 
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext());
@@ -178,10 +168,7 @@ public sealed class DocxExportControllerAuditTests
             Mock.Of<IExplanationService>(),
             Mock.Of<IProvenanceSnapshotRepository>(),
             scope.Object,
-            audit.Object)
-        {
-            ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext()
-        };
+            audit.Object) { ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext() };
 
         IActionResult result = await sut.ExportRunDocx(runId, compareWith, false, false, CancellationToken.None);
 

@@ -37,8 +37,7 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             SqlConnectionStringBuilder builder = new(raw)
             {
                 // Parallel integration tests (same host process) can open many connections at once; CI SQL is slower than local.
-                MaxPoolSize = 200,
-                ConnectTimeout = 120
+                MaxPoolSize = 200, ConnectTimeout = 120
             };
 
             SqlConnectionString = builder.ConnectionString;
@@ -158,7 +157,8 @@ public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 
             Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", _savedArchLucidAllowRlsBypassEnv ?? null);
 
-            Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, _savedArchLucidPersistenceAllowRlsBypassEnv ?? null);
+            Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey,
+                _savedArchLucidPersistenceAllowRlsBypassEnv ?? null);
 
             _savedArchLucidAllowRlsBypassEnv = null;
             _savedArchLucidPersistenceAllowRlsBypassEnv = null;

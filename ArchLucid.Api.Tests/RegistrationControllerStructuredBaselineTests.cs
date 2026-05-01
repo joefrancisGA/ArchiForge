@@ -92,9 +92,7 @@ public sealed class RegistrationControllerStructuredBaselineTests : IClassFixtur
 
         Dictionary<string, object?> body = new()
         {
-            ["organizationName"] = org,
-            ["adminEmail"] = "legacy@example.com",
-            ["adminDisplayName"] = "U"
+            ["organizationName"] = org, ["adminEmail"] = "legacy@example.com", ["adminDisplayName"] = "U"
         };
 
         using HttpResponseMessage res = await client.PostAsync(

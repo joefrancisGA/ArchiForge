@@ -25,7 +25,6 @@ public static class RunCursorCodec
         if (string.IsNullOrWhiteSpace(encoded))
             return null;
 
-
         byte[] bytes = Base64UrlDecode(encoded.Trim());
         RunListCursorDto? dto =
             JsonSerializer.Deserialize<RunListCursorDto>(bytes, SerializerOptions);
@@ -34,11 +33,9 @@ public static class RunCursorCodec
 
             return null;
 
-
         if (!DateTime.TryParse(dto.Cu, null, DateTimeStyles.RoundtripKind, out DateTime createdUtc))
 
             return null;
-
 
         return (NormalizeDateTimeUtc(createdUtc), dto.Ri);
     }
@@ -76,8 +73,16 @@ public static class RunCursorCodec
 
     private sealed class RunListCursorDto
     {
-        public string Cu { get; set; } = "";
+        public string Cu
+        {
+            get;
+            set;
+        } = "";
 
-        public Guid Ri { get; set; }
+        public Guid Ri
+        {
+            get;
+            set;
+        }
     }
 }

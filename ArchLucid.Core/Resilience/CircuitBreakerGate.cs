@@ -195,7 +195,6 @@ public sealed class CircuitBreakerGate
             if (_state == State.Closed)
                 return;
 
-
             if (_state == State.Open)
             {
                 if (_timeProvider.GetUtcNow() < _openUntilUtc)
@@ -274,7 +273,6 @@ public sealed class CircuitBreakerGate
             if (_consecutiveFailures < opts.FailureThreshold)
                 return;
 
-
             EmitStateTransition("Closed", "Open");
             _state = State.Open;
             _openUntilUtc = _timeProvider.GetUtcNow().AddSeconds(opts.DurationOfBreakSeconds);
@@ -290,7 +288,6 @@ public sealed class CircuitBreakerGate
         {
             if (_state != State.HalfOpen || !_probeInFlight)
                 return;
-
 
             EmitProbeOutcome("cancelled");
             EmitStateTransition("HalfOpen", "Open");
@@ -332,7 +329,6 @@ public sealed class CircuitBreakerGate
     {
         if (_onAuditEntry is null)
             return;
-
 
         try
         {

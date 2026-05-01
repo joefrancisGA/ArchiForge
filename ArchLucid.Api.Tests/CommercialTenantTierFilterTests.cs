@@ -74,12 +74,7 @@ public sealed class CommercialTenantTierFilterTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope())
             .Returns(
-                new ScopeContext
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid()
-                });
+                new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         CommercialTenantTierFilter sut = new(TenantTier.Standard, tenants.Object, scopeProvider.Object);
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
@@ -124,12 +119,7 @@ public sealed class CommercialTenantTierFilterTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope())
             .Returns(
-                new ScopeContext
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid()
-                });
+                new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         CommercialTenantTierFilter sut = new(TenantTier.Enterprise, tenants.Object, scopeProvider.Object);
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
@@ -174,12 +164,7 @@ public sealed class CommercialTenantTierFilterTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope())
             .Returns(
-                new ScopeContext
-                {
-                    TenantId = tenantId,
-                    WorkspaceId = Guid.NewGuid(),
-                    ProjectId = Guid.NewGuid()
-                });
+                new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         CommercialTenantTierFilter sut = new(TenantTier.Standard, tenants.Object, scopeProvider.Object);
         ActionExecutingContext executing = BuildExecutingContext(authenticated: true);
@@ -202,10 +187,7 @@ public sealed class CommercialTenantTierFilterTests
     {
         DefaultHttpContext httpContext = new()
         {
-            Request =
-            {
-                Path = "/v1.0/graph/runs/00000000-0000-0000-0000-000000000001"
-            }
+            Request = { Path = "/v1.0/graph/runs/00000000-0000-0000-0000-000000000001" }
         };
 
         if (authenticated)

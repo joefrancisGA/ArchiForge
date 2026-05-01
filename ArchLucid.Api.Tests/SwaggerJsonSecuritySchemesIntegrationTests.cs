@@ -73,11 +73,9 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBea
 
             return;
 
-
         if (!components.TryGetProperty("securitySchemes", out JsonElement schemes))
 
             return;
-
 
         schemes.TryGetProperty("Bearer", out _).Should().BeFalse();
     }

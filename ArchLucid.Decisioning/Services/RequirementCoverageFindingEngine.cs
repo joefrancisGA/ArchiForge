@@ -55,7 +55,6 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                 }
             });
 
-
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 }

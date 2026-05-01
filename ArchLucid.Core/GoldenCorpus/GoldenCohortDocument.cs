@@ -7,16 +7,32 @@ namespace ArchLucid.Core.GoldenCorpus;
 public sealed class GoldenCohortDocument
 {
     [JsonPropertyName("schemaVersion")]
-    public int SchemaVersion { get; set; }
+    public int SchemaVersion
+    {
+        get;
+        set;
+    }
 
     [JsonPropertyName("cohortName")]
-    public string CohortName { get; set; } = string.Empty;
+    public string CohortName
+    {
+        get;
+        set;
+    } = string.Empty;
 
     [JsonPropertyName("description")]
-    public string Description { get; set; } = string.Empty;
+    public string Description
+    {
+        get;
+        set;
+    } = string.Empty;
 
     [JsonPropertyName("items")]
-    public List<GoldenCohortItem> Items { get; set; } = [];
+    public List<GoldenCohortItem> Items
+    {
+        get;
+        set;
+    } = [];
 
     public static GoldenCohortDocument Load(string path)
     {
@@ -46,8 +62,7 @@ public sealed class GoldenCohortDocument
 
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true,
     };
 }
 
@@ -55,14 +70,30 @@ public sealed class GoldenCohortDocument
 public sealed class GoldenCohortItem
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; } = string.Empty;
+    public string Id
+    {
+        get;
+        set;
+    } = string.Empty;
 
     [JsonPropertyName("title")]
-    public string Title { get; set; } = string.Empty;
+    public string Title
+    {
+        get;
+        set;
+    } = string.Empty;
 
     [JsonPropertyName("expectedCommittedManifestSha256")]
-    public string ExpectedCommittedManifestSha256 { get; set; } = string.Empty;
+    public string ExpectedCommittedManifestSha256
+    {
+        get;
+        set;
+    } = string.Empty;
 
     [JsonPropertyName("expectedFindingCategories")]
-    public List<string> ExpectedFindingCategories { get; set; } = [];
+    public List<string> ExpectedFindingCategories
+    {
+        get;
+        set;
+    } = [];
 }

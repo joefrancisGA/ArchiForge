@@ -11,6 +11,7 @@ using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Connections;
@@ -56,6 +57,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         services.Configure<DataConsistencyEnforcementOptions>(
             configuration.GetSection(DataConsistencyEnforcementOptions.SectionName));
+
+        services.AddSingleton<IPostConfigureOptions<DataConsistencyEnforcementOptions>,
+            DataConsistencyEnforcementWarnModeProductionPostConfigure>();
 
         services.AddOptions<ArchLucidOptions>()
             .Configure<IConfiguration>(

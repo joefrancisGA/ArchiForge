@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Core.Pagination;
-
 using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -60,7 +59,6 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 
             _store.TryGetValue(findingsSnapshotId, out json);
 
-
         if (json is null)
             return Task.FromResult<FindingsSnapshot?>(null);
 
@@ -99,17 +97,16 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 
         IEnumerable<FindingEnvelope> envelopes =
             Enumerable.Range(0, snapshot.Findings.Count)
-                .Select(
-                    i =>
-                    {
-                        Finding f = snapshot.Findings[i];
-                        Guid recordId = StableFindingRecordId(findingsSnapshotId, i, f.FindingId);
+                .Select(i =>
+                {
+                    Finding f = snapshot.Findings[i];
+                    Guid recordId = StableFindingRecordId(findingsSnapshotId, i, f.FindingId);
 
-                        return new FindingEnvelope(
-                            SortOrder: i,
-                            RecordId: recordId,
-                            Finding: f);
-                    });
+                    return new FindingEnvelope(
+                        SortOrder: i,
+                        RecordId: recordId,
+                        Finding: f);
+                });
 
         string? sev = NormalizeFilter(severity);
         string? cat = NormalizeFilter(category);

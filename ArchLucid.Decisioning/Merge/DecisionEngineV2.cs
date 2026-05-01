@@ -37,7 +37,6 @@ public sealed class DecisionEngineV2(TimeProvider? timeProvider = null) : IDecis
         if (topologyTask is null || topologyResult is null)
             return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
 
-
         decisions.Add(BuildTopologyAcceptanceDecision(runId, topologyTask, topologyResult, evaluations));
         decisions.Add(BuildSecurityControlsDecision(runId, tasks, evaluations));
         decisions.Add(BuildComplexityDecision(runId, tasks, evaluations));

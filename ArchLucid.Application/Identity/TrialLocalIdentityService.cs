@@ -124,10 +124,9 @@ public sealed class TrialLocalIdentityService(
 
         await _repository.ResetAccessFailedAsync(normalized, cancellationToken);
 
-        if (row.EmailVerifiedUtc is null)
-            return null;
-
-        return new TrialLocalAuthResult { UserId = row.Id, Email = row.Email, Role = ArchLucidRoles.Reader };
+        return row.EmailVerifiedUtc is null
+            ? null
+            : new TrialLocalAuthResult { UserId = row.Id, Email = row.Email, Role = ArchLucidRoles.Reader };
     }
 
     private void EnsureLocalIdentityEnabled()

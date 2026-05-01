@@ -33,7 +33,6 @@ public sealed class RequestScopedCachingEffectiveGovernanceLoader(IEffectiveGove
 
             return _cached;
 
-
         PolicyPackContentDocument document = await inner
                 .LoadEffectiveContentAsync(tenantId, workspaceId, projectId, ct)
             ;

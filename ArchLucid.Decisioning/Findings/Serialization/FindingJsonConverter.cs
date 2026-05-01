@@ -50,7 +50,8 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         finding.ReviewedByUserId = ReadOptionalString(root, "reviewedByUserId");
         finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
 
-        if (root.TryGetProperty("confidenceScore", out JsonElement confEl) && confEl.ValueKind == JsonValueKind.Number &&
+        if (root.TryGetProperty("confidenceScore", out JsonElement confEl) &&
+            confEl.ValueKind == JsonValueKind.Number &&
             confEl.TryGetDouble(out double conf))
             finding.ConfidenceScore = conf;
 
@@ -59,7 +60,8 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             finding.HumanReviewStatus = hrs;
 
         if (root.TryGetProperty("reviewedAtUtc", out JsonElement raEl) && raEl.ValueKind == JsonValueKind.String &&
-            DateTimeOffset.TryParse(raEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out DateTimeOffset ra))
+            DateTimeOffset.TryParse(raEl.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind,
+                out DateTimeOffset ra))
             finding.ReviewedAtUtc = ra;
 
         if (!root.TryGetProperty("payload", out JsonElement payloadEl) || payloadEl.ValueKind == JsonValueKind.Null)

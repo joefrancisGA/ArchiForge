@@ -75,7 +75,6 @@ public class ComplianceFindingEngine(
                 }
             });
 
-
         return findings;
     }
 

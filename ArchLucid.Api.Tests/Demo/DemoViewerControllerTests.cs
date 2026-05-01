@@ -35,8 +35,8 @@ public sealed class DemoViewerControllerTests
             return true;
 
         return !string.IsNullOrWhiteSpace(
-            Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable))
-            || OperatingSystem.IsWindows();
+                   Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable))
+               || OperatingSystem.IsWindows();
     }
 
     [SkippableFact]
@@ -96,9 +96,7 @@ public sealed class DemoViewerControllerTests
         }
 
         HttpResponseMessage response =
-            await client.PostAsync("/v1/demo/viewer/runs", JsonContent.Create(new
-            {
-            }));
+            await client.PostAsync("/v1/demo/viewer/runs", JsonContent.Create(new { }));
 
         response.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
     }

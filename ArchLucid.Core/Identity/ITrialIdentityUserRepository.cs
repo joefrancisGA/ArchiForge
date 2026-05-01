@@ -31,5 +31,6 @@ public interface ITrialIdentityUserRepository
     ///     or already linked to another OID.
     /// </summary>
     /// <returns><c>true</c> when the row was updated or already matched <paramref name="entraOid" />.</returns>
-    Task<bool> TryLinkLocalIdentityToEntraAsync(string normalizedEmail, string entraOid, CancellationToken cancellationToken);
+    Task<bool> TryLinkLocalIdentityToEntraAsync(string normalizedEmail, string entraOid,
+        CancellationToken cancellationToken);
 }

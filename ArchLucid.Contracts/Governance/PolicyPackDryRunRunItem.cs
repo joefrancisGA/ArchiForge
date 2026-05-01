@@ -9,7 +9,8 @@ public sealed class PolicyPackDryRunRunItem
     /// <summary>The run id the caller passed in <c>evaluateAgainstRunIds</c>.</summary>
     public string RunId
     {
-        get; init;
+        get;
+        init;
     } = string.Empty;
 
     /// <summary>
@@ -19,13 +20,15 @@ public sealed class PolicyPackDryRunRunItem
     /// </summary>
     public bool RunMissing
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Run-level finding counts grouped case-insensitively by severity (descending by count).</summary>
     public IReadOnlyList<PolicyPackDryRunSeverityCount> FindingsBySeverity
     {
-        get; init;
+        get;
+        init;
     } = [];
 
     /// <summary>
@@ -35,7 +38,8 @@ public sealed class PolicyPackDryRunRunItem
     /// </summary>
     public IReadOnlyList<PolicyPackDryRunThresholdOutcome> ThresholdOutcomes
     {
-        get; init;
+        get;
+        init;
     } = [];
 
     /// <summary>
@@ -44,6 +48,7 @@ public sealed class PolicyPackDryRunRunItem
     /// </summary>
     public bool WouldBlock
     {
-        get; init;
+        get;
+        init;
     }
 }

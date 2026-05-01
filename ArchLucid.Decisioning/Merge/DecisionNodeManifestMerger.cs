@@ -32,7 +32,6 @@ public sealed class DecisionNodeManifestMerger
             output.Warnings.Add(
                 $"Decision topic '{dup.Key}' has {dup.Count()} duplicate nodes; only the first will be applied.");
 
-
         DecisionNode? topologyAcceptance = decisionNodes.FirstOrDefault(d =>
             string.Equals(d.Topic, TopicTopologyAcceptance, StringComparison.OrdinalIgnoreCase));
 

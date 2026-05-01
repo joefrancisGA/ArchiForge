@@ -1639,6 +1639,9 @@ GO
    Authority/decisioning tables (dbo.Runs … dbo.ArtifactBundles): enforces insert order
    and referential integrity for the runtime chain. ON DELETE omitted => NO ACTION (default).
    GoldenManifests.DecisionTraceId references dbo.DecisioningTraces (PK column DecisionTraceId).
+
+   DbUp parity: deployments that omit bootstrap DDL use Migrations/134_FK_Authority_Chain_Runs_DbUpParity.sql
+   to add missing FKs when no violating orphan rows exist.
 */
 IF OBJECT_ID(N'dbo.ContextSnapshots', N'U') IS NOT NULL
    AND OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL

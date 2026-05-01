@@ -58,7 +58,6 @@ public sealed class AlertEvaluator : IAlertEvaluator
                     break;
             }
 
-
         return alerts;
     }
 

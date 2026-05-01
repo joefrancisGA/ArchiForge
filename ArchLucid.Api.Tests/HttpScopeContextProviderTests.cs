@@ -45,10 +45,7 @@ public sealed class HttpScopeContextProviderTests
     {
         Guid headerTenant = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
-        DefaultHttpContext http = new()
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity())
-        };
+        DefaultHttpContext http = new() { User = new ClaimsPrincipal(new ClaimsIdentity()) };
         http.Request.Headers["x-tenant-id"] = headerTenant.ToString("D");
 
         ScopeContext scope = CreateProvider(http).GetCurrentScope();
@@ -104,11 +101,11 @@ public sealed class HttpScopeContextProviderTests
         http.Request.Headers["x-tenant-id"] = claimTenant.ToString("D");
 
         using (AmbientScopeContext.Push(new ScopeContext
-        {
-            TenantId = ambientTenant,
-            WorkspaceId = ScopeIds.DefaultWorkspace,
-            ProjectId = ScopeIds.DefaultProject
-        }))
+               {
+                   TenantId = ambientTenant,
+                   WorkspaceId = ScopeIds.DefaultWorkspace,
+                   ProjectId = ScopeIds.DefaultProject
+               }))
         {
             ScopeContext scope = CreateProvider(http).GetCurrentScope();
             scope.TenantId.Should().Be(ambientTenant);

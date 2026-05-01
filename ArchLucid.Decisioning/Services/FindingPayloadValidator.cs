@@ -29,12 +29,10 @@ public class FindingPayloadValidator : IFindingPayloadValidator
             _ = FindingPayloadConverter.ToRequirementPayload(finding) ??
                 throw new InvalidOperationException("RequirementFinding payload is invalid.");
 
-
         if (finding.FindingType.Equals(FindingTypes.TopologyGap, StringComparison.OrdinalIgnoreCase))
 
             _ = FindingPayloadConverter.ToTopologyGapPayload(finding) ??
                 throw new InvalidOperationException("TopologyGap payload is invalid.");
-
 
         if (finding.FindingType.Equals(FindingTypes.SecurityControlFinding, StringComparison.OrdinalIgnoreCase))
         {
@@ -57,24 +55,20 @@ public class FindingPayloadValidator : IFindingPayloadValidator
             _ = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding) ??
                 throw new InvalidOperationException("PolicyApplicabilityFinding payload is invalid.");
 
-
         if (finding.FindingType.Equals(FindingTypes.TopologyCoverageFinding, StringComparison.OrdinalIgnoreCase))
 
             _ = FindingPayloadConverter.ToTopologyCoveragePayload(finding) ??
                 throw new InvalidOperationException("TopologyCoverageFinding payload is invalid.");
-
 
         if (finding.FindingType.Equals(FindingTypes.SecurityCoverageFinding, StringComparison.OrdinalIgnoreCase))
 
             _ = FindingPayloadConverter.ToSecurityCoveragePayload(finding) ??
                 throw new InvalidOperationException("SecurityCoverageFinding payload is invalid.");
 
-
         if (finding.FindingType.Equals(FindingTypes.PolicyCoverageFinding, StringComparison.OrdinalIgnoreCase))
 
             _ = FindingPayloadConverter.ToPolicyCoveragePayload(finding) ??
                 throw new InvalidOperationException("PolicyCoverageFinding payload is invalid.");
-
 
         if (finding.FindingType.Equals(FindingTypes.RequirementCoverageFinding, StringComparison.OrdinalIgnoreCase))
         {

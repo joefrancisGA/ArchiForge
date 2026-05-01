@@ -35,7 +35,6 @@ public static class IntegrationEventServiceBusApplicationProperties
         if (payloadUtf8.IsEmpty)
             return null;
 
-
         if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.GovernancePromotionActivatedV1))
             return TryResolveGovernancePromotionActivated(payloadUtf8);
 
@@ -61,7 +60,6 @@ public static class IntegrationEventServiceBusApplicationProperties
 
             if (string.IsNullOrWhiteSpace(env))
                 return null;
-
 
             Dictionary<string, object> map = new(StringComparer.Ordinal)
             {
@@ -116,12 +114,10 @@ public static class IntegrationEventServiceBusApplicationProperties
             if (!doc.RootElement.TryGetProperty("deduplicationKey", out JsonElement dedupeEl))
                 return null;
 
-
             string? dedupe = dedupeEl.GetString();
 
             if (string.IsNullOrWhiteSpace(dedupe))
                 return null;
-
 
             Dictionary<string, object> map = new(StringComparer.Ordinal)
             {

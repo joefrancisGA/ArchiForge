@@ -28,8 +28,7 @@ public sealed class ArchivalConcurrencyIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     private static StringContent JsonContent(object value)
@@ -51,7 +50,8 @@ public sealed class ArchivalConcurrencyIntegrationTests
                 TestRequestFactory.CreateArchitectureRequest("REQ-ARCH-CONC-" + Guid.NewGuid().ToString("N")[..8])));
 
         createResponse.EnsureSuccessStatusCode();
-        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
         Guid runKey = Guid.Parse(runId);
 
@@ -59,10 +59,7 @@ public sealed class ArchivalConcurrencyIntegrationTests
         executeResponse.EnsureSuccessStatusCode();
 
         const int parallel = 5;
-        object body = new
-        {
-            runIds = new[] { runKey }
-        };
+        object body = new { runIds = new[] { runKey } };
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
 
         for (int i = 0; i < parallel; i++)

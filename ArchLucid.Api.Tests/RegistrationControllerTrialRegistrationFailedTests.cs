@@ -24,10 +24,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         Mock<ITrialTenantBootstrapService> boot = new();
         RegistrationController controller = new(prov.Object, audit.Object, boot.Object)
         {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
         controller.HttpContext.Request.Path = "/v1/register";
         controller.HttpContext.Response.Headers["X-Correlation-Id"] = "test-corr-1";
@@ -57,31 +54,24 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         Mock<IAuditService> audit = new();
         Mock<ITenantProvisioningService> prov = new();
         _ = prov
-            .Setup(
-                provisioningService => provisioningService.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(provisioningService =>
+                provisioningService.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(),
+                    It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new TenantProvisioningResult
                 {
-                    TenantId = t,
-                    DefaultWorkspaceId = w,
-                    DefaultProjectId = p,
-                    WasAlreadyProvisioned = true
+                    TenantId = t, DefaultWorkspaceId = w, DefaultProjectId = p, WasAlreadyProvisioned = true
                 });
         Mock<ITrialTenantBootstrapService> boot = new();
         RegistrationController controller = new(prov.Object, audit.Object, boot.Object)
         {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
         controller.HttpContext.Request.Path = "/v1/register";
 
         TenantRegistrationRequest body = new()
         {
-            OrganizationName = "Dup " + Guid.NewGuid().ToString("N"),
-            AdminEmail = "a@b.com",
-            AdminDisplayName = "A"
+            OrganizationName = "Dup " + Guid.NewGuid().ToString("N"), AdminEmail = "a@b.com", AdminDisplayName = "A"
         };
         IActionResult result = await controller.RegisterAsync(body, CancellationToken.None);
 
@@ -102,24 +92,18 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         Mock<IAuditService> audit = new();
         Mock<ITenantProvisioningService> prov = new();
         _ = prov
-            .Setup(
-                p => p.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.ProvisionAsync(It.IsAny<TenantProvisioningRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("simulated"));
         Mock<ITrialTenantBootstrapService> boot = new();
         RegistrationController controller = new(prov.Object, audit.Object, boot.Object)
         {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
         controller.HttpContext.Request.Path = "/v1/register";
 
         TenantRegistrationRequest body = new()
         {
-            OrganizationName = "O " + Guid.NewGuid().ToString("N"),
-            AdminEmail = "a@b.com",
-            AdminDisplayName = "A"
+            OrganizationName = "O " + Guid.NewGuid().ToString("N"), AdminEmail = "a@b.com", AdminDisplayName = "A"
         };
         IActionResult result = await controller.RegisterAsync(body, CancellationToken.None);
         ObjectResult or = (ObjectResult)result;

@@ -10,19 +10,22 @@ public sealed class PolicyPackDryRunThresholdOutcome
     /// <summary>Threshold key (e.g. <c>maxCriticalFindings</c>); see <see cref="PolicyPackDryRunSupportedThresholdKeys" />.</summary>
     public string Key
     {
-        get; init;
+        get;
+        init;
     } = string.Empty;
 
     /// <summary>Proposed numeric value for the threshold (parsed from the request body's redacted string value).</summary>
     public double ProposedValue
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>The run's actual numeric metric value (e.g. critical findings count, time-to-commit minutes).</summary>
     public double ActualValue
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>
@@ -32,6 +35,7 @@ public sealed class PolicyPackDryRunThresholdOutcome
     /// </summary>
     public bool WouldBreach
     {
-        get; init;
+        get;
+        init;
     }
 }

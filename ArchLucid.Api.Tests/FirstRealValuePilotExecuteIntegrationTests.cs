@@ -22,13 +22,16 @@ public sealed class FirstRealValuePilotExecuteIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     private sealed class AuditEventCursorPage
     {
-        public List<AuditEvent> Items { get; init; } = [];
+        public List<AuditEvent> Items
+        {
+            get;
+            init;
+        } = [];
     }
 
     private static StringContent JsonContent(object value)

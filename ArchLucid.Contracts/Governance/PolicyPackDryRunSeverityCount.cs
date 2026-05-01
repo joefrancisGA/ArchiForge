@@ -5,11 +5,13 @@ public sealed class PolicyPackDryRunSeverityCount
 {
     public string Severity
     {
-        get; init;
+        get;
+        init;
     } = string.Empty;
 
     public int Count
     {
-        get; init;
+        get;
+        init;
     }
 }

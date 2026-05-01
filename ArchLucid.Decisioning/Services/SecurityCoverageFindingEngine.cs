@@ -64,7 +64,6 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 }
             });
 
-
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 }

@@ -106,7 +106,6 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 }
             });
 
-
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 }

@@ -54,8 +54,16 @@ public static class FindingCursorCodec
 
     private sealed class FindingListCursorDto
     {
-        public int So { get; set; }
+        public int So
+        {
+            get;
+            set;
+        }
 
-        public Guid Fri { get; set; }
+        public Guid Fri
+        {
+            get;
+            set;
+        }
     }
 }

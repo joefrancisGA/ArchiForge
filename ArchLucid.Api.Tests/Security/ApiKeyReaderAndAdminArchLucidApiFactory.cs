@@ -31,6 +31,9 @@ public sealed class ApiKeyReaderAndAdminArchLucidApiFactory : ArchLucidApiFactor
         base.ConfigureWebHost(builder);
         IConfiguration bootstrap = new ConfigurationBuilder().AddInMemoryCollection(KeyModeConfiguration).Build();
         builder.UseConfiguration(bootstrap);
-        builder.ConfigureAppConfiguration((_, config) => { config.AddInMemoryCollection(KeyModeConfiguration); });
+        builder.ConfigureAppConfiguration((_, config) =>
+        {
+            config.AddInMemoryCollection(KeyModeConfiguration);
+        });
     }
 }

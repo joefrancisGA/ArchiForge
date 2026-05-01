@@ -6,10 +6,10 @@ namespace ArchLucid.Core.Configuration;
 public static class ConfigurationKeyRequirement
 {
     public static bool IsKeyRequired(
-      ConfigurationKeyEntry entry,
-      IConfiguration configuration,
-      string? aspNetCoreEnvironment,
-      out string reason)
+        ConfigurationKeyEntry entry,
+        IConfiguration configuration,
+        string? aspNetCoreEnvironment,
+        out string reason)
     {
         if (entry.Requirement != ConfigKeyRequirementKind.None)
             return IsRequiredByKind(
@@ -20,20 +20,19 @@ public static class ConfigurationKeyRequirement
         reason = "";
 
         return false;
-
     }
 
     public static bool IsKeyRequired(
-      ConfigurationKeyEntry entry,
-      IConfiguration configuration,
-      string? aspNetCoreEnvironment) =>
-      IsKeyRequired(entry, configuration, aspNetCoreEnvironment, out _);
+        ConfigurationKeyEntry entry,
+        IConfiguration configuration,
+        string? aspNetCoreEnvironment) =>
+        IsKeyRequired(entry, configuration, aspNetCoreEnvironment, out _);
 
     private static bool IsRequiredByKind(
-      IConfiguration c,
-      string? aspNetCoreEnvironment,
-      ConfigKeyRequirementKind kind,
-      out string reason)
+        IConfiguration c,
+        string? aspNetCoreEnvironment,
+        ConfigKeyRequirementKind kind,
+        out string reason)
     {
         reason = "";
 
@@ -137,14 +136,14 @@ public static class ConfigurationKeyRequirement
     }
 
     private static bool IsRealMode(IConfiguration c) =>
-      string.Equals(
-        c["AgentExecution:Mode"]?.Trim(),
-        "Real",
-        StringComparison.OrdinalIgnoreCase);
+        string.Equals(
+            c["AgentExecution:Mode"]?.Trim(),
+            "Real",
+            StringComparison.OrdinalIgnoreCase);
 
     private static bool IsEchoClient(IConfiguration c) =>
-      string.Equals(
-        c["AgentExecution:CompletionClient"]?.Trim(),
-        "Echo",
-        StringComparison.OrdinalIgnoreCase);
+        string.Equals(
+            c["AgentExecution:CompletionClient"]?.Trim(),
+            "Echo",
+            StringComparison.OrdinalIgnoreCase);
 }

@@ -14,8 +14,7 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
     };
 
     [SkippableFact]
@@ -27,7 +26,8 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         HttpResponseMessage response = await client.GetAsync("/v1/agent-execution/cost-preview");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        AgentExecutionCostPreviewDto? body = await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
+        AgentExecutionCostPreviewDto? body =
+            await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
         body.Should().NotBeNull();
         body.Mode.Should().Be("Simulator");
         body.MaxCompletionTokens.Should().Be(4096);
@@ -48,7 +48,8 @@ public sealed class AgentExecutionCostPreviewIntegrationTests
         HttpResponseMessage response = await client.GetAsync("/v1/agent-execution/cost-preview");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        AgentExecutionCostPreviewDto? body = await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
+        AgentExecutionCostPreviewDto? body =
+            await response.Content.ReadFromJsonAsync<AgentExecutionCostPreviewDto>(JsonOptions);
         body.Should().NotBeNull();
         body.Mode.Should().Be("Real");
         body.MaxCompletionTokens.Should().Be(1024);
