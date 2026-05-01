@@ -1,4 +1,4 @@
-using ArchLucid.Core.Tenancy;
+﻿using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Tenancy;
 
 using FluentAssertions;
@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Tests.Tenancy;
 
 public sealed class TrialTenantBootstrapServiceBaselinePersistenceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CommitSelfServiceTrialAsync_round_trips_baseline_triple_via_in_memory_repo()
     {
         InMemoryTenantRepository repo = new();

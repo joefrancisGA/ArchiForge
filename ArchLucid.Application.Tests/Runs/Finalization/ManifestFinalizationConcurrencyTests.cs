@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Reflection;
 
 using ArchLucid.Application;
@@ -38,7 +38,7 @@ public sealed class ManifestFinalizationConcurrencyTests
     /// <summary>
     ///     <c>dbo.sp_FinalizeManifest</c> raises <b>50001</b> when the run row is missing or out of scope after locking.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void MapSqlException_50001_maps_to_RunNotFoundException()
     {
         Guid runId = Guid.NewGuid();
@@ -51,7 +51,7 @@ public sealed class ManifestFinalizationConcurrencyTests
     /// <summary>
     ///     <b>50002</b>: committed run already holds a different manifest (idempotent replay with divergent body).
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void MapSqlException_50002_maps_to_ConflictException()
     {
         Guid runId = Guid.NewGuid();
@@ -64,7 +64,7 @@ public sealed class ManifestFinalizationConcurrencyTests
     /// <summary>
     ///     <b>50003</b>: run is not in a commit-allowed legacy status at finalize time.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void MapSqlException_50003_maps_to_ConflictException()
     {
         Guid runId = Guid.NewGuid();
@@ -75,9 +75,9 @@ public sealed class ManifestFinalizationConcurrencyTests
     }
 
     /// <summary>
-    ///     <b>50006</b>: optimistic concurrency on <c>RowVersionStamp</c> / expected row version — second commit loses.
+    ///     <b>50006</b>: optimistic concurrency on <c>RowVersionStamp</c> / expected row version â€” second commit loses.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void MapSqlException_50006_maps_to_ConflictException()
     {
         Guid runId = Guid.NewGuid();
@@ -90,7 +90,7 @@ public sealed class ManifestFinalizationConcurrencyTests
     /// <summary>
     ///     <b>50004</b>: findings snapshot on the run header does not match finalize inputs.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void MapSqlException_50004_maps_to_InvalidOperationException()
     {
         Guid runId = Guid.NewGuid();
@@ -103,7 +103,7 @@ public sealed class ManifestFinalizationConcurrencyTests
     /// <summary>
     ///     <b>50005</b>: artifact bundle mismatch for finalize.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void MapSqlException_50005_maps_to_InvalidOperationException()
     {
         Guid runId = Guid.NewGuid();
@@ -116,7 +116,7 @@ public sealed class ManifestFinalizationConcurrencyTests
     /// <summary>
     ///     Unknown SQL errors remain <see cref="SqlException" /> so operators retain full diagnostic surfaces.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public void MapSqlException_unknown_number_returns_same_sql_exception()
     {
         Guid runId = Guid.NewGuid();
@@ -126,7 +126,7 @@ public sealed class ManifestFinalizationConcurrencyTests
         mapped.Should().BeOfType<SqlException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FinalizeAsync_legacy_two_distinct_runs_finalize_successfully_sequentially()
     {
         Guid runIdA = Guid.NewGuid();
@@ -208,7 +208,7 @@ public sealed class ManifestFinalizationConcurrencyTests
         resA.ManifestId.Should().NotBe(resB.ManifestId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FinalizeAsync_legacy_status_Created_throws_ConflictException_as_unexpected_for_commit()
     {
         Guid runId = Guid.NewGuid();

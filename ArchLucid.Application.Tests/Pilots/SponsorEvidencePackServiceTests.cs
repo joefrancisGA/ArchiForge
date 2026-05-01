@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
@@ -20,7 +20,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class SponsorEvidencePackServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_when_demo_run_missing_exposes_null_deltas_and_zero_findings_completeness()
     {
         WhyArchLucidSnapshotResponse snap = new()
@@ -84,7 +84,7 @@ public sealed class SponsorEvidencePackServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_loads_findings_snapshot_and_computes_pilot_delta_when_run_present()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");

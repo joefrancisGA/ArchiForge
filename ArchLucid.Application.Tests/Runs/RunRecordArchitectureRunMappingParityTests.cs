@@ -1,4 +1,4 @@
-using ArchLucid.Application.Runs.Mapping;
+﻿using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Models;
@@ -15,7 +15,7 @@ namespace ArchLucid.Application.Tests.Runs;
 [Trait("Suite", "Core")]
 public sealed class RunRecordArchitectureRunMappingParityTests
 {
-    [Fact]
+    [SkippableFact]
     public void ToArchitectureRun_matches_reference_ArchitectureRun_for_same_logical_row()
     {
         Guid runGuid = Guid.Parse("77777777-7777-7777-7777-777777777777");

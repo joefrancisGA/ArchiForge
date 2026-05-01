@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
@@ -21,7 +21,7 @@ public sealed class TrialLimitGateTests
     private static readonly TimeProvider FixedTime =
         new FixedUtcTimeProvider(new DateTime(2026, 4, 17, 12, 0, 0, DateTimeKind.Utc));
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardWriteAsync_active_within_limits_does_not_throw()
     {
         Guid tenantId = Guid.NewGuid();
@@ -56,7 +56,7 @@ public sealed class TrialLimitGateTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardWriteAsync_active_expired_throws_Expired()
     {
         Guid tenantId = Guid.NewGuid();
@@ -89,7 +89,7 @@ public sealed class TrialLimitGateTests
         (await act.Should().ThrowAsync<TrialLimitExceededException>()).Which.Reason.Should().Be(TrialLimitReason.Expired);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardWriteAsync_active_seats_exhausted_throws_SeatsExceeded()
     {
         Guid tenantId = Guid.NewGuid();
@@ -124,7 +124,7 @@ public sealed class TrialLimitGateTests
         (await act.Should().ThrowAsync<TrialLimitExceededException>()).Which.Reason.Should().Be(TrialLimitReason.SeatsExceeded);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardWriteAsync_active_runs_exhausted_throws_RunsExceeded()
     {
         Guid tenantId = Guid.NewGuid();
@@ -157,7 +157,7 @@ public sealed class TrialLimitGateTests
         (await act.Should().ThrowAsync<TrialLimitExceededException>()).Which.Reason.Should().Be(TrialLimitReason.RunsExceeded);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardWriteAsync_converted_trial_does_not_throw()
     {
         Guid tenantId = Guid.NewGuid();
@@ -189,7 +189,7 @@ public sealed class TrialLimitGateTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardWriteAsync_none_trial_does_not_throw()
     {
         Guid tenantId = Guid.NewGuid();
@@ -219,7 +219,7 @@ public sealed class TrialLimitGateTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardWriteAsync_read_only_throws_LifecycleWritesFrozen()
     {
         Guid tenantId = Guid.NewGuid();
@@ -252,7 +252,7 @@ public sealed class TrialLimitGateTests
             .Be(TrialLimitReason.LifecycleWritesFrozen);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardDeleteAsync_read_only_throws_LifecycleDeletesFrozen()
     {
         Guid tenantId = Guid.NewGuid();
@@ -285,7 +285,7 @@ public sealed class TrialLimitGateTests
             .Be(TrialLimitReason.LifecycleDeletesFrozen);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GuardDeleteAsync_expired_does_not_throw()
     {
         Guid tenantId = Guid.NewGuid();

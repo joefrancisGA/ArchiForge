@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
@@ -14,7 +14,7 @@ namespace ArchLucid.Application.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class TrialTenantBootstrapServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryBootstrapAfterSelfRegistrationAsync_skips_when_was_already_provisioned()
     {
         Mock<IDemoSeedService> demo = new();
@@ -61,7 +61,7 @@ public sealed class TrialTenantBootstrapServiceTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryBootstrapAfterSelfRegistrationAsync_seeds_and_commits_trial()
     {
         Mock<IDemoSeedService> demo = new();
@@ -139,7 +139,7 @@ public sealed class TrialTenantBootstrapServiceTests
         repo.Verify(r => r.EnqueueTrialArchitecturePreseedAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryBootstrapAfterSelfRegistrationAsync_skips_when_email_verification_policy_blocks()
     {
         Mock<IDemoSeedService> demo = new();

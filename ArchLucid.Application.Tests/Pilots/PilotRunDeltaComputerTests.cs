@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
@@ -24,7 +24,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class PilotRunDeltaComputerTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenCommittedAndScoped_PopulatesEveryDelta()
     {
         Guid runGuid = Guid.Parse("aaaaaaaa-1111-2222-3333-444444444444");
@@ -99,7 +99,7 @@ public sealed class PilotRunDeltaComputerTests
         result.IsDemoTenant.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenRunIsCanonicalDemoBaseline_FlagsIsDemoTenant()
     {
         Guid runGuid = ContosoRetailDemoIdentifiers.AuthorityRunBaselineId;
@@ -113,7 +113,7 @@ public sealed class PilotRunDeltaComputerTests
         result.IsDemoTenant.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenRequestIdMatchesMultiTenantDemoPrefix_FlagsIsDemoTenant()
     {
         Guid runGuid = Guid.NewGuid();
@@ -127,7 +127,7 @@ public sealed class PilotRunDeltaComputerTests
         result.IsDemoTenant.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenAuditRowsHitCap_MarksTruncated()
     {
         Guid runGuid = Guid.Parse("bbbbbbbb-1111-2222-3333-444444444444");
@@ -159,7 +159,7 @@ public sealed class PilotRunDeltaComputerTests
         result.AuditRowCountTruncated.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenAuditRepositoryThrows_ReportsZeroAndContinues()
     {
         Guid runGuid = Guid.Parse("cccccccc-1111-2222-3333-444444444444");
@@ -186,7 +186,7 @@ public sealed class PilotRunDeltaComputerTests
         result.AuditRowCountTruncated.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenNoFindings_LeavesEvidenceFieldsNull()
     {
         Guid runGuid = Guid.Parse("dddddddd-1111-2222-3333-444444444444");
@@ -206,7 +206,7 @@ public sealed class PilotRunDeltaComputerTests
         traces.Verify(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenManifestMissing_TimeToCommitIsNull()
     {
         Guid runGuid = Guid.Parse("eeeeeeee-1111-2222-3333-444444444444");
@@ -221,7 +221,7 @@ public sealed class PilotRunDeltaComputerTests
         result.ManifestCommittedUtc.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_NullDetail_Throws()
     {
         PilotRunDeltaComputer sut = BuildSutWithEmptyDependencies(out _, out _);
@@ -231,7 +231,7 @@ public sealed class PilotRunDeltaComputerTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenEvidenceChainThrows_ReportsNullChainAndKeepsTopFindingId()
     {
         Guid runGuid = Guid.Parse("ffffffff-1111-2222-3333-444444444444");
@@ -259,7 +259,7 @@ public sealed class PilotRunDeltaComputerTests
         result.TopFindingEvidenceChain.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ComputeAsync_WhenRunIdNotGuid_ReportsZeroAuditRowsWithoutQuerying()
     {
         ArchitectureRunDetail detail = BuildDetail(Guid.NewGuid(), isDemoSeed: false);

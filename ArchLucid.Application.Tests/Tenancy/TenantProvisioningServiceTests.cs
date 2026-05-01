@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
@@ -16,7 +16,7 @@ namespace ArchLucid.Application.Tests.Tenancy;
 [Trait("Category", "Unit")]
 public sealed class TenantProvisioningServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task ProvisionAsync_is_idempotent_by_slug()
     {
         InMemoryTenantRepository repo = new();
@@ -46,7 +46,7 @@ public sealed class TenantProvisioningServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProvisionAsync_uses_audit_actor_override_when_set()
     {
         Mock<ITenantRepository> repo = new();
@@ -96,7 +96,7 @@ public sealed class TenantProvisioningServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ProvisionAsync_passes_entra_tenant_id_to_repository()
     {
         Guid entraTenantId = Guid.Parse("33333333-3333-3333-3333-333333333333");

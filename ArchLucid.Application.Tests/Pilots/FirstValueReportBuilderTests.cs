@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+﻿using ArchLucid.Application.Pilots;
 
 using Microsoft.Extensions.Configuration;
 using ArchLucid.Application.Value;
@@ -25,7 +25,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class FirstValueReportBuilderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildMarkdownAsync_WhenRunMissing_ReturnsNull()
     {
         Mock<IRunDetailQueryService> query = new();
@@ -41,7 +41,7 @@ public sealed class FirstValueReportBuilderTests
         deltas.Verify(d => d.ComputeAsync(It.IsAny<ArchitectureRunDetail>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildMarkdownAsync_WhenCommitted_RendersComputedDeltasAndManifest()
     {
         ArchitectureRunDetail detail = BuildCommittedDetail();
@@ -89,13 +89,13 @@ public sealed class FirstValueReportBuilderTests
         md.Should().Contain("| Error | 1 |");
         md.Should().Contain("LLM calls for this run");
         md.Should().Contain("| Audit rows for this run | 7 |");
-        md.Should().Contain("Top-severity finding — evidence chain excerpt");
+        md.Should().Contain("Top-severity finding â€” evidence chain excerpt");
         md.Should().Contain("`top-finding-id`");
         md.Should().Contain("11111111-1111-1111-1111-111111111111");
         md.Should().Contain("docs/EXECUTIVE_SPONSOR_BRIEF.md");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildMarkdownAsync_WhenDemoTenant_RendersBannerAtTopAndOnDeltaSection()
     {
         ArchitectureRunDetail detail = BuildCommittedDetail();
@@ -124,8 +124,8 @@ public sealed class FirstValueReportBuilderTests
         md.Should().NotBeNull();
         // Banner must appear in the document preface AND immediately under the computed-deltas heading,
         // so a sponsor cannot crop the page and quote a single number out of context.
-        int firstBanner = md.IndexOf("demo tenant — replace before publishing", StringComparison.Ordinal);
-        int secondBanner = md.IndexOf("demo tenant — replace before publishing", firstBanner + 1, StringComparison.Ordinal);
+        int firstBanner = md.IndexOf("demo tenant â€” replace before publishing", StringComparison.Ordinal);
+        int secondBanner = md.IndexOf("demo tenant â€” replace before publishing", firstBanner + 1, StringComparison.Ordinal);
         firstBanner.Should().BeGreaterThan(0);
         secondBanner.Should().BeGreaterThan(firstBanner);
     }

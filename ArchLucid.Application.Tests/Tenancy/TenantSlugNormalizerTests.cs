@@ -1,4 +1,4 @@
-using ArchLucid.Application.Tenancy;
+﻿using ArchLucid.Application.Tenancy;
 
 using FluentAssertions;
 
@@ -19,7 +19,7 @@ public sealed class TenantSlugNormalizerTests
         slug.Should().Be(expected);
     }
 
-    [Fact]
+    [SkippableFact]
     public void FromName_throws_when_no_alphanumeric()
     {
         Action act = () => TenantSlugNormalizer.FromName("---");

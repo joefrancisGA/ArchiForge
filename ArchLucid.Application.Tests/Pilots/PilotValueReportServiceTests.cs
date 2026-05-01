@@ -1,4 +1,4 @@
-using ArchLucid.Application.Governance;
+﻿using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
@@ -35,7 +35,7 @@ public sealed class PilotValueReportServiceTests
     private const string RunIn = "dddddddddddddddddddddddddddddddd";
     private const string RunOld = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_returns_null_when_tenant_missing()
     {
         PilotValueReportService sut = CreateSut(
@@ -49,7 +49,7 @@ public sealed class PilotValueReportServiceTests
         r.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_empty_window_returns_zeros()
     {
         DateTime anchor = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
@@ -69,7 +69,7 @@ public sealed class PilotValueReportServiceTests
         r.GovernancePendingApprovalsNow.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_counts_committed_runs_in_range_and_aggregates_findings()
     {
         DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
@@ -156,7 +156,7 @@ public sealed class PilotValueReportServiceTests
         r.AveragePipelineCompletionSeconds.Should().NotBeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_stops_paging_when_run_created_before_from()
     {
         DateTime from = new(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc);

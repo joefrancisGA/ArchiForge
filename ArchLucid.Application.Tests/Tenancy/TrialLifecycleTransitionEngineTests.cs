@@ -1,4 +1,4 @@
-using ArchLucid.Application.Tenancy;
+﻿using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
@@ -20,7 +20,7 @@ public sealed class TrialLifecycleTransitionEngineTests
         public override DateTimeOffset GetUtcNow() => utcNow;
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryAdvanceTenantAsync_when_repository_returns_false_does_not_audit()
     {
         Guid tenantId = Guid.NewGuid();
@@ -68,7 +68,7 @@ public sealed class TrialLifecycleTransitionEngineTests
             Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryAdvanceTenantAsync_when_transition_succeeds_audits_once()
     {
         Guid tenantId = Guid.NewGuid();

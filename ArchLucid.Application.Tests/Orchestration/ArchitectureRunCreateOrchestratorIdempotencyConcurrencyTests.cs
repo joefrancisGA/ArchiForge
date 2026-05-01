@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
@@ -42,7 +42,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
     };
 
-    [Fact]
+    [SkippableFact]
     [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     public async Task Parallel_create_with_same_idempotency_key_invokes_coordinator_once()
     {
@@ -219,7 +219,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
     /// <summary>
     /// Distinct idempotency keys must not collapse: each parallel create should invoke coordination once.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task Parallel_create_with_distinct_idempotency_keys_invokes_coordinator_each_time()
     {
         Guid tenantId = TestScope.TenantId;

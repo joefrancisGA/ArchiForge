@@ -1,4 +1,4 @@
-using ArchLucid.Application.Runs.Coordination;
+﻿using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Tests.TestDoubles;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -18,7 +18,7 @@ namespace ArchLucid.Application.Tests.Runs;
 [Trait("Suite", "Core")]
 public sealed class ArchitectureRunAuthorityCoordinationTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CreateRun_Should_CreateRunAndStarterTasks_When_RequestIsValid()
     {
         ArchitectureRequest request = new()

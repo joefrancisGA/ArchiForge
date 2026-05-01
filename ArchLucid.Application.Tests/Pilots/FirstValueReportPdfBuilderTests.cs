@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+﻿using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -21,7 +21,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class FirstValueReportPdfBuilderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildPdfAsync_WhenRunMissing_ReturnsNull()
     {
         Mock<IRunDetailQueryService> query = new();
@@ -37,7 +37,7 @@ public sealed class FirstValueReportPdfBuilderTests
         pdf.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildPdfAsync_WhenCommitted_ReturnsPdfWithMagicBytes()
     {
         ArchitectureRunDetail detail = BuildCommittedDetail();
@@ -71,7 +71,7 @@ public sealed class FirstValueReportPdfBuilderTests
         head[3].Should().Be((byte)'F');
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildPdfAsync_NullRunId_Throws()
     {
         Mock<IRunDetailQueryService> query = new();

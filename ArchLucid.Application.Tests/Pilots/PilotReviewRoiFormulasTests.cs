@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+﻿using ArchLucid.Application.Pilots;
 
 using FluentAssertions;
 
@@ -6,7 +6,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 
 public sealed class PilotReviewRoiFormulasTests
 {
-    [Fact]
+    [SkippableFact]
     public void Annual_savings_is_half_of_status_quo_at_fifty_percent_hour_reduction()
     {
         decimal q = 12;

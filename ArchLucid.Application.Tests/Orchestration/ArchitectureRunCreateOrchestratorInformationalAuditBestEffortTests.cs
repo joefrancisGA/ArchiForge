@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
@@ -37,7 +37,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
         ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task CreateRunAsync_when_informational_durable_audit_fails_returns_success()
     {
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();

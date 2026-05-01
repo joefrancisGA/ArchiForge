@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+﻿using ArchLucid.Application.Pilots;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class WhyArchLucidPackBuilderTests
 {
-    [Fact]
+    [SkippableFact]
     public void BuildMarkdown_includes_benchmarked_differentiation_table_and_demo_banner()
     {
         WhyArchLucidPackSourceDto source = new(
@@ -24,9 +24,9 @@ public sealed class WhyArchLucidPackBuilderTests
         string md = WhyArchLucidPackBuilder.BuildMarkdown(source);
 
         md.Should().Contain("Five capability claims, every claim cited to a file in this repository or to an external public source.");
-        md.Should().Contain("| Claim | ArchLucid evidence | Competitor baseline | Citation | Narrative (≤4 sentences) |");
+        md.Should().Contain("| Claim | ArchLucid evidence | Competitor baseline | Citation | Narrative (â‰¤4 sentences) |");
         md.Should().Contain("GET /v1/authority/runs/{runId}/provenance");
-        md.Should().Contain("demo tenant — replace before publishing");
+        md.Should().Contain("demo tenant â€” replace before publishing");
         md.Should().Contain("`run`");
     }
 }

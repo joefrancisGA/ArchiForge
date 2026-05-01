@@ -1,4 +1,4 @@
-using ArchLucid.Application.Runs.Orchestration;
+﻿using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Tests.Runs.Orchestration;
 
 public sealed class AgentTopologyProposalGraphMergeTests
 {
-    [Fact]
+    [SkippableFact]
     public void WithMergedTopologyProposals_adds_service_and_datastore_nodes_from_topology_result()
     {
         GraphSnapshot graph = new()
@@ -71,7 +71,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
             n.NodeType == GraphNodeTypes.TopologyResource && n.Label == "rag-metadata" && n.Category == GraphTopologyCategories.Data);
     }
 
-    [Fact]
+    [SkippableFact]
     public void WithMergedTopologyProposals_does_not_duplicate_labels_already_in_graph()
     {
         GraphSnapshot graph = new()

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
@@ -37,7 +37,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteRunAsync_after_persist_emits_durable_audit_when_legacy_status_promoted_to_ready_for_commit()
     {
         Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

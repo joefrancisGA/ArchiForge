@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+﻿using ArchLucid.Application.Pilots;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class WhyArchLucidPackPdfBuilderTests
 {
-    [Fact]
+    [SkippableFact]
     public void Build_returns_pdf_magic_bytes()
     {
         WhyArchLucidPackPdfBuilder sut = new();

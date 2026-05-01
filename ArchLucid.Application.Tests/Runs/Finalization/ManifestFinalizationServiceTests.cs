@@ -1,4 +1,4 @@
-using ArchLucid.Application.Runs.Finalization;
+﻿using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Findings;
@@ -26,7 +26,7 @@ namespace ArchLucid.Application.Tests.Runs.Finalization;
 [Trait("Category", "Unit")]
 public sealed class ManifestFinalizationServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task FinalizeAsync_throws_when_request_is_null()
     {
         ManifestFinalizationService sut = CreateSut();
@@ -36,7 +36,7 @@ public sealed class ManifestFinalizationServiceTests
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FinalizeAsync_legacy_path_throws_InvalidOperation_when_findings_snapshot_mismatch()
     {
         Guid runId = Guid.NewGuid();
@@ -76,7 +76,7 @@ public sealed class ManifestFinalizationServiceTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*Findings*");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FinalizeAsync_legacy_path_throws_when_findings_generation_not_sealed()
     {
         Guid runId = Guid.NewGuid();
@@ -127,7 +127,7 @@ public sealed class ManifestFinalizationServiceTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*not eligible*");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FinalizeAsync_legacy_path_throws_ConflictException_when_run_status_invalid()
     {
         Guid runId = Guid.NewGuid();
@@ -167,7 +167,7 @@ public sealed class ManifestFinalizationServiceTests
         await act.Should().ThrowAsync<ConflictException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FinalizeAsync_legacy_path_calls_UpdateAsync_EnqueueAsync_and_LogAsync_on_success()
     {
         Guid runId = Guid.NewGuid();
@@ -268,7 +268,7 @@ public sealed class ManifestFinalizationServiceTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task FinalizeAsync_legacy_returns_idempotent_when_run_already_committed()
     {
         Guid runId = Guid.NewGuid();

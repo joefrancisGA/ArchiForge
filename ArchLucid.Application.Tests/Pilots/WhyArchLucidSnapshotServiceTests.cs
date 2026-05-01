@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Audit;
@@ -15,13 +15,13 @@ using Moq;
 namespace ArchLucid.Application.Tests.Pilots;
 
 /// <summary>
-/// Unit tests for <see cref="WhyArchLucidSnapshotService"/> — the application service behind
+/// Unit tests for <see cref="WhyArchLucidSnapshotService"/> â€” the application service behind
 /// <c>GET /v1/pilots/why-archlucid-snapshot</c>, used by the operator-shell <c>/why-archlucid</c> proof page.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class WhyArchLucidSnapshotServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_returns_canonical_demo_run_id_and_aggregated_counters()
     {
         InstrumentationCounterSnapshot counters = new()
@@ -66,7 +66,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
         result.AuditRowCountTruncated.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_marks_audit_row_count_as_truncated_when_cap_reached()
     {
         Mock<IInstrumentationCounterSnapshotProvider> provider = new();
@@ -97,7 +97,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
         result.AuditRowCountTruncated.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_swallows_audit_repository_failures_and_reports_zero_rows()
     {
         Mock<IInstrumentationCounterSnapshotProvider> provider = new();
@@ -125,7 +125,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
         result.AuditRowCountTruncated.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildAsync_propagates_cancellation_from_audit_repository()
     {
         Mock<IInstrumentationCounterSnapshotProvider> provider = new();

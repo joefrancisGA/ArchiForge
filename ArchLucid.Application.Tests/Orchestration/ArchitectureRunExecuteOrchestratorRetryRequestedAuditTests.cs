@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
@@ -37,7 +37,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
         ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
     };
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteRunAsync_when_run_failed_emits_retry_requested_before_failing_execute_path()
     {
         Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
@@ -147,7 +147,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ExecuteRunAsync_when_retry_requested_audit_fails_repeatedly_still_surfaces_execute_validation_error()
     {
         Guid runGuid = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

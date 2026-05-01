@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Common;
+﻿using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
 
@@ -23,14 +23,14 @@ public sealed class ArchitectureRunStatusTransitionPropertyTests
         v.Should().BeInRange(1, 7);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Terminal_statuses_for_commit_include_Committed_and_Failed()
     {
         ArchitectureRunStatus.Committed.Should().Be((ArchitectureRunStatus)5);
         ArchitectureRunStatus.Failed.Should().Be((ArchitectureRunStatus)6);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Pre_commit_eligible_statuses_are_ordered_before_Committed()
     {
         ((int)ArchitectureRunStatus.ReadyForCommit).Should().BeLessThan((int)ArchitectureRunStatus.Committed);

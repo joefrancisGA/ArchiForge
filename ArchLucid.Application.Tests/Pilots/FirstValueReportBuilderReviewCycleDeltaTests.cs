@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 
 using ArchLucid.ArtifactSynthesis.Docx;
@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 
 public sealed class FirstValueReportBuilderReviewCycleDeltaTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task Markdown_and_DOCX_carry_same_decimal_tokens_for_identical_snapshot()
     {
         ValueReportSnapshot snapshot = new(

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Billing;
+﻿using ArchLucid.Application.Billing;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Tenancy;
@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class TenantMeasuredRoiServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetAsync_composes_snapshot_and_cost_and_disclaimer()
     {
         WhyArchLucidSnapshotResponse snap = new()
@@ -47,7 +47,7 @@ public sealed class TenantMeasuredRoiServiceTests
         result.Disclaimer.Should().Contain("planning guidance");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetAsync_free_tier_appends_free_tier_sentence()
     {
         Mock<IWhyArchLucidSnapshotService> snapshot = new();

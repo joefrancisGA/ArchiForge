@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
@@ -13,7 +13,7 @@ public sealed class TrialLifecyclePolicyTests
 {
     private static readonly TrialLifecycleSchedulerOptions DefaultOpts = new();
 
-    [Fact]
+    [SkippableFact]
     public void TryGetNextAdvancement_active_before_expiry_returns_null()
     {
         DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
@@ -27,7 +27,7 @@ public sealed class TrialLifecyclePolicyTests
         adv.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryGetNextAdvancement_active_on_expiry_moves_to_expired()
     {
         DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
@@ -43,7 +43,7 @@ public sealed class TrialLifecyclePolicyTests
         adv.ToStatus.Should().Be(TrialLifecycleStatus.Expired);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryGetNextAdvancement_expired_before_read_only_window_returns_null()
     {
         DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
@@ -57,7 +57,7 @@ public sealed class TrialLifecyclePolicyTests
         adv.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryGetNextAdvancement_expired_after_window_moves_to_read_only()
     {
         DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
@@ -72,7 +72,7 @@ public sealed class TrialLifecyclePolicyTests
         adv.ToStatus.Should().Be(TrialLifecycleStatus.ReadOnly);
     }
 
-    [Fact]
+    [SkippableFact]
     public void TryGetNextAdvancement_idempotent_second_tick_same_phase_still_null_until_boundary()
     {
         DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);
@@ -95,7 +95,7 @@ public sealed class TrialLifecyclePolicyTests
         second.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputeDaysRemaining_for_read_only_uses_export_only_deadline()
     {
         DateTimeOffset anchor = DateTimeOffset.Parse("2026-05-01T00:00:00Z", CultureInfo.InvariantCulture);

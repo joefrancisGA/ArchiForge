@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+﻿using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -18,7 +18,7 @@ namespace ArchLucid.Application.Tests.Pilots;
 [Trait("Suite", "Core")]
 public sealed class SponsorOnePagerPdfBuilderTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task BuildPdfAsync_WhenRunMissing_ReturnsNull()
     {
         Mock<IRunDetailQueryService> query = new();
@@ -44,7 +44,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         deltas.Verify(d => d.ComputeAsync(It.IsAny<ArchitectureRunDetail>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildPdfAsync_WhenRunPresent_ReturnsPdfMagicBytes()
     {
         ArchitectureRun run = new()
@@ -128,7 +128,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         head[3].Should().Be((byte)'F');
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task BuildPdfAsync_WhenDemoTenant_RendersDemoBanner()
     {
         // The demo banner is a marketing-critical guardrail: a sponsor must never be able to extract the

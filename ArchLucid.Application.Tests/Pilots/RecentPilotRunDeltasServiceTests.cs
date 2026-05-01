@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+﻿using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -14,13 +14,13 @@ using Moq;
 namespace ArchLucid.Application.Tests.Pilots;
 
 /// <summary>
-///     Unit tests for <see cref="RecentPilotRunDeltasService" /> — the new aggregator behind
+///     Unit tests for <see cref="RecentPilotRunDeltasService" /> â€” the new aggregator behind
 ///     <c>GET /v1/pilots/runs/recent-deltas</c> that powers the BeforeAfterDeltaPanel top / sidebar variants.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class RecentPilotRunDeltasServiceTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_FiltersToCommittedRuns_NewestFirst_AndClampsCount()
     {
         Mock<IRunDetailQueryService> queryService = new();
@@ -54,7 +54,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         response.MedianTimeToCommittedManifestTotalSeconds.Should().BeApproximately(82.5, 0.001);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_ClampsCountAboveMaxToHardCeiling()
     {
         Mock<IRunDetailQueryService> queryService = new();
@@ -68,7 +68,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         response.RequestedCount.Should().Be(IRecentPilotRunDeltasService.MaxCount);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_ClampsZeroOrNegativeToMin()
     {
         Mock<IRunDetailQueryService> queryService = new();
@@ -82,7 +82,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         response.RequestedCount.Should().Be(IRecentPilotRunDeltasService.MinCount);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_WithNoCommittedRuns_ReturnsEmptyAndNullMedians()
     {
         Mock<IRunDetailQueryService> queryService = new();
@@ -102,7 +102,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         response.MedianTimeToCommittedManifestTotalSeconds.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_SkipsRunsWhereDetailLookupReturnsNull()
     {
         Mock<IRunDetailQueryService> queryService = new();
@@ -126,7 +126,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         response.Items[0].RunId.Should().Be(good.RunId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_SkipsRunsWhereDeltaComputerThrows_AndKeepsOthers()
     {
         Mock<IRunDetailQueryService> queryService = new();
@@ -152,7 +152,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         response.Items[0].RunId.Should().Be(good.RunId);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputeMedian_OnOddSample_ReturnsMiddleValue()
     {
         double? result = RecentPilotRunDeltasService.ComputeMedian([3, 1, 2]);
@@ -160,7 +160,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         result.Should().Be(2);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputeMedian_OnEvenSample_ReturnsAverageOfMiddleTwo()
     {
         double? result = RecentPilotRunDeltasService.ComputeMedian([10, 4, 2, 8]);
@@ -168,7 +168,7 @@ public sealed class RecentPilotRunDeltasServiceTests
         result.Should().Be(6);
     }
 
-    [Fact]
+    [SkippableFact]
     public void ComputeMedian_OnEmpty_ReturnsNull()
     {
         double? result = RecentPilotRunDeltasService.ComputeMedian([]);

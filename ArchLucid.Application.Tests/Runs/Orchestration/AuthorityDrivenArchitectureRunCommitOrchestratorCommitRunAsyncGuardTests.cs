@@ -1,4 +1,4 @@
-using ArchLucid.Application.Common;
+﻿using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Governance;
@@ -27,7 +27,7 @@ namespace ArchLucid.Application.Tests.Runs.Orchestration;
 [Trait("Suite", "Core")]
 public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsyncGuardTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task CommitRunAsync_null_runId_throws_ArgumentNullException()
     {
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
@@ -42,7 +42,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CommitRunAsync_whitespace_runId_throws_ArgumentException()
     {
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
@@ -56,7 +56,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             .Which.ParamName.Should().Be("runId");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CommitRunAsync_malformed_run_id_throws_RunNotFoundException_and_records_baseline_audit()
     {
         AuthorityDrivenArchitectureRunCommitOrchestrator sut = CreateSut(
@@ -77,7 +77,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task CommitRunAsync_known_guid_missing_from_repository_throws_RunNotFoundException()
     {
         Guid runGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");

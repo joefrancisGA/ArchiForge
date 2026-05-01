@@ -1,4 +1,4 @@
-using ArchLucid.Application.Tenancy;
+﻿using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Tests.Tenancy;
 [Trait("Suite", "Core")]
 public sealed class TrialSeatAccountantTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task TryReserveSeatAsync_same_user_twice_invokes_repository_twice_without_short_circuit()
     {
         Guid tenantId = Guid.NewGuid();
@@ -37,7 +37,7 @@ public sealed class TrialSeatAccountantTests
         tenants.Verify(t => t.TryClaimTrialSeatAsync(tenantId, "user-1", It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task TryReserveSeatAsync_empty_tenant_skips_repository()
     {
         Mock<ITenantRepository> tenants = new();

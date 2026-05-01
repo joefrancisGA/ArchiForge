@@ -1,4 +1,4 @@
-using ArchLucid.Application.Pilots;
+﻿using ArchLucid.Application.Pilots;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
 {
     private readonly ExecutionProvenanceFooterRenderer _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void BuildFooterMarkdown_WhenSimulatorMode_usesSimulatorLabel()
     {
         ExecutionProvenanceFooterInput input = new(
@@ -24,7 +24,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
         md.Should().Contain("LLM completion traces (this run) | 2");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildFooterMarkdown_WhenRealMode_usesRealLabelAndDeployment()
     {
         ExecutionProvenanceFooterInput input = new(
@@ -40,7 +40,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
         md.Should().Contain("`my-deployment`");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildFooterMarkdown_WhenFellBack_usesFallbackLabelAndSnapshotDeployment()
     {
         ExecutionProvenanceFooterInput input = new(
@@ -52,11 +52,11 @@ public sealed class ExecutionProvenanceFooterRendererTests
 
         string md = _sut.BuildFooterMarkdown(input);
 
-        md.Should().Contain("Real → Simulator (fallback)");
+        md.Should().Contain("Real â†’ Simulator (fallback)");
         md.Should().Contain("`snap-dep`");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildFooterMarkdown_WhenFellBackAndNoSnapshot_showsUnknownPlaceholder()
     {
         ExecutionProvenanceFooterInput input = new(
@@ -71,7 +71,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
         md.Should().Contain("(unknown at fallback)");
     }
 
-    [Fact]
+    [SkippableFact]
     public void BuildYellowSimulatorSubstitutionCallout_containsWarningAndDocLink()
     {
         string callout = _sut.BuildYellowSimulatorSubstitutionCallout();

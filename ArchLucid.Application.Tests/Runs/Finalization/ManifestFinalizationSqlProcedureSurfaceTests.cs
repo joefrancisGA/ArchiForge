@@ -15,12 +15,12 @@ public sealed class ManifestFinalizationSqlProcedureSurfaceTests
     /// <summary>
     ///     Confirms <c>dbo.sp_FinalizeManifest</c> is deployed to the configured catalog (CI / local SQL regression).
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task dbo_sp_FinalizeManifest_exists_when_sql_catalog_configured()
     {
         string? raw = Environment.GetEnvironmentVariable(TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable);
 
-        Assert.SkipWhen(
+        Skip.If(
             string.IsNullOrWhiteSpace(raw),
             "Set " + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable + " to run this SQL integration test.");
 
