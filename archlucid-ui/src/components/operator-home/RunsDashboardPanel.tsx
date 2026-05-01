@@ -68,6 +68,7 @@ export function RunsDashboardPanel() {
   const [tab, setTab] = useState<TabId>("recent");
   const [phase, setPhase] = useState<"loading" | "ready" | "error">("loading");
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [runsListAuthorityUnusable, setRunsListAuthorityUnusable] = useState(false);
   const [items, setItems] = useState<RunSummary[]>([]);
   const { status: deltaStatus, data: deltaData } = useDeltaQuery({ count: 5 });
 
@@ -77,6 +78,7 @@ export function RunsDashboardPanel() {
     async function load() {
       setPhase("loading");
       setFailure(null);
+      setRunsListAuthorityUnusable(false);
 
       try {
         const raw: unknown = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, PREVIEW_MAX);
@@ -87,6 +89,7 @@ export function RunsDashboardPanel() {
         }
 
         if (!coerced.ok) {
+          setRunsListAuthorityUnusable(true);
           setFailure(uiFailureFromMessage(coerced.message));
           setPhase("error");
 
@@ -100,6 +103,7 @@ export function RunsDashboardPanel() {
           return;
         }
 
+        setRunsListAuthorityUnusable(true);
         setFailure(toApiLoadFailure(e));
         setPhase("error");
       }
@@ -121,14 +125,16 @@ export function RunsDashboardPanel() {
       return items;
     }
 
-    const fallback = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID);
+    const fallback = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID, {
+      afterAuthorityListFailure: runsListAuthorityUnusable,
+    });
 
     if (fallback !== null && fallback.items.length > 0) {
       return fallback.items;
     }
 
     return items;
-  }, [items, phase]);
+  }, [items, phase, runsListAuthorityUnusable]);
 
   const showcaseDemoRun = useMemo(
     () => effectiveItems.find((r) => runIsShowcaseHomeExampleStory(r)),

@@ -51,7 +51,7 @@ export default async function ExecutiveReviewsPage() {
   }
 
   if (runs.length === 0 && loadError !== null) {
-    const demoFallback = tryStaticDemoRunSummariesPaged("default");
+    const demoFallback = tryStaticDemoRunSummariesPaged("default", { afterAuthorityListFailure: true });
 
     if (demoFallback !== null) {
       runs = demoFallback.items.filter(isFinalizedReview);

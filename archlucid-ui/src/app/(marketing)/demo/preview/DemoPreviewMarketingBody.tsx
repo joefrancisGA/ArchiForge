@@ -9,7 +9,7 @@ import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun } from "@/lib/operator-static-demo";
 import {
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -138,7 +138,8 @@ export function DemoPreviewMarketingBody({
   suppressStatusBanner = false,
 }: DemoPreviewMarketingBodyProps) {
   const demoMode = isBuyerSafeDemoMarketingChromeEnv();
-  const isRunDetailAvailable = isStaticDemoPayloadFallbackEnabled();
+  const payloadRunId = typeof payload.run?.runId === "string" ? payload.run.runId.trim() : "";
+  const isRunDetailAvailable = payloadRunId.length > 0 && isStaticDemoPayloadFallbackActiveForRun(payloadRunId);
   const chain = payload.authorityChain ?? {};
   const runEx = payload.runExplanation ?? null;
   const themeRaw = Array.isArray(runEx?.themeSummaries) ? runEx.themeSummaries : [];

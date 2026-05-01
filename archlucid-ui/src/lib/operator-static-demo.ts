@@ -40,16 +40,54 @@ export function isDemoRunIdEligibleForStaticFallback(runId: string): boolean {
   return DEMO_RUN_IDS_FOR_STATIC_FALLBACK.has(runId.trim());
 }
 
-function isDemoRunsListFallbackEnabled(): boolean {
-  return isStaticDemoPayloadFallbackEnabled();
+/**
+ * Uses curated Claims Intake static payloads for well-known `/reviews/{runId}` URL tokens **without** requiring demo env
+ * vars (OpenAI UI review 2026-05-01 — deploys forgot flags; detail routes must still render).
+ */
+export function isStaticDemoPayloadFallbackActiveForRun(runId: string): boolean {
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return true;
+  }
+
+  const effectiveRunId = canonicalizeDemoRunId(runId.trim());
+
+  return isDemoRunIdEligibleForStaticFallback(effectiveRunId);
+}
+
+/** Same as {@link isStaticDemoPayloadFallbackActiveForRun} for the known showcase manifest UUID. */
+export function isStaticDemoPayloadFallbackActiveForManifest(manifestId: string): boolean {
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return true;
+  }
+
+  return manifestId.trim() === SHOWCASE_STATIC_DEMO_MANIFEST_ID;
+}
+
+export type StaticDemoRunsListFallbackOptions = {
+  /**
+   * When `listRunsByProjectPaged` throws or returns JSON that fails coercion, inject the curated sample row even if
+   * demo env vars are unset (keeps reviews list + pickers aligned with review detail static fallback).
+   */
+  readonly afterAuthorityListFailure?: boolean;
+};
+
+function isRunsListCuratedShowcaseAllowed(options?: StaticDemoRunsListFallbackOptions): boolean {
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return true;
+  }
+
+  return options?.afterAuthorityListFailure === true;
 }
 
 /**
  * When the runs list API fails (or returns unusable JSON), serve one curated Claims Intake row so
  * primary nav + `/runs` screenshots stay credible in demo / static-operator deploys.
  */
-export function tryStaticDemoRunSummariesPaged(projectId: string): { items: RunSummary[]; totalCount: number } | null {
-  if (!isDemoRunsListFallbackEnabled()) {
+export function tryStaticDemoRunSummariesPaged(
+  projectId: string,
+  options?: StaticDemoRunsListFallbackOptions,
+): { items: RunSummary[]; totalCount: number } | null {
+  if (!isRunsListCuratedShowcaseAllowed(options)) {
     return null;
   }
 
@@ -75,8 +113,11 @@ export function tryStaticDemoRunSummariesPaged(projectId: string): { items: RunS
  * When Compare needs two distinct run rows and the live list is empty, serve baseline/updated labels for the Claims
  * Intake demo spine (same eligibility as {@link tryStaticDemoRunSummariesPaged}).
  */
-export function tryStaticDemoCompareRunSummaries(projectId: string): { items: RunSummary[]; totalCount: number } | null {
-  if (!isDemoRunsListFallbackEnabled()) {
+export function tryStaticDemoCompareRunSummaries(
+  projectId: string,
+  options?: StaticDemoRunsListFallbackOptions,
+): { items: RunSummary[]; totalCount: number } | null {
+  if (!isRunsListCuratedShowcaseAllowed(options)) {
     return null;
   }
 
@@ -179,7 +220,7 @@ export function buildStaticDemoArtifactsFromShowcase(urlRunId: string): Artifact
 }
 
 export function tryStaticDemoRunDetail(runId: string): RunDetail | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
     return null;
   }
 
@@ -221,7 +262,7 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
 }
 
 export function tryStaticDemoFindingInspect(runId: string, findingId: string): FindingInspectPayload | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
     return null;
   }
 
@@ -240,7 +281,7 @@ export function tryStaticDemoFindingInspect(runId: string, findingId: string): F
 }
 
 export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummary | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForManifest(manifestId)) {
     return null;
   }
 
@@ -252,7 +293,7 @@ export function tryStaticDemoManifestSummary(manifestId: string): ManifestSummar
 }
 
 export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineItem[] | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
     return null;
   }
 
@@ -266,7 +307,7 @@ export function tryStaticDemoPipelineTimeline(runId: string): PipelineTimelineIt
 }
 
 export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: string): ArtifactDescriptor[] | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runIdForPayload)) {
     return null;
   }
 
@@ -281,7 +322,7 @@ export function tryStaticDemoArtifacts(runIdForPayload: string, manifestId: stri
 
 /** Static fallback for aggregate explanation when the explain API is unavailable (demo static operator mode). */
 export function tryStaticDemoExplanationSummary(runId: string): RunExplanationSummary | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
     return null;
   }
 
@@ -405,7 +446,7 @@ export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): Ar
 }
 
 export function tryStaticDemoProvenanceGraph(runId: string): ArchitectureRunProvenanceGraph | null {
-  if (!isDemoRunsListFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
     return null;
   }
 
@@ -571,7 +612,7 @@ export function tryStaticDemoAlertInboxRow(): AlertRecord | null {
 }
 
 export function tryStaticDemoGovernanceApprovalRequests(runId: string): GovernanceApprovalRequest[] | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
     return null;
   }
 
@@ -600,7 +641,7 @@ export function tryStaticDemoGovernanceApprovalRequests(runId: string): Governan
 }
 
 export function tryStaticDemoGovernancePromotions(runId: string): GovernancePromotionRecord[] | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
     return null;
   }
 

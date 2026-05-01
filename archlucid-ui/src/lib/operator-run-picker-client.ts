@@ -36,14 +36,14 @@ export async function loadProjectRunsMergedWithDemoFallback(
   }
 
   if (options?.forCompare ?? false) {
-    const compareDemo = tryStaticDemoCompareRunSummaries(projectId);
+    const compareDemo = tryStaticDemoCompareRunSummaries(projectId, { afterAuthorityListFailure: loadError });
 
     if (compareDemo !== null) {
       return { items: compareDemo.items.map(normalizeRunSummaryForDemoPicker), loadError: false };
     }
   }
 
-  const fallback = tryStaticDemoRunSummariesPaged(projectId);
+  const fallback = tryStaticDemoRunSummariesPaged(projectId, { afterAuthorityListFailure: loadError });
 
   if (fallback !== null) {
     return { items: fallback.items.map(normalizeRunSummaryForDemoPicker), loadError: false };

@@ -80,7 +80,9 @@ export default async function RunsPage({
   }
 
   const demoPaged =
-    loadFailure !== null || malformedMessage !== null ? tryStaticDemoRunSummariesPaged(projectId) : null;
+    loadFailure !== null || malformedMessage !== null
+      ? tryStaticDemoRunSummariesPaged(projectId, { afterAuthorityListFailure: true })
+      : null;
 
   if (demoPaged !== null) {
     runs = demoPaged.items;

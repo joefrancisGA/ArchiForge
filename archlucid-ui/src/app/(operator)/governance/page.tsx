@@ -201,21 +201,19 @@ function GovernanceWorkflowPageInner() {
       let nextApprovals = a;
       let nextPromotions = p;
 
-      if (isStaticDemoPayloadFallbackEnabled()) {
-        if (nextApprovals.length === 0) {
-          const seeded = tryStaticDemoGovernanceApprovalRequests(runId);
+      if (nextApprovals.length === 0) {
+        const seeded = tryStaticDemoGovernanceApprovalRequests(runId);
 
-          if (seeded !== null) {
-            nextApprovals = seeded;
-          }
+        if (seeded !== null) {
+          nextApprovals = seeded;
         }
+      }
 
-        if (nextPromotions.length === 0) {
-          const seededP = tryStaticDemoGovernancePromotions(runId);
+      if (nextPromotions.length === 0) {
+        const seededP = tryStaticDemoGovernancePromotions(runId);
 
-          if (seededP !== null) {
-            nextPromotions = seededP;
-          }
+        if (seededP !== null) {
+          nextPromotions = seededP;
         }
       }
 
@@ -232,29 +230,27 @@ function GovernanceWorkflowPageInner() {
       setPromotions([]);
       setActivations([]);
 
-      if (isStaticDemoPayloadFallbackEnabled()) {
-        const idForDemo = runId.trim();
+      const idForDemo = runId.trim();
 
-        if (idForDemo.length > 0) {
-          const seeded = tryStaticDemoGovernanceApprovalRequests(idForDemo);
-          const seededP = tryStaticDemoGovernancePromotions(idForDemo);
+      if (idForDemo.length > 0) {
+        const seeded = tryStaticDemoGovernanceApprovalRequests(idForDemo);
+        const seededP = tryStaticDemoGovernancePromotions(idForDemo);
 
-          if (seeded !== null) {
-            setApprovals(seeded);
-          }
+        if (seeded !== null) {
+          setApprovals(seeded);
+        }
 
-          if (seededP !== null) {
-            setPromotions(
-              [...seededP].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0)),
-            );
-          }
+        if (seededP !== null) {
+          setPromotions(
+            [...seededP].sort((x, y) => (x.promotedUtc < y.promotedUtc ? 1 : x.promotedUtc > y.promotedUtc ? -1 : 0)),
+          );
+        }
 
-          if (seeded !== null || seededP !== null) {
-            setListFailure(null);
-            setListsLoading(false);
+        if (seeded !== null || seededP !== null) {
+          setListFailure(null);
+          setListsLoading(false);
 
-            return;
-          }
+          return;
         }
       }
 
