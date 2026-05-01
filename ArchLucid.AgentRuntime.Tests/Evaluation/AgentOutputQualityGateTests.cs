@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Evaluation;
+﻿using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
@@ -32,7 +32,7 @@ public sealed class AgentOutputQualityGateTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_when_disabled_always_accepts()
     {
         AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions { Enabled = false }));
@@ -42,7 +42,7 @@ public sealed class AgentOutputQualityGateTests
         o.Should().Be(AgentOutputQualityGateOutcome.Accepted);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_rejects_when_structural_below_reject_floor()
     {
         AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions
@@ -57,7 +57,7 @@ public sealed class AgentOutputQualityGateTests
         sut.Evaluate(Structural(0.34), Semantic(0.9)).Should().Be(AgentOutputQualityGateOutcome.Rejected);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_warns_when_between_warn_and_reject()
     {
         AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions
@@ -72,7 +72,7 @@ public sealed class AgentOutputQualityGateTests
         sut.Evaluate(Structural(0.5), Semantic(0.5)).Should().Be(AgentOutputQualityGateOutcome.Warned);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_accepts_when_at_or_above_warn_thresholds()
     {
         AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions

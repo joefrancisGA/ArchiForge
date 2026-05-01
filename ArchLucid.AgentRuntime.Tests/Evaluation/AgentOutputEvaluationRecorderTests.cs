@@ -1,4 +1,4 @@
-using System.Diagnostics.Metrics;
+﻿using System.Diagnostics.Metrics;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
@@ -48,7 +48,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             logger);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAndRecordMetricsAsync_logs_warning_when_semantic_score_below_product_threshold()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -79,7 +79,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             && e.Text.Contains("semantic score", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAndRecordMetricsAsync_when_no_eligible_traces_does_not_throw()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -90,7 +90,7 @@ public sealed class AgentOutputEvaluationRecorderTests
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateAndRecordMetricsAsync_records_structural_and_semantic_histograms_for_eligible_trace()
     {
         _ = ArchLucidInstrumentation.AgentOutputStructuralCompletenessRatio;

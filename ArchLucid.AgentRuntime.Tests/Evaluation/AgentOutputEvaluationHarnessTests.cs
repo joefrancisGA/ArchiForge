@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Evaluation;
+﻿using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
@@ -13,7 +13,7 @@ public sealed class AgentOutputEvaluationHarnessTests
         new AgentOutputEvaluator(),
         new AgentOutputSemanticEvaluator());
 
-    [Fact]
+    [SkippableFact]
     [Trait("Suite", "Core")]
     public void Evaluate_empty_expectation_passes_for_minimal_result()
     {
@@ -33,7 +33,7 @@ public sealed class AgentOutputEvaluationHarnessTests
         result.Failures.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     [Trait("Suite", "Core")]
     public void Evaluate_fails_when_minimum_finding_count_not_met()
     {
@@ -56,7 +56,7 @@ public sealed class AgentOutputEvaluationHarnessTests
         result.Failures.Should().Contain(f => f.Contains("Finding count", StringComparison.Ordinal));
     }
 
-    [Fact]
+    [SkippableFact]
     [Trait("Suite", "Core")]
     public void Evaluate_fails_when_expected_category_missing()
     {
@@ -82,7 +82,7 @@ public sealed class AgentOutputEvaluationHarnessTests
         result.Failures.Should().Contain(f => f.Contains("topology-gap", StringComparison.OrdinalIgnoreCase));
     }
 
-    [Fact]
+    [SkippableFact]
     [Trait("Suite", "Core")]
     public void Evaluate_passes_when_category_present()
     {
@@ -111,7 +111,7 @@ public sealed class AgentOutputEvaluationHarnessTests
         result.CategoryCoverageRatio.Should().Be(1.0);
     }
 
-    [Fact]
+    [SkippableFact]
     [Trait("Suite", "Core")]
     public void Evaluate_fails_when_required_json_key_missing()
     {

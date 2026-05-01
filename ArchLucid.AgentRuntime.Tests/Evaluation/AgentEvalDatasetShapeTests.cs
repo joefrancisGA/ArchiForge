@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using FluentAssertions;
 
@@ -34,7 +34,7 @@ public sealed class AgentEvalDatasetShapeTests
         throw new InvalidOperationException("Could not resolve tests/eval-datasets from test output directory.");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Manifest_and_dataset_files_meet_minimum_shape()
     {
         string root = EvalDatasetsDirectory();

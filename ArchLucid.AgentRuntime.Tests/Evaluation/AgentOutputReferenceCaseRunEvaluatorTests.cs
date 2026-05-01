@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Evaluation;
+﻿using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -15,7 +15,7 @@ namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 [Trait("Suite", "Core")]
 public sealed class AgentOutputReferenceCaseRunEvaluatorTests
 {
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateTraceAsync_when_enabled_appends_row_for_matching_agent_type()
     {
         Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();
@@ -69,7 +69,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
             Times.Once);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task EvaluateTraceAsync_when_disabled_does_not_append()
     {
         Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();

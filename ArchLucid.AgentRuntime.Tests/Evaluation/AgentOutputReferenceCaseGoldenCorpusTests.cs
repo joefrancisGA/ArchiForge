@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using ArchLucid.AgentRuntime.Evaluation;
@@ -16,14 +16,14 @@ using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
-/// <summary>Golden corpus under tests/golden-corpus — CI validates deserialization + evaluator wiring.</summary>
+/// <summary>Golden corpus under tests/golden-corpus â€” CI validates deserialization + evaluator wiring.</summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class AgentOutputReferenceCaseGoldenCorpusTests
 {
     private const string GoldenCorpusRelativePath = "golden-corpus/agent-output-reference-cases.json";
 
-    [Fact]
+    [SkippableFact]
     public void Golden_corpus_json_deserializes_one_case_per_agent_type()
     {
         string file = Path.Combine(AppContext.BaseDirectory, GoldenCorpusRelativePath);
@@ -45,7 +45,7 @@ public sealed class AgentOutputReferenceCaseGoldenCorpusTests
         list.Should().OnlyContain(c => !string.IsNullOrWhiteSpace(c.CaseId));
     }
 
-    [Fact]
+    [SkippableFact]
     public void Catalog_loads_golden_corpus_when_enabled()
     {
         Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> options = new();

@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Evaluation;
+﻿using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
@@ -11,7 +11,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
 {
     private readonly AgentOutputSemanticEvaluator _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_claims_with_mixed_evidence_returns_expected_ratio()
     {
         const string json = """
@@ -31,7 +31,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.EmptyClaimCount.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_findings_with_mixed_completeness_returns_expected_ratio()
     {
         const string json = """
@@ -52,7 +52,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.IncompleteFindingCount.Should().Be(1);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_null_json_returns_all_zeros()
     {
         AgentOutputSemanticScore score = _sut.Evaluate("t1", null, AgentType.Compliance);
@@ -64,7 +64,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.OverallSemanticScore.Should().Be(0.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_empty_string_returns_all_zeros()
     {
         AgentOutputSemanticScore score = _sut.Evaluate("t1", "  ", AgentType.Topology);
@@ -74,7 +74,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.OverallSemanticScore.Should().Be(0.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_json_with_no_claims_or_findings_arrays_returns_all_zeros()
     {
         const string json = """{ "resultId": "r1", "confidence": 0.8 }""";
@@ -86,7 +86,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.OverallSemanticScore.Should().Be(0.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_overall_score_uses_weighted_average_when_both_present()
     {
         const string json = """
@@ -113,7 +113,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.OverallSemanticScore.Should().BeApproximately(expectedOverall, 0.001);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_only_claims_uses_claims_ratio_as_overall()
     {
         const string json = """
@@ -130,7 +130,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.OverallSemanticScore.Should().Be(1.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_only_findings_uses_findings_ratio_as_overall()
     {
         const string json = """
@@ -147,7 +147,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.OverallSemanticScore.Should().Be(1.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_invalid_json_returns_all_zeros()
     {
         AgentOutputSemanticScore score = _sut.Evaluate("t1", "{not-json", AgentType.Topology);
@@ -157,7 +157,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.OverallSemanticScore.Should().Be(0.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_array_root_returns_all_zeros()
     {
         AgentOutputSemanticScore score = _sut.Evaluate("t1", "[1,2,3]", AgentType.Cost);
@@ -165,7 +165,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.OverallSemanticScore.Should().Be(0.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_claim_with_evidence_string_counts_as_evidence()
     {
         const string json = """
@@ -183,7 +183,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.EmptyClaimCount.Should().Be(0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_sets_trace_id_and_agent_type()
     {
         AgentOutputSemanticScore score = _sut.Evaluate("trace-42", null, AgentType.Critic);
@@ -192,7 +192,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         score.AgentType.Should().Be(AgentType.Critic);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_throws_on_null_trace_id()
     {
         Action act = () => _sut.Evaluate(null!, null, AgentType.Topology);
@@ -200,7 +200,7 @@ public sealed class AgentOutputSemanticEvaluatorTests
         act.Should().Throw<ArgumentException>();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_throws_on_empty_trace_id()
     {
         Action act = () => _sut.Evaluate("", null, AgentType.Topology);

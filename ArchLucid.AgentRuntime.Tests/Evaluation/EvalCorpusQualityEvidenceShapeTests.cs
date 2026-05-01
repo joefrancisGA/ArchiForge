@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using FluentAssertions;
 
@@ -34,7 +34,7 @@ public sealed class EvalCorpusQualityEvidenceShapeTests
         throw new InvalidOperationException("Could not resolve tests/eval-corpus from test output directory.");
     }
 
-    [Fact]
+    [SkippableFact]
     public void Manifest_scenarios_with_quality_evidence_point_at_existing_simulator_agent_results()
     {
         string corpusDir = EvalCorpusDirectory();

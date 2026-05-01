@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime.Evaluation;
@@ -28,7 +28,7 @@ public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
         new AgentOutputEvaluator(),
         new AgentOutputSemanticEvaluator());
 
-    [Fact]
+    [SkippableFact]
     public void Harness_topology_fixture_meets_full_structural_completeness()
     {
         AgentResult actual = LoadAgentResult("harness-agent-result-topology.json");
@@ -44,7 +44,7 @@ public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
         result.StructuralCompletenessRatio.Should().Be(1.0);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Harness_compliance_fixture_meets_full_structural_completeness()
     {
         AgentResult actual = LoadAgentResult("harness-agent-result-compliance.json");
@@ -59,7 +59,7 @@ public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
         result.Passed.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Harness_topology_fixture_fails_when_findings_cleared_after_load()
     {
         AgentResult actual = LoadAgentResult("harness-agent-result-topology.json");

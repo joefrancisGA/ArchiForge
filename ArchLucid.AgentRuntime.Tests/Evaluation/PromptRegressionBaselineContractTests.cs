@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
@@ -24,7 +24,7 @@ public sealed class PromptRegressionBaselineContractTests
     private static readonly AgentOutputEvaluator Structural = new();
     private static readonly AgentOutputSemanticEvaluator Semantic = new();
 
-    [Fact]
+    [SkippableFact]
     public void Golden_valid_fixture_meets_committed_prompt_regression_baseline_all_agent_types()
     {
         BaselineMins baseline = BaselineMins.LoadFromOutput();

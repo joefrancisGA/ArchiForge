@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Evaluation;
+﻿using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
@@ -10,7 +10,7 @@ public sealed class AgentOutputEvaluatorTests
 {
     private readonly AgentOutputEvaluator _sut = new();
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_When_json_invalid_sets_parse_failure_and_zero_ratio()
     {
         AgentOutputEvaluationScore score = _sut.Evaluate("t1", "{not-json", AgentType.Topology);
@@ -20,7 +20,7 @@ public sealed class AgentOutputEvaluatorTests
         score.MissingKeys.Should().NotBeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_When_root_is_array_sets_parse_failure()
     {
         AgentOutputEvaluationScore score = _sut.Evaluate("t1", "[1,2]", AgentType.Cost);
@@ -28,7 +28,7 @@ public sealed class AgentOutputEvaluatorTests
         score.IsJsonParseFailure.Should().BeTrue();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_When_all_expected_keys_present_ratio_is_one()
     {
         const string json =
@@ -43,7 +43,7 @@ public sealed class AgentOutputEvaluatorTests
         score.MissingKeys.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_When_empty_object_counts_all_keys_missing_without_parse_failure()
     {
         AgentOutputEvaluationScore score = _sut.Evaluate("t1", "{}", AgentType.Compliance);
@@ -53,7 +53,7 @@ public sealed class AgentOutputEvaluatorTests
         score.MissingKeys.Should().HaveCount(10);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_When_partial_keys_ratio_matches_expected_fraction()
     {
         const string json = """{"claims":[],"evidenceRefs":[],"confidence":0.3,"findings":[],"proposedChanges":null}""";
@@ -65,7 +65,7 @@ public sealed class AgentOutputEvaluatorTests
         score.MissingKeys.Should().HaveCount(5);
     }
 
-    [Fact]
+    [SkippableFact]
     public void Evaluate_When_parsed_json_null_scores_zero_without_parse_failure_flag()
     {
         AgentOutputEvaluationScore score = _sut.Evaluate("t1", null, AgentType.Topology);
