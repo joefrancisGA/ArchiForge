@@ -5,10 +5,10 @@ import { MarketingSecurityTrustView } from "./MarketingSecurityTrustView";
 import { securityTrustEngagementRows } from "@/lib/security-trust-content";
 
 describe("MarketingSecurityTrustView", () => {
-  it("renders all four engagement rows from the content lib", () => {
+  it("renders all five engagement rows from the content lib", () => {
     render(<MarketingSecurityTrustView />);
 
-    expect(securityTrustEngagementRows).toHaveLength(4);
+    expect(securityTrustEngagementRows).toHaveLength(5);
 
     for (const row of securityTrustEngagementRows) {
       const rowEl = screen.getByTestId(`assurance-row-${row.id}`);

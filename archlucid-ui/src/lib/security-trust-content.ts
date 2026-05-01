@@ -25,16 +25,31 @@ export type AssuranceEngagementRow = {
 
 export const securityTrustEngagementRows: ReadonlyArray<AssuranceEngagementRow> = [
   {
-    id: "pen-test-2026-q2-aeronova",
-    engagement: "2026-Q2 third-party penetration test",
-    vendor: "Aeronova Red Team LLC",
-    scope: "API, operator UI, hosted SaaS data plane",
+    id: "owner-conducted-pen-2026-q2",
+    engagement: "2026-Q2 owner-conducted penetration-style assessment",
+    vendor: "ArchLucid internal",
+    scope:
+      "Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane review (paired with checklist-driven UI coverage)",
     completedUtc:
-      "Engagement awarded 2026-04-21; kickoff 2026-05-06 (in flight)",
+      "Window tracked in docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md",
     summaryAccess: {
       kind: "nda",
       description:
-        "NDA-only — email security@archlucid.net once assessor delivers redacted summary",
+        "NDA-aligned public stub — quantitative findings withheld; procurement detail under security@archlucid.net",
+    },
+  },
+  {
+    id: "pen-test-2026-q2-third-party-v2",
+    engagement: "Third-party penetration test (vendor TBD)",
+    vendor: "V2-planned — no vendor committed for V1 (owner 2026-05-01)",
+    scope:
+      "API, operator UI, hosted SaaS data plane (typical scope — confirm in executed SoW)",
+    completedUtc:
+      "Not scheduled — use docs/security/pen-test-summaries/2026-Q2-SOW.md when engaging (V2)",
+    summaryAccess: {
+      kind: "nda",
+      description:
+        "NDA-only when executed — email security@archlucid.net after assessor delivers redacted summary",
     },
   },
   {
