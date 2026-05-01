@@ -71,10 +71,10 @@ describe("MarketingTierPricingSection", () => {
     teamScope.getByRole("button", { name: /request quote/i });
     teamScope.getByRole("link", { name: /start free trial/i });
 
-    expect(teamScope.getByRole("link", { name: /subscribe with stripe/i })).toHaveAttribute(
-      "href",
-      "https://pay.example.test/checkout",
-    );
+    const stripeSubscribe = teamScope.getByTestId("pricing-team-subscribe-stripe");
+
+    expect(stripeSubscribe).toHaveAttribute("href", "https://pay.example.test/checkout");
+    expect(stripeSubscribe).toHaveTextContent(/subscribe with stripe/i);
 
     const talkButtons = screen.getAllByRole("button", { name: /talk to sales/i });
     expect(talkButtons).toHaveLength(2);

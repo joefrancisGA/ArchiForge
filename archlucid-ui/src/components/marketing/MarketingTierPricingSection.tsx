@@ -93,6 +93,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
             {pricing.packages.map((pkg) => (
               <li
                 key={pkg.id}
+                data-testid={pkg.id === "team" ? "pricing-tier-team" : undefined}
                 className="flex flex-col rounded-lg border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
               >
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{pkg.title}</h3>
@@ -131,6 +132,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                   {pkg.id === "team" && isUsableTeamStripeCheckoutUrl(pricing.teamStripeCheckoutUrl) ? (
                     <Button asChild className="w-full" variant="outline">
                       <a
+                        data-testid="pricing-team-subscribe-stripe"
                         href={(pricing.teamStripeCheckoutUrl ?? "").trim()}
                         rel="noopener noreferrer"
                         target="_blank"
