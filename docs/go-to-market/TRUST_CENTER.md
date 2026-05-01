@@ -119,7 +119,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 |------|--------|--------|
 | **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until ARR materially supports CPA attestation cost | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). We will pursue SOC 2 Type 1 readiness once we cross approximately **$1M ARR**; until then, we publish a self-attested security and compliance summary. (Directional, not contractual — see `docs/PENDING_QUESTIONS.md` item 6 resolved 2026-04-22.) External readiness consultant + CPA firm selection paused until that threshold; G-001 in the self-assessment captures the resumption checklist. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
-| **ISO 27001** | Not claimed | Roadmap TBD with SOC 2 program. |
+| **ISO 27001** | Not claimed | Roadmap timing tied to SOC 2 program (date not yet set). |
 
 ---
 

@@ -151,7 +151,7 @@ describe("authority seam regression", () => {
    * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` must still emit both Pilot and
    * Operate governance groups (not empty after tier + authority filtering).
    * Findings moved to the Pilot group (extended tier) so it appears alongside Reviews after "Show more".
-   * The Governance essential strip is now system-health + Alerts inbox only.
+   * The Governance essential strip is **Alerts inbox** only; **System health** lives under **operator-admin** (`platform-admin` surface).
    */
   it("Reader default shell lists Pilot and Operate governance with Alerts inbox on essential tier (system health is Admin + advanced)", () => {
     const rows = listNavGroupsVisibleInOperatorShell(

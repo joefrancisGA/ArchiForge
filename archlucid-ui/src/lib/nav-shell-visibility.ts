@@ -1,4 +1,4 @@
-import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config";
+import type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
@@ -122,17 +122,25 @@ export function listNavGroupsVisibleInOperatorShell(
   showAdvanced: boolean,
   callerAuthorityRank: number,
   applyCollapsedSidebarPilotFilter = false,
+  surfaceFilter: "all" | NavShellSurface = "all",
 ): NavGroupWithVisibleLinks[] {
   const out: NavGroupWithVisibleLinks[] = [];
 
   for (const group of groups) {
+    if (surfaceFilter !== "all" && group.surface !== surfaceFilter) {
+      continue;
+    }
+
+    const useCollapsedPilot =
+      applyCollapsedSidebarPilotFilter && group.surface === "review-workflow";
+
     const visibleLinks = filterNavLinksByPublishReadiness(
       filterNavLinksForOperatorShell(
         group.links,
         showExtended,
         showAdvanced,
         callerAuthorityRank,
-        applyCollapsedSidebarPilotFilter,
+        useCollapsedPilot,
       ),
     );
 
@@ -159,6 +167,10 @@ export function countSidebarLinksHiddenByCollapsedPilot(
   let collapsed = 0;
 
   for (const group of groups) {
+    if (group.surface === "platform-admin") {
+      continue;
+    }
+
     full += filterNavLinksByPublishReadiness(
       filterNavLinksForOperatorShell(group.links, showExtended, showAdvanced, callerAuthorityRank, false),
     ).length;

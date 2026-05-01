@@ -23,6 +23,79 @@ import { SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+function CommandPaletteNavGroups({
+  callerAuthorityRank,
+  shellShowExtended,
+  shellShowAdvanced,
+  onNavigate,
+}: {
+  callerAuthorityRank: number;
+  shellShowExtended: boolean;
+  shellShowAdvanced: boolean;
+  onNavigate: (href: string) => void;
+}) {
+  const search = useCommandState((state) => state.search);
+  const showAdminPalette = search.trim().length > 0;
+
+  const reviewRows = listNavGroupsVisibleInOperatorShell(
+    NAV_GROUPS,
+    shellShowExtended,
+    shellShowAdvanced,
+    callerAuthorityRank,
+    false,
+    "review-workflow",
+  );
+
+  const adminRows = listNavGroupsVisibleInOperatorShell(
+    NAV_GROUPS,
+    shellShowExtended,
+    shellShowAdvanced,
+    callerAuthorityRank,
+    false,
+    "platform-admin",
+  );
+
+  return (
+    <>
+      {reviewRows.map(({ group, visibleLinks }) => (
+        <CommandGroup key={group.id} heading={group.label}>
+          {visibleLinks.map((link) => (
+            <CommandItem
+              key={link.href}
+              value={`${link.label} ${link.href}`}
+              onSelect={() => {
+                onNavigate(link.href);
+              }}
+            >
+              {link.label}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      ))}
+      {showAdminPalette
+        ? adminRows.map(({ group, visibleLinks }) => (
+            <CommandGroup
+              key={`palette-${group.id}`}
+              heading={group.id === "operator-admin" ? "Administration" : group.label}
+            >
+              {visibleLinks.map((link) => (
+                <CommandItem
+                  key={link.href}
+                  value={`administration ${link.label} ${link.href}`}
+                  onSelect={() => {
+                    onNavigate(link.href);
+                  }}
+                >
+                  {link.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))
+        : null}
+    </>
+  );
+}
+
 function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) {
   const search = useCommandState((state) => state.search);
   const trimmed = search.trim();
@@ -106,27 +179,13 @@ export function CommandPalette() {
         <CommandInput placeholder="Search pages or paste a review ID…" />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} />
-          <CommandEmpty>No matching pages. Try another search or paste a run UUID.</CommandEmpty>
-          {listNavGroupsVisibleInOperatorShell(
-            NAV_GROUPS,
-            shellShowExtended,
-            shellShowAdvanced,
-            callerAuthorityRank,
-          ).map(({ group, visibleLinks }) => (
-            <CommandGroup key={group.id} heading={group.label}>
-              {visibleLinks.map((link) => (
-                <CommandItem
-                  key={link.href}
-                  value={`${link.label} ${link.href}`}
-                  onSelect={() => {
-                    navigate(link.href);
-                  }}
-                >
-                  {link.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))}
+          <CommandEmpty>No matching pages. Try another search or paste a review ID.</CommandEmpty>
+          <CommandPaletteNavGroups
+            callerAuthorityRank={callerAuthorityRank}
+            shellShowExtended={shellShowExtended}
+            shellShowAdvanced={shellShowAdvanced}
+            onNavigate={navigate}
+          />
           <CommandSeparator />
           <CommandGroup heading="Keyboard shortcuts (navigation)">
             {SHORTCUTS.filter((entry) => entry.route !== undefined && entry.route !== "").map((entry) => (

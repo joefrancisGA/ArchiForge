@@ -3,6 +3,9 @@ import type { LucideIcon } from "lucide-react";
 import type { RequiredAuthority } from "@/lib/nav-authority";
 import type { NavTier } from "@/lib/nav-tier";
 
+/** Shell composition: buyer review journey vs tenant/platform administration (see SidebarNav / CommandPalette). */
+export type NavShellSurface = "review-workflow" | "platform-admin";
+
 /**
  * One sidebar / palette / mobile-drawer row. Tier and authority interact per
  * **`docs/NAV_CONFIG_CONTRACT.md`** and **`nav-shell-visibility.ts`**.
@@ -33,6 +36,7 @@ export type NavLinkItem = {
 export type NavGroupConfig = {
   id: string;
   label: string;
+  surface: NavShellSurface;
   /** One line under the group title — what this layer is for (see docs/library/OPERATOR_DECISION_GUIDE.md). */
   caption?: string;
   links: NavLinkItem[];

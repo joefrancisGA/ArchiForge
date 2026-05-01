@@ -6,7 +6,7 @@ import { OperatorAdminNavGroupBuilder } from "@/lib/operator-admin-nav-group-bui
 import type { NavGroupBuilder } from "@/lib/nav-group-builder";
 import { PilotNavGroupBuilder } from "@/lib/pilot-nav-group-builder";
 
-export type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config.types";
+export type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-config.types";
 
 /**
  * Canonical operator shell navigation — sidebar, command palette, and mobile drawer.

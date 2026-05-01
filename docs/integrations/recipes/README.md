@@ -17,6 +17,7 @@
 | Recipe | Target tool | Automation platform | Event type(s) |
 |--------|-------------|---------------------|----------------|
 | [Azure Logic Apps → Azure DevOps work item](recipe-azure-logic-apps-webhook-to-ado-work-item.md) | Azure DevOps (Boards) | Azure Logic Apps + APIM/Function (HMAC) | `com.archlucid.authority.run.completed`, `com.archlucid.alert.fired` |
+| [ServiceNow incident via Logic Apps](SERVICENOW_INCIDENT_VIA_LOGIC_APPS.md) | ServiceNow | Azure Logic Apps (Standard) | `com.archlucid.authority.run.completed`, `com.archlucid.alert.fired` |
 | [Event Grid / webhook hardening checklist](recipe-event-grid-webhook-hardening-checklist.md) | *(subscriber hardening)* | Event Grid, APIM, Logic Apps, Functions | *(delivery semantics — see checklist)* |
 | [ServiceNow incident via Power Automate](SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md) | ServiceNow | Microsoft Power Automate | `com.archlucid.authority.run.completed`, `com.archlucid.alert.fired` |
 | [Jira issue via Power Automate](JIRA_ISSUE_VIA_POWER_AUTOMATE.md) | Atlassian Jira Cloud | Microsoft Power Automate | `com.archlucid.authority.run.completed`, `com.archlucid.alert.fired` |
@@ -61,4 +62,4 @@ See [V1_DEFERRED.md](../../library/V1_DEFERRED.md) (section 6) for the full V1.1
 
 ---
 
-*Last reviewed: 2026-05-01 — customer-owned framing; recipe table order ServiceNow then Jira; explicit links to INTEGRATION_EVENTS_AND_WEBHOOKS.md and INTEGRATION_CATALOG.md.*
+*Last reviewed: 2026-05-01 — customer-owned framing; ServiceNow **Logic Apps–first** row; recipe table lists Logic Apps paths before Power Automate.*

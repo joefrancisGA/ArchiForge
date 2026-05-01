@@ -6,9 +6,11 @@ Canonical file list: scripts/procurement_pack_canonical.json (shared with CI:
 scripts/ci/assert_procurement_pack_buildable.py).
 
 Emits:
-  - manifest.json — each packed file: pack_path, source_repo_path, bytes, sha256
+  - manifest.json — each packed file: pack_path, source_repo_path, bytes, sha256, artifact_status
   - versions.txt — git commit, build UTC, ArchLucid CLI version (from ArchLucid.Cli.csproj)
   - redaction_report.md — files intentionally not included and why
+  - artifact_status_index.json — machine-readable artifact_status per packed path
+  - ARTIFACT_STATUS_INDEX.md — buyer-facing table of evidence vs template vs deferred rows
 """
 
 from __future__ import annotations
@@ -24,6 +26,76 @@ import shutil
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+TEXT_PACK_SUFFIXES = frozenset({".md", ".txt", ".json", ".yaml", ".yml", ".html", ".xml", ".csv"})
+
+# Buyer-unsafe placeholder tokens (release / `--strict` builds only; skipped for Template/Deferred entries).
+_PLACEHOLDER_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"\bTBD\b", re.IGNORECASE),
+    re.compile(r"\bTODO\b", re.IGNORECASE),
+    re.compile(r"placeholder-replace-before-launch", re.IGNORECASE),
+)
+
+
+def entry_should_scan_for_placeholders(entry: dict) -> bool:
+    status = entry.get("artifact_status", "Evidence")
+    if status in ("Template", "Deferred"):
+        return False
+
+    path = Path(entry["pack_path"])
+    suf = path.suffix.lower()
+
+    return suf in TEXT_PACK_SUFFIXES
+
+
+def scan_packed_files_for_placeholders(stage: Path, entries: list[dict]) -> list[str]:
+    violations: list[str] = []
+    for e in entries:
+        if not entry_should_scan_for_placeholders(e):
+            continue
+
+        pack_path = e["pack_path"]
+        target = stage / pack_path
+        text = target.read_text(encoding="utf-8", errors="replace")
+
+        for pat in _PLACEHOLDER_PATTERNS:
+            if pat.search(text) is not None:
+                violations.append(f"{pack_path}: matched /{pat.pattern}/")
+                break
+
+    return violations
+
+
+def write_artifact_status_index(stage: Path, entries: list[dict]) -> None:
+    rows: list[dict] = []
+    for e in entries:
+        rows.append(
+            {
+                "pack_path": e["pack_path"],
+                "artifact_status": e.get("artifact_status", "Evidence"),
+                "description": e.get("description", ""),
+            }
+        )
+
+    (stage / "artifact_status_index.json").write_text(
+        json.dumps({"generated_utc": datetime.now(timezone.utc).isoformat(), "files": rows}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    lines = [
+        "# Artifact status index",
+        "",
+        "Each row reflects `artifact_status` from the canonical procurement list (`scripts/procurement_pack_canonical.json`).",
+        "",
+        "| Pack file | Status | Description |",
+        "| --- | --- | --- |",
+    ]
+    for r in rows:
+        desc = str(r.get("description", "")).replace("|", "\\|")
+        lines.append(f"| `{r['pack_path']}` | **{r['artifact_status']}** | {desc} |")
+
+    lines.append("")
+    (stage / "ARTIFACT_STATUS_INDEX.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def repo_root() -> Path:
@@ -72,6 +144,7 @@ def build_manifest_rows(stage: Path, entries: list[dict]) -> list[dict]:
                 "source_repo_path": e["source_repo_path"],
                 "bytes": len(raw),
                 "sha256": digest,
+                "artifact_status": e.get("artifact_status", "Evidence"),
             }
         )
     return rows
@@ -133,6 +206,11 @@ def main() -> int:
         default=None,
         help="Output ZIP path (default: dist/procurement-pack.zip under repo root).",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="After staging, fail if Evidence/Self-assessment text files contain buyer-unsafe placeholders (TBD/TODO/...).",
+    )
     args = parser.parse_args()
 
     root = repo_root()
@@ -144,6 +222,9 @@ def main() -> int:
         for m in missing:
             print(f"  - {m}", file=sys.stderr)
         return 1
+
+    strict_env = os.environ.get("PROCUREMENT_PACK_STRICT", "").strip().lower() in ("1", "true", "yes")
+    strict = args.strict or strict_env
 
     if args.dry_run:
         print("procurement pack dry-run: OK (all canonical sources present)")
@@ -161,6 +242,14 @@ def main() -> int:
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(src.read_bytes())
 
+    if strict:
+        violations = scan_packed_files_for_placeholders(stage, entries)
+        if violations:
+            print("error: procurement pack strict mode found placeholders in buyer-facing files:", file=sys.stderr)
+            for v in violations:
+                print(f"  - {v}", file=sys.stderr)
+            return 1
+
     manifest_rows = build_manifest_rows(stage, entries)
     (stage / "manifest.json").write_text(
         json.dumps({"generated_utc": datetime.now(timezone.utc).isoformat(), "files": manifest_rows}, indent=2)
@@ -169,6 +258,7 @@ def main() -> int:
     )
     write_versions_txt(stage, root)
     write_redaction_report(stage, excluded)
+    write_artifact_status_index(stage, entries)
 
     out_zip = args.out if args.out is not None else root / "dist" / "procurement-pack.zip"
     out_zip.parent.mkdir(parents=True, exist_ok=True)

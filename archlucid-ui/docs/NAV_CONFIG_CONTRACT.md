@@ -21,12 +21,14 @@ Enumeration: **`docs/library/PRODUCT_PACKAGING.md`** §3.
 
 ## Nav groups → buyer layers
 
-| Group `id`           | Layer    | Notes |
-|----------------------|----------|--------|
-| `pilot`              | Pilot    | request · run · finalize · review |
-| `operate-analysis`   | Operate  | analysis slice — compare, replay, graph, Q&A, advisory, … |
-| `operate-governance` | Operate  | governance slice — policy, audit, alerts, trust — Execute+ for writes where noted |
-| `operator-admin`     | Admin    | tenant cost, settings, support, users |
+| Group `id`           | `surface`           | Layer    | Notes |
+|----------------------|---------------------|----------|--------|
+| `pilot`              | `review-workflow`   | Pilot    | request · run · finalize · review |
+| `operate-analysis`   | `review-workflow`   | Operate  | analysis slice — compare, replay, graph, Q&A, advisory, … |
+| `operate-governance` | `review-workflow`   | Operate  | governance slice — policy, audit, alerts, trust — Execute+ for writes where noted |
+| `operator-admin`     | `platform-admin`    | Admin    | system health, tenant cost, settings, support, users |
+
+**Shell filter:** `listNavGroupsVisibleInOperatorShell(..., surfaceFilter)` can target **`review-workflow`** vs **`platform-admin`** so buyer-first chrome (sidebar, palette) can separate review work from administration without duplicating hrefs.
 
 ## Drift guard (contributors)
 
@@ -59,7 +61,8 @@ UI hint only; API still 401/403.
 - **Omit** on Pilot *essentials* (home, getting-started, new run, runs) so Reader-signed-in pilots keep the default path.
 - **Analysis · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`, `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`** (`AuthorityReplayController`).
 - **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/advisory`** and **`/digests`** with in-page Execute gating). Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
-- **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **`/admin/health`** uses **`AdminAuthority`** and **`advanced`** tier so diagnostics stay off the default buyer shell. **Governance workflow** (mutations) → **`ExecuteAuthority`**. Do not use **`AdminAuthority`** on nav entries: Admin-only actions (e.g. policy pack create) are enforced on POST; the UI page is still reachable at Read for list/effective views.
+- **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
+- **Operator admin (`operator-admin`, `platform-admin` surface):** **`/admin/health`** and **`/admin/users`** use **`AdminAuthority`**; **`advanced`** tier on system health keeps diagnostics off the default review shell. Other admin destinations use **`ReadAuthority`** / **`ExecuteAuthority`** as appropriate. Elsewhere under Operate, do not label list/browse pages **`AdminAuthority`** when the API is Read-class — POST-only admin actions stay on server policy.
 
 ## UI shaping vs API authorization (boundary)
 

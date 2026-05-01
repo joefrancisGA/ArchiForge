@@ -18,6 +18,7 @@ export class PilotNavGroupBuilder extends NavGroupBuilderBase {
     return {
       id: "pilot",
       label: "Pilot",
+      surface: "review-workflow",
       caption: "Start a review — upload evidence, track progress, and review findings.",
       links: [
         {

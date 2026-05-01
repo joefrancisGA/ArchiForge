@@ -3,7 +3,7 @@
 import { ChevronDown, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState, type ReactElement } from "react";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
@@ -28,17 +28,20 @@ import {
   countLinksHiddenByProgressiveDisclosure,
   countSidebarLinksHiddenByCollapsedPilot,
   listNavGroupsVisibleInOperatorShell,
+  type NavGroupWithVisibleLinks,
 } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
+import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
 const RECENT_ACTIVITY_OPEN_KEY = "archlucid_sidebar_recent_activity_open";
 const SIDEBAR_NAV_EXPAND_ALL_KEY = "archlucid-nav-expanded";
+const SIDEBAR_ADMIN_SECTION_OPEN_KEY = "archlucid-sidebar-admin-section-open";
 
 /** Hrefs pinned above the Governance body when they exist on `operate-governance` links in `nav-config` (may be empty). */
 const GOVERNANCE_PINNED_HREFS = new Set<string>([]);
@@ -129,6 +132,7 @@ export function SidebarNav() {
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [adminSectionOpen, setAdminSectionOpen] = useState(false);
   const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
   const showProgressiveDisclosureChrome = !demoUi;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
@@ -152,10 +156,21 @@ export function SidebarNav() {
       if (typeof window === "undefined") return;
 
       setNavAllFeaturesExpanded(window.localStorage.getItem(SIDEBAR_NAV_EXPAND_ALL_KEY) === "true");
+      setAdminSectionOpen(window.localStorage.getItem(SIDEBAR_ADMIN_SECTION_OPEN_KEY) === "1");
     } catch {
       /* private mode — keep collapsed default */
     }
   }, []);
+
+  useEffect(() => {
+    if (demoUi) {
+      return;
+    }
+
+    if (pathnameTouchesPlatformAdminSurface(pathname)) {
+      setAdminSectionOpen(true);
+    }
+  }, [demoUi, pathname]);
 
   useEffect(() => {
     const next: Record<string, boolean> = {};
@@ -187,16 +202,35 @@ export function SidebarNav() {
     }
   }
 
-  return (
-    <div className="flex h-full flex-col gap-1 pb-6 pr-1">
-      <SidebarRecentActivityCard />
-      {listNavGroupsVisibleInOperatorShell(
-        NAV_GROUPS,
-        demoUi ? true : shellShowExtended,
-        demoUi ? true : shellShowAdvanced,
-        callerAuthorityRank,
-        applyCollapsedSidebarPilotFilter,
-      ).map(({ group, visibleLinks }) => {
+  function persistAdminSectionOpen(next: boolean): void {
+    setAdminSectionOpen(next);
+
+    try {
+      window.localStorage.setItem(SIDEBAR_ADMIN_SECTION_OPEN_KEY, next ? "1" : "0");
+    } catch {
+      /* private mode */
+    }
+  }
+
+  const reviewNavRows = listNavGroupsVisibleInOperatorShell(
+    NAV_GROUPS,
+    demoUi ? true : shellShowExtended,
+    demoUi ? true : shellShowAdvanced,
+    callerAuthorityRank,
+    applyCollapsedSidebarPilotFilter,
+    "review-workflow",
+  );
+
+  const adminNavRows = listNavGroupsVisibleInOperatorShell(
+    NAV_GROUPS,
+    demoUi ? true : shellShowExtended,
+    demoUi ? true : shellShowAdvanced,
+    callerAuthorityRank,
+    false,
+    "platform-admin",
+  );
+
+  function renderNavCluster({ group, visibleLinks }: NavGroupWithVisibleLinks): ReactElement {
         const linksAfterDemoFilter = demoUi
           ? visibleLinks.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi))
           : visibleLinks;
@@ -340,7 +374,14 @@ export function SidebarNav() {
             ) : null}
           </Collapsible>
         );
-      })}
+  }
+
+  const adminLinkCount = adminNavRows.reduce((sum, row) => sum + row.visibleLinks.length, 0);
+
+  return (
+    <div className="flex h-full flex-col gap-1 pb-6 pr-1">
+      <SidebarRecentActivityCard />
+      {reviewNavRows.map((row) => renderNavCluster(row))}
 
       {showProgressiveDisclosureChrome ? (
         <div className="mt-2 px-2" data-testid="sidebar-collapsed-toggle-wrap">
@@ -371,6 +412,43 @@ export function SidebarNav() {
               </>
             )}
           </button>
+        </div>
+      ) : null}
+
+      {showProgressiveDisclosureChrome && adminNavRows.length > 0 ? (
+        <div
+          className="mt-2 border-t border-neutral-200 pt-2 dark:border-neutral-700"
+          data-testid="sidebar-administration-section"
+        >
+          <Collapsible open={adminSectionOpen} onOpenChange={persistAdminSectionOpen}>
+            <CollapsibleTrigger
+              aria-label="Administration — tenant and platform"
+              className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              type="button"
+            >
+              <span>Administration</span>
+              <span className="flex items-center gap-1">
+                {adminLinkCount > 0 ? (
+                  <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200">
+                    {adminLinkCount}
+                  </span>
+                ) : null}
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 shrink-0 transition-transform",
+                    adminSectionOpen ? "rotate-0" : "-rotate-90",
+                  )}
+                  aria-hidden
+                />
+              </span>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-1">
+              <p className="m-0 px-2 pb-1 text-[10px] leading-snug text-neutral-500 dark:text-neutral-400">
+                Tenant cost, support bundles, system health — separate from architecture review navigation.
+              </p>
+              {adminNavRows.map((row) => renderNavCluster(row))}
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       ) : null}
 

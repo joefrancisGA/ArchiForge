@@ -233,7 +233,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | [RELEASE_SMOKE.md](RELEASE_SMOKE.md) | Scripted smoke scope and limits |
 | [V1_RC_DRILL.md](V1_RC_DRILL.md) | RC drill: full operator path against a running API (`v1-rc-drill.ps1`) |
 | [V1_READINESS_SUMMARY.md](V1_READINESS_SUMMARY.md) | Short honest snapshot: done, deferred, risks, pilot bar, post-V1 priorities |
-| [V1_REQUIREMENTS_TEST_TRACEABILITY.md](../../docs/library/V1_REQUIREMENTS_TEST_TRACEABILITY.md) | Lightweight map from this scope doc to tests, scripts, and data-consistency runbooks |
+| [V1_REQUIREMENTS_TEST_TRACEABILITY.md](V1_REQUIREMENTS_TEST_TRACEABILITY.md) | Lightweight map from this scope doc to tests, scripts, and data-consistency runbooks |
 
 ---
 

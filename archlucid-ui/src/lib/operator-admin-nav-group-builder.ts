@@ -1,4 +1,4 @@
-import { BarChart3, Building2, LifeBuoy, Users, Wallet } from "lucide-react";
+import { BarChart3, Building2, HeartPulse, LifeBuoy, Users, Wallet } from "lucide-react";
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 
@@ -10,8 +10,17 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
     return {
       id: "operator-admin",
       label: "Admin",
+      surface: "platform-admin",
       caption: "Tenant cost, settings, support bundles, and user administration.",
       links: [
+        {
+          href: "/admin/health",
+          label: "System health",
+          title: "System health — readiness, circuit breakers, onboarding funnel metrics",
+          icon: HeartPulse,
+          tier: "advanced",
+          requiredAuthority: "AdminAuthority",
+        },
         {
           href: "/settings/tenant-cost",
           label: "Tenant cost",
@@ -35,7 +44,6 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
           icon: Building2,
           tier: "extended",
           requiredAuthority: "ExecuteAuthority",
-          defaultVisibleInCollapsedSidebar: true,
         },
         {
           href: "/admin/support",

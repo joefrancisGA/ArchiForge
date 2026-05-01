@@ -10,13 +10,15 @@ import { cn } from "@/lib/utils";
 type AdvancedOptionsAccordionProps = {
   children: ReactNode;
   className?: string;
+  /** Defaults to "Advanced Options" — use for buyer-safe disclosure of IDs and technical fields. */
+  triggerLabel?: string;
 };
 
 /**
  * Enterprise-heavy controls grouped behind progressive disclosure. Defaults closed so Core Pilot
  * surfaces stay lightweight until expanded.
  */
-export function AdvancedOptionsAccordion({ children, className }: AdvancedOptionsAccordionProps) {
+export function AdvancedOptionsAccordion({ children, className, triggerLabel }: AdvancedOptionsAccordionProps) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
 
@@ -37,7 +39,7 @@ export function AdvancedOptionsAccordion({ children, className }: AdvancedOption
           aria-expanded={open}
           aria-controls={panelId}
         >
-          <span>Advanced Options</span>
+          <span>{triggerLabel ?? "Advanced Options"}</span>
           <ChevronDown
             className={cn(
               "h-4 w-4 shrink-0 text-neutral-600 transition-transform dark:text-neutral-400",

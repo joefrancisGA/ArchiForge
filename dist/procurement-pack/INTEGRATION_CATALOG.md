@@ -46,6 +46,7 @@ These are **customer-operated** integration patterns that consume CloudEvents-st
 | Pattern | Document |
 |---------|----------|
 | Azure Logic Apps webhook → Azure DevOps work item | [recipe-azure-logic-apps-webhook-to-ado-work-item.md](../integrations/recipes/recipe-azure-logic-apps-webhook-to-ado-work-item.md) |
+| ServiceNow incident → **Logic Apps** (Azure-first) | [SERVICENOW_INCIDENT_VIA_LOGIC_APPS.md](../integrations/recipes/SERVICENOW_INCIDENT_VIA_LOGIC_APPS.md) |
 | Event Grid / HTTPS subscriber hardening checklist | [recipe-event-grid-webhook-hardening-checklist.md](../integrations/recipes/recipe-event-grid-webhook-hardening-checklist.md) |
 
 Broader recipe hub: [ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPES.md) · No-code folder index: [integrations/recipes/README.md](../integrations/recipes/README.md).
@@ -78,7 +79,7 @@ ArchLucid's architecture is designed for extensibility:
 - **Context connectors:** Implement `IContextConnector` to bring new data sources into the analysis pipeline. See the finding engine template: `dotnet new archlucid-finding-engine`.
 - **Outbound consumers:** Subscribe to CloudEvents webhooks or Service Bus topics to trigger workflows in your systems.
 - **API automation:** Use the REST API or .NET client to build custom integrations.
-- **ITSM (Jira / ServiceNow) V1:** Until first-party connectors ship (V1.1), use the **webhook bridge** recipes: [Jira — `jira-webhook-bridge-recipe.md`](../../templates/integrations/jira/jira-webhook-bridge-recipe.md), [ServiceNow — `servicenow-incident-recipe.md`](../../templates/integrations/servicenow/servicenow-incident-recipe.md). Both reference canonical event types from [schemas/integration-events/catalog.json](../../schemas/integration-events/catalog.json) and [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
+- **ITSM (Jira / ServiceNow) V1:** Until first-party connectors ship (V1.1), use **customer-owned** recipes under [`docs/integrations/recipes/`](../../integrations/recipes/README.md) — **Logic Apps–first:** [ServiceNow (Logic Apps)](../../integrations/recipes/SERVICENOW_INCIDENT_VIA_LOGIC_APPS.md), [Confluence (Logic Apps)](../../integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md); **Power Automate:** [ServiceNow](../../integrations/recipes/SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md), [Jira](../../integrations/recipes/JIRA_ISSUE_VIA_POWER_AUTOMATE.md) — or developer **webhook bridge** templates: [ServiceNow — `servicenow-incident-recipe.md`](../../templates/integrations/servicenow/servicenow-incident-recipe.md), [Jira — `jira-webhook-bridge-recipe.md`](../../templates/integrations/jira/jira-webhook-bridge-recipe.md). All reference canonical event types from [schemas/integration-events/catalog.json](../../schemas/integration-events/catalog.json) and [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
 
 ---
 

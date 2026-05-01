@@ -25,9 +25,33 @@ describe("nav-config structure", () => {
 
     for (const link of enterprise!.links) {
       expect(link.requiredAuthority, link.href).toBeDefined();
-      if (link.href === "/admin/health") {
-        expect(link.requiredAuthority).toBe("AdminAuthority");
+    }
+  });
+
+  it("declares NavShellSurface on every nav group", () => {
+    for (const group of NAV_GROUPS) {
+      expect(group.surface).toMatch(/^(review-workflow|platform-admin)$/);
+    }
+  });
+
+  it("keeps AdminAuthority rows in the operator-admin (platform-admin) group only", () => {
+    for (const group of NAV_GROUPS) {
+      for (const link of group.links) {
+        if (link.requiredAuthority === "AdminAuthority") {
+          expect(group.id, link.href).toBe("operator-admin");
+          expect(group.surface).toBe("platform-admin");
+        }
       }
+    }
+  });
+
+  it("does not pin collapsed-pilot defaults on platform-admin links", () => {
+    const admin = NAV_GROUPS.find((group) => group.id === "operator-admin");
+
+    expect(admin).toBeDefined();
+
+    for (const link of admin!.links) {
+      expect(link.defaultVisibleInCollapsedSidebar, link.href).toBeUndefined();
     }
   });
 

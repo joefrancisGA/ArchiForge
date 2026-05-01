@@ -3,7 +3,6 @@ import {
   FileSearch,
   FileText,
   GitBranch,
-  HeartPulse,
   MessageSquare,
   Scale,
   Shield,
@@ -20,16 +19,9 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
     return {
       id: "operate-governance",
       label: "Governance",
+      surface: "review-workflow",
       caption: "Policy, audit, alerts, and trust controls.",
       links: [
-        {
-          href: "/admin/health",
-          label: "System health",
-          title: "System health — readiness, circuit breakers, onboarding funnel metrics",
-          icon: HeartPulse,
-          tier: "advanced",
-          requiredAuthority: "AdminAuthority",
-        },
         {
           href: "/alerts",
           label: "Alerts",

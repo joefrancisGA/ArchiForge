@@ -23,6 +23,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
     return {
       id: "operate-analysis",
       label: "Analysis",
+      surface: "review-workflow",
       caption: "Compare, replay, graph, architecture advisory, and deeper questions after Pilot proof.",
       links: [
         {

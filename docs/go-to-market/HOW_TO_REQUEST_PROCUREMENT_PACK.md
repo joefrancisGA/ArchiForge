@@ -23,14 +23,29 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 
 The command runs `scripts/build_procurement_pack.py`, verifies **every canonical file** exists, writes `dist/procurement-pack/` (staging) and the ZIP. Inside the ZIP you will find:
 
-- `manifest.json` — each file’s **size** and **SHA-256**
+- `manifest.json` — each file’s **size**, **SHA-256**, and **`artifact_status`**
 - `versions.txt` — **git commit**, build timestamp, and **CLI package version**
 - `redaction_report.md` — repository paths **intentionally omitted** from the canonical checklist and why
+- `artifact_status_index.json` — machine-readable **`artifact_status`** per packed path (mirrors `scripts/procurement_pack_canonical.json`)
+- `ARTIFACT_STATUS_INDEX.md` — **Evidence** vs **Template** vs **Self-assessment** vs **Deferred** table for buyers
 
 ### Validate without writing a ZIP (CI / pre-commit)
 
 ```bash
 python scripts/build_procurement_pack.py --dry-run
+```
+
+### Release / buyer drop — placeholder strictness
+
+For a **release** or **procurement** drop, run the builder with **`--strict`** (or set environment variable **`PROCUREMENT_PACK_STRICT=1`**) so **Evidence** and **Self-assessment** text files are scanned for buyer-unsafe markers (`TODO`, `TBD`, `placeholder-replace-before-launch`). **`Template`** and **`Deferred`** pack rows are excluded from this scan by design.
+
+```bash
+python scripts/build_procurement_pack.py --strict
+```
+
+```powershell
+$env:PROCUREMENT_PACK_STRICT = "1"
+python scripts/build_procurement_pack.py
 ```
 
 ## Script-only (advanced)
@@ -43,11 +58,7 @@ python scripts/build_procurement_pack.py --dry-run
 ./scripts/build_procurement_pack.ps1
 ```
 
-Both wrappers invoke the same Python builder.
-
-## Placeholder strictness (owner policy)
-
-**Strict** checks for buyer-unsafe placeholders (for example unresolved `TODO` / `TBD` in packaged Markdown) apply **only** when producing a **release** or **procurement** artifact — the build path you use to ship `dist/procurement-pack.zip` to a buyer — **not** on every repository CI job. **Default CI** may still run `build_procurement_pack` to prove the bundle **assembles**; **do not** make merge-blocking gates depend on draft markers inside templates until a dedicated release/procurement job enforces cleanup.
+Both wrappers invoke the same Python builder. **Default CI** should keep using **`--dry-run`** (assemblability only). Use **`--strict`** or **`PROCUREMENT_PACK_STRICT`** only on release/procurement jobs so merge-blocking gates do not depend on draft markers inside **Template**/**Deferred** pack rows.
 
 ## After generating the ZIP
 

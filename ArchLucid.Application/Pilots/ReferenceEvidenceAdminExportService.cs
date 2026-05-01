@@ -148,6 +148,7 @@ public sealed class ReferenceEvidenceAdminExportService(
                      - first-value-report.md — sponsor Markdown when available.
                      - first-value-report.pdf — when PDF build succeeded.
                      - sponsor-one-pager.pdf — when Standard-tier scorecard path succeeded (may be absent on Team tier).
+                     - proof-pack-readme.md — buyer-oriented Markdown overview (redaction + file table).
 
                      Legal: obtain a signed reference agreement before publishing externally.
                      """;
@@ -158,9 +159,51 @@ public sealed class ReferenceEvidenceAdminExportService(
                     byte[] r = Encoding.UTF8.GetBytes(readme);
                     await s.WriteAsync(r, cancellationToken);
                 }
+
+                string proofPackReadme = BuildProofPackReadmeMarkdown(tenantId, runId, includeDemo);
+                ZipArchiveEntry proofReadmeEntry = zip.CreateEntry("proof-pack-readme.md");
+                await using (Stream s = await proofReadmeEntry.OpenAsync(cancellationToken))
+                {
+                    byte[] md = Encoding.UTF8.GetBytes(proofPackReadme);
+                    await s.WriteAsync(md, cancellationToken);
+                }
             }
         }
 
         return zipStream.ToArray();
+    }
+
+    private static string BuildProofPackReadmeMarkdown(Guid tenantId, string runId, bool includeDemo)
+    {
+        return $"""
+            # ArchLucid proof pack (reference evidence)
+
+            This ZIP packages **committed-run** artifacts for diligence: deltas JSON, first-value narrative (Markdown/PDF when built), and sponsor one-pager (PDF when available).
+
+            ## Redaction and external use
+
+            - Treat as **confidential** until your legal team approves external sharing.
+            - When redacting for buyers or anonymous benchmarks, follow **`docs/library/PROOF_PACK_REDACTION_PROFILES.md`** in the ArchLucid repository.
+
+            ## Files
+
+            | File | Description |
+            | --- | --- |
+            | `pilot-run-deltas.json` | Proof-of-ROI / delta numbers backing the narrative. |
+            | `first-value-report.md` | Sponsor Markdown when the builder produced it. |
+            | `first-value-report.pdf` | Rendered first-value report when PDF generation succeeded. |
+            | `sponsor-one-pager.pdf` | Standard-tier scorecard path when available. |
+            | `README.txt` | Short bundle metadata. |
+            | `proof-pack-readme.md` | This file (Markdown overview for humans). |
+
+            ## Bundle metadata
+
+            - **TenantId:** `{tenantId:D}`
+            - **RunId:** `{runId}`
+            - **IncludeDemo:** {includeDemo}
+            - **GeneratedUtc:** {DateTime.UtcNow:O}
+
+            Obtain a **signed reference agreement** before publishing customer-specific metrics externally.
+            """;
     }
 }

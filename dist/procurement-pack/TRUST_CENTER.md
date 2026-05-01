@@ -81,7 +81,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 
 **Buyer-facing steps** (what to send in email templates): [`HOW_TO_REQUEST_PROCUREMENT_PACK.md`](HOW_TO_REQUEST_PROCUREMENT_PACK.md).
 
-**Technical / CI:** the same build runs via `python scripts/build_procurement_pack.py` (optional `--dry-run`, optional `--out <path>`). Thin wrappers remain: **`scripts/build_procurement_pack.sh`** (POSIX) and **`scripts/build_procurement_pack.ps1`** (Windows). Each successful build emits **`dist/procurement-pack.zip`** containing **`manifest.json`** (per-file **bytes + SHA-256**), **`versions.txt`** (git commit + UTC timestamp + CLI version), and **`redaction_report.md`** (canonical omissions). Canonical paths are enforced in **`scripts/procurement_pack_canonical.json`** — the build **fails loud** if any required source file is missing.
+**Technical / CI:** the same build runs via `python scripts/build_procurement_pack.py` (optional `--dry-run`, optional `--out <path>`). Thin wrappers remain: **`scripts/build_procurement_pack.sh`** (POSIX) and **`scripts/build_procurement_pack.ps1`** (Windows). Each successful build emits **`dist/procurement-pack.zip`** containing **`manifest.json`** (per-file **bytes + SHA-256**), **`versions.txt`** (git commit + UTC timestamp + CLI version), and **`redaction_report.md`** (canonical omissions). Canonical paths are enforced in **`scripts/procurement_pack_canonical.json`** — the build **fails loud** if any required source file is missing. **Buyer-facing placeholder strictness** (draft markers in packaged docs) is **release/procurement-build only** — see [`HOW_TO_REQUEST_PROCUREMENT_PACK.md`](HOW_TO_REQUEST_PROCUREMENT_PACK.md) § *Placeholder strictness*.
 
 **Cover letter:** complete [`PROCUREMENT_PACK_COVER.md`](PROCUREMENT_PACK_COVER.md) **outside** the committed repo before sending buyer-specific names (legal / owner gate).
 
@@ -119,7 +119,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 |------|--------|--------|
 | **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until ARR materially supports CPA attestation cost | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). We will pursue SOC 2 Type 1 readiness once we cross approximately **$1M ARR**; until then, we publish a self-attested security and compliance summary. (Directional, not contractual — see `docs/PENDING_QUESTIONS.md` item 6 resolved 2026-04-22.) External readiness consultant + CPA firm selection paused until that threshold; G-001 in the self-assessment captures the resumption checklist. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
-| **ISO 27001** | Not claimed | Roadmap TBD with SOC 2 program. |
+| **ISO 27001** | Not claimed | Roadmap timing tied to SOC 2 program (date not yet set). |
 
 ---
 

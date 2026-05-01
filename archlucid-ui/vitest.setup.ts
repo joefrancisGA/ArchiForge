@@ -1,3 +1,4 @@
+import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
 import "@testing-library/jest-dom/vitest";
@@ -19,7 +20,6 @@ if (typeof Element !== "undefined") {
   Element.prototype.scrollIntoView = vi.fn();
 }
 
-afterEach(async () => {
-  const { cleanup } = await import("@testing-library/react");
+afterEach(() => {
   cleanup();
 });

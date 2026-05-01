@@ -124,10 +124,12 @@ describe("filterNavLinksForOperatorShell", () => {
   });
 
   it("shows system health for Admin rank when advanced and extended disclosure are on", () => {
-    expect(enterprise).toBeDefined();
+    const admin = NAV_GROUPS.find((g) => g.id === "operator-admin");
+
+    expect(admin).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
+      admin!.links,
       true,
       true,
       AUTHORITY_RANK.AdminAuthority,
@@ -369,5 +371,38 @@ describe("filterNavLinksForOperatorShell — public demo nav omissions", () => {
     expect(visible.some((l) => l.href === "/audit")).toBe(false);
     expect(visible.some((l) => l.href === "/admin/health")).toBe(false);
     expect(visible.some((l) => l.href === "/workspace/security-trust")).toBe(true);
+  });
+
+  it("hides operator-admin links including system health when NEXT_PUBLIC_DEMO_MODE is true", () => {
+    const admin = NAV_GROUPS.find((g) => g.id === "operator-admin");
+
+    expect(admin).toBeDefined();
+    process.env.NEXT_PUBLIC_DEMO_MODE = "true";
+
+    const visible = filterNavLinksForOperatorShell(
+      admin!.links,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+    );
+
+    expect(visible.some((l) => l.href === "/admin/health")).toBe(false);
+    expect(visible.some((l) => l.href === "/admin/users")).toBe(false);
+  });
+});
+
+describe("listNavGroupsVisibleInOperatorShell — platform-admin surface", () => {
+  it("returns only operator-admin when surfaceFilter is platform-admin", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.AdminAuthority,
+      false,
+      "platform-admin",
+    );
+
+    expect(rows.map((r) => r.group.id)).toEqual(["operator-admin"]);
+    expect(rows[0]!.visibleLinks.some((l) => l.href === "/admin/health")).toBe(true);
   });
 });
