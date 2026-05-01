@@ -87,6 +87,22 @@ public static class ArchLucidInstrumentation
     public static readonly Counter<long> DigestDeliveryFailed = AppMeter.CreateCounter<long>("digest_delivery_failed");
 
     /// <summary>
+    ///     Outbound HTTP webhook POST attempts (<c>IWebhookPoster</c>; labels <c>event_type</c>, <c>succeeded</c>=true|false).
+    /// </summary>
+    public static readonly Counter<long> WebhookDeliveries =
+        AppMeter.CreateCounter<long>(
+            "archlucid.webhook.deliveries",
+            description:
+            "Webhook HTTP deliveries (labels event_type low-cardinality literal, succeeded=true|false).");
+
+    /// <summary>Wall-clock HTTP POST latency for webhook deliveries (ms; label <c>event_type</c>).</summary>
+    public static readonly Histogram<double> WebhookDeliveryDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid.webhook.delivery_duration",
+            "ms",
+            "Outbound webhook HTTP POST attempt duration.");
+
+    /// <summary>
     ///     Wall time for <c>EvaluateAndPersistAsync</c> (labels: <c>rule_kind</c> = <c>simple</c> | <c>composite</c>).
     /// </summary>
     public static readonly Histogram<double> AlertEvaluationDurationMilliseconds = AppMeter.CreateHistogram<double>(

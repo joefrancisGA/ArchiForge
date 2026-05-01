@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 using ArchLucid.Core.Integration;
 
@@ -36,10 +37,35 @@ public sealed class IntegrationEventCatalogSyncTests
             string transport = eventElement.GetProperty("transport").GetString()!;
             bool outboxSupported = eventElement.GetProperty("outboxSupported").GetBoolean();
 
+            bool isInternal = eventElement.TryGetProperty("internal", out JsonElement internalElement)
+                && internalElement.ValueKind is JsonValueKind.True;
+
+            if (isInternal)
+            {
+                eventElement.TryGetProperty("audience", out _).Should().BeFalse(
+                    $"internal catalog entry {eventType} must not set audience (reserved for external-only rows)");
+            }
+            else
+            {
+                eventElement.TryGetProperty("audience", out JsonElement audienceElement).Should().BeTrue(
+                    $"non-internal catalog entry {eventType} must declare audience");
+                audienceElement.GetString().Should().Be("external");
+            }
+
             transport.Should().Be("Azure Service Bus (topic)",
                 $"catalog transport for {eventType} must match published integration channel");
-            outboxSupported.Should()
-                .BeTrue($"catalog outboxSupported for {eventType} must match transactional outbox coverage in docs");
+
+            if (string.Equals(eventType, IntegrationEventTypes.DataConsistencyCheckCompletedV1, StringComparison.Ordinal))
+            {
+                // Published via best-effort IIntegrationEventPublisher only (not the transactional outbox table).
+                outboxSupported.Should().BeFalse(
+                    $"catalog outboxSupported for {eventType} must match code path (direct publish after reconciliation)");
+            }
+            else
+            {
+                outboxSupported.Should()
+                    .BeTrue($"catalog outboxSupported for {eventType} must match transactional outbox coverage in docs");
+            }
 
             catalogRows.Add((eventType, schemaFile, schemaUri));
         }
@@ -65,6 +91,56 @@ public sealed class IntegrationEventCatalogSyncTests
                 .BeTrue($"schema {schemaFile} must declare $id");
             string? idFromFile = idElement.GetString();
             idFromFile.Should().Be(schemaUri, "catalog schemaUri must match the schema file $id");
+        }
+    }
+
+    [Fact]
+    public void Internal_catalog_event_types_are_absent_from_external_event_catalog_section_in_docs()
+    {
+        string catalogPath = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events", "catalog.json");
+        string catalogJson = File.ReadAllText(catalogPath);
+        using JsonDocument catalogDoc = JsonDocument.Parse(catalogJson);
+
+        List<string> internalEventTypes = [];
+        foreach (JsonElement eventElement in catalogDoc.RootElement.GetProperty("events").EnumerateArray())
+        {
+            bool isInternal = eventElement.TryGetProperty("internal", out JsonElement internalElement)
+                && internalElement.ValueKind is JsonValueKind.True;
+
+            if (!isInternal) continue;
+
+            string eventType = eventElement.GetProperty("eventType").GetString()!;
+            internalEventTypes.Add(eventType);
+        }
+
+        internalEventTypes.Should().NotBeEmpty("catalog must mark at least one internal dispatch event (trial email)");
+
+        string docPath = Path.Combine(AppContext.BaseDirectory, "docs", "library", "INTEGRATION_EVENTS_AND_WEBHOOKS.md");
+        File.Exists(docPath).Should().BeTrue($"doc must be copied to test output: {docPath}");
+
+        string docText = File.ReadAllText(docPath);
+        const string sectionHeading = "### Event catalog (canonical types)";
+        int sectionStart = docText.IndexOf(sectionHeading, StringComparison.Ordinal);
+        sectionStart.Should().BeGreaterThan(-1);
+
+        int contentStart = sectionStart + sectionHeading.Length;
+        int nextHeading = docText.IndexOf("\n### ", contentStart, StringComparison.Ordinal);
+        string sectionBody = nextHeading < 0
+            ? docText[contentStart..]
+            : docText[contentStart..nextHeading];
+
+        MatchCollection matches = Regex.Matches(sectionBody, @"(?m)^\d+\.\s+\*\*`([^`]+)`\*\*", RegexOptions.None);
+
+        matches.Should().NotBeEmpty("external event catalog section must list canonical types as a numbered list");
+
+        IReadOnlyCollection<string> externalListedTypes = matches
+            .Select(m => m.Groups[1].Value.Trim())
+            .ToList();
+
+        foreach (string internalType in internalEventTypes)
+        {
+            externalListedTypes.Should().NotContain(internalType,
+                $"internal-only integration type must not appear as a numbered external catalog row in INTEGRATION_EVENTS_AND_WEBHOOKS.md (section: {sectionHeading})");
         }
     }
 

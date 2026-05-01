@@ -170,7 +170,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }, [loadError, preferAutoPick, value, onChange]);
 
   const optionalCopy =
-    selectedThreadId.trim().length > 0 ? "(optional when a conversation is already selected)" : "(required for a new conversation)";
+    selectedThreadId.trim().length > 0 ? "(optional when a context is already selected)" : "(select an architecture review)";
 
   if (loadError) {
     const demoMode =
@@ -271,7 +271,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         </Label>
         <Select disabled>
           <SelectTrigger id={selectControlId} className="font-mono text-sm">
-            <SelectValue placeholder="No runs in this workspace yet" />
+            <SelectValue placeholder="No reviews in this workspace yet" />
           </SelectTrigger>
         </Select>
         <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">

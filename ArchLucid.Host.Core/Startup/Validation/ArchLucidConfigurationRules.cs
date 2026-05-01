@@ -73,6 +73,7 @@ public static class ArchLucidConfigurationRules
             BillingProductionSafetyRules.CollectStripeLiveKeyRequiresWebhookSigningSecret(configuration, errors);
             BillingProductionSafetyRules.CollectAzureMarketplaceLandingPageUrl(configuration, errors);
             BillingProductionSafetyRules.CollectAzureMarketplaceGaRequiresOfferId(configuration, errors);
+            ProductionSafetyRules.CollectAzureDevOpsPersonalAccessTokenKeyVaultReference(configuration, errors);
             ContainerJobsOffloadRules.Collect(configuration, environment, hostingRole, errors);
 
             return errors;
@@ -87,6 +88,7 @@ public static class ArchLucidConfigurationRules
         BillingProductionSafetyRules.CollectStripeLiveKeyRequiresWebhookSigningSecret(configuration, errors);
         BillingProductionSafetyRules.CollectAzureMarketplaceLandingPageUrl(configuration, errors);
         BillingProductionSafetyRules.CollectAzureMarketplaceGaRequiresOfferId(configuration, errors);
+        ProductionSafetyRules.CollectAzureDevOpsPersonalAccessTokenKeyVaultReference(configuration, errors);
         AuthenticationRules.CollectProductionAuthModes(configuration, errors);
 
         return errors;

@@ -117,7 +117,7 @@ export function RunsDashboardPanel() {
       return items;
     }
 
-    if (phase !== "ready") {
+    if (phase !== "ready" && phase !== "error") {
       return items;
     }
 
@@ -138,7 +138,7 @@ export function RunsDashboardPanel() {
   const attentionRuns = useMemo(() => effectiveItems.filter(isRunNeedingAttention), [effectiveItems]);
   const attentionPreview = useMemo(() => attentionRuns.slice(0, 3), [attentionRuns]);
 
-  const runListError = phase === "error" && failure !== null;
+  const runListError = phase === "error" && failure !== null && effectiveItems.length === 0;
 
   return (
     <section aria-labelledby="runs-dashboard-heading" data-onboarding="tour-runs-dashboard">
@@ -146,7 +146,7 @@ export function RunsDashboardPanel() {
         id="runs-dashboard-heading"
         className="mb-3 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300"
       >
-        Runs
+        Architecture reviews
       </h3>
       <Card
         className="border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
@@ -205,7 +205,7 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {phase === "ready" && showcaseDemoRun ? (
+              {(phase === "ready" || phase === "error") && showcaseDemoRun ? (
                 <div
                   className="space-y-3 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-3 dark:border-emerald-900 dark:bg-emerald-950/25"
                   data-testid="operator-home-showcase-demo-banner"
@@ -242,7 +242,7 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {phase === "ready" && effectiveItems.length === 0 ? (
+              {(phase === "ready" || phase === "error") && effectiveItems.length === 0 && !runListError ? (
                 <div
                   className="space-y-3 rounded-lg border border-teal-200 bg-teal-50/60 px-3 py-3 dark:border-teal-900 dark:bg-teal-950/30"
                   data-testid="operator-home-getting-started"
@@ -266,7 +266,7 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {phase === "ready" && effectiveItems.length > 0 ? (
+              {(phase === "ready" || phase === "error") && effectiveItems.length > 0 ? (
                 <ul className="m-0 list-none space-y-2 p-0" data-testid="recent-runs-home-panel">
                   {effectiveItems.map((run) => (
                     <li
@@ -303,7 +303,7 @@ export function RunsDashboardPanel() {
                 </div>
               ) : null}
 
-              {phase === "ready" ? (
+              {(phase === "ready" || (phase === "error" && effectiveItems.length > 0)) ? (
                 <>
                   {attentionRuns.length === 0 ? (
                     <p className="m-0 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -383,7 +383,7 @@ export function RunsDashboardPanel() {
         </CardContent>
       </Card>
 
-      {phase === "ready" && effectiveItems.length === 0 ? (
+      {(phase === "ready" || phase === "error") && effectiveItems.length === 0 && !runListError ? (
         <Card
           className="mt-3 border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           data-testid="example-request-panel"

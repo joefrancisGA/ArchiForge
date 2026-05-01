@@ -46,7 +46,7 @@ export const SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES: readonly string[] = [
   "Unstructured attachments may still bypass the OCR path during peak; monitor exception volume weekly.",
 ];
 
-const GENERATED_UTC = "2026-01-15T14:30:00.000Z";
+const GENERATED_UTC = "2026-04-23T09:15:00.000Z";
 
 /**
  * Read-only static payload for `/showcase/[runId]` when no preview API is configured,

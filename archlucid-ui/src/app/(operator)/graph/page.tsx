@@ -248,8 +248,7 @@ export default function GraphPage() {
       <LayerHeader pageKey="graph" />
       <OperatorPageHeader title="Architecture graph" helpKey="architecture-graph" />
       <p className="max-w-3xl text-neutral-700 dark:text-neutral-300 leading-relaxed">
-        Pick a run from the list, choose a graph mode, then <strong>Load graph</strong>. In demo mode, the review trail
-        view can fall back to a sample graph when the API has no graph bundle yet. Node types include decisions,
+        Select a review, choose a graph mode, then <strong>Load graph</strong>. Node types include decisions,
         findings, artifacts, review events, and architecture components.
       </p>
 

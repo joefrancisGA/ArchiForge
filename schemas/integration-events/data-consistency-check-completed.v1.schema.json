@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/data-consistency-check-completed.v1.schema.json",
+  "title": "com.archlucid.system.data-consistency-check.completed.v1",
+  "description": "Leader-elected data consistency reconciliation finished; bounded findings payload (ids truncated server-side).",
+  "type": "object",
+  "required": [
+    "checkedAtUtc",
+    "isHealthy",
+    "findings"
+  ],
+  "properties": {
+    "checkedAtUtc": { "type": "string", "format": "date-time" },
+    "isHealthy": { "type": "boolean" },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "checkName",
+          "severity",
+          "description",
+          "affectedEntityIds"
+        ],
+        "properties": {
+          "checkName": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "Info",
+              "Warning",
+              "Critical"
+            ]
+          },
+          "description": { "type": "string" },
+          "affectedEntityIds": {
+            "type": "array",
+            "items": { "type": "string" },
+            "maxItems": 50
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

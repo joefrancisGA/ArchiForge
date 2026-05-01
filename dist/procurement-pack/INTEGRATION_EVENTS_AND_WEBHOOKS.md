@@ -40,7 +40,7 @@ When `WebhookDelivery:UseCloudEventsEnvelope` is **true**, digest and alert webh
 
 **Logic App (governance) subscription:** when `enable_logic_app_governance_approval_subscription` is true in `infra/terraform-servicebus/`, a third subscription is created whose default rule is a SQL filter on **`event_type`** so only `com.archlucid.governance.approval.submitted` is delivered — use that subscription name as the Service Bus trigger in the **`governance-approval-routing`** workflow (see `infra/terraform-logicapps/workflows/governance-approval-routing/README.md`).
 
-**Additional optional Logic App subscriptions (same module):** trial lifecycle email (`com.archlucid.notifications.trial-lifecycle-email.v1`), incident ChatOps (`alert.fired` **or** `alert.resolved`), prod-only promotion customer notify (`event_type` + user property **`promotion_environment` = `prod`**), and Marketplace fulfillment hand-off (`com.archlucid.billing.marketplace.webhook.received.v1` only — emitted **after** JWT verification and provider success; see `infra/terraform-logicapps/workflows/marketplace-fulfillment-handoff/README.md`). The API/worker sets `promotion_environment` on Service Bus messages for `com.archlucid.governance.promotion.activated` so SQL filters can target production without parsing the JSON body.
+**Additional optional Logic App subscriptions (same module):** internal trial-lifecycle email dispatch (`com.archlucid.notifications.trial-lifecycle-email.v1` — worker idempotency ledger; **not** a public integration contract for external subscribers), incident ChatOps (`alert.fired` **or** `alert.resolved`), prod-only promotion customer notify (`event_type` + user property **`promotion_environment` = `prod`**), and Marketplace fulfillment hand-off (`com.archlucid.billing.marketplace.webhook.received.v1` only — emitted **after** JWT verification and provider success; see `infra/terraform-logicapps/workflows/marketplace-fulfillment-handoff/README.md`). The API/worker sets `promotion_environment` on Service Bus messages for `com.archlucid.governance.promotion.activated` so SQL filters can target production without parsing the JSON body.
 
 **Promotion customer channel preferences:** `GET /v1/notifications/customer-channel-preferences` (Read authority) returns `TenantNotificationChannelPreferencesResponse` — booleans for email / Teams / outbound-webhook customer notifications and `isConfigured`. If there is no row in `dbo.TenantNotificationChannelPreferences` (migration **082**), GET returns conservative defaults with `isConfigured: false`. **`PUT`** the same path (`TenantNotificationChannelPreferencesUpsertRequest`, **Execute** authority + trial gate) upserts the row and emits durable audit **`TenantNotificationChannelPreferencesUpdated`**; **404** when `dbo.Tenants` has no row for the caller’s tenant (SQL mode). Logic Apps typically **GET** before fan-out; operators or the API **PUT** for configuration.
 
@@ -89,14 +89,20 @@ Individual event payload schemas are published as [JSON Schema Draft 2020-12](ht
 | Schema file | Event type |
 |-------------|------------|
 | `authority-run-completed.v1.schema.json` | `com.archlucid.authority.run.completed` |
+| `manifest-finalized.v1.schema.json` | `com.archlucid.manifest.finalized.v1` |
 | `governance-approval-submitted.v1.schema.json` | `com.archlucid.governance.approval.submitted` |
 | `governance-promotion-activated.v1.schema.json` | `com.archlucid.governance.promotion.activated` |
 | `alert-fired.v1.schema.json` | `com.archlucid.alert.fired` |
 | `alert-resolved.v1.schema.json` | `com.archlucid.alert.resolved` |
 | `advisory-scan-completed.v1.schema.json` | `com.archlucid.advisory.scan.completed` |
-| `trial-lifecycle-email.v1.schema.json` | `com.archlucid.notifications.trial-lifecycle-email.v1` |
+| `data-consistency-check-completed.v1.schema.json` | `com.archlucid.system.data-consistency-check.completed.v1` |
+| `compliance-drift-escalated.v1.schema.json` | `com.archlucid.compliance.drift.escalated` |
+| `seat-reservation-released.v1.schema.json` | `com.archlucid.seat.reservation.released` |
+| `billing-marketplace-webhook-received.v1.schema.json` | `com.archlucid.billing.marketplace.webhook.received.v1` |
 
-External consumers can validate inbound Service Bus message bodies against these schemas. Each schema sets `additionalProperties: true` so new fields may appear in payloads without a schema-version bump (same additive contract as `IntegrationEventPayloadContractTests`).
+**Internal (worker dispatch):** `com.archlucid.notifications.trial-lifecycle-email.v1` has a JSON Schema for worker contracts but is flagged `"internal": true` in `catalog.json`. This event is internal. External consumers should not subscribe to it.
+
+External consumers can validate inbound Service Bus message bodies against the schemas in this table. Each schema sets `additionalProperties: true` so new fields may appear in payloads without a schema-version bump (same additive contract as `IntegrationEventPayloadContractTests`).
 
 ### Event catalog (canonical types)
 
@@ -108,7 +114,13 @@ Payloads use `IntegrationEventJson` (camelCase, omit nulls). See **`docs/contrac
 4. **`com.archlucid.alert.fired`** — `schemaVersion`, scope ids, `alertId`, optional `runId` / `comparedToRunId`, `ruleId`, `category`, `severity`, `title`, `deduplicationKey`
 5. **`com.archlucid.alert.resolved`** — `schemaVersion`, scope ids, `alertId`, optional `runId`, `resolvedByUserId`, optional `comment`
 6. **`com.archlucid.advisory.scan.completed`** — `schemaVersion`, scope ids, `scheduleId`, `executionId`, `hasRuns`, optional run/digest ids, `completedUtc`
-7. **`com.archlucid.notifications.trial-lifecycle-email.v1`** — `schemaVersion`, `trigger`, scope ids, optional `runId`, optional `targetTier` (see `docs/EMAIL_NOTIFICATIONS.md`)
+7. **`com.archlucid.manifest.finalized.v1`** — `schemaVersion`, `runId`, `manifestId`, `decisionTraceId`, scope ids, `findingsSnapshotId`, optional `artifactBundleId` / `manifestVersion`
+8. **`com.archlucid.compliance.drift.escalated`** — `schemaVersion`, scope ids, `driftSignalId`, `escalatedUtc`, `metricKey`, optional threshold values
+9. **`com.archlucid.seat.reservation.released`** — `schemaVersion`, scope ids, `reservationId`, `releasedUtc`, optional `releaseReason`
+10. **`com.archlucid.billing.marketplace.webhook.received.v1`** — `schemaVersion`, scope ids, `providerDedupeKey`, `action`, `subscriptionId`, `billingProvider` (Marketplace webhook path; no raw JWT in payload)
+11. **`com.archlucid.system.data-consistency-check.completed.v1`** — `checkedAtUtc`, `isHealthy`, `findings[]` (`checkName`, `severity`, `description`, `affectedEntityIds`)
+
+> **`com.archlucid.notifications.trial-lifecycle-email.v1`:** This event is internal. External consumers should not subscribe to it.
 
 When no usable Service Bus configuration is present, a **no-op** publisher is registered.
 

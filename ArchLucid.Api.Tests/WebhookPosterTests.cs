@@ -88,4 +88,36 @@ public sealed class WebhookPosterTests
                 It.Is<WebhookPostOptions>(w => w.HmacSha256SharedSecret == "call")),
             Times.Once);
     }
+
+    [Fact]
+    public async Task WebhookHmacEnvelopePoster_preserves_telemetry_when_merging_hmac_secret_from_config()
+    {
+        Mock<IOptionsMonitor<WebhookDeliveryOptions>> opts = new();
+        opts.Setup(o => o.CurrentValue).Returns(new WebhookDeliveryOptions { HmacSha256SharedSecret = "cfg-secret" });
+        Mock<IWebhookPoster> inner = new();
+
+        Guid tenantId = Guid.Parse("5d4d4d4d-aaaa-bbbb-cccc-dddddddddddd");
+        WebhookHmacEnvelopePoster poster = new(opts.Object, inner.Object);
+
+        await poster.PostJsonAsync(
+            "https://x/webhook/private",
+            new { ok = true },
+            CancellationToken.None,
+            new WebhookPostOptions
+            {
+                EventType = "tenant.digest",
+                TenantId = tenantId,
+            });
+
+        inner.Verify(
+            i => i.PostJsonAsync(
+                "https://x/webhook/private",
+                It.IsAny<object>(),
+                It.IsAny<CancellationToken>(),
+                It.Is<WebhookPostOptions>(
+                    w => w.HmacSha256SharedSecret == "cfg-secret"
+                         && w.EventType == "tenant.digest"
+                         && w.TenantId == tenantId)),
+            Times.Once);
+    }
 }

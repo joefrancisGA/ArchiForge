@@ -94,6 +94,38 @@ internal static class ProductionSafetyRules
             "Email:Provider is AzureCommunicationServices; configure Email:AzureCommunicationServicesEndpoint with the ACS Email resource endpoint (HTTPS).");
     }
 
+    /// <summary>
+    ///     Azure DevOps PR decoration must not use a raw PAT in Production; App Service / Container Apps Key Vault
+    ///     reference syntax only.
+    /// </summary>
+    public static void CollectAzureDevOpsPersonalAccessTokenKeyVaultReference(IConfiguration configuration, List<string> errors)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(errors);
+
+        const string sectionName = "AzureDevOps";
+
+        IConfigurationSection ado = configuration.GetSection(sectionName);
+
+        if (!ado.GetValue<bool>("Enabled"))
+            return;
+
+
+        string pat = ado["PersonalAccessToken"]?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(pat))
+            return;
+
+
+        if (pat.StartsWith("@Microsoft.KeyVault", StringComparison.Ordinal))
+            return;
+
+
+        errors.Add(
+            "AzureDevOps:PersonalAccessToken must use a Key Vault reference in Production "
+            + "(format: @Microsoft.KeyVault(...)). Raw PATs are not permitted in production config.");
+    }
+
     /// <summary>External ID (CIAM) trial mode requires an explicit directory tenant id in Production.</summary>
     public static void CollectTrialAuthExternalId(IConfiguration configuration, List<string> errors)
     {

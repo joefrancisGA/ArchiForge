@@ -2155,4 +2155,101 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should().Contain(e => e.Contains("loopback", StringComparison.OrdinalIgnoreCase)
                                      || e.Contains("localhost", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndAzureDevOpsEnabledWithRawPat_contains_key_vault_reference_error()
+    {
+        Dictionary<string, string?> data = new(ProductionApiBaselineWithBillingNoop())
+        {
+            ["AzureDevOps:Enabled"] = "true",
+            ["AzureDevOps:PersonalAccessToken"] = "unit-test-raw-pat-placeholder-not-a-real-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(e => e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndAzureDevOpsEnabledWithKeyVaultPat_does_not_add_raw_pat_error()
+    {
+        Dictionary<string, string?> data = new(ProductionApiBaselineWithBillingNoop())
+        {
+            ["AzureDevOps:Enabled"] = "true",
+            ["AzureDevOps:PersonalAccessToken"] =
+                "@Microsoft.KeyVault(SecretUri=https://fake.vault.azure.net/secrets/ado-pat/unit-test/)",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .NotContain(e =>
+                e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenDevelopmentAndAzureDevOpsEnabledWithRawPat_does_not_add_key_vault_reference_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["AzureDevOps:Enabled"] = "true",
+            ["AzureDevOps:PersonalAccessToken"] = "dev-raw-pat-ok-in-non-production",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .NotContain(e =>
+                e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndAzureDevOpsDisabledWithRawPat_does_not_add_key_vault_reference_error()
+    {
+        Dictionary<string, string?> data = new(ProductionApiBaselineWithBillingNoop())
+        {
+            ["AzureDevOps:Enabled"] = "false",
+            ["AzureDevOps:PersonalAccessToken"] = "ignored-when-disabled",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .NotContain(e =>
+                e.Contains("AzureDevOps:PersonalAccessToken must use a Key Vault reference", StringComparison.Ordinal));
+    }
+
+    private static Dictionary<string, string?> ProductionApiBaselineWithBillingNoop() =>
+        new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ConnectionStrings:ArchLucid"] =
+                "Server=.;Database=ArchLucidConfigurationRulesTests;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Billing:Provider"] = BillingProviderNames.Noop,
+        };
 }

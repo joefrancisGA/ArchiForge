@@ -8924,6 +8924,136 @@
         },
         "type": "object"
       },
+      "PilotValueReport": {
+        "properties": {
+          "auditExportTruncated": {
+            "type": "boolean"
+          },
+          "averagePipelineCompletionSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "committedRunsTimeline": {
+            "items": {
+              "$ref": "#/components/schemas/PilotValueReportRunTimelinePoint"
+            },
+            "type": "array"
+          },
+          "comparisonOrDriftDetections": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "findingsBySeverity": {
+            "$ref": "#/components/schemas/PilotValueReportSeverityBreakdown"
+          },
+          "fromUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "governanceApprovals": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "governancePendingApprovalsNow": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "governanceRejections": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "policyPackAssignments": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "runDetailCap": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "runDetailsTruncated": {
+            "type": "boolean"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "toUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "totalFindings": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalRecommendationsProduced": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalRunsCommitted": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "uniqueAgentTypes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "PilotValueReportRunTimelinePoint": {
+        "properties": {
+          "committedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "systemName": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PilotValueReportSeverityBreakdown": {
+        "properties": {
+          "critical": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "high": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "info": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "low": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "medium": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PolicyControlItem": {
         "properties": {
           "controlId": {
@@ -38796,6 +38926,113 @@
         ]
       }
     },
+    "/v1/tenant/pilot-value-report": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "fromUtc",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "toUtc",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotValueReport"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotValueReport"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotValueReport"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantPilotValueReport"
+        ]
+      }
+    },
     "/v1/tenant/trial-status": {
       "get": {
         "responses": {
@@ -39495,6 +39732,9 @@
     },
     {
       "name": "TenantMeasuredRoi"
+    },
+    {
+      "name": "TenantPilotValueReport"
     },
     {
       "name": "TenantTrial"

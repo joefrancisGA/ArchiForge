@@ -31,6 +31,10 @@
       <Link>docs\library\CONFIGURATION_REFERENCE.md</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\docs\library\INTEGRATION_EVENTS_AND_WEBHOOKS.md">
+      <Link>docs\library\INTEGRATION_EVENTS_AND_WEBHOOKS.md</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="..\schemas\integration-events\*.v1.schema.json">
       <Link>schemas\integration-events\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

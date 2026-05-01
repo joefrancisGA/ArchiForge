@@ -22,7 +22,6 @@ internal static class SanitizedLoggerExtensions
     {
         string safe = LogSanitizer.Sanitize(userDerivedValue);
 
-        // codeql[cs/log-forging]: userDerivedValue sanitized immediately above; exception is server-side in these catch blocks, not raw client text.
-        logger.LogWarning(exception, messageTemplate, safe);
+        logger.LogWarning(exception, messageTemplate, safe); // codeql[cs/log-forging]: sanitized above; params boxing breaks custom barrier at sink (see CODEQL_TRIAGE.md, LoggerExtensions LogWarning boxing).
     }
 }

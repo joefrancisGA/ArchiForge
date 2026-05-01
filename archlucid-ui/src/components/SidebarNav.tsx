@@ -300,14 +300,14 @@ export function SidebarNav() {
               >
                 <ChevronDown className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
                 {group.id === "operate-analysis"
-                  ? `${hiddenByDisclosure} more analysis links`
+                  ? `${hiddenByDisclosure} advanced analysis`
                   : group.id === "operate-governance"
-                    ? `${hiddenByDisclosure} more governance links`
+                    ? `${hiddenByDisclosure} governance controls`
                     : group.id === "operator-admin"
-                      ? `${hiddenByDisclosure} more admin links`
+                      ? `${hiddenByDisclosure} admin controls`
                       : group.id === "pilot"
-                        ? `${hiddenByDisclosure} more pilot links`
-                        : `${hiddenByDisclosure} more links`}
+                        ? `${hiddenByDisclosure} pilot tools`
+                        : `${hiddenByDisclosure} more`}
               </button>
             ) : null}
           </Collapsible>

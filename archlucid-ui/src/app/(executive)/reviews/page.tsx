@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { listRunsByProjectPaged } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,6 +39,23 @@ export default async function ExecutiveReviewsPage() {
       loadError = "You do not have access to list reviews for this workspace.";
     } else {
       loadError = e instanceof Error ? e.message : "Could not load reviews.";
+    }
+  }
+
+  if (runs.length === 0 && loadError === null) {
+    const demoFallback = tryStaticDemoRunSummariesPaged("default");
+
+    if (demoFallback !== null) {
+      runs = demoFallback.items.filter(isFinalizedReview);
+    }
+  }
+
+  if (runs.length === 0 && loadError !== null) {
+    const demoFallback = tryStaticDemoRunSummariesPaged("default");
+
+    if (demoFallback !== null) {
+      runs = demoFallback.items.filter(isFinalizedReview);
+      loadError = null;
     }
   }
 

@@ -11,7 +11,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/authority-run-completed.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when an authority run completes successfully."
+      "description": "Emitted when an authority run completes successfully.",
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.manifest.finalized.v1",
@@ -20,7 +21,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/manifest-finalized.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when a golden manifest is finalized (committed) for a run in the same transaction as the run header update."
+      "description": "Emitted when a golden manifest is finalized (committed) for a run in the same transaction as the run header update.",
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.governance.approval.submitted",
@@ -29,7 +31,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/governance-approval-submitted.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when a governance approval request is submitted."
+      "description": "Emitted when a governance approval request is submitted.",
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.governance.promotion.activated",
@@ -38,7 +41,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/governance-promotion-activated.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when a governance promotion environment activation completes."
+      "description": "Emitted when a governance promotion environment activation completes.",
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.alert.fired",
@@ -47,7 +51,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-fired.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when an alert is raised for a scope (run/comparison context). Service Bus user properties: severity, deduplication_key (see INTEGRATION_EVENTS_AND_WEBHOOKS.md)."
+      "description": "Emitted when an alert is raised for a scope (run/comparison context). Service Bus user properties: severity, deduplication_key (see INTEGRATION_EVENTS_AND_WEBHOOKS.md).",
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.alert.resolved",
@@ -56,7 +61,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-resolved.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when an alert is resolved. Service Bus user property deduplication_key when payload includes deduplicationKey (ChatOps card correlation)."
+      "description": "Emitted when an alert is resolved. Service Bus user property deduplication_key when payload includes deduplicationKey (ChatOps card correlation).",
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.advisory.scan.completed",
@@ -65,7 +71,17 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/advisory-scan-completed.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when a scheduled advisory scan execution completes."
+      "description": "Emitted when a scheduled advisory scan execution completes.",
+      "audience": "external"
+    },
+    {
+      "eventType": "com.archlucid.system.data-consistency-check.completed.v1",
+      "schemaVersion": 1,
+      "schemaFile": "data-consistency-check-completed.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/data-consistency-check-completed.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": false,
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.compliance.drift.escalated",
@@ -74,7 +90,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/compliance-drift-escalated.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when a compliance drift signal crosses its escalation threshold (Teams notification trigger)."
+      "description": "Emitted when a compliance drift signal crosses its escalation threshold (Teams notification trigger).",
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.seat.reservation.released",
@@ -83,7 +100,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/seat-reservation-released.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when a trial seat reservation is released or expires, freeing capacity (Teams notification trigger)."
+      "description": "Emitted when a trial seat reservation is released or expires, freeing capacity (Teams notification trigger).",
+      "audience": "external"
     },
     {
       "eventType": "com.archlucid.notifications.trial-lifecycle-email.v1",
@@ -92,7 +110,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/trial-lifecycle-email.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Requests dispatch of a trial lifecycle transactional email (worker-side idempotency ledger)."
+      "description": "Requests dispatch of a trial lifecycle transactional email (worker-side idempotency ledger).",
+      "internal": true
     },
     {
       "eventType": "com.archlucid.billing.marketplace.webhook.received.v1",
@@ -101,7 +120,8 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/billing-marketplace-webhook-received.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted after a Marketplace SaaS webhook is verified, deduped in SQL, and processed (Logic Apps / external fulfillment fan-out)."
+      "description": "Emitted after a Marketplace SaaS webhook is verified, deduped in SQL, and processed (Logic Apps / external fulfillment fan-out).",
+      "audience": "external"
     }
   ]
 }

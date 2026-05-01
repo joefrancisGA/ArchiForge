@@ -15,4 +15,12 @@ public sealed class WebhookPostOptions
         get;
         init;
     }
+
+    /// <summary>
+    ///     Logical event type (<c>IWebhookPoster</c> callers set for logs / OTLP counters; avoids parsing URLs or bodies).
+    /// </summary>
+    public string? EventType { get; init; }
+
+    /// <summary>Optional tenant correlation for webhook delivery telemetry (<see cref="EventType"/>).</summary>
+    public Guid? TenantId { get; init; }
 }
