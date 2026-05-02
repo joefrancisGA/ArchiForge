@@ -1,10 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Cli;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
-
-using ArchLucid.Cli.Commands;
 
 using FluentAssertions;
 
@@ -69,7 +69,7 @@ public sealed class AgentEvalRollupCommandTests
             Console.SetError(err);
             try
             {
-                int code = await AgentEvalRollupCommand.RunAsync(["--from-json", path]);
+                int code = await Program.RunAsync(["agent-eval", "rollup", "--from-json", path]);
 
                 code.Should().Be(CliExitCode.Success);
                 err.ToString().Should().BeEmpty();
