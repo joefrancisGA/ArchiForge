@@ -8,6 +8,7 @@ export {
 export { fixtureLegacyRunComparison } from "./compare-legacy";
 export { fixtureGoldenManifestComparison } from "./compare-structured";
 export {
+  FIXTURE_FINDING_ID,
   FIXTURE_LEFT_RUN_ID,
   FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_MANIFEST_ID,

@@ -70,7 +70,7 @@ The team encrypts data at rest with platform-managed keys today and plans custom
 
 Please evaluate the end-to-end trust chain (token lifetime, refresh, BFF cookie vs bearer patterns), segmentation between internet-facing and internal subnets, logging and audit coverage for privileged actions, supply-chain risks in container builds, and gaps versus zero-trust assumptions. Identify concrete control improvements for session fixation, SSRF from the BFF to internal URLs, and abuse of high-privilege service principals in CI.
 
-The team is also piloting a read-only data replica exposed via a second APIM product for analytics partners; that path must not broaden Blast radius to production write APIs. Penetration tests last year found medium issues in dependency versions; Dependabot is enabled but some security updates slip when regression suites are slow.`,
+The team is also piloting a read-only data replica exposed via a second APIM product for analytics partners; that path must not broaden blast radius to production write APIs. Penetration tests last year found medium issues in dependency versions; Dependabot is enabled but some security updates slip when regression suites are slow.`,
   },
   {
     id: "compliance-gap-analysis-hipaa",

@@ -8,7 +8,7 @@ Last reviewed: 2026-04-25
 
 ## Current status
 
-**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**35** URL patterns as of 2026-04-25, including the **15** high-traffic operator paths in the table below, plus marketing routes, legacy `/onboarding` redirects, run provenance, manifest, replay, search, multiple alerts tabs, planning, digests, and tenant/value surfaces). Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
+**Baseline** — merge-blocking **`@axe-core/playwright`** runs against the `PAGES` list in [`archlucid-ui/e2e/live-api-accessibility.spec.ts`](archlucid-ui/e2e/live-api-accessibility.spec.ts) (**62** URL patterns as of 2026-05-02, including the **15** high-traffic operator paths in the table below, plus marketing routes, legacy `/onboarding` redirects, run provenance, findings (showcase run), manifest variants, governance findings/policy packs, settings surfaces, product-learning, executive reviews, and admin/help routes). Deferred matrix-only routes are documented as `PAGES_DEFERRED` in the same spec. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
 
 The **Vitest** axe job (`npm run test:axe-components`) is separate; see the **Tooling** table.
 

@@ -1,5 +1,11 @@
 /** Stable IDs for deterministic Playwright payloads (57R). */
 export const FIXTURE_RUN_ID = "e2e-fixture-run-001";
+
+/**
+ * Finding slug aligned with `breadcrumb-map` for {@link FIXTURE_RUN_ID} on mock/local fixtures.
+ * Live API + SQL E2E should prefer {@link SHOWCASE_DEMO_RUN_ID} + {@link SCREENSHOT_FINDING_ID} (see `smoke.spec.ts`).
+ */
+export const FIXTURE_FINDING_ID = "e2e-finding-001";
 export const FIXTURE_PROJECT_ID = "e2e-fixture-project";
 export const FIXTURE_MANIFEST_ID = "e2e-fixture-manifest-001";
 /** Manifest with valid summary and intentionally empty artifact descriptor list (57R E2E). */
