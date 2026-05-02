@@ -15,6 +15,7 @@ import { RunsDashboardPanel } from "@/components/operator-home/RunsDashboardPane
 import { HomeMaturityLayerCards } from "@/components/operator-home/HomeMaturityLayerCards";
 import { HelpLink } from "@/components/HelpLink";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
+import { ValueRealizationDashboard } from "@/components/ValueRealizationDashboard";
 
 export const metadata: Metadata = {
   title: "Operator home",
@@ -27,6 +28,8 @@ export default function HomePage() {
     <TrialWelcomeRunDeepLink />
     <main className="space-y-6">
       <WelcomeBanner />
+      
+      <ValueRealizationDashboard />
 
       <SampleFirstReviewPackageCard />
 

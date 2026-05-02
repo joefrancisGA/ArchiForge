@@ -19,4 +19,5 @@ export type FindingInspectPayload = {
   /** Inspect API fields when returned (FindingInspectResponse). */
   modelDeploymentName?: string | null;
   promptTemplateVersion?: string | null;
+  reasoningTrace?: string | null;
 };

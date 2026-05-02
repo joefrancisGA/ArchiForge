@@ -6000,3 +6000,19 @@ BEGIN
     GRANT SELECT, INSERT, UPDATE ON dbo.CorePilotTeamChecklist TO [ArchLucidApp];
 END;
 GO
+
+/* ---- Analytics / Telemetry ---- */
+
+IF OBJECT_ID(N'dbo.RunTelemetry', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.RunTelemetry
+    (
+        RunId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        RequestDurationMs BIGINT NOT NULL,
+        AgentExecutionDurationMs BIGINT NOT NULL,
+        ManualReviewDurationMs BIGINT NOT NULL,
+        EstimatedHoursSaved DECIMAL(18,2) NOT NULL,
+        CONSTRAINT FK_RunTelemetry_Runs FOREIGN KEY (RunId) REFERENCES dbo.Runs (RunId) ON DELETE CASCADE
+    );
+END;
+GO

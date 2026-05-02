@@ -106,6 +106,39 @@ public sealed class RunQueryController(
         return Ok(estimate);
     }
 
+    /// <summary>Aggregates ROI telemetry across all runs in the current scope.</summary>
+    [HttpGet("telemetry/roi")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRoiTelemetry(
+        [FromServices] ArchLucid.Persistence.Connections.IDbConnectionFactory db,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        
+        using System.Data.IDbConnection connection = await db.CreateConnectionAsync(cancellationToken);
+        
+        const string sql = @"
+            SELECT 
+                COUNT(*) as TotalRuns,
+                SUM(EstimatedHoursSaved) as TotalHoursSaved,
+                AVG(RequestDurationMs + AgentExecutionDurationMs + ManualReviewDurationMs) as AverageTimeToCommitMs
+            FROM dbo.RunTelemetry t
+            INNER JOIN dbo.Runs r ON t.RunId = r.RunId
+            WHERE r.TenantId = @TenantId AND r.WorkspaceId = @WorkspaceId AND r.ProjectId = @ProjectId";
+            
+        var result = await Dapper.SqlMapper.QueryFirstOrDefaultAsync(
+            connection, 
+            sql, 
+            new { scope.TenantId, scope.WorkspaceId, scope.ProjectId });
+            
+        return Ok(new 
+        {
+            TotalRuns = result?.TotalRuns ?? 0,
+            TotalHoursSaved = result?.TotalHoursSaved ?? 0m,
+            AverageTimeToCommitMs = result?.AverageTimeToCommitMs ?? 0L
+        });
+    }
+
     /// <summary>
     ///     Returns the coordinator linkage graph (request, tasks, results, findings, manifest, traces, decisions) and a sorted
     ///     trace timeline.
