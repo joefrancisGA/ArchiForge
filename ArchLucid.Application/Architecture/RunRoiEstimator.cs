@@ -20,13 +20,23 @@ public sealed class RunRoiEstimator(IOptions<RunRoiEstimatorOptions>? optionsMon
 
         string runId = detail.Run.RunId.Trim();
         int findingTotal = detail.Results.Sum(static r => r.Findings.Count);
+        int criticalFindings = detail.Results.Sum(r => r.Findings.Count(f => f.Severity == Contracts.Findings.FindingSeverity.Critical));
+        int errorFindings = detail.Results.Sum(r => r.Findings.Count(f => f.Severity == Contracts.Findings.FindingSeverity.Error));
+        int warningFindings = detail.Results.Sum(r => r.Findings.Count(f => f.Severity == Contracts.Findings.FindingSeverity.Warning));
+        int infoFindings = detail.Results.Sum(r => r.Findings.Count(f => f.Severity == Contracts.Findings.FindingSeverity.Info));
         int resultCount = detail.Results.Count;
         int manifestElements =
             detail.Manifest is null ? 0 : ManifestElementCount(detail.Manifest);
         int traceCount = detail.DecisionTraces.Count;
 
+        double findingHours = 
+            criticalFindings * _opts.HoursPerCriticalFinding +
+            errorFindings * _opts.HoursPerErrorFinding +
+            warningFindings * _opts.HoursPerWarningFinding +
+            infoFindings * _opts.HoursPerInfoFinding;
+
         double hours =
-            findingTotal * _opts.HoursPerArchitectureFinding +
+            findingHours +
             manifestElements * _opts.HoursPerManifestModeledElement +
             traceCount * _opts.HoursPerDecisionTrace +
             resultCount * _opts.HoursPerCompletedAgentResult;

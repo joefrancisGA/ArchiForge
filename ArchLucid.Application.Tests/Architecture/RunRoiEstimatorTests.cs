@@ -20,7 +20,10 @@ public sealed class RunRoiEstimatorTests
     {
         RunRoiEstimatorOptions opts = new()
         {
-            HoursPerArchitectureFinding = 2,
+            HoursPerCriticalFinding = 8,
+            HoursPerErrorFinding = 4,
+            HoursPerWarningFinding = 2,
+            HoursPerInfoFinding = 1,
             HoursPerManifestModeledElement = 1,
             HoursPerDecisionTrace = 1,
             HoursPerCompletedAgentResult = 1
@@ -45,8 +48,8 @@ public sealed class RunRoiEstimatorTests
                     AgentType = AgentType.Topology,
                     Findings =
                     [
-                        new ArchitectureFinding { FindingId = "f1" },
-                        new ArchitectureFinding { FindingId = "f2" }
+                        new ArchitectureFinding { FindingId = "f1", Severity = FindingSeverity.Critical },
+                        new ArchitectureFinding { FindingId = "f2", Severity = FindingSeverity.Warning }
                     ]
                 },
                 new AgentResult
@@ -71,7 +74,8 @@ public sealed class RunRoiEstimatorTests
         Assert.Equal(2, r.CompletedAgentResultCount);
         Assert.Equal(0, r.ManifestModeledElementApproxCount);
         Assert.Equal(2, r.DecisionTraceCount);
-        Assert.Equal(8, r.EstimatedManualHoursSaved);
+        // 1 Critical (8) + 1 Warning (2) + 2 Agent Results (2) + 2 Decision Traces (2) = 14
+        Assert.Equal(14, r.EstimatedManualHoursSaved);
         Assert.Equal(detail.Run.RunId, r.RunId);
     }
 }
