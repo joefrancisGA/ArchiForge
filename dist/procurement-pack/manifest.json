@@ -1,168 +1,180 @@
 {
-  "canonical_entries": [
+  "generated_utc": "2026-05-02T03:50:13.428314+00:00",
+  "files": [
     {
       "pack_path": "SECURITY.md",
       "source_repo_path": "docs/library/SECURITY.md",
-      "description": "Security policy and operational commitments",
+      "bytes": 13232,
+      "sha256": "83082bed3a5a4e5608067f7d2367a963cb711a36d7fde92b4923b774f426d446",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "README.md",
       "source_repo_path": "README.md",
-      "description": "Repository overview",
+      "bytes": 34444,
+      "sha256": "0c3f6b5967b5311bb80858399b07cc8456bcc8774d72dcbb5aa49eada82dded8",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "TRUST_CENTER.md",
       "source_repo_path": "docs/go-to-market/TRUST_CENTER.md",
-      "description": "Buyer-facing trust index",
+      "bytes": 16738,
+      "sha256": "6a315a2208eaa203b651b5b67ebc106fe2af9b4b071e3dbc9a29d6a15348bebb",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "ASSURANCE_STATUS_CANONICAL.md",
       "source_repo_path": "docs/go-to-market/ASSURANCE_STATUS_CANONICAL.md",
-      "description": "Canonical assurance status wording for procurement responses",
+      "bytes": 2666,
+      "sha256": "65116d407856a805079384586383700d69baccd6a56e84f3fe8fd900c17ca1f2",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "REVIEW_CADENCE.md",
       "source_repo_path": "docs/go-to-market/REVIEW_CADENCE.md",
-      "description": "Procurement document review ownership and freshness cadence",
+      "bytes": 1437,
+      "sha256": "f72a0e3cec1f58853eb15bbdcfda139599ef0e4fe4fb55a643316ee3615ce368",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "DATA_SUBPROCESSORS.md",
       "source_repo_path": "docs/go-to-market/SUBPROCESSORS.md",
-      "description": "Subprocessor register (buyer-facing filename; source is SUBPROCESSORS.md)",
+      "bytes": 4042,
+      "sha256": "252fd5b5b25301181cc3c655f022897fd917d0a59404bf1fb73c05ee13ae9bdb",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "DPA_TEMPLATE.md",
       "source_repo_path": "docs/go-to-market/DPA_TEMPLATE.md",
-      "description": "Data processing agreement template",
+      "bytes": 8285,
+      "sha256": "73c7db02534b77f32668372e461773898e8d087f4ad84f74efab2f86a1ab229f",
       "artifact_status": "Template"
     },
     {
       "pack_path": "CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md",
       "source_repo_path": "docs/go-to-market/CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md",
-      "description": "Operational addendum for optional cross-tenant processing controls",
+      "bytes": 2693,
+      "sha256": "86b058bea6603dabed2ea63c1e2eb8f7441e0e7952ff5037dee4c631edd7d985",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "INTEGRATION_CATALOG.md",
       "source_repo_path": "docs/go-to-market/INTEGRATION_CATALOG.md",
-      "description": "Third-party integrations touching tenant data",
+      "bytes": 12247,
+      "sha256": "da6e97e7c6d473b4bebb0d4f67cbcf969755462aafec938fde114e728f5ea899",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "AUDIT_COVERAGE_MATRIX.md",
       "source_repo_path": "docs/library/AUDIT_COVERAGE_MATRIX.md",
-      "description": "Audit event coverage",
+      "bytes": 50405,
+      "sha256": "d110c26c0acc472cf269d8bef6881b5c8c0ecab680c145f4821a9d945febc4ea",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "MULTI_TENANT_RLS.md",
       "source_repo_path": "docs/security/MULTI_TENANT_RLS.md",
-      "description": "Tenant isolation (RLS)",
+      "bytes": 10829,
+      "sha256": "b4dfcf71d5cdb6875a8e8a8ba8016e0c58e1db6b0b76e7b0494191f9401c2e94",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "ACCESSIBILITY.md",
       "source_repo_path": "docs/library/ACCESSIBILITY.md",
-      "description": "Accessibility posture / WCAG alignment",
+      "bytes": 2330,
+      "sha256": "ace58b8452582c83f0cb208e5ff498f99b4935efaceea0202bd5a12062a9135a",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "SECURITY.txt",
       "source_repo_path": "archlucid-ui/public/.well-known/security.txt",
-      "description": "security.txt (RFC 9116) contents",
+      "bytes": 450,
+      "sha256": "5f2f8e10ffe1e72b1467011f585d29d654a1ba0c740aa8ee1f6502d9fb051877",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "OWNER_SECURITY_ASSESSMENT_REDACTED.md",
       "source_repo_path": "docs/go-to-market/OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md",
-      "description": "Owner self-assessment — procurement-safe excerpt (no customer names)",
+      "bytes": 1962,
+      "sha256": "598ad7d2021057cea666d483cf1887e7001a302ca6d173543f248698f7c08a2c",
       "artifact_status": "Self-assessment"
     },
     {
       "pack_path": "PEN_TEST_SUMMARY.md",
       "source_repo_path": "docs/go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_PLACEHOLDER.md",
-      "description": "Penetration test summary pointer (third-party engagement pending)",
+      "bytes": 1026,
+      "sha256": "1c63bf8542f479b05c317bd2db7c9986b9a1405df7a494c16d1d9a69fba85c15",
       "artifact_status": "Template"
     },
     {
       "pack_path": "SOC2_STATUS.md",
       "source_repo_path": "docs/go-to-market/SOC2_STATUS_PROCUREMENT.md",
-      "description": "SOC 2 attestation status (deferred; see TRUST_CENTER)",
+      "bytes": 1000,
+      "sha256": "43d58d204b4e0253080edc039e5737ffc68c2861f0fda491e1964439a6a8bf3e",
       "artifact_status": "Deferred"
     },
     {
       "pack_path": "API_CONTRACTS.md",
       "source_repo_path": "docs/library/API_CONTRACTS.md",
-      "description": "API contract surface",
+      "bytes": 30464,
+      "sha256": "3c8d72fc713bf3dcdca4729ac129ff4e6c182a3de16b576c7ff45ecd00e7219e",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "INTEGRATION_EVENTS_AND_WEBHOOKS.md",
       "source_repo_path": "docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md",
-      "description": "Integration events and webhooks",
+      "bytes": 14688,
+      "sha256": "2736fa4ef92052a4f9390e99255d30305df42e4242566d425470b2d6fb45997a",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "CUSTOMER_TRUST_AND_ACCESS.md",
       "source_repo_path": "docs/library/CUSTOMER_TRUST_AND_ACCESS.md",
-      "description": "Customer trust and access model",
+      "bytes": 5326,
+      "sha256": "ff4e36f31c73176f96e59c2c98b24e92d31cc13f54caa649198014b2b89d1703",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "V1_SCOPE.md",
       "source_repo_path": "docs/library/V1_SCOPE.md",
-      "description": "V1 product scope",
+      "bytes": 21821,
+      "sha256": "fc2c0112e9d3fbc53fffa8b2c31b4d45091f7f3afef3dae1e6c3525d5ac7f4fa",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "BREAKING_CHANGES.md",
       "source_repo_path": "BREAKING_CHANGES.md",
-      "description": "Breaking change policy and log",
+      "bytes": 3253,
+      "sha256": "0d18308e6d09781396d46391477824ab858570a6a13db40425df4a47e0c99f5f",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "PROCUREMENT_PACK_COVER.md",
       "source_repo_path": "docs/go-to-market/PROCUREMENT_PACK_COVER.md",
-      "description": "Cover letter scaffold (owner completes before sending)",
+      "bytes": 1511,
+      "sha256": "f9a0cfda2f73047af807466ec35034718eb5f8dc08f89805eece890ad2e75492",
       "artifact_status": "Template"
     },
     {
       "pack_path": "ENTERPRISE_COMPARISON_ONE_PAGE.md",
       "source_repo_path": "docs/go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md",
-      "description": "Enterprise comparison one-pager (Markdown; PDF via GET /v1/marketing/enterprise-comparison.pdf)",
+      "bytes": 1537,
+      "sha256": "e1bcc2038767a84e5db33c59c25c811e981ad102d041f79de08a30e3d8f211c0",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "DSAR_PROCESS.md",
       "source_repo_path": "docs/security/DSAR_PROCESS.md",
-      "description": "GDPR Data Subject Access Request process — PII map, fulfillment steps, erasure constraints",
+      "bytes": 9831,
+      "sha256": "910653495153baa17fe9e9f64412a4db8916252b840ae4244c1c8e033a14a84f",
       "artifact_status": "Evidence"
     },
     {
       "pack_path": "CURRENT_ASSURANCE_POSTURE.md",
       "source_repo_path": "docs/go-to-market/CURRENT_ASSURANCE_POSTURE.md",
-      "description": "Current assurance posture summary — CI security checks, isolation model, audit, compliance status",
+      "bytes": 9021,
+      "sha256": "ccdc8f4d24c34ade3e370091a0baec7a8068849846274380bb387ca1b244f61a",
       "artifact_status": "Self-assessment"
-    }
-  ],
-  "excluded_from_canonical_pack": [
-    {
-      "path": "docs/security/CAIQ_LITE_2026.md",
-      "reason": "CSA CAIQ Lite pre-fill — not on the canonical procurement reviewer checklist; provide on request for STAR / enterprise questionnaires."
-    },
-    {
-      "path": "docs/security/SIG_CORE_2026.md",
-      "reason": "Shared Assessments SIG Core pre-fill — not on the canonical checklist; provide on request."
-    },
-    {
-      "path": "docs/go-to-market/SLA_SUMMARY.md",
-      "reason": "SLA summary — referenced from TRUST_CENTER; omitted from minimal canonical ZIP to avoid duplicate policy threads (add to pack if buyer requests SLA excerpt explicitly)."
     }
   ]
 }

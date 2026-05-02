@@ -25,6 +25,7 @@ import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
 import {
+  OPERATOR_SHELL_PRESET_ORDER,
   OPERATOR_SHELL_PRESET_STORAGE_KEY,
   isOperatorShellPresetId,
   operatorShellPresetAllowsHref,

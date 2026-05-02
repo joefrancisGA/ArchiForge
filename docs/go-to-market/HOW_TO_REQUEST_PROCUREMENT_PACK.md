@@ -61,6 +61,19 @@ python scripts/build_procurement_pack.py
 
 Both wrappers invoke the same Python builder. **Default CI** should keep using **`--dry-run`** (assemblability only). Use **`--strict`** or **`PROCUREMENT_PACK_STRICT`** only on release/procurement jobs so merge-blocking gates do not depend on draft markers inside **Template**/**Deferred** pack rows.
 
+### Deal-ready preflight (recommended before sending to buyer)
+
+Run deal-ready mode for a stricter gate that includes canonical assurance coherence references and required buyer-contact checks.
+
+```bash
+python scripts/build_procurement_pack.py --deal-ready
+```
+
+```powershell
+$env:PROCUREMENT_PACK_DEAL_READY = "1"
+python scripts/build_procurement_pack.py
+```
+
 ## After generating the ZIP
 
 1. Complete a buyer-specific cover letter using [`PROCUREMENT_PACK_COVER.md`](PROCUREMENT_PACK_COVER.md) **outside** the committed tree (see scaffold warnings there).

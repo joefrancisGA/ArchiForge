@@ -1,5 +1,10 @@
 > **Scope:** Runnable contract tests only — asserts CloudEvent JSON shape maps to downstream ITSM payloads without outbound calls.
 
+Contract and catalog alignment (repo root paths):
+
+- `schemas/integration-events/catalog.json` — integration event type catalog used by bridge recipes.
+- `docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md` — integration events, webhooks, and operator guidance.
+
 ## Run locally
 
 From this directory:

@@ -177,6 +177,13 @@ jobs:
       - name: Procurement PACK_INDEX table validation
         run: python scripts/ci/check_procurement_pack_index.py
 
+      - name: Procurement claim coherence guard
+        run: python scripts/ci/check_procurement_claim_coherence.py
+
+      - name: Procurement doc freshness guard (warn-only)
+        continue-on-error: true
+        run: python scripts/ci/check_procurement_doc_freshness.py
+
       - name: ITSM bridge starter kit — Node contract tests (no npm install)
         run: node --test templates/integrations/bridge-recipe-contract-tests/mapping-contract.test.mjs
 

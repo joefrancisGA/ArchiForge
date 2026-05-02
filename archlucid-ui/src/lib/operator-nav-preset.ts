@@ -4,6 +4,13 @@ export type OperatorShellPresetId = "full" | "pilot_operator" | "governance_revi
 
 export const OPERATOR_SHELL_PRESET_STORAGE_KEY = "archlucid-nav-preset-id";
 
+export const OPERATOR_SHELL_PRESET_ORDER: readonly OperatorShellPresetId[] = [
+  "full",
+  "pilot_operator",
+  "governance_reviewer",
+  "analytics_investigator",
+];
+
 /** Route path prefixes matched after stripping `?query` — longest wins when checking startswith semantics. */
 
 const PREFIX_RULES: Record<Exclude<OperatorShellPresetId, "full">, readonly string[]> = {

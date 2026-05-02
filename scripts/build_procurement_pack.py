@@ -37,6 +37,11 @@ _PLACEHOLDER_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"placeholder-replace-before-launch", re.IGNORECASE),
 )
 
+_DEAL_READY_PATTERNS: tuple[re.Pattern[str], ...] = (
+    *_PLACEHOLDER_PATTERNS,
+    re.compile(r"\[Legal\s*[-—]\s*describe\]", re.IGNORECASE),
+)
+
 
 def entry_should_scan_for_placeholders(entry: dict) -> bool:
     status = entry.get("artifact_status", "Evidence")
@@ -49,17 +54,24 @@ def entry_should_scan_for_placeholders(entry: dict) -> bool:
     return suf in TEXT_PACK_SUFFIXES
 
 
-def scan_packed_files_for_placeholders(stage: Path, entries: list[dict]) -> list[str]:
+def scan_packed_files_for_markers(
+    stage: Path,
+    entries: list[dict],
+    patterns: tuple[re.Pattern[str], ...],
+    allowed_statuses: tuple[str, ...] | None = None,
+) -> list[str]:
     violations: list[str] = []
     for e in entries:
         if not entry_should_scan_for_placeholders(e):
+            continue
+        if allowed_statuses is not None and e.get("artifact_status", "Evidence") not in allowed_statuses:
             continue
 
         pack_path = e["pack_path"]
         target = stage / pack_path
         text = target.read_text(encoding="utf-8", errors="replace")
 
-        for pat in _PLACEHOLDER_PATTERNS:
+        for pat in patterns:
             if pat.search(text) is not None:
                 violations.append(f"{pack_path}: matched /{pat.pattern}/")
                 break
@@ -220,6 +232,43 @@ def validate_sources(root: Path, entries: list[dict]) -> list[str]:
     return missing
 
 
+def deal_ready_repo_checks(root: Path, entries: list[dict]) -> list[str]:
+    violations: list[str] = []
+    required_docs = (
+        root / "docs" / "go-to-market" / "ASSURANCE_STATUS_CANONICAL.md",
+        root / "docs" / "go-to-market" / "TRUST_CENTER.md",
+        root / "docs" / "go-to-market" / "SOC2_STATUS_PROCUREMENT.md",
+        root / "docs" / "go-to-market" / "CURRENT_ASSURANCE_POSTURE.md",
+        root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md",
+    )
+
+    for p in required_docs:
+        if not p.is_file():
+            violations.append(f"missing required deal-ready doc: {p.relative_to(root).as_posix()}")
+            continue
+
+        text = p.read_text(encoding="utf-8", errors="replace")
+        if "ASSURANCE_STATUS_CANONICAL.md" not in text and p.name != "ASSURANCE_STATUS_CANONICAL.md":
+            violations.append(f"{p.relative_to(root).as_posix()}: missing canonical assurance status reference")
+
+    trust = root / "docs" / "go-to-market" / "TRUST_CENTER.md"
+    incident = root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md"
+    if trust.is_file() and "security@archlucid.net" not in trust.read_text(encoding="utf-8", errors="replace"):
+        violations.append("TRUST_CENTER.md: missing security contact mailbox")
+    if incident.is_file() and "security@archlucid.net" not in incident.read_text(encoding="utf-8", errors="replace"):
+        violations.append("INCIDENT_COMMUNICATIONS_POLICY.md: missing fallback security contact mailbox")
+
+    missing_status = [
+        e.get("pack_path", "")
+        for e in entries
+        if not e.get("artifact_status")
+    ]
+    if missing_status:
+        violations.append("canonical entries missing artifact_status: " + ", ".join(missing_status))
+
+    return violations
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build ArchLucid procurement pack ZIP.")
     parser.add_argument(
@@ -238,6 +287,11 @@ def main() -> int:
         action="store_true",
         help="After staging, fail if Evidence/Self-assessment text files contain buyer-unsafe placeholders (TBD/TODO/...).",
     )
+    parser.add_argument(
+        "--deal-ready",
+        action="store_true",
+        help="Run stricter release/procurement checks (implies --strict) for buyer-facing packs.",
+    )
     args = parser.parse_args()
 
     root = repo_root()
@@ -251,7 +305,9 @@ def main() -> int:
         return 1
 
     strict_env = os.environ.get("PROCUREMENT_PACK_STRICT", "").strip().lower() in ("1", "true", "yes")
-    strict = args.strict or strict_env
+    deal_ready_env = os.environ.get("PROCUREMENT_PACK_DEAL_READY", "").strip().lower() in ("1", "true", "yes")
+    deal_ready = args.deal_ready or deal_ready_env
+    strict = args.strict or strict_env or deal_ready
 
     if args.dry_run:
         print("procurement pack dry-run: OK (all canonical sources present)")
@@ -270,10 +326,29 @@ def main() -> int:
         dst.write_bytes(src.read_bytes())
 
     if strict:
-        violations = scan_packed_files_for_placeholders(stage, entries)
+        violations = scan_packed_files_for_markers(
+            stage,
+            entries,
+            _PLACEHOLDER_PATTERNS,
+            allowed_statuses=("Evidence", "Self-assessment"),
+        )
         if violations:
             print("error: procurement pack strict mode found placeholders in buyer-facing files:", file=sys.stderr)
             for v in violations:
+                print(f"  - {v}", file=sys.stderr)
+            return 1
+
+    if deal_ready:
+        deal_violations = scan_packed_files_for_markers(
+            stage,
+            entries,
+            _DEAL_READY_PATTERNS,
+            allowed_statuses=("Evidence", "Self-assessment"),
+        )
+        deal_violations.extend(deal_ready_repo_checks(root, entries))
+        if deal_violations:
+            print("error: procurement pack deal-ready checks failed:", file=sys.stderr)
+            for v in deal_violations:
                 print(f"  - {v}", file=sys.stderr)
             return 1
 
