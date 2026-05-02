@@ -122,7 +122,13 @@ public sealed class AuthorityPipelineWorkProcessor(
         EvidenceBundle? evidenceBundle =
             await evidenceBundleRepository.GetByIdAsync(payload.EvidenceBundleId.Trim(), cancellationToken);
 
-        if (architectureRequest is null || evidenceBundle is null)
+        if (architectureRequest is null)
+
+            throw new InvalidOperationException(
+                $"Evidence bundle / architecture request not available after deferred authority pipeline for run '{entry.RunId:N}'.");
+
+        if (evidenceBundle is null)
+
             throw new InvalidOperationException(
                 $"Evidence bundle / architecture request not available after deferred authority pipeline for run '{entry.RunId:N}'.");
 

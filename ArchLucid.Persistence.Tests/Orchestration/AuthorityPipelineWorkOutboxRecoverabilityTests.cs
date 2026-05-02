@@ -54,7 +54,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests
     public async Task DequeuePendingAsync_sets_exclusive_lease_blocking_second_worker_scan()
     {
         DateTime utc = new DateTime(2026, 5, 2, 14, 0, 0, DateTimeKind.Utc);
-        InMemoryAuthorityPipelineWorkRepository sut = new(static () => utc);
+        InMemoryAuthorityPipelineWorkRepository sut = new(() => utc);
         Guid runId = Guid.NewGuid();
         await sut.EnqueueAsync(runId, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), ValidPayload(runId));
 
@@ -82,7 +82,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests
     public async Task RecordDeadLetter_increments_dead_counters_and_blocks_dequeue()
     {
         DateTime utc = new DateTime(2026, 5, 2, 15, 0, 0, DateTimeKind.Utc);
-        InMemoryAuthorityPipelineWorkRepository sut = new(static () => utc);
+        InMemoryAuthorityPipelineWorkRepository sut = new(() => utc);
         Guid runId = Guid.NewGuid();
         await sut.EnqueueAsync(runId, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), ValidPayload(runId));
         AuthorityPipelineWorkOutboxEntry claimed =
@@ -100,7 +100,7 @@ public sealed class InMemoryAuthorityPipelineWorkRepositoryLeaseAndRetryTests
     public async Task RecordBackoffAfterProcessingFailure_respects_next_attempt_and_releases_claim()
     {
         DateTime utc = new DateTime(2026, 5, 2, 16, 0, 0, DateTimeKind.Utc);
-        InMemoryAuthorityPipelineWorkRepository sut = new(static () => utc);
+        InMemoryAuthorityPipelineWorkRepository sut = new(() => utc);
         Guid runId = Guid.NewGuid();
         await sut.EnqueueAsync(runId, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), ValidPayload(runId));
 
