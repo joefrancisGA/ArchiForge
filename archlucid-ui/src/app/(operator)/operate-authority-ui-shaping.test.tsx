@@ -72,6 +72,20 @@ const apiHoisted = vi.hoisted(() => ({
   listRunsByProjectPaged: vi.fn(),
 }));
 
+/**
+ * Policy packs hides the lifecycle / create panel when demo static payloads are enabled
+ * ({@link isStaticDemoPayloadFallbackEnabled}); CI sometimes sets demo env vars globally.
+ * This suite asserts mutation gates on real controls, so keep demo-style suppression off here.
+ */
+vi.mock("@/lib/operator-static-demo", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/operator-static-demo")>();
+
+  return {
+    ...mod,
+    isStaticDemoPayloadFallbackEnabled: (): boolean => false,
+  };
+});
+
 vi.mock("@/lib/api", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/api")>();
 
@@ -121,6 +135,7 @@ import {
   governanceWorkflowPromotionsActivationsHeadingReader,
   governanceWorkflowSubmitCardTitleReader,
   policyPacksCreatePackButtonLabelReaderRank,
+  policyPacksCurrentPacksHeadingOperator,
   policyPacksCurrentPacksHeadingReader,
   policyPacksPackContentHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
@@ -203,9 +218,29 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
   });
 
+  /**
+   * Pack content / lifecycle sits inside {@link AdvancedOptionsAccordion}; Radix keeps closed panel content out of the
+   * accessibility tree, so gates on Create pack etc. must open the accordion first (same pattern as governance tests).
+   */
+  async function expandPolicyPacksAdvancedOptions(): Promise<void> {
+    const toggle = screen.getByRole("button", { name: /^Advanced Options$/ });
+
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      expect(toggle).toHaveAttribute("aria-expanded", "true");
+    });
+  }
+
   it("Policy packs: Create pack stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
     render(<PolicyPacksPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
+    });
+
+    await expandPolicyPacksAdvancedOptions();
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: policyPacksCreatePackButtonLabelReaderRank })).toBeDisabled();
@@ -220,12 +255,20 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
     });
 
+    await expandPolicyPacksAdvancedOptions();
+
     expect(screen.getByRole("heading", { name: policyPacksPackContentHeadingReader })).toBeInTheDocument();
   });
 
   it("Policy packs: Create pack enables after load when mutation capability is true", async () => {
     mutateCapability.current = true;
     render(<PolicyPacksPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingOperator })).toBeInTheDocument();
+    });
+
+    await expandPolicyPacksAdvancedOptions();
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /create pack/i })).not.toBeDisabled();

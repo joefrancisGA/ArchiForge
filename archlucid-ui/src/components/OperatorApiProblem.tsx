@@ -35,11 +35,11 @@ function isFromFailure(props: OperatorApiProblemProps): props is OperatorApiProb
 export function OperatorApiProblem(props: OperatorApiProblemProps) {
   const variant = props.variant ?? "error";
 
-  const problem: ApiProblemDetails | null;
-  const fallbackMessage: string;
-  const correlationId: string | null;
-  const httpStatus: number | null;
-  const retryAfterSeconds: number | null;
+  let problem: ApiProblemDetails | null;
+  let fallbackMessage: string;
+  let correlationId: string | null;
+  let httpStatus: number | null;
+  let retryAfterSeconds: number | null;
 
   if (isFromFailure(props)) {
     problem = props.failure.problem;

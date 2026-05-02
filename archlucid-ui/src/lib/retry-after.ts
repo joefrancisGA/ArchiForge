@@ -13,10 +13,20 @@ export function parseRetryAfterHeader(headerValue: string | null): number | null
     return null;
   }
 
-  const asInt = Number.parseInt(trimmed, 10);
+  // Not a valid delay-seconds token; avoid `Date.parse` accepting odd numeric shapes as dates.
+  if (/^\d+\.\d+$/.test(trimmed)) {
+    return null;
+  }
 
-  if (!Number.isNaN(asInt) && String(asInt) === trimmed && asInt >= 0) {
-    return asInt;
+  // Delay-seconds: `1*DIGIT` only (RFC 9110); reject decimals so they are not misread as HTTP-dates.
+  if (/^\d+$/.test(trimmed)) {
+    const asInt = Number.parseInt(trimmed, 10);
+
+    if (!Number.isNaN(asInt) && asInt >= 0) {
+      return asInt;
+    }
+
+    return null;
   }
 
   const asDate = Date.parse(trimmed);
