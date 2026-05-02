@@ -96,10 +96,7 @@ public static class ProductionLikeHostingMisconfigurationAdvisor
         if (IsProductionEnvironmentName(environmentName) || IsStagingEnvironmentName(environmentName))
             return true;
 
-        if (HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(environmentName))
-            return true;
-
-        return IsArchLucidEnvironmentStagingOrProduction(archLucidEnv);
+        return HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(environmentName) || IsArchLucidEnvironmentStagingOrProduction(archLucidEnv);
     }
 
     private static bool IsDevelopmentEnvironmentName(string environmentName) =>

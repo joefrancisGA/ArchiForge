@@ -93,9 +93,6 @@ public static class ManifestDiffBadgeClassifier
         if (diff.RemovedRequiredControls.Count > 0)
             return true;
 
-        if (diff.RemovedDatastores.Count > 0)
-            return true;
-
-        return diff.RemovedRelationships.Any(r => BreakingRelationshipTypeNames.Contains(r.RelationshipType));
+        return diff.RemovedDatastores.Count > 0 || diff.RemovedRelationships.Any(r => BreakingRelationshipTypeNames.Contains(r.RelationshipType));
     }
 }

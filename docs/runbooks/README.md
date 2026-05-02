@@ -5,7 +5,7 @@
 
 # Runbooks index
 
-**Last reviewed:** 2026-04-20
+**Last reviewed:** 2026-05-01
 
 Operational guides for ArchLucid operators. Each runbook is self-contained; cross-links point to deeper design docs where useful.
 
@@ -28,6 +28,7 @@ Tags are **guidance for paging and training**; they do not replace your org’s 
 | **P1** | [API_KEY_ROTATION.md](./API_KEY_ROTATION.md) | API key lifecycle for automation principals and smoke probes. |
 | **P1** | [MIGRATION_ROLLBACK.md](./MIGRATION_ROLLBACK.md) | DbUp / SQL migration issues and rollback posture. |
 | **P1** | [TRACE_A_RUN.md](./TRACE_A_RUN.md) | Reconstruct one run across audit (`CorrelationId` / `RunId`), traces (`otelTraceId`), and logs. |
+| **P2** | [PILOT_RESCUE_PLAYBOOK.md](./PILOT_RESCUE_PLAYBOOK.md) | **V1** symptom-first triage during Core Pilot (`doctor` + `support-bundle` **`references.json`** point here). |
 | **P2** | [AGENT_EXECUTION_FAILURES.md](./AGENT_EXECUTION_FAILURES.md) | Architecture run execute fails (simulator vs real agents, traces, schema). |
 | **P2** | [ALERT_DELIVERY_FAILURES.md](./ALERT_DELIVERY_FAILURES.md) | Alert routing subscriptions fire but destinations do not receive notifications. |
 | **P2** | [ADVISORY_SCAN_FAILURES.md](./ADVISORY_SCAN_FAILURES.md) | Advisory scans fail or schedules do not fire. |

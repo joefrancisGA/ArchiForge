@@ -224,9 +224,7 @@ public sealed class ReplayRunService(
                     chainKeying,
                     DateTime.UtcNow,
                     true,
-                    cancellationToken,
-                    null,
-                    null);
+                    cancellationToken);
 
             await uow.CommitAsync(cancellationToken);
 

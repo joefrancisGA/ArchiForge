@@ -38243,6 +38243,11 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
         public long ComparisonRecordsRightRunIdOrphans { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("contextSnapshotsRunIdOrphans")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long ContextSnapshotsRunIdOrphans { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("findingsSnapshotsRunIdOrphans")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
@@ -38252,6 +38257,11 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
         public long GoldenManifestsRunIdOrphans { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("graphSnapshotsRunIdOrphans")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long GraphSnapshotsRunIdOrphans { get; set; } = default!;
 
         private System.Collections.Generic.IDictionary<string, object>? _additionalProperties;
 
