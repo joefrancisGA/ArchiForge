@@ -26,4 +26,6 @@ regexes = [
   "ABCD0123EF456789",
   # vault-service-token false positive: legacy rule matches `s.` + 24 [a-z0-9]; property name ComparisonAuditEvents30d yields that length after `s.` in C#. Not a credential — escape `.` (allowlist values are regex).
   "s\\.ComparisonAuditEvents30d",
+  # docs/runbooks/STRIPE_STAGING_E2E_VERIFICATION.md (historical blob before Bearer ${JWT}): curl-auth-header captures the placeholder token after `Bearer`.
+  "YOUR_JWT",
 ]
