@@ -1,18 +1,20 @@
 ---
-description: Prefer same-line guard clauses for throw / return / continue when the body is a single statement.
+description: Prefer same-line guard clauses; especially if (…) return …; when the combined line stays short (see rule body).
 globs: "**/*.cs"
 alwaysApply: true
 ---
 
 # Same-line guard clauses
 
-When an `if` body is a single guard statement (`throw …;`, `return;`, `return value;`, `continue;`, `break;`), put it on the **same line** as the `if`, with no braces.
+When an `if` body is a single guard statement (`throw …;`, `return;`, `return <expr>;`, `continue;`, `break;`), put it on the **same line** as the `if`, with no braces—including **`if (predicate) return result;`** when the **whole assembled line** is still readable (team tooling uses **≤ 160** characters for auto-collapse; shorten condition or hoist a local if it blows past that).
 
 ## Preferred
 
 ```csharp
 if (key is null) throw new ArgumentNullException(nameof(key));
 if (string.IsNullOrWhiteSpace(key)) return;
+if (tenant is null) return null;
+if (!TryParse(span, out int n)) return false;
 if (string.IsNullOrWhiteSpace(key)) continue;
 if (cancellationToken.IsCancellationRequested) return Task.CompletedTask;
 ```
@@ -20,19 +22,25 @@ if (cancellationToken.IsCancellationRequested) return Task.CompletedTask;
 ## Avoid
 
 ```csharp
-// Avoid
+// Avoid — use single-line guards when readability allows
 if (key is null)
 {
     throw new ArgumentNullException(nameof(key));
 }
 
-if (string.IsNullOrWhiteSpace(key))
-    return;
-```
+// Avoid — use: if (!TryParse(span, out int n)) return false;
+if (!TryParse(span, out int n))
+    return false;
 
+// Avoid — use: if (tenant is null) return null;
+if (tenant is null)
+{
+    return null;
+}
+```
 ## Scope
 
 - Body must be **one** statement and must be a guard (early exit) — `throw`, `return`, `continue`, `break`, `goto`.
 - Keep the **blank line before** the `if` per the project blank-line rule, **except** when the guard is the very first statement of the member or block.
 - Keeps the eye on the **happy path** below the guards.
-- Companion to **`SingleLineThrowNoBraces.mdc`**, **`SingleLineContinueNoBraces.mdc`**, and **`CSharp-EmbeddedStatements-NoBraces.mdc`**.
+- Companion to **`SingleLineThrowNoBraces.mdc`**, **`SingleLineContinueNoBraces.mdc`**, **`CSharp-EmbeddedStatements-NoBraces.mdc`**, **`CSharp-SingleEmbeddedStatement-OneLinePrefer.mdc`** (general one-line embedding + length heuristic).

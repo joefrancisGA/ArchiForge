@@ -1,6 +1,6 @@
 # ArchiForge — formatting and style (Roslyn / dotnet format)
 # Run from repo root:  dotnet format ArchLucid.sln
-# See docs/FORMATTING.md
+# See docs/library/FORMATTING.md
 #
 # Layout not expressible in EditorConfig: no blank line between adjacent one-line
 # `{ get; set; }` properties — see .cursor/rules/CSharp-SimpleProperties-OneLine.mdc
@@ -37,6 +37,25 @@ csharp_new_line_between_query_expression_clauses = true
 # Omit `{ }` around a single embedded statement under if / else / for / foreach / while / lock / using
 # when syntax allows (IDE0011). Types, methods, accessors, and multi-statement blocks stay braced.
 csharp_prefer_braces = false
+
+# Rider / ReSharper — mirrors Code Style › C# › Line breaks › “Place embedded statement…”
+# if_owner_is_single_line: single-line headers get `if (x) y();`; multi-line wrapped headers leave body indented on next line.
+csharp_place_simple_embedded_statement_on_same_line = if_owner_is_single_line
+resharper_csharp_place_simple_embedded_statement_on_same_line = if_owner_is_single_line
+# Avoid `if (x) { y(); }` one-line squeezed blocks — prefer braceless or full multiline braces for real blocks.
+csharp_place_simple_embedded_block_on_same_line = false
+resharper_csharp_place_simple_embedded_block_on_same_line = false
+
+# Rider / ReSharper — remediation: underline redundant `{ }`; do NOT force “enforce braces…” on loops etc.
+resharper_remove_redundant_braces_highlighting = suggestion
+resharper_enforce_if_statement_braces_highlighting = none
+resharper_enforce_foreach_statement_braces_highlighting = none
+resharper_enforce_for_statement_braces_highlighting = none
+resharper_enforce_while_statement_braces_highlighting = none
+resharper_enforce_do_while_statement_braces_highlighting = none
+resharper_enforce_using_statement_braces_highlighting = none
+resharper_enforce_lock_statement_braces_highlighting = none
+resharper_enforce_fixed_statement_braces_highlighting = none
 
 csharp_preserve_single_line_statements = false
 csharp_preserve_single_line_blocks = false

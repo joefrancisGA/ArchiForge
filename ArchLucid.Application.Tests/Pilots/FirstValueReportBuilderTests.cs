@@ -81,6 +81,8 @@ public sealed class FirstValueReportBuilderTests
         md.Should().NotBeNull();
         md.Should().Contain("Architecture review identity");
         md.Should().Contain("Support run id");
+        md.Should().Contain("Sponsor send readiness (buyer-safe gate)");
+        md.Should().Contain("**Publishing posture:** **Complete**");
         md.Should().Contain("Buyer-safe proof package contract");
         md.Should().Contain("| Top finding evidence-chain pointer | Present |");
         md.Should().Contain("Computed deltas (from this run)");
@@ -132,6 +134,7 @@ public sealed class FirstValueReportBuilderTests
         firstBanner.Should().BeGreaterThan(0);
         secondBanner.Should().BeGreaterThan(firstBanner);
         md.Should().Contain("| Demo data warning | Present; do not quote seeded numbers. |");
+        md.Should().Contain("**Publishing posture:** **Demo-only**");
     }
 
     private static ArchitectureRunDetail BuildCommittedDetail()
@@ -196,11 +199,11 @@ public sealed class FirstValueReportBuilderTests
                     0,
                     0,
                     0,
-                    null,
-                    null,
-                    null,
-                    null,
-                    0,
+                    8m,
+                    "signup",
+                    DateTimeOffset.UtcNow,
+                    6m,
+                    3,
                     null,
                     null,
                     null));

@@ -41,6 +41,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         CohortArtifacts cohort = await CaptureCohortAsync();
         cohort.TraceabilityZipEntryNames.Should().NotBeEmpty();
         cohort.FirstValueReportMarkdown.Should().NotBeNullOrWhiteSpace();
+        cohort.FirstValueReportMarkdown.Should().Contain("Sponsor send readiness (buyer-safe gate)");
         cohort.CommitManifestDecisionTraceIdCount.Should().BePositive();
     }
 

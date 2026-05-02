@@ -15,6 +15,14 @@ vi.mock("@/lib/operator-run-picker-client", () => ({
   loadProjectRunsMergedWithDemoFallback: vi.fn(async () => ({ items: [], loadError: false })),
 }));
 
+vi.mock("@/lib/core-pilot-commit-context", () => ({
+  fetchCorePilotCommitContext: vi.fn(async () => ({
+    hasCommittedManifest: false,
+    latestRunId: null,
+    firstCommittedRunId: null,
+  })),
+}));
+
 describe("OperatorFirstRunWorkflowPanel", () => {
   afterEach(() => {
     localStorage.clear();
@@ -26,6 +34,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     const heading = await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
     expect(heading).toBeInTheDocument();
+    expect(await screen.findByTestId("core-pilot-milestone-rail")).toBeInTheDocument();
 
     const section = heading.closest("section");
     expect(section).toHaveTextContent(CORE_PILOT_WORKFLOW_SUMMARY_LINE);

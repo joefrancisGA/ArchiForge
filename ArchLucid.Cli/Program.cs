@@ -76,6 +76,14 @@ public static class Program
                 case "roi-bulletin":
                     return await RoiBulletinCommand.RunAsync(normalized.Skip(1).ToArray());
 
+                case "agent-eval":
+                    if (normalized.Length > 1 && string.Equals(normalized[1], "rollup", StringComparison.OrdinalIgnoreCase))
+                        return await AgentEvalRollupCommand.RunAsync(normalized.Skip(2).ToArray());
+
+                    Console.WriteLine("Usage: archlucid agent-eval rollup --from-json <agent-evaluation.json> [--json]");
+
+                    return CliExitCode.UsageError;
+
                 case "security-trust":
                     if (normalized.Length > 1 && normalized[1] == "publish")
                         return await SecurityTrustPublishCommand.RunAsync(normalized.Skip(2).ToArray());

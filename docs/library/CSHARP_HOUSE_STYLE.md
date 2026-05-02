@@ -17,7 +17,7 @@ ArchLucid is a large, multi-project .NET 10 solution where most code is read mor
 2. **Stay terse without sacrificing safety** — concrete types, explicit nulls, no `var`, no silent fallbacks.
 3. **Be enforceable** — every rule is a Cursor rule and (where possible) backed by EditorConfig / `dotnet format` / a small Roslyn fixer in `scripts/`.
 
-Read [`docs/FORMATTING.md`](FORMATTING.md) for the **mechanical** side (`dotnet format`, brace removal tool, simple-property collapser).
+Read [`docs/library/FORMATTING.md`](FORMATTING.md) for the **mechanical** side (`dotnet format`, brace removal tool, simple-property collapser).
 
 ---
 
@@ -40,10 +40,11 @@ These rules are loaded into every Cursor session (`alwaysApply: true`). Each lin
 
 | ID | Rule | Summary |
 |----|------|---------|
-| — | [`CSharp-EmbeddedStatements-NoBraces.mdc`(../../.cursor/rules/CSharp-EmbeddedStatements-NoBraces.mdc) | Omit `{ }` for single-statement `if` / `else` / `for` / `foreach` / `while` / `lock` / `using`. |
-| — | [`SingleLineThrowNoBraces.mdc`(../../.cursor/rules/SingleLineThrowNoBraces.mdc) | Single-line `throw` after `if`, no braces. |
-| — | [`SingleLineContinueNoBraces.mdc`(../../.cursor/rules/SingleLineContinueNoBraces.mdc) | Single-line `continue` after `if`, same line when it reads cleanly. |
-| 01 | [`CSharp-Terse-01-GuardClausesSameLine.mdc`(../../.cursor/rules/CSharp-Terse-01-GuardClausesSameLine.mdc) | Guard clauses (`throw`/`return`/`continue`/`break`) go on the **same line** as the `if`. |
+| — | [`CSharp-EmbeddedStatements-NoBraces.mdc`](../../.cursor/rules/CSharp-EmbeddedStatements-NoBraces.mdc) | Omit `{ }` for single-statement `if` / `else` / `for` / `foreach` / `while` / `lock` / `using`. |
+| — | [`CSharp-SingleEmbeddedStatement-OneLinePrefer.mdc`](../../.cursor/rules/CSharp-SingleEmbeddedStatement-OneLinePrefer.mdc) | Prefer **same physical line** for short braceless bodies; break when the assembled line is too long. |
+| — | [`SingleLineThrowNoBraces.mdc`](../../.cursor/rules/SingleLineThrowNoBraces.mdc) | Single-line `throw` after `if`, no braces. |
+| — | [`SingleLineContinueNoBraces.mdc`](../../.cursor/rules/SingleLineContinueNoBraces.mdc) | Single-line `continue` after `if`, same line when it reads cleanly. |
+| 01 | [`CSharp-Terse-01-GuardClausesSameLine.mdc`](../../.cursor/rules/CSharp-Terse-01-GuardClausesSameLine.mdc) | Guards on the **same line** as `if` — `return;`, **`return expr;`**, `throw`, etc., when the assembled line stays short. |
 | 12 | [`CSharp-Terse-12-EarlyReturnNoTrailingElse.mdc`(../../.cursor/rules/CSharp-Terse-12-EarlyReturnNoTrailingElse.mdc) | No `else` after a guarded `return` / `throw` / `continue`. |
 
 ### Null-safety

@@ -16,6 +16,7 @@ public static class CompletionsCommand
         "try",
         "second-run",
         "trial",
+        "agent-eval",
         "roi-bulletin",
         "security-trust",
         "run",

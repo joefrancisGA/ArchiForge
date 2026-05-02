@@ -1,5 +1,6 @@
 "use client";
 
+import { CorePilotMilestoneRail } from "@/components/CorePilotMilestoneRail";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
 import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
-import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
+import type { CorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { recordCorePilotRailChecklistStep } from "@/lib/core-pilot-rail-telemetry";
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
@@ -61,10 +63,16 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
   const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => corePilotSteps.map(() => false));
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [hasAnyRun, setHasAnyRun] = useState(false);
-  const [latestRunId, setLatestRunId] = useState<string | null>(exploreCompletedOutput ? SHOWCASE_STATIC_DEMO_RUN_ID : null);
-  const [firstCommittedRunId, setFirstCommittedRunId] = useState<string | null>(
-    exploreCompletedOutput ? SHOWCASE_STATIC_DEMO_RUN_ID : null,
+  const [commitCtx, setCommitCtx] = useState<CorePilotCommitContext>(() =>
+    exploreCompletedOutput
+      ? {
+          hasCommittedManifest: true,
+          latestRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+          firstCommittedRunId: SHOWCASE_STATIC_DEMO_RUN_ID,
+        }
+      : { hasCommittedManifest: false, latestRunId: null, firstCommittedRunId: null },
   );
+  const [latestRunPipelineSignal, setLatestRunPipelineSignal] = useState<boolean>(exploreCompletedOutput === true);
 
   useEffect(() => {
     if (exploreCompletedOutput) {
@@ -78,13 +86,11 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
         const ctx = await fetchCorePilotCommitContext();
 
         if (!cancelled) {
-          setLatestRunId(ctx.latestRunId);
-          setFirstCommittedRunId(ctx.firstCommittedRunId);
+          setCommitCtx(ctx);
         }
       } catch {
         if (!cancelled) {
-          setLatestRunId(null);
-          setFirstCommittedRunId(null);
+          setCommitCtx({ hasCommittedManifest: false, latestRunId: null, firstCommittedRunId: null });
         }
       }
     })();
@@ -156,9 +162,21 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
 
         setHasAnyRun(next);
         writeHasExistingRunsCache(next);
+        const first = merged.items[0];
+        const pipelineSignal =
+          first !== undefined &&
+          (first.hasFindingsSnapshot === true ||
+            first.hasGraphSnapshot === true ||
+            first.hasContextSnapshot === true ||
+            (typeof first.findingsSnapshotId === "string" && first.findingsSnapshotId.length > 0) ||
+            (typeof first.graphSnapshotId === "string" && first.graphSnapshotId.length > 0) ||
+            (typeof first.contextSnapshotId === "string" && first.contextSnapshotId.length > 0));
+
+        setLatestRunPipelineSignal(pipelineSignal);
       } catch {
         if (!cancelled) {
           setHasAnyRun(false);
+          setLatestRunPipelineSignal(false);
         }
       }
     })();
@@ -172,6 +190,27 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
   const allDone = doneCount === corePilotSteps.length;
 
   const firstUndoneIndex = useMemo(() => doneByIndex.findIndex((d) => !d), [doneByIndex]);
+
+  const milestonesComplete = useMemo(
+    () =>
+      [
+        hasAnyRun,
+        latestRunPipelineSignal,
+        commitCtx.hasCommittedManifest,
+        doneByIndex[3] === true,
+      ] as const,
+    [hasAnyRun, latestRunPipelineSignal, commitCtx.hasCommittedManifest, doneByIndex],
+  );
+
+  const activeMilestoneIndex = useMemo(() => {
+    const i = milestonesComplete.findIndex((v) => !v);
+
+    if (i < 0) {
+      return 3;
+    }
+
+    return i;
+  }, [milestonesComplete]);
 
   useEffect(() => {
     if (!hydrated || !allDone) {
@@ -447,6 +486,9 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
           Hide
         </button>
       </div>
+      {!exploreCompletedOutput ? (
+        <CorePilotMilestoneRail milestoneComplete={milestonesComplete} activeIndex={activeMilestoneIndex} />
+      ) : null}
       <p className="m-0 mb-2 text-xs font-medium text-neutral-800 dark:text-neutral-200" aria-live="polite">
         {doneCount} of {corePilotSteps.length} steps complete
       </p>
@@ -511,7 +553,7 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                       <p className="m-0 text-[11px] leading-snug text-neutral-600 dark:text-neutral-400">{step.shortBody}</p>
                       <div className="mt-1.5">
                         <Button asChild variant="outline" size="sm" className="h-7 text-xs font-medium">
-                          <Link className="no-underline" href={index === 2 && latestRunId !== null ? `/reviews/${encodeURIComponent(latestRunId)}` : index === 3 && firstCommittedRunId !== null ? `/reviews/${encodeURIComponent(firstCommittedRunId)}` : step.primaryHref}>
+                          <Link className="no-underline" href={index === 2 && commitCtx.latestRunId !== null ? `/reviews/${encodeURIComponent(commitCtx.latestRunId)}` : index === 3 && commitCtx.firstCommittedRunId !== null ? `/reviews/${encodeURIComponent(commitCtx.firstCommittedRunId)}` : step.primaryHref}>
                             {step.primaryLabel}
                           </Link>
                         </Button>

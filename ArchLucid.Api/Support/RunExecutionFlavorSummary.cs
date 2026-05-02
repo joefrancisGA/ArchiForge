@@ -14,10 +14,7 @@ internal static class RunExecutionFlavorSummary
     /// </summary>
     public static string Build(ArchitectureRun run, string? hostAgentExecutionMode)
     {
-        if (run is null)
-            throw new ArgumentNullException(nameof(run));
-
-        return Build(run.RealModeFellBackToSimulator, hostAgentExecutionMode);
+        return run is null ? throw new ArgumentNullException(nameof(run)) : Build(run.RealModeFellBackToSimulator, hostAgentExecutionMode);
     }
 
     /// <summary>
@@ -33,11 +30,6 @@ internal static class RunExecutionFlavorSummary
             return "Part of this architecture review used deterministic output after a live-model path failed. Treat numeric highlights cautiously; open the first-value report for the full execution provenance table.";
         }
 
-        if (string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase))
-        {
-            return "Agent steps for this review used the live model path, subject to this API host’s execution configuration when you loaded this page.";
-        }
-
-        return "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).";
+        return string.Equals(mode, "Real", StringComparison.OrdinalIgnoreCase) ? "Agent steps for this review used the live model path, subject to this API host’s execution configuration when you loaded this page." : "Agent steps for this review used deterministic simulator execution (no live LLM calls for agent work).";
     }
 }

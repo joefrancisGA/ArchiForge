@@ -13,8 +13,21 @@ Notable choices for **readability**:
 
 - **Blank line between `using` groups** (`dotnet_separate_import_directive_groups = true`), with `System.*` first.
 - **Braces** on new lines for types, methods, and other block declarations (`csharp_new_line_before_open_brace = all`).
-- **Single-statement control flow** (`if` / `else` / `for` / `foreach` / `while` / `lock` / `using`): **omit** `{ }` when syntax allows (`csharp_prefer_braces = false`, IDE0011). Use a block when there are multiple statements or you need a local scope.
+- **Single-statement control flow** (`if` / `else` / `for` / `foreach` / `while` / `lock` / `using`): **omit** `{ }` when syntax allows (`csharp_prefer_braces = false`, IDE0011). Prefer **braceless**, and preferably **same physical line** when short (see **`CSharp-SingleEmbeddedStatement-OneLinePrefer.mdc`**). Use a block when there are multiple statements or you need a local scope.
 - **No squeezed single-line blocks** (`csharp_preserve_single_line_blocks = false`).
+
+## Rider / ReSharper (same rule; cleanup + format)
+
+Alongside **`csharp_prefer_braces = false`** in `.editorconfig`, the repo configures JetBrains tooling:
+
+| Concern | Where |
+|---------|-------|
+| `if (...) ` + body on **one line** when the **`if (...) ` header is single-line** | `csharp_place_simple_embedded_statement_on_same_line = if_owner_is_single_line` |
+| **No one-line squeezed** `{ Stmt(); }` | `csharp_place_simple_embedded_block_on_same_line = false` |
+| **Suggest** stripping redundant `{}` around single statements | `resharper_remove_redundant_braces_highlighting = suggestion` |
+| **Silence** “enforce braces…” style inspections when the body stays one statement | `resharper_enforce_*_statement_braces_highlighting = none` |
+
+Committed **`ArchLucid.sln.DotSettings`** reinforces **wrap limit 160**, `IF_OWNER_IS_SINGLE_LINE`, `BRACES_FOR_IFELSE = NotRequired`, and inspection severities. Open the `.sln` in Rider/ReSharper and use **Ctrl+Alt+L** (**Reformat**) and **Cleanup Code** (**Arrange braces** enabled in your cleanup profile).
 
 ## Apply formatting to the whole solution
 

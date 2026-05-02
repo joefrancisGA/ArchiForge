@@ -113,7 +113,7 @@ public sealed class ClientErrorTelemetryController(
         if (body is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
-        if (body.StepIndex < 0 || body.StepIndex > 3)
+        if (body.StepIndex is < 0 or > 3)
             return this.BadRequestProblem(
                 "stepIndex must be between 0 and 3 inclusive (Core Pilot checklist).",
                 ProblemTypes.ValidationFailed);

@@ -1,0 +1,46 @@
+---
+description: Prefer one-line braceless embedded statements — same-line as if when fits; soften with layout when the header wraps.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Single embedded statements: no braces + prefer same physical line when short
+
+Aligns tooling with **`csharp_prefer_braces = false`** (IDE0011) and **`scripts/RemoveEmbeddedStatementBraces`**.
+
+When a construct has **exactly one** embedded statement (`if`, `else`, `for`, `foreach`, `while`, `using`, `lock`, …):
+
+1. **Do not wrap** it in `{ }` unless multi-statement, locals, or dangling-`else` safety requires a block (same as **`CSharp-EmbeddedStatements-NoBraces.mdc`**).
+
+2. **Prefer one physical line** when the **`if (...) body`** is short enough. **Returns:** same requirement as **`CSharp-Terse-01-GuardClausesSameLine.mdc`**—use **`if (cond) return;`** and **`if (cond) return expr;`** on one line when it fits:
+
+   ```csharp
+   if (cancellationToken.IsCancellationRequested) return;
+   if (!found) return null;
+   ```
+
+3. **When the composite line would be overly long**, keep the **`if (...) `** clause on one logical line **or** break the condition naturally; put the embedded statement **on the next indented line** (still without braces):
+
+   ```csharp
+   if (condition)
+       return;
+
+   if (reallyLongPredicateOne
+       || reallyLongPredicateTwo)
+       return;
+
+   if (someLongEnoughExpressionThatNeedsWrapping(condition))
+       return HeavyResultFactory.Build();
+   ```
+
+   **Rough length:** treat **`≤ 160` characters for a single assembled `guard` line** as the canonical cap (`RemoveEmbeddedStatementBraces` uses 160); for non-guards, apply the **same readability bar** rather than cramming unreadable megelines.
+
+**Blank lines:** Keep **one blank line before** the `if` / `foreach` when it is not the first statement in the member (project rule); that applies whether the `if` is same-line or split.
+
+**Guards** (`throw` / `return` / `continue` / `break`): **`CSharp-Terse-01-GuardClausesSameLine.mdc`** stays the sharper rule for guards; do not regress it when broadening optional same-line shaping.
+
+## Tooling
+
+- **Roslyn:** `dotnet format … --diagnostics IDE0011` plus optional **`dotnet run scripts/RemoveEmbeddedStatementBraces`** (see **`docs/library/FORMATTING.md`**).
+
+- **Rider / ReSharper:** Repo **`.editorconfig`** + **`ArchLucid.sln.DotSettings`** — `Format Selection` / `Code Cleanup`; enable **Remove redundant braces**.

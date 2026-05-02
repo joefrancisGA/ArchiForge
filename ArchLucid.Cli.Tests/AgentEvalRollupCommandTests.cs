@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -49,7 +50,14 @@ public sealed class AgentEvalRollupCommandTests
         };
 
         string path = Path.Combine(Path.GetTempPath(), $"agent-eval-rollup-test-{Guid.NewGuid():N}.json");
-        await File.WriteAllTextAsync(path, JsonSerializer.Serialize(summary, new JsonSerializerOptions { WriteIndented = true }));
+        JsonSerializerOptions writeOpts = new()
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+        };
+
+        await File.WriteAllTextAsync(path, JsonSerializer.Serialize(summary, writeOpts));
 
         try
         {

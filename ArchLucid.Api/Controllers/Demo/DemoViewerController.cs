@@ -19,8 +19,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Api.Controllers.Demo;
 
 /// <summary>

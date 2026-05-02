@@ -133,6 +133,7 @@ Add a new JSON file per scenario (minimal fields only); keep fixtures **small** 
 ## 8. Operational Considerations
 
 - **Full prompts**: Blob upload (plus SQL **`Full*Inline`** fallback) runs after trace insert for **Real** execution; **Simulator** skips full-text blob/inline; see **`docs/AGENT_TRACE_FORENSICS.md`**. Optional JSON reference cases: **`AgentExecution:ReferenceEvaluation`** → **`archlucid_agent_output_reference_case_*`** metrics and **`dbo.AgentOutputEvaluationResults`**.
+- **Offline rollup CLI:** `archlucid agent-eval rollup --from-json <agent-evaluation.json> [--json]` summarizes an export of **`GET /v1/architecture/run/{runId}/agent-evaluation`** without AOAI credentials. **Simulator vs real LLM mode is not embedded** in that JSON — correlate with run provenance / deployment configuration before treating rows as production evidence.
 - **Dashboards**: **`archlucid_agent_output_structural_completeness_ratio`** (histogram), **`archlucid_agent_output_semantic_score`** (histogram), **`archlucid_agent_output_parse_failures_total`** (counter), and optional **`archlucid_agent_output_quality_gate_total`** (counter)—see **`docs/OBSERVABILITY.md`**.
 - **Low score logs**: Recorder warns below **0.5** completeness for both structural and semantic scores (configurable in code if product asks).
 - **Evolution**: Per-**`AgentType`** key lists live in **`GetExpectedKeys`** for future stricter Topology/Cost/Critic profiles.

@@ -1,7 +1,7 @@
 ---
 description: Omit braces for single embedded statements (if/for/foreach/while/else/lock/using) when legal
 globs: "**/*.cs"
-alwaysApply: false
+alwaysApply: true
 ---
 
 # C# embedded statements: omit braces when one statement
@@ -14,15 +14,20 @@ When a control-flow construct has **exactly one** embedded statement and C# does
 
 ## Do
 
-```csharp
-if (value is null)
-    return;
+Prefer **braceless**, and **prefer the same physical line** when condition + statement stay short (typically within the tooling wrap bar — see **`CSharp-SingleEmbeddedStatement-OneLinePrefer.mdc`**):
 
+```csharp
+if (value is null) return;
+
+foreach (string id in ids)
+    Register(id);
+```
+
+Otherwise break across lines — still **without** `{}`:
+
+```csharp
 if (!TryParse(input, out int n))
     throw new InvalidOperationException("…");
-
-foreach (var item in items)
-    Register(item);
 ```
 
 Keep **one blank line before** `if` / `foreach` (etc.) when not the first statement in the member, per project blank-line rules.
@@ -43,9 +48,13 @@ Use a **block** when the body is more than one statement, when you need scoped `
 
 ## Tooling
 
-Repo **`.editorconfig`** sets `csharp_prefer_braces = false` (IDE0011). Apply **only** this rule (avoid unrelated style fixes such as collection expressions) with:
+Repo **`.editorconfig`** sets `csharp_prefer_braces = false` (IDE0011) plus JetBrains keys for embedded-statement placement; **`ArchLucid.sln.DotSettings`** nudges Rider/ReSharper cleanup to match.
+
+Apply **IDE0011-only** formatting (avoid unrelated style fixes such as collection expressions):
 
 `dotnet format ArchLucid.sln style --diagnostics IDE0011 --severity info`
+
+On Rider / VS + ReSharper: **Alt+Enter** on redundant braces (**Remove redundant braces**) or run **Code Cleanup** with **Format** + **Apply code styles**.
 
 For whitespace-only layout, `dotnet format ArchLucid.sln whitespace` and the `scripts/format-solution.*` helpers do not run IDE0011; use the command above when you want brace fixes.
 

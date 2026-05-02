@@ -119,6 +119,13 @@ public sealed class FirstValueReportBuilder(
             sb.AppendLine();
         }
 
+        PilotBuyerSafeEvidenceGateResult buyerSafeGate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
+            run,
+            manifest,
+            deltas,
+            valueWindowSnapshot);
+        PilotBuyerSafeEvidenceGateMarkdownFormatter.AppendMarkdownSection(sb, buyerSafeGate);
+
         AppendRunSection(sb, run, manifest, baseUrl);
         AppendProofPackageContractSection(sb, deltas);
         AppendComputedDeltasSection(sb, deltas);
