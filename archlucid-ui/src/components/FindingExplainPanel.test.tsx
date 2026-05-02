@@ -41,6 +41,12 @@ describe("FindingExplainPanel", () => {
     render(<FindingExplainPanel runId="run-a" findingId="f-1" />);
 
     await waitFor(() => {
+      expect(screen.getByRole("button", { name: /technical audit details/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /technical audit details/i }));
+
+    await waitFor(() => {
       expect(screen.getByText(/sys/)).toBeInTheDocument();
     });
 
@@ -82,6 +88,12 @@ describe("FindingExplainPanel", () => {
     const postSpy = vi.spyOn(api, "postFindingFeedback").mockResolvedValue(undefined);
 
     render(<FindingExplainPanel runId="run-a" findingId="f-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /technical audit details/i })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /technical audit details/i }));
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /thumbs up/i })).toBeEnabled();

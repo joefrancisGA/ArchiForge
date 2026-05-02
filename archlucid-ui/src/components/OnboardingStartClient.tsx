@@ -19,6 +19,58 @@ type TenantTrialStatusResponse = {
   trialSampleRunId?: string | null;
 };
 
+type RecoveryCopy = {
+  headline: string;
+  detail: string;
+};
+
+function recoveryCopyForTrialStatusFailure(httpStatus: number): RecoveryCopy {
+  if (httpStatus === 401 || httpStatus === 403) {
+    return {
+      headline: "Sign-in required",
+      detail:
+        "Finish email verification and sign in with a user that can access this tenant. You can still start an architecture review from Operator home once you are signed in.",
+    };
+  }
+
+  if (httpStatus === 404) {
+    return {
+      headline: "Trial workspace not found yet",
+      detail:
+        "Provisioning may still be running. Retry in a minute, or start a new review request — your workspace may already allow reviews without this panel.",
+    };
+  }
+
+  if (httpStatus === 429) {
+    return {
+      headline: "Too many requests",
+      detail: "Wait a few seconds and retry. You can still continue with a new review request or open Operator home.",
+    };
+  }
+
+  if (httpStatus >= 500) {
+    return {
+      headline: "Service temporarily unavailable",
+      detail:
+        "The trial-status service is not responding. Retry shortly, or continue — your tenant may still accept review requests.",
+    };
+  }
+
+  return {
+    headline: `Could not load trial workspace (${httpStatus})`,
+    detail:
+      "Retry, or continue without the seeded sample run. Trial limits may still apply once the service responds.",
+  };
+}
+
+function recoveryCopyForNetworkError(): RecoveryCopy {
+  return {
+    headline: "Network error",
+    detail:
+      "Check your connection, then retry. You can still open the new-review wizard or Operator home to keep going.",
+  };
+}
+
 /**
  * Post-registration entry: reads `GET /v1/tenant/trial-status` using registration scope headers (pre-OIDC),
  * surfaces limits and the seeded sample run, and links into `/reviews/new` with `sampleRunId` for the wizard.
@@ -26,11 +78,13 @@ type TenantTrialStatusResponse = {
 export function OnboardingStartClient() {
   const [status, setStatus] = useState<TenantTrialStatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setErrorStatus(null);
 
     try {
       const res = await fetch(
@@ -39,6 +93,7 @@ export function OnboardingStartClient() {
       );
 
       if (!res.ok) {
+        setErrorStatus(res.status);
         setError(`Trial status request failed (${res.status}).`);
         setStatus(null);
 
@@ -49,6 +104,7 @@ export function OnboardingStartClient() {
       setStatus(json);
     } catch {
       setError("Could not load trial status.");
+      setErrorStatus(null);
       setStatus(null);
     } finally {
       setLoading(false);
@@ -64,17 +120,43 @@ export function OnboardingStartClient() {
   const hasSample = sampleId.length > 0;
   const wizardHref = hasSample ? `/reviews/new?sampleRunId=${encodeURIComponent(sampleId)}` : "/reviews/new";
 
+  const recovery: RecoveryCopy | null =
+    error !== null && !loading
+      ? errorStatus !== null
+        ? recoveryCopyForTrialStatusFailure(errorStatus)
+        : recoveryCopyForNetworkError()
+      : null;
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       {loading ? <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading trial workspace…</p> : null}
 
-      {error !== null && !loading ? (
-        <p className="text-sm text-red-600" role="alert">
-          {error}{" "}
-          <Button type="button" variant="link" className="h-auto p-0 align-baseline" onClick={() => void load()}>
-            Retry
-          </Button>
-        </p>
+      {error !== null && !loading && recovery !== null ? (
+        <section
+          aria-labelledby="onb-error-heading"
+          className="rounded-lg border border-red-200 bg-red-50/90 p-5 text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-50"
+          role="alert"
+        >
+          <h2 id="onb-error-heading" className="m-0 text-base font-semibold">
+            {recovery.headline}
+          </h2>
+          <p className="m-0 mt-2 text-sm leading-relaxed">{recovery.detail}</p>
+          <p className="m-0 mt-2 text-sm font-mono text-red-900/90 dark:text-red-100/90">{error}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" variant="primary" size="sm" onClick={() => void load()}>
+              Retry trial status
+            </Button>
+            <Button asChild type="button" variant="outline" size="sm">
+              <Link href="/reviews/new">Start new review request</Link>
+            </Button>
+            <Button asChild type="button" variant="outline" size="sm">
+              <Link href="/onboarding">Open onboarding checklist</Link>
+            </Button>
+            <Button asChild type="button" variant="ghost" size="sm">
+              <Link href="/">Operator home</Link>
+            </Button>
+          </div>
+        </section>
       ) : null}
 
       {!loading && status !== null ? (

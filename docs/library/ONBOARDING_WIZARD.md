@@ -9,9 +9,9 @@
 
 ## Canonical surface (2026 consolidation)
 
-**Single operator FTUE route:** **`/getting-started`** — same **Core Pilot checklist** as **Home** (`OperatorFirstRunWorkflowPanel`), plus optional **trial / post-registration** UI (`GettingStartedTrialSection` → `OnboardingStartClient`: `GET /v1/tenant/trial-status`, deep link to **New run** with `trialSampleRunId` highlighted). Handoff after signup uses **`/getting-started?source=registration`**.
+**Single operator FTUE route:** **`/onboarding`** — same **Core Pilot checklist** as **Home** (`OperatorFirstRunWorkflowPanel`), plus optional **trial / post-registration** UI (`GettingStartedTrialSection` → `OnboardingStartClient`: `GET /v1/tenant/trial-status`, deep link to **New review** with `trialSampleRunId` highlighted). Handoff after signup uses **`/onboarding?source=registration`**.
 
-**Legacy bookmarks (HTTP redirect, query preserved on start):** **`/onboarding`**, **`/onboarding/start`**, and **`/onboard`** all **`redirect("/getting-started")`** (see `archlucid-ui/src/app/(operator)/onboarding/page.tsx`, `onboarding/start/page.tsx`, `onboard/page.tsx`). There is **no** separate four-step **`/onboard`** wizard in the shell anymore; first manifest work uses **`/runs/new`** and run detail like the checklist describes.
+**Legacy bookmarks (HTTP redirect — query preserved):** **`/getting-started`**, **`/onboarding/start`**, and **`/onboard`** all **`permanentRedirect("/onboarding", …)`** with the same query string (see `archlucid-ui/src/lib/legacy-onboarding-redirect.ts` and `(operator)/getting-started/page.tsx`, `onboarding/start/page.tsx`, `onboard/page.tsx`). There is **no** separate four-step **`/onboard`** wizard in the shell anymore; first review-package work uses **`/reviews/new`** and review detail like the checklist describes.
 
 **Product metric:** the first successful manifest commit per tenant can increment **`archlucid_first_session_completed_total`** when SQL persistence and **`TenantOnboardingState`** are enabled (see [`docs/OBSERVABILITY.md`](OBSERVABILITY.md)).
 

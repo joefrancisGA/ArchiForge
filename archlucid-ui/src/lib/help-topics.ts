@@ -32,7 +32,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Reviewing artifacts",
     keywords: ["download", "manifest", "bundle", "zip"],
     summary: "Open a run, then review artifact list, previews, and bundle downloads from run detail.",
-    docPath: "docs/operator-shell.md",
+    docPath: "docs/library/operator-shell.md",
     routes: ["/reviews"],
   },
   {
@@ -40,7 +40,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Compare two runs",
     keywords: ["diff", "delta", "replay"],
     summary: "Use Compare to diff two runs’ manifests and persisted comparison records.",
-    docPath: "docs/COMPARISON_REPLAY.md",
+    docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/compare"],
   },
   {
@@ -48,7 +48,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Replay",
     keywords: ["verify", "drift", "comparison"],
     summary: "Replay re-executes stored comparison logic; verify mode detects drift.",
-    docPath: "docs/COMPARISON_REPLAY.md",
+    docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/replay"],
   },
   {
@@ -56,7 +56,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Architecture graph",
     keywords: ["provenance", "knowledge graph"],
     summary: "Graph shows one run’s provenance or architecture view for a single run ID.",
-    docPath: "docs/KNOWLEDGE_GRAPH.md",
+    docPath: "docs/library/KNOWLEDGE_GRAPH.md",
     routes: ["/graph"],
   },
   {
@@ -65,7 +65,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     keywords: ["inbox", "ack", "noise"],
     summary:
       "Alerts hub: inbox, rules, routing, composite, and simulation & tuning on one page (`/alerts?tab=`).",
-    docPath: "docs/ALERTS.md",
+    docPath: "docs/library/ALERTS.md",
     routes: ["/alerts", "/alerts?tab=rules", "/alerts?tab=simulation"],
   },
   {
@@ -73,7 +73,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Policy packs",
     keywords: ["governance", "compliance", "pack"],
     summary: "Policy packs bundle rules and defaults; assign scope and inspect effective governance.",
-    docPath: "docs/API_CONTRACTS.md",
+    docPath: "docs/library/API_CONTRACTS.md",
     routes: ["/policy-packs", "/governance-resolution"],
   },
   {
@@ -97,7 +97,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Authentication",
     keywords: ["jwt", "entra", "api key", "bearer"],
     summary: "Match UI auth mode to API ArchLucidAuth; API key is server-side in the Next.js proxy.",
-    docPath: "docs/LIVE_E2E_JWT_SETUP.md",
+    docPath: "docs/library/LIVE_E2E_JWT_SETUP.md",
     routes: ["/auth/signin"],
   },
   {
@@ -105,7 +105,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "CLI",
     keywords: ["archlucid", "dotnet run", "terminal"],
     summary: "CLI commands call the HTTP API; use doctor and support-bundle for diagnostics.",
-    docPath: "docs/CLI_USAGE.md",
+    docPath: "docs/library/CLI_USAGE.md",
     routes: [],
   },
   {
@@ -121,7 +121,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Tenant / workspace / project scope",
     keywords: ["headers", "x-tenant-id", "isolation"],
     summary: "Scope headers isolate data; keep the same scope between UI and API integrations.",
-    docPath: "docs/GLOSSARY.md",
+    docPath: "docs/library/GLOSSARY.md",
     routes: [],
   },
   {
@@ -129,7 +129,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Pilot feedback",
     keywords: ["58r", "triage", "learning"],
     summary: "Pilot feedback captures human judgments separately from recommendation learning.",
-    docPath: "docs/PRODUCT_LEARNING.md",
+    docPath: "docs/library/PRODUCT_LEARNING.md",
     routes: ["/product-learning"],
   },
 ];

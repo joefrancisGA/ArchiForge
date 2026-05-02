@@ -29,7 +29,7 @@ const OUT = publicDirUnderUi("screenshots", "all-routes");
 /** Per-test cap for visiting every route: default Playwright would time out; 30m for slow cold builds or CI. */
 const ALL_ROUTES_SCREENSHOT_TEST_TIMEOUT_MS = 30 * 60 * 1_000;
 
-/** One href per `page.tsx` (63 routes); run/manifest/compare paths use {@link SCREENSHOT_*} for human-readable URLs. Legacy `/onboarding*` aliases omitted — they redirect to `/getting-started`. */
+/** One href per `page.tsx` (63 routes); run/manifest/compare paths use {@link SCREENSHOT_*} for human-readable URLs. Legacy `/getting-started` redirects to `/onboarding`. */
 const HREFS: string[] = [
   "/",
   "/accessibility",

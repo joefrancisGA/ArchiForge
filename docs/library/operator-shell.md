@@ -85,7 +85,7 @@ These are **Operate (governance and trust)** layer features. Most require an ope
 
 ## Trial banner (self-service workspaces)
 
-When `GET /v1/tenant/trial-status` reports **Active**, **Expired**, or **ReadOnly**, the operator shell shows **`TrialBanner`** (see `archlucid-ui/docs/TRIAL_SIGNUP_UI.md`): remaining calendar days, **Convert to paid** (`POST /v1/tenant/billing/checkout`), checklist link to **`/getting-started?source=registration`** (same Core Pilot checklist as Home), and a dismiss control that hides the strip for **24 hours** then re-evaluates on the next visit.
+When `GET /v1/tenant/trial-status` reports **Active**, **Expired**, or **ReadOnly**, the operator shell shows **`TrialBanner`** (see `archlucid-ui/docs/TRIAL_SIGNUP_UI.md`): remaining calendar days, **Convert to paid** (`POST /v1/tenant/billing/checkout`), checklist link to **`/onboarding?source=registration`** (same Core Pilot checklist as Home), and a dismiss control that hides the strip for **24 hours** then re-evaluates on the next visit.
 
 ---
 

@@ -15,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { KeyboardShortcutsTabContent, matchesShortcutQuery } from "@/components/KeyboardShortcutsHelpContent";
 import { ALERTS_PAGE_SHORTCUTS, SHORTCUTS } from "@/lib/shortcut-registry";
+import { corePilotHelpStepForPath } from "@/lib/core-pilot-help-step-for-path";
+import { CORE_PILOT_STEPS } from "@/lib/core-pilot-steps";
 import { getDocHref, helpTopicsForGuidesTab, helpTopicsForTroubleshootingTab, type HelpTopic } from "@/lib/help-topics";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -109,6 +111,44 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
     return allShortcutRows.filter((row) => matchesShortcutQuery(q, row.description, row.key));
   }, [allShortcutRows, query]);
 
+  const corePilotPinnedHelp = useMemo(() => {
+    if (query.trim().length > 0) {
+      return null;
+    }
+
+    const pilotCtx = corePilotHelpStepForPath(pathname);
+
+    if (pilotCtx === null) {
+      return null;
+    }
+
+    const corePilotGuideHref = getDocHref("docs/CORE_PILOT.md");
+
+    return (
+      <div className="rounded-lg border border-teal-200/90 bg-teal-50/50 p-3 dark:border-teal-900 dark:bg-teal-950/25">
+        <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+          Core Pilot — suggested next step
+        </h3>
+        <p className="m-0 mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+          Step {pilotCtx.stepIndex + 1} of {CORE_PILOT_STEPS.length}: {pilotCtx.step.title}
+        </p>
+        <p className="m-0 mt-1 text-sm text-neutral-600 dark:text-neutral-300">{pilotCtx.step.shortBody}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button asChild size="sm" variant="primary">
+            <Link href={pilotCtx.step.primaryHref}>{pilotCtx.step.primaryLabel}</Link>
+          </Button>
+          {corePilotGuideHref ? (
+            <Button asChild size="sm" variant="outline">
+              <a href={corePilotGuideHref} target="_blank" rel="noreferrer">
+                Open Core Pilot guide
+              </a>
+            </Button>
+          ) : null}
+        </div>
+      </div>
+    );
+  }, [pathname, query]);
+
   function handleOpenChange(next: boolean): void {
     if (!next) {
       setQuery("");
@@ -182,6 +222,7 @@ export function HelpPanel({ open, onOpenChange }: HelpPanelProps) {
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {tab === "guides" ? (
             <div className="space-y-4">
+              {corePilotPinnedHelp}
               <div className="rounded-lg border border-neutral-200/90 bg-teal-50/40 p-3 dark:border-neutral-700 dark:bg-teal-950/20">
                 <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
                   Key concepts

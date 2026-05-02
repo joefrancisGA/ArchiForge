@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
@@ -220,6 +221,56 @@ export function SidebarNav() {
     setOpenByGroup(next);
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (demoUi) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        if (typeof window === "undefined") {
+          return;
+        }
+
+        const raw = window.localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY);
+
+        if (raw !== null && isOperatorShellPresetId(raw)) {
+          return;
+        }
+
+        const ctx = await fetchCorePilotCommitContext();
+
+        if (cancelled) {
+          return;
+        }
+
+        const rawAfter = window.localStorage.getItem(OPERATOR_SHELL_PRESET_STORAGE_KEY);
+
+        if (rawAfter !== null && isOperatorShellPresetId(rawAfter)) {
+          return;
+        }
+
+        if (!ctx.hasCommittedManifest) {
+          setShellPresetId("pilot_operator");
+
+          try {
+            window.localStorage.setItem(OPERATOR_SHELL_PRESET_STORAGE_KEY, "pilot_operator");
+          } catch {
+            /* private mode */
+          }
+        }
+      } catch {
+        /* ignore: preset stays full until the user chooses Navigation settings */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [demoUi]);
 
   function setGroupOpen(groupId: string, value: boolean): void {
     setOpenByGroup((prev) => ({ ...prev, [groupId]: value }));

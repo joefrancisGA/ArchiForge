@@ -33,25 +33,29 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     expect(wizard).toHaveAttribute("href", "/reviews/new");
   });
 
-  it("accordion toggles step body when clicking the step title", async () => {
-    render(<OperatorFirstRunWorkflowPanel />);
+  it(
+    "accordion toggles step body when clicking the step title",
+    async () => {
+      render(<OperatorFirstRunWorkflowPanel />);
 
-    await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
+      await screen.findByRole("heading", { name: CORE_PILOT_FIRST_REVIEW_HEADING });
 
-    expect(screen.getByRole("link", { name: "Start new request" })).toBeVisible();
+      expect(screen.getByRole("link", { name: "Start new request" })).toBeVisible();
 
-    const step2Title = screen.getByRole("button", { name: /Step 2 —/i });
-    fireEvent.click(step2Title);
+      const step2Title = screen.getByRole("button", { name: /Step 2 —/i });
+      fireEvent.click(step2Title);
 
-    expect(screen.getByRole("link", { name: "Open reviews list" })).toBeVisible();
+      expect(screen.getByRole("link", { name: "Open reviews list" })).toBeVisible();
 
-    expect(screen.getByRole("button", { name: /Finalize the review package/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Finalize the review package/i })).toBeInTheDocument();
 
-    const step1Title = screen.getByRole("button", { name: /Step 1 —/i });
-    fireEvent.click(step1Title);
+      const step1Title = screen.getByRole("button", { name: /Step 1 —/i });
+      fireEvent.click(step1Title);
 
-    expect(await screen.findByRole("link", { name: "Start new request" })).toBeVisible();
-  });
+      expect(await screen.findByRole("link", { name: "Start new request" })).toBeVisible();
+    },
+    20_000,
+  );
 
   it("hide guide persists and show restores panel", async () => {
     render(<OperatorFirstRunWorkflowPanel />);

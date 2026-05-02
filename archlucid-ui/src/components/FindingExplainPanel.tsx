@@ -8,6 +8,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { getFindingEvidenceChain, getFindingLlmAudit, postFindingFeedback } from "@/lib/api";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -82,10 +83,10 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
   return (
     <MutationErrorBoundary title="Finding explain panel failed to render">
     <div className="space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-700">
-      <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Explain this finding (LLM audit)</h4>
+      <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Explain this finding</h4>
       <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-        Redacted AI reasoning log for this finding. Pair with deterministic finding explainability (&quot;View trace&quot;)
-        when available on the architecture run&apos;s explanation table.
+        Redacted prompts and model output are under <strong className="font-medium">Technical audit details</strong> below.
+        Pair with deterministic explainability (&quot;View trace&quot;) on the review explanation table when available.
       </p>
 
       {!loading && failure === null && evidenceChain !== null ? (
@@ -159,46 +160,58 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
       ) : null}
 
       {!loading && failure === null && audit !== null ? (
-        <DocumentLayout
-          tocItems={[
-            { id: "finding-audit-system", label: "System prompt" },
-            { id: "finding-audit-user", label: "User prompt" },
-            { id: "finding-audit-completion", label: "Completion" },
-          ]}
-        >
-          <div className="space-y-2">
-            <p
-              id="finding-audit-system"
-              className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+        <Collapsible defaultOpen={false} className="rounded-md border border-neutral-200 dark:border-neutral-600">
+          <CollapsibleTrigger
+            type="button"
+            className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold text-neutral-900 hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            aria-label="Expand technical audit details (redacted prompts and completion)"
+          >
+            <span>Technical audit details (redacted)</span>
+            <span className="text-xs font-normal text-neutral-500 dark:text-neutral-400">Show</span>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="border-t border-neutral-200 px-3 pb-3 pt-2 dark:border-neutral-600">
+            <DocumentLayout
+              tocItems={[
+                { id: "finding-audit-system", label: "System prompt" },
+                { id: "finding-audit-user", label: "User prompt" },
+                { id: "finding-audit-completion", label: "Completion" },
+              ]}
             >
-              System prompt (redacted) · trace {audit.traceId}
-            </p>
-            <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
-              {audit.systemPromptRedacted.trim().length > 0 ? audit.systemPromptRedacted : "(empty)"}
-            </pre>
-            <p
-              id="finding-audit-user"
-              className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-            >
-              User prompt (redacted)
-            </p>
-            <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
-              {audit.userPromptRedacted.trim().length > 0 ? audit.userPromptRedacted : "(empty)"}
-            </pre>
-            <p
-              id="finding-audit-completion"
-              className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-            >
-              LLM completion (redacted)
-            </p>
-            <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
-              {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
-            </pre>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              Model: {audit.modelDeploymentName ?? "—"} · Agent: {audit.agentType}
-            </p>
-          </div>
-        </DocumentLayout>
+              <div className="space-y-2">
+                <p
+                  id="finding-audit-system"
+                  className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+                >
+                  System prompt (redacted) · trace {audit.traceId}
+                </p>
+                <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
+                  {audit.systemPromptRedacted.trim().length > 0 ? audit.systemPromptRedacted : "(empty)"}
+                </pre>
+                <p
+                  id="finding-audit-user"
+                  className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+                >
+                  User prompt (redacted)
+                </p>
+                <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
+                  {audit.userPromptRedacted.trim().length > 0 ? audit.userPromptRedacted : "(empty)"}
+                </pre>
+                <p
+                  id="finding-audit-completion"
+                  className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+                >
+                  LLM completion (redacted)
+                </p>
+                <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 text-xs dark:bg-neutral-900">
+                  {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
+                </pre>
+                <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+                  Model: {audit.modelDeploymentName ?? "—"} · Agent: {audit.agentType}
+                </p>
+              </div>
+            </DocumentLayout>
+          </CollapsibleContent>
+        </Collapsible>
       ) : null}
 
       {canVote ? (

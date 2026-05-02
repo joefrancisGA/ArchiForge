@@ -12,8 +12,8 @@ export type CorePilotStepBase = {
  */
 export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
-    title: "Create an architecture request",
-    shortBody: "Capture system identity, requirements, and constraints.",
+    title: "Create an architecture review request",
+    shortBody: "Capture system identity, requirements, and constraints for your first review package.",
     detail:
       "The new-request wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the review pipeline and tracks progress in real time.",
     primaryHref: "/reviews/new",
@@ -21,7 +21,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   },
   {
     title: "Track review progress",
-    shortBody: "Watch progress in the wizard or open the review from the reviews list when ready.",
+    shortBody: "Watch pipeline progress in the wizard or open the review from the list when it is ready.",
     detail:
       "The coordinator fills snapshots and pipeline steps. You can use the wizard’s last step or open review detail anytime.",
     primaryHref: "/reviews?projectId=default",
@@ -36,8 +36,9 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     primaryLabel: "Choose review → open detail",
   },
   {
-    title: "Review outputs and exports",
-    shortBody: "After finalization, read the manifest summary and findings; download or share artifacts from review detail.",
+    title: "Review the review package",
+    shortBody:
+      "After finalization, read the manifest summary and findings; download or share artifacts — that bundle is your review package.",
     detail:
       "Open the manifest link from review detail for the full page; use artifact actions for download and in-shell review.",
     primaryHref: "/reviews?projectId=default",

@@ -6,7 +6,7 @@
 
 ## Objective
 
-Deliver a **public, unauthenticated** marketing and signup surface that calls **`POST /v1/register`** through the same-origin **`/api/proxy/v1/register`** route, then hands off to email verification copy and the **canonical** **`/getting-started?source=registration`** page (bookmarks to **`/onboarding/start`** redirect to the same URL and preserve the query). That page reads **`GET /v1/tenant/trial-status`** and deep-links into the **new-run wizard** with the seeded **`trialSampleRunId`** highlighted.
+Deliver a **public, unauthenticated** marketing and signup surface that calls **`POST /v1/register`** through the same-origin **`/api/proxy/v1/register`** route, then hands off to email verification copy and the **canonical** **`/onboarding?source=registration`** page (bookmarks to **`/getting-started`** or **`/onboarding/start`** redirect to **`/onboarding`** and preserve the query). That page reads **`GET /v1/tenant/trial-status`** and deep-links into the **new-review wizard** with the seeded **`trialSampleRunId`** highlighted.
 
 ---
 
@@ -18,8 +18,9 @@ Deliver a **public, unauthenticated** marketing and signup surface that calls **
 | `/welcome` | `(marketing)` | Hero + pillars + pricing cards (JSON from `/pricing.json`). |
 | `/signup` | `(marketing)` | Zod + RHF signup form. |
 | `/signup/verify` | `(marketing)` | Email / Entra verification handoff + CTA to onboarding. |
-| `/getting-started` | `(operator)` | Core Pilot checklist (same as Home) + optional **trial** card; use **`?source=registration`** right after verify. |
-| `/onboarding/start` | `(operator)` | **Redirect** to `/getting-started` (query preserved). |
+| `/onboarding` | `(operator)` | Core Pilot checklist (same as Home) + optional **trial** card; use **`?source=registration`** right after verify. |
+| `/getting-started` | `(operator)` | **Redirect** to `/onboarding` (query preserved). |
+| `/onboarding/start` | `(operator)` | **Redirect** to `/onboarding` (query preserved). |
 
 ---
 
@@ -53,7 +54,7 @@ Until OIDC completes, `mergeRegistrationScopeForProxy` adds **`x-tenant-id` / `x
 
 - **Vitest:** `WelcomeMarketingPage`, `SignupForm`, `TrialBanner`, `NewRunWizardClient` sample query, `generate_pricing_json.py` round-trip, **`src/accessibility/trial-marketing-axe.test.tsx`** (jest-axe).
 - **Playwright (`live-api-trial-signup.spec.ts`):** UI matrix row `ui: signup → …` (DevelopmentBypass).
-- **Playwright (`live-api-accessibility.spec.ts`):** `/welcome`, `/signup`, `/getting-started` (and legacy redirect paths to the same page).
+- **Playwright (`live-api-accessibility.spec.ts`):** `/welcome`, `/signup`, `/onboarding` (and legacy `/getting-started` redirect paths to the same page).
 
 ---
 
