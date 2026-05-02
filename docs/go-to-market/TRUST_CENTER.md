@@ -10,6 +10,8 @@
 
 **Last reviewed:** 2026-05-01
 
+**Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
+
 ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository.
 
 ---
@@ -37,7 +39,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 - [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
 - [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
-- [2026 Q2 — SoW **template** (vendor TBD; use when V2 vendor is selected)](../security/pen-test-summaries/2026-Q2-SOW.md)
+- [2026 Q2 — SoW **template** (vendor to be selected; use when V2 vendor is selected)](../security/pen-test-summaries/2026-Q2-SOW.md)
 - [2026 Q2 — redacted summary working copy](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (assessor narrative — **not** a public artefact)
 
 **NDA-gated pen-test summaries:** When a **third-party** assessor delivers a report **(V2)**, redacted summaries are made available **under NDA** as agreed in that SoW; the public Trust Center records the existence of the engagement and the high-level posture. Contact **`security@archlucid.net`**. The folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) remains the **in-repo working surface** for procurement alignment — it does **not** imply public publication of assessor deliverables.
@@ -56,7 +58,7 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 | Engagement | Vendor | Scope | Completed (UTC) | Summary access |
 |------------|--------|-------|-----------------|----------------|
 | **2026-Q2 owner-conducted penetration-style assessment** | ArchLucid internal | Operator UI surface, HTTPS API behaviours, SaaS-aligned data-plane review (paired with checklist-driven UI coverage) | Window tracked in **[`pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** (stub until closed) | **NDA-aligned public stub** — quantitative findings withheld; procurement detail under **`security@archlucid.net`** alongside Trust Center paragraph above |
-| Third-party penetration test (vendor TBD) | **V2-planned** — no vendor committed for V1 | API, operator UI, hosted SaaS data plane (typical scope — confirm in executed SoW) | Not scheduled — use **[`2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)** template when engaging (**V2**) | NDA-only when executed — email `security@archlucid.net` after assessor delivers redacted summary |
+| Third-party penetration test (vendor to be selected) | **V2-planned** — no vendor committed for V1 | API, operator UI, hosted SaaS data plane (typical scope — confirm in executed SoW) | Not scheduled — use **[`2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)** template when engaging (**V2**) | NDA-only when executed — email `security@archlucid.net` after assessor delivers redacted summary |
 | Internal owner security self-assessment | ArchLucid (internal CISO ownership) | STRIDE-aligned control review across SOC 2 Common Criteria mapping | 2026-Q2 (latest revision tracked in [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)) | Public summary available at [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md); detailed gap register on request |
 | Accessibility self-attestation review | ArchLucid (accessibility custodian, same operational team as `security@`) | WCAG 2.1 Level AA against operator UI top routes via axe-core + jsx-a11y | 2026-04-22 (annual cadence; next window 2027-04-22 — see [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) "Review cadence") | Public — see marketing route `/accessibility` and root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) |
 | Quarterly staging chaos exercise | ArchLucid Platform / on-call | Staging-only fault injection (SQL pool exhaustion 2026-04-29; subsequent runs 2026-07-29, 2026-10-28) — production chaos out-of-scope per owner decision 2026-04-22 ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 34) | Calendar published 2026-04-22; first run 2026-04-29 (staging) — see [`docs/quality/game-day-log/`](../quality/game-day-log/README.md) | Public — closing reports linked from the game-day calendar |
@@ -90,10 +92,12 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Buyer-readable summary of tenant isolation (identity, app layer, SQL RLS). |
 | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Subprocessors used to deliver the service (Microsoft Azure, Entra ID, Azure OpenAI, etc.). |
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data Processing Agreement **template** for customers (requires legal review before use). |
+| [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) | Operational controls for optional cross-tenant processing (data classes, privacy floor, withdrawal behavior). |
 | [../security/DSAR_PROCESS.md](../security/DSAR_PROCESS.md) | GDPR Data Subject Access Request process — PII map and erasure constraints vs append-only audit. |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | How we classify incidents and communicate with customers. |
 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | SOC 2 readiness: controls in place, gaps, and milestone roadmap. |
 | [../security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Owner-led SOC 2 **self-assessment** (not CPA attestation); includes **Type I scoping** and gap register. |
+| [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) | Canonical assurance status wording for procurement responses. |
 | [../security/CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md) | CAIQ Lite–style pre-fill (align to CSA CAIQ v4 download). |
 | [../security/SIG_CORE_2026.md](../security/SIG_CORE_2026.md) | SIG Core–style pre-fill (align to Shared Assessments workbook). |
 | [../security/COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md) | Maps control themes to repository evidence paths. |
@@ -106,6 +110,7 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | [SLA_SUMMARY.md](SLA_SUMMARY.md) | Buyer-facing SLO targets (availability **99.9%**, tiered latency, maintenance). |
 | [BACKUP_AND_DR.md](BACKUP_AND_DR.md) | Backup schedule, disaster recovery, data lifecycle, RTO/RPO estimates. |
 | [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) | Status page plan and operational transparency roadmap. |
+| [PROCUREMENT_OBJECTION_PLAYBOOK.md](PROCUREMENT_OBJECTION_PLAYBOOK.md) | Standardized answers and escalation triggers for high-frequency objections. |
 | [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md) | Available and planned integrations (API, CLI, webhooks, CI/CD, SIEM). |
 | Public compliance journey (marketing UI: route **`/compliance-journey`**) | Plain-language map to in-repo CAIQ/SIG/DPA/subprocessor evidence — **not** a certification claim (see compliance table below). |
 | [SIEM_EXPORT.md](SIEM_EXPORT.md) | Audit log export for SIEM ingestion (Splunk, Sentinel, generic). |
@@ -150,5 +155,6 @@ For support alignment during incidents, clients should include **`X-Correlation-
 | Doc | Use |
 |-----|-----|
 | [POSITIONING.md](POSITIONING.md) | Product positioning and messaging |
+| [REVIEW_CADENCE.md](REVIEW_CADENCE.md) | Procurement document ownership and freshness cadence |
 | [../MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md](../library/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md) | SaaS-only marketability assessment |
 | [../V1_SCOPE.md](../library/V1_SCOPE.md) | What V1 ships (grounding for claims) |

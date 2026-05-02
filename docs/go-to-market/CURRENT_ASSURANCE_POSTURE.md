@@ -3,9 +3,10 @@
 # ArchLucid — Current Assurance Posture
 
 **Date:** 2026-05-01
+**Last reviewed:** 2026-05-01
 **Classification:** Buyer-facing (include in procurement pack ZIP)
 
-This document summarizes the security, compliance, and assurance evidence that ArchLucid provides today. Every claim below links to a source artifact in the repository. Items are categorized as **Completed**, **In-flight**, or **Planned** — no over-claiming.
+This document summarizes the security, compliance, and assurance evidence that ArchLucid provides today. Every claim below links to a source artifact in the repository. Status labels follow [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md) to avoid contradictory buyer wording.
 
 ---
 
@@ -71,7 +72,7 @@ ArchLucid runs automated security checks on every pull request and merge to main
 | Artifact | Status | Evidence |
 |----------|--------|---------|
 | SOC 2 self-assessment (Security + Availability) | **Completed** (internal; not CPA attestation) | [`docs/security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) |
-| SOC 2 Type I scoping | **In-flight** (funded Q2-Q3 2026; readiness consultant engagement target 2026-06-15) | Same document, §"SOC 2 Type I" |
+| SOC 2 Type I scoping | **Deferred (funding-gated)** | [SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md), [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md) |
 | CAIQ Lite pre-fill (CSA STAR) | **Completed** | [`docs/security/CAIQ_LITE_2026.md`](../security/CAIQ_LITE_2026.md) |
 | SIG Core pre-fill (Shared Assessments) | **Completed** | [`docs/security/SIG_CORE_2026.md`](../security/SIG_CORE_2026.md) |
 | Compliance control matrix | **Completed** | [`docs/security/COMPLIANCE_MATRIX.md`](../security/COMPLIANCE_MATRIX.md) |
@@ -86,8 +87,8 @@ ArchLucid runs automated security checks on every pull request and merge to main
 
 | Engagement | Status | Detail |
 |-----------|--------|--------|
-| 2026-Q2 third-party pen test (external vendor) | **V2-planned** — no vendor awarded; templates at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md) | Typical scope: API, operator UI, hosted SaaS data plane — confirm in executed SoW |
-| 2026-Q2 owner-conducted penetration-style assessment | **In-flight** / tracked | [`docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) |
+| Third-party pen test (external vendor) | **Deferred to V2** — no vendor awarded for V1; templates at [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md) | Typical scope: API, operator UI, hosted SaaS data plane — confirm in executed SoW |
+| Owner-conducted penetration-style assessment | **Active V1 control** (owner-led) | [`docs/security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) |
 | Owner-conducted security self-assessment | **Completed** (interim posture) | [`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md`](../security/OWNER_SECURITY_ASSESSMENT_2026_Q2.md) |
 
 **Access to pen-test results:** Redacted summaries are available **under NDA only**. Contact `security@archlucid.net`.

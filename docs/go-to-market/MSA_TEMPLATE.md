@@ -154,9 +154,9 @@ Capitalized terms not defined here have the meaning given in the Order Form or D
 
 ## 12. General provisions
 
-12.1 **Governing law.** This Agreement shall be governed by [________________] law, without regard to its conflict-of-laws provisions. [Specify jurisdiction in the Order Form or negotiation.]
+12.1 **Governing law.** This Agreement shall be governed by the law explicitly named in the applicable Order Form, without regard to conflict-of-laws provisions.
 
-12.2 **Dispute resolution.** Disputes shall be resolved by [________________]. [Specify arbitration, mediation, or courts in the Order Form or negotiation.]
+12.2 **Dispute resolution.** Disputes shall be resolved under the mechanism expressly named in the applicable Order Form (court venue or arbitration forum).
 
 12.3 **Assignment.** Neither party may assign this Agreement without the other party's prior written consent, except in connection with a merger, acquisition, or sale of substantially all assets, provided the assignee agrees in writing to be bound by this Agreement.
 
@@ -187,7 +187,16 @@ Capitalized terms not defined here have the meaning given in the Order Form or D
 | **Subprocessors** | [SUBPROCESSORS.md](SUBPROCESSORS.md) | Current subprocessor list |
 | **Trust Center** | [../trust-center.md](../trust-center.md) | Security posture and evidence |
 | **Pricing** | [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | Tier definitions and list prices |
-| **Acceptable Use Policy** | [TBD — URL] | Acceptable use terms |
+| **Acceptable Use Policy** | [Acceptable use URL must be explicitly listed in Order Form] | Acceptable use terms |
+
+---
+
+## 13A. Unresolved negotiation variables
+
+- Governing law jurisdiction (must be named in the Order Form).
+- Dispute forum/mechanism (must be named in the Order Form).
+- Notice addresses for legal service and billing notices.
+- Any negotiated deviation from liability cap and service credit mechanics.
 
 ---
 

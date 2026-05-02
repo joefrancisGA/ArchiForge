@@ -9,6 +9,8 @@
 
 **Last reviewed:** 2026-04-15
 
+**Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
+
 This policy describes how ArchLucid classifies service and security incidents and **communicates** with customers in a **SaaS** context. It aligns with correlation and support practices in [../CUSTOMER_TRUST_AND_ACCESS.md](../library/CUSTOMER_TRUST_AND_ACCESS.md) and service objectives in [../API_SLOS.md](../library/API_SLOS.md).
 
 ---
@@ -42,7 +44,7 @@ Targets are **goals**; actual events may require adjustment (e.g., unknown root 
 | **SEV-3** | Next business day or in scheduled report | As needed | Optional summary |
 | **SEV-4** | Monthly operations / release notes | — | — |
 
-**Channels (placeholders until published):** status page URL **[TBD]**, email distribution **[TBD]**, in-app banner for SEV-1/2 when available.
+**Channels:** public status page URL is published in [TRUST_CENTER.md](TRUST_CENTER.md) once live; until then, use `security@archlucid.net` for incident notices and procurement follow-up. In-app banners remain SEV-1/2 communication channel when available.
 
 ---
 
@@ -70,12 +72,12 @@ Blameless review covers: **timeline**, **customer impact**, **root cause**, **re
 
 ---
 
-## 7. Escalation contacts (placeholder)
+## 7. Escalation contacts
 
 | Role | Contact |
 |------|---------|
 | Security | `security@archlucid.net` |
-| Support | **[TBD]** |
+| Support (interim) | `security@archlucid.net` |
 
 ---
 

@@ -6,6 +6,8 @@
 
 **Evidence index:** **[trust-center.md](../trust-center.md)**
 
+**Canonical assurance wording:** **[ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)**
+
 **SIG / CAIQ row acceleration:** **[PROCUREMENT_RESPONSE_ACCELERATOR.md](PROCUREMENT_RESPONSE_ACCELERATOR.md)** — fifty Shared-Assessments-style prompts mapped to **in-repo** evidence links and honesty labels (**Implemented / Self-asserted / In flight / Deferred V1.1**); **SOC 2 Type II “issued” is not claimed** there—see **[SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md)**.
 
 ---
@@ -14,7 +16,7 @@
 
 ### 1. Do you have SOC 2 Type II?
 
-**Answer:** Today we publish a **SOC 2 self-assessment** and control mapping—**no** SOC 2 **Type II** CPA **attestation** yet ([SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)). Type **I** followed by Type **II** is the typical SaaS roadmap once operating evidence exists alongside budget.
+**Answer:** Today we publish a **SOC 2 self-assessment** and control mapping—SOC 2 **Type II** CPA attestation is **not currently issued** ([SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)). Type **I** followed by Type **II** is the typical SaaS roadmap once operating evidence exists alongside budget.
 
 ---
 
@@ -78,7 +80,7 @@
 |--------|-----------|
 | V2 (when funded) | **Third-party pen-test programme** — templates: **[Trust Center posture](../trust-center.md)**, **[V1_DEFERRED.md §6c](../library/V1_DEFERRED.md)** |
 | Rolling | **Owner-conducted** pen testing + **self-assessment** updates (**[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**), **[2026-Q2-OWNER-CONDUCTED.md](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md)** |
-| Future (budgeted) | **SOC 2 Type I readiness** milestone |
+| Deferred (funding-gated) | **SOC 2 Type I readiness** milestone |
 | Subsequent | **SOC 2 Type II** (~6–12 months operating effectiveness evidence) |
 
 **Note:** Dates are illustrative—bind via executed Order Form milestones when procuring regulated workloads.

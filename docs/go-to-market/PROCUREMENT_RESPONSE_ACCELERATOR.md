@@ -9,7 +9,9 @@
 
 **Audience:** Teams pasting questionnaire rows (SIG / CAIQ-style) into spreadsheets who need **fast, honest** citations into this repository.
 
-**How to use:** Copy the question text into customer worksheets; cite the **Evidence** links as append-only references. **`Status`** is one of **`Implemented`** (engineering / shipped behavior documented), **`Self-asserted`** (internal narrative or matrices), **`In flight`** (active vendor engagement documented), **`Deferred V1.1`** (deferral register or gated publication per linked docs)—**not** a third-party auditor label.
+**How to use:** Copy the question text into customer worksheets; cite the **Evidence** links as append-only references. **`Status`** is one of **`Implemented`** (engineering / shipped behavior documented), **`Self-asserted`** (internal narrative or matrices), **`Deferred V1.1`** (deferral register or gated publication per linked docs), **`Deferred V2`** (out-of-V1 scope with V2 release-window target)—**not** a third-party auditor label.
+
+**Canonical assurance wording:** [ASSURANCE_STATUS_CANONICAL.md](ASSURANCE_STATUS_CANONICAL.md)
 
 **Rules:** Never represent **`Self-asserted`** or **`Implemented`** docs as SOC 2 **Type II** **audit opinions**. For SOC 2 programme status see **[SOC2_STATUS_PROCUREMENT.md](SOC2_STATUS_PROCUREMENT.md)** and **[SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md)**.
 
@@ -21,7 +23,7 @@
 |------|-------------------------------|
 | **Implemented** | Shipped behaviour or CI automation described in linked engineering / security artefacts. |
 | **Self-asserted** | Owner-maintained narratives, inventories, matrices, or templates—not CPA / pen-test attestations. |
-| **In flight** | Third-party engagement or programme step explicitly marked in-flight in linked evidence. |
+| **Deferred V2** | Explicitly out of V1 and planned for V2 release window. |
 | **Deferred V1.1** | Deferred publication, engagement class, or follow-on milestone per **`V1_DEFERRED`** or linked procurement notes. |
 
 ---
@@ -48,7 +50,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 | 7 | Is there an architecture / STRIDE threat model for the product boundary? | Self-asserted | [SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md) |
 | 8 | Is there threat analysis for Ask / retrieval (RAG) flows? | Self-asserted | [ASK_RAG_THREAT_MODEL.md](../security/ASK_RAG_THREAT_MODEL.md) |
 | 9 | Is there threat analysis for SCIM surfaces? | Self-asserted | [SCIM_THREAT_MODEL.md](../security/SCIM_THREAT_MODEL.md) |
-| 10 | Is an independent penetration test **engagement** underway or scoped? | In flight | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) · [trust-center.md](../trust-center.md) |
+| 10 | Is an independent penetration test **engagement** underway or scoped? | Deferred V2 | [2026-Q2-SOW.md](../security/pen-test-summaries/2026-Q2-SOW.md) · [trust-center.md](../trust-center.md) |
 |11 | Where is remediation tracking for penetration-test findings described? | Self-asserted | [REMEDIATION_TRACKER.md](../security/pen-test-summaries/REMEDIATION_TRACKER.md) |
 |12 | Are governance simulation / dry-run mitigations documented? | Self-asserted | [GOVERNANCE_DRY_RUN_MITIGATIONS.md](../security/GOVERNANCE_DRY_RUN_MITIGATIONS.md) |
 
@@ -115,7 +117,7 @@ Answers are pointers only; pull quotations from targets during diligence.
 |44 | Subprocessor register draft? | Self-asserted | [SUBPROCESSORS.md](SUBPROCESSORS.md) |
 |45 | DPA template draft? | Self-asserted | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) |
 |46 | Accessibility conformance evidence map? | Self-asserted | [VPAT_EVIDENCE_MAP.md](../security/VPAT_EVIDENCE_MAP.md) · [VPAT_2_5_WCAG_2_1_AA.md](../security/VPAT_2_5_WCAG_2_1_AA.md) · [ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) |
-|47 | Redacted pen-test summary **publication** posture? | Deferred V1.1 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) · [trust-center.md](../trust-center.md) |
+|47 | Redacted pen-test summary **publication** posture? | Deferred V2 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) · [trust-center.md](../trust-center.md) |
 |48 | What is intentionally **not** in the default evidence ZIP? | Self-asserted | [trust-center.md](../trust-center.md) · [PROCUREMENT_EVIDENCE_PACK_INDEX.md](PROCUREMENT_EVIDENCE_PACK_INDEX.md) |
 |49 | How buyers request procurement materials / pen-test artefacts? | Self-asserted | [HOW_TO_REQUEST_PROCUREMENT_PACK.md](HOW_TO_REQUEST_PROCUREMENT_PACK.md) · [PROCUREMENT_FAQ.md](PROCUREMENT_FAQ.md) |
 |50 | Formal deferrals register beyond trust-center summary? | Deferred V1.1 | [V1_DEFERRED.md](../library/V1_DEFERRED.md) |

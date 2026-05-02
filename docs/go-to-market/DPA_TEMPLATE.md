@@ -97,7 +97,7 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 9.1 **Export:** Controller may export data using product features (e.g., DOCX/ZIP exports, audit CSV) subject to RBAC; see [../SECURITY.md](../library/SECURITY.md) (exports may contain sensitive content).
 
-9.2 **Deletion:** After termination, Processor deletes Customer Data within **[e.g., 90]** days except where retention is required by law or documented backup cycles; backups roll off per Processor’s retention schedule.
+9.2 **Deletion:** After termination, Processor deletes Customer Data within **90 days** except where retention is required by law or documented backup cycles; backups roll off per Processor’s retention schedule.
 
 ---
 
@@ -107,15 +107,24 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 10.1 **Default:** Cross-tenant pattern participation is **OFF** unless Controller **explicitly** enables it in the product controls and, where required, documents that choice in the subscription or order form.
 
-10.2 **What is processed:** **[Legal — describe]** — only **[non-identifying structural fingerprints / coarse aggregates]** as defined in the then-current product documentation (e.g. [ADR 0031 — Cross-tenant pattern library](../adr/0031-cross-tenant-pattern-library.md)); **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
+10.2 **What is processed:** only non-identifying structural fingerprints and coarse aggregates, as documented in [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) and [ADR 0031 — Cross-tenant pattern library](../adr/0031-cross-tenant-pattern-library.md); **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
 
-10.3 **Privacy mechanism:** **[Legal — describe]** — Processor applies a **minimum cohort size** (product default **k ≥ 5** distinct contributing tenants per published bucket unless a stricter value is agreed) before showing any pattern to other tenants.
+10.3 **Privacy mechanism:** Processor applies a minimum cohort size (**k >= 5** distinct contributing tenants per published bucket, unless a stricter value is agreed in writing) before showing any pattern to other tenants.
 
-10.4 **Withdrawal:** When Controller disables the feature, Processor removes Controller’s contributions from publishable aggregates within **[e.g., 24]** hours, subject to documented backup and rebuild windows.
+10.4 **Withdrawal:** When Controller disables the feature, Processor removes Controller’s contributions from publishable aggregates within **24** hours, subject to documented backup and rebuild windows.
 
-10.5 **Processor role:** For this optional feature, Processor may process **[categories of data]** solely to compute **[aggregates]** in line with documented instructions; Controller warrants it has **[lawful basis / authority]** where required.
+10.5 **Processor role:** For this optional feature, Processor processes only the data classes listed in [CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md](CROSS_TENANT_DATA_PROCESSING_ADDENDUM.md) solely to compute aggregate patterns. Controller warrants it has lawful basis and authority for any Personal Data included in opted-in processing.
 
-**Important:** Qualified legal counsel must replace bracketed stubs and reconcile this section with Controller’s DPIA, industry rules, and the main agreement.
+**Important:** Qualified legal counsel must review this section for jurisdiction-specific language and reconcile it with Controller’s DPIA, industry rules, and the main agreement.
+
+---
+
+## 10A. Unresolved negotiation variables
+
+- Legal entity names and addresses in the parties table.
+- Effective date and subscription reference.
+- Transfer-mechanism specifics where regional law requires additional annex language.
+- Any stricter customer-requested cohort threshold above `k >= 5`.
 
 ---
 

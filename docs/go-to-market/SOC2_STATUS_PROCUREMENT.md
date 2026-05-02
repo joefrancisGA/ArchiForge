@@ -4,6 +4,10 @@
 
 # SOC 2 status (procurement statement)
 
-**Formal SOC 2 Type II attestation:** **Not yet issued** — programme deferred until funded CPA / assessor engagement (see [`TRUST_CENTER.md`](TRUST_CENTER.md) compliance table and [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) for **interim self-assessment** posture under internal ownership).
+**Canonical wording source:** [`ASSURANCE_STATUS_CANONICAL.md`](ASSURANCE_STATUS_CANONICAL.md)
+
+**Formal SOC 2 Type II attestation:** **Not yet issued** — programme deferred until funded CPA / assessor engagement (see [`TRUST_CENTER.md`](TRUST_CENTER.md) compliance table and [`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md) for interim self-assessment posture under internal ownership).
+
+**SOC 2 Type I engagement:** Not started; deferred until funded assessor engagement.
 
 Procurement teams should treat the self-assessment document as **non-attestation** evidence alongside this pack’s technical controls references (`MULTI_TENANT_RLS.md`, `AUDIT_COVERAGE_MATRIX.md`, `SECURITY.md`).

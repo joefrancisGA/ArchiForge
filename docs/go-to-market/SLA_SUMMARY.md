@@ -96,7 +96,7 @@ When availability or latency targets are at risk, the incident communications po
 
 ## 8. Status page
 
-**[TBD — URL for public status page]**
+Public status URL is published in [TRUST_CENTER.md](TRUST_CENTER.md). Until a dedicated URL is live, incident updates are routed through [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) channels (`security@archlucid.net` fallback).
 
 See [OPERATIONAL_TRANSPARENCY.md](OPERATIONAL_TRANSPARENCY.md) for the status page implementation plan.
 
