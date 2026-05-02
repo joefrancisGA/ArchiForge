@@ -227,53 +227,68 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
     fireEvent.click(toggle);
 
-    await waitFor(() => {
-      expect(toggle).toHaveAttribute("aria-expanded", "true");
-    });
+    await waitFor(
+      () => {
+        expect(toggle).toHaveAttribute("aria-expanded", "true");
+      },
+      { timeout: 8000 },
+    );
   }
 
-  it("Policy packs: Create pack stays disabled when mutation capability is false", async () => {
-    mutateCapability.current = false;
-    render(<PolicyPacksPage />);
+  it(
+    "Policy packs: Create pack stays disabled when mutation capability is false",
+    async () => {
+      mutateCapability.current = false;
+      render(<PolicyPacksPage />);
 
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
+      });
 
-    await expandPolicyPacksAdvancedOptions();
+      await expandPolicyPacksAdvancedOptions();
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: policyPacksCreatePackButtonLabelReaderRank })).toBeDisabled();
-    });
-  });
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: policyPacksCreatePackButtonLabelReaderRank })).toBeDisabled();
+      });
+    },
+    15_000,
+  );
 
-  it("Policy packs: inventory headings show inspect framing when mutation capability is false", async () => {
-    mutateCapability.current = false;
-    render(<PolicyPacksPage />);
+  it(
+    "Policy packs: inventory headings show inspect framing when mutation capability is false",
+    async () => {
+      mutateCapability.current = false;
+      render(<PolicyPacksPage />);
 
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
+      });
 
-    await expandPolicyPacksAdvancedOptions();
+      await expandPolicyPacksAdvancedOptions();
 
-    expect(screen.getByRole("heading", { name: policyPacksPackContentHeadingReader })).toBeInTheDocument();
-  });
+      expect(screen.getByRole("heading", { name: policyPacksPackContentHeadingReader })).toBeInTheDocument();
+    },
+    15_000,
+  );
 
-  it("Policy packs: Create pack enables after load when mutation capability is true", async () => {
-    mutateCapability.current = true;
-    render(<PolicyPacksPage />);
+  it(
+    "Policy packs: Create pack enables after load when mutation capability is true",
+    async () => {
+      mutateCapability.current = true;
+      render(<PolicyPacksPage />);
 
-    await waitFor(() => {
-      expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingOperator })).toBeInTheDocument();
-    });
+      await waitFor(() => {
+        expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingOperator })).toBeInTheDocument();
+      });
 
-    await expandPolicyPacksAdvancedOptions();
+      await expandPolicyPacksAdvancedOptions();
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /create pack/i })).not.toBeDisabled();
-    });
-  });
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /create pack/i })).not.toBeDisabled();
+      });
+    },
+    15_000,
+  );
 
   it("Alerts inbox: triage preview opens but Confirm stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;

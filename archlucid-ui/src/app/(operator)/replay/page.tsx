@@ -163,7 +163,7 @@ function ReplayForm() {
 
       {result && (
         <ClientErrorBoundary title="Replay result failed to render">
-        <section className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 max-w-3xl dark:border-neutral-700 dark:bg-neutral-950">
+          <section className="mt-6 max-w-3xl rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950">
           <h3 className="mt-0">Replay result</h3>
           <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
             Deterministic summary of what the API validated after replay. Use notes below for operator
@@ -237,7 +237,7 @@ function ReplayForm() {
               ))}
             </ul>
           )}
-        </section>
+          </section>
         </ClientErrorBoundary>
       )}
     </main>
