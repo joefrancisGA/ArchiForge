@@ -8,6 +8,8 @@ import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
  */
 const DEMO_RUN_ID_ALIASES: Readonly<Record<string, string>> = {
   "claims-intake-modernization-run": SHOWCASE_STATIC_DEMO_RUN_ID,
+  /** Workspace/sample bookmark tokens that still appear in docs and screenshots — normalize to canonical showcase id. */
+  "claims-intake-sample-workspace": SHOWCASE_STATIC_DEMO_RUN_ID,
 };
 
 /** Returns the canonical run id when `runId` is a known demo alias; otherwise returns trimmed `runId`. */

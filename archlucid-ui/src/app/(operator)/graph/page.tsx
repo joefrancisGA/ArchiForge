@@ -42,7 +42,7 @@ const GraphViewer = dynamic(
     loading: () => (
       <OperatorLoadingNotice>
         <strong>Loading graph viewer.</strong>
-        <p className="mt-2 text-sm">Preparing the interactive canvas (client-only bundle)…</p>
+        <p className="mt-2 text-sm">Preparing the interactive canvas…</p>
       </OperatorLoadingNotice>
     ),
   },
@@ -175,7 +175,21 @@ export default function GraphPage() {
         return;
       }
 
-      setGraph(coerced.value);
+      let nextGraph = coerced.value;
+
+      if (
+        mode === "provenance-full" &&
+        nextGraph.nodes.length === 0 &&
+        nextGraph.edges.length === 0
+      ) {
+        const prov = tryStaticDemoProvenanceGraph(runId.trim());
+
+        if (prov !== null) {
+          nextGraph = provenanceLinkageToGraphViewModel(prov);
+        }
+      }
+
+      setGraph(nextGraph);
       setTypeFilter("");
       if (mode !== "architecture") {
         setArchitectureGraphNote(null);
@@ -352,7 +366,7 @@ export default function GraphPage() {
           <OperatorApiProblem failure={loadFailure} />
           <OperatorTryNext>
             This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed JSON body.
-            Confirm the run exists in <Link href="/reviews?projectId=default">Runs</Link>, retry{" "}
+            Confirm the run exists in <Link href="/reviews?projectId=default">Reviews</Link>, retry{" "}
             <strong>Load graph</strong>, and check the browser network tab for the failing <code>/v1/…/graph</code>{" "}
             call.
           </OperatorTryNext>
@@ -370,8 +384,8 @@ export default function GraphPage() {
             </p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
-            Compare <code>GET /version</code> on the API with your UI deployment. Try another run from{" "}
-            <Link href="/reviews?projectId=default">Runs</Link> if this run has partial graph data.
+            Compare <code>GET /version</code> on the API with your UI deployment. Try another review from{" "}
+            <Link href="/reviews?projectId=default">Reviews</Link> if this review has partial graph data.
           </OperatorTryNext>
         </>
       )}

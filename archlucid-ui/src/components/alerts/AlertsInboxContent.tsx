@@ -39,7 +39,6 @@ import {
   alertsFilteredEmptyDescriptionReader,
   alertsPageLeadOperator,
   alertsPageLeadReader,
-  alertsPageShortcutsLineReader,
   alertsInboxRefreshButtonTitleOperator,
   alertsInboxRefreshButtonTitleReader,
   alertsPaginationNavTitleReaderRank,
@@ -57,7 +56,7 @@ import { useNavSurface } from "@/lib/use-nav-surface";
 import { applyAlertAction, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
+import { shouldMergeOperatorDemoAlertSample, tryStaticDemoAlertInboxRow } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
 import type { AlertRecord } from "@/types/alerts";
 
@@ -115,10 +114,10 @@ export function AlertsInboxContent() {
       let items = data.items;
       let total = data.totalCount;
 
-      if (isStaticDemoPayloadFallbackEnabled() && items.length === 0) {
+      if (shouldMergeOperatorDemoAlertSample() && items.length === 0) {
         const demoRow = tryStaticDemoAlertInboxRow();
 
-        if (demoRow !== null && (statusFilter === null || statusFilter === "Open")) {
+        if (statusFilter === null || statusFilter === "Open") {
           items = [demoRow];
           total = 1;
         }
@@ -279,8 +278,10 @@ export function AlertsInboxContent() {
         </Button>
       </div>
 
-      <span className="mb-4 mt-1 block text-xs text-neutral-700 dark:text-neutral-300">
-        {canMutateAlertInbox ? "Alt+J/K navigate · Alt+1 ack · Alt+2 resolve · Alt+3 suppress" : alertsPageShortcutsLineReader}
+      <span className="sr-only">
+        {canMutateAlertInbox
+          ? "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; Alt+1 acknowledge; Alt+2 resolve; Alt+3 suppress."
+          : "Keyboard shortcuts: Alt+J and Alt+K move between alert cards; triage shortcuts apply only at Execute rank."}
       </span>
 
       <div className="grid gap-3">

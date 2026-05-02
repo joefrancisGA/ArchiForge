@@ -48,8 +48,7 @@ import {
   getDemoSampleAuditTrailEvents,
   shouldInjectDemoAuditSample,
 } from "@/lib/demo-audit-sample-events";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 
 function formatUtc(iso: string): string {
   try {
@@ -160,13 +159,14 @@ export default function AuditPage() {
       const filters = currentFilters();
       const page = await executeSearch(filters);
       const injectDemo =
-        shouldInjectDemoAuditSample(filters) && page.items.length === 0;
+        shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(filters) && page.items.length === 0;
       setEvents(injectDemo ? getDemoSampleAuditTrailEvents() : page.items);
       setHasMoreResults(injectDemo ? false : page.hasMore);
       setAuditNextCursor(injectDemo ? null : page.nextCursor);
     } catch (e) {
       const emptyFilters = currentFilters();
-      const injectOnError = shouldInjectDemoAuditSample(emptyFilters);
+      const injectOnError =
+        shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(emptyFilters);
 
       if (injectOnError) {
         setEvents(getDemoSampleAuditTrailEvents());
@@ -182,7 +182,7 @@ export default function AuditPage() {
   }, [currentFilters, executeSearch]);
 
   useEffect(() => {
-    if ((!isNextPublicDemoMode() && !isStaticDemoPayloadFallbackEnabled()) || demoAuditPrimedRef.current) {
+    if (!shouldMergeOperatorDemoAlertSample() || demoAuditPrimedRef.current) {
       return;
     }
 
@@ -210,12 +210,12 @@ export default function AuditPage() {
     try {
       const page = await executeSearch(empty);
       const injectDemo =
-        shouldInjectDemoAuditSample(empty) && page.items.length === 0;
+        shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(empty) && page.items.length === 0;
       setEvents(injectDemo ? getDemoSampleAuditTrailEvents() : page.items);
       setHasMoreResults(injectDemo ? false : page.hasMore);
       setAuditNextCursor(injectDemo ? null : page.nextCursor);
     } catch (e) {
-      const injectOnError = shouldInjectDemoAuditSample(empty);
+      const injectOnError = shouldMergeOperatorDemoAlertSample() && shouldInjectDemoAuditSample(empty);
 
       if (injectOnError) {
         setEvents(getDemoSampleAuditTrailEvents());

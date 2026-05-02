@@ -69,6 +69,11 @@ export type StaticDemoRunsListFallbackOptions = {
    * demo env vars are unset (keeps reviews list + pickers aligned with review detail static fallback).
    */
   readonly afterAuthorityListFailure?: boolean;
+  /**
+   * When the authority API returns **zero** rows for the project (successful empty page), inject the curated Claims
+   * Intake sample — same trust model as {@link afterAuthorityListFailure} for demo/staging hosts without seeded data.
+   */
+  readonly afterEmptyLiveList?: boolean;
 };
 
 function isRunsListCuratedShowcaseAllowed(options?: StaticDemoRunsListFallbackOptions): boolean {
@@ -76,7 +81,15 @@ function isRunsListCuratedShowcaseAllowed(options?: StaticDemoRunsListFallbackOp
     return true;
   }
 
-  return options?.afterAuthorityListFailure === true;
+  if (options?.afterAuthorityListFailure === true) {
+    return true;
+  }
+
+  if (options?.afterEmptyLiveList === true) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -466,10 +479,24 @@ export type PolicyPacksStaticFallbackOptions = {
    * {@link StaticDemoRunsListFallbackOptions.afterAuthorityListFailure} for run lists.
    */
   readonly afterAuthorityFailure?: boolean;
+  /** When list/effective APIs succeed but return empty packs, merge curated Healthcare Claims sample layers. */
+  readonly afterEmptyLiveResponse?: boolean;
 };
 
 function isPolicyPacksStaticFallbackActive(options?: PolicyPacksStaticFallbackOptions): boolean {
-  return isStaticDemoPayloadFallbackEnabled() || options?.afterAuthorityFailure === true;
+  if (isStaticDemoPayloadFallbackEnabled()) {
+    return true;
+  }
+
+  if (options?.afterAuthorityFailure === true) {
+    return true;
+  }
+
+  if (options?.afterEmptyLiveResponse === true) {
+    return true;
+  }
+
+  return false;
 }
 
 export function tryStaticDemoPolicyPacksList(options?: PolicyPacksStaticFallbackOptions): PolicyPack[] | null {
@@ -610,11 +637,7 @@ export function staticDemoPolicyPacksFallbackBundle(
   return { packs: list, effective: eff, content: doc };
 }
 
-export function tryStaticDemoAlertInboxRow(): AlertRecord | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
-    return null;
-  }
-
+export function tryStaticDemoAlertInboxRow(): AlertRecord {
   return {
     alertId: "demo-alert-phi-intake",
     ruleId: "architecture-risk-phi-intake",
@@ -631,6 +654,11 @@ export function tryStaticDemoAlertInboxRow(): AlertRecord | null {
     comparedToRunId: null,
     recommendationId: null,
   };
+}
+
+/** Merge PHI sample alert into an empty inbox without inventing rows for live tenants (gates caller-side). */
+export function shouldMergeOperatorDemoAlertSample(): boolean {
+  return isStaticDemoPayloadFallbackEnabled() || process.env.NODE_ENV === "development";
 }
 
 export function tryStaticDemoGovernanceApprovalRequests(runId: string): GovernanceApprovalRequest[] | null {

@@ -1,10 +1,6 @@
 import { listRunsByProjectPaged } from "@/lib/api";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
-import {
-  isStaticDemoPayloadFallbackEnabled,
-  tryStaticDemoCompareRunSummaries,
-  tryStaticDemoRunSummariesPaged,
-} from "@/lib/operator-static-demo";
+import { tryStaticDemoCompareRunSummaries, tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 export type LoadProjectRunsOptions = {
@@ -41,12 +37,10 @@ export async function loadProjectRunsMergedWithDemoFallback(
       }
     }
 
-    if (isStaticDemoPayloadFallbackEnabled()) {
-      const emptyWorkspaceDemo = tryStaticDemoRunSummariesPaged(projectId);
+    const emptyListDemo = tryStaticDemoRunSummariesPaged(projectId, { afterEmptyLiveList: true });
 
-      if (emptyWorkspaceDemo !== null && emptyWorkspaceDemo.items.length > 0) {
-        return { items: emptyWorkspaceDemo.items.map(normalizeRunSummaryForDemoPicker), loadError: false };
-      }
+    if (emptyListDemo !== null && emptyListDemo.items.length > 0) {
+      return { items: emptyListDemo.items.map(normalizeRunSummaryForDemoPicker), loadError: false };
     }
 
     return { items: [], loadError: false };

@@ -44,8 +44,9 @@ export function AppShellClient({ children }: AppShellClientProps) {
   const shellRootRef = useRef<HTMLDivElement>(null);
   useRouteChangeFocus("main-content");
 
-  /** Omit inline platform readiness under authenticated review workspaces — `Healthy` contradicts fatal detail errors when the flagship sample fails to hydrate. */
+  /** Omit platform readiness on operator home — avoids “Healthy” next to an empty or fragile demo workspace story. */
   const hideWorkspaceHealthFooter =
+    pathname === "/" ||
     (pathname.startsWith("/reviews/") && pathname.split("/").filter(Boolean).length >= 2) ||
     (pathname.startsWith("/executive/reviews/") && pathname.split("/").filter(Boolean).length >= 3);
 

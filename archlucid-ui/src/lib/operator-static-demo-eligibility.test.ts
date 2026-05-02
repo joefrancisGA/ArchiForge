@@ -59,4 +59,26 @@ describe("operator-static-demo — showcase eligibility without demo env vars", 
       process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
     }
   });
+
+  it("tryStaticDemoRunSummariesPaged returns a row after empty live list even when demo env is unset", () => {
+    const originalDemo = process.env.NEXT_PUBLIC_DEMO_MODE;
+    const originalStatic = process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+
+    delete process.env.NEXT_PUBLIC_DEMO_MODE;
+    delete process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR;
+
+    const paged = tryStaticDemoRunSummariesPaged("default", { afterEmptyLiveList: true });
+
+    expect(paged).not.toBeNull();
+    expect(paged?.items.length).toBeGreaterThan(0);
+    expect(paged?.items[0]?.runId).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    if (originalDemo !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_MODE = originalDemo;
+    }
+
+    if (originalStatic !== undefined) {
+      process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR = originalStatic;
+    }
+  });
 });

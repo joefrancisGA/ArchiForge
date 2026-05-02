@@ -14,6 +14,10 @@ describe("demo-run-canonical", () => {
     expect(canonicalizeDemoRunId(` ${SHOWCASE_STATIC_DEMO_RUN_ID} `)).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
   });
 
+  it("maps legacy workspace slug aliases to the showcase id", () => {
+    expect(canonicalizeDemoRunId("claims-intake-sample-workspace")).toBe(SHOWCASE_STATIC_DEMO_RUN_ID);
+  });
+
   it("demoRunUrlRequiresCanonicalRedirect is true only for known aliases", () => {
     expect(demoRunUrlRequiresCanonicalRedirect("claims-intake-modernization-run")).toBe(true);
     expect(demoRunUrlRequiresCanonicalRedirect(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(false);

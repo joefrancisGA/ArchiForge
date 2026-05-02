@@ -126,7 +126,9 @@ export default function PolicyPacksPage() {
         getEffectivePolicyPacks(),
         getEffectivePolicyContent(),
       ]);
-      const merged = mergePolicyPacksStateWithStaticDemo(p, eff, doc, "default");
+      const merged = mergePolicyPacksStateWithStaticDemo(p, eff, doc, "default", {
+        afterEmptyLiveResponse: p.length === 0 && (eff === null || eff.packs.length === 0),
+      });
 
       setPacks(merged.packs);
       setEffective(merged.effective);

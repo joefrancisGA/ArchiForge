@@ -12,11 +12,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
+import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
-/** Preferred demo run id when multiple rows exist and demo mode is enabled (`NEXT_PUBLIC_DEMO_MODE`). */
+function operatorAllowsSyntheticAskRunPick(): boolean {
+  return (
+    process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
+    process.env.NEXT_PUBLIC_DEMO_MODE === "1" ||
+    shouldMergeOperatorDemoAlertSample()
+  );
+}
+
+/** Legacy slug still appearing in bookmarks — canonical id is {@link SHOWCASE_STATIC_DEMO_RUN_ID}. */
 const DEMO_RUN_PREF_ID = "claims-intake-modernization";
 
 export type AskRunIdPickerProps = {
@@ -109,14 +117,14 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
 
     const firstItem = items[0];
 
-    if (items.length === 1 && firstItem !== undefined) {
-      onChange(firstItem.runId);
+    if (demoPreferred !== undefined) {
+      onChange(demoPreferred.runId);
 
       return;
     }
 
-    if (demoPreferred !== undefined && isStaticDemoPayloadFallbackEnabled()) {
-      onChange(demoPreferred.runId);
+    if (items.length === 1 && firstItem !== undefined) {
+      onChange(firstItem.runId);
 
       return;
     }
@@ -135,10 +143,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       return;
     }
 
-    const demoMode =
-      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+    const allowSyntheticPick = operatorAllowsSyntheticAskRunPick();
 
-    if (!demoMode || items.length > 0) {
+    if (!allowSyntheticPick || items.length > 0) {
       return;
     }
 
@@ -158,10 +165,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       return;
     }
 
-    const demoMode =
-      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
-
-    if (!demoMode) {
+    if (!operatorAllowsSyntheticAskRunPick()) {
       return;
     }
 
@@ -178,10 +182,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
       : "(pick an architecture review)";
 
   if (loadError) {
-    const demoMode =
-      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
-
-    if (demoMode) {
+    if (operatorAllowsSyntheticAskRunPick()) {
       const selectedInSynthetic = value === SHOWCASE_STATIC_DEMO_RUN_ID;
 
       return (
@@ -204,7 +205,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             </SelectContent>
           </Select>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            Runs list unavailable — demo mode uses the Claims Intake sample run for Ask.
+            Review list could not be reached — using the Claims Intake sample review for this page.
           </p>
         </div>
       );
@@ -233,7 +234,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
         <Label htmlFor={selectControlId}>{labelText}</Label>
         <Select disabled>
           <SelectTrigger id={selectControlId} className="font-mono text-sm">
-            <SelectValue placeholder="Loading runs…" />
+            <SelectValue placeholder="Loading reviews…" />
           </SelectTrigger>
         </Select>
       </div>
@@ -241,10 +242,9 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   }
 
   if (items.length === 0) {
-    const demoMode =
-      process.env.NEXT_PUBLIC_DEMO_MODE === "true" || process.env.NEXT_PUBLIC_DEMO_MODE === "1";
+    const allowSyntheticPick = operatorAllowsSyntheticAskRunPick() && preferAutoPick;
 
-    if (demoMode && preferAutoPick) {
+    if (allowSyntheticPick) {
       return (
         <div className="space-y-2">
           <Label htmlFor={selectControlId}>
@@ -263,7 +263,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
             </SelectContent>
           </Select>
           <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
-            Runs list unavailable — demo mode uses the Claims Intake sample run.
+            No reviews returned from the API — selecting the Claims Intake sample review for this workspace.
           </p>
         </div>
       );

@@ -58,7 +58,6 @@ import {
 } from "@/lib/governance-workflow-empty-guidance";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowActivateButtonLabelReaderRank,
@@ -113,6 +112,37 @@ const ENV_OPTIONS = [
   { value: "test", label: "Staging" },
   { value: "prod", label: "Production" },
 ] as const;
+
+function governanceEnvironmentPairDisplay(source: string, target: string): string {
+  const src = ENV_OPTIONS.find((o) => o.value === source)?.label ?? source;
+  const tgt = ENV_OPTIONS.find((o) => o.value === target)?.label ?? target;
+
+  return `${src} → ${tgt}`;
+}
+
+function formatGovernanceBusinessInstant(iso: string): string {
+  try {
+    const d = new Date(iso);
+
+    if (Number.isNaN(d.getTime())) {
+      return iso;
+    }
+
+    return d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  } catch {
+    return iso;
+  }
+}
+
+function governanceApprovalCardTitle(row: GovernanceApprovalRequest): string {
+  const c = row.requestComment?.trim() ?? "";
+
+  if (c.length > 0) {
+    return c.length > 120 ? `${c.slice(0, 117)}…` : c;
+  }
+
+  return "Governance approval request";
+}
 
 type ToastState = { kind: "ok" | "err"; message: string } | null;
 
@@ -277,7 +307,7 @@ function GovernanceWorkflowPageInner() {
     const id = queryRunId.trim();
 
     if (!id) {
-      setToast({ kind: "err", message: "Choose a run to load approval data." });
+      setToast({ kind: "err", message: "Choose a review to load approval data." });
 
       return;
     }
@@ -329,7 +359,7 @@ function GovernanceWorkflowPageInner() {
     const runId = submitRunId.trim();
 
     if (!runId || !submitManifestVersion.trim()) {
-      setToast({ kind: "err", message: "Choose a run and enter a manifest version." });
+      setToast({ kind: "err", message: "Choose a review and enter a manifest version." });
 
       return;
     }
@@ -553,7 +583,7 @@ function GovernanceWorkflowPageInner() {
             <div className="grid gap-2">
               <AskRunIdPicker
                 fieldId="gov-submit-run"
-                label="Run"
+                label="Review"
                 value={submitRunId}
                 onChange={setSubmitRunId}
                 selectedThreadId=""
@@ -671,8 +701,8 @@ function GovernanceWorkflowPageInner() {
               <div className="grid min-w-0 flex-1 gap-2">
                 <RunIdPicker
                   inputId="gov-query-run"
-                  label="Run"
-                  placeholder="Select a run from the list"
+                  label="Review"
+                  placeholder="Select a review from the list"
                   value={queryRunId}
                   onChange={setQueryRunId}
                   onSelect={(id) => {
@@ -727,7 +757,7 @@ function GovernanceWorkflowPageInner() {
           ) : null}
 
           {!listsLoading && activeRunId !== null && approvals.length === 0 && listFailure === null ? (
-            <OperatorEmptyState title="No approval requests for this run">
+            <OperatorEmptyState title="No approval requests for this review">
               <div className="grid gap-3">
                 <p className="text-sm">
                   {canMutateWorkflow
@@ -746,11 +776,12 @@ function GovernanceWorkflowPageInner() {
           {approvals.map((row) => (
             <Card key={row.approvalRequestId}>
               <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
-                <div>
-                  <CardTitle className="text-base font-semibold">
-                    {row.sourceEnvironment} → {row.targetEnvironment}
-                  </CardTitle>
-                  <CardDescription className="font-mono text-xs">{row.approvalRequestId}</CardDescription>
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-base font-semibold">{governanceApprovalCardTitle(row)}</CardTitle>
+                  <CardDescription>
+                    {governanceEnvironmentPairDisplay(row.sourceEnvironment, row.targetEnvironment)}
+                  </CardDescription>
+                  <p className="sr-only">Approval request id {row.approvalRequestId}</p>
                 </div>
                 <StatusPill status={row.status} domain="governance" className="text-xs" />
               </CardHeader>
@@ -760,7 +791,7 @@ function GovernanceWorkflowPageInner() {
                 </div>
                 <div>
                   <span className="text-neutral-500 dark:text-neutral-400">Requested</span>{" "}
-                  {formatIsoUtcForDisplay(row.requestedUtc)}
+                  {formatGovernanceBusinessInstant(row.requestedUtc)}
                 </div>
                 {row.requestComment ? (
                   <div>
@@ -770,7 +801,7 @@ function GovernanceWorkflowPageInner() {
                 {row.reviewedBy ? (
                   <div>
                     <span className="text-neutral-500 dark:text-neutral-400">Reviewed by</span> {row.reviewedBy}
-                    {row.reviewedUtc ? ` · ${formatIsoUtcForDisplay(row.reviewedUtc)}` : null}
+                    {row.reviewedUtc ? ` · ${formatGovernanceBusinessInstant(row.reviewedUtc)}` : null}
                   </div>
                 ) : null}
                 {row.reviewComment ? (
@@ -926,7 +957,7 @@ function GovernanceWorkflowPageInner() {
             : governanceWorkflowPromotionsActivationsSectionLeadReader}
         </p>
         <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">
-          Run <span className="font-mono">{activeRunId ?? "—"}</span> · promotions newest first; activations follow.
+          Review <span className="font-mono">{activeRunId ?? "—"}</span> · promotions newest first; activations follow.
         </p>
 
         {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
@@ -950,7 +981,7 @@ function GovernanceWorkflowPageInner() {
           {promotions.map((p) => (
             <Card key={p.promotionRecordId} className="border-l-4 border-l-violet-500">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Promotion · {formatIsoUtcForDisplay(p.promotedUtc)}</CardTitle>
+                <CardTitle className="text-base">Promotion · {formatGovernanceBusinessInstant(p.promotedUtc)}</CardTitle>
                 <CardDescription className="font-mono text-xs">{p.promotionRecordId}</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-1 text-sm">
@@ -1032,7 +1063,7 @@ function GovernanceWorkflowPageInner() {
           {activations.map((a) => (
             <Card key={a.activationId} className="border-l-4 border-l-teal-500">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base">Activation · {formatIsoUtcForDisplay(a.activatedUtc)}</CardTitle>
+                <CardTitle className="text-base">Activation · {formatGovernanceBusinessInstant(a.activatedUtc)}</CardTitle>
                 <CardDescription className="font-mono text-xs">{a.activationId}</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-1 text-sm">

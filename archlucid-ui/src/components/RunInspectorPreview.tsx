@@ -59,29 +59,27 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
-  const findingHref =
-    buyerSafePrimary && showcaseStory
-      ? showcaseWalkthroughHref
-      : `/reviews/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
+  const findingHref = showcaseStory
+    ? showcaseWalkthroughHref
+    : `/reviews/${encodeURIComponent(run.runId)}/findings/${encodeURIComponent(SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID)}`;
   const artifactNote =
     showcaseStory && demo
       ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings (demo totals)`
       : run.hasArtifactBundle
-        ? buyerSafePrimary
-          ? "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
-          : "Artifacts are listed on workspace detail — open Artifacts quick link there when available."
+        ? "Artifacts are summarized alongside the finalized manifest — open the Manifest link below."
         : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
   const hasArtifactsLink = run.hasArtifactBundle === true || showcaseStory;
-  const findingsQuickHref =
-    buyerSafePrimary && showcaseStory ? showcaseWalkthroughHref : `/reviews/${encodeURIComponent(run.runId)}#run-explanation`;
-  const artifactsQuickHref =
-    buyerSafePrimary && showcaseStory
-      ? `/manifests/${encodeURIComponent(manifestId)}`
-      : `/reviews/${encodeURIComponent(run.runId)}#artifacts-exports`;
-  const timelineQuickHref =
-    buyerSafePrimary && showcaseStory ? showcaseWalkthroughHref : `/reviews/${encodeURIComponent(run.runId)}#pipeline-timeline`;
+  const findingsQuickHref = showcaseStory
+    ? showcaseWalkthroughHref
+    : `/reviews/${encodeURIComponent(run.runId)}#run-explanation`;
+  const artifactsQuickHref = showcaseStory
+    ? `/manifests/${encodeURIComponent(manifestId)}`
+    : `/reviews/${encodeURIComponent(run.runId)}#artifacts-exports`;
+  const timelineQuickHref = showcaseStory
+    ? showcaseWalkthroughHref
+    : `/reviews/${encodeURIComponent(run.runId)}#pipeline-timeline`;
 
   return (
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
@@ -179,7 +177,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           </Button>
           {hasFindingsLink ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={findingsQuickHref}>{buyerSafePrimary && showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>
+              <Link href={findingsQuickHref}>{showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>
             </Button>
           ) : null}
           {hasArtifactsLink ? (
@@ -188,7 +186,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
             </Button>
           ) : null}
           <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={timelineQuickHref}>{buyerSafePrimary && showcaseStory ? "Timeline (walkthrough)" : "Timeline"}</Link>
+            <Link href={timelineQuickHref}>{showcaseStory ? "Timeline (walkthrough)" : "Timeline"}</Link>
           </Button>
         </div>
       </div>
@@ -212,7 +210,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           ) : null}
           {run.hasGraphSnapshot === true || showcaseStory ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
-              <Link href={`/reviews/${encodeURIComponent(run.runId)}/provenance`}>Trail graph</Link>
+              <Link href="/graph">Trail graph</Link>
             </Button>
           ) : null}
             <Button variant="outline" size="sm" className="h-8" asChild>

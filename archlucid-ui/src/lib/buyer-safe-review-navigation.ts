@@ -37,12 +37,15 @@ export function isBuyerSafePrimaryReviewNavigationPreferred(runId: string): bool
 
 /** Primary authenticated “next step” column on the reviews table and similar hero CTAs. */
 export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExploreLink {
-  if (isBuyerSafePrimaryReviewNavigationPreferred(runId)) {
+  const id = canonicalizeDemoRunId(runId.trim());
+
+  /** Manifest-first for the curated Claims Intake spine — avoids `/reviews/[id]` when detail hydration is brittle. */
+  if (isDemoRunIdEligibleForStaticFallback(id)) {
     return { href: getShowcaseManifestHref(), label: "Review package" };
   }
 
   return {
-    href: `/reviews/${encodeURIComponent(canonicalizeDemoRunId(runId))}`,
+    href: `/reviews/${encodeURIComponent(id)}`,
     label: "Open review",
   };
 }

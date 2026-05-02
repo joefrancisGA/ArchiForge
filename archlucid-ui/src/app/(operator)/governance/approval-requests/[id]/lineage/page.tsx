@@ -254,7 +254,7 @@ export default function GovernanceApprovalLineagePage() {
       <Card>
         <CardHeader>
           <CardTitle>Promotions</CardTitle>
-          <CardDescription>Recorded promotion history for this run</CardDescription>
+          <CardDescription>Recorded promotion history for this review</CardDescription>
         </CardHeader>
         <CardContent>
           {data.promotions.length === 0 ? (

@@ -12,7 +12,7 @@ import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
-import { readHasExistingRunsCache, writeHasExistingRunsCache } from "@/lib/operator-run-presence";
+import { writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +53,6 @@ export function WelcomeBanner() {
       } else {
         setDismissed(false);
         setCompact(false);
-        setHasExistingRuns(readHasExistingRunsCache());
       }
     } catch {
       setDismissed(false);

@@ -26,7 +26,7 @@ describe("buyer-safe-review-navigation", () => {
     expect(link.href).toContain("/manifests/");
   });
 
-  it("uses canonical `/reviews/[id]` for non-buyer demos", async () => {
+  it("uses curated manifest link for static spine IDs even when buyer chrome env is off", async () => {
     process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
 
     const mod = await import("./buyer-safe-review-navigation");
@@ -35,8 +35,8 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("Open review");
-    expect(link.href).toBe("/reviews/claims-intake-modernization");
+    expect(link.label).toBe("Review package");
+    expect(link.href).toContain("/manifests/");
   });
 
   it("canonicalizes workspace href for alias demo IDs", async () => {
