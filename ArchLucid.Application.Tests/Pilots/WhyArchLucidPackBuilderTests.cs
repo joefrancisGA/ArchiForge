@@ -24,9 +24,9 @@ public sealed class WhyArchLucidPackBuilderTests
         string md = WhyArchLucidPackBuilder.BuildMarkdown(source);
 
         md.Should().Contain("Five capability claims, every claim cited to a file in this repository or to an external public source.");
-        md.Should().Contain("| Claim | ArchLucid evidence | Competitor baseline | Citation | Narrative (â‰¤4 sentences) |");
+        md.Should().Contain("| Claim | ArchLucid evidence | Competitor baseline | Citation | Narrative (\u22644 sentences) |");
         md.Should().Contain("GET /v1/authority/runs/{runId}/provenance");
-        md.Should().Contain("demo tenant â€” replace before publishing");
+        md.Should().Contain("demo tenant \u2014 replace before publishing");
         md.Should().Contain("`run`");
     }
 }
