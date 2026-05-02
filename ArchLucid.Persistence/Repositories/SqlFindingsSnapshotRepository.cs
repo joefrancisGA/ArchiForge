@@ -1,7 +1,9 @@
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings.Serialization;
@@ -11,6 +13,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Telemetry;
 
 using Dapper;
 
@@ -76,56 +79,67 @@ public sealed class SqlFindingsSnapshotRepository(
                            WHERE FindingsSnapshotId = @FindingsSnapshotId;
                            """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        FindingsSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(
-                sql,
-                new { FindingsSnapshotId = findingsSnapshotId },
-                cancellationToken: ct));
+        Stopwatch sw = Stopwatch.StartNew();
 
-        if (row is null)
-            return null;
-
-        int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            null,
-            "SELECT COUNT(1) FROM dbo.FindingRecords WHERE FindingsSnapshotId = @FindingsSnapshotId",
-            new { FindingsSnapshotId = findingsSnapshotId },
-            ct);
-
-        if (recordCount == 0)
+        try
         {
-            if (string.IsNullOrWhiteSpace(row.FindingsJson))
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            FindingsSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
+                new CommandDefinition(
+                    sql,
+                    new { FindingsSnapshotId = findingsSnapshotId },
+                    cancellationToken: ct));
 
-                return new FindingsSnapshot
-                {
-                    FindingsSnapshotId = row.FindingsSnapshotId,
-                    RunId = row.RunId,
-                    ContextSnapshotId = row.ContextSnapshotId,
-                    GraphSnapshotId = row.GraphSnapshotId,
-                    CreatedUtc = row.CreatedUtc,
-                    SchemaVersion = row.SchemaVersion,
-                    GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
-                    Findings = []
-                };
+            if (row is null)
+                return null;
+
+            int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
+                connection,
+                null,
+                "SELECT COUNT(1) FROM dbo.FindingRecords WHERE FindingsSnapshotId = @FindingsSnapshotId",
+                new { FindingsSnapshotId = findingsSnapshotId },
+                ct);
+
+            if (recordCount == 0)
+            {
+                if (string.IsNullOrWhiteSpace(row.FindingsJson))
+
+                    return new FindingsSnapshot
+                    {
+                        FindingsSnapshotId = row.FindingsSnapshotId,
+                        RunId = row.RunId,
+                        ContextSnapshotId = row.ContextSnapshotId,
+                        GraphSnapshotId = row.GraphSnapshotId,
+                        CreatedUtc = row.CreatedUtc,
+                        SchemaVersion = row.SchemaVersion,
+                        GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
+                        Findings = []
+                    };
 
 
-            FindingsSnapshot fromJson = JsonEntitySerializer.Deserialize<FindingsSnapshot>(row.FindingsJson);
-            fromJson.FindingsSnapshotId = row.FindingsSnapshotId;
-            fromJson.RunId = row.RunId;
-            fromJson.ContextSnapshotId = row.ContextSnapshotId;
-            fromJson.GraphSnapshotId = row.GraphSnapshotId;
-            fromJson.CreatedUtc = row.CreatedUtc;
-            fromJson.SchemaVersion = row.SchemaVersion;
-            FindingsSnapshotMigrator.Apply(fromJson);
-            FindingPayloadJsonCodec.HydrateJsonElementPayloads(fromJson.Findings);
-            return fromJson;
+                FindingsSnapshot fromJson = JsonEntitySerializer.Deserialize<FindingsSnapshot>(row.FindingsJson);
+                fromJson.FindingsSnapshotId = row.FindingsSnapshotId;
+                fromJson.RunId = row.RunId;
+                fromJson.ContextSnapshotId = row.ContextSnapshotId;
+                fromJson.GraphSnapshotId = row.GraphSnapshotId;
+                fromJson.CreatedUtc = row.CreatedUtc;
+                fromJson.SchemaVersion = row.SchemaVersion;
+                FindingsSnapshotMigrator.Apply(fromJson);
+                FindingPayloadJsonCodec.HydrateJsonElementPayloads(fromJson.Findings);
+                return fromJson;
+            }
+
+            FindingsSnapshot snapshot =
+                await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
+            FindingsSnapshotMigrator.Apply(snapshot);
+            return snapshot;
         }
-
-        FindingsSnapshot snapshot =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
-        FindingsSnapshotMigrator.Apply(snapshot);
-        return snapshot;
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.GetFindingsSnapshotById,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     /// <inheritdoc />

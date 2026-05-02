@@ -45,6 +45,7 @@
 - [ ] **`dotnet run --project ArchLucid.Cli -- doctor`** succeeds against the deployed/staged API base URL (or equivalent in packaged deployment).
 - [ ] **Correlation:** sample request with **`X-Correlation-ID`** appears in logs as expected ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - [ ] **Observability** (if production): metrics/logs dashboards or queries smoke-tested for one synthetic run ([OPERATIONS_ADMIN.md](OPERATIONS_ADMIN.md) if applicable).
+- [ ] **Real-LLM credibility (when ship posture includes real AOAI):** at least one session logged per [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) and [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) §8.3 — **not** required when the release is simulator-only end-to-end.
 
 ---
 

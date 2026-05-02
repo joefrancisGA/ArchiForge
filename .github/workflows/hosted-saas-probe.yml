@@ -18,13 +18,40 @@ jobs:
         env:
           BASE_URL: ${{ vars.ARCHLUCID_STAGING_BASE_URL }}
         run: |
-          set -euo pipefail
+          set -u
+          set -o pipefail
+          mkdir -p probe-out
+          stamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           if [ -z "${BASE_URL:-}" ]; then
             echo "ARCHLUCID_STAGING_BASE_URL is not set — skipping probe (set repo variable to e.g. https://staging.archlucid.net)."
+            printf '%s\n' "{\"skipped\":true,\"probedAtUtc\":\"${stamp}\",\"reason\":\"ARCHLUCID_STAGING_BASE_URL unset\"}" > probe-out/probe-result.json
             exit 0
           fi
           base="${BASE_URL%/}"
+          live_ok=false
+          ready_ok=false
           echo "Probing ${base}/health/live"
-          curl -fsS --max-time 30 "${base}/health/live" >/dev/null
+          if curl -fsS --max-time 30 "${base}/health/live" >/dev/null; then live_ok=true; fi
           echo "Probing ${base}/health/ready"
-          curl -fsS --max-time 45 "${base}/health/ready" >/dev/null
+          if curl -fsS --max-time 45 "${base}/health/ready" >/dev/null; then ready_ok=true; fi
+          export STAMP="$stamp" BASE="$base" LIVE_OK="$live_ok" READY_OK="$ready_ok"
+          python3 - <<'PY' > probe-out/probe-result.json
+          import json, os
+          print(json.dumps({
+              "skipped": False,
+              "probedAtUtc": os.environ["STAMP"],
+              "baseUrl": os.environ["BASE"],
+              "live_ok": os.environ["LIVE_OK"] == "true",
+              "ready_ok": os.environ["READY_OK"] == "true",
+          }))
+          PY
+          if [ "$live_ok" != true ] || [ "$ready_ok" != true ]; then
+            echo "One or more health checks failed (see probe-out/probe-result.json)."
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-saas-probe-${{ github.run_id }}
+          path: probe-out/probe-result.json

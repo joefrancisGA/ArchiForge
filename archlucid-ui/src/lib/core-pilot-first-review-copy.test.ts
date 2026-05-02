@@ -4,6 +4,7 @@ import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
+  CORE_PILOT_FIRST_SESSION_GUIDANCE,
   CORE_PILOT_RUN_BRIDGE_LINE,
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "./core-pilot-first-review-copy";
@@ -31,7 +32,8 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/review outputs/i);
   });
 
-  it("exposes minimized control label for progressive disclosure", () => {
-    expect(CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON).toMatch(/checklist/i);
+  it("offers a single-path first-session hint without extra jargon", () => {
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE.length).toBeGreaterThan(40);
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE.toLowerCase()).toMatch(/first/);
   });
 });

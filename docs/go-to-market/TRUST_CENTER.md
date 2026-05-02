@@ -65,6 +65,10 @@ This table lists **engagement metadata only** — not redacted findings, not cus
 
 > Wording note: the quarterly chaos row is intentionally conservative — it records that a calendar is published and the first run is scheduled, not that production fault injection is in scope. `PENDING_QUESTIONS.md` item 34 remains the owner gate for any production chaos.
 
+### Hosted staging probes (internal rollup)
+
+Scheduled **`hosted-saas-probe`** workflow results can be rolled into a **30-day internal summary** for reliability conversations. Do **not** treat staging curl probes as a buyer-facing production SLO without separate policy — see [`../runbooks/HOSTED_AVAILABILITY_ROLLUP.md`](../runbooks/HOSTED_AVAILABILITY_ROLLUP.md).
+
 ---
 
 ## Trust documents

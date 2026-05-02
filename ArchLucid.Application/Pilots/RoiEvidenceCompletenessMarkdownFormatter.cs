@@ -15,7 +15,6 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
 
         sb.AppendLine("## ROI evidence completeness");
 
-
         sb.AppendLine();
 
         sb.AppendLine(
@@ -23,15 +22,11 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
 
         sb.AppendLine();
 
-
         sb.AppendLine($"**Status:** **{headline}**");
-
 
         sb.AppendLine();
 
-
         sb.AppendLine(body);
-
 
         sb.AppendLine();
     }
@@ -52,13 +47,12 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
             ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions => (
                 "Partial",
                 "Baseline hours **default from repository ROI model assumptions** (`docs/library/PILOT_ROI_MODEL.md`). "
-                    + "**Do not quote customer-specific savings** without tenant-captured baselines."),
-
+                + "**Do not quote customer-specific savings** without tenant-captured baselines."),
 
             ReviewCycleBaselineProvenance.NoMeasurementYet or _ => (
                 "Low confidence",
                 "No tenant baseline measurements were captured for this cohort window; treat ROI tables as "
-                    + "**illustrative / internal planning only** unless operators attach external baseline artefacts.")
+                + "**illustrative / internal planning only** unless operators attach external baseline artefacts.")
         };
 
 
@@ -67,8 +61,6 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
         string headline,
         string headlinePrefix)
     {
-
-
         List<string> parts = [$"{headlinePrefix}."];
 
         if (snapshot.TenantBaselineReviewCycleCapturedUtc is { } cap)
@@ -82,9 +74,7 @@ public static class RoiEvidenceCompletenessMarkdownFormatter
 
         if (!string.IsNullOrWhiteSpace(snapshot.TenantBaselineReviewCycleSource))
 
-
             parts.Add($"**Source note:** {snapshot.TenantBaselineReviewCycleSource.Trim()}");
-
 
         string body = string.Join(" ", parts);
 

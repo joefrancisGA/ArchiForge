@@ -10,7 +10,7 @@ Items here are **greenlit in principle** â€” the decision has been made and
 |----|-------|----------------|------|
 | TB-001 | Harden async audit write paths (never block users) | **Complete** â€” landed + regression tests | Done |
 | TB-002 | OTel counter + log for production config validation warnings | **Complete** â€” counter + Host.Core startup paths + Composition.Tests + alerts module stub | Done |
-| TB-003 | Performance regression sentinel â€” named-query allowlist CI gate | CI quality â€” prevent slow-query regressions from reaching production | ~3 h |
+| TB-003 | Performance regression sentinel â€” named-query allowlist CI gate | **Complete** â€” allowlist + histogram + CI dry-run + persistence timings on hot paths (`ListRecentInScopeAsync`, `AppendAsync`, `GetByIdAsync` manifest/snapshot) | Done |
 | TB-004 | Wire OTel exporters + verify agent-output metrics; add Azure alerts | Ops / release bar â€” conservative quality posture needs visible trends (`archlucid_agent_output_*`) | ~1â€“2 h |
 | TB-005 | AI-assisted owner pen-test support (Cursor agent) | Security / V1 assurance â€” structured help for 2026-Q2 owner exercise | Ongoing (time-boxed sessions) |
 | TB-006 | Type-migrate `dbo.ComparisonRecords` run id columns â†’ `UNIQUEIDENTIFIER` + FK to `dbo.Runs` | Referential correctness â€” orphans are detection-only until types align (ADR-0012 / migration 047) | ~4â€“8 h |
@@ -80,6 +80,8 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 
 ## TB-003 â€” Performance regression sentinel: named-query allowlist CI gate
 
+**Status:** **Shipped** â€” `tests/performance/query-allowlist.json`, `scripts/ci/assert_query_performance.py`, CI dry-run step, `ArchLucidInstrumentation.QueryNamedLatencyMilliseconds` / `RecordNamedQueryLatencyMilliseconds`, and **SQL call sites**: `SqlRunRepository.ListRecentInScopeAsync` (**GetRunsByTenantId**), `DapperAuditRepository.AppendAsync` (**AppendAuditEvent**), `SqlGoldenManifestRepository.GetByIdAsync` (**GetGoldenManifestById**), `SqlFindingsSnapshotRepository.GetByIdAsync` (**GetFindingsSnapshotById**). Names are centralized in `ArchLucid.Persistence/Telemetry/NamedQueryTelemetryNames.cs`.
+
 **Decision (2026-04-29):** SaaS product, no customer DBAs. Use a **named-query allowlist** (Option A) rather than SQL text snapshots. SQL text snapshots produce high CI noise on every whitespace / ORM / parameter change, eroding gate trust; the allowlist keeps the gate high-signal. See `docs/PENDING_QUESTIONS.md` â€” *Resolved 2026-04-29 (performance regression sentinel approach)*.
 
 **What to do:**
@@ -89,7 +91,7 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
    [
      { "name": "GetRunsByTenantId",       "p95ThresholdMs": 200 },
      { "name": "AppendAuditEvent",        "p95ThresholdMs": 50  },
-     { "name": "GetFindingsByRunId",      "p95ThresholdMs": 150 },
+     { "name": "GetFindingsSnapshotById", "p95ThresholdMs": 150 },
      { "name": "GetGoldenManifestById",   "p95ThresholdMs": 100 }
    ]
    ```

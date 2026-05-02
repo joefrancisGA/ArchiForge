@@ -36,6 +36,7 @@ Derived from [POSITIONING.md](POSITIONING.md), [ROI_MODEL.md](ROI_MODEL.md), and
 | Rule | Detail |
 |------|--------|
 | **Pilot ID** | Use **Pilot A**, **Pilot B**, **Pilot C**, … in this file only. Map to real programs in a **separate** restricted system (CRM, pilot charter, or internal tracker) if names are required. |
+| **Buyer-safe template** | **[PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md](PILOT_BUYER_SAFE_EVIDENCE_TEMPLATE.md)** — copy row + ethics guardrails before updating §2.3. |
 | **After each scorecard** | Within **5 business days** of a [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) review, update every row for that **Pilot ID** that was in scope. |
 | **Internal dogfood** | You may fill **Pilot A** (or **Pilot B**) from **internal** runs first—aggregate numbers and qualitative signal are enough; do not invent customer outcomes. |
 | **Quarterly** | Reconcile §2.2 with §6 **Current PMF status** and note the date in the §6 summary row (footer). |

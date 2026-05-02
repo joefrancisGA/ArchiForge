@@ -76,6 +76,8 @@ WHERE c.RightRunId IS NOT NULL
    - Deletes the same shape of orphan rows as the SQL below (left **or** right run missing from **`dbo.Runs`**).  
    - Emits durable audit **`ComparisonRecordOrphansRemediated`** with deleted ids.
 
+**Evidence for auditors:** retain the **dry-run** API response (or SQL preview row counts), the **execute** response with deleted ids, and the audit event reference — same retention as other remediation tickets.
+
 **InMemory** storage returns an empty list (no SQL).
 
 ## Remediation (destructive)

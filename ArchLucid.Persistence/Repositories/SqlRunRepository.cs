@@ -1,8 +1,10 @@
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Common;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
 
 using ArchLucid.Core.Scoping;
@@ -11,6 +13,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Telemetry;
 
 using Dapper;
 
@@ -195,22 +198,33 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        // NOLOCK: dashboard / picker list; same tolerance as read-replica staleness (see LOAD_TEST_BASELINE.md). Avoids S-lock blocking behind writers on dbo.Runs.
+        Stopwatch sw = Stopwatch.StartNew();
 
-        await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
-        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
-            new CommandDefinition(
-                HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock,
-                new
-                {
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    ScopeProjectId = scope.ProjectId,
-                    Take = Math.Clamp(take <= 0 ? 200 : take, 1, 200)
-                },
-                cancellationToken: ct));
+        try
+        {
+            // NOLOCK: dashboard / picker list; same tolerance as read-replica staleness (see LOAD_TEST_BASELINE.md). Avoids S-lock blocking behind writers on dbo.Runs.
 
-        return rows.ToList();
+            await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+            IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
+                new CommandDefinition(
+                    HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock,
+                    new
+                    {
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        ScopeProjectId = scope.ProjectId,
+                        Take = Math.Clamp(take <= 0 ? 200 : take, 1, 200)
+                    },
+                    cancellationToken: ct));
+
+            return rows.ToList();
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.GetRunsByTenantId,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     /// <inheritdoc />

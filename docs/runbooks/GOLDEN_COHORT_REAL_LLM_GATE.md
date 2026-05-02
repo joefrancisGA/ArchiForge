@@ -13,6 +13,8 @@ The `cohort-real-llm-gate` job in [`.github/workflows/golden-cohort-nightly.yml`
 
 The Q15 ($50/month) approval was **conditional on the kill-switch being shipped** ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) Q15). If the kill-switch is bypassed, real-LLM execution must revert to disabled until the kill-switch is restored.
 
+**Pilot / release session record:** [`REAL_LLM_RUN_EVIDENCE_TEMPLATE.md`](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) — use for ad-hoc real-mode validations outside the nightly cohort.
+
 ## 2. Flip the gate from disabled â†’ required (one-line change)
 
 After the dedicated Azure OpenAI deployment exists in the production subscription **and** the protected GitHub Environment has the secrets injected (both owner-only operational tasks per Q15), promotion is a single edit:

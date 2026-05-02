@@ -14,6 +14,7 @@ import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
+  CORE_PILOT_FIRST_SESSION_GUIDANCE,
   CORE_PILOT_RUN_BRIDGE_LINE,
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "@/lib/core-pilot-first-review-copy";
@@ -429,6 +430,9 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
               </p>
               <p className="m-0 mt-1 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
                 {CORE_PILOT_RUN_BRIDGE_LINE}
+              </p>
+              <p className="m-0 mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-400">
+                {CORE_PILOT_FIRST_SESSION_GUIDANCE}
               </p>
             </>
           ) : null}

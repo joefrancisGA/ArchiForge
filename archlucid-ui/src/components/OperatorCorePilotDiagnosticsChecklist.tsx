@@ -11,6 +11,7 @@ import {
 } from "@/lib/core-pilot-checklist-storage";
 import type { OperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
 import { fetchOperatorTaskSuccessRates } from "@/lib/fetch-operator-task-success-rates";
+import { CORE_PILOT_FIRST_SESSION_GUIDANCE } from "@/lib/core-pilot-first-review-copy";
 
 /**
  * Progressive-disclosure checklist summary: aligns Core Pilot titles with `/v1/diagnostics/operator-task-success-rates`
@@ -92,6 +93,9 @@ export function OperatorCorePilotDiagnosticsChecklist() {
         First architecture review checklist (signals + steps)
       </summary>
       <div className="mt-3 space-y-4 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+        <p className="m-0 text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+          {CORE_PILOT_FIRST_SESSION_GUIDANCE}
+        </p>
         <section aria-labelledby="core-pilot-signals-heading">
           <h3 id="core-pilot-signals-heading" className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
             Server-tracked onboarding signals (this deployment)

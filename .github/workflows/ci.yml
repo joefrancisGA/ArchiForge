@@ -661,6 +661,9 @@ jobs:
         run: python3 scripts/ci/assert_query_performance.py --dry-run
         continue-on-error: true
 
+      - name: PMF validation tracker (Captured vs TBD discipline)
+        run: python3 scripts/ci/assert_pmf_tracker_discipline.py
+
       - name: V1 traceability matrix (docs vs repo paths)
         run: python3 scripts/ci/assert_traceability_coverage.py
 

@@ -1,7 +1,9 @@
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Mapping;
@@ -11,6 +13,7 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GoldenManifests;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Telemetry;
 
 using Dapper;
 
@@ -109,19 +112,31 @@ public sealed class SqlGoldenManifestRepository(
                              AND ManifestId = @ManifestId;
                            """;
 
-        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
-        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(
-                sql,
-                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, ManifestId = manifestId },
-                cancellationToken: ct));
+        Stopwatch sw = Stopwatch.StartNew();
 
-        if (row is null)
-            return null;
+        try
+        {
+            await using SqlConnection connection =
+                await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
+            GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
+                new CommandDefinition(
+                    sql,
+                    new { scope.TenantId, scope.WorkspaceId, scope.ProjectId, ManifestId = manifestId },
+                    cancellationToken: ct));
 
-        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
+            if (row is null)
+                return null;
 
-        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
+            row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
+
+            return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.GetGoldenManifestById,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     /// <inheritdoc />

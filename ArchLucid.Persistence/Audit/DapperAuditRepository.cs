@@ -1,9 +1,12 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Telemetry;
 
 using Dapper;
 
@@ -40,8 +43,19 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                            );
                            """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+            await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.AppendAuditEvent,
+                sw.Elapsed.TotalMilliseconds);
+        }
     }
 
     public async Task<IReadOnlyList<AuditEvent>> GetByScopeAsync(
