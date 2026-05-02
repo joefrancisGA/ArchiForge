@@ -1,3 +1,5 @@
+> **Scope:** Security/engineering analysis of SQL RLS denormalization coverage vs migrations; not an attestation or production sign-off.
+
 # RLS Denormalization Gap Analysis
 
 **Date:** 2026-05-02  
