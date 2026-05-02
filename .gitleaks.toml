@@ -24,6 +24,5 @@ regexes = [
   # generic-api-key stores only the captured secret (the hex tail), not the full "Key ID: …" prefix — allowlist both shapes.
   "Key ID: ABCD0123EF456789",
   "ABCD0123EF456789",
-  # Runbook example used "Bearer YOUR_JWT" (8 \w chars → curl-auth-header); still in git blobs after doc switched to "${JWT}". Not a credential — never use as a real token.
-  "YOUR_JWT",
-]
+  # vault-service-token false positive: legacy rule matches `s.` + 24 [a-z0-9]; property name ComparisonAuditEvents30d yields that length after `s.` in C#. Not a credential — escape `.` (allowlist values are regex).
+  "s\\.ComparisonAuditEvents30d",

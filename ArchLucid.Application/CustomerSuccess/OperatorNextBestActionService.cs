@@ -28,13 +28,13 @@ public sealed class OperatorNextBestActionService(
     public async Task<IReadOnlyList<OperatorNextBestActionItem>> GetActionsAsync(CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
-        OperatorStickinessSignals s = await _snapshotReader
+        OperatorStickinessSignals signals = await _snapshotReader
             .GetOperatorSignalsAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, cancellationToken)
             .ConfigureAwait(false);
 
         List<OperatorNextBestActionItem> items = [];
 
-        if (s.TotalRunsInScope == 0)
+        if (signals.TotalRunsInScope == 0)
         {
             items.Add(
                 new OperatorNextBestActionItem(
@@ -45,9 +45,9 @@ public sealed class OperatorNextBestActionService(
                     10));
         }
 
-        if (s.TotalRunsInScope > 0 && s.CommittedRunsInScope == 0)
+        if (signals.TotalRunsInScope > 0 && signals.CommittedRunsInScope == 0)
         {
-            string href = s.LatestRunId is { } id ? $"/reviews/{id:D}" : "/runs";
+            string href = signals.LatestRunId is { } id ? $"/reviews/{id:D}" : "/runs";
             items.Add(
                 new OperatorNextBestActionItem(
                     "finalize",
@@ -57,7 +57,7 @@ public sealed class OperatorNextBestActionService(
                     20));
         }
 
-        if (s.CommittedRunsInScope > 0 && s.LatestRunId is { } runId)
+        if (signals.CommittedRunsInScope > 0 && signals.LatestRunId is { } runId)
         {
             items.Add(
                 new OperatorNextBestActionItem(
@@ -76,7 +76,7 @@ public sealed class OperatorNextBestActionService(
                     35));
         }
 
-        if (s.ComparisonAuditEvents30d == 0 && s.CommittedRunsInScope >= 2)
+        if (signals.ComparisonAuditEvents30d == 0 && signals.CommittedRunsInScope >= 2)
         {
             items.Add(
                 new OperatorNextBestActionItem(
@@ -87,13 +87,13 @@ public sealed class OperatorNextBestActionService(
                     40));
         }
 
-        if (s.PendingGovernanceApprovals > 0)
+        if (signals.PendingGovernanceApprovals > 0)
         {
             items.Add(
                 new OperatorNextBestActionItem(
                     "governance",
                     "Resolve governance approvals",
-                    $"You have {s.PendingGovernanceApprovals} pending approval(s) blocking promotion.",
+                    $"You have {signals.PendingGovernanceApprovals} pending approval(s) blocking promotion.",
                     "/governance",
                     25));
         }
