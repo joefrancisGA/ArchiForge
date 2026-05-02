@@ -53,7 +53,7 @@ public static class IntegrationEventTypes
     ///     vendor-segment substitution on the canonical <c>com.archlucid.*</c> string (worker publishes may still
     ///     carry the old segment in persisted outbox rows).
     /// </remarks>
-    private static readonly FrozenDictionary<string, string> _aliases = CreateLegacyVendorAliases();
+    private static readonly FrozenDictionary<string, string> Aliases = CreateLegacyVendorAliases();
 
     private const string CanonicalVendorPrefix = "com.archlucid.";
 
@@ -63,11 +63,12 @@ public static class IntegrationEventTypes
     /// </summary>
     public static string MapToCanonical(string eventType)
     {
-        if (string.IsNullOrWhiteSpace(eventType)) return string.Empty;
+        if (string.IsNullOrWhiteSpace(eventType))
+            return string.Empty;
 
         string trimmed = eventType.Trim();
 
-        return _aliases.TryGetValue(trimmed, out string? canonical) ? canonical : trimmed;
+        return Aliases.GetValueOrDefault(trimmed, trimmed);
     }
 
     /// <summary>True when both values map to the same canonical type (trimmed; legacy aliases respected).</summary>

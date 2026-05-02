@@ -9,7 +9,11 @@ public static class ArtifactCursorCodec
 
     public static string Encode(int sortOrder, Guid artifactId)
     {
-        ArtifactListCursorDto dto = new() { So = sortOrder, Ai = artifactId };
+        ArtifactListCursorDto dto = new()
+        {
+            So = sortOrder,
+            Ai = artifactId
+        };
         byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(dto, SerializerOptions);
         return Base64UrlEncode(utf8);
     }
@@ -55,7 +59,7 @@ public static class ArtifactCursorCodec
         public int So
         {
             get;
-            set;
+            init;
         }
 
         public Guid Ai

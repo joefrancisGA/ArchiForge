@@ -19,28 +19,14 @@ public static class IntegrationEventOutboxPriority
 
         string canonical = IntegrationEventTypes.MapToCanonical(trimmed);
 
-        if (canonical.Length is 0)
-            return 1;
-
-        return TierFromCanonical(canonical);
+        return canonical.Length is 0 ? 1 : TierFromCanonical(canonical);
     }
 
     private static int TierFromCanonical(string canonical) => canonical switch
     {
         IntegrationEventTypes.AlertFiredV1 or IntegrationEventTypes.AlertResolvedV1
             or IntegrationEventTypes.ComplianceDriftEscalatedV1 => 0,
-
         IntegrationEventTypes.TrialLifecycleEmailV1 => 2,
-
-        IntegrationEventTypes.AuthorityRunCompletedV1
-            or IntegrationEventTypes.ManifestFinalizedV1
-            or IntegrationEventTypes.GovernanceApprovalSubmittedV1
-            or IntegrationEventTypes.GovernancePromotionActivatedV1
-            or IntegrationEventTypes.AdvisoryScanCompletedV1
-            or IntegrationEventTypes.SeatReservationReleasedV1
-            or IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1
-            or IntegrationEventTypes.DataConsistencyCheckCompletedV1 => 1,
-
         _ => 1,
     };
 }
