@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Pre-commit hook: guards that prevent CI failures before they leave the developer machine.
+#
+# Install with:
+#   bash scripts/install-git-hooks.sh    (Linux / macOS / Git Bash on Windows)
+#   pwsh scripts/install-git-hooks.ps1   (PowerShell on Windows)
+#
+# To bypass in emergencies (must be intentional):
+#   git commit --no-verify -m "..."
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+echo "[pre-commit] Running mutating-controller audit guard..."
+python "$REPO_ROOT/scripts/ci/assert_controller_mutations_have_audit.py" \
+  --repo-root "$REPO_ROOT"

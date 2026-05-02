@@ -8,6 +8,7 @@ using ArchLucid.Api.ProductLearning;
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -39,7 +40,8 @@ public sealed class ProductLearningController(
     IProductLearningDashboardService dashboardService,
     IProductLearningPilotSignalRepository pilotSignalRepository,
     IActorContext actorContext,
-    IScopeContextProvider scopeProvider)
+    IScopeContextProvider scopeProvider,
+    IAuditService auditService)
     : ControllerBase
 {
     private static readonly JsonSerializerOptions ReportFileJsonOptions = new()
@@ -125,6 +127,19 @@ public sealed class ProductLearningController(
         };
 
         await pilotSignalRepository.InsertAsync(signal, cancellationToken);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ProductLearningPilotSignalRecorded,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    subjectType = signal.SubjectType,
+                    disposition = signal.Disposition,
+                    patternKey = signal.PatternKey
+                })
+            },
+            cancellationToken);
 
         return NoContent();
     }

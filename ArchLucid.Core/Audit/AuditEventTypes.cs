@@ -126,6 +126,12 @@ public static class AuditEventTypes
 
     public const string RecommendationLearningProfileRebuilt = "RecommendationLearningProfileRebuilt";
 
+    /// <summary>
+    ///     Pilot feedback signal captured via <c>POST /v1/product-learning/signals</c>.
+    ///     Payload: <c>subjectType</c>, <c>disposition</c>, <c>patternKey</c> (when supplied).
+    /// </summary>
+    public const string ProductLearningPilotSignalRecorded = "ProductLearningPilotSignalRecorded";
+
     public const string AdvisoryScanScheduled = "AdvisoryScanScheduled";
     public const string AdvisoryScanExecuted = "AdvisoryScanExecuted";
     public const string ArchitectureDigestGenerated = "ArchitectureDigestGenerated";
