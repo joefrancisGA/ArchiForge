@@ -1,4 +1,5 @@
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -24,8 +25,6 @@ class AssertPmfTrackerDisciplineTests(unittest.TestCase):
             "|------------|----------|-----------|-------------|------------------|----------|--------|--------|-------|\n"
             "| H9 | Pilot Z | TBD | TBD | Test | TBD | TBD | Captured | bogus |\n"
         )
-        import tempfile
-
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".md", delete=False, encoding="utf-8"
         ) as tmp:
