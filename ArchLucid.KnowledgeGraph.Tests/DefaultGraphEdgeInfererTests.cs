@@ -206,6 +206,90 @@ public sealed class DefaultGraphEdgeInfererTests
         count.Should().Be(1);
     }
 
+    [Fact]
+    public void InferEdges_MultipleTopologyWithoutExplicitSecurityScope_EmitsNoProtectsEdges()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        string contextNodeId = $"context-{snapshot.SnapshotId:N}";
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx"
+        };
+        GraphNode security = new() { NodeId = "sec-1", NodeType = GraphNodeTypes.SecurityBaseline, Label = "baseline" };
+        GraphNode r1 = new() { NodeId = "res-1", NodeType = GraphNodeTypes.TopologyResource, Label = "a" };
+        GraphNode r2 = new() { NodeId = "res-2", NodeType = GraphNodeTypes.TopologyResource, Label = "b" };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, security, r1, r2]);
+
+        edges.Should().NotContain(e => e.EdgeType == GraphEdgeTypes.Protects);
+    }
+
+    [Fact]
+    public void InferEdges_MultipleTopologyWithoutExplicitPolicyScope_EmitsNoAppliesToEdges()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        string contextNodeId = $"context-{snapshot.SnapshotId:N}";
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx"
+        };
+        GraphNode policy = new() { NodeId = "pol-1", NodeType = GraphNodeTypes.PolicyControl, Label = "SOC2" };
+        GraphNode r1 = new() { NodeId = "res-1", NodeType = GraphNodeTypes.TopologyResource, Label = "a" };
+        GraphNode r2 = new() { NodeId = "res-2", NodeType = GraphNodeTypes.TopologyResource, Label = "b" };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, policy, r1, r2]);
+
+        edges.Should().NotContain(e => e.EdgeType == GraphEdgeTypes.AppliesTo);
+    }
+
+    [Fact]
+    public void InferEdges_MultiVNet_DoesNotCrossJoinUnrelatedSubnets()
+    {
+        ContextSnapshot snapshot = BuildSnapshot();
+        string contextNodeId = $"context-{snapshot.SnapshotId:N}";
+        GraphNode contextNode = new()
+        {
+            NodeId = contextNodeId, NodeType = GraphNodeTypes.ContextSnapshot, Label = "ctx"
+        };
+        GraphNode netProd = new()
+        {
+            NodeId = "net-prod",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-prod",
+            Category = GraphTopologyCategories.Network
+        };
+        GraphNode netDev = new()
+        {
+            NodeId = "net-dev",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-dev",
+            Category = GraphTopologyCategories.Network
+        };
+        GraphNode subProd = new()
+        {
+            NodeId = "sub-prod",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "vnet-prod-private-subnet"
+        };
+        GraphNode subOrphan = new()
+        {
+            NodeId = "sub-orphan",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "subnet-app"
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot,
+            [contextNode, netProd, netDev, subProd, subOrphan]);
+
+        edges.Should()
+            .Contain(e =>
+                e.FromNodeId == "net-prod" &&
+                e.ToNodeId == "sub-prod" &&
+                e.EdgeType == GraphEdgeTypes.ContainsResource);
+        edges.Should().NotContain(e => e.FromNodeId == "net-dev" && e.ToNodeId == "sub-prod");
+        edges.Should().NotContain(e => e.ToNodeId == "sub-orphan" && e.EdgeType == GraphEdgeTypes.ContainsResource);
+    }
+
     private static ContextSnapshot BuildSnapshot()
     {
         return new ContextSnapshot { SnapshotId = Guid.NewGuid(), RunId = Guid.NewGuid(), ProjectId = "proj-test" };

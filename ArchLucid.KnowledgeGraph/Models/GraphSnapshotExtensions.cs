@@ -27,14 +27,16 @@ public static class GraphSnapshotExtensions
     public static IReadOnlyList<GraphNode> GetOutgoingTargets(
         this GraphSnapshot snapshot,
         string fromNodeId,
-        string edgeType)
+        string edgeType,
+        double minWeightInclusive = 0)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
         HashSet<string> targetIds = snapshot.Edges
             .Where(x =>
                 string.Equals(x.FromNodeId, fromNodeId, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase))
+                string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase) &&
+                x.Weight >= minWeightInclusive)
             .Select(x => x.ToNodeId)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 

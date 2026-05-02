@@ -1,6 +1,7 @@
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Services;
@@ -24,7 +25,10 @@ public class SecurityBaselineFindingEngine : IFindingEngine
             node.Properties.TryGetValue("status", out string? status);
 
             List<string> protectedIds = graphSnapshot
-                .GetOutgoingTargets(node.NodeId, "PROTECTS")
+                .GetOutgoingTargets(
+                    node.NodeId,
+                    "PROTECTS",
+                    GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
                 .Select(n => n.NodeId)
                 .ToList();
 

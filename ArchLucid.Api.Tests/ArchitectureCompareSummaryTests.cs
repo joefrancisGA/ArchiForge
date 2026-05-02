@@ -26,7 +26,9 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
+
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
@@ -39,7 +41,10 @@ public sealed class ArchitectureCompareSummaryTests(ArchLucidApiFactory factory)
             commitReplay = true, executionMode = "Current", manifestVersionOverride = "v1-replay"
         };
 
-        await Client.PostAsync($"/v1/architecture/run/{runId}/replay", JsonContent(replayRequest));
+        HttpResponseMessage replayResponse = await Client.PostAsync(
+            $"/v1/architecture/run/{runId}/replay",
+            JsonContent(replayRequest));
+        replayResponse.EnsureSuccessStatusCode();
 
         HttpResponseMessage response = await Client.GetAsync(
             $"/v1/architecture/manifest/compare/summary?leftVersion={leftVersion}&rightVersion=v1-replay");

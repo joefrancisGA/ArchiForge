@@ -1,6 +1,7 @@
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Services;
@@ -23,7 +24,10 @@ public class RequirementFindingEngine : IFindingEngine
             node.Properties.TryGetValue("text", out string? requirementText);
 
             List<string> relatedFromGraph = graphSnapshot
-                .GetOutgoingTargets(node.NodeId, "RELATES_TO")
+                .GetOutgoingTargets(
+                    node.NodeId,
+                    "RELATES_TO",
+                    GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
                 .Select(n => n.NodeId)
                 .ToList();
 

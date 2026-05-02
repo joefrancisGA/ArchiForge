@@ -28,13 +28,18 @@ public sealed class ImportRequestFileController(
     ///     Upload a UTF-8 .toml or .json file (max 512 KB). Returns 202 with import id when the draft is stored; 422 on
     ///     validation, parse, or content-safety failure.
     /// </summary>
+    /// <remarks>
+    ///     Do not decorate <see cref="IFormFile" /> with <c>[FromForm]</c>: Swashbuckle throws
+    ///     <c>SwaggerGeneratorException</c> while generating OpenAPI. ApiController still binds the file from
+    ///     multipart form-data.
+    /// </remarks>
     [HttpPost("request/import")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     [RequestSizeLimit(MaxMultipartBodyBytes)]
-    public async Task<IActionResult> ImportAsync([FromForm] IFormFile? file, CancellationToken cancellationToken)
+    public async Task<IActionResult> ImportAsync(IFormFile? file, CancellationToken cancellationToken)
     {
         ImportRequestFileResult result =
             await importRequestFileService.ImportAsync(file, cancellationToken, HttpContext.TraceIdentifier);

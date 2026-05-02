@@ -42,7 +42,8 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
             List<GraphEdge> matchingEdges = graphSnapshot.Edges
                 .Where(x =>
                     string.Equals(x.EdgeType, rule.RequiredEdgeType, StringComparison.OrdinalIgnoreCase) &&
-                    eligibleFromIds.Contains(x.FromNodeId))
+                    eligibleFromIds.Contains(x.FromNodeId) &&
+                    x.Weight >= GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
                 .ToList();
 
             HashSet<string> coveredResourceIds = matchingEdges

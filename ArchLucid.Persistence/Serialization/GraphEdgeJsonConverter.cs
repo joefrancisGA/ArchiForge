@@ -24,6 +24,8 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             ToNodeId = ReadFirstString(root, "toNodeId", "to", "target") ?? "",
             EdgeType = ReadFirstString(root, "edgeType", "type", "relation") ?? "",
             Label = ReadFirstString(root, "label"),
+            Weight = ReadFirstDouble(root, "weight") ?? 1d,
+            InferenceSource = ReadFirstString(root, "inferenceSource"),
             Properties = ReadProperties(root, options)
         };
     }
@@ -39,6 +41,11 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
             writer.WriteNull("label");
         else
             writer.WriteString("label", value.Label);
+        writer.WriteNumber("weight", value.Weight);
+        if (value.InferenceSource is null)
+            writer.WriteNull("inferenceSource");
+        else
+            writer.WriteString("inferenceSource", value.InferenceSource);
         writer.WritePropertyName("properties");
         JsonSerializer.Serialize(writer, value.Properties, options);
         writer.WriteEndObject();
@@ -63,6 +70,23 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
 
             if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
                 return el.GetString();
+
+
+        return null;
+    }
+
+    private static double? ReadFirstDouble(JsonElement root, params string[] names)
+    {
+        foreach (string name in names)
+
+            if (TryGetIgnoreCase(root, name, out JsonElement el))
+            {
+                if (el.ValueKind == JsonValueKind.Number && el.TryGetDouble(out double d))
+                    return d;
+
+                if (el.ValueKind == JsonValueKind.String && double.TryParse(el.GetString(), out double parsed))
+                    return parsed;
+            }
 
 
         return null;

@@ -87,4 +87,45 @@ public sealed class DefaultGraphEdgeInfererContractTests
             .BeApproximately(1.0, 1e-10);
         edges.Should().NotContain(e => e.FromNodeId == "pol-1" && e.ToNodeId == "res-b");
     }
+
+    [Fact]
+    public void InferEdges_WhenSecurityListsProtectedTopologyNodeIds_OnlyTargetsListedResources()
+    {
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        GraphNode topoA = new()
+        {
+            NodeId = "res-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "a",
+            Category = GraphTopologyCategories.Compute
+        };
+        GraphNode topoB = new()
+        {
+            NodeId = "res-b",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "b",
+            Category = GraphTopologyCategories.Compute
+        };
+        GraphNode security = new()
+        {
+            NodeId = "sec-1",
+            NodeType = GraphNodeTypes.SecurityBaseline,
+            Label = "baseline",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds] = "res-a"
+            }
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [topoA, topoB, security]);
+
+        edges.Should()
+            .ContainSingle(e =>
+                e.EdgeType == GraphEdgeTypes.Protects &&
+                e.FromNodeId == "sec-1" &&
+                e.ToNodeId == "res-a")
+            .Which.Weight.Should()
+            .BeApproximately(1.0, 1e-10);
+        edges.Should().NotContain(e => e.FromNodeId == "sec-1" && e.ToNodeId == "res-b");
+    }
 }

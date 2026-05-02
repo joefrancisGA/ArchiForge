@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -14,6 +16,8 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
+using ArchLucid.Persistence.Serialization;
+
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
@@ -24,7 +28,7 @@ using Microsoft.Extensions.Primitives;
 namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
-///     HTTP API for mutating architecture runs: create, execute, commit, submit agent results.
+///     HTTP API for mutating architecture runs: create, execute, commit, replay, submit agent results.
 /// </summary>
 /// <remarks>
 ///     Base route <c>v1/architecture</c>. Read-only endpoints live on <see cref="RunQueryController" /> and
@@ -44,6 +48,7 @@ public sealed partial class RunsController(
     IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IArchitectureApplicationService architectureApplicationService,
+    IReplayRunService replayRunService,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
@@ -277,6 +282,94 @@ public sealed partial class RunsController(
         catch (RunNotFoundException ex)
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+    }
+
+    /// <summary>
+    ///     Re-executes agents for <paramref name="runId" /> from cloned tasks/evidence, optionally committing a replay manifest.
+    /// </summary>
+    [HttpPost("run/{runId}/replay")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+    [EnableRateLimiting("expensive")]
+    public async Task<IActionResult> ReplayRun(
+        [FromRoute] string runId,
+        [FromBody] ReplayRunRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ReplayRunRequest();
+
+        string user = actorContext.GetActor();
+        string correlationId = HttpContext.TraceIdentifier;
+
+        try
+        {
+            ReplayRunResult result = await replayRunService.ReplayAsync(
+                runId,
+                request.ExecutionMode,
+                request.CommitReplay,
+                request.ManifestVersionOverride,
+                cancellationToken);
+
+            ReplayRunResponse response = RunResponseMapper.ToReplayRunResponse(
+                result.OriginalRunId,
+                result.ReplayRunId,
+                result.ExecutionMode,
+                result.Results,
+                result.Manifest,
+                result.DecisionTraces,
+                result.Warnings);
+
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            string auditActor = actorContext.GetActor();
+            Guid? auditRunId = Guid.TryParse(result.OriginalRunId, out Guid originalParsed) ? originalParsed : null;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ReplayExecuted,
+                    ActorUserId = auditActor,
+                    ActorUserName = auditActor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = auditRunId,
+                    CorrelationId = correlationId,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        result.OriginalRunId,
+                        result.ReplayRunId,
+                        resolvedExecutionMode = result.ExecutionMode,
+                        requestedExecutionMode = request.ExecutionMode,
+                        request.CommitReplay,
+                        request.ManifestVersionOverride
+                    },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                cancellationToken);
+
+            logger.LogInformation(
+                "Run replayed: OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}",
+                result.OriginalRunId,
+                result.ReplayRunId,
+                result.ExecutionMode,
+                user,
+                correlationId);
+
+            return Ok(response);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "ReplayRun failed for run '{RunId}'.", runId);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BusinessRuleViolation);
         }
     }
 

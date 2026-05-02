@@ -8,11 +8,12 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     private const double WeightContextContains = 0.55d;
     private const double WeightExplicitParentChild = 1d;
     private const double WeightHeuristicTopologyContainment = 0.5d;
-    private const double WeightSecurityBroad = 0.3d;
-    private const double WeightPolicyBroad = 0.35d;
     private const double WeightPolicyTargeted = 1d;
-    private const double WeightRequirementHeuristic = 0.45d;
+    private const double WeightPolicySingleTopology = 0.55d;
+    private const double WeightRequirementHeuristic = 0.55d;
     private const double WeightRequirementTargeted = 1d;
+    private const double WeightSecurityTargeted = 1d;
+    private const double WeightSecuritySingleTopology = 0.55d;
 
     public IReadOnlyList<GraphEdge> InferEdges(
         ContextSnapshot contextSnapshot,
@@ -30,7 +31,13 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> requirementNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.Requirement).ToList();
 
         edges.AddRange(nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot).Select(node =>
-            CreateEdge(contextNodeId, node.NodeId, GraphEdgeTypes.Contains, "contains", WeightContextContains)));
+            CreateEdge(
+                contextNodeId,
+                node.NodeId,
+                GraphEdgeTypes.Contains,
+                "contains",
+                WeightContextContains,
+                GraphEdgeInferenceSources.ContextMembership)));
 
         Dictionary<string, GraphNode> nodeById = nodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase);
 
@@ -59,8 +66,13 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             if (!nodeById.ContainsKey(parentId))
                 continue;
 
-            edges.Add(CreateEdge(parentId, node.NodeId, GraphEdgeTypes.ContainsResource, "contains resource",
-                WeightExplicitParentChild));
+            edges.Add(CreateEdge(
+                parentId,
+                node.NodeId,
+                GraphEdgeTypes.ContainsResource,
+                "contains resource",
+                WeightExplicitParentChild,
+                GraphEdgeInferenceSources.ExplicitParentChild));
         }
     }
 
@@ -76,16 +88,43 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             .Where(x => x.Label.Contains("subnet", StringComparison.OrdinalIgnoreCase))
             .ToList();
 
+        int networkCount = networks.Count;
+
         foreach (GraphNode network in networks)
 
         foreach (GraphNode subnet in subnets)
+        {
+            if (!ShouldInferNetworkContainsSubnet(network, subnet, networkCount))
+                continue;
 
             edges.Add(CreateEdge(
                 network.NodeId,
                 subnet.NodeId,
                 GraphEdgeTypes.ContainsResource,
                 "contains resource",
-                WeightHeuristicTopologyContainment));
+                WeightHeuristicTopologyContainment,
+                GraphEdgeInferenceSources.HeuristicNetworkSubnet));
+        }
+    }
+
+    /// <summary>
+    ///     Avoids full VNet × subnet cross-joins when multiple network anchors exist: link only when parent id matches,
+    ///     the graph has a single network, or the subnet label appears to name the VNet.
+    /// </summary>
+    private static bool ShouldInferNetworkContainsSubnet(GraphNode network, GraphNode subnet, int networkCount)
+    {
+        if (subnet.Properties.TryGetValue("parentNodeId", out string? parentId)
+            && string.Equals(parentId, network.NodeId, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (networkCount == 1)
+            return true;
+
+        string netLabel = network.Label;
+        if (string.IsNullOrWhiteSpace(netLabel) || netLabel.Length < 3)
+            return false;
+
+        return subnet.Label.Contains(netLabel, StringComparison.OrdinalIgnoreCase);
     }
 
     private static void InferSecurityProtection(
@@ -94,15 +133,40 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> topologyNodes)
     {
         foreach (GraphNode security in securityNodes)
+        {
+            HashSet<string>? targeted =
+                ParseTargetNodeIds(security.Properties, CanonicalGraphPropertyKeys.ProtectedTopologyNodeIds);
+            if (targeted is not null && targeted.Count > 0)
+            {
+                foreach (GraphNode resource in topologyNodes)
+                {
+                    if (!targeted.Contains(resource.NodeId))
+                        continue;
 
-        foreach (GraphNode resource in topologyNodes)
+                    edges.Add(CreateEdge(
+                        security.NodeId,
+                        resource.NodeId,
+                        GraphEdgeTypes.Protects,
+                        "protects",
+                        WeightSecurityTargeted,
+                        GraphEdgeInferenceSources.SecurityTargeted));
+                }
 
+                continue;
+            }
+
+            if (topologyNodes.Count != 1)
+                continue;
+
+            GraphNode soleTopology = topologyNodes[0];
             edges.Add(CreateEdge(
                 security.NodeId,
-                resource.NodeId,
+                soleTopology.NodeId,
                 GraphEdgeTypes.Protects,
                 "protects",
-                WeightSecurityBroad));
+                WeightSecuritySingleTopology,
+                GraphEdgeInferenceSources.SecuritySingleTopologyFallback));
+        }
     }
 
     private static void InferPolicyApplicability(
@@ -126,20 +190,24 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                         resource.NodeId,
                         GraphEdgeTypes.AppliesTo,
                         "applies to",
-                        WeightPolicyTargeted));
+                        WeightPolicyTargeted,
+                        GraphEdgeInferenceSources.PolicyTargeted));
                 }
 
                 continue;
             }
 
-            foreach (GraphNode resource in topologyNodes)
+            if (topologyNodes.Count != 1)
+                continue;
 
-                edges.Add(CreateEdge(
-                    policy.NodeId,
-                    resource.NodeId,
-                    GraphEdgeTypes.AppliesTo,
-                    "applies to",
-                    WeightPolicyBroad));
+            GraphNode soleTopology = topologyNodes[0];
+            edges.Add(CreateEdge(
+                policy.NodeId,
+                soleTopology.NodeId,
+                GraphEdgeTypes.AppliesTo,
+                "applies to",
+                WeightPolicySingleTopology,
+                GraphEdgeInferenceSources.PolicySingleTopologyFallback));
         }
     }
 
@@ -164,7 +232,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                         resource.NodeId,
                         GraphEdgeTypes.RelatesTo,
                         "relates to",
-                        WeightRequirementTargeted));
+                        WeightRequirementTargeted,
+                        GraphEdgeInferenceSources.RequirementTargeted));
                 }
 
                 continue;
@@ -183,7 +252,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                         resource.NodeId,
                         GraphEdgeTypes.RelatesTo,
                         "relates to",
-                        WeightRequirementHeuristic));
+                        WeightRequirementHeuristic,
+                        GraphEdgeInferenceSources.RequirementTextHeuristic));
         }
     }
 
@@ -232,7 +302,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         string toNodeId,
         string edgeType,
         string label,
-        double weight)
+        double weight,
+        string inferenceSource)
     {
         return new GraphEdge
         {
@@ -241,7 +312,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             ToNodeId = toNodeId,
             EdgeType = edgeType,
             Label = label,
-            Weight = weight
+            Weight = weight,
+            InferenceSource = inferenceSource
         };
     }
 

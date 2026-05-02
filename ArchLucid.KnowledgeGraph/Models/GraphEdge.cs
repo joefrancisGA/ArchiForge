@@ -42,6 +42,15 @@ public class GraphEdge
         set;
     } = 1d;
 
+    /// <summary>
+    ///     When set, identifies which inferrer rule produced this edge (see <see cref="GraphEdgeInferenceSources" />).
+    /// </summary>
+    public string? InferenceSource
+    {
+        get;
+        set;
+    }
+
     public Dictionary<string, string> Properties
     {
         get;

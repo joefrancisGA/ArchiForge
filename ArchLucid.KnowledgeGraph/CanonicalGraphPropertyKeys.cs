@@ -6,8 +6,9 @@ namespace ArchLucid.KnowledgeGraph;
 ///     strings (e.g. <c>obj-abc123</c>, <c>context-…</c> is not a topology target).
 /// </summary>
 /// <remarks>
-///     When absent, <see cref="Inference.DefaultGraphEdgeInferer" /> falls back to legacy heuristics
-///     (all policies → all topology, text-based requirement relevance).
+///     When absent for policies or security baselines, inference only links a single topology anchor (one resource) or
+///     skips scope edges until explicit IDs are provided. Requirements still use a narrow text heuristic when
+///     <see cref="RelatedTopologyNodeIds" /> is unset.
 /// </remarks>
 public static class CanonicalGraphPropertyKeys
 {
@@ -16,4 +17,7 @@ public static class CanonicalGraphPropertyKeys
 
     /// <summary>Requirement nodes: explicit topology resources this requirement relates to.</summary>
     public const string RelatedTopologyNodeIds = "relatedTopologyNodeIds";
+
+    /// <summary>Security baseline nodes: explicit topology resources in scope for this control.</summary>
+    public const string ProtectedTopologyNodeIds = "protectedTopologyNodeIds";
 }

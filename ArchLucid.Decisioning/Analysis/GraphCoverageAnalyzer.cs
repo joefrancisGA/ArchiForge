@@ -48,7 +48,11 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
     {
         IReadOnlyList<GraphNode> securityNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.SecurityBaseline);
         IReadOnlyList<GraphNode> topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
-        IReadOnlyList<GraphEdge> protectsEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.Protects);
+        IReadOnlyList<GraphEdge> protectsEdges = graphSnapshot.Edges
+            .Where(x =>
+                string.Equals(x.EdgeType, GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase) &&
+                x.Weight >= GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
+            .ToList();
 
         HashSet<string> protectedIds = protectsEdges
             .Select(x => x.ToNodeId)
@@ -82,7 +86,11 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
     {
         IReadOnlyList<GraphNode> policyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.PolicyControl);
         IReadOnlyList<GraphNode> topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
-        IReadOnlyList<GraphEdge> appliesToEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.AppliesTo);
+        IReadOnlyList<GraphEdge> appliesToEdges = graphSnapshot.Edges
+            .Where(x =>
+                string.Equals(x.EdgeType, GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase) &&
+                x.Weight >= GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
+            .ToList();
 
         HashSet<string> coveredIds = appliesToEdges
             .Select(x => x.ToNodeId)
@@ -107,7 +115,11 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
     public RequirementCoverageResult AnalyzeRequirements(GraphSnapshot graphSnapshot)
     {
         IReadOnlyList<GraphNode> requirementNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.Requirement);
-        IReadOnlyList<GraphEdge> relatesToEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.RelatesTo);
+        IReadOnlyList<GraphEdge> relatesToEdges = graphSnapshot.Edges
+            .Where(x =>
+                string.Equals(x.EdgeType, GraphEdgeTypes.RelatesTo, StringComparison.OrdinalIgnoreCase) &&
+                x.Weight >= GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
+            .ToList();
 
         HashSet<string> coveredIds = relatesToEdges
             .Select(x => x.FromNodeId)

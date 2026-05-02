@@ -1,6 +1,7 @@
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Services;
@@ -24,7 +25,10 @@ public class PolicyApplicabilityFindingEngine : IFindingEngine
         foreach (GraphNode policy in policyNodes)
         {
             List<GraphNode> targets = graphSnapshot
-                .GetOutgoingTargets(policy.NodeId, "APPLIES_TO")
+                .GetOutgoingTargets(
+                    policy.NodeId,
+                    "APPLIES_TO",
+                    GraphEdgeDecisioningThresholds.MinWeightForSemanticLink)
                 .Where(n => string.Equals(n.NodeType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 

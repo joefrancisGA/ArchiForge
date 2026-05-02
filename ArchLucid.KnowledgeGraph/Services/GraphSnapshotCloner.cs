@@ -54,6 +54,7 @@ public static class GraphSnapshotCloner
             EdgeType = edge.EdgeType,
             Label = edge.Label,
             Weight = edge.Weight,
+            InferenceSource = edge.InferenceSource,
             Properties = new Dictionary<string, string>(edge.Properties, StringComparer.OrdinalIgnoreCase)
         };
     }
