@@ -10,7 +10,11 @@ public static class AuditEventCursorCodec
 
     public static string Encode(DateTime occurredUtc, Guid eventId)
     {
-        AuditListCursorDto dto = new() { Ou = FormatRoundTrip(occurredUtc), Ei = eventId };
+        AuditListCursorDto dto = new()
+        {
+            Ou = FormatRoundTrip(occurredUtc),
+            Ei = eventId
+        };
         byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(dto, SerializerOptions);
         return Base64UrlEncode(utf8);
     }
@@ -65,13 +69,13 @@ public static class AuditEventCursorCodec
         public string Ou
         {
             get;
-            set;
+            init;
         } = "";
 
         public Guid Ei
         {
             get;
-            set;
+            init;
         }
     }
 }

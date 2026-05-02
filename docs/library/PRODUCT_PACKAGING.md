@@ -141,6 +141,17 @@ The layer model is also the most likely foundation for future commercial packagi
 
 In V1, the layer model is still **not** the full commercial entitlement matrix (SKU ↔ every endpoint). **However**, **Operate (governance and trust)** and **Operate (analysis workloads)** HTTP surfaces are now **broadly** hard-gated on `dbo.Tenants.Tier` via `[RequiresCommercialTenantTier]`: **Standard** minimum covers governance and policy packs, governance resolution/preview, manifests, planning graph/comparison, authority compare/replay/exports/artifacts/run comparisons/provenance, advisory and digest schedules, learning/product-learning/recommendation-learning, evolution, retrieval/ask/conversations/explain, finding inspect/feedback, alerts and alert rules/routing/composite/tuning/simulation, pilot board pack and related PDFs, tenant cost/value/ROI/digest preferences/customer-success, notification and Teams integration preferences, operator diagnostics, Pilots **sponsor-one-pager** (`POST` action), and **tenant value report DOCX**. **Enterprise** minimum applies to **audit CSV export** (`ExportAudit` on `AuditController` only; other audit list/search routes are not tier-gated). Sub-tier tenants receive **HTTP 404 Not Found** with a generic RFC 9457 problem body (`ProblemTypes.ResourceNotFound`) so capabilities are not disclosed — see `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`. **Trial** seat/run limits still use **HTTP 402** (`TrialLimitFilter`). UI shaping remains separate; deep links still hit the API gate.
 
+### Four boundary rules
+
+| Boundary | What it controls | Failure mode |
+|----------|------------------|--------------|
+| **Commercial tier** | Whether the tenant has bought the product layer. | Sub-tier deep links return **404** to avoid capability disclosure. |
+| **Authority / role** | Whether the caller may read, execute, or administer. | Missing role returns **401/403** from the API. |
+| **Progressive disclosure** | Whether the operator shell shows the link by default. | Hidden links are a usability choice, not authorization. |
+| **Trial limits** | Whether a trial has seats/runs left. | Trial exhaustion returns **402** with the trial-limit problem body. |
+
+Buyer-facing copy must not imply that a visible UI link grants access. Contributor changes that add Operate routes should update the tier gate, API policy, navigation row, and seam tests together.
+
 This is the future commercialization model.
 
 For the future-state map, see **[FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md)**.

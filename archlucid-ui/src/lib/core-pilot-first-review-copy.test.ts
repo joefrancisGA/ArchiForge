@@ -27,13 +27,14 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
   });
 
   it("summarizes the four-step flow without internal pipeline jargon", () => {
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/request/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/create review/i);
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/finalize/i);
-    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/review outputs/i);
+    expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/review package/i);
   });
 
   it("offers a single-path first-session hint without extra jargon", () => {
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE.length).toBeGreaterThan(40);
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE.toLowerCase()).toMatch(/first/);
+    expect(CORE_PILOT_FIRST_SESSION_GUIDANCE).toMatch(/review package/i);
   });
 });

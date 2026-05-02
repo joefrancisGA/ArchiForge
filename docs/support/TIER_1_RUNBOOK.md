@@ -38,6 +38,22 @@ Resolve or **triage** common ArchLucid issues without data mutation, using only 
 | 9 | Compare `X-Correlation-ID` to API logs | Match | Lost correlation middleware |
 |10 | Open **SQL** `Runs.OtelTraceId` for run | Matches distributed trace | Sampling gap — see [../OBSERVABILITY.md](../library/OBSERVABILITY.md) |
 
+## Symptom rescue matrix
+
+| Symptom | First check | Evidence to collect | Escalate when |
+|---------|-------------|---------------------|---------------|
+| Cannot sign in | `GET /api/auth/me` in browser devtools or proxy logs | User email/domain, auth mode, HTTP status, correlation id | Repeated **401/403** after confirmed Entra/API-key setup |
+| `/health/ready` fails | `curl -sS <base>/health/ready` | Full readiness JSON, dependency name, `/version` output | SQL, schema, Key Vault, or storage dependency is **Unhealthy** for more than one retry window |
+| Run stuck before commit | `dotnet run --project ArchLucid.Cli -- status <runId>` | run id, status, pipeline timeline, correlation id from last execute call | Same stage remains in-progress or failed after one re-execute attempt |
+| Commit blocked | Capture commit response body | ProblemDetails JSON, blocking finding ids, governance config state | Gate blocks unexpectedly for a pilot where pre-commit governance should be off |
+| No artifacts after commit | `GET /v1/artifacts/manifests/{manifestId}` | manifest id, run id, commit response, artifact list response | Commit succeeded but artifact list remains empty after refresh |
+| Finding looks wrong | `GET /v1/architecture/run/{runId}/agent-evaluation` | finding id, severity, evidence-chain pointers, structural/semantic scores | Evidence chain missing or semantic score is below release threshold |
+| Export fails | Retry the exact export URL once | export URL, status code, content type, correlation id, run id | DOCX/PDF/ZIP corrupt or repeated 5xx |
+| Audit row missing | `GET /v1/audit/search?runId=<runId>` where available | run id, actor, action time, expected event type | Mutating operation succeeded but durable audit is absent |
+| Trace link not found | `dotnet run --project ArchLucid.Cli -- trace <runId>` | `Runs.OtelTraceId`, current `X-Trace-Id`, sampling settings | Trace id exists but backend has no matching trace and sampling should retain it |
+| Webhook or Teams delivery failed | Check alert/digest delivery audit rows | event type, delivery target host, status code, correlation id | Repeated delivery failure or HMAC/signature mismatch |
+| Trial signup failed | Review registration ProblemDetails and trial audit rows | email domain, slug, stage/reason, correlation id | Duplicate/conflict resolved but signup still fails |
+
 ## Data flow (failing run)
 
 UI error → capture **correlation id** → **`/health/ready`** → **`/version`** → **`trace <runId>`** → **`DataConsistency`** metrics if suspicion of orphan rows → escalate with **support bundle**.

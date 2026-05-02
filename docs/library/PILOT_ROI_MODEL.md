@@ -100,6 +100,8 @@ These are the most useful V1 measures.
 
 The first-value report (`GET /v1/pilots/runs/{runId}/first-value-report` and the `…/first-value-report.pdf` companion) and the sponsor one-pager PDF compute the five "Computed by ArchLucid" rows above straight from persisted run state. **Baseline confidence appendix:** Markdown and PDF append **`## ROI evidence completeness`** (from `RoiEvidenceCompletenessMarkdownFormatter`) so sponsors see whether dollar narratives rely on tenant-captured baselines (**Strong / Partial**) or illustrative defaults (**Low confidence**).
 
+Every first-value report also includes a **Buyer-safe proof package contract**. Treat that table as the send/no-send checklist before a sponsor email: architecture review identity, support run id, time to committed manifest, findings by severity, top finding evidence-chain pointer, audit-row count or lower bound, LLM-call count, ROI evidence confidence, and demo-data warning when applicable. Do not hand-edit missing fields into the report; either rerun the check, explain the gap, or mark the proof package incomplete.
+
 When the report is generated **for one of the canonical Contoso Retail demo runs** (or any run whose `RequestId` carries the `req-contoso-demo-` prefix that `ContosoRetailDemoIds.ForTenant(...)` mints for non-default tenants), every report renders the banner:
 
 > _demo tenant — replace before publishing._

@@ -63,7 +63,7 @@ Both wrappers invoke the same Python builder. **Default CI** should keep using *
 
 ### Deal-ready preflight (recommended before sending to buyer)
 
-Run deal-ready mode for a stricter gate that includes canonical assurance coherence references and required buyer-contact checks.
+Run deal-ready mode for a stricter gate that includes canonical assurance coherence references, required buyer-contact checks, and **Last reviewed** freshness for required buyer-facing docs.
 
 ```bash
 python scripts/build_procurement_pack.py --deal-ready
@@ -72,6 +72,12 @@ python scripts/build_procurement_pack.py --deal-ready
 ```powershell
 $env:PROCUREMENT_PACK_DEAL_READY = "1"
 python scripts/build_procurement_pack.py
+```
+
+By default, deal-ready mode fails when required buyer-facing docs are more than **120 days** past their `**Last reviewed:** YYYY-MM-DD` marker. Override only with an explicit owner decision:
+
+```bash
+python scripts/build_procurement_pack.py --deal-ready --max-review-age-days 180
 ```
 
 ## After generating the ZIP

@@ -31,7 +31,27 @@ function requireString(payload, dottedKey) {
 export function extractIntegrationIdempotencyKey(cloudEvent) {
   const idem = String(cloudEvent.id ?? "");
 
+  if (idem.trim().length === 0) {
+    throw new Error("missing CloudEvent id");
+  }
+
   return idem;
+}
+
+/**
+ * @param {Record<string, unknown>} cloudEvent
+ * @returns {string}
+ */
+export function buildArchLucidCorrelationBacklink(cloudEvent) {
+  if (typeof cloudEvent.data !== "object" || cloudEvent.data === null) {
+    throw new Error("missing data object");
+  }
+
+  /** @type {Record<string, unknown>} */
+  const data = cloudEvent.data;
+  const runId = requireString(data, "runId");
+
+  return `/reviews/${encodeURIComponent(runId)}`;
 }
 
 /**
@@ -59,7 +79,16 @@ export function mapCloudEventToJiraIssueSkeleton(cloudEvent) {
       description: {
         type: "doc",
         version: 1,
-        content: [{ type: "paragraph", content: [{ type: "text", text: `Run ${runId} (manifest in CloudEvent payload).` }] }],
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: `Run ${runId} (manifest in CloudEvent payload).` }],
+          },
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: `ArchLucid backlink: ${buildArchLucidCorrelationBacklink(cloudEvent)}` }],
+          },
+        ],
       },
       issuetype: { name: "Task" },
     },
@@ -95,6 +124,7 @@ export function mapCloudEventToServiceNowIncidentSkeleton(cloudEvent) {
       manifestId: data.manifestId ?? null,
       tenantId: data.tenantId ?? null,
       cloudEventSource: cloudEvent.source,
+      archlucidBacklink: buildArchLucidCorrelationBacklink(cloudEvent),
     }),
   };
 

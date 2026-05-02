@@ -29,6 +29,7 @@
 - [ ] **Readiness script** green for the agreed filter: `run-readiness-check.ps1` (Phase 2 now runs **`dotnet run … -- config lint`**; use `-SkipUi` only if UI is out of scope for this handoff).
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
 - [ ] **RC drill** (staged/prod-like API URL): run **`v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two runs, compare, authority replay, export ZIP, support bundle).
+- [ ] **Staging evidence artifact** captured: `.\capture-staging-readiness-evidence.ps1 -BaseUrl https://<staging-host> -AuthMode <mode>`; add `-RunDoctor` / `-RunRcDrill` when the target allows those checks. Store the generated `artifacts/staging-readiness/*.md` with release artifacts, not in git.
 - [ ] *(Optional SaaS fleets)* **Reliability drill** automation understood if you consume the scheduled workflow output — [RELIABILITY_DRILL_PACKAGE.md](../runbooks/RELIABILITY_DRILL_PACKAGE.md).
 - [ ] **Package handoff** (if distributing bits): `package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 - [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../../README.md), [BUILD.md](BUILD.md)).
@@ -45,6 +46,7 @@
 - [ ] **`dotnet run --project ArchLucid.Cli -- doctor`** succeeds against the deployed/staged API base URL (or equivalent in packaged deployment).
 - [ ] **Correlation:** sample request with **`X-Correlation-ID`** appears in logs as expected ([API_CONTRACTS.md](API_CONTRACTS.md)).
 - [ ] **Observability** (if production): metrics/logs dashboards or queries smoke-tested for one synthetic run ([OPERATIONS_ADMIN.md](OPERATIONS_ADMIN.md) if applicable).
+- [ ] **Agent output quality corpus** recorded: `python scripts/ci/eval_agent_corpus.py --markdown-report artifacts/agent-output-quality.md --enforce-quality-gate` for tagged release candidates, or documented as skipped for simulator-only internal builds.
 - [ ] **Real-LLM credibility (when ship posture includes real AOAI):** at least one session logged per [REAL_LLM_RUN_EVIDENCE_TEMPLATE.md](../quality/REAL_LLM_RUN_EVIDENCE_TEMPLATE.md) and [MANUAL_QA_CHECKLIST.md](../quality/MANUAL_QA_CHECKLIST.md) §8.3 — **not** required when the release is simulator-only end-to-end.
 
 ---

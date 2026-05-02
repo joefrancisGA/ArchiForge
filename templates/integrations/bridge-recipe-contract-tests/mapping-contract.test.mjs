@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import {
+  buildArchLucidCorrelationBacklink,
   extractIntegrationIdempotencyKey,
   mapCloudEventToJiraIssueSkeleton,
   mapCloudEventToServiceNowIncidentSkeleton,
@@ -19,6 +20,7 @@ test("fixture run.completed has required envelope + data fields", async () => {
   assert.equal(cloudEvent.specversion, "1.0");
 
   assert.equal(cloudEvent.type, "com.archlucid.authority.run.completed");
+  assert.match(String(cloudEvent.source), /archlucid/i);
 
   assert.match(String(cloudEvent.id), /^[a-fA-F0-9-]{10,}$/);
 
@@ -34,6 +36,7 @@ test("fixture run.completed has required envelope + data fields", async () => {
   }
 
   assert.equal(extractIntegrationIdempotencyKey(cloudEvent), cloudEvent.id);
+  assert.equal(buildArchLucidCorrelationBacklink(cloudEvent), `/reviews/${cloudEvent.data.runId}`);
 });
 
 test("mapCloudEventToJiraIssueSkeleton returns valid ADF + summary includes run id", async () => {
@@ -43,6 +46,7 @@ test("mapCloudEventToJiraIssueSkeleton returns valid ADF + summary includes run 
 
   assert.ok(String(issue.fields.summary).includes(cloudEvent.data.runId));
   assert.ok(issue.fields.description?.content?.length > 0);
+  assert.match(JSON.stringify(issue.fields.description), /ArchLucid backlink/);
 });
 
 test("mapCloudEventToServiceNowIncidentSkeleton carries correlation_id = CloudEvent id", async () => {
@@ -53,4 +57,5 @@ test("mapCloudEventToServiceNowIncidentSkeleton carries correlation_id = CloudEv
   assert.equal(inc.correlation_id, cloudEvent.id);
 
   assert.ok(String(inc.short_description).includes(String(cloudEvent.data.runId)));
+  assert.match(String(inc.work_notes), /archlucidBacklink/);
 });

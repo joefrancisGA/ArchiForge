@@ -232,7 +232,18 @@ def validate_sources(root: Path, entries: list[dict]) -> list[str]:
     return missing
 
 
-def deal_ready_repo_checks(root: Path, entries: list[dict]) -> list[str]:
+def _extract_last_reviewed_utc_date(text: str) -> datetime | None:
+    m = re.search(r"\*\*Last reviewed:\*\*\s*(\d{4}-\d{2}-\d{2})", text)
+    if m is None:
+        return None
+
+    try:
+        return datetime.strptime(m.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def deal_ready_repo_checks(root: Path, entries: list[dict], max_review_age_days: int) -> list[str]:
     violations: list[str] = []
     required_docs = (
         root / "docs" / "go-to-market" / "ASSURANCE_STATUS_CANONICAL.md",
@@ -250,6 +261,18 @@ def deal_ready_repo_checks(root: Path, entries: list[dict]) -> list[str]:
         text = p.read_text(encoding="utf-8", errors="replace")
         if "ASSURANCE_STATUS_CANONICAL.md" not in text and p.name != "ASSURANCE_STATUS_CANONICAL.md":
             violations.append(f"{p.relative_to(root).as_posix()}: missing canonical assurance status reference")
+
+        last_reviewed = _extract_last_reviewed_utc_date(text)
+        if last_reviewed is None:
+            violations.append(f"{p.relative_to(root).as_posix()}: missing **Last reviewed:** YYYY-MM-DD marker")
+            continue
+
+        age_days = (datetime.now(timezone.utc) - last_reviewed).days
+        if age_days > max_review_age_days:
+            violations.append(
+                f"{p.relative_to(root).as_posix()}: Last reviewed is {age_days} days old "
+                f"(max {max_review_age_days})"
+            )
 
     trust = root / "docs" / "go-to-market" / "TRUST_CENTER.md"
     incident = root / "docs" / "go-to-market" / "INCIDENT_COMMUNICATIONS_POLICY.md"
@@ -291,6 +314,12 @@ def main() -> int:
         "--deal-ready",
         action="store_true",
         help="Run stricter release/procurement checks (implies --strict) for buyer-facing packs.",
+    )
+    parser.add_argument(
+        "--max-review-age-days",
+        type=int,
+        default=120,
+        help="Maximum Last reviewed age for required deal-ready docs (default: 120).",
     )
     args = parser.parse_args()
 
@@ -345,7 +374,7 @@ def main() -> int:
             _DEAL_READY_PATTERNS,
             allowed_statuses=("Evidence", "Self-assessment"),
         )
-        deal_violations.extend(deal_ready_repo_checks(root, entries))
+        deal_violations.extend(deal_ready_repo_checks(root, entries, args.max_review_age_days))
         if deal_violations:
             print("error: procurement pack deal-ready checks failed:", file=sys.stderr)
             for v in deal_violations:

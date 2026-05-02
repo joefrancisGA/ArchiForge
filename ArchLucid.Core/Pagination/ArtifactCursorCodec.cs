@@ -65,7 +65,7 @@ public static class ArtifactCursorCodec
         public Guid Ai
         {
             get;
-            set;
+            init;
         }
     }
 }

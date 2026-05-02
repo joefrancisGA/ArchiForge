@@ -46,11 +46,12 @@ public static class AllowedDocumentUrlPolicy
         {
             byte[] b = ip.GetAddressBytes();
 
-            if (b[0] is 10)
-                return true;
-
-            if (b[0] is 172 && b[1] is >= 16 and <= 31)
-                return true;
+            switch (b[0])
+            {
+                case 10:
+                case 172 when b[1] is >= 16 and <= 31:
+                    return true;
+            }
 
             if (b[0] is 192 && b[1] is 168)
                 return true;
@@ -60,12 +61,9 @@ public static class AllowedDocumentUrlPolicy
                 return true;
         }
 
-        if (ip.AddressFamily is AddressFamily.InterNetworkV6)
-        {
-            if (ip.IsIPv6LinkLocal || ip.IsIPv6Multicast)
-                return true;
-        }
+        if (ip.AddressFamily is not AddressFamily.InterNetworkV6)
+            return false;
 
-        return false;
+        return ip.IsIPv6LinkLocal || ip.IsIPv6Multicast;
     }
 }

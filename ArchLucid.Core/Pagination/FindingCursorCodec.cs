@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 
 namespace ArchLucid.Core.Pagination;
@@ -11,7 +10,11 @@ public static class FindingCursorCodec
     /// <summary>Encodes the cursor after the last item on the previous page.</summary>
     public static string Encode(int sortOrder, Guid findingRecordId)
     {
-        FindingListCursorDto dto = new() { So = sortOrder, Fri = findingRecordId };
+        FindingListCursorDto dto = new()
+        {
+            So = sortOrder,
+            Fri = findingRecordId
+        };
         byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(dto, SerializerOptions);
         return Base64UrlEncode(utf8);
     }
@@ -57,13 +60,13 @@ public static class FindingCursorCodec
         public int So
         {
             get;
-            set;
+            init;
         }
 
         public Guid Fri
         {
             get;
-            set;
+            init;
         }
     }
 }

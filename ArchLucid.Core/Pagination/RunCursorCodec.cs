@@ -13,7 +13,11 @@ public static class RunCursorCodec
     /// <summary>Opaque Base64-url encoded cursor for subsequent keyset reads.</summary>
     public static string Encode(DateTime createdUtc, Guid runId)
     {
-        RunListCursorDto dto = new() { Cu = FormatRoundTrip(createdUtc), Ri = runId };
+        RunListCursorDto dto = new()
+        {
+            Cu = FormatRoundTrip(createdUtc),
+            Ri = runId
+        };
         byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(dto, SerializerOptions);
 
         return Base64UrlEncode(utf8);
@@ -76,13 +80,13 @@ public static class RunCursorCodec
         public string Cu
         {
             get;
-            set;
+            init;
         } = "";
 
         public Guid Ri
         {
             get;
-            set;
+            init;
         }
     }
 }

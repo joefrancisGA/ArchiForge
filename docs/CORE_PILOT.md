@@ -44,13 +44,13 @@ This document is the operator-facing first-pilot path. The sponsor-facing narrat
 The Core Pilot path is **four steps**. Completing them produces a committed **golden manifest** (technical term) and a downloadable **artifact bundle** — together, the **architecture review package** that is the primary deliverable of a pilot.
 
 ```
-1. Create architecture request
+1. Create architecture review
       ↓
 2. Pipeline runs  (coordinator fills steps automatically — UI shows review/progress)
       ↓
 3. Finalize / commit manifest
       ↓
-4. Review manifest summary and artifacts
+4. Open review package (manifest summary and artifacts)
 ```
 
 Everything in ArchLucid beyond these four steps — graph, compare, replay, advisory, alerts, governance, export packages, DOCX — is **available but secondary**. Pilots do not need to touch any of it to demonstrate value.
@@ -78,9 +78,9 @@ The Core Pilot boundary lets a pilot:
 
 <a id="new-run"></a>
 
-### Step 1 — Create an architecture request
+### Step 1 — Create an architecture review
 
-**Operator UI:** Sidebar → **New run** → seven-step wizard (system identity, requirements, constraints, advanced inputs, submit). The wizard POSTs `POST /v1/architecture/request` and enters pipeline-tracking mode.
+**Operator UI:** Sidebar → **New run** → seven-step wizard (system identity, requirements, constraints, advanced inputs, submit). The wizard creates the architecture review and POSTs `POST /v1/architecture/request`; the resulting run ID is support metadata.
 
 **CLI:** `archlucid run` (reads `archlucid.json` + `inputs/brief.md`). Quick dev path: `archlucid run --quick` seeds fake results and commits in one step.
 
@@ -114,7 +114,7 @@ Commit produces the **golden manifest** and synthesizes **artifacts**. Nothing i
 
 <a id="manifest-review"></a>
 
-### Step 4 — Review manifest and artifacts
+### Step 4 — Open the review package
 
 **Operator UI:** Run detail (after commit) shows:
 - **Manifest summary** — decisions, findings, structured metadata.

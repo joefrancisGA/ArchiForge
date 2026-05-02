@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -32,7 +31,9 @@ public static class FindingFactory
             PayloadType = nameof(RequirementFindingPayload),
             Payload = new RequirementFindingPayload
             {
-                RequirementName = requirementName, RequirementText = requirementText, IsMandatory = isMandatory
+                RequirementName = requirementName,
+                RequirementText = requirementText,
+                IsMandatory = isMandatory
             }
         };
     }

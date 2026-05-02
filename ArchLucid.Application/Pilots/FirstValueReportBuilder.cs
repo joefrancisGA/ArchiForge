@@ -120,6 +120,7 @@ public sealed class FirstValueReportBuilder(
         }
 
         AppendRunSection(sb, run, manifest, baseUrl);
+        AppendProofPackageContractSection(sb, deltas);
         AppendComputedDeltasSection(sb, deltas);
         ValueReportReviewCycleSectionFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
         RoiEvidenceCompletenessMarkdownFormatter.AppendMarkdownSection(sb, valueWindowSnapshot);
@@ -160,11 +161,14 @@ public sealed class FirstValueReportBuilder(
     private static void AppendRunSection(StringBuilder sb, ArchitectureRun run, GoldenManifest? manifest,
         string baseUrl)
     {
-        sb.AppendLine("## Run");
+        sb.AppendLine("## Architecture review identity");
+        sb.AppendLine();
+        sb.AppendLine(
+            "Each architecture review is tracked as one run for support, API access, and traceability. Use the review package language with sponsors; keep the run id in support notes.");
         sb.AppendLine();
         sb.AppendLine("| Field | Value |");
         sb.AppendLine("| --- | --- |");
-        sb.AppendLine($"| Run id | `{run.RunId}` |");
+        sb.AppendLine($"| Support run id | `{run.RunId}` |");
         sb.AppendLine($"| Status | `{run.Status}` |");
         sb.AppendLine($"| Request id | `{run.RequestId}` |");
         sb.AppendLine($"| Created (UTC) | `{run.CreatedUtc:O}` |");
@@ -192,6 +196,28 @@ public sealed class FirstValueReportBuilder(
             $"- [Decision nodes]({baseUrl}/v1/architecture/run/{run.RunId}/decisions) (`GET /v1/architecture/run/{{runId}}/decisions`) — after commit");
         sb.AppendLine();
     }
+
+    private static void AppendProofPackageContractSection(StringBuilder sb, PilotRunDeltas deltas)
+    {
+        sb.AppendLine("## Buyer-safe proof package contract");
+        sb.AppendLine();
+        sb.AppendLine(
+            "Use this section as the completeness check before sending the report to a sponsor. Persisted evidence is stronger than model narrative; missing rows should be called out rather than edited by hand.");
+        sb.AppendLine();
+        sb.AppendLine("| Required proof field | Status in this report |");
+        sb.AppendLine("| --- | --- |");
+        sb.AppendLine("| Architecture review identity | Present above; run id is support metadata. |");
+        sb.AppendLine($"| Time to committed manifest | {FormatProofStatus(deltas.TimeToCommittedManifest is not null)} |");
+        sb.AppendLine($"| Findings by severity | {FormatProofStatus(deltas.FindingsBySeverity.Count > 0)} |");
+        sb.AppendLine($"| Top finding evidence-chain pointer | {FormatProofStatus(deltas.TopFindingEvidenceChain is not null)} |");
+        sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(true)} |");
+        sb.AppendLine($"| LLM-call count | {FormatProofStatus(true)} |");
+        sb.AppendLine("| ROI evidence confidence | Rendered in `ROI evidence completeness` below. |");
+        sb.AppendLine($"| Demo data warning | {(deltas.IsDemoTenant ? "Present; do not quote seeded numbers." : "Not a demo run based on available identifiers.")} |");
+        sb.AppendLine();
+    }
+
+    private static string FormatProofStatus(bool present) => present ? "Present" : "Missing or not applicable; review before sponsor send";
 
     /// <summary>
     ///     Computed-deltas table — the single block sponsors should look at first. Every row is derived from persisted
