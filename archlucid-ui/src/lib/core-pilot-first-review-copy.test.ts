@@ -32,6 +32,11 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_WORKFLOW_SUMMARY_LINE).toMatch(/review package/i);
   });
 
+  it("labels the minimized first-review control consistently", () => {
+    expect(CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON.toLowerCase()).toContain("checklist");
+    expect(CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON.toLowerCase()).toContain("first");
+  });
+
   it("offers a single-path first-session hint without extra jargon", () => {
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE.length).toBeGreaterThan(40);
     expect(CORE_PILOT_FIRST_SESSION_GUIDANCE.toLowerCase()).toMatch(/first/);

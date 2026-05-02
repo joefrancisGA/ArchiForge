@@ -244,6 +244,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
             new NoOpDistributedCreateRunIdempotencyLock(),
             Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
+            new DefaultRequestContentSafetyPrecheck(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

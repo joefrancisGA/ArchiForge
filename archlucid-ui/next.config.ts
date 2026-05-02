@@ -25,6 +25,10 @@ const securityHeaders = [
   },
 ];
 
+const skipStandaloneOutput =
+  process.env.ARCHLUCID_SKIP_STANDALONE_OUTPUT === "1" ||
+  process.env.ARCHLUCID_SKIP_STANDALONE_OUTPUT === "true";
+
 const nextConfig: NextConfig = {
   /** Production/Docker `next build` must not typecheck Vitest-only roots (`testing/`, `vitest.*.ts`). IDE keeps `tsconfig.json`. */
   typescript: {
@@ -33,7 +37,11 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Standalone output copies only required node_modules into .next/standalone,
   // producing a self-contained deployment unit suitable for Docker / App Service.
-  output: "standalone",
+  //
+  // On some Windows setups, traced standalone copy hits ENOENT for
+  // `page_client-reference-manifest.js` during `Collecting build traces` (upstream Next + NFT).
+  // Docker/Linux builds are unaffected; set ARCHLUCID_SKIP_STANDALONE_OUTPUT=1 locally to finish `npm run build`.
+  ...(skipStandaloneOutput ? {} : { output: "standalone" as const }),
   transpilePackages: ["reactflow"],
   async headers() {
     return [

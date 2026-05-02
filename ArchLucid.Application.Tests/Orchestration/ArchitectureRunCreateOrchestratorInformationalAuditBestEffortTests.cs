@@ -142,6 +142,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             new NoOpDistributedCreateRunIdempotencyLock(),
             Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
+            new DefaultRequestContentSafetyPrecheck(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         CreateRunResult result = await sut.CreateRunAsync(request, null, CancellationToken.None);

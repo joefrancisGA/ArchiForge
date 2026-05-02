@@ -81,4 +81,38 @@ describe("QuickStartWizard", () => {
     expect(body.systemName).toBe("MyRetailApp");
     expect(body.description.length).toBeGreaterThanOrEqual(10);
   });
+
+  it("applies a review template to description and system name on step 2", async () => {
+    createRun.mockResolvedValue({ run: { runId: "quick-run-2" } });
+
+    render(<Harness />);
+
+    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "IgnoredAfterTemplate" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 2 of 3/i);
+    });
+
+    fireEvent.click(screen.getByTestId("quick-start-template-cloud-migration-assessment"));
+
+    const desc = screen.getByLabelText("Description") as HTMLTextAreaElement;
+    expect(desc.value).toContain("brownfield .NET monolith");
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 3 of 3/i);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Create request" }));
+
+    await waitFor(() => {
+      expect(createRun).toHaveBeenCalled();
+    });
+
+    const body = createRun.mock.calls[0][0] as { systemName: string; description: string };
+    expect(body.systemName).toBe("CloudMigrationAssessment");
+    expect(body.description).toContain("brownfield .NET monolith");
+  });
 });

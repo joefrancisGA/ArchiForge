@@ -9,6 +9,7 @@ import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { architectureReviewTemplates, suggestedSystemNameFromTemplateId } from "@/data/review-templates";
 import { createArchitectureRun } from "@/lib/api";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { showError, showSuccess } from "@/lib/toast";
@@ -38,7 +39,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   const [submitting, setSubmitting] = useState(false);
   const [presetId, setPresetId] = useState<string>("greenfield-web-app");
 
-  const { trigger, getValues, reset } = useFormContext<WizardFormValues>();
+  const { trigger, getValues, reset, setValue, clearErrors } = useFormContext<WizardFormValues>();
 
   const selectedPreset: WizardPreset | undefined = useMemo(
     () => wizardPresets.find((p) => p.id === presetId),
@@ -64,6 +65,21 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
       showError("Quick start", message);
     }
   }, []);
+
+  const applyReviewTemplate = (templateId: string) => {
+    const template = architectureReviewTemplates.find((t) => t.id === templateId);
+
+    if (!template) {
+      return;
+    }
+
+    clearErrors(["description", "systemName"]);
+    setValue("description", template.briefText, { shouldValidate: true, shouldDirty: true });
+    setValue("systemName", suggestedSystemNameFromTemplateId(template.id), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
 
   const goBack = () => {
     setQuickStep((s) => Math.max(0, s - 1));
@@ -165,7 +181,39 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           <WizardStepIdentity />
         </div>
       ) : null}
-      {quickStep === 1 ? <WizardStepDescription /> : null}
+      {quickStep === 1 ? (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Start from a template</CardTitle>
+              <CardDescription>
+                One click fills the architecture brief (and a matching system name). Edit the textarea afterward if
+                needed.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {architectureReviewTemplates.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    data-testid={`quick-start-template-${t.id}`}
+                    aria-label={`Use template: ${t.name}`}
+                    onClick={() => {
+                      applyReviewTemplate(t.id);
+                    }}
+                    className="flex flex-col items-start gap-1 rounded-lg border border-neutral-200/80 bg-white p-3 text-left text-sm shadow-sm transition hover:border-teal-600/45 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950/40 dark:hover:border-teal-500/40 dark:hover:bg-neutral-900/60"
+                  >
+                    <span className="font-medium text-neutral-900 dark:text-neutral-100">{t.name}</span>
+                    <span className="text-xs text-neutral-600 dark:text-neutral-400">{t.description}</span>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <WizardStepDescription />
+        </div>
+      ) : null}
       {quickStep === 2 ? <WizardStepReview /> : null}
 
       <div

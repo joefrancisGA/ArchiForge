@@ -44,9 +44,13 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock,
     IOptions<ArchitectureRunCreateOptions> createRunOptions,
     TimeProvider timeProvider,
+    IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private static readonly RunCreateIdempotencyGateCache IdempotencyGates = new();
+
+    private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
+        requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
 
     private readonly IActorContext
         _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
@@ -104,6 +108,25 @@ public sealed class ArchitectureRunCreateOrchestrator(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        RequestContentSafetyResult safety =
+            await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken).ConfigureAwait(false);
+
+        if (!safety.IsAllowed)
+        {
+            string actor = _actorContext.GetActor();
+
+            await _baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
+                    actor,
+                    request.RequestId,
+                    $"Request content failed safety precheck: {string.Join("; ", safety.Reasons)}",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            throw new InvalidOperationException(string.Join("; ", safety.Reasons));
+        }
 
         // ReSharper disable once InvertIf
         if (idempotency is not null)

@@ -198,6 +198,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             new NoOpDistributedCreateRunIdempotencyLock(),
             Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
+            new DefaultRequestContentSafetyPrecheck(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;
@@ -307,6 +308,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             new NoOpDistributedCreateRunIdempotencyLock(),
             Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
             TimeProvider.System,
+            new DefaultRequestContentSafetyPrecheck(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;
