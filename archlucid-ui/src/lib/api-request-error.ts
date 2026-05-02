@@ -11,12 +11,16 @@ export class ApiRequestError extends Error {
 
   readonly httpStatus: number;
 
+  /** From `Retry-After` when the upstream returned it (typically with 429). */
+  readonly retryAfterSeconds: number | null;
+
   constructor(
     message: string,
     options: {
       problem: ApiProblemDetails | null;
       correlationId: string | null;
       httpStatus: number;
+      retryAfterSeconds?: number | null;
     },
   ) {
     super(message);
@@ -24,6 +28,7 @@ export class ApiRequestError extends Error {
     this.problem = options.problem;
     this.correlationId = options.correlationId;
     this.httpStatus = options.httpStatus;
+    this.retryAfterSeconds = options.retryAfterSeconds ?? null;
   }
 }
 

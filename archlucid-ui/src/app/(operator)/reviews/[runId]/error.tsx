@@ -12,7 +12,7 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 /**
- * Segment error boundary for `/runs/[runId]` so run detail client failures show buyer-safe recovery
+ * Segment error boundary for `/reviews/[runId]` so review detail client failures show buyer-safe recovery
  * (not the parent `/runs` “reviews list” error segment).
  */
 export default function RunDetailSegmentError({
@@ -37,7 +37,7 @@ export default function RunDetailSegmentError({
         <p className="mt-2 text-sm">
           {isDev
             ? "Development build — technical details appear below."
-            : "The sample review is temporarily unavailable in this environment. You can open the curated sample manifest or the public walkthrough while we recover this view."}
+            : "The Claims Intake Modernization sample review could not render in this view. Open the sample manifest or the public walkthrough below, or return to your reviews list."}
         </p>
         {isDev ? (
           <pre
@@ -70,7 +70,7 @@ export default function RunDetailSegmentError({
           <Link href={`/manifests/${encodeURIComponent(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}`}>Sample manifest</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
-          <Link href={`/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`}>Sample walkthrough</Link>
+          <Link href="/demo/preview">Public demo preview</Link>
         </Button>
         <Button type="button" variant="outline" asChild>
           <Link href="/reviews?projectId=default">Back to reviews</Link>

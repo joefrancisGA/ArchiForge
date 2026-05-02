@@ -8,6 +8,7 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { useSearchParams } from "next/navigation";
 import { EmptyState } from "@/components/EmptyState";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
@@ -422,11 +423,7 @@ function CompareForm() {
           <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             Supplementary run-level comparison failed.
           </p>
-          <OperatorApiProblem
-            problem={legacyFailure.problem}
-            fallbackMessage={legacyFailure.message}
-            correlationId={legacyFailure.correlationId}
-          />
+          <OperatorApiProblem failure={legacyFailure} />
           <OperatorTryNext>
             Confirm both runs exist and are in scope (same tenant/project as the shell). Re-pick runs from{" "}
             <Link href="/reviews?projectId=default">Runs</Link> or run detail, then click <strong>Compare</strong> again.
@@ -453,12 +450,7 @@ function CompareForm() {
           <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             Manifest comparison request failed.
           </p>
-          <OperatorApiProblem
-            problem={goldenFailure.problem}
-            fallbackMessage={goldenFailure.message}
-            correlationId={goldenFailure.correlationId}
-            variant="warning"
-          />
+          <OperatorApiProblem failure={goldenFailure} variant="warning" />
           <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             The supplementary comparison may still have succeeded; check the sections below.
           </p>
@@ -487,12 +479,7 @@ function CompareForm() {
           <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             AI explanation request failed.
           </p>
-          <OperatorApiProblem
-            problem={aiFailure.problem}
-            fallbackMessage={aiFailure.message}
-            correlationId={aiFailure.correlationId}
-            variant="warning"
-          />
+          <OperatorApiProblem failure={aiFailure} variant="warning" />
           <OperatorTryNext>
             AI is optional—use the structured summary and supplementary tables above for the authoritative diff. If this
             should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
@@ -540,23 +527,25 @@ function CompareForm() {
         </nav>
       )}
 
-      {golden !== null && <StructuredComparisonView golden={golden} />}
+      <ClientErrorBoundary title="Comparison results failed to render">
+        {golden !== null && <StructuredComparisonView golden={golden} />}
 
-      {result !== null ? (
-          <details
-            id="compare-technical"
-            className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
-          >
-            <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-              Technical details — supplementary run-level comparison
-            </summary>
-            <div className="mt-4">
-              <LegacyRunComparisonView result={result} />
-            </div>
-          </details>
-        ) : null}
+        {result !== null ? (
+            <details
+              id="compare-technical"
+              className="mt-6 rounded-lg border border-dashed border-neutral-300 bg-neutral-50/50 p-4 dark:border-neutral-600 dark:bg-neutral-900/30"
+            >
+              <summary className="cursor-pointer text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+                Technical details — supplementary run-level comparison
+              </summary>
+              <div className="mt-4">
+                <LegacyRunComparisonView result={result} />
+              </div>
+            </details>
+          ) : null}
 
-      {aiExplanation !== null && <AiComparisonExplanationView explanation={aiExplanation} />}
+        {aiExplanation !== null && <AiComparisonExplanationView explanation={aiExplanation} />}
+      </ClientErrorBoundary>
 
       {pairAligned && !loading && lastComparedPair !== null ? (
         <details

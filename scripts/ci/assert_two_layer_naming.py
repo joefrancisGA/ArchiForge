@@ -40,7 +40,16 @@ def main() -> int:
     violations: list[tuple[Path, str]] = []
 
     for path in _iter_markdown_files():
-        text = path.read_text(encoding="utf-8")
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError as exc:
+            print(
+                "Two-layer naming lint: Markdown must be valid UTF-8. "
+                f"Decode failed at byte offset {exc.start} for {path.relative_to(REPO_ROOT)} ({exc.reason}). "
+                "Re-save as UTF-8 (convert from Windows-1252 if needed).",
+                file=sys.stderr,
+            )
+            return 2
 
         for needle in FORBIDDEN_SUBSTRINGS:
             if needle in text:

@@ -4,6 +4,7 @@
  * instead of adding ad-hoc identity fetches here.
  */
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
+import { showError } from "@/lib/toast";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
@@ -210,6 +211,16 @@ function withCorrelationHeaders(headers: HeadersInit): Headers {
   return h;
 }
 
+function throwApiRequestError(response: Response, bodyText: string): never {
+  const err = buildApiRequestErrorFromParts(response, bodyText);
+
+  if (isBrowser() && err.httpStatus >= 500) {
+    showError("Server error", err.message);
+  }
+
+  throw err;
+}
+
 async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseWithTrace<T>> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
@@ -222,7 +233,7 @@ async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseWithTrac
   const traceId = extractTraceId(response);
 
   if (!response.ok) {
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 
   return { data: JSON.parse(text) as T, traceId };
@@ -250,7 +261,7 @@ export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   const text = await response.text();
 
   if (!response.ok) {
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 
   return JSON.parse(text) as T;
@@ -269,7 +280,7 @@ export async function apiDelete(path: string): Promise<void> {
   const text = await response.text();
 
   if (!response.ok) {
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 }
 
@@ -475,7 +486,7 @@ export async function fetchArtifactContentUtf8(
 
   if (!response.ok) {
     const text = await response.text();
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 
   const contentType = response.headers.get("content-type") ?? "application/octet-stream";
@@ -550,7 +561,7 @@ export async function getFirstValueReportMarkdown(runId: string): Promise<string
 
   if (response.status === 404) return null;
 
-  if (!response.ok) throw buildApiRequestErrorFromParts(response, text);
+  if (!response.ok) throwApiRequestError(response, text);
 
   return text;
 }
@@ -652,7 +663,7 @@ export async function getDemoExplain(): Promise<DemoExplainResponse | null> {
 
   if (response.status === 404) return null;
 
-  if (!response.ok) throw buildApiRequestErrorFromParts(response, text);
+  if (!response.ok) throwApiRequestError(response, text);
 
   return JSON.parse(text) as DemoExplainResponse;
 }
@@ -758,7 +769,7 @@ export async function getLatestLearningProfile(): Promise<LearningProfile | null
   }
 
   if (!response.ok) {
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 
   return JSON.parse(text) as LearningProfile;
@@ -922,7 +933,7 @@ export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> 
   const text = await response.text();
 
   if (!response.ok) {
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 }
 
@@ -1173,7 +1184,7 @@ export async function downloadAuditExportCsv(params: {
   const text = await response.text();
 
   if (!response.ok) {
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 
   const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
@@ -1590,7 +1601,7 @@ export async function rebuildLearningProfile(): Promise<LearningProfile> {
   const text = await response.text();
 
   if (!response.ok) {
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 
   return JSON.parse(text) as LearningProfile;
@@ -1611,7 +1622,7 @@ export async function replayRun(runId: string, mode: string): Promise<ReplayResp
   const text = await response.text();
 
   if (!response.ok) {
-    throw buildApiRequestErrorFromParts(response, text);
+    throwApiRequestError(response, text);
   }
 
   return JSON.parse(text) as ReplayResponse;
@@ -1690,7 +1701,7 @@ export async function downloadFirstValueReportPdf(runId: string): Promise<void> 
 
   if (!response.ok) {
     const errText = await response.text();
-    throw buildApiRequestErrorFromParts(response, errText);
+    throwApiRequestError(response, errText);
   }
 
   const fileName =
@@ -1735,7 +1746,7 @@ export async function downloadBoardPackPdf(year: number, quarter: number): Promi
 
   if (!response.ok) {
     const errText = await response.text();
-    throw buildApiRequestErrorFromParts(response, errText);
+    throwApiRequestError(response, errText);
   }
 
   const fileName =
@@ -1788,7 +1799,7 @@ export async function downloadValueReportDocx(
 
   if (!response.ok) {
     const errText = await response.text();
-    throw buildApiRequestErrorFromParts(response, errText);
+    throwApiRequestError(response, errText);
   }
 
   const fileName =

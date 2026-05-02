@@ -92,6 +92,23 @@ describe("RunExplanationSection", () => {
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
+  it("renders without throwing when explanation is missing from API payload", () => {
+    const partial = {
+      themeSummaries: ["Theme one"],
+      overallAssessment: "Assessment from manifest rollup.",
+      riskPosture: "Low",
+      findingCount: 1,
+      decisionCount: 2,
+      unresolvedIssueCount: 0,
+      complianceGapCount: 0,
+    } as RunExplanationSummary;
+
+    render(<RunExplanationSection summary={partial} loading={false} error={null} runId="r1" />);
+
+    expect(screen.getByText("Assessment from manifest rollup.")).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: /risk posture low/i })).toBeInTheDocument();
+  });
+
   it("reveals provenance in details", () => {
     render(<RunExplanationSection summary={mockSummary()} loading={false} error={null} runId="r1" />);
 

@@ -15,6 +15,18 @@ describe("ApiRequestError", () => {
     expect(err.problem).toEqual({ title: "T", detail: "D" });
     expect(err.correlationId).toBe("cid-1");
     expect(err.httpStatus).toBe(404);
+    expect(err.retryAfterSeconds).toBe(null);
+  });
+
+  it("carries retryAfterSeconds when provided", () => {
+    const err = new ApiRequestError("msg", {
+      problem: null,
+      correlationId: null,
+      httpStatus: 429,
+      retryAfterSeconds: 42,
+    });
+
+    expect(err.retryAfterSeconds).toBe(42);
   });
 });
 

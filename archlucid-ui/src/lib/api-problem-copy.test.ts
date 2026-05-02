@@ -70,4 +70,27 @@ describe("operatorCopyForProblem", () => {
 
     expect(copy.body).toBe("Use this");
   });
+
+  it("uses rate limit heading and Retry-After hint when httpStatus is 429", () => {
+    const problem: ApiProblemDetails = { title: "Throttled", detail: "Quota exceeded" };
+
+    const copy = operatorCopyForProblem(problem, "fallback", {
+      httpStatus: 429,
+      retryAfterSeconds: 30,
+    });
+
+    expect(copy.heading).toBe("Too many requests");
+    expect(copy.body).toBe("Quota exceeded");
+    expect(copy.hint).toContain("30 seconds");
+  });
+
+  it("detects 429 from problem status when context omits httpStatus", () => {
+    const copy = operatorCopyForProblem(
+      { title: "T", detail: "D", status: 429 },
+      "f",
+      { retryAfterSeconds: null },
+    );
+
+    expect(copy.heading).toBe("Too many requests");
+  });
 });

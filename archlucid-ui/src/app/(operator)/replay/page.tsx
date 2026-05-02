@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
@@ -138,11 +139,7 @@ function ReplayForm() {
 
       {failure !== null && (
         <>
-          <OperatorApiProblem
-            problem={failure.problem}
-            fallbackMessage={failure.message}
-            correlationId={failure.correlationId}
-          />
+          <OperatorApiProblem failure={failure} />
           <OperatorTryNext>
             Confirm the run exists, you have operator permissions, and the API is healthy. Retry with a lighter mode
             (e.g. <code>ReconstructOnly</code>) before <code>RebuildArtifacts</code>. Copy the correlation ID for API
@@ -165,6 +162,7 @@ function ReplayForm() {
       )}
 
       {result && (
+        <ClientErrorBoundary title="Replay result failed to render">
         <section className="mt-6 rounded-lg border border-neutral-200 bg-white p-4 max-w-3xl dark:border-neutral-700 dark:bg-neutral-950">
           <h3 className="mt-0">Replay result</h3>
           <p className="mt-0 text-sm text-neutral-500 dark:text-neutral-400">
@@ -240,6 +238,7 @@ function ReplayForm() {
             </ul>
           )}
         </section>
+        </ClientErrorBoundary>
       )}
     </main>
   );

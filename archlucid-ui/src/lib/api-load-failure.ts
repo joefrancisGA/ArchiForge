@@ -9,6 +9,8 @@ export type ApiLoadFailureState = {
   correlationId: string | null;
   /** Set when the source was {@link ApiRequestError}; used for stale-resource → branded Not Found. */
   httpStatus: number | null;
+  /** Seconds suggested by `Retry-After` when the source was {@link ApiRequestError}. */
+  retryAfterSeconds: number | null;
 };
 
 /** True when the API reported the target resource is missing (404). */
@@ -35,14 +37,27 @@ export function toApiLoadFailure(error: unknown): ApiLoadFailureState {
       problem: error.problem,
       correlationId: error.correlationId,
       httpStatus: error.httpStatus,
+      retryAfterSeconds: error.retryAfterSeconds,
     };
   }
 
   if (error instanceof Error) {
-    return { message: error.message, problem: null, correlationId: null, httpStatus: null };
+    return {
+      message: error.message,
+      problem: null,
+      correlationId: null,
+      httpStatus: null,
+      retryAfterSeconds: null,
+    };
   }
 
-  return { message: "An unexpected error occurred.", problem: null, correlationId: null, httpStatus: null };
+  return {
+    message: "An unexpected error occurred.",
+    problem: null,
+    correlationId: null,
+    httpStatus: null,
+    retryAfterSeconds: null,
+  };
 }
 
 /** Validation or UI messages that are not API Problem Details. */
@@ -54,5 +69,6 @@ export function uiFailureFromMessage(message: string): ApiLoadFailureState {
     problem: null,
     correlationId: null,
     httpStatus: null,
+    retryAfterSeconds: null,
   };
 }

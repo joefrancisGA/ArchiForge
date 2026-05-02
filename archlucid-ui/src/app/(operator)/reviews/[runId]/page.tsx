@@ -320,7 +320,7 @@ export default async function RunDetailPage({
 
   const runDetailNavSections: RunDetailSection[] = [
     { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
-    { id: "run-metadata", label: "Run", available: true },
+    { id: "run-metadata", label: "Review", available: true },
     { id: "pipeline-timeline", label: "Timeline", available: true },
     { id: "authority-chain", label: "Review trail", available: true },
     { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },

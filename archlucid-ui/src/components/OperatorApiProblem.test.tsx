@@ -48,6 +48,24 @@ describe("OperatorApiProblem", () => {
     spy.mockRestore();
   });
 
+  it("renders rate limit copy when failure has httpStatus 429", () => {
+    render(
+      <OperatorApiProblem
+        failure={{
+          message: "Slow down",
+          problem: { title: "Throttled", detail: "Too many concurrent requests" },
+          correlationId: null,
+          httpStatus: 429,
+          retryAfterSeconds: 5,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Too many requests")).toBeInTheDocument();
+    expect(screen.getByText("Too many concurrent requests")).toBeInTheDocument();
+    expect(screen.getByText(/5 seconds/)).toBeInTheDocument();
+  });
+
   it("uses warning callout when variant is warning", () => {
     render(
       <OperatorApiProblem

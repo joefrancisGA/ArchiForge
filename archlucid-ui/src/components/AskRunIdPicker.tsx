@@ -52,7 +52,7 @@ export function AskRunIdPicker(props: AskRunIdPickerProps) {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
-  const labelText = label ?? "Run";
+  const labelText = label ?? "Review";
   const controlIdPrefix = fieldId ?? "ask-run-primary";
   const selectControlId = `${controlIdPrefix}-select`;
 

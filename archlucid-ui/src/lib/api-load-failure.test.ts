@@ -16,6 +16,24 @@ describe("toApiLoadFailure", () => {
       problem: { title: "T" },
       correlationId: "c",
       httpStatus: 400,
+      retryAfterSeconds: null,
+    });
+  });
+
+  it("maps retryAfterSeconds from ApiRequestError when present", () => {
+    const err = new ApiRequestError("rate", {
+      problem: null,
+      correlationId: null,
+      httpStatus: 429,
+      retryAfterSeconds: 12,
+    });
+
+    expect(toApiLoadFailure(err)).toEqual({
+      message: "rate",
+      problem: null,
+      correlationId: null,
+      httpStatus: 429,
+      retryAfterSeconds: 12,
     });
   });
 
@@ -25,6 +43,7 @@ describe("toApiLoadFailure", () => {
       problem: null,
       correlationId: null,
       httpStatus: null,
+      retryAfterSeconds: null,
     });
   });
 
@@ -34,6 +53,7 @@ describe("toApiLoadFailure", () => {
       problem: null,
       correlationId: null,
       httpStatus: null,
+      retryAfterSeconds: null,
     });
   });
 });
@@ -46,6 +66,7 @@ describe("isApiNotFoundFailure", () => {
         problem: null,
         correlationId: null,
         httpStatus: 404,
+        retryAfterSeconds: null,
       }),
     ).toBe(true);
   });
@@ -57,6 +78,7 @@ describe("isApiNotFoundFailure", () => {
         problem: { title: "Missing", status: 404 },
         correlationId: null,
         httpStatus: null,
+        retryAfterSeconds: null,
       }),
     ).toBe(true);
   });
@@ -68,6 +90,7 @@ describe("isApiNotFoundFailure", () => {
         problem: { title: "Bad", status: 400 },
         correlationId: null,
         httpStatus: 400,
+        retryAfterSeconds: null,
       }),
     ).toBe(false);
     expect(isApiNotFoundFailure(null)).toBe(false);
@@ -81,6 +104,7 @@ describe("uiFailureFromMessage", () => {
       problem: null,
       correlationId: null,
       httpStatus: null,
+      retryAfterSeconds: null,
     });
   });
 

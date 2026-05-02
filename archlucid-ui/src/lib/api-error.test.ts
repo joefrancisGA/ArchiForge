@@ -44,6 +44,7 @@ describe("buildApiRequestErrorFromParts", () => {
     if (isApiRequestError(err)) {
       expect(err.correlationId).toBe("corr-xyz");
       expect(err.httpStatus).toBe(500);
+      expect(err.retryAfterSeconds).toBe(null);
       expect(err.problem?.title).toBe("E");
     }
   });
@@ -65,6 +66,25 @@ describe("buildApiRequestErrorFromParts", () => {
     expect(isApiRequestError(err)).toBe(true);
     if (isApiRequestError(err)) {
       expect(err.correlationId).toBe("proxy-body-cid");
+    }
+  });
+
+  it("parses Retry-After as seconds on 429", () => {
+    const bodyText = JSON.stringify({ title: "Slow down", detail: "Rate limited" });
+    const response = new Response(bodyText, {
+      status: 429,
+      headers: {
+        "content-type": "application/problem+json",
+        "Retry-After": "60",
+      },
+    });
+
+    const err = buildApiRequestErrorFromParts(response, bodyText);
+
+    expect(isApiRequestError(err)).toBe(true);
+    if (isApiRequestError(err)) {
+      expect(err.httpStatus).toBe(429);
+      expect(err.retryAfterSeconds).toBe(60);
     }
   });
 });

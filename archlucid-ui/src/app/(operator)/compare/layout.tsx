@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Compare two runs",
+  title: "Compare two reviews",
 };
 
 export default function CompareLayout({ children }: { children: ReactNode }) {

@@ -10,6 +10,7 @@ import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorPageHeader } from "@/components/OperatorPageHeader";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { EmptyState } from "@/components/EmptyState";
+import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { GRAPH_IDLE } from "@/lib/empty-state-presets";
@@ -348,11 +349,7 @@ export default function GraphPage() {
 
       {loadFailure !== null && (
         <>
-          <OperatorApiProblem
-            problem={loadFailure.problem}
-            fallbackMessage={loadFailure.message}
-            correlationId={loadFailure.correlationId}
-          />
+          <OperatorApiProblem failure={loadFailure} />
           <OperatorTryNext>
             This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed JSON body.
             Confirm the run exists in <Link href="/reviews?projectId=default">Runs</Link>, retry{" "}
@@ -396,7 +393,7 @@ export default function GraphPage() {
       )}
 
       {graph && (
-        <>
+        <ClientErrorBoundary title="Graph viewer failed to render">
           <div className="mb-3 flex items-center gap-3">
             <label>
               Filter by type{" "}
@@ -418,7 +415,7 @@ export default function GraphPage() {
             </span>
           </div>
           <GraphViewer graph={graph} typeFilter={typeFilter} />
-        </>
+        </ClientErrorBoundary>
       )}
     </main>
   );

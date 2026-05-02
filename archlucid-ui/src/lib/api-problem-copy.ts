@@ -6,6 +6,12 @@ export type OperatorProblemCopy = {
   hint?: string;
 };
 
+/** Optional HTTP context for operator copy (e.g. 429 + `Retry-After`). */
+export type OperatorProblemCopyContext = {
+  httpStatus?: number | null;
+  retryAfterSeconds?: number | null;
+};
+
 /** Short headings for stable `extensions.errorCode` values (API contract). */
 const ERROR_CODE_HEADINGS: Record<string, string> = {
   RUN_NOT_FOUND: "Run not found",
@@ -40,17 +46,42 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   INTERNAL_ERROR: "An unexpected server error occurred. Try your action again in a few moments.",
 };
 
+function mergeRateLimitCopy(
+  base: OperatorProblemCopy,
+  context: OperatorProblemCopyContext,
+  problem: ApiProblemDetails | null,
+): OperatorProblemCopy {
+  const effectiveStatus = context.httpStatus ?? problem?.status ?? null;
+
+  if (effectiveStatus !== 429) {
+    return base;
+  }
+
+  const retrySec = context.retryAfterSeconds;
+  const retryLine =
+    retrySec !== null && retrySec !== undefined && retrySec > 0
+      ? `The service asked you to wait about ${retrySec} second${retrySec === 1 ? "" : "s"} before retrying.`
+      : "Wait a short time, then try again.";
+
+  const hintParts = [retryLine, base.hint?.trim()].filter((p) => p !== undefined && p.length > 0);
+  const hint = hintParts.length > 0 ? hintParts.join(" ") : undefined;
+
+  return { heading: "Too many requests", body: base.body, hint };
+}
+
 /**
  * Builds operator-facing copy: prefers API `supportHint`, then fallback remediation by `errorCode`, then ProblemDetails title/detail.
+ * When status is **429** (from `context` or problem `status`), heading becomes rate-limit copy and `Retry-After` is surfaced when present.
  */
 export function operatorCopyForProblem(
   problem: ApiProblemDetails | null,
   fallbackMessage: string,
+  context: OperatorProblemCopyContext = {},
 ): OperatorProblemCopy {
   const trimmedFallback = fallbackMessage.trim() || "Request failed.";
 
   if (problem === null) {
-    return { heading: "Request failed", body: trimmedFallback };
+    return mergeRateLimitCopy({ heading: "Request failed", body: trimmedFallback }, context, problem);
   }
 
   const code = problem.errorCode?.trim();
@@ -63,9 +94,7 @@ export function operatorCopyForProblem(
   const fallbackHint = code ? ERROR_CODE_REMEDIATION[code] : undefined;
   const hint = apiHint || fallbackHint;
 
-  if (hint) {
-    return { heading, body, hint };
-  }
+  const base: OperatorProblemCopy = hint ? { heading, body, hint } : { heading, body };
 
-  return { heading, body };
+  return mergeRateLimitCopy(base, context, problem);
 }

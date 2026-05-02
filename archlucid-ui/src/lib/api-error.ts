@@ -2,6 +2,7 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import { tryParseApiProblemDetails } from "@/lib/api-problem";
 import { CORRELATION_ID_HEADER } from "@/lib/correlation";
 import { ApiRequestError } from "@/lib/api-request-error";
+import { parseRetryAfterHeader } from "@/lib/retry-after";
 
 /**
  * Single-line message for logs and backward-compatible `Error.message` (legacy callers).
@@ -129,6 +130,7 @@ export function buildApiRequestErrorFromParts(
     problem,
     correlationId,
     httpStatus: response.status,
+    retryAfterSeconds: parseRetryAfterHeader(response.headers.get("Retry-After")),
   });
 }
 

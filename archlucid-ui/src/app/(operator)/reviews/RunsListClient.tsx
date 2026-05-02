@@ -373,7 +373,7 @@ export function RunsListClient({
                       <thead>
                         <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
                           <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                            Run
+                            Review
                           </th>
                           <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
                             Created
@@ -483,7 +483,7 @@ export function RunsListClient({
 
           <nav
             className="mt-5 flex flex-wrap items-center gap-4 text-sm"
-            aria-label="Runs pagination"
+            aria-label="Reviews pagination"
           >
             <span className="text-neutral-600 dark:text-neutral-400">
               Page {page} of {pages} · {totalCount} review{totalCount === 1 ? "" : "s"} total
