@@ -7,6 +7,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -19,6 +20,7 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentOutputEvaluator evaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
+    IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
@@ -29,6 +31,9 @@ public sealed class AgentOutputEvaluationRecorder(
     ///     <see cref="AgentOutputQualityGateOptions" />).
     /// </summary>
     private const double LowSemanticScoreThreshold = 0.3;
+
+    private readonly AgentOutputQualityGateOptions _gateOptions =
+        (gateOptions ?? throw new ArgumentNullException(nameof(gateOptions))).Value;
 
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
@@ -85,13 +90,17 @@ public sealed class AgentOutputEvaluationRecorder(
             ArchLucidInstrumentation.AgentOutputQualityGateTotal.Add(1, gateTags);
 
             if (gateOutcome == AgentOutputQualityGateOutcome.Rejected)
-
+            {
                 logger.LogWarningAgentOutputQualityGateRejected(
                     runId,
                     trace.TraceId,
                     agentLabel,
                     score.StructuralCompletenessRatio,
                     semanticScore.OverallSemanticScore);
+
+                if (_gateOptions.EnforceOnReject)
+                    throw new AgentOutputQualityGateRejectedException(runId, trace.TraceId, agentLabel);
+            }
 
             else if (gateOutcome == AgentOutputQualityGateOutcome.Warned)
 

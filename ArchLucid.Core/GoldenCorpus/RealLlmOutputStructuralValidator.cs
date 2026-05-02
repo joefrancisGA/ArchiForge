@@ -22,6 +22,12 @@ public static class RealLlmOutputStructuralValidator
     ];
 
     /// <summary>
+    ///     Candidate field names for a finding's human-readable content. At least one must be a non-empty string on
+    ///     every finding so that structurally valid but completely hollow findings are caught.
+    /// </summary>
+    private static readonly string[] FindingContentFields = ["description", "message", "title", "detail"];
+
+    /// <summary>
     ///     Validates that <paramref name="resultJson" /> is a well-formed <c>AgentResult</c> with a non-empty
     ///     <c>findings</c> array and a <c>trace</c> object on every finding (ExplainabilityTrace shape).
     /// </summary>
@@ -167,6 +173,37 @@ public static class RealLlmOutputStructuralValidator
                     return new RealLlmStructuralValidationResult(false, checks);
                 }
 
+                // Severity must be a non-empty string — a blank severity indicates a hollow or truncated finding.
+                if (!finding.TryGetProperty("severity", out JsonElement severityEl)
+                    || severityEl.ValueKind != JsonValueKind.String
+                    || string.IsNullOrWhiteSpace(severityEl.GetString()))
+                {
+                    checks.Add(
+                        new RealLlmStructuralCheckItem(
+                            "findingSeverity",
+                            false,
+                            $"findings[{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}] must have a non-empty string 'severity'."));
+
+                    return new RealLlmStructuralValidationResult(false, checks);
+                }
+
+                // At least one content field must be non-empty so hollow findings (all keys present, all blank) are caught.
+                bool hasContent = FindingContentFields.Any(f =>
+                    finding.TryGetProperty(f, out JsonElement el)
+                    && el.ValueKind == JsonValueKind.String
+                    && !string.IsNullOrWhiteSpace(el.GetString()));
+
+                if (!hasContent)
+                {
+                    checks.Add(
+                        new RealLlmStructuralCheckItem(
+                            "findingContent",
+                            false,
+                            $"findings[{index.ToString(System.Globalization.CultureInfo.InvariantCulture)}] must have at least one non-empty content field (description, message, title, or detail)."));
+
+                    return new RealLlmStructuralValidationResult(false, checks);
+                }
+
                 index++;
             }
 
@@ -174,7 +211,7 @@ public static class RealLlmOutputStructuralValidator
                 new RealLlmStructuralCheckItem(
                     "explainabilityTraceShape",
                     true,
-                    "Each finding has a trace object with ExplainabilityTrace list fields."));
+                    "Each finding has a trace object with ExplainabilityTrace list fields, non-empty severity, and content."));
 
             return new RealLlmStructuralValidationResult(RealLlmStructuralValidationResult.AllPassed(checks), checks);
         }

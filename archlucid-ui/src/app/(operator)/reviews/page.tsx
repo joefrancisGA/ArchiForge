@@ -20,7 +20,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import { RUNS_EMPTY } from "@/lib/empty-state-presets";
-import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { listRunsByProjectPaged } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 
@@ -90,6 +90,22 @@ export default async function RunsPage({
     loadFailure = null;
     malformedMessage = null;
     usedStaticRunsFallback = true;
+  }
+
+  if (
+    loadFailure === null &&
+    malformedMessage === null &&
+    runs.length === 0 &&
+    totalCount === 0 &&
+    isStaticDemoPayloadFallbackEnabled()
+  ) {
+    const emptyWorkspaceDemo = tryStaticDemoRunSummariesPaged(projectId);
+
+    if (emptyWorkspaceDemo !== null && emptyWorkspaceDemo.items.length > 0) {
+      runs = emptyWorkspaceDemo.items;
+      totalCount = emptyWorkspaceDemo.totalCount;
+      usedStaticRunsFallback = true;
+    }
   }
 
   runs = runs.map(normalizeRunSummaryForDemoPicker);

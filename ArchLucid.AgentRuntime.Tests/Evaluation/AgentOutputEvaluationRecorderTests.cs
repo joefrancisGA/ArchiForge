@@ -26,8 +26,11 @@ public sealed class AgentOutputEvaluationRecorderTests
 {
     private static AgentOutputEvaluationRecorder CreateRecorder(
         IAgentExecutionTraceRepository traceRepository,
-        ILogger<AgentOutputEvaluationRecorder> logger)
+        ILogger<AgentOutputEvaluationRecorder> logger,
+        AgentOutputQualityGateOptions? gateOptions = null)
     {
+        AgentOutputQualityGateOptions opts = gateOptions ?? new AgentOutputQualityGateOptions { Enabled = false };
+
         Mock<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>> refOpts = new();
         refOpts.Setup(o => o.CurrentValue).Returns(new AgentExecutionReferenceEvaluationOptions { Enabled = false });
 
@@ -43,7 +46,8 @@ public sealed class AgentOutputEvaluationRecorderTests
             traceRepository,
             new AgentOutputEvaluator(),
             new AgentOutputSemanticEvaluator(),
-            new AgentOutputQualityGate(Options.Create(new AgentOutputQualityGateOptions { Enabled = false })),
+            new AgentOutputQualityGate(Options.Create(opts)),
+            Options.Create(opts),
             referenceEvaluator,
             logger);
     }
@@ -88,6 +92,90 @@ public sealed class AgentOutputEvaluationRecorderTests
         Func<Task> act = async () => await sut.EvaluateAndRecordMetricsAsync("empty-run", CancellationToken.None);
 
         await act.Should().NotThrowAsync();
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAndRecordMetricsAsync_throws_when_EnforceOnReject_is_true_and_trace_is_below_floor()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+
+        AgentOutputQualityGateOptions enforcingOpts = new()
+        {
+            Enabled = true,
+            StructuralRejectBelow = 0.35,
+            SemanticRejectBelow = 0.35,
+            EnforceOnReject = true
+        };
+
+        AgentOutputEvaluationRecorder sut = CreateRecorder(
+            repo,
+            NullLogger<AgentOutputEvaluationRecorder>.Instance,
+            enforcingOpts);
+
+        // Empty claims + empty findings → structural and semantic scores both below the reject floor.
+        const string hollowJson =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await repo.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "t-hollow",
+                RunId = "run-enforce",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = hollowJson
+            },
+            CancellationToken.None);
+
+        Func<Task> act = async () =>
+            await sut.EvaluateAndRecordMetricsAsync("run-enforce", CancellationToken.None);
+
+        await act.Should().ThrowAsync<AgentOutputQualityGateRejectedException>()
+            .WithMessage("*run-enforce*");
+    }
+
+    [SkippableFact]
+    public async Task EvaluateAndRecordMetricsAsync_does_not_throw_when_EnforceOnReject_is_false_even_if_rejected()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+
+        AgentOutputQualityGateOptions nonEnforcingOpts = new()
+        {
+            Enabled = true,
+            StructuralRejectBelow = 0.35,
+            SemanticRejectBelow = 0.35,
+            EnforceOnReject = false
+        };
+
+        AgentOutputEvaluationRecorder sut = CreateRecorder(
+            repo,
+            NullLogger<AgentOutputEvaluationRecorder>.Instance,
+            nonEnforcingOpts);
+
+        const string hollowJson =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await repo.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "t-hollow-no-enforce",
+                RunId = "run-no-enforce",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = hollowJson
+            },
+            CancellationToken.None);
+
+        Func<Task> act = async () =>
+            await sut.EvaluateAndRecordMetricsAsync("run-no-enforce", CancellationToken.None);
+
+        await act.Should().NotThrowAsync("EnforceOnReject=false must preserve existing metrics-only behaviour");
     }
 
     [SkippableFact]

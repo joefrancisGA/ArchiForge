@@ -6,7 +6,7 @@ import { CitationChips } from "@/components/explanation/CitationChips";
 import { DocumentLayout, type DocumentTocItem } from "@/components/DocumentLayout";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Progress } from "@/components/ui/progress";
-import type { RunExplanationSummary } from "@/types/explanation";
+import type { ExplanationResult, RunExplanationSummary } from "@/types/explanation";
 
 export type RunExplanationSectionProps = {
   summary: RunExplanationSummary | null;
@@ -80,6 +80,28 @@ function confidencePercent(confidence: number): number {
   return Math.min(100, Math.max(0, pct));
 }
 
+/** API payloads sometimes omit `explanation`; avoid crashing the review detail client subtree. */
+function explanationBody(summary: RunExplanationSummary): ExplanationResult {
+  const raw = summary.explanation;
+
+  if (raw === null || raw === undefined) {
+    return {
+      rawText: "",
+      structured: null,
+      confidence: null,
+      provenance: null,
+      summary: "",
+      keyDrivers: [],
+      riskImplications: [],
+      costImplications: [],
+      complianceImplications: [],
+      detailedNarrative: "",
+    };
+  }
+
+  return raw;
+}
+
 /**
  * Run-level aggregate explanation: assessment, posture, confidence, themes, drivers/risks, provenance.
  */
@@ -89,6 +111,7 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
       return [];
     }
 
+    const expl = explanationBody(summary);
     const items: DocumentTocItem[] = [{ id: "doc-explanation-assessment", label: "Assessment" }];
     const traces = summary.findingTraceConfidences;
 
@@ -103,7 +126,7 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
       { id: "doc-explanation-risks", label: "Risk implications" },
     );
 
-    if (summary.explanation.provenance !== null && summary.explanation.provenance !== undefined) {
+    if (expl.provenance !== null && expl.provenance !== undefined) {
       items.push({ id: "doc-explanation-provenance", label: "LLM provenance" });
     }
 
@@ -126,10 +149,14 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
     return null;
   }
 
-  const postureClass = riskPostureBadgeClass(summary.riskPosture);
-  const conf = summary.explanation.confidence;
+  const expl = explanationBody(summary);
+  const themeSummaries = summary.themeSummaries ?? [];
+  const overallAssessment = summary.overallAssessment?.trim() ?? "Assessment details are not available for this review.";
+  const riskPostureLabel = summary.riskPosture?.trim().length > 0 ? summary.riskPosture : "Not rated";
+  const postureClass = riskPostureBadgeClass(riskPostureLabel);
+  const conf = expl.confidence;
   const pct = conf !== null && conf !== undefined ? confidencePercent(conf) : null;
-  const prov = summary.explanation.provenance;
+  const prov = expl.provenance;
   const faith = summary.faithfulnessSupportRatio;
   let faithPct: number | null = null;
   let faithClass: string | null = null;
@@ -142,18 +169,18 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
   return (
     <DocumentLayout tocItems={tocItems}>
       <p id="doc-explanation-assessment" className="m-0 text-xl font-bold leading-snug text-neutral-900 dark:text-neutral-50">
-        {summary.overallAssessment}
+        {overallAssessment}
       </p>
 
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         <span className="sr-only">Risk posture:</span>
         <span
           role="status"
-          aria-label={`Risk posture ${summary.riskPosture}`}
-          data-risk-posture={summary.riskPosture.trim().toLowerCase()}
+          aria-label={`Risk posture ${riskPostureLabel}`}
+          data-risk-posture={riskPostureLabel.trim().toLowerCase()}
           className={postureClass}
         >
-          {summary.riskPosture}
+          {riskPostureLabel}
         </span>
         <span className="ml-3 text-[13px] text-neutral-500 dark:text-neutral-400">
           {summary.decisionCount} decisions · {summary.findingCount} findings · {summary.unresolvedIssueCount}{" "}
@@ -249,7 +276,7 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
           Themes
         </h3>
         <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
-          {summary.themeSummaries.map((t) => (
+          {themeSummaries.map((t) => (
             <li key={t}>{t}</li>
           ))}
         </ul>
@@ -260,7 +287,7 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
           Key drivers
         </h3>
         <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
-          {summary.explanation.keyDrivers.map((d) => (
+          {(expl.keyDrivers ?? []).map((d) => (
             <li key={d}>{d}</li>
           ))}
         </ul>
@@ -271,7 +298,7 @@ export function RunExplanationSection({ summary, loading, error, runId }: RunExp
           Risk implications
         </h3>
         <ul className="m-0 list-disc space-y-1 pl-5 text-base leading-relaxed">
-          {summary.explanation.riskImplications.map((r) => (
+          {(expl.riskImplications ?? []).map((r) => (
             <li key={r}>{r}</li>
           ))}
         </ul>

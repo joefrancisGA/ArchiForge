@@ -6,8 +6,12 @@ import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 export function formatOperatorProjectIdDisplay(projectId: string): string {
   const trimmed = projectId.trim();
 
-  if (isNextPublicDemoMode() && trimmed.toLowerCase() === "default") {
-    return "Architecture Review Workspace";
+  if (trimmed.toLowerCase() === "default") {
+    return isNextPublicDemoMode() ? "Architecture Review Workspace" : "Primary workspace";
+  }
+
+  if (trimmed === "claims-intake-sample-workspace") {
+    return "Claims Intake sample workspace";
   }
 
   return projectId;

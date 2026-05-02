@@ -23,8 +23,6 @@ import {
   listConversationThreads,
 } from "@/lib/conversation-api";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
@@ -43,9 +41,7 @@ export default function AskPage() {
   const [threads, setThreads] = useState<ConversationThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
-  const [runId, setRunId] = useState(() =>
-    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() ? SHOWCASE_STATIC_DEMO_RUN_ID : "",
-  );
+  const [runId, setRunId] = useState(SHOWCASE_STATIC_DEMO_RUN_ID);
   const [baseRunId, setBaseRunId] = useState("");
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");
@@ -71,36 +67,16 @@ export default function AskPage() {
   useEffect(() => {
     const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
 
-    if (selectedThreadId.trim().length > 0) {
-      return;
-    }
-
     if (fromWorkspace.length === 0) {
       return;
     }
 
-    if (runId.trim().length > 0) {
-      return;
-    }
-
-    setRunId(fromWorkspace);
-  }, [workspaceRun?.activeRunId, selectedThreadId, runId]);
-
-  useEffect(() => {
-    if (!isNextPublicDemoMode()) {
-      return;
-    }
-
     if (selectedThreadId.trim().length > 0) {
       return;
     }
 
-    if (runId.trim().length > 0) {
-      return;
-    }
-
-    setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-  }, [selectedThreadId, runId]);
+    setRunId(fromWorkspace);
+  }, [workspaceRun?.activeRunId, selectedThreadId]);
 
   async function loadMessages(threadId: string) {
     setActionFailure(null);

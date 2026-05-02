@@ -86,4 +86,12 @@ public sealed class AgentOutputQualityGateTests
 
         sut.Evaluate(Structural(0.56), Semantic(0.56)).Should().Be(AgentOutputQualityGateOutcome.Accepted);
     }
+
+    [SkippableFact]
+    public void EnforceOnReject_defaults_to_false()
+    {
+        AgentOutputQualityGateOptions options = new();
+
+        options.EnforceOnReject.Should().BeFalse("default must be false so existing behaviour is preserved");
+    }
 }

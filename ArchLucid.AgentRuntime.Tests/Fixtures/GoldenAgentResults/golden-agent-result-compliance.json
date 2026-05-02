@@ -1,0 +1,23 @@
+{
+  "resultId": "result-golden-compliance-01",
+  "taskId": "task-golden-compliance-01",
+  "runId": "run-golden-compliance-01",
+  "agentType": 3,
+  "claims": [
+    {
+      "evidenceRefs": [ "ev-compliance-1" ],
+      "detail": "Storage account lacks a Data Lifecycle Management policy; data at rest retention exceeds 90 days without documented justification, violating the submitted compliance rule pack."
+    }
+  ],
+  "evidenceRefs": [ "ev-compliance-1" ],
+  "confidence": 0.88,
+  "findings": [
+    {
+      "severity": "High",
+      "description": "Azure Storage account does not have a lifecycle management policy configured; objects older than 90 days remain in hot tier indefinitely, breaching data-retention compliance controls.",
+      "recommendation": "Apply a lifecycle management policy that transitions blobs to cool tier after 30 days and deletes them after 90 days unless an explicit retention hold is documented."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-04-14T12:00:00Z"
+}

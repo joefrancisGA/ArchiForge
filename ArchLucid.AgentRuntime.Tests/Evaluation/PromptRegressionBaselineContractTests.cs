@@ -31,16 +31,34 @@ public sealed class PromptRegressionBaselineContractTests
         baseline.TopologyMinStructural.Should().BeGreaterThan(0.0);
         baseline.TopologyMinSemantic.Should().BeGreaterThan(0.0);
 
-        string fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "GoldenAgentResults",
-            "golden-agent-result-valid.json");
-        string json = File.ReadAllText(fixturePath);
+        AssertAgentMeetsFloor(
+            LoadFixture("golden-agent-result-valid.json"),
+            AgentType.Topology,
+            baseline.TopologyMinStructural,
+            baseline.TopologyMinSemantic);
 
-        AssertAgentMeetsFloor(json, AgentType.Topology, baseline.TopologyMinStructural, baseline.TopologyMinSemantic);
-        AssertAgentMeetsFloor(json, AgentType.Cost, baseline.CostMinStructural, baseline.CostMinSemantic);
-        AssertAgentMeetsFloor(json, AgentType.Compliance, baseline.ComplianceMinStructural,
+        AssertAgentMeetsFloor(
+            LoadFixture("golden-agent-result-cost.json"),
+            AgentType.Cost,
+            baseline.CostMinStructural,
+            baseline.CostMinSemantic);
+
+        AssertAgentMeetsFloor(
+            LoadFixture("golden-agent-result-compliance.json"),
+            AgentType.Compliance,
+            baseline.ComplianceMinStructural,
             baseline.ComplianceMinSemantic);
-        AssertAgentMeetsFloor(json, AgentType.Critic, baseline.CriticMinStructural, baseline.CriticMinSemantic);
+
+        AssertAgentMeetsFloor(
+            LoadFixture("golden-agent-result-critic.json"),
+            AgentType.Critic,
+            baseline.CriticMinStructural,
+            baseline.CriticMinSemantic);
     }
+
+    private static string LoadFixture(string fileName) =>
+        File.ReadAllText(
+            Path.Combine(AppContext.BaseDirectory, "Fixtures", "GoldenAgentResults", fileName));
 
     private static void AssertAgentMeetsFloor(string json, AgentType agentType, double minStructural,
         double minSemantic)

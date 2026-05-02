@@ -57,9 +57,7 @@ type GraphMode =
 /** Interactive graph viewer page. Operator picks a run, graph mode, and optional filters. */
 export default function GraphPage() {
   const workspaceRun = useWorkspaceActiveRun();
-  const [runId, setRunId] = useState(() =>
-    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() ? SHOWCASE_STATIC_DEMO_RUN_ID : "",
-  );
+  const [runId, setRunId] = useState(SHOWCASE_STATIC_DEMO_RUN_ID);
   const [decisionId, setDecisionId] = useState("");
   const [nodeId, setNodeId] = useState("");
   const [depth, setDepth] = useState(1);
@@ -76,24 +74,12 @@ export default function GraphPage() {
   useEffect(() => {
     const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
 
-    if (fromWorkspace.length === 0 || runId.trim().length > 0) {
+    if (fromWorkspace.length === 0) {
       return;
     }
 
     setRunId(fromWorkspace);
-  }, [workspaceRun?.activeRunId, runId]);
-
-  useEffect(() => {
-    if (!isNextPublicDemoMode() && !isStaticDemoPayloadFallbackEnabled()) {
-      return;
-    }
-
-    if (runId.trim().length > 0) {
-      return;
-    }
-
-    setRunId(SHOWCASE_STATIC_DEMO_RUN_ID);
-  }, [runId]);
+  }, [workspaceRun?.activeRunId]);
 
   const nodeTypes = useMemo(() => {
     if (!graph) {

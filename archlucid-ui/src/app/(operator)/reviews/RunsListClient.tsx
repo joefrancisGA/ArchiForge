@@ -137,7 +137,7 @@ function runListPrimaryTitle(run: RunSummary): string {
     return d;
   }
 
-  return "Untitled run";
+  return "Untitled review";
 }
 
 function activateRowKeyboard(e: React.KeyboardEvent<HTMLTableRowElement>, run: RunSummary, select: (r: RunSummary) => void) {
@@ -279,7 +279,7 @@ export function RunsListClient({
   const inspectorBody =
     selectedRun === null ? (
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400" data-testid="run-inspector-empty">
-        Select a run to preview details here.
+        Select a review to preview details here.
       </p>
     ) : (
       <RunInspectorPreview run={selectedRun} />
@@ -289,7 +289,7 @@ export function RunsListClient({
     <div className="mt-4 space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
         <div className="flex min-w-[12rem] max-w-md flex-1 flex-col gap-1">
-          <Label htmlFor="runs-filter-input">Filter (review ID or description)</Label>
+          <Label htmlFor="runs-filter-input">Filter by review name or description</Label>
           <input
             id="runs-filter-input"
             type="search"
@@ -311,7 +311,7 @@ export function RunsListClient({
               setSortOrder(event.target.value as SortOrder);
             }}
             className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
-            aria-label="Sort runs by created date"
+            aria-label="Sort reviews by created date"
           >
             <option value="createdDesc">Newest first</option>
             <option value="createdAsc">Oldest first</option>
@@ -336,7 +336,7 @@ export function RunsListClient({
                   <thead>
                     <tr className="border-b border-neutral-200 bg-neutral-50/80 dark:border-neutral-800 dark:bg-neutral-900/40">
                       <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                        Run
+                        Review
                       </th>
                       <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
                         Created
@@ -486,7 +486,7 @@ export function RunsListClient({
             aria-label="Runs pagination"
           >
             <span className="text-neutral-600 dark:text-neutral-400">
-              Page {page} of {pages} · {totalCount} run{totalCount === 1 ? "" : "s"} total
+              Page {page} of {pages} · {totalCount} review{totalCount === 1 ? "" : "s"} total
             </span>
             {page > 1 ? (
               <Link

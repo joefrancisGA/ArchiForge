@@ -33,10 +33,19 @@ export type RunInspectorPreviewProps = {
  */
 export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const [technicalOpen, setTechnicalOpen] = useState(false);
   const demo = isNextPublicDemoMode();
   const showcaseStory = run.runId.trim() === SHOWCASE_STATIC_DEMO_RUN_ID;
-  const createdLabel =
-    showcaseStory && demo ? "Sample review (illustrative)" : new Date(run.createdUtc).toLocaleString();
+  const headline = run.description?.trim() ?? "Architecture review";
+  const createdLabel = showcaseStory
+    ? demo
+      ? "Sample review (illustrative)"
+      : new Date(run.createdUtc).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+    : new Date(run.createdUtc).toLocaleString();
   const compareHref = `/compare?leftRunId=${encodeURIComponent(run.runId)}`;
   const replayHref = `/replay?runId=${encodeURIComponent(run.runId)}`;
   const manifestId = run.goldenManifestId ?? SHOWCASE_STATIC_DEMO_MANIFEST_ID;
@@ -45,7 +54,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
     showcaseStory && demo
       ? `${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.decisionCount} decisions · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount} findings · ${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} warnings (demo totals)`
       : run.hasArtifactBundle
-        ? "Artifact bundle attached — see run detail"
+        ? "Artifact bundle attached — use the Artifacts quick link on this review."
         : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;
@@ -53,23 +62,38 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
 
   return (
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
+      <div>
+        <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{headline}</p>
+        <button
+          type="button"
+          className="mt-1 text-xs font-medium text-teal-800 underline dark:text-teal-300"
+          onClick={() => setTechnicalOpen((v) => !v)}
+          aria-expanded={technicalOpen}
+        >
+          {technicalOpen ? "Hide technical details" : "Technical details (IDs)"}
+        </button>
+        {technicalOpen ? (
+          <dl className="m-0 mt-2 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
+            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+              Review ID
+            </dt>
+            <dd className="m-0 flex min-w-0 items-center gap-1">
+              <code className="truncate font-mono text-[11px] text-neutral-900 dark:text-neutral-100">{run.runId}</code>
+              <CopyIdButton value={run.runId} aria-label="Copy review ID" />
+            </dd>
+            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Workspace</dt>
+            <dd className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
+              {formatOperatorProjectIdDisplay(run.projectId)}
+            </dd>
+            <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Created</dt>
+            <dd className="m-0">{createdLabel}</dd>
+          </dl>
+        ) : null}
+      </div>
+
       <div className="flex flex-wrap items-center gap-2">
         <RunStatusBadge run={run} />
       </div>
-
-      <dl className="m-0 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Review ID</dt>
-        <dd className="m-0 flex min-w-0 items-center gap-1">
-          <code className="truncate font-mono text-[11px] text-neutral-900 dark:text-neutral-100">{run.runId}</code>
-          <CopyIdButton value={run.runId} aria-label="Copy review ID" />
-        </dd>
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Project</dt>
-        <dd className="m-0 text-xs text-neutral-800 dark:text-neutral-200">
-          {formatOperatorProjectIdDisplay(run.projectId)}
-        </dd>
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Created</dt>
-        <dd className="m-0">{createdLabel}</dd>
-      </dl>
 
       <div>
         <p className="m-0 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">

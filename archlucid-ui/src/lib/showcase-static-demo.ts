@@ -62,7 +62,7 @@ export function getShowcaseStaticDemoPayload(urlRunId: string): DemoCommitPagePr
     run: {
       runId,
       projectId: "claims-intake-sample-workspace",
-      description: "Claims Intake Modernization Run",
+      description: "Claims Intake Modernization Review",
       createdUtc: "2026-01-10T09:15:22.000Z",
     },
     manifest: {

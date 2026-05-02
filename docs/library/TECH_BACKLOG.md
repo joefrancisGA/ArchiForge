@@ -177,3 +177,37 @@ Three unprotected `_auditService.LogAsync` calls currently bypass `DurableAuditL
 
 ---
 
+
+---
+
+## TB-007 — LLM correctness boundary: three remaining gaps after 2026-05-01 session
+
+**Context:** The quality assessment sessions identified the LLM correctness boundary as the highest engineering risk. Three gaps were documented and partially addressed. The items below require either owner decisions or operational prerequisites before they can be closed.
+
+### Gap A — Promote cohort-real-llm-gate to a required PR status check
+
+**Status:** Blocked on owner task. The Azure OpenAI deployment (rchlucid-golden-cohort in eastus) must be provisioned and the GitHub protected-Environment secret (ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_KEY or federated identity) injected before the gate can be promoted. See docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md § 2 and § 6 for the one-line promotion change and the stop-and-ask boundary.
+
+**What to do (once deployment exists):**
+1. Inject secret into the protected Environment per PENDING_QUESTIONS.md Q15.
+2. Add cohort-real-llm-gate to the required status checks in the main branch protection rule.
+3. Open a separate PR (not the same as the deployment PR) for the promotion.
+
+### Gap B — Enable EnforceOnReject after product decision
+
+**Status:** The AgentOutputQualityGateOptions.EnforceOnReject flag was added (2026-05-01) and defaults to alse. Enabling it causes AgentOutputEvaluationRecorder to throw AgentOutputQualityGateRejectedException when an agent trace scores below the reject thresholds, which propagates through AgentOutputTraceEvaluationHook.AfterSuccessfulExecuteAsync and will abort the post-execute step for the run.
+
+**Decision needed:** Does a quality gate rejection block the pilot user's run from completing, or is it operator-only telemetry? If blocking: enable the flag in ppsettings.SaaS.json under ArchLucid:AgentOutput:QualityGate:EnforceOnReject: true and define the user-facing error contract. If telemetry-only: document the decision and close this item.
+
+### Gap C — Eval corpus has no real-mode scenarios
+
+**Status:** All three scenarios in 	ests/eval-corpus/ have "mode": "simulator" in their qualityEvidence block. The eval_agent_corpus.py CI script runs against simulator agent result fixtures. There are no CI-run checks that assert on real-model finding quality against expected keyword patterns.
+
+**What to do:**
+1. Add at least one eval-corpus scenario with "mode": "real" and expectedFindings keyword checks meaningful for real model output.
+2. Wire a nightly or post-deploy job that runs eval_agent_corpus.py against the real-mode API (similar to the golden cohort gate).
+3. Gate this on the same ARCHLUCID_GOLDEN_COHORT_REAL_LLM variable and budget probe as the cohort gate.
+
+**Affected areas:** 	ests/eval-corpus/, scripts/ci/eval_agent_corpus.py, .github/workflows/golden-cohort-nightly.yml.
+
+**Size estimate:** Gap A ~1 h (operational, no code). Gap B ~2 h (decision + config + error contract). Gap C ~4 h (scenario authoring + workflow wiring).

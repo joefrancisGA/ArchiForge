@@ -1,0 +1,23 @@
+{
+  "resultId": "result-golden-cost-01",
+  "taskId": "task-golden-cost-01",
+  "runId": "run-golden-cost-01",
+  "agentType": 2,
+  "claims": [
+    {
+      "evidenceRefs": [ "ev-cost-1" ],
+      "detail": "Monthly compute spend exceeds the submitted budget envelope; right-sizing reserved instances would reduce cost by an estimated 30%."
+    }
+  ],
+  "evidenceRefs": [ "ev-cost-1" ],
+  "confidence": 0.85,
+  "findings": [
+    {
+      "severity": "High",
+      "description": "Azure VM SKU selection is not cost-optimised for the stated workload profile; on-demand pricing is applied to steady-state baseline load that qualifies for reserved-instance pricing.",
+      "recommendation": "Purchase 1-year reserved instances for the baseline compute tier and use spot capacity for burst workloads."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-04-14T12:00:00Z"
+}

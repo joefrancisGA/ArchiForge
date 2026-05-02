@@ -15,7 +15,7 @@ import {
   OPERATOR_HOME_EXAMPLE_QUERY_VALUE,
   OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN,
 } from "@/lib/operator-home-example-request";
-import { tryStaticDemoRunSummariesPaged } from "@/lib/operator-static-demo";
+import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
@@ -131,6 +131,19 @@ export function RunsDashboardPanel() {
 
     if (fallback !== null && fallback.items.length > 0) {
       return fallback.items;
+    }
+
+    if (
+      isStaticDemoPayloadFallbackEnabled() &&
+      phase === "ready" &&
+      items.length === 0 &&
+      !runsListAuthorityUnusable
+    ) {
+      const emptyWorkspaceFallback = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID);
+
+      if (emptyWorkspaceFallback !== null && emptyWorkspaceFallback.items.length > 0) {
+        return emptyWorkspaceFallback.items;
+      }
     }
 
     return items;

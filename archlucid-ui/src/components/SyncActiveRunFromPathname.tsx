@@ -17,15 +17,12 @@ export function SyncActiveRunFromPathname(): null {
       return;
     }
 
-    const match = /^\/runs\/([^/]+)\/?$/.exec(pathname);
+    const executiveMatch = /^\/executive\/reviews\/([^/]+)/.exec(pathname);
+    const reviewMatch = /^\/reviews\/([^/]+)/.exec(pathname);
+    const legacyRunsMatch = /^\/runs\/([^/]+)/.exec(pathname);
+    const segment = (executiveMatch?.[1] ?? reviewMatch?.[1] ?? legacyRunsMatch?.[1])?.trim();
 
-    if (!match?.[1]) {
-      return;
-    }
-
-    const segment = match[1].trim();
-
-    if (segment.length === 0 || segment === "new") {
+    if (!segment || segment.length === 0 || segment === "new") {
       return;
     }
 

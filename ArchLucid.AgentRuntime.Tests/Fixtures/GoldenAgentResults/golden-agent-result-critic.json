@@ -1,0 +1,23 @@
+{
+  "resultId": "result-golden-critic-01",
+  "taskId": "task-golden-critic-01",
+  "runId": "run-golden-critic-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "evidenceRefs": [ "ev-critic-1" ],
+      "detail": "The proposed topology introduces a single-region API gateway without a failover path; the Topology agent's finding correctly identifies the gap, but the severity should be Critical given the stated SLA."
+    }
+  ],
+  "evidenceRefs": [ "ev-critic-1" ],
+  "confidence": 0.82,
+  "findings": [
+    {
+      "severity": "High",
+      "description": "The architecture review identified a severity under-rating in the Topology agent output; the single-region gateway failure mode warrants Critical severity given the 99.9% SLA commitment documented in the request.",
+      "recommendation": "Escalate the Topology finding severity to Critical and require a multi-region active-passive gateway configuration with automated failover before commit."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-04-14T12:00:00Z"
+}
