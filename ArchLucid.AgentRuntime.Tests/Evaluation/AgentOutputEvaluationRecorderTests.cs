@@ -179,6 +179,46 @@ public sealed class AgentOutputEvaluationRecorderTests
     }
 
     [SkippableFact]
+    public async Task EvaluateAndRecordMetricsAsync_sets_quality_warning_flag_when_gate_warns()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+
+        AgentOutputQualityGateOptions gateOpts = new()
+        {
+            Enabled = true
+        };
+
+        AgentOutputEvaluationRecorder sut = CreateRecorder(
+            repo,
+            NullLogger<AgentOutputEvaluationRecorder>.Instance,
+            gateOpts);
+
+        const string hollowJson =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[],"evidenceRefs":[],"confidence":0.1,"findings":[],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await repo.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "t-quality-warn",
+                RunId = "run-quality-warn",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = hollowJson
+            },
+            CancellationToken.None);
+
+        await sut.EvaluateAndRecordMetricsAsync("run-quality-warn", CancellationToken.None);
+
+        AgentExecutionTrace? updated = await repo.GetByTraceIdAsync("t-quality-warn", CancellationToken.None);
+
+        updated.Should().NotBeNull();
+        updated!.QualityWarning.Should().BeTrue("warn-only gate persists UI/summary signal on the trace row");
+    }
+
+    [SkippableFact]
     public async Task EvaluateAndRecordMetricsAsync_records_structural_and_semantic_histograms_for_eligible_trace()
     {
         _ = ArchLucidInstrumentation.AgentOutputStructuralCompletenessRatio;

@@ -65,6 +65,7 @@ public sealed class RunAgentEvaluationController(
             AgentOutputEvaluationScore score =
                 agentOutputEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
             score.BlobUploadFailed = trace.BlobUploadFailed;
+            score.QualityWarning = trace.QualityWarning;
 
             if (!score.IsJsonParseFailure)
             {

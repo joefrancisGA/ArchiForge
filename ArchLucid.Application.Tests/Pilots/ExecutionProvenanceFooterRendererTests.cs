@@ -52,7 +52,7 @@ public sealed class ExecutionProvenanceFooterRendererTests
 
         string md = _sut.BuildFooterMarkdown(input);
 
-        md.Should().Contain("Real â†’ Simulator (fallback)");
+        md.Should().Contain("Real \u2192 Simulator (fallback)");
         md.Should().Contain("`snap-dep`");
     }
 

@@ -157,6 +157,31 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
+    public Task PatchQualityWarningAsync(
+        string traceId,
+        bool qualityWarning,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+
+            AgentExecutionTrace t = Clone(_items[i]);
+            t.QualityWarning = qualityWarning;
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(traceId);

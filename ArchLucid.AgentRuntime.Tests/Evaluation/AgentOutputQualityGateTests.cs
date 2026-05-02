@@ -58,7 +58,7 @@ public sealed class AgentOutputQualityGateTests
     }
 
     [SkippableFact]
-    public void Evaluate_warns_when_between_warn_and_reject()
+    public void Evaluate_warns_when_scores_below_warn_but_above_reject_with_explicit_floors()
     {
         AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions
         {
@@ -73,7 +73,7 @@ public sealed class AgentOutputQualityGateTests
     }
 
     [SkippableFact]
-    public void Evaluate_accepts_when_at_or_above_warn_thresholds()
+    public void Evaluate_accepts_when_at_or_above_explicit_warn_thresholds()
     {
         AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions
         {
@@ -85,6 +85,30 @@ public sealed class AgentOutputQualityGateTests
         }));
 
         sut.Evaluate(Structural(0.56), Semantic(0.56)).Should().Be(AgentOutputQualityGateOutcome.Accepted);
+    }
+
+    [SkippableFact]
+    public void Evaluate_shipped_defaults_warn_on_critical_semantic_gap()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(Structural(1.0), Semantic(0.0)).Should().Be(AgentOutputQualityGateOutcome.Warned);
+    }
+
+    [SkippableFact]
+    public void Evaluate_shipped_defaults_accept_at_or_above_warn_floors()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(Structural(0.31), Semantic(0.21)).Should().Be(AgentOutputQualityGateOutcome.Accepted);
+    }
+
+    [SkippableFact]
+    public void Evaluate_shipped_defaults_does_not_reject_when_reject_floors_are_zero()
+    {
+        AgentOutputQualityGate sut = new(Options.Create(new AgentOutputQualityGateOptions()));
+
+        sut.Evaluate(Structural(0.01), Semantic(0.01)).Should().Be(AgentOutputQualityGateOutcome.Warned);
     }
 
     [SkippableFact]

@@ -35265,15 +35265,15 @@ namespace ArchLucid.Api.Client.Generated
     public partial class AdminOutboxSnapshot
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("authorityPipelineWorkPending")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
-        public long AuthorityPipelineWorkPending { get; set; } = default!;
-
         [System.Text.Json.Serialization.JsonPropertyName("authorityPipelineWorkDeadLetter")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
         public long AuthorityPipelineWorkDeadLetter { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("authorityPipelineWorkPending")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long AuthorityPipelineWorkPending { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("integrationEventOutboxDeadLetter")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
@@ -35582,6 +35582,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("promptTemplateVersion")]
         public string? PromptTemplateVersion { get; set; } = default!;
 
+        [System.Text.Json.Serialization.JsonPropertyName("qualityWarning")]
+        public bool? QualityWarning { get; set; } = default!;
+
         [System.Text.Json.Serialization.JsonPropertyName("rawResponse")]
         public string? RawResponse { get; set; } = default!;
 
@@ -35656,6 +35659,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("missingKeys")]
         public System.Collections.Generic.ICollection<string>? MissingKeys { get; set; } = default!;
+
+        [System.Text.Json.Serialization.JsonPropertyName("qualityWarning")]
+        public bool? QualityWarning { get; set; } = default!;
 
         [System.Text.Json.Serialization.JsonPropertyName("semantic")]
         public AgentOutputSemanticScore? Semantic { get; set; } = default!;

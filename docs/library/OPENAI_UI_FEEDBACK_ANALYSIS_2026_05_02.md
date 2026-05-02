@@ -1,3 +1,5 @@
+> **Scope:** Internal triage of OpenAI UI feedback against `archlucid-ui` source for engineering prioritization; not a product roadmap, design spec, or customer-facing summary.
+
 # OpenAI UI Feedback Analysis — 2026-05-02
 
 **Feedback timestamp:** 2026-05-02 12:49 AM EDT  

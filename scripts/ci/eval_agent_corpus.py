@@ -124,10 +124,10 @@ SHARED_AGENT_RESULT_KEYS: list[str] = [
 # Defaults mirror ArchLucid.Core.Configuration.AgentOutputQualityGateOptions (shipped appsettings).
 _DEFAULT_GATE: dict[str, Any] = {
     "enabled": True,
-    "structural_warn_below": 0.55,
-    "semantic_warn_below": 0.55,
-    "structural_reject_below": 0.35,
-    "semantic_reject_below": 0.35,
+    "structural_warn_below": 0.3,
+    "semantic_warn_below": 0.2,
+    "structural_reject_below": 0.0,
+    "semantic_reject_below": 0.0,
 }
 
 

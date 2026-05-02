@@ -80,9 +80,15 @@ public sealed class BaselineMutationAuditDualWritePairingTests
 
     private static DirectoryInfo LocateArchLucidApplicationProjectDirectory()
     {
+        // Referenced assembly often loads from the test project's output (e.g. Tests\bin\…\ArchLucid.Application.dll).
+        // Parents of that path reach the solution root, where the csproj is in a sibling folder
+        // (…\ArchLucid.Application\ArchLucid.Application.csproj), not in the ancestor directory itself.
         string? assemblyLoc = typeof(ArchLucid.Application.Common.IBaselineMutationAuditService).Assembly.Location;
 
         string? assemblyDir = Path.GetDirectoryName(assemblyLoc);
+        if (string.IsNullOrEmpty(assemblyDir))
+            assemblyDir = AppContext.BaseDirectory;
+
         if (string.IsNullOrEmpty(assemblyDir))
             throw new InvalidOperationException("Could not resolve assembly directory.");
 
@@ -90,16 +96,23 @@ public sealed class BaselineMutationAuditDualWritePairingTests
 
         while (walk is not null)
         {
-            string csproj = Path.Combine(walk.FullName, "ArchLucid.Application.csproj");
+            string directCsproj = Path.Combine(walk.FullName, "ArchLucid.Application.csproj");
 
-            if (File.Exists(csproj))
+            if (File.Exists(directCsproj))
                 return walk;
+
+            string nestedCsproj =
+                Path.Combine(walk.FullName, "ArchLucid.Application", "ArchLucid.Application.csproj");
+
+            if (File.Exists(nestedCsproj))
+                return new DirectoryInfo(Path.Combine(walk.FullName, "ArchLucid.Application"));
 
             walk = walk.Parent;
         }
 
         throw new InvalidOperationException(
-            "Locate ArchLucid.Application project: walk upward from assembly path until ArchLucid.Application.csproj.");
+            "Locate ArchLucid.Application project: walk upward from assembly path until ArchLucid.Application.csproj " +
+            "(project directory or ArchLucid.Application subfolder).");
     }
 
     private static bool IsIgnoredUnderObjOrBin(FileInfo file)

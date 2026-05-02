@@ -37,10 +37,10 @@ The **When required** column reflects `ConfigurationKeyRequirement` in code (e.g
 | ArchLucid | `ArchLucid:PublicSite:BaseUrl` | appsettings, env | https://archlucid.net | Optional (not mode-gated) | All (Api, Worker, Combined) | Public marketing / operator link base for emails and exports. |
 | ArchLucid | `ArchLucid:Notifications:TrialLifecycle:Owner` | appsettings, env | Hosted | Optional (not mode-gated) | All (Api, Worker, Combined) | Who runs trial notification emails for this tenant class. |
 | ArchLucid | `ArchLucid:AgentOutput:QualityGate:Enabled` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Enables quality gate for agent output. |
-| ArchLucid | `ArchLucid:AgentOutput:QualityGate:StructuralWarnBelow` | appsettings, env | 0.55 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate warn threshold (structural). |
-| ArchLucid | `ArchLucid:AgentOutput:QualityGate:SemanticWarnBelow` | appsettings, env | 0.55 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate warn threshold (semantic). |
-| ArchLucid | `ArchLucid:AgentOutput:QualityGate:StructuralRejectBelow` | appsettings, env | 0.35 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate reject (structural). |
-| ArchLucid | `ArchLucid:AgentOutput:QualityGate:SemanticRejectBelow` | appsettings, env | 0.35 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate reject (semantic). |
+| ArchLucid | `ArchLucid:AgentOutput:QualityGate:StructuralWarnBelow` | appsettings, env | 0.3 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate warn threshold (structural). |
+| ArchLucid | `ArchLucid:AgentOutput:QualityGate:SemanticWarnBelow` | appsettings, env | 0.2 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate warn threshold (semantic). |
+| ArchLucid | `ArchLucid:AgentOutput:QualityGate:StructuralRejectBelow` | appsettings, env | 0 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate reject (structural); `0` = warn-only for non-negative scores. |
+| ArchLucid | `ArchLucid:AgentOutput:QualityGate:SemanticRejectBelow` | appsettings, env | 0 | Optional (not mode-gated) | All (Api, Worker, Combined) | Quality gate reject (semantic); `0` = warn-only unless `EnforceOnReject` + positive floors. |
 | ArchLucid | `ArchLucid:Explanation:Aggregate:FaithfulnessFallbackEnabled` | appsettings, env | true | Optional (not mode-gated) | All (Api, Worker, Combined) | Allow fallback when faithfulness is low. |
 | ArchLucid | `ArchLucid:Explanation:Aggregate:MinSupportRatioToTrustLlmNarrative` | appsettings, env | 0.2 | Optional (not mode-gated) | All (Api, Worker, Combined) | Minimum support ratio to trust the LLM narrative block. |
 | ArchLucid | `ArchLucid:MermaidCli:Enabled` | appsettings, env | false | Optional (not mode-gated) | All (Api, Worker, Combined) | Optionally render Mermaid with external CLI. |

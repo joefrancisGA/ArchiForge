@@ -14,6 +14,8 @@ public static class TestRequestFactory
             cloudProvider = 1,
             constraints = new[] { "Private endpoints required", "Use managed identity" },
             requiredCapabilities = new[] { "Azure AI Search", "SQL", "Managed Identity", "Private Networking" },
+            // Authority commit projects RequiredControls from graph SecurityBaseline nodes (findings), not from agent deltas.
+            securityBaselineHints = new[] { "Private Endpoints", "Managed Identity" },
             assumptions = Array.Empty<string>(),
             priorManifestVersion = (string?)null
         };

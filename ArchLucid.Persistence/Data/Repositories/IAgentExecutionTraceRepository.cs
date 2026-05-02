@@ -53,6 +53,15 @@ public interface IAgentExecutionTraceRepository
         bool failed,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    ///     Sets <see cref="AgentExecutionTrace.QualityWarning" /> after a quality-gate <c>warned</c> outcome (merges into
+    ///     <c>TraceJson</c> for SQL and Cosmos).
+    /// </summary>
+    Task PatchQualityWarningAsync(
+        string traceId,
+        bool qualityWarning,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Returns a single trace by id, or <see langword="null" /> when the row is missing.</summary>
     Task<AgentExecutionTrace?> GetByTraceIdAsync(
         string traceId,

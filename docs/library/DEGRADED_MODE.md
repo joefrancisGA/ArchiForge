@@ -47,7 +47,7 @@ Client → API → Authority pipeline / Application services
 | Explanation service / aggregate explanation | Yes | Errors or empty; cache may serve prior aggregate if enabled; when LLM returns but **faithfulness** vs findings is very low, aggregate may swap to **deterministic** manifest narrative (`ArchLucid:Explanation:Aggregate`) | Restore LLM; circuit closes |
 | Ask endpoint | Yes | Error response | Restore LLM |
 | Agent-enhanced handlers | Yes | Blocked or skipped when breaker open; may fall back to deterministic paths where implemented | Breaker half-open → closed |
-| Agent output quality gate | No (rules only) | When **`ArchLucid:AgentOutput:QualityGate:Enabled`** is **true** (default in production options), low structural/semantic scores yield **warned** / **rejected** outcomes on the evaluation path; **`appsettings.Development.json`** sets **`Enabled: false`** for faster local iteration | Toggle config + redeploy or reload where options-bound |
+| Agent output quality gate | No (rules only) | When **`ArchLucid:AgentOutput:QualityGate:Enabled`** is **true** (shipped in base + Development appsettings), low structural/semantic scores yield **`warned`** (and **`rejected`** only if reject floors are above zero). Set **`Enabled: false`** locally if you want to silence gate metrics during scratch experiments | Toggle config + redeploy or reload where options-bound |
 
 ## Resilience chain (LLM calls)
 

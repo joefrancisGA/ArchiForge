@@ -1,11 +1,13 @@
+using System.Text.Json.Serialization;
+
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 ///     Captures the full execution record for a single LLM call made by an agent during a run.
-///     Traces are immutable after creation and are used for auditing, determinism verification,
-///     and replay comparison.
+///     Traces are treated as immutable for prompts and model output after creation; optional fields such as blob keys
+///     and <see cref="QualityWarning" /> may be patched for persistence or post-execute quality signaling.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -18,6 +20,10 @@ namespace ArchLucid.Contracts.Agents;
 ///         <see cref="ParsedResultJson" /> is set only when <see cref="ParseSucceeded" /> is
 ///         <see langword="true" />; consumers should check <see cref="ParseSucceeded" /> before
 ///         attempting to deserialize it.
+///     </para>
+///     <para>
+///         <see cref="QualityWarning" /> may be set after initial persistence by the post-execute output quality gate
+///         when the gate outcome is <c>warned</c> (merged into stored <c>TraceJson</c>).
 ///     </para>
 /// </remarks>
 public sealed class AgentExecutionTrace
@@ -250,4 +256,15 @@ public sealed class AgentExecutionTrace
         get;
         set;
     } = DateTime.UtcNow;
+
+    /// <summary>
+    ///     Set when the post-execute output quality gate classified this trace as <c>warned</c> (persisted in
+    ///     <c>TraceJson</c>). Omitted from JSON when <see langword="false" />.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool QualityWarning
+    {
+        get;
+        set;
+    }
 }

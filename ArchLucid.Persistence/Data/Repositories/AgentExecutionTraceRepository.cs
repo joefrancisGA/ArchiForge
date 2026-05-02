@@ -311,6 +311,58 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
     }
 
     /// <inheritdoc />
+    public async Task PatchQualityWarningAsync(
+        string traceId,
+        bool qualityWarning,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string selectSql = """
+                                 SELECT TraceJson
+                                 FROM AgentExecutionTraces
+                                 WHERE TraceId = @TraceId;
+                                 """;
+
+        string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
+            new CommandDefinition(selectSql, new
+            {
+                TraceId = traceId
+            }, cancellationToken: cancellationToken));
+
+        if (string.IsNullOrEmpty(rowJson))
+            return;
+
+
+        AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+        if (trace is null)
+            return;
+
+
+        trace.QualityWarning = qualityWarning;
+
+        string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
+
+        const string updateSql = """
+                                 UPDATE AgentExecutionTraces
+                                 SET TraceJson = @TraceJson
+                                 WHERE TraceId = @TraceId;
+                                 """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                updateSql,
+                new
+                {
+                    TraceId = traceId,
+                    TraceJson = updatedJson
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    /// <inheritdoc />
     public async Task<AgentExecutionTrace?> GetByTraceIdAsync(
         string traceId,
         CancellationToken cancellationToken = default)

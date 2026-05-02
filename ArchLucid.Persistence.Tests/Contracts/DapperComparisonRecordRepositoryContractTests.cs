@@ -14,8 +14,6 @@ namespace ArchLucid.Persistence.Tests.Contracts;
 public sealed class DapperComparisonRecordRepositoryContractTests(SqlServerPersistenceFixture fixture)
     : ComparisonRecordRepositoryContractTests
 {
-    private readonly SqlServerPersistenceFixture _fixture = fixture;
-
     protected override void SkipIfSqlServerUnavailable()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
@@ -25,7 +23,7 @@ public sealed class DapperComparisonRecordRepositoryContractTests(SqlServerPersi
     {
         SkipIfSqlServerUnavailable();
 
-        await using SqlConnection conn = new(_fixture.ConnectionString);
+        await using SqlConnection conn = new(fixture.ConnectionString);
         await conn.OpenAsync(ct);
         await ComparisonRecordContractTestSqlSeed.EnsureRunsForComparisonRecordAsync(conn, row, ct);
     }

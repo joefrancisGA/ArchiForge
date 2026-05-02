@@ -38,7 +38,7 @@
       },
       "AdminOutboxSnapshot": {
         "properties": {
-          "authorityPipelineWorkPending": {
+          "authorityPipelineWorkDeadLetter": {
             "format": "int64",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
@@ -46,7 +46,7 @@
               "string"
             ]
           },
-          "authorityPipelineWorkDeadLetter": {
+          "authorityPipelineWorkPending": {
             "format": "int64",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
@@ -448,6 +448,9 @@
               "string"
             ]
           },
+          "qualityWarning": {
+            "type": "boolean"
+          },
           "rawResponse": {
             "type": "string"
           },
@@ -517,6 +520,9 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "qualityWarning": {
+            "type": "boolean"
           },
           "semantic": {
             "oneOf": [

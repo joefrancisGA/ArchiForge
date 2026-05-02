@@ -103,13 +103,16 @@ public sealed class AgentOutputEvaluationRecorder(
             }
 
             else if (gateOutcome == AgentOutputQualityGateOutcome.Warned)
-
+            {
                 logger.LogWarningAgentOutputQualityGateWarned(
                     runId,
                     trace.TraceId,
                     agentLabel,
                     score.StructuralCompletenessRatio,
                     semanticScore.OverallSemanticScore);
+
+                await traceRepository.PatchQualityWarningAsync(trace.TraceId, true, cancellationToken);
+            }
 
             if (semanticScore.OverallSemanticScore < LowSemanticScoreThreshold)
 

@@ -53,4 +53,11 @@ public sealed class AgentOutputEvaluationScore
         get;
         set;
     }
+
+    /// <summary>Copied from <see cref="AgentExecutionTrace.QualityWarning" /> when present on the persisted trace.</summary>
+    public bool QualityWarning
+    {
+        get;
+        set;
+    }
 }

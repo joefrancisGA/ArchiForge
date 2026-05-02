@@ -1,8 +1,9 @@
 namespace ArchLucid.Core.Configuration;
 
 /// <summary>
-///     Optional post-evaluation gate on persisted agent JSON (structural + semantic scores). On by default; set
-///     <see cref="Enabled" /> to false to disable.
+///     Optional post-evaluation gate on persisted agent JSON (structural + semantic scores). On by default with
+///     conservative warn thresholds and reject floors at <c>0</c> (warn-only V1); set <see cref="Enabled" /> to false
+///     to disable.
 /// </summary>
 public sealed class AgentOutputQualityGateOptions
 {
@@ -20,28 +21,34 @@ public sealed class AgentOutputQualityGateOptions
     {
         get;
         set;
-    } = 0.55;
+    } = 0.3;
 
     /// <summary>Semantic score below this yields <c>warned</c> unless <see cref="SemanticRejectBelow" /> triggers first.</summary>
     public double SemanticWarnBelow
     {
         get;
         set;
-    } = 0.55;
+    } = 0.2;
 
-    /// <summary>Structural ratio strictly below this yields <c>rejected</c>.</summary>
+    /// <summary>
+    ///     Structural ratio strictly below this yields <c>rejected</c>. Default <c>0</c> disables structural reject
+    ///     (no positive score is strictly below zero).
+    /// </summary>
     public double StructuralRejectBelow
     {
         get;
         set;
-    } = 0.35;
+    }
 
-    /// <summary>Semantic score strictly below this yields <c>rejected</c>.</summary>
+    /// <summary>
+    ///     Semantic score strictly below this yields <c>rejected</c>. Default <c>0</c> disables semantic reject for
+    ///     non-negative scores.
+    /// </summary>
     public double SemanticRejectBelow
     {
         get;
         set;
-    } = 0.35;
+    }
 
     /// <summary>
     ///     When <c>true</c>, a <c>Rejected</c> outcome causes
