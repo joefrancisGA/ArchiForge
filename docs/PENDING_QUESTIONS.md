@@ -1,4 +1,5 @@
 > **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
+> **Updated 2026-05-03:** **Design partner** (signed commercial engagement) → **V1.1** commercial motion, **not** a V1 GA gate; **`(A)` headline assessments must not** penalize or foreground absence — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b and *Resolved 2026-05-03* below.
 > **Updated 2026-05-01:** External **third-party** pen test release window → **V2**; **V1** = owner-conducted pen test; **no** vendor committed; V1 quality assessments **must not** penalize lack of third-party pen test — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
 > **Updated 2026-04-27:** Resolved two long-standing deferred items:
 > 1. Authentication Strategy for SaaS/On-Prem default: Require Entra ID or explicit API keys (Resolved).
@@ -6,11 +7,20 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-05-01 — external third-party pen test → **V2**; V1 = **owner-conducted** pen test (**`V1_DEFERRED.md`** §6c). **API key lifecycle** Q3 resolved: Terraform create; semiannual rotation; secret-channel distribution; **no API keys in production**.
+**Last updated:** 2026-05-03 — design partner → **V1.1** commercial motion only; **`(A)` assessments must not** score absence (**`V1_DEFERRED.md`** §6b). Prior 2026-05-01 — third-party pen test → **V2**; V1 = **owner-conducted** (**`V1_DEFERRED.md`** §6c). **API key lifecycle** Q3 resolved: Terraform create; semiannual rotation; secret-channel distribution; **no API keys in production**.
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-05-03 (Design partner vs V1 headline assessments)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Design partner as product/pilot gate** | **Not a V1 gate.** Closing a **signed design partner** (per [`docs/go-to-market/PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md)) is a **V1.1** commercial motion alongside reference-customer publication — see [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b. | V1 GA and Core Pilot remain defined by [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) without a design-partner prerequisite. |
+| **Assessment scoring and narrative** | **`(A)` must not drop** for lacking a design partner. **Do not** list “no design partner yet” as a headline defect, recurring open question, or scored pillar gap unless the user explicitly asked for **GTM pipeline** depth — then **`(B)` informational** only (zero weight on **`(A)`**). | `.cursor/rules/Assessment-Scope-V1_1.mdc`; future independent assessments. |
 
 ---
 

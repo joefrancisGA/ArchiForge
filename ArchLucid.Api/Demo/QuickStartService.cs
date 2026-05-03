@@ -10,10 +10,10 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Composition.Demo;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Demo;
@@ -23,7 +23,8 @@ namespace ArchLucid.Api.Demo;
 /// </summary>
 public sealed class QuickStartService(
     IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
-    QuickStartForcedSimulatorExecuteOrchestrator quickStartForcedSimulatorExecuteOrchestrator,
+    [FromKeyedServices(ArchitectureRunExecuteOrchestrationKeys.QuickStartForcedSimulator)]
+    IArchitectureRunExecuteOrchestrator quickStartExecuteOrchestrator,
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IAuditService auditService,
     IActorContext actorContext,
@@ -48,9 +49,8 @@ public sealed class QuickStartService(
     private readonly IOptionsMonitor<PublicSiteOptions> _publicSiteOptions =
         publicSiteOptions ?? throw new ArgumentNullException(nameof(publicSiteOptions));
 
-    private readonly QuickStartForcedSimulatorExecuteOrchestrator _quickStartForcedSimulatorExecuteOrchestrator =
-        quickStartForcedSimulatorExecuteOrchestrator
-        ?? throw new ArgumentNullException(nameof(quickStartForcedSimulatorExecuteOrchestrator));
+    private readonly IArchitectureRunExecuteOrchestrator _quickStartExecuteOrchestrator =
+        quickStartExecuteOrchestrator ?? throw new ArgumentNullException(nameof(quickStartExecuteOrchestrator));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -74,7 +74,7 @@ public sealed class QuickStartService(
         string runId = created.Run.RunId;
 
         ExecuteRunResult executed =
-            await _quickStartForcedSimulatorExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken)
+            await _quickStartExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken)
                 .ConfigureAwait(false);
 
         await LogRunSubmittedAuditAsync(actor, runId, cancellationToken).ConfigureAwait(false);

@@ -1,4 +1,4 @@
-> **Scope:** Independent, first-principles assessment of ArchLucid readiness based on the weighted quality model.
+`> **Scope:** Independent, first-principles assessment of ArchLucid readiness based on the weighted quality model.
 
 # ArchLucid Assessment – Weighted Readiness 81.35%
 

@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Finalization;
+using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
@@ -293,13 +294,15 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         Dm.ManifestDocument manifestModel;
         DecisionTrace trace;
         Cm.GoldenManifest contract;
+        AgentEvidencePackage? evidencePackageForTelemetry = null;
+        IReadOnlyList<AgentResult>? agentResultsForTelemetry = null;
 
         try
         {
             ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
                                           ?? throw new InvalidOperationException(
                                               $"Request '{run.RequestId}' not found.");
-            await EnsureCommitPrerequisitesAsync(runId, cancellationToken);
+            evidencePackageForTelemetry = await GetEvidencePackageForCommitOrThrowAsync(runId, cancellationToken);
 
             if (runRecord.ContextSnapshotId is not { } contextSnapshotId
                 || runRecord.GraphSnapshotId is not { } graphId
@@ -312,10 +315,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             if (graph is null)
                 throw new InvalidOperationException($"Graph snapshot '{graphId:D}' for run '{runId}' was not found.");
 
-            IReadOnlyList<AgentResult> agentResults =
-                await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken);
+            agentResultsForTelemetry = await _agentResultRepository.GetByRunIdAsync(runId, cancellationToken);
             GraphSnapshot graphForDecision =
-                AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResults);
+                AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, agentResultsForTelemetry);
 
             Dm.FindingsSnapshot? findings =
                 await _findingsSnapshotRepository.GetByIdAsync(findingsId, cancellationToken);
@@ -479,26 +481,25 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 contract.Metadata.ManifestVersion,
                 persisted.Warnings.Count);
 
-        try
-        {
-            using System.Data.IDbConnection connection = await _dbConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
-            const string sql = @"
-                INSERT INTO dbo.RunTelemetry (RunId, RequestDurationMs, AgentExecutionDurationMs, ManualReviewDurationMs, EstimatedHoursSaved)
-                VALUES (@RunId, @RequestDurationMs, @AgentExecutionDurationMs, @ManualReviewDurationMs, @EstimatedHoursSaved)";
-                
-            await Dapper.SqlMapper.ExecuteAsync(connection, sql, new 
+        if (evidencePackageForTelemetry is not null && agentResultsForTelemetry is not null)
+
+            try
             {
-                RunId = runGuid,
-                RequestDurationMs = 5000,
-                AgentExecutionDurationMs = 15000,
-                ManualReviewDurationMs = 120000,
-                EstimatedHoursSaved = 10.0m
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
-        }
+                DateTime telemetryCommitUtc = DateTime.UtcNow;
+
+                CommitRunTelemetryMetrics telemetry = CommitRunTelemetryMetrics.FromCommitContext(
+                    runRecord,
+                    evidencePackageForTelemetry,
+                    agentResultsForTelemetry,
+                    telemetryCommitUtc,
+                    persisted);
+
+                await TryInsertRunTelemetryAsync(runGuid, telemetry, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
+            }
 
         return new CommitRunResult
         {
@@ -592,13 +593,41 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         };
     }
 
-    private async Task EnsureCommitPrerequisitesAsync(string runId, CancellationToken cancellationToken)
+    private async Task<AgentEvidencePackage> GetEvidencePackageForCommitOrThrowAsync(
+        string runId,
+        CancellationToken cancellationToken)
     {
         // ADR 0030 PR A3 (2026-04-24): missing evidence package = run hasn't been executed yet,
         // which is a conflict with the current run state, not a malformed request → 409 (not 400).
-        _ = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
-            ?? throw new ConflictException(
-                $"Run '{runId}' cannot be committed: no evidence package exists. Execute the run first.");
+        return await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
+               ?? throw new ConflictException(
+                   $"Run '{runId}' cannot be committed: no evidence package exists. Execute the run first.");
+    }
+
+    private async Task TryInsertRunTelemetryAsync(
+        Guid runGuid,
+        CommitRunTelemetryMetrics telemetry,
+        CancellationToken cancellationToken)
+    {
+        using System.Data.IDbConnection connection =
+            await _dbConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = @"
+                IF NOT EXISTS (SELECT 1 FROM dbo.RunTelemetry WHERE RunId = @RunId)
+                INSERT INTO dbo.RunTelemetry (RunId, RequestDurationMs, AgentExecutionDurationMs, ManualReviewDurationMs, EstimatedHoursSaved)
+                VALUES (@RunId, @RequestDurationMs, @AgentExecutionDurationMs, @ManualReviewDurationMs, @EstimatedHoursSaved);";
+
+        await Dapper.SqlMapper.ExecuteAsync(
+            connection,
+            sql,
+            new
+            {
+                RunId = runGuid,
+                RequestDurationMs = telemetry.RequestDurationMs,
+                AgentExecutionDurationMs = telemetry.AgentExecutionDurationMs,
+                ManualReviewDurationMs = telemetry.ManualReviewDurationMs,
+                EstimatedHoursSaved = telemetry.EstimatedHoursSaved
+            });
     }
 
     private static void EnforceCommitAllowedForStatus(ArchitectureRun run, string runId)

@@ -7,6 +7,8 @@ using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace ArchLucid.Api.Tests.Startup;
 
 /// <summary>
@@ -129,6 +131,23 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
 
         dataLayerCollisions.Should().BeEmpty(
             "the 2026-04-05 rename removed unprefixed IGoldenManifestRepository / IDecisionTraceRepository from ArchLucid.Persistence.Data.Repositories; reintroducing them would resurrect the ADR 0010 collision risk and require a new ADR");
+    }
+
+    [SkippableFact]
+    public void Keyed_QuickStart_execute_orchestrator_resolves_simulator_path_distinct_from_default()
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+
+        IArchitectureRunExecuteOrchestrator keyed =
+            scope.ServiceProvider.GetRequiredKeyedService<IArchitectureRunExecuteOrchestrator>(
+                ArchitectureRunExecuteOrchestrationKeys.QuickStartForcedSimulator);
+
+        IArchitectureRunExecuteOrchestrator defaultExec =
+            scope.ServiceProvider.GetRequiredService<IArchitectureRunExecuteOrchestrator>();
+
+        keyed.Should().BeOfType<ArchitectureRunExecuteOrchestrator>();
+        defaultExec.Should().BeOfType<ArchitectureRunExecuteOrchestrator>();
+        keyed.Should().NotBeSameAs(defaultExec);
     }
 
     /// <summary>

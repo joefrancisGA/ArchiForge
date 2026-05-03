@@ -191,7 +191,7 @@ export default async function RunFindingExplainPage({
         <FindingExplainPanel
           runId={runId}
           findingId={findingId}
-          confidenceLevel={inspectPayload.confidenceLevel ?? null}
+          confidenceLevel={inspectPayload?.confidenceLevel ?? null}
         />
       </CollapsibleSection>
 

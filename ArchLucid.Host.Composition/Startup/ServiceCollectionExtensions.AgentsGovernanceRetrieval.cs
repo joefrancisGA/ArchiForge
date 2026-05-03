@@ -192,13 +192,15 @@ public static partial class ServiceCollectionExtensions
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
             services.AddScoped<DeterministicAgentSimulator>();
-            services.AddScoped<IAgentExecutor, SimulatorExecutionTraceRecordingExecutor>();
+            services.AddScoped<SimulatorExecutionTraceRecordingExecutor>();
+            services.AddScoped<IAgentExecutor>(static sp => sp.GetRequiredService<SimulatorExecutionTraceRecordingExecutor>());
             RegisterFakeAgentCompletionClient(services);
         }
         else
         {
             // Deterministic simulator is also used by POST /v1/demo/quickstart which must never call real LLMs.
             services.AddScoped<DeterministicAgentSimulator>();
+            services.AddScoped<SimulatorExecutionTraceRecordingExecutor>();
             services.AddScoped<IAgentExecutor, RealAgentExecutor>();
             services.AddScoped<IAgentHandler, TopologyAgentHandler>();
             services.AddScoped<IAgentHandler, CostAgentHandler>();

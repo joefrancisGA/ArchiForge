@@ -541,58 +541,7 @@ Acceptance criteria:
 **Cursor prompt:**
 
 ```
-Validate the ArchLucid SCIM 2.0 server implementation and produce a documented, tested
-Entra ID provisioning integration recipe.
-
-Context files to read first:
-1. ArchLucid.Application.Tests/Scim/ScimPatchOpEvaluatorTests.cs — existing SCIM parser tests
-2. ArchLucid.Application.Tests/Scim/ScimFilterParserTests.cs — filter parser coverage
-3. ArchLucid.Application.Tests/Scim/ScimPatchValuePathParserTests.cs — path parser coverage
-4. ArchLucid.Api/ — locate SCIM-related controllers (search for "scim" in route registrations
-   or controller class names)
-5. docs/security/SIG_CORE_2026.md — SCIM-related procurement questions already captured
-
-Tasks:
-1. Read all five context files. Map which SCIM 2.0 endpoints are implemented
-   (Users CRUD, Groups, ServiceProviderConfig, Schemas, ResourceTypes).
-2. Write integration tests in ArchLucid.Api.Tests/ (or ArchLucid.Application.Tests/)
-   simulating Entra ID provisioning requests against the local WebApplicationFactory:
-   a. POST /scim/Users — create a user with standard Entra ID attribute payload
-      (userName, name.givenName, name.familyName, emails[0].value, active).
-   b. GET /scim/Users?filter=userName+eq+"test@example.com" — Entra filter format.
-   c. PATCH /scim/Users/{id} — update displayName and active (Entra deprovisioning shape).
-   d. DELETE /scim/Users/{id} — hard deprovision.
-   e. GET /scim/ServiceProviderConfig — assert it lists supported authenticationSchemes,
-      filter support, and patch support.
-3. Verify the ScimFilter parser correctly handles Entra ID's filter patterns:
-   - userName eq "value"
-   - emails[type eq "work"].value eq "value"
-   - externalId eq "value"
-   Add cases to ScimFilterParserTests.cs for any not already covered.
-4. Create docs/integrations/SCIM_ENTRA_ID_SETUP.md with:
-   - Prerequisites (Entra ID tenant, app registration for SCIM provisioning)
-   - SCIM endpoint base URL pattern (e.g. https://your-instance/scim)
-   - Authentication configuration for the SCIM bearer token
-   - Attribute mapping table: Entra property → ArchLucid user property
-   - Step-by-step Entra Enterprise Application provisioning setup guide
-   - Troubleshooting: common 4xx responses and their causes
-5. Add SCIM provisioning as an evidence row in docs/go-to-market/PROCUREMENT_PACK_INDEX.md.
-
-Constraints:
-- Use mocked IdP only in automated tests — do not require a real Entra ID tenant for CI.
-- Follow RFC 7644 (SCIM 2.0 protocol) for request/response shapes.
-- Each test class in its own file.
-- Do NOT use ConfigureAwait(false) in tests.
-- Do NOT change existing ScimPatchOp/Filter unit test assertions.
-- Authentication for the SCIM endpoint must use the existing ArchLucidAuth mechanism —
-  do not introduce a separate auth path.
-
-Acceptance criteria:
-- Integration tests for create/filter/update/delete/ServiceProviderConfig all pass.
-- Entra ID filter patterns from step 3 are covered in ScimFilterParserTests.cs.
-- SCIM_ENTRA_ID_SETUP.md exists and is navigable without prior SCIM knowledge.
-- PROCUREMENT_PACK_INDEX.md row added for SCIM provisioning.
-- All existing SCIM unit tests pass unchanged.
+ex- All existing SCIM unit tests pass unchanged.
 ```
 
 ---

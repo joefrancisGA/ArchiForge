@@ -1,7 +1,7 @@
 ---
 description: >-
-  Dual-score readiness rubric — V1.1 headline excludes SOC 2 CPA attestation;
-  SOC still surfaced under informational procurement realism.
+  Dual-score readiness rubric — V1.1 headline excludes SOC 2 CPA attestation,
+  signed design partner, and similar owner-only GTM items; those stay informational only.
 alwaysApply: true
 ---
 
@@ -23,6 +23,16 @@ When producing **weighted readiness**, **solution quality**, **go-to-market**, o
 
 - **Explicitly prohibited:** lowering **`(A)` Compliance / Procurement / Trust pillar scores solely because CPA SOC 2 is not issued; treating SOC 2 as a “formal assurance gap against V1.1 contract” unless the narrative labels that sentence as **`(B)` procurement-only**.
 
+## Design partner — omit from headline defects; never score on `(A)`
+
+- **Not a V1 gate:** A **signed or active design partner** (commercial motion described in **`docs/go-to-market/PRICING_PHILOSOPHY.md`**) is a **V1.1** commercial item per **`docs/library/V1_DEFERRED.md` §6b** and **`docs/library/V1_SCOPE.md` §3**. V1 GA and pilot success do **not** require it.
+
+- **`(A)` must not be reduced** for absence of a design partner — not in Marketability, Stickiness, Proof-of-ROI, trust pillars, or “readiness” composites.
+
+- **Narrative:** Do **not** add recurring assessment sections (defect lists, open-question dumps, improvement gates) whose **primary** gap is “no design partner yet.” **Do not** imply the product is blocked pending a design partner. If the user **explicitly** asks for GTM or pipeline analysis, mention design-partner status **only** under **`(B)` market-motion / procurement realism** (zero weight on **`(A)`**), briefly.
+
+- **Explicitly prohibited:** lowering **`(A)`** because the repo or org has not closed a design-partner contract; framing headline readiness as conditional on “finding” a design partner.
+
 ## Alignment with broader realism rules
 
 Workspace **`Enterprise-Realism.mdc`** still applies for design trade-offs. For **numerical readiness scoring**, this rule **wins**: organizational procurement pressure is modeled in **`(B)`**, not as hidden deductions inside **`(A)`**.
@@ -33,7 +43,7 @@ Workspace **`Enterprise-Realism.mdc`** still applies for design trade-offs. For 
 
 Produce **two labeled scores**:
 
-- **`(A) V1.1 headline readiness (100)`** — only in-contract V1 / V1.1 gates per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and trust-center commitments. **SOC 2 CPA attestation and ISO certificate are out of `(A)`**; cite them only under **`(B)`**.
-- **`(B) Procurement realism (informational, not weighted into `(A)`)`** — buyer friction incl. SOC 2 report expectations.
+- **`(A) V1.1 headline readiness (100)`** — only in-contract V1 / V1.1 gates per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and trust-center commitments. **SOC 2 CPA attestation, ISO certificate, and signed design partner are out of `(A)`**; cite them only under **`(B)`** when relevant.
+- **`(B) Procurement / market-motion realism (informational, not weighted into `(A)`)`** — buyer friction incl. SOC 2 report expectations; optional GTM pipeline (design partner, reference pipeline) **only if the user asked**.
 
-Do **not** reduce **`(A)`** for missing CPA SOC 2 / ISO certs; summarize interim posture + roadmap citations instead.
+Do **not** reduce **`(A)`** for missing CPA SOC 2 / ISO certs or for lacking a design partner; summarize interim posture + roadmap citations instead.
