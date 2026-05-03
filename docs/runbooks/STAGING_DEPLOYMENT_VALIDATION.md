@@ -1,3 +1,5 @@
+> **Scope:** For platform engineers validating ArchLucid in Azure staging after deployment; operational checks for IaC alignment, containers, SQL, health, and a sample run—not Terraform module authoring or production promotion.
+
 # Staging deployment validation
 
 **Objective:** Confirm the ArchLucid stack in Azure staging is safe to hand to pilot users: Terraform state matches intended resources, containers run current images, SQL is migrated, health checks pass, and one full architecture run can execute and commit with a retrievable golden manifest.
