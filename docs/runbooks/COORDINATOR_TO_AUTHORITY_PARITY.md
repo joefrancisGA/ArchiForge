@@ -48,6 +48,7 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 | 2026-04-29 06:56 UTC | 2026-04-30 06:56 UTC | *(sample)* | - | - | - / - | - | auto `scripts/ci/coordinator_parity_probe.py` |
 | 2026-04-30 06:58 UTC | 2026-05-01 06:58 UTC | *(sample)* | - | - | - / - | - | auto `scripts/ci/coordinator_parity_probe.py` |
 | 2026-05-01 06:42 UTC | 2026-05-02 06:42 UTC | *(sample)* | - | - | - / - | - | auto `scripts/ci/coordinator_parity_probe.py` |
+| 2026-05-02 06:54 UTC | 2026-05-03 06:54 UTC | *(sample)* | - | - | - / - | - | auto `scripts/ci/coordinator_parity_probe.py` |
 <!-- /coordinator-parity-probe:table -->
 
 ## Phase 3 gate status (2026-04-21, updated 2026-04-22)
