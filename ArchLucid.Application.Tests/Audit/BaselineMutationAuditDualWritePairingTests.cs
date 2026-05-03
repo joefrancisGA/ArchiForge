@@ -58,7 +58,7 @@ public sealed class BaselineMutationAuditDualWritePairingTests
         // Referenced assembly often loads from the test project's output (e.g. Tests\bin\…\ArchLucid.Application.dll).
         // Parents of that path reach the solution root, where the csproj is in a sibling folder
         // (…\ArchLucid.Application\ArchLucid.Application.csproj), not in the ancestor directory itself.
-        string assemblyLoc = typeof(ArchLucid.Application.Common.IBaselineMutationAuditService).Assembly.Location;
+        string assemblyLoc = typeof(Common.IBaselineMutationAuditService).Assembly.Location;
 
         string? assemblyDir = Path.GetDirectoryName(assemblyLoc);
         if (string.IsNullOrEmpty(assemblyDir))
