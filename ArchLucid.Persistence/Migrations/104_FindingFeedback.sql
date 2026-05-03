@@ -37,10 +37,12 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'FindingFeedback')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
+    EXEC (N'
+ALTER SECURITY POLICY rls.ArchiforgeTenantScope
         ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback AFTER INSERT,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback AFTER UPDATE,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback BEFORE DELETE;
+');
 END;
 GO

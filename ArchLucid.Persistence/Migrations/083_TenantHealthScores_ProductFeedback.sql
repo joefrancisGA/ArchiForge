@@ -56,11 +56,13 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'TenantHealthScores')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
+    EXEC (N'
+ALTER SECURITY POLICY rls.ArchiforgeTenantScope
         ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores AFTER INSERT,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores AFTER UPDATE,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores BEFORE DELETE;
+');
 END;
 GO
 
@@ -73,11 +75,13 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'ProductFeedback')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
+    EXEC (N'
+ALTER SECURITY POLICY rls.ArchiforgeTenantScope
         ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback AFTER INSERT,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback AFTER UPDATE,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback BEFORE DELETE;
+');
 END;
 GO
 

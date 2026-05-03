@@ -50,11 +50,12 @@ IF @PreviousState = 0 AND EXISTS (SELECT 1 FROM sys.security_policies WHERE name
     FROM sys.security_policies
     WHERE name = N'ArchLucidTenantScope';
 
+/* Deferred binding: DROP/ALTER SECURITY POLICY resolves at batch compile time (error 33268). */
 IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-    DROP SECURITY POLICY rls.ArchiforgeTenantScope;
+    EXEC (N'DROP SECURITY POLICY rls.ArchiforgeTenantScope;');
 
 IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
-    DROP SECURITY POLICY rls.ArchLucidTenantScope;
+    EXEC (N'DROP SECURITY POLICY rls.ArchLucidTenantScope;');
 
 IF OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NOT NULL
     DROP FUNCTION rls.archiforge_scope_predicate;

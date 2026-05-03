@@ -33,11 +33,13 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'SentEmails')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
+    EXEC (N'
+ALTER SECURITY POLICY rls.ArchiforgeTenantScope
         ADD FILTER PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.SentEmails,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.SentEmails AFTER INSERT,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.SentEmails AFTER UPDATE,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.SentEmails BEFORE DELETE;
+');
 END;
 GO
 
@@ -50,11 +52,13 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'TenantLifecycleTransitions')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
+    EXEC (N'
+ALTER SECURITY POLICY rls.ArchiforgeTenantScope
         ADD FILTER PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions AFTER INSERT,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions AFTER UPDATE,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions BEFORE DELETE;
+');
 END;
 GO
 
@@ -67,10 +71,12 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'TenantTrialSeatOccupants')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
+    EXEC (N'
+ALTER SECURITY POLICY rls.ArchiforgeTenantScope
         ADD FILTER PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants AFTER INSERT,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants AFTER UPDATE,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants BEFORE DELETE;
+');
 END;
 GO

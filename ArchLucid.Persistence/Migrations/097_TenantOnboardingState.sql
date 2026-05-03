@@ -27,10 +27,12 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'TenantOnboardingState')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
+    EXEC (N'
+ALTER SECURITY POLICY rls.ArchiforgeTenantScope
         ADD FILTER PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantOnboardingState,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantOnboardingState AFTER INSERT,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantOnboardingState AFTER UPDATE,
         ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantOnboardingState BEFORE DELETE;
+');
 END;
 GO

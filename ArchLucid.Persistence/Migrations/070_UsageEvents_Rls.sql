@@ -24,10 +24,13 @@ GO
 
 IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
+    /* Deferred binding: ALTER SECURITY POLICY is resolved at batch compile time (error 33268 if policy absent). */
+    EXEC (N'
+ALTER SECURITY POLICY rls.ArchiforgeTenantScope
         ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.UsageEvents,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.UsageEvents AFTER INSERT,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.UsageEvents AFTER UPDATE,
         ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.UsageEvents BEFORE DELETE;
+');
 END;
 GO
