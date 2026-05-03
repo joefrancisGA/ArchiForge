@@ -10,6 +10,8 @@ const navCallerAuthorityRank = vi.hoisted(() => ({ current: 3 }));
 
 vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: (): number => navCallerAuthorityRank.current,
+  /** Matches `composeNavSurface(..., hasCommittedArchitectureReview = true)` — LayerHeader ignores nav links from the surface. */
+  useNavCommittedArchitectureReview: (): boolean => true,
 }));
 
 import { LayerHeader } from "./LayerHeader";

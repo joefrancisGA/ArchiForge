@@ -1,4 +1,4 @@
-`> **Scope:** Independent, first-principles assessment of ArchLucid readiness based on the weighted quality model.
+> **Scope:** Independent first-principles weighted-readiness assessment of ArchLucid for evaluators and leadership using the documented quality model; not formal assurance, a contract, or a substitute for in-repo V1 scope and deferred-item gates.
 
 # ArchLucid Assessment – Weighted Readiness 81.35%
 

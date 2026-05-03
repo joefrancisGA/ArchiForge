@@ -1,3 +1,5 @@
+> **Scope:** For operators configuring Microsoft Entra ID enterprise application provisioning into ArchLucid via SCIM 2.0; not general IdP architecture, non-Microsoft IdPs, or a substitute for the SCIM threat model and admin API docs.
+
 # SCIM 2.0 — Microsoft Entra ID provisioning recipe
 
 ## Objective

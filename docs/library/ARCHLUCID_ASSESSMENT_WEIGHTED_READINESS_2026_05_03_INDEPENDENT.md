@@ -1,3 +1,5 @@
+> **Scope:** Independent weighted-readiness assessment snapshot for ArchLucid for the dated scoring run; not procurement sign-off, audited compliance, or a replacement for `docs/library/V1_SCOPE.md` and related deferred work.
+
 # ArchLucid Assessment – Weighted Readiness 68.80%
 
 ## Executive Summary
