@@ -31,7 +31,10 @@ Tier naming for publication docs is guarded by **`python scripts/ci/assert_marke
 
 The legal entity for Partner Center tax and payout profiles is **Joseph Francis (Sole Proprietorship)** (owner decision 2026-04-27). This name will appear on tax and banking records, while the **publisher display name** on the listing card remains **`ArchLucid`** per the branding decision.
 
+**Planned migration:** move seller-of-record and related commercial identity to **Francis Architecture, LLC** per phased playbook [`FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md). Until that runbook completes and **`docs/CHANGELOG.md`** records execution, treat the **sole proprietorship** line above as the live Partner Center legal identity.
+
 ## Related
 
 - [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](../go-to-market/MARKETPLACE_PUBLICATION.md)
 - [`docs/runbooks/STRIPE_WEBHOOK_INCIDENT.md`](STRIPE_WEBHOOK_INCIDENT.md)
+- [`docs/runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md)

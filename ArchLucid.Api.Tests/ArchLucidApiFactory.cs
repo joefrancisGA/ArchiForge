@@ -24,9 +24,12 @@ namespace ArchLucid.Api.Tests;
 ///     </para>
 ///     <para>
 ///         In-memory configuration forces <c>AgentExecution:Mode=Simulator</c>, clears <c>AzureOpenAI:*</c> so user
-///         secrets
-///         cannot enable real completion clients (503 from circuit breaker), and raises rate limits for stable CI/local
-///         runs.
+///         secrets cannot enable real completion clients (503 from circuit breaker); sets
+///         <c>DataConsistency:InitialDelaySeconds=0</c> and <c>HostLeaderElection:Enabled=false</c> so
+///         <see cref="ArchLucid.Application.DataConsistency.DataConsistencyHealthCheck" /> can complete its first reconciliation promptly (otherwise
+///         <c>appsettings.Advanced.json</c> 120s delay wins over Development and readiness/detailed health aggregate
+///         Unhealthy → 503; see CI greenfield boot env comments). Rate limits are
+///         raised for stable CI/local runs.
 ///     </para>
 /// </remarks>
 public class ArchLucidApiFactory : WebApplicationFactory<Program>
@@ -63,6 +66,8 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
 
         builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
         builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+        builder.UseSetting("DataConsistency:InitialDelaySeconds", "0");
+        builder.UseSetting("HostLeaderElection:Enabled", "false");
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
@@ -72,6 +77,8 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
             {
                 ["ArchLucid:StorageProvider"] = "InMemory",
                 ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
+                ["DataConsistency:InitialDelaySeconds"] = "0",
+                ["HostLeaderElection:Enabled"] = "false",
                 ["AgentExecution:Mode"] = "Simulator",
                 ["AzureOpenAI:Endpoint"] = "",
                 ["AzureOpenAI:ApiKey"] = "",
