@@ -13,6 +13,8 @@ namespace ArchLucid.Persistence.GraphSnapshots;
 /// <remarks>
 ///     When <c>dbo.GraphSnapshotEdges</c> has rows but <c>dbo.GraphSnapshotEdgeProperties</c> is empty, label/properties
 ///     are merged from <c>EdgesJson</c> (legacy enrichment until all edge metadata is backfilled relationally).
+///     When edge properties exist only for some edges and the caller supplies a storage row with <c>EdgesJson</c>,
+///     label/properties missing relationally for a given <c>EdgeId</c> are still merged from JSON; relational values win.
 /// </remarks>
 internal static class GraphSnapshotRelationalRead
 {
@@ -38,7 +40,9 @@ internal static class GraphSnapshotRelationalRead
 
     /// <summary>
     ///     Hydrates using relational slices; <paramref name="jsonRowForMerge" /> is optional — when omitted, legacy
-    ///     <c>EdgesJson</c> for merge is loaded only if relational edge rows exist and edge properties are empty.
+    ///     <c>EdgesJson</c> for merge is queried only if relational edge rows exist and edge properties are empty.
+    ///     When a storage row is supplied, <c>EdgesJson</c> is merged per <c>EdgeId</c> for missing relational
+    ///     label/properties even if other edges have relational property rows.
     /// </summary>
     public static async Task<GraphSnapshot> HydrateAsync(
         IDbConnection connection,
@@ -272,7 +276,9 @@ internal static class GraphSnapshotRelationalRead
 
         Dictionary<string, GraphEdge>? jsonById = null;
 
-        if (mergeMetadataFromJson)
+        bool materializeJsonEdgesById = mergeMetadataFromJson || jsonRowForMerge is not null;
+
+        if (materializeJsonEdgesById)
         {
             string edgesJson;
 
@@ -325,7 +331,7 @@ internal static class GraphSnapshotRelationalRead
                 Properties = props
             };
 
-            if (mergeMetadataFromJson && jsonById is not null &&
+            if (jsonById is not null &&
                 jsonById.TryGetValue(er.EdgeId, out GraphEdge? fromJson))
             {
                 if (string.IsNullOrEmpty(edge.Label) && !string.IsNullOrEmpty(fromJson.Label))
