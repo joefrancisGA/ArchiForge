@@ -1,4 +1,6 @@
 /** GET /v1/architecture/run/{runId}/findings/{findingId}/inspect */
+import type { FindingConfidenceLevel } from "@/types/explanation";
+
 export type FindingInspectEvidence = {
   artifactId: string | null;
   lineRange: string | null;
@@ -20,4 +22,6 @@ export type FindingInspectPayload = {
   modelDeploymentName?: string | null;
   promptTemplateVersion?: string | null;
   reasoningTrace?: string | null;
+  evaluationConfidenceScore?: number | null;
+  confidenceLevel?: FindingConfidenceLevel | null;
 };

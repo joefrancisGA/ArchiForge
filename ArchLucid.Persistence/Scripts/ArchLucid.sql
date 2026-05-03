@@ -1092,6 +1092,12 @@ GO
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'ConfidenceScore') IS NULL
     ALTER TABLE dbo.FindingRecords ADD ConfidenceScore FLOAT NULL;
 GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'EvaluationConfidenceScore') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD EvaluationConfidenceScore INT NULL;
+GO
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'EvaluationConfidenceLevel') IS NULL
+    ALTER TABLE dbo.FindingRecords ADD EvaluationConfidenceLevel NVARCHAR(20) NULL;
+GO
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.FindingRecords', N'PolicyRuleId') IS NULL
     ALTER TABLE dbo.FindingRecords ADD PolicyRuleId NVARCHAR(500) NULL;
 GO

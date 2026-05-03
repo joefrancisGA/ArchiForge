@@ -1,7 +1,6 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Merge;
@@ -95,7 +94,8 @@ public sealed class AgentProposalManifestMerger
                     $"Added service '{service.ServiceName}' from {agentType}.",
                     new Dictionary<string, string>
                     {
-                        ["serviceName"] = service.ServiceName, ["agentType"] = agentType.ToString()
+                        ["serviceName"] = service.ServiceName,
+                        ["agentType"] = agentType.ToString()
                     });
 
                 continue;
@@ -129,7 +129,8 @@ public sealed class AgentProposalManifestMerger
             $"Merged service '{existing.ServiceName}' from {agentType}.",
             new Dictionary<string, string>
             {
-                ["serviceName"] = existing.ServiceName, ["agentType"] = agentType.ToString()
+                ["serviceName"] = existing.ServiceName,
+                ["agentType"] = agentType.ToString()
             });
     }
 
@@ -161,7 +162,8 @@ public sealed class AgentProposalManifestMerger
                     $"Added datastore '{datastore.DatastoreName}' from {agentType}.",
                     new Dictionary<string, string>
                     {
-                        ["datastoreName"] = datastore.DatastoreName, ["agentType"] = agentType.ToString()
+                        ["datastoreName"] = datastore.DatastoreName,
+                        ["agentType"] = agentType.ToString()
                     });
 
                 continue;
@@ -180,7 +182,8 @@ public sealed class AgentProposalManifestMerger
                 $"Merged datastore '{existing.DatastoreName}' from {agentType}.",
                 new Dictionary<string, string>
                 {
-                    ["datastoreName"] = existing.DatastoreName, ["agentType"] = agentType.ToString()
+                    ["datastoreName"] = existing.DatastoreName,
+                    ["agentType"] = agentType.ToString()
                 });
         }
     }

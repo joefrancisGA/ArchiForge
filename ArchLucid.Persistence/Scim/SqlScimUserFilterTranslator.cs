@@ -104,6 +104,9 @@ internal static class SqlScimUserFilterTranslator
         if (string.Equals(p, "displayName", StringComparison.OrdinalIgnoreCase))
             return "u.DisplayName";
 
+        if (ScimKnownUserFilterPaths.IsEmailsWorkValuePath(p))
+            return "u.UserName";
+
         if (string.Equals(p, "externalId", StringComparison.OrdinalIgnoreCase))
             return "u.ExternalId";
 

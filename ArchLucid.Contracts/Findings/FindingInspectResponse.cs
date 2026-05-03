@@ -2,6 +2,7 @@ using System.Text.Json;
 
 namespace ArchLucid.Contracts.Findings;
 
+
 /// <summary>
 /// Read-model for <c>GET /v1/findings/{findingId}/inspect</c> — deterministic explainability without LLM prompt text.
 /// </summary>
@@ -79,6 +80,20 @@ public sealed class FindingInspectResponse
 
     /// <summary>Agent self-rated confidence for the parent result when bridged into persistence.</summary>
     public double? ConfidenceScore
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Deterministic evaluation confidence in [0,100] when computed from harness/reference/trace signals.</summary>
+    public int? EvaluationConfidenceScore
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Mapped bucket for <see cref="EvaluationConfidenceScore" />.</summary>
+    public FindingConfidenceLevel? ConfidenceLevel
     {
         get;
         init;

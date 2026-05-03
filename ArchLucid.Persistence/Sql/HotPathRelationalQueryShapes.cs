@@ -51,6 +51,25 @@ public static class HotPathRelationalQueryShapes
                                                         ORDER BY CreatedUtc DESC, RunId DESC;
                                                         """;
 
+    /// <summary>
+    ///     EXISTS predicate for committed architecture reviews with persisted golden manifests (nav narrowing signal).
+    /// </summary>
+    public const string CommittedArchitectureReviewExistsNoLock = """
+                                                                      SELECT CASE WHEN EXISTS (
+                                                                          SELECT 1
+                                                                          FROM dbo.Runs r WITH (NOLOCK)
+                                                                          INNER JOIN dbo.GoldenManifests gm WITH (NOLOCK)
+                                                                              ON gm.ManifestId = r.GoldenManifestId AND gm.TenantId = r.TenantId
+                                                                          WHERE r.TenantId = @TenantId
+                                                                            AND r.WorkspaceId = @WorkspaceId
+                                                                            AND r.ScopeProjectId = @ScopeProjectId
+                                                                            AND r.ArchivedUtc IS NULL
+                                                                            AND gm.ArchivedUtc IS NULL
+                                                                            AND r.LegacyRunStatus = @CommittedStatus
+                                                                            AND r.GoldenManifestId IS NOT NULL
+                                                                      ) THEN 1 ELSE 0 END;
+                                                                      """;
+
     /// <summary>Recent runs in ambient scope (<c>SqlRunRepository.ListRecentInScopeAsync</c>).</summary>
     public const string RunsListRecentInScopeNoLock = """
                                                       SELECT TOP (@Take)

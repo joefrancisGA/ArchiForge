@@ -118,6 +118,9 @@ async function forward(
 
   const base = resolved.baseUrl;
   const path = pathSegments.length > 0 ? pathSegments.join("/") : "";
+  const normalizedTailPath = path.length > 0 ? path.toLowerCase() : "";
+  const authMePrivateCacheSeconds =
+    method === "GET" && normalizedTailPath === "api/auth/me" ? 60 : undefined;
   const search = request.nextUrl.search;
   const targetUrl = `${base}/${path}${search}`;
   const pathForLog = path.length > 0 ? path : "_";
@@ -255,11 +258,14 @@ async function forward(
     });
   }
 
-  return passThrough(res);
+  return passThrough(res, authMePrivateCacheSeconds);
 }
 
-/** Passes the upstream response body and key headers (Content-Type, Content-Disposition) to the browser. */
-function passThrough(res: Response): NextResponse {
+/**
+ * Passes the upstream response body and key headers (Content-Type, Content-Disposition) to the browser.
+ * Optional **private** cache hints apply only to successful GET responses when callers opt in (e.g. `/api/auth/me`).
+ */
+function passThrough(res: Response, cacheControlPrivateMaxAgeSeconds?: number): NextResponse {
   const out = new NextResponse(res.body, { status: res.status });
 
   const contentType = res.headers.get("content-type");
@@ -281,6 +287,14 @@ function passThrough(res: Response): NextResponse {
   const traceParent = res.headers.get("traceparent");
   if (traceParent && traceParent.trim().length > 0) {
     out.headers.set("traceparent", traceParent.trim());
+  }
+
+  if (
+    cacheControlPrivateMaxAgeSeconds !== undefined &&
+    cacheControlPrivateMaxAgeSeconds >= 0 &&
+    res.ok
+  ) {
+    out.headers.set("Cache-Control", `private, max-age=${cacheControlPrivateMaxAgeSeconds}`);
   }
 
   return out;

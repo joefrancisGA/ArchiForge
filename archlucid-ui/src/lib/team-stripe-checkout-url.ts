@@ -1,5 +1,7 @@
 /**
- * Team-tier Stripe checkout in `pricing.json`: hide buyer-facing Subscribe until a real checkout URL ships.
+ * Team-tier Stripe checkout URL resolution for `pricing.json` / env overrides.
+ *
+ * Pricing tier cards additionally require `isPublicStripeTeamCheckoutEnabled` before surfacing Checkout as the Team primary CTA.
  */
 
 /**

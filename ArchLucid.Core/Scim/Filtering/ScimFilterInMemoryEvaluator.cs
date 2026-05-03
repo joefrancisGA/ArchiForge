@@ -83,6 +83,9 @@ public static class ScimFilterInMemoryEvaluator
         if (string.Equals(p, "displayName", StringComparison.OrdinalIgnoreCase))
             return user.DisplayName;
 
+        if (ScimKnownUserFilterPaths.IsEmailsWorkValuePath(p))
+            return user.UserName;
+
         if (string.Equals(p, "externalId", StringComparison.OrdinalIgnoreCase))
             return user.ExternalId;
 

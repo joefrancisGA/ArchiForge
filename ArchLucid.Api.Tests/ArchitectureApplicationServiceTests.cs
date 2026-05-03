@@ -3,6 +3,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
@@ -53,6 +54,10 @@ public sealed class ArchitectureApplicationServiceTests
             .AddInMemoryCollection(new Dictionary<string, string?> { ["AzureOpenAI:DeploymentName"] = "gpt-test" })
             .Build();
         _auditService = new Mock<IAuditService>();
+        Mock<IAgentArchitectureFindingConfidenceEnricher> architectureFindingConfidenceEnricher = new();
+        architectureFindingConfidenceEnricher
+            .Setup(e => e.TryEnrichRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         Mock<IActorContext> actorContext = new();
         Mock<ILogger<ArchitectureApplicationService>> logger = new();
 
@@ -107,6 +112,7 @@ public sealed class ArchitectureApplicationServiceTests
             configuration,
             _auditService.Object,
             actorContext.Object,
+            architectureFindingConfidenceEnricher.Object,
             logger.Object);
     }
 

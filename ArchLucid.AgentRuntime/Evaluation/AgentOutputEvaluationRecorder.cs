@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
@@ -23,6 +24,7 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentOutputQualityGate qualityGate,
     IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
+    IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
@@ -38,6 +40,10 @@ public sealed class AgentOutputEvaluationRecorder(
 
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
+
+    private readonly IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher =
+        architectureFindingConfidenceEnricher ??
+        throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
 
     /// <summary>
     ///     Evaluates all traces with successful parses and records histogram/counter metrics.
@@ -148,6 +154,18 @@ public sealed class AgentOutputEvaluationRecorder(
                     semanticScore.IncompleteFindingCount);
 
             await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken);
+        }
+
+        try
+        {
+            await _architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(
+                ex,
+                "Architecture finding confidence enrichment failed after evaluation for RunId={RunId}; continuing.",
+                runId);
         }
     }
 }

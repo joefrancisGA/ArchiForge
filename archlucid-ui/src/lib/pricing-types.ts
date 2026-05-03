@@ -18,8 +18,8 @@ export type PricingDoc = {
   effectiveDate: string;
   currency: string;
   /**
-   * When set to a **usable** URL (see `isUsableTeamStripeCheckoutUrl` in `team-stripe-checkout-url.ts`), the Team tier
-   * card shows “Subscribe with Stripe”. Placeholder URLs from `PRICING_PHILOSOPHY.md` must not render the button.
+   * When **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`** is opt-in true and this URL passes `isUsableTeamStripeCheckoutUrl`
+   * (`team-stripe-checkout-url.ts`), the Team tier card uses Stripe Checkout as its primary CTA. Placeholders stay hidden.
    */
   teamStripeCheckoutUrl?: string | null;
   packages: PricingPackage[];

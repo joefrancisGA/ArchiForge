@@ -24,7 +24,7 @@ internal static class FindingsSnapshotRelationalRead
                                       Severity, Title, Rationale, PayloadType, PayloadJson,
                                       RequestInputRef, RunIdRef, AgentExecutionTraceId,
                                       ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
-                                      ConfidenceScore, PolicyRuleId,
+                                      ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
                                       HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes
                                   FROM dbo.FindingRecords
                                   WHERE FindingsSnapshotId = @FindingsSnapshotId
@@ -101,6 +101,8 @@ internal static class FindingsSnapshotRelationalRead
                 PromptTemplateId = rec.PromptTemplateId,
                 PromptTemplateVersion = rec.PromptTemplateVersion,
                 ConfidenceScore = rec.ConfidenceScore,
+                EvaluationConfidenceScore = rec.EvaluationConfidenceScore,
+                ConfidenceLevel = ParseEvaluationConfidenceLevel(rec.EvaluationConfidenceLevel),
                 PolicyRuleId = rec.PolicyRuleId,
                 HumanReviewStatus = ParseHumanReviewStatus(rec.HumanReviewStatus),
                 ReviewedByUserId = rec.ReviewedByUserId,
@@ -132,6 +134,14 @@ internal static class FindingsSnapshotRelationalRead
             GenerationStatus = FindingsSnapshotGenerationStatusParser.Parse(row.GenerationStatus),
             Findings = findings
         };
+    }
+
+    private static FindingConfidenceLevel? ParseEvaluationConfidenceLevel(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl) ? lvl : null;
     }
 
     private static FindingHumanReviewStatus ParseHumanReviewStatus(string? raw)
@@ -403,6 +413,18 @@ internal static class FindingsSnapshotRelationalRead
         }
 
         public double? ConfidenceScore
+        {
+            get;
+            init;
+        }
+
+        public int? EvaluationConfidenceScore
+        {
+            get;
+            init;
+        }
+
+        public string? EvaluationConfidenceLevel
         {
             get;
             init;

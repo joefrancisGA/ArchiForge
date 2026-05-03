@@ -49,6 +49,7 @@ public static partial class ServiceCollectionExtensions
 
         services.AddScoped<Di.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
+        services.AddSingleton<FindingConfidenceCalculator>();
         services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();
         services.AddSingleton<Di.IDecisionRuleProvider, Dr.InMemoryDecisionRuleProvider>();
         services.AddScoped<Di.IGoldenManifestBuilder, Dm.DefaultGoldenManifestBuilder>();

@@ -29,6 +29,20 @@ public sealed class ArchitectureFinding
         set;
     }
 
+    /// <summary>Deterministic 0–100 evaluation score from harness / reference-case / trace completeness (nullable for backwards compatibility).</summary>
+    public int? EvaluationConfidenceScore
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Mapped coarse bucket for <see cref="EvaluationConfidenceScore" />.</summary>
+    public FindingConfidenceLevel? ConfidenceLevel
+    {
+        get;
+        set;
+    }
+
     public string Category
     {
         get;

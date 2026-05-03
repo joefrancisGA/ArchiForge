@@ -188,7 +188,11 @@ export default async function RunFindingExplainPage({
       ) : null}
 
       <CollapsibleSection title="Technical audit trail" defaultOpen={false}>
-        <FindingExplainPanel runId={runId} findingId={findingId} />
+        <FindingExplainPanel
+          runId={runId}
+          findingId={findingId}
+          confidenceLevel={inspectPayload.confidenceLevel ?? null}
+        />
       </CollapsibleSection>
 
       <OperatorEvidenceLimitsFooter

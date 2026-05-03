@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Findings.Serialization;
@@ -54,6 +55,16 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             confEl.ValueKind == JsonValueKind.Number &&
             confEl.TryGetDouble(out double conf))
             finding.ConfidenceScore = conf;
+
+        if (root.TryGetProperty("evaluationConfidenceScore", out JsonElement ecsEl) &&
+            ecsEl.ValueKind == JsonValueKind.Number &&
+            ecsEl.TryGetInt32(out int ecs))
+            finding.EvaluationConfidenceScore = ecs;
+
+        if (root.TryGetProperty("evaluationConfidenceLevel", out JsonElement eclEl) &&
+            eclEl.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(eclEl.GetString(), ignoreCase: true, out FindingConfidenceLevel ecl))
+            finding.ConfidenceLevel = ecl;
 
         if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl) &&
             Enum.TryParse(hrsEl.GetString(), true, out FindingHumanReviewStatus hrs))
@@ -125,6 +136,16 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             writer.WriteNumber("confidenceScore", score);
         else
             writer.WriteNull("confidenceScore");
+
+        if (value.EvaluationConfidenceScore is { } ecs)
+            writer.WriteNumber("evaluationConfidenceScore", ecs);
+        else
+            writer.WriteNull("evaluationConfidenceScore");
+
+        if (value.ConfidenceLevel is { } ecl)
+            writer.WriteString("evaluationConfidenceLevel", ecl.ToString());
+        else
+            writer.WriteNull("evaluationConfidenceLevel");
 
         writer.WriteString("humanReviewStatus", value.HumanReviewStatus.ToString());
         WriteOptionalString(writer, "reviewedByUserId", value.ReviewedByUserId);

@@ -349,7 +349,7 @@ public sealed class SqlFindingsSnapshotRepository(
                                Severity, Title, Rationale, PayloadType, PayloadJson,
                                RequestInputRef, RunIdRef, AgentExecutionTraceId,
                                ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,
-                               ConfidenceScore, PolicyRuleId,
+                               ConfidenceScore, EvaluationConfidenceScore, EvaluationConfidenceLevel, PolicyRuleId,
                                HumanReviewStatus, ReviewedByUserId, ReviewedAtUtc, ReviewNotes
                            )
                            VALUES
@@ -360,7 +360,7 @@ public sealed class SqlFindingsSnapshotRepository(
                                @Severity, @Title, @Rationale, @PayloadType, @PayloadJson,
                                @RequestInputRef, @RunIdRef, @AgentExecutionTraceId,
                                @ModelDeploymentName, @ModelVersion, @PromptTemplateId, @PromptTemplateVersion,
-                               @ConfidenceScore, @PolicyRuleId,
+                               @ConfidenceScore, @EvaluationConfidenceScore, @EvaluationConfidenceLevel, @PolicyRuleId,
                                @HumanReviewStatus, @ReviewedByUserId, @ReviewedAtUtc, @ReviewNotes
                            );
                            """;
@@ -391,6 +391,8 @@ public sealed class SqlFindingsSnapshotRepository(
             finding.PromptTemplateId,
             finding.PromptTemplateVersion,
             finding.ConfidenceScore,
+            EvaluationConfidenceScore = finding.EvaluationConfidenceScore,
+            EvaluationConfidenceLevel = finding.ConfidenceLevel is { } lvl ? lvl.ToString() : null,
             finding.PolicyRuleId,
             HumanReviewStatus = finding.HumanReviewStatus.ToString(),
             finding.ReviewedByUserId,

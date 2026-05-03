@@ -17,7 +17,7 @@
 | SOC 2 roadmap | Deferred V1.1 | 2026-04-24 | [docs/go-to-market/SOC2_ROADMAP.md](SOC2_ROADMAP.md) | Planned programme timing only; confirms no SOC 2 report yet. |
 | CAIQ-lite pre-fill | Self-asserted | 2026-05-01 | [docs/security/CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md) | Questionnaire-aligned draft sourced from documented controls posture. |
 | SIG Core pre-fill | Self-asserted | 2026-05-01 | [docs/security/SIG_CORE_2026.md](../security/SIG_CORE_2026.md) | Questionnaire-aligned draft referencing library evidence pointers. |
-| SCIM + Entra ID provisioning recipe | Self-asserted | 2026-05-02 | [docs/integrations/SCIM_ENTRA_ID_SETUP.md](../integrations/SCIM_ENTRA_ID_SETUP.md) | Documents SCIM URLs, bearer token issuance, verification tests, parser guardrails against Entra filter literals. |
+| SCIM + Entra ID provisioning recipe | Self-asserted | 2026-05-03 | [docs/integrations/SCIM_ENTRA_ID_SETUP.md](../integrations/SCIM_ENTRA_ID_SETUP.md) | Documents `/scim/v2` URLs, bearer secret issuance (`POST /v1/admin/scim/tokens`), automated Api.Tests Entra-shaped fixtures (no Entra tenant in CI), and parser guardrails for common Entra filter literals. |
 | Tenant isolation narrative | Self-asserted | 2026-05-01 | [docs/go-to-market/TENANT_ISOLATION.md](TENANT_ISOLATION.md) | Logical isolation framing for diligence — contract-specific items via MSA/DPA. |
 | DPA template | Self-asserted | 2026-05-01 | [docs/go-to-market/DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Template wording only until executed under customer legal review. |
 | Subprocessors register | Self-asserted | 2026-05-01 | [docs/go-to-market/SUBPROCESSORS.md](SUBPROCESSORS.md) | Lists subprocessors acknowledged in-repo; customer due diligence completes against their policy. |

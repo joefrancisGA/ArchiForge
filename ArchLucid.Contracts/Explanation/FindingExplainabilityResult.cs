@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Findings;
+
 namespace ArchLucid.Contracts.Explanation;
 
 /// <summary>
@@ -92,4 +94,18 @@ public sealed class FindingExplainabilityResult
         get;
         set;
     } = string.Empty;
+
+    /// <summary>Evaluation-derived confidence in [0,100] when persisted with evaluation wiring.</summary>
+    public int? EvaluationConfidenceScore
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Mapped bucket for <see cref="EvaluationConfidenceScore" />.</summary>
+    public FindingConfidenceLevel? ConfidenceLevel
+    {
+        get;
+        set;
+    }
 }

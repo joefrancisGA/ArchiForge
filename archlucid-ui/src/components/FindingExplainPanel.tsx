@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { MutationErrorBoundary } from "@/components/MutationErrorBoundary";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -14,18 +15,20 @@ import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetr
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import type { FindingEvidenceChain, FindingLlmAudit } from "@/types/explanation";
+import type { FindingConfidenceLevel, FindingEvidenceChain, FindingLlmAudit } from "@/types/explanation";
 
 export type FindingExplainPanelProps = {
   runId: string;
   findingId: string;
+  /** Evaluation coarse bucket when supplied by inspect/explainability callers; omit when unknown. */
+  confidenceLevel?: FindingConfidenceLevel | null;
 };
 
 /**
  * Redacted LLM prompt/completion audit for one finding, plus thumbs feedback (Execute). Deterministic trace lives in
  * `FindingExplainabilityDialog` / `GET …/explainability`.
  */
-export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelProps) {
+export function FindingExplainPanel({ runId, findingId, confidenceLevel }: FindingExplainPanelProps) {
   const rank = useNavCallerAuthorityRank();
   const [audit, setAudit] = useState<FindingLlmAudit | null>(null);
   const [evidenceChain, setEvidenceChain] = useState<FindingEvidenceChain | null>(null);
@@ -84,6 +87,11 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
     <MutationErrorBoundary title="Finding explain panel failed to render">
     <div className="space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-700">
       <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Explain this finding</h4>
+      {(confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low") ? (
+        <div className="mt-1">
+          <FindingConfidenceBadge level={confidenceLevel} />
+        </div>
+      ) : null}
       <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400">
         Redacted prompts and model output are under <strong className="font-medium">Technical audit details</strong> below.
         Pair with deterministic explainability (&quot;View trace&quot;) on the review explanation table when available.

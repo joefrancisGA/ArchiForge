@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { isPublicStripeTeamCheckoutEnabled } from "@/lib/marketing/is-public-stripe-team-checkout-enabled";
 import type { PricingDoc } from "@/lib/pricing-types";
 import { resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
 
@@ -72,8 +73,10 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
     };
   }, []);
 
-  const teamStripeHref =
-    pricing !== null && !pricingError ? resolveTeamStripeCheckoutHref(pricing.teamStripeCheckoutUrl) : null;
+  const teamStripeCheckoutHref =
+    pricing !== null && !pricingError && isPublicStripeTeamCheckoutEnabled()
+      ? resolveTeamStripeCheckoutHref(pricing.teamStripeCheckoutUrl)
+      : null;
 
   return (
     <section aria-labelledby={props.sectionHeadingId} className="mb-10">
@@ -124,25 +127,31 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                 <div className="mt-4 flex flex-col gap-2">
                   {pkg.id === "team" ? (
                     <>
-                      <Button type="button" variant="primary" className="w-full" onClick={() => scrollToQuote()}>
-                        Request quote
-                      </Button>
+                      {teamStripeCheckoutHref !== null ? (
+                        <Button asChild variant="primary" className="w-full">
+                          <a
+                            data-testid="pricing-team-subscribe-stripe"
+                            href={teamStripeCheckoutHref.trim()}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                          >
+                            Subscribe with Stripe
+                          </a>
+                        </Button>
+                      ) : (
+                        <Button type="button" variant="primary" className="w-full" onClick={() => scrollToQuote()}>
+                          Request quote
+                        </Button>
+                      )}
+                      {teamStripeCheckoutHref !== null ? (
+                        <Button type="button" variant="outline" className="w-full" onClick={() => scrollToQuote()}>
+                          Request quote
+                        </Button>
+                      ) : null}
                       <Button asChild variant="outline" className="w-full">
                         <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
                       </Button>
                     </>
-                  ) : null}
-                  {pkg.id === "team" && teamStripeHref !== null ? (
-                    <Button asChild className="w-full" variant="outline">
-                      <a
-                        data-testid="pricing-team-subscribe-stripe"
-                        href={teamStripeHref.trim()}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                      >
-                        Subscribe with Stripe
-                      </a>
-                    </Button>
                   ) : null}
                   {pkg.id === "professional" || pkg.id === "enterprise" ? (
                     <Button type="button" className="w-full" variant="outline" onClick={() => scrollToQuote()}>

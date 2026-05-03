@@ -123,8 +123,63 @@ public static class ScimFilterParser
 
         private string ReadAttributePath()
         {
+            StringBuilder sb = new();
+            AppendAttributePathSegments(sb);
+
+            return sb.ToString();
+        }
+
+        private void AppendAttributePathSegments(StringBuilder sb)
+        {
+            sb.Append(ReadAttrSegment());
+            SkipWs();
+            AppendOptionalBracket(sb);
+
+            while (true)
+            {
+                SkipWs();
+
+                if (!TryConsume('.'))
+                    break;
+
+                sb.Append('.');
+                sb.Append(ReadAttrSegment());
+                SkipWs();
+                AppendOptionalBracket(sb);
+            }
+        }
+
+        private void AppendOptionalBracket(StringBuilder sb)
+        {
+            if (!TryConsume('['))
+                return;
+
+            ScimFilterNode inner = ParseFilter();
+            SkipWs();
+
+            if (!TryConsume(']'))
+                throw new ScimFilterParseException($"Expected ']' after attribute selector filter at position {Position}.");
+
+            sb.Append('[');
+            sb.Append(CanonicalBracketInnerFilter(inner));
+            sb.Append(']');
+        }
+
+        private static string CanonicalBracketInnerFilter(ScimFilterNode inner)
+        {
+            if (inner is not ScimComparisonNode c)
+                throw new ScimFilterParseException(
+                    "Attribute selectors must use a single comparison inside brackets (for example type eq \"work\").");
+
+            string escaped = c.Value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal);
+
+            return $"{c.AttributePath.ToLowerInvariant()} {c.Operator.ToLowerInvariant()} \"{escaped}\"";
+        }
+
+        private string ReadAttrSegment()
+        {
             if (Eof || (!char.IsLetter(_s[Position]) && _s[Position] != '_'))
-                throw new ScimFilterParseException($"Attribute path expected at {Position}.");
+                throw new ScimFilterParseException($"Attribute path segment expected at {Position}.");
 
             int start = Position;
 
@@ -132,7 +187,7 @@ public static class ScimFilterParser
             {
                 char ch = _s[Position];
 
-                if (char.IsLetterOrDigit(ch) || ch is '.' or '_' or '-')
+                if (char.IsLetterOrDigit(ch) || ch is '_' or '-')
                 {
                     Position++;
 

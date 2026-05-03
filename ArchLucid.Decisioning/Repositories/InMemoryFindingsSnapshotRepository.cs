@@ -122,10 +122,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
             if (cat is not null && !string.Equals(f.Category, cat, StringComparison.OrdinalIgnoreCase))
                 return false;
 
-            if (ftype is not null && !string.Equals(f.FindingType, ftype, StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            return true;
+            return ftype is null || string.Equals(f.FindingType, ftype, StringComparison.OrdinalIgnoreCase);
         });
 
         List<FindingEnvelope> ordered =

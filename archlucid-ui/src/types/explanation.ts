@@ -27,6 +27,9 @@ export type StructuredExplanation = {
   caveats?: string[] | null;
 };
 
+/** API string enum for coarse evaluation-backed confidence (JSON via JsonStringEnumConverter). */
+export type FindingConfidenceLevel = "High" | "Medium" | "Low";
+
 /** Per-finding explainability trace completeness from the API. */
 export type FindingTraceConfidenceDto = {
   findingId: string;
@@ -42,6 +45,10 @@ export type FindingTraceConfidenceDto = {
   missingTraceFields?: string[] | null;
   /** Actionable next steps from the finding / trace pipeline when present. */
   recommendedActions?: string[] | null;
+  /** Deterministic score from harness / reference-case / trace completeness when persisted. */
+  evaluationConfidenceScore?: number | null;
+  /** Mapped bucket for {@link evaluationConfidenceScore}. */
+  confidenceLevel?: FindingConfidenceLevel | null;
 };
 
 /** Full explanation payload returned inside `RunExplanationSummary`. */
@@ -145,6 +152,9 @@ export type FindingExplainability = {
   /** Structured factual explainability; absent on older API responses. */
   evidence?: FindingExplainabilityEvidence | null;
   narrativeText: string;
+  /** Evaluation-derived confidence when persisted (absent on older responses). */
+  evaluationConfidenceScore?: number | null;
+  confidenceLevel?: FindingConfidenceLevel | null;
 };
 
 /** AI-generated narrative explaining the differences between two runs. */

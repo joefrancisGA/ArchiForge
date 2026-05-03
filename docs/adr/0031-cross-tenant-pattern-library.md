@@ -5,10 +5,10 @@
 
 # ADR 0031: Cross-tenant pattern library (anonymised vertical guidance)
 
-- **Status:** Proposed (Accepted pending owner sign-off)
+- **Status:** Accepted (owner sign-off **2026-05-03** — implementation PRs may merge when they conform to this ADR)
 - **Date:** 2026-04-22
 - **Supersedes:** *(none)*
-- **Superseded by:** *(none — implementation PRs must not merge until this ADR is **Accepted**)*
+- **Superseded by:** *(none)*
 - **Amends:** *(none)*
 - **Amended by:** *(none yet)*
 
@@ -16,7 +16,7 @@
 
 ArchLucid operators already receive **tenant-private** architecture intelligence from their own committed manifests, runs, and governance outputs under **strict row-level security (RLS)** and RBAC. Product strategy (see [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) **Resolved 2026-04-21** table — row *Cross-tenant pattern library*, and **item 14** follow-ups) calls for an **optional** capability: show **patterns other tenants in the same industry / vertical preset have adopted**, derived from **aggregated** manifest-derived signals, **without** exposing which tenant contributed which artefact.
 
-**Who asked / who approved.** The **owner** approved the feature at the principle level (**opt-in**, **k-anonymity**, **DPA carve-out**) in the **2026-04-21** interactive Q&A snapshot recorded in `docs/PENDING_QUESTIONS.md`. **Implementing ADR ownership (item 14, Resolved 2026-04-22)** is **assistant drafts in full**; **acceptance** (Status → **Accepted**) is **owner-only** before any merge that ships SQL, services, or UI for this path.
+**Who asked / who approved.** The **owner** approved the feature at the principle level (**opt-in**, **k-anonymity**, **DPA carve-out**) in the **2026-04-21** interactive Q&A snapshot recorded in `docs/PENDING_QUESTIONS.md`. **Implementing ADR ownership (item 14, Resolved 2026-04-22)** is **assistant drafts in full**. **ADR acceptance (Status → Accepted):** owner **2026-05-03** — merges that ship SQL, Worker ETL, services, or UI for this capability must implement **this** ADR verbatim on security posture (dedicated principal, nightly ETL, k ≥ 5, opt-in default OFF, projection read model); **`PENDING_QUESTIONS.md` item 14** updated accordingly.
 
 **Why an ADR.** Cross-tenant reads are a **controlled exception** to the default “every query is tenant-scoped” mental model. Without a written security and data-flow contract, engineering teams will (a) accidentally query tenant tables under a broad identity, (b) ship a feature that leaks **re-identifying** combinations, or (c) create an **Elastic Query** bill that surprises FinOps. This ADR pins the **dedicated service principal**, **materialised aggregate surface**, **k = 5** floor, and **purge SLA** so reviewers can say “no” to shortcuts.
 
@@ -43,7 +43,7 @@ Give opted-in operators **actionable, anonymised pattern guidance** (“peers in
 - **Cross-tenant reads** execute only under a **dedicated Microsoft Entra ID service principal** (or managed identity) whose SQL permission is **SELECT on a published materialised view (or dedicated staging schema)** — **not** `db_datareader` on the whole database.
 - **No elastic live query against all tenants in the UI request path.** v1 rejects **Azure SQL elastic query** fan-out from the interactive API for this feature: latency, cost unpredictability, and blast-radius if misconfigured exceed benefit. **Nightly snapshot / ETL** into the aggregate store is mandatory for v1 (see **Architecture Overview** below).
 - **Historical migrations 001–028** remain immutable; any new tables/views ship as **new** migrations + master DDL update per repo rule.
-- **Implementation is blocked** until this ADR is **Accepted** (owner sign-off). Drafting in **Proposed** is allowed; shipping code is not.
+- **Implementation aligns** with **Accepted ADR:** owner sign-off **2026-05-03**. Legacy note: drafts under **Proposed** did not authorize merge; implementation PRs dated **≥ 2026-05-03** proceed under **Accepted**.
 
 ## Architecture Overview
 
@@ -134,8 +134,8 @@ sequenceDiagram
 
 | Phase | Exit criteria |
 |-------|----------------|
-| **P0 — Proposed (this document)** | Owner reviews; legal completes DPA Section 10 stubs; security signs off threat model. |
-| **P1 — Accepted** | Status flip to **Accepted**; implementation PRs may start. |
+| **P0 — Proposed** | Completed **2026-04-22** (draft circulated). Legal completes DPA Section 10 stubs; security signs off threat model before GA. |
+| **P1 — Accepted** | **Met 2026-05-03 (owner)**; implementation PRs **may merge** subject to **[§ Constraints](#constraints)** / **[§ Architecture Overview](#architecture-overview)**. |
 | **P2 — Private preview** | k-anonymity metrics dashboard; red-team small-N attempts. |
 | **P3 — GA** | UI on for opted-in tenants; runbook + on-call playbooks. |
 

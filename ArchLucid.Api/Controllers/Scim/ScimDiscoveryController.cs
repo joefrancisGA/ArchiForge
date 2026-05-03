@@ -29,7 +29,18 @@ public sealed class ScimDiscoveryController : ControllerBase
             ["changePassword"] = new JsonObject { ["supported"] = false },
             ["sort"] = new JsonObject { ["supported"] = false },
             ["etag"] = new JsonObject { ["supported"] = false },
-            ["authenticationSchemes"] = new JsonArray()
+            ["authenticationSchemes"] = new JsonArray
+            {
+                new JsonObject
+                {
+                    ["type"] = "oauthbearertoken",
+                    ["name"] = "OAuth Bearer Token",
+                    ["description"] =
+                        "Inbound SCIM calls authenticate with an ArchLucid-issued bearer secret presented as Authorization: Bearer (RFC 6750). Tokens are minted and rotated via the ArchLucid admin SCIM token API — there is no parallel OAuth authorize endpoint on the SCIM surface.",
+                    ["specUri"] = "http://www.rfc-editor.org/info/rfc6750",
+                    ["documentationUri"] = "https://www.rfc-editor.org/rfc/rfc7644.html"
+                }
+            }
         };
 
         return Content(

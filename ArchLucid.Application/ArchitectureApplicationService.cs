@@ -4,6 +4,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
@@ -43,6 +44,7 @@ public sealed class ArchitectureApplicationService(
     IConfiguration configuration,
     IAuditService auditService,
     IActorContext actorContext,
+    IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
     ILogger<ArchitectureApplicationService> logger)
     : IArchitectureApplicationService
 {
@@ -126,6 +128,20 @@ public sealed class ArchitectureApplicationService(
                 cancellationToken);
 
             await uow.CommitAsync(cancellationToken);
+
+            try
+            {
+                await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (logger.IsEnabled(LogLevel.Warning))
+
+                    logger.LogWarning(
+                        ex,
+                        "Architecture finding confidence enrichment failed after submit for RunId={RunId}; continuing.",
+                        runId);
+            }
 
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformationAgentResultSubmitted(runId, result.ResultId, result.AgentType, newStatus);
@@ -216,6 +232,20 @@ public sealed class ArchitectureApplicationService(
         {
             await uow.RollbackAsync(cancellationToken);
             throw;
+        }
+
+        try
+        {
+            await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+
+                logger.LogWarning(
+                    ex,
+                    "Architecture finding confidence enrichment failed after fake seed for RunId={RunId}; continuing.",
+                    runId);
         }
 
         if (logger.IsEnabled(LogLevel.Information))

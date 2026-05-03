@@ -247,7 +247,11 @@ export function FindingExplainabilityDialog({
               </section>
             ) : null}
             {findingId !== null && findingId.trim().length > 0 ? (
-              <FindingExplainPanel runId={runId} findingId={findingId.trim()} />
+              <FindingExplainPanel
+                runId={runId}
+                findingId={findingId.trim()}
+                confidenceLevel={data.confidenceLevel ?? null}
+              />
             ) : null}
             <div className="flex justify-end border-t border-neutral-200 pt-3 dark:border-neutral-700">
               <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>

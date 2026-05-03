@@ -63,6 +63,9 @@ describe("composeNavSurface — equivalence with underlying Visibility + Capabil
           showExtended,
           showAdvanced,
           rank,
+          false,
+          "all",
+          true,
         );
 
         expect(composed.links).toEqual(direct);

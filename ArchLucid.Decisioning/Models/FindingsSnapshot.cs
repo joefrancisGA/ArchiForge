@@ -1,5 +1,3 @@
-using ArchLucid.Contracts.Findings;
-
 namespace ArchLucid.Decisioning.Models;
 
 public class FindingsSnapshot

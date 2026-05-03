@@ -2,9 +2,10 @@
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { CopyTraceRowWorkItemButton } from "@/components/CopyFindingAsWorkItemButton";
+import { FindingConfidenceBadge } from "@/components/FindingConfidenceBadge";
 import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityDialog";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import { Button } from "@/components/ui/button";
@@ -30,8 +31,39 @@ function gapsSummary(row: FindingTraceConfidenceDto): string {
   return `${m[0]}, ${m[1]} +${m.length - 2}`;
 }
 
+function confidenceRank(level: FindingTraceConfidenceDto["confidenceLevel"]): number {
+  if (level === "High") return 0;
+
+  if (level === "Medium") return 1;
+
+  if (level === "Low") return 2;
+
+  return 3;
+}
+
+function compareFindingConfidenceRows(
+  a: FindingTraceConfidenceDto,
+  b: FindingTraceConfidenceDto,
+  reversed: boolean,
+): number {
+  const ra = confidenceRank(a.confidenceLevel);
+  const rb = confidenceRank(b.confidenceLevel);
+
+  if (ra === 3 && rb === 3) return a.findingId.localeCompare(b.findingId);
+
+  if (ra === 3) return 1;
+
+  if (rb === 3) return -1;
+
+  const primary = reversed ? rb - ra : ra - rb;
+
+  if (primary !== 0) return primary;
+
+  return a.findingId.localeCompare(b.findingId);
+}
+
 const rowGridClass =
-  "grid w-full min-w-[40rem] grid-cols-[minmax(10rem,1.4fr)_minmax(6rem,1fr)_4.5rem_minmax(5rem,0.9fr)_4.5rem_minmax(7rem,1fr)_minmax(11rem,auto)] gap-x-2 border-b border-neutral-100 px-1 py-2 text-sm last:border-b-0 dark:border-neutral-800";
+  "grid w-full min-w-[46rem] grid-cols-[minmax(10rem,1.4fr)_minmax(6rem,1fr)_4.5rem_minmax(5rem,0.9fr)_4.5rem_minmax(9rem,1fr)_minmax(7rem,1fr)_minmax(11rem,auto)] gap-x-2 border-b border-neutral-100 px-1 py-2 text-sm last:border-b-0 dark:border-neutral-800";
 
 /**
  * Lists findings with trace completeness from the aggregate explanation payload; opens per-finding explainability.
@@ -39,10 +71,18 @@ const rowGridClass =
 export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplainabilityTableProps) {
   const [open, setOpen] = useState(false);
   const [activeFindingId, setActiveFindingId] = useState<string | null>(null);
+  const [confidenceSortReversed, setConfidenceSortReversed] = useState(false);
   const parentRef = useRef<HTMLDivElement>(null);
 
+  const sortedRows = useMemo(() => {
+    const copy = [...rows];
+    copy.sort((a, b) => compareFindingConfidenceRows(a, b, confidenceSortReversed));
+
+    return copy;
+  }, [rows, confidenceSortReversed]);
+
   const rowVirtualizer = useVirtualizer({
-    count: rows.length,
+    count: sortedRows.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 190,
     overscan: 10,
@@ -71,6 +111,23 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
           <div>Refs</div>
           <div>Trace label</div>
           <div>%</div>
+          <div className="min-w-0">
+            <button
+              type="button"
+              className="rounded px-1 text-left hover:underline"
+              aria-label={
+                confidenceSortReversed
+                  ? "Sort evaluation confidence: Low to High, absent last"
+                  : "Sort evaluation confidence: High to Low, absent last"
+              }
+              onClick={() => setConfidenceSortReversed((v) => !v)}
+            >
+              Confidence
+              <span aria-hidden className="ml-0.5 text-[0.65rem] font-normal text-neutral-500 dark:text-neutral-400">
+                {confidenceSortReversed ? "↓" : "↑"}
+              </span>
+            </button>
+          </div>
           <div>Trace gaps</div>
           <div>Action</div>
         </div>
@@ -81,7 +138,7 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
           }}
         >
           {rowVirtualizer.getVirtualItems().map((vi) => {
-            const row = rows[vi.index]!;
+            const row = sortedRows[vi.index]!;
             const pct =
               row.traceCompletenessRatio <= 1
                 ? Math.round(row.traceCompletenessRatio * 100)
@@ -92,6 +149,15 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
               row.findingTitle.trim().length > 0
                 ? row.findingTitle.trim()
                 : "(no title)";
+
+            const confidenceSlot =
+              row.confidenceLevel === "High" ||
+              row.confidenceLevel === "Medium" ||
+              row.confidenceLevel === "Low" ? (
+                <FindingConfidenceBadge level={row.confidenceLevel} />
+              ) : (
+                <span className="text-neutral-400 dark:text-neutral-500">—</span>
+              );
 
             return (
               <div
@@ -123,6 +189,7 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
                 </div>
                 <div className="min-w-0 text-xs text-neutral-700 dark:text-neutral-300">{row.traceConfidenceLabel}</div>
                 <div className="tabular-nums text-xs text-neutral-700 dark:text-neutral-300">{pct}</div>
+                <div className="min-w-0 text-xs text-neutral-700 dark:text-neutral-300">{confidenceSlot}</div>
                 <div
                   className="min-w-0 text-xs text-neutral-600 dark:text-neutral-400"
                   title={

@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Findings;
+
 namespace ArchLucid.Decisioning.Models;
 
 public class Finding
@@ -134,6 +136,20 @@ public class Finding
 
     /// <summary>Parent agent self-reported confidence in [0,1] when applicable.</summary>
     public double? ConfidenceScore
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Evaluation-derived confidence score in [0,100] from harness/reference/trace completeness.</summary>
+    public int? EvaluationConfidenceScore
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Mapped bucket for <see cref="EvaluationConfidenceScore" />.</summary>
+    public FindingConfidenceLevel? ConfidenceLevel
     {
         get;
         set;

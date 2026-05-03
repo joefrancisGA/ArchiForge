@@ -9,7 +9,8 @@ public static class SupportBundleNextStepsBuilder
 
     private const string OperatorQuickstartDoc = "docs/OPERATOR_QUICKSTART.md";
 
-    private const string PendingQuestionsDoc = "docs/PENDING_QUESTIONS.md item 37";
+    private const string PendingQuestionsDoc =
+        "docs/PENDING_QUESTIONS.md item 37 (Resolved 2026-05-03 — manual review mandatory before forwarding)";
 
     /// <summary>API host ZIP (no HTTP probes — host process snapshot only).</summary>
     public static SupportBundleNextStepsDocument BuildForApiHost(

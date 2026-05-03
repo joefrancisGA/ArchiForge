@@ -42,9 +42,10 @@ describe("MarketingTierPricingSection", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
-  it("renders Request quote as primary on Team, Stripe when configured, and talk-to-sales for pro/enterprise", async () => {
+  it("renders quote-first Team CTAs when Stripe checkout flag is unset even if pricing JSON has a usable URL", async () => {
     const quote = document.createElement("div");
     quote.id = "pricing-quote-request";
     document.body.appendChild(quote);
@@ -53,7 +54,7 @@ describe("MarketingTierPricingSection", () => {
       <MarketingTierPricingSection
         sectionHeadingId="pricing-heading"
         sectionTitle="Pricing"
-        signupHref="/signup?utm=test"
+        signupHref="/signup?utm_source=pricing_page"
         quoteSectionDomId="pricing-quote-request"
       />,
     );
@@ -71,10 +72,11 @@ describe("MarketingTierPricingSection", () => {
     teamScope.getByRole("button", { name: /request quote/i });
     teamScope.getByRole("link", { name: /start free trial/i });
 
-    const stripeSubscribe = teamScope.getByTestId("pricing-team-subscribe-stripe");
+    expect(teamScope.queryByTestId("pricing-team-subscribe-stripe")).not.toBeInTheDocument();
 
-    expect(stripeSubscribe).toHaveAttribute("href", "https://pay.example.test/checkout");
-    expect(stripeSubscribe).toHaveTextContent(/subscribe with stripe/i);
+    const trial = teamScope.getByRole("link", { name: /start free trial/i });
+    expect(trial.getAttribute("href")).toContain("/signup?");
+    expect(trial.getAttribute("href")).toContain("utm_source=pricing_page");
 
     const talkButtons = screen.getAllByRole("button", { name: /talk to sales/i });
     expect(talkButtons).toHaveLength(2);
@@ -84,6 +86,54 @@ describe("MarketingTierPricingSection", () => {
     expect(scroll).toHaveBeenCalled();
 
     quote.remove();
+  });
+
+  it("sets Team primary CTA to Stripe Checkout when NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED is true", async () => {
+    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
+
+    render(
+      <MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup?utm=test" />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
+    });
+
+    const teamCard = screen.getByRole("heading", { name: "Team" }).closest("li");
+    if (teamCard === null) {
+      throw new Error("expected Team tier list item");
+    }
+
+    const teamScope = within(teamCard);
+
+    const stripeSubscribe = teamScope.getByTestId("pricing-team-subscribe-stripe");
+
+    expect(stripeSubscribe.getAttribute("href")).toBe("https://pay.example.test/checkout");
+
+    expect(stripeSubscribe).toHaveTextContent(/subscribe with stripe/i);
+
+    teamScope.getByRole("button", { name: /request quote/i });
+    teamScope.getByRole("link", { name: /start free trial/i });
+  });
+
+  it("uses NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL for Team primary CTA href when flag is true", async () => {
+    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
+    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL", "https://checkout.stripe.com/c/pay/cs_test_override");
+
+    render(<MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
+    });
+
+    const teamCard = screen.getByRole("heading", { name: "Team" }).closest("li");
+    if (teamCard === null) {
+      throw new Error("expected Team tier list item");
+    }
+
+    const stripeSubscribe = within(teamCard).getByTestId("pricing-team-subscribe-stripe");
+
+    expect(stripeSubscribe.getAttribute("href")).toBe("https://checkout.stripe.com/c/pay/cs_test_override");
   });
 
   it("hides Subscribe with Stripe when the configured URL is a placeholder", async () => {
@@ -121,6 +171,8 @@ describe("MarketingTierPricingSection", () => {
       }),
     );
 
+    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "true");
+
     render(
       <MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />,
     );
@@ -134,40 +186,6 @@ describe("MarketingTierPricingSection", () => {
 
   it("hides Subscribe with Stripe when NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED is off even if pricing JSON has a URL", async () => {
     vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "0");
-
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          schemaVersion: 1,
-          currency: "USD",
-          packages: [
-            {
-              id: "team",
-              title: "Team",
-              summary: "Team tier",
-              workspaceMonthlyUsd: 199,
-              seatMonthlyUsd: 79,
-            },
-            {
-              id: "professional",
-              title: "Professional",
-              summary: "Pro tier",
-              workspaceMonthlyUsd: 899,
-              seatMonthlyUsd: 179,
-            },
-            {
-              id: "enterprise",
-              title: "Enterprise",
-              summary: "Ent tier",
-              annualFloorUsd: 60000,
-            },
-          ],
-          teamStripeCheckoutUrl: "https://pay.example.test/checkout",
-        }),
-      }),
-    );
 
     render(
       <MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />,

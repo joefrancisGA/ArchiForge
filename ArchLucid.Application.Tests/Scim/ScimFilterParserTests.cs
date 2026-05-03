@@ -43,6 +43,35 @@ public sealed class ScimFilterParserTests
     }
 
     [SkippableFact]
+    public void Parse_Entra_userName_eq_email_literal()
+    {
+        ScimFilterNode? n = ScimFilterParser.Parse(@"userName eq ""test@example.com""");
+        ScimComparisonNode c = n.Should().BeOfType<ScimComparisonNode>().Subject;
+        c.AttributePath.Should().Be("userName");
+        c.Operator.Should().Be("eq");
+        c.Value.Should().Be("test@example.com");
+    }
+
+    [SkippableFact]
+    public void Parse_Entra_emails_work_dot_value_eq_email_literal()
+    {
+        ScimFilterNode? n = ScimFilterParser.Parse(@"emails[type eq ""work""].value eq ""test@example.com""");
+        ScimComparisonNode c = n.Should().BeOfType<ScimComparisonNode>().Subject;
+        c.AttributePath.Should().Be(ScimKnownUserFilterPaths.EmailsWorkValue);
+        c.Operator.Should().Be("eq");
+        c.Value.Should().Be("test@example.com");
+    }
+
+    [SkippableFact]
+    public void Parse_Entra_externalId_eq_guid_style_literal()
+    {
+        ScimFilterNode? n = ScimFilterParser.Parse(@"externalId eq ""aaaaaaaa-bbbb-cccc-dddddddddddd""");
+        ScimComparisonNode c = n.Should().BeOfType<ScimComparisonNode>().Subject;
+        c.AttributePath.Should().Be("externalId");
+        c.Value.Should().Be("aaaaaaaa-bbbb-cccc-dddddddddddd");
+    }
+
+    [SkippableFact]
     public void Parse_co_sw_ew()
     {
         ScimFilterParser.Parse(@"userName co ""corp""")!.Should().BeOfType<ScimComparisonNode>().Which.Operator.Should().Be("co");

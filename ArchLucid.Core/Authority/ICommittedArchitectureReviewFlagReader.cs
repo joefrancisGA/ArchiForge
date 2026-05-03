@@ -9,8 +9,8 @@ namespace ArchLucid.Core.Authority;
 public interface ICommittedArchitectureReviewFlagReader
 {
     /// <summary>
-    ///     Returns <see langword="true" /> when a recent run in <paramref name="scope" /> is committed with a golden
-    ///     manifest id.
+    ///     Returns <see langword="true" /> when <paramref name="scope" /> has at least one committed architecture review
+    ///     backed by a persisted golden manifest row — UX-only signal for narrowing default operator nav until first commit.
     /// </summary>
     Task<bool> TenantHasCommittedArchitectureReviewAsync(ScopeContext scope, CancellationToken cancellationToken);
 }

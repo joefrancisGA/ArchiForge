@@ -159,7 +159,9 @@ public sealed class ExplanationController(
                 match.Title,
                 match.EngineType,
                 t,
-                score.CompletenessRatio)
+                score.CompletenessRatio),
+            EvaluationConfidenceScore = match.EvaluationConfidenceScore,
+            ConfidenceLevel = match.ConfidenceLevel,
         };
 
         return Ok(body);

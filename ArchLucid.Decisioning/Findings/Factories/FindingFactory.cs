@@ -176,6 +176,8 @@ public static class FindingFactory
             Rationale = finding.Message,
             RelatedNodeIds = [],
             ConfidenceScore = finding.ConfidenceScore ?? agentResult.Confidence,
+            EvaluationConfidenceScore = finding.EvaluationConfidenceScore,
+            ConfidenceLevel = finding.ConfidenceLevel,
             AgentExecutionTraceId = agentExecutionTraceId,
             ModelDeploymentName = trace?.ModelDeploymentName,
             ModelVersion = trace?.ModelVersion,

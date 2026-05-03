@@ -4,6 +4,7 @@ using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
@@ -42,6 +43,11 @@ public sealed class AgentOutputEvaluationRecorderTests
             new NoOpAgentOutputEvaluationResultRepository(),
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
 
+        Mock<IAgentArchitectureFindingConfidenceEnricher> archFindingConfidence = new();
+        archFindingConfidence
+            .Setup(e => e.TryEnrichRunAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         return new AgentOutputEvaluationRecorder(
             traceRepository,
             new AgentOutputEvaluator(),
@@ -49,6 +55,7 @@ public sealed class AgentOutputEvaluationRecorderTests
             new AgentOutputQualityGate(Options.Create(opts)),
             Options.Create(opts),
             referenceEvaluator,
+            archFindingConfidence.Object,
             logger);
     }
 

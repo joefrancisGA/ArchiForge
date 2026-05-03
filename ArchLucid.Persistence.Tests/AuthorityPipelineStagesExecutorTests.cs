@@ -588,6 +588,11 @@ public sealed class AuthorityPipelineStagesExecutorTests
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IFindingsSnapshotEvaluationConfidenceEnricher> snapshotConfidence = new();
+        snapshotConfidence
+            .Setup(e => e.TryEnrichAsync(It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IOptionsMonitor<CosmosDbOptions>> cosmosDb = new();
         cosmosDb.SetupGet(m => m.CurrentValue).Returns(new CosmosDbOptions());
 
@@ -611,6 +616,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             audit.Object,
             cosmosDb.Object,
             apPipeline.Object,
+            snapshotConfidence.Object,
             NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision, audit);
     }
 

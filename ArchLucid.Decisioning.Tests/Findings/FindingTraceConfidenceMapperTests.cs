@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
@@ -25,6 +26,8 @@ public sealed class FindingTraceConfidenceMapperTests
                     EngineType = "e",
                     Title = "title",
                     Rationale = "r",
+                    EvaluationConfidenceScore = 91,
+                    ConfidenceLevel = FindingConfidenceLevel.High,
                     Trace = new ExplainabilityTrace
                     {
                         GraphNodeIdsExamined = ["n1", "n2"],
@@ -40,5 +43,7 @@ public sealed class FindingTraceConfidenceMapperTests
         rows[0].FindingId.Should().Be("f1");
         rows[0].RuleId.Should().Be("rule-z");
         rows[0].EvidenceRefCount.Should().Be(2);
+        rows[0].EvaluationConfidenceScore.Should().Be(91);
+        rows[0].ConfidenceLevel.Should().Be(FindingConfidenceLevel.High);
     }
 }

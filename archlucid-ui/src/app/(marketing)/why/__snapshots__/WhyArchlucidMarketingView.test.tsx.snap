@@ -18,6 +18,195 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
      platform: specialized agents analyze architecture requests, produce explainable findings, and feed governance workflows with a durable audit trail. The comparison table below is claim-by-claim, with symbol-only scores in the product columns. The downloadable proof pack bundles a deeper, citation-backed narrative for teams who need to compare vendors on paper.
   </p>
   <section
+    class="mt-10 rounded-xl border border-sky-200 bg-gradient-to-br from-white via-white to-sky-50 px-6 py-6 shadow-sm dark:border-sky-900/70 dark:from-neutral-950 dark:via-neutral-950 dark:to-sky-950/40"
+  >
+    <p
+      class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800 dark:text-sky-300"
+    >
+      First-principles outcome
+    </p>
+    <h2
+      class="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
+      id="why-hero-outcome-heading"
+    >
+      Governed AI architecture reviews—not ad-hoc chat
+    </h2>
+    <p
+      class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+    >
+      ArchLucid runs a structured multi-agent Authority pipeline against every architecture request so findings, comparisons, manifests, and audit exports share one proven trace. Buyers still compare incumbent stack tools; the adjacent-category table on this page summarizes the same buyer-safe landscape claims captured in
+       
+      <code
+        class="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-900/60"
+      >
+        docs/go-to-market/COMPETITIVE_LANDSCAPE.md
+      </code>
+       
+      §2.3—not a substitute for the symbol-scored hard-comparison grid further down.
+    </p>
+  </section>
+  <section
+    aria-labelledby="why-market-landscape-heading"
+    class="mt-12"
+  >
+    <h2
+      class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+      id="why-market-landscape-heading"
+    >
+      Adjacent-category landscape (qualitative · three rows · five lenses)
+    </h2>
+    <p
+      class="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400"
+    >
+      Summarized wording only — same sources as
+       
+      <code
+        class="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800"
+      >
+        docs/go-to-market/COMPETITIVE_LANDSCAPE.md
+      </code>
+       
+      §2.3; citations and benchmark detail live in that document and in the deterministic proof artefacts linked from this page.
+    </p>
+    <div
+      class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+    >
+      <table
+        class="w-full min-w-[60rem] border-collapse text-left text-sm"
+        data-testid="why-market-landscape-mini-table"
+      >
+        <thead>
+          <tr
+            class="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80"
+          >
+            <th
+              class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              Dimension
+            </th>
+            <th
+              class="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              ArchLucid
+            </th>
+            <th
+              class="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              GitHub Copilot (architecture ad-hoc)
+            </th>
+            <th
+              class="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              ChatGPT / Claude (manual prompting)
+            </th>
+            <th
+              class="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              Structurizr (+ AI assist)
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="max-w-[200px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Pricing
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              Consumption-based SaaS (see pricing manifest in-repo).
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              ~$19–39/seat/month (code assist; not orchestrated architecture runs).
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              ~$20–25/seat/month (chat; unstructured output).
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              OSS + optional SaaS tiers ($5–20/mo) — modeling first; limited automated analysis.
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="max-w-[200px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              AI capability
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              Multi-agent architecture pipeline + simulator + routed LLMs (ARCHITECTURE_CONTEXT.md in repo).
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              Code completions; lacks manifest-scale architecture orchestration.
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              Prompt-defined; brittle repeatability.
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              Diagram DSL assist — no agentic findings pipeline comparable to Authority runs.
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="max-w-[200px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Governance & audit posture
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              Committed manifests, segregation-of-duties gates, typed audit envelopes, replay exports (see COMPETITIVE_LANDSCAPE.md §3 for evidence list).
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              No enterprise architecture audit trail tied to manifests.
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              Conversation history only — not attestable lifecycle evidence.
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              Version control over DSL artefacts — lacks governed promotion workflow parity.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section
     class="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
   >
     <h2
@@ -32,7 +221,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       <code>
         /demo/preview
       </code>
-       (manifest excerpt, explanation, citations, timeline) plus the **benchmarked differentiation** narrative table (five detailed rows with citations — not the symbol-only front-door grid below). Requires demo mode on the API host (otherwise the link returns 404 by design).
+       (manifest excerpt, explanation, citations, timeline) plus the benchmarked differentiation narrative table (five detailed rows with citations — not the symbol-only front-door grid below). Requires demo mode on the API host (otherwise the link returns 404 by design).
     </p>
     <p
       class="mt-3"

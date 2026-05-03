@@ -9,9 +9,11 @@ using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Abstractions.Agents;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Llm.Redaction;
@@ -160,6 +162,8 @@ public static partial class ServiceCollectionExtensions
         });
         services.AddScoped<AgentOutputReferenceCaseRunEvaluator>();
         services.AddScoped<AgentOutputEvaluationRecorder>();
+        services.AddScoped<IAgentArchitectureFindingConfidenceEnricher, AgentArchitectureFindingConfidenceEnricher>();
+        services.AddScoped<IFindingsSnapshotEvaluationConfidenceEnricher, FindingsSnapshotEvaluationConfidenceEnricher>();
         services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();
         services.Configure<AgentResultSchemaValidationOptions>(
             configuration.GetSection(AgentResultSchemaValidationOptions.SectionPath));

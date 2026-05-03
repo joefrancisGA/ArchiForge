@@ -101,7 +101,7 @@ export function filterNavLinksForOperatorShell(
   applyCollapsedSidebarPilotFilter = false,
   hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
-  let gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
+  const gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
 
   let tiered: NavLinkItem[] = filterNavLinksByAuthority(
     filterNavLinksByTier(gated, showExtended, showAdvanced),

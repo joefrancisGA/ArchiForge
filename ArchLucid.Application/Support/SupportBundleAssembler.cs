@@ -197,7 +197,7 @@ public sealed class SupportBundleAssembler(
             {
                 SupportBundleDocLinks.PilotRescuePlaybookRelativePath + " — symptom-first pilot triage",
                 "docs/TROUBLESHOOTING.md", "docs/OPERATOR_QUICKSTART.md", "docs/library/OPERATOR_ATLAS.md",
-                "docs/PENDING_QUESTIONS.md (item 37 — support-bundle redaction policy still open at owner level)"
+                "docs/PENDING_QUESTIONS.md item 37 (Resolved 2026-05-03 — manual review before external forward; ExecuteAuthority holders only for bundling tenant-identifying/contact PII to third parties)."
             },
             correlation = "Match X-Correlation-ID response header / problem JSON correlationId against API logs."
         };
@@ -252,8 +252,10 @@ public sealed class SupportBundleAssembler(
         body.AppendLine("------------------------");
         body.Append(SupportBundleNextStepsDocument.AdvisoryDisclaimer);
         body.AppendLine(" Attach this ZIP to a support ticket.");
-        body.AppendLine("See docs/PENDING_QUESTIONS.md item 37 — the pre-forwarding redaction policy is still");
-        body.AppendLine("owner-pending; review the contents before forwarding to a third party.");
+        body.AppendLine("Pre-forward checklist (Resolved 2026-05-03): review every file for sensitive context;");
+        body.AppendLine("bundles already redact bearer tokens, Api-Key headers, password-shaped lines, and");
+        body.AppendLine("mask secret-shaped env vars. Include tenant-identifying or contact data with external");
+        body.AppendLine("support only when you explicitly intend that disclosure (requires ExecuteAuthority to download).");
 
         return body.ToString();
     }

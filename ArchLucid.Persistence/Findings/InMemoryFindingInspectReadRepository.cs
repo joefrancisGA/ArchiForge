@@ -105,6 +105,8 @@ public sealed class InMemoryFindingInspectReadRepository(IAuthorityQueryService 
             ModelDeploymentName = match.ModelDeploymentName,
             PromptTemplateVersion = match.PromptTemplateVersion,
             ConfidenceScore = match.ConfidenceScore,
+            EvaluationConfidenceScore = match.EvaluationConfidenceScore,
+            ConfidenceLevel = match.ConfidenceLevel,
             HumanReviewStatus = match.HumanReviewStatus
         };
     }

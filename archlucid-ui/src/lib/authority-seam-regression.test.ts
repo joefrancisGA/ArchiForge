@@ -118,7 +118,14 @@ describe("authority seam regression", () => {
 
     expect(core).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(core!.links, false, false, AUTHORITY_RANK.ReadAuthority);
+    const visible = filterNavLinksForOperatorShell(
+      core!.links,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      true,
+    );
     const hrefs = new Set(visible.map((l) => l.href));
 
     expect(hrefs.has("/")).toBe(true);
@@ -159,6 +166,9 @@ describe("authority seam regression", () => {
       false,
       false,
       AUTHORITY_RANK.ReadAuthority,
+      false,
+      "all",
+      true,
     );
 
     const ids = rows.map((r) => r.group.id);
@@ -181,6 +191,9 @@ describe("authority seam regression", () => {
       true,
       false,
       AUTHORITY_RANK.ReadAuthority,
+      false,
+      "all",
+      true,
     );
 
     const pilot = rows.find((r) => r.group.id === "pilot");
@@ -244,6 +257,9 @@ describe("authority seam regression", () => {
       false,
       false,
       AUTHORITY_RANK.ReadAuthority,
+      false,
+      "all",
+      true,
     );
     const qa = rows.find((r) => r.group.id === "operate-analysis");
 
@@ -262,6 +278,8 @@ describe("authority seam regression", () => {
       false,
       false,
       AUTHORITY_RANK.ExecuteAuthority,
+      false,
+      true,
     );
 
     expect(gatedOff.some((l) => l.href === "/governance")).toBe(false);
@@ -271,6 +289,8 @@ describe("authority seam regression", () => {
       true,
       true,
       AUTHORITY_RANK.ExecuteAuthority,
+      false,
+      true,
     );
 
     expect(gatedOn.some((l) => l.href === "/governance")).toBe(true);
@@ -328,6 +348,9 @@ describe("authority seam regression", () => {
       false,
       false,
       AUTHORITY_RANK.ReadAuthority,
+      false,
+      "all",
+      true,
     );
     const indexById = new Map(NAV_GROUPS.map((g, i) => [g.id, i] as const));
     const indices = rows.map((r) => indexById.get(r.group.id));

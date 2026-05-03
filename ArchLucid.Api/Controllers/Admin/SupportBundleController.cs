@@ -26,9 +26,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 ///     controller keeps the support-bundle action isolated for documentation and contract tests.
 ///     <b>Streaming.</b> The assembler returns the full ZIP in memory because the bundle
 ///     is small (a handful of JSON sections + a README). When future redaction work
-///     forces larger bundles (e.g. recent run summaries, last 200 audit events — see
-///     PENDING_QUESTIONS.md item 37 part c), this should switch to a streamed
-///     <see cref="System.IO.Pipelines" /> producer.
+///     producer if ZIP size materially grows beyond the diagnostic JSON snapshots.
 /// </remarks>
 [ApiController]
 [ApiVersion("1.0")]

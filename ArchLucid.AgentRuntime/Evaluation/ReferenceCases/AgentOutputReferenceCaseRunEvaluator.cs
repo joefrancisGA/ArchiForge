@@ -25,6 +25,47 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
         PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter() }
     };
 
+    /// <summary>
+    ///     Returns whether any configured reference case passes for <paramref name="trace" /> without persisting rows.
+    /// </summary>
+    public bool ComputeAnyPassingReferenceCase(AgentExecutionTrace trace)
+    {
+        ArgumentNullException.ThrowIfNull(trace);
+
+        if (!options.CurrentValue.Enabled)
+            return false;
+
+        if (catalog.Cases.Count == 0)
+            return false;
+
+        if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
+            return false;
+
+        foreach (AgentOutputReferenceCaseDefinition caseDef in catalog.Cases)
+        {
+            if (caseDef.AgentType != trace.AgentType)
+                continue;
+
+            AgentOutputEvaluationScore structural = structuralEvaluator.Evaluate(
+                trace.TraceId,
+                trace.ParsedResultJson,
+                trace.AgentType);
+
+            if (structural.IsJsonParseFailure)
+                continue;
+
+            AgentOutputSemanticScore semantic = semanticEvaluator.Evaluate(
+                trace.TraceId,
+                trace.ParsedResultJson,
+                trace.AgentType);
+
+            if (EvaluateCaseRules(caseDef, trace.ParsedResultJson, structural, semantic, out _))
+                return true;
+        }
+
+        return false;
+    }
+
     /// <summary>Evaluates one trace against all cases matching its <see cref="AgentExecutionTrace.AgentType" />.</summary>
     public async Task EvaluateTraceAsync(
         AgentExecutionTrace trace,

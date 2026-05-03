@@ -1,9 +1,8 @@
 /**
- * Marketing `/pricing`: Team-tier Stripe subscribe link behavior from `public/pricing.json`.
+ * Marketing `/pricing`: Team-tier Stripe subscribe link behavior from `public/pricing.json` plus build-time opt-in.
  *
- * With **`teamStripeCheckoutUrl`** still a placeholder, **Subscribe with Stripe** is hidden (`team-stripe-checkout-url.ts`).
- * After operators paste a real Payment Link / Checkout URL per **`docs/runbooks/STRIPE_OPERATOR_CHECKLIST.md`** § E,
- * this spec asserts the link opens a Stripe-hosted tab.
+ * **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED=true`** (or **`1`**) must be set when building the UI for the Checkout CTA to render.
+ * With a placeholder **`teamStripeCheckoutUrl`**, **Subscribe with Stripe** stays hidden (`team-stripe-checkout-url.ts`).
  *
  * Run (live UI bundle): `npx playwright test live-api-marketing-pricing-stripe-checkout.spec.ts`
  */
@@ -25,6 +24,12 @@ function isPlaceholderStripeCheckoutUrl(raw: string): boolean {
   const lower = raw.trim().toLowerCase();
 
   return lower.length === 0 || lower.includes("placeholder-replace-before-launch") || lower.includes("checkout-placeholder");
+}
+
+function isPublicStripeTeamCheckoutEnabledFromEnv(): boolean {
+  const token = process.env.NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED?.trim().toLowerCase();
+
+  return token === "true" || token === "1";
 }
 
 test.describe("live-api-marketing-pricing-stripe-checkout", () => {
@@ -50,7 +55,7 @@ test.describe("live-api-marketing-pricing-stripe-checkout", () => {
 
     const stripeLink = page.getByTestId("pricing-team-subscribe-stripe");
 
-    if (isPlaceholderStripeCheckoutUrl(rawUrl)) {
+    if (isPlaceholderStripeCheckoutUrl(rawUrl) || !isPublicStripeTeamCheckoutEnabledFromEnv()) {
       await expect(stripeLink).toHaveCount(0);
 
       return;

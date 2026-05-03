@@ -11,4 +11,12 @@ internal static class FindingInspectReadModelMapper
 
         return FindingHumanReviewStatus.NotRequired;
     }
+
+    public static FindingConfidenceLevel? TryParseEvaluationConfidenceLevel(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        return Enum.TryParse(raw.Trim(), ignoreCase: true, out FindingConfidenceLevel lvl) ? lvl : null;
+    }
 }

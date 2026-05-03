@@ -41,6 +41,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                                fr.ModelDeploymentName,
                                fr.PromptTemplateVersion,
                                fr.ConfidenceScore,
+                               fr.EvaluationConfidenceScore,
+                               fr.EvaluationConfidenceLevel,
                                fr.HumanReviewStatus,
                                r.RunId,
                                r.CurrentManifestVersion,
@@ -177,6 +179,9 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
 
         FindingHumanReviewStatus humanReview = FindingInspectReadModelMapper.ParseHumanReview(row.HumanReviewStatus);
 
+        FindingConfidenceLevel? evaluationLevel =
+            FindingInspectReadModelMapper.TryParseEvaluationConfidenceLevel(row.EvaluationConfidenceLevel);
+
         List<FindingInspectEvidenceItem> evidence = relatedNodes
             .Where(static n => !string.IsNullOrWhiteSpace(n))
             .Select(static n =>
@@ -199,6 +204,8 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
             ModelDeploymentName = row.ModelDeploymentName,
             PromptTemplateVersion = row.PromptTemplateVersion,
             ConfidenceScore = row.ConfidenceScore,
+            EvaluationConfidenceScore = row.EvaluationConfidenceScore,
+            ConfidenceLevel = evaluationLevel,
             HumanReviewStatus = humanReview
         };
     }
@@ -298,6 +305,18 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
         }
 
         public double? ConfidenceScore
+        {
+            get;
+            init;
+        }
+
+        public int? EvaluationConfidenceScore
+        {
+            get;
+            init;
+        }
+
+        public string? EvaluationConfidenceLevel
         {
             get;
             init;

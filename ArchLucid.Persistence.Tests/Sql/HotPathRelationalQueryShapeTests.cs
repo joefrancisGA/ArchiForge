@@ -40,6 +40,21 @@ public sealed class HotPathRelationalQueryShapeTests
     }
 
     [SkippableFact]
+    public void Committed_architecture_review_exists_retains_scope_join_and_commit_predicate()
+    {
+        string sql = HotPathRelationalQueryShapes.CommittedArchitectureReviewExistsNoLock;
+
+        sql.Should().Contain("CASE WHEN EXISTS");
+        sql.Should().Contain("FROM dbo.Runs r WITH (NOLOCK)");
+        sql.Should().Contain("dbo.GoldenManifests gm WITH (NOLOCK)");
+        sql.Should().Contain("TenantId = @TenantId");
+        sql.Should().Contain("WorkspaceId = @WorkspaceId");
+        sql.Should().Contain("ScopeProjectId = @ScopeProjectId");
+        sql.Should().Contain("LegacyRunStatus = @CommittedStatus");
+        sql.Should().Contain("GoldenManifestId IS NOT NULL");
+    }
+
+    [SkippableFact]
     public void Runs_list_recent_in_scope_retains_nolock_scope_archived_filter_and_created_order()
     {
         string sql = HotPathRelationalQueryShapes.RunsListRecentInScopeNoLock;

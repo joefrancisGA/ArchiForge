@@ -19,9 +19,9 @@ describe("pathnameEligibleBeforeFirstCommittedArchitectureReview", () => {
 
 describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
   it("is a no-op when the tenant already committed a review", () => {
-    const pilot = NAV_GROUPS.find((g) => g.id === "pilot-planning");
+    const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
     if (pilot === undefined) {
-      throw new Error("nav smoke: missing pilot-planning group");
+      throw new Error("nav smoke: missing pilot group");
     }
 
     const full = filterNavLinksByCommittedArchitectureReviewGate(pilot.links, true);
@@ -29,9 +29,9 @@ describe("filterNavLinksByCommittedArchitectureReviewGate", () => {
   });
 
   it("keeps only eligible hrefs when false", () => {
-    const pilot = NAV_GROUPS.find((g) => g.id === "pilot-planning");
+    const pilot = NAV_GROUPS.find((g) => g.id === "pilot");
     if (pilot === undefined) {
-      throw new Error("nav smoke: missing pilot-planning group");
+      throw new Error("nav smoke: missing pilot group");
     }
 
     const thin = filterNavLinksByCommittedArchitectureReviewGate(pilot.links, false);

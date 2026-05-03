@@ -1,3 +1,5 @@
+using ArchLucid.Contracts.Findings;
+
 namespace ArchLucid.Core.Explanation;
 
 /// <summary>
@@ -56,4 +58,18 @@ public sealed class FindingTraceConfidenceDto
         get;
         init;
     } = [];
+
+    /// <summary>Evaluation-derived confidence score when persisted with authority/agent wiring.</summary>
+    public int? EvaluationConfidenceScore
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Evaluation coarse bucket derived from harness/reference/trace completeness.</summary>
+    public FindingConfidenceLevel? ConfidenceLevel
+    {
+        get;
+        init;
+    }
 }

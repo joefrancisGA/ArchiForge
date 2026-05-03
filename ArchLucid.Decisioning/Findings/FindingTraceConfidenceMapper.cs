@@ -31,6 +31,8 @@ public static class FindingTraceConfidenceMapper
                     RuleId = evidence.RuleId,
                     EvidenceRefCount = evidence.EvidenceRefs.Count,
                     MissingTraceFields = [.. score.MissingTraceFields],
+                    EvaluationConfidenceScore = f.EvaluationConfidenceScore,
+                    ConfidenceLevel = f.ConfidenceLevel,
                 });
         }
 

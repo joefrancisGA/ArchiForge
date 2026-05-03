@@ -48,6 +48,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     IAuditService auditService,
     IOptionsMonitor<CosmosDbOptions> cosmosDbOptionsMonitor,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
+    IFindingsSnapshotEvaluationConfidenceEnricher findingsSnapshotEvaluationConfidenceEnricher,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
     private readonly IArtifactBundleRepository _artifactBundleRepository =
@@ -82,6 +83,10 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
+
+    private readonly IFindingsSnapshotEvaluationConfidenceEnricher _findingsSnapshotEvaluationConfidenceEnricher =
+        findingsSnapshotEvaluationConfidenceEnricher ??
+        throw new ArgumentNullException(nameof(findingsSnapshotEvaluationConfidenceEnricher));
 
     private readonly IGoldenManifestRepository _goldenManifestRepository =
         goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
@@ -157,6 +162,20 @@ public sealed class AuthorityPipelineStagesExecutor(
                 ctx.ContextSnapshot!.SnapshotId,
                 ctx.GraphSnapshot!,
                 token);
+
+            try
+            {
+                await _findingsSnapshotEvaluationConfidenceEnricher.TryEnrichAsync(findingsSnapshot, token);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+
+                    _logger.LogWarning(
+                        ex,
+                        "Findings snapshot evaluation confidence enrichment failed for RunId={RunId}; snapshot persisted without enrichment.",
+                        run.RunId);
+            }
 
             await SaveFindingsAsync(findingsSnapshot, uow, token);
             ctx.FindingsSnapshot = findingsSnapshot;
