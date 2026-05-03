@@ -31,7 +31,9 @@ export default defineConfig({
     command: liveWebServerCommand,
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: skipNextBuild ? 120_000 : 180_000,
+    // Local `npm run build` + standalone asset sync routinely exceeds 3 minutes on Windows HDDs /
+    // cold caches; CI uses LIVE_E2E_SKIP_NEXT_BUILD=1 and only waits for standalone boot (120s).
+    timeout: skipNextBuild ? 120_000 : 600_000,
     env: {
       LIVE_API_URL: process.env.LIVE_API_URL ?? "http://127.0.0.1:5128",
       ARCHLUCID_PROXY_BEARER_TOKEN: process.env.ARCHLUCID_PROXY_BEARER_TOKEN ?? "",

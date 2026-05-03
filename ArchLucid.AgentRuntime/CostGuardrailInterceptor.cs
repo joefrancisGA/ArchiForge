@@ -1,4 +1,5 @@
 using ArchLucid.Core.Configuration;
+
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
@@ -40,13 +41,11 @@ public sealed class CostGuardrailInterceptor(
         if (opts.MaxTokensPerRun.HasValue && (_totalInputTokens + _totalOutputTokens) > opts.MaxTokensPerRun.Value)
             throw new CostLimitExceededException($"Run exceeded maximum allowed tokens ({opts.MaxTokensPerRun.Value}).");
 
-        if (opts.MaxCostPerRun.HasValue)
-        {
-            decimal cost = _costEstimator.EstimateUsd(_totalInputTokens, _totalOutputTokens) ?? 0m;
-            if (cost > opts.MaxCostPerRun.Value)
-                throw new CostLimitExceededException($"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).");
-        }
+        if (!opts.MaxCostPerRun.HasValue)
+            return result;
 
-        return result;
+        decimal cost = _costEstimator.EstimateUsd(_totalInputTokens, _totalOutputTokens) ?? 0m;
+
+        return cost > opts.MaxCostPerRun.Value ? throw new CostLimitExceededException($"Run exceeded maximum allowed cost (${opts.MaxCostPerRun.Value}).") : result;
     }
 }

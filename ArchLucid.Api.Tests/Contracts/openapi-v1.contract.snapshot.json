@@ -328,6 +328,15 @@
               "boolean"
             ]
           },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "createdUtc": {
             "format": "date-time",
             "type": "string"
@@ -636,6 +645,15 @@
           "agentType": {
             "$ref": "#/components/schemas/AgentType"
           },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          },
           "claims": {
             "items": {
               "type": "string"
@@ -676,6 +694,12 @@
               {
                 "$ref": "#/components/schemas/ManifestDeltaProposal"
               }
+            ]
+          },
+          "reasoningTrace": {
+            "type": [
+              "null",
+              "string"
             ]
           },
           "resultId": {
@@ -2493,6 +2517,17 @@
             "type": "string"
           },
           "sourceType": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "Citation": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "sourceId": {
             "type": "string"
           }
         },
@@ -5148,9 +5183,48 @@
         },
         "type": "object"
       },
+      "ExecutiveSummaryResponse": {
+        "properties": {
+          "complianceAlignmentScore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "latestRunCompletedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "latestRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "securityPostureScore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "techDebtRiskScore": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "tenantId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ExplainabilityTrace": {
         "properties": {
           "alternativePathsConsidered": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "citations": {
             "items": {
               "type": "string"
             },
@@ -13730,6 +13804,100 @@
         },
         "tags": [
           "AuthDebug"
+        ]
+      }
+    },
+    "/api/authority/executive-summary/{tenantId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenantId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "api-version",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutiveSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutiveSummaryResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutiveSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "ExecutiveSummary"
         ]
       }
     },
@@ -24488,6 +24656,78 @@
               }
             },
             "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "RunQuery"
+        ]
+      }
+    },
+    "/v1/architecture/telemetry/roi": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
           },
           "429": {
             "content": {
@@ -40316,6 +40556,9 @@
     },
     {
       "name": "ExecDigestUnsubscribe"
+    },
+    {
+      "name": "ExecutiveSummary"
     },
     {
       "name": "Explanation"
