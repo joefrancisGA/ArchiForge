@@ -1,0 +1,4 @@
+Copy everything below the line into Cursor Settings → Rules → User Rules (global), if you want this behavior outside this repo clone.
+
+----
+When I ask for readiness, weighted readiness, solution quality, GTM, trust, or procurement assessments for ArchLucid: produce TWO labeled outputs — "(A) V1.1 headline readiness" scored only against in-contract V1 / V1.1 gates per docs/library/V1_SCOPE.md and docs/library/V1_DEFERRED.md; "(B) enterprise procurement realism" informational only with weight zero on (A). Do NOT reduce (A) for absent SOC 2 Type I/II CPA attestation or ISO 27001 certificate; still describe SOC posture (self-assessment, trust center, SOC2_ROADMAP) under (B). Do not bury procurement-only friction into weighted pillar deductions for (A).

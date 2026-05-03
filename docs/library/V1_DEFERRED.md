@@ -17,6 +17,7 @@
 
 | Item | Doc source | Note |
 |------|------------|------|
+| **First-tenant funnel SQL — retention / purge for `dbo.FirstTenantFunnelEvents`** | [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item **40** (ii) | **V1:** **no** automatic row deletion and **no** scheduled prune job for this table. **V1.1:** owner picks retention window + purge or aggregate semantics (supersedes prior “90-day” draft wording for V1). |
 | **Product learning — planning bridge** | [CHANGELOG.md](../CHANGELOG.md) §59R | SQL + APIs exist; **deterministic theme-derivation** and **plan-draft builder with priority score** are **intentionally deferred**. |
 | **Cross-tenant analytics** | `docs/archive/CHANGE_SET_58R.md` | Aggregation stays **within** tenant/workspace/project unless a future change explicitly adds cross-tenant analytics. |
 
@@ -119,7 +120,9 @@ These commercial milestones are **explicitly release-window-pinned to V1.1** so 
 
 ---
 
-## 6c. Security and assurance — V1.1 (PGP) and V2 (third-party pen test) (owner 2026-05-01)
+## 6c. Security and assurance — SOC 2 CPA attestation (post–V1.1 gate), V1.1 (PGP), V2 (third-party pen test) (owner 2026-05-01; SOC scoring clarification 2026-05-03)
+
+**SOC 2 CPA attestation:** A **CPA-issued SOC 2 Type I or Type II examination report** is **not** a **V1** or **V1.1** headline readiness milestone for weighted product assessments. **What is in V1:** honest trust-center rows, CAIQ/SIG/DPA/process templates, internally maintained SOC 2 **self-assessment** and roadmap (`docs/security/SOC2_SELF_ASSESSMENT_2026.md`, `docs/go-to-market/SOC2_ROADMAP.md`, [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md)). **Independent quality assessments must not** deduct **`(A)` V1.1 headline readiness** (see `.cursor/rules/Assessment-Scope-V1_1.mdc`) solely because CPA SOC 2 is not issued. **Still include SOC narrative** — under an explicit **procurement-realism / informational** section with **zero weight** on **`(A)`** — citing self-assessment, roadmap timing, and buyer friction honestly.
 
 **V1 pen testing** is **owner-conducted** (tracked under [`2026-Q2-OWNER-CONDUCTED.md`](../security/pen-test-summaries/2026-Q2-OWNER-CONDUCTED.md) and related self-assessment docs). There is **no** committed third-party assessor for V1. **Independent quality assessments must not** treat the absence of an **external** third-party pen test or redacted assessor summary as a V1 deficit.
 
@@ -127,12 +130,14 @@ These commercial milestones are **explicitly release-window-pinned to V1.1** so 
 
 | Assurance milestone | V1 posture | Release-window commitment |
 |---------------------|------------|---------------------------|
+| **SOC 2 Type I / II report (CPA-issued SOC examination)** — attestation tied to an independent CPA firm opinion; distinct from owner self-assessment. | **Out of V1** and **out of V1.1 as a headline scoring gate.** V1 posture is internally maintained **self-attested** SOC mapping + roadmap honesty + procurement templates (**do not imply** SOC 2 Type II is issued). **`(A)` assessments must not** treat absent CPA SOC 2 as a V1/V1.1 defect. Use **`(B)` procurement-realism`** (zero weight on **`(A)`**) when discussing enterprise RFP friction. | **Post–V1.1** until an explicit owner promotion and calendar decision — track narrative timing in [`SOC2_ROADMAP.md`](../go-to-market/SOC2_ROADMAP.md) and [`TRUST_CENTER.md`](../go-to-market/TRUST_CENTER.md); pinning dates requires [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md). |
 | **Third-party pen-test execution + redacted summary publication** — funded vendor engagement, SoW, assessor draft + final report, optional customer-shareable redacted summary and Trust Center metadata row. | **Out of V1** for **external** / third-party scope. V1 relies on **owner-conducted** testing + in-repo templates; see [`V1_SCOPE.md`](V1_SCOPE.md) §3. **Quality assessments:** do **not** penalize V1 readiness for lacking a third-party pen test. | **V2.** Minimum V2 commitment: select vendor, execute engagement, populate redacted summary working copy when applicable; update Trust Center when published. Calendar date is **not** pinned here. |
 | **PGP key drop for `security@archlucid.net` (coordinated-disclosure key)** — owner generates the keypair (or designates a custodian), drops the public key block at `archlucid-ui/public/.well-known/pgp-key.txt`, references it from [`SECURITY.md`](../../SECURITY.md), and updates the marketing `/security` page in the **same single PR** (per owner Q14, 2026-04-23, sixth pass). | **Out of V1.** No PGP key drop required for V1 GA. The recipe at [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](../security/PGP_KEY_GENERATION_RECIPE.md) stays in place; the CI guard that turns green when the key file appears stays in place. V1 quality assessments **do not** charge points against Trustworthiness for the absence of the PGP key. | **V1.1.** Minimum V1.1 commitment: public key block committed at `archlucid-ui/public/.well-known/pgp-key.txt`, `SECURITY.md` key-fingerprint reference updated, marketing `/security` page reference updated — all in the **same PR**. UID is gated on `archlucid.net` domain acquisition; default proposal is `ArchLucid Security <security@archlucid.net>`, but if the domain is never acquired the owner provides the alternate UID at V1.1 planning. Calendar date is **not** pinned by this decision. |
 
 **Rules:**
 
 - These are **release-window** promises, not dates. Pinning calendar dates requires a follow-up owner entry recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).
+- **`(A)` / `(B)` scoring labels:** See `.cursor/rules/Assessment-Scope-V1_1.mdc` — **`(A)` V1.1 headline readiness must not drop** solely for absent **CPA SOC 2** or **ISO 27001 certification**; those belong in **`(B)` procurement realism** unless the user asks for an explicit blended score.
 - V1 assessments **must not** penalize the solution for absent **third-party** pen-test publication; that work is **V2**. The **PGP** row remains **V1.1** as above. Pre-2026-05-01 docs that referenced a named third-party vendor for Q2 2026 are **superseded** by this owner decision where they conflict.
 - These decisions do **not** retract or downgrade other V1 security obligations — owner-conducted testing and self-assessment, `BillingProductionSafetyRules`, RLS object-name discipline, OWASP ZAP baseline, Gitleaks, STRIDE-style threat modeling, audit-event coverage matrix, all remain V1 obligations.
 - A new security or assurance milestone **must not** be added to this table without its own owner decision recorded in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md).

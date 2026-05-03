@@ -45,6 +45,10 @@ flowchart LR
 
 The signup form defaults to **“Use model default (modeled estimate)”** so prospects are nudged toward a consistent “before” anchor without blocking signup. Prospects may switch to **custom hours**; how that field is used in deltas and **what is never published per-tenant** is documented in [`TRIAL_BASELINE_PRIVACY_NOTE.md`](TRIAL_BASELINE_PRIVACY_NOTE.md). When prospects stay on the model default path, the API increments `archlucid_trial_signup_baseline_skipped_total` (see [`docs/runbooks/TRIAL_FUNNEL.md`](../runbooks/TRIAL_FUNNEL.md)).
 
+### 2.2 Team Stripe checkout (`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`)
+
+Public **`/pricing`** treats Team self-serve checkout as **off by default**: the Team tier stays quote-first (**Request quote** + trial link) unless **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED`** is set to **`true`** or **`1`** at **Next.js build time**, in which case the primary CTA becomes the Stripe-hosted URL from **`resolveTeamStripeCheckoutHref`** (`pricing.json` **`teamStripeCheckoutUrl`**, optionally overridden by **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL`**). Keep this flag unset or false in production builds until staging validates Checkout and webhooks; use **Stripe TEST mode** Payment Links / Checkout URLs only until then—never bake live Stripe secrets into the UI bundle.
+
 ---
 
 ## 3. Trial parameters
@@ -69,10 +73,8 @@ The signup form defaults to **“Use model default (modeled estimate)”** so pr
 | **Trial feature flags** | Configuration-driven tier enforcement (run limits, feature gates per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)) | Must-have |
 | **Usage metering** | Track runs consumed, seats active, features used — feeds health scoring ([CUSTOMER_HEALTH_SCORING.md](CUSTOMER_HEALTH_SCORING.md)) and conversion analytics | Must-have |
 | **Billing integration** | Stripe, Azure Marketplace, or equivalent — triggered on conversion from trial to paid | Phase 2 |
-| **Marketing Team Stripe CTA** | Public `/pricing` “Subscribe with Stripe”: when `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED` is unset, behavior follows historic `pricing.json` + placeholder guard only; explicit `0`/`false` suppresses Stripe even when JSON carries a URL. Optional `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL` overrides usable JSON URLs. | Phase 2 |
+| **Marketing Team Stripe CTA** | Public `/pricing` Team tier: **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED=true`** (or **`1`**) required for Stripe Checkout as primary CTA; optional **`NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL`** overrides **`pricing.json`**. **`resolveTeamStripeCheckoutHref`** still returns **`null`** when the flag is **`0`**/**`false`** (suppression). Details: §2.2. | Phase 2 |
 | **Trial expiration workflow** | Automated emails (approaching limit, expiration), read-only enforcement, deletion scheduler | Must-have |
-
-Public pricing UI resolution is **`resolveTeamStripeCheckoutHref`**: suppression is explicit (`0`/`false`); seeded `pricing.json` keeps working unless sales opts out.
 
 ---
 

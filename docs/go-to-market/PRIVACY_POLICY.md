@@ -2,13 +2,13 @@
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
-<!-- PRIVACY_POLICY_LAST_REVIEWED_UTC:2026-04-26 -->
+<!-- PRIVACY_POLICY_LAST_REVIEWED_UTC:2026-05-03 -->
 
 # ArchLucid Privacy Policy
 
 **Effective date:** 2026-04-26
 
-**Last reviewed (UTC):** 2026-04-26
+**Last reviewed (UTC):** 2026-05-03
 
 This privacy policy describes how ArchLucid ("we", "us", "our") collects, uses, shares, and protects personal information when you visit our website at `archlucid.net` or use the ArchLucid platform (the "Service"). It applies to all visitors, trial users, and paying customers.
 

@@ -7,6 +7,7 @@ alwaysApply: false
 
 ## Read first
 
+- **Weighted readiness assessments (SOC 2 scoring boundary)**: `.cursor/rules/Assessment-Scope-V1_1.mdc` plus `docs/library/V1_DEFERRED.md` §6c — **`(A)` headline vs `(B)` procurement realism**.
 - **Canonical buyer / operator spine**: `docs/START_HERE.md` (five-document table + journey; `docs/FIRST_5_DOCS.md` is a thin redirect).
 - **Contributor decision tree (what folder to open first)**: `docs/START_HERE.md` — use the persona table + links into the five-document spine.
 - **System flows (Mermaid)**: `docs/library/SYSTEM_MAP.md`

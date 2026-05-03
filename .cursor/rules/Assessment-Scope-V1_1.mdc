@@ -1,0 +1,39 @@
+---
+description: >-
+  Dual-score readiness rubric — V1.1 headline excludes SOC 2 CPA attestation;
+  SOC still surfaced under informational procurement realism.
+alwaysApply: true
+---
+
+# ArchLucid assessment scope — headline V1.1 vs procurement realism
+
+## Headline scores (must follow)
+
+When producing **weighted readiness**, **solution quality**, **go-to-market**, or **trust/procurement** assessments for this repo:
+
+1. **`(A)` V1.1 delivery / product readiness (headline)** — score **only** commitments that are **in scope for V1 GA and the named V1.1 release-window engineering items** documented in **`docs/library/V1_SCOPE.md`**, **`docs/library/V1_DEFERRED.md`**, and **`docs/go-to-market/TRUST_CENTER.md`**.
+
+2. **`(B)` Enterprise procurement realism (informational)** — discuss buyer friction (SOC 2 CPA reports, rigid RFP wording, procurement timing) honestly, with **explicit links** to roadmap and trust posture. **`(B)` must use weight `0`** when recomputing or narrating **`(A)`**. Do **not** fold **`(B)`** into pillar weights or the **`(A)`** composite unless the user explicitly asks for a **second blended score**.
+
+## SOC 2 — always mention, never headline-penalize
+
+- **`(A)` must not be reduced** for absence of **SOC 2 Type I / II CPA attestation**, **issued SOC report**, or ISO 27001 certificate. Those items are **not** V1 or V1.1 headline gates per **`docs/library/V1_DEFERRED.md` §6c** and **`docs/library/V1_SCOPE.md` §3**.
+
+- **Still cover SOC credibly**: cite **self-assessment**, **trust center honesty**, **`docs/security/SOC2_SELF_ASSESSMENT_2026.md`**, **`docs/go-to-market/SOC2_ROADMAP.md`**, CAIQ/SIG/DPA/process narratives — then place **SOC 2 CPA gap** under **`§ Enterprise procurement realism (informational)`** or equivalent, not under **`Defects against V1.1 headline readiness`**.
+
+- **Explicitly prohibited:** lowering **`(A)` Compliance / Procurement / Trust pillar scores solely because CPA SOC 2 is not issued; treating SOC 2 as a “formal assurance gap against V1.1 contract” unless the narrative labels that sentence as **`(B)` procurement-only**.
+
+## Alignment with broader realism rules
+
+Workspace **`Enterprise-Realism.mdc`** still applies for design trade-offs. For **numerical readiness scoring**, this rule **wins**: organizational procurement pressure is modeled in **`(B)`**, not as hidden deductions inside **`(A)`**.
+
+---
+
+## Copy-paste — user prompt preamble (repeat in chat when scoping assessments)
+
+Produce **two labeled scores**:
+
+- **`(A) V1.1 headline readiness (100)`** — only in-contract V1 / V1.1 gates per `docs/library/V1_SCOPE.md`, `docs/library/V1_DEFERRED.md`, and trust-center commitments. **SOC 2 CPA attestation and ISO certificate are out of `(A)`**; cite them only under **`(B)`**.
+- **`(B) Procurement realism (informational, not weighted into `(A)`)`** — buyer friction incl. SOC 2 report expectations.
+
+Do **not** reduce **`(A)`** for missing CPA SOC 2 / ISO certs; summarize interim posture + roadmap citations instead.
