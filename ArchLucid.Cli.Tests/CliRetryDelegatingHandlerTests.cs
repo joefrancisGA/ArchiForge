@@ -22,9 +22,12 @@ public sealed class CliRetryDelegatingHandlerTests
             return Task.FromResult(attempt == 1 ? new HttpResponseMessage(HttpStatusCode.InternalServerError) : new HttpResponseMessage(HttpStatusCode.OK));
         });
 
-        using HttpClient http = new(new CliRetryDelegatingHandler { InnerHandler = inner }, true);
+        using HttpRequestMessage request = new(HttpMethod.Get, "http://localhost/ping");
 
-        HttpResponseMessage response = await http.GetAsync("http://localhost/ping");
+        using HttpMessageInvoker invoker =
+            new(new CliRetryDelegatingHandler { InnerHandler = inner }, disposeHandler: true);
+
+        using HttpResponseMessage response = await invoker.SendAsync(request, CancellationToken.None);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         attempt.Should().BeGreaterThan(1);
@@ -45,9 +48,13 @@ public sealed class CliRetryDelegatingHandlerTests
         {
             MaxRetryAttempts = 0
         };
-        using HttpClient http = new(new CliRetryDelegatingHandler(options) { InnerHandler = inner }, true);
 
-        HttpResponseMessage response = await http.GetAsync("http://localhost/ping");
+        using HttpRequestMessage request = new(HttpMethod.Get, "http://localhost/ping");
+
+        using HttpMessageInvoker invoker =
+            new(new CliRetryDelegatingHandler(options) { InnerHandler = inner }, disposeHandler: true);
+
+        using HttpResponseMessage response = await invoker.SendAsync(request, CancellationToken.None);
 
         response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         attempt.Should().Be(1);

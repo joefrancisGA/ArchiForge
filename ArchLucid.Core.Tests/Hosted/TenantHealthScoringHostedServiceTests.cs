@@ -53,7 +53,7 @@ public sealed class TenantHealthScoringHostedServiceTests
         Mock<ITenantCustomerSuccessRepository> repo = new();
         repo.Setup(r => r.RefreshAllTenantHealthScoresAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask)
-            .Callback(() => hostCts.Cancel());
+            .Callback(hostCts.Cancel);
 
         ServiceCollection sc = [];
         sc.AddSingleton(repo.Object);

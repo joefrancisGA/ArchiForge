@@ -45,7 +45,7 @@ public sealed class CircuitBreakerGateMetricsTests
         CircuitBreakerGate gate = new("reject-gate", options);
         gate.RecordFailure();
 
-        Action act = () => gate.ThrowIfBroken();
+        Action act = gate.ThrowIfBroken;
 
         act.Should().Throw<CircuitBreakerOpenException>();
 

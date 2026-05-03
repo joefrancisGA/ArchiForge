@@ -1,4 +1,3 @@
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings;
 
 using FluentAssertions;
@@ -17,7 +16,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(true, true, 0m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(75);
+        r.Score.Should().Be(75);
         r.Level.Should().Be(FindingConfidenceLevel.High);
     }
 
@@ -27,7 +26,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(true, true, 1m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(100);
+        r.Score.Should().Be(100);
         r.Level.Should().Be(FindingConfidenceLevel.High);
     }
 
@@ -37,7 +36,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(true, false, 1m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(60);
+        r.Score.Should().Be(60);
         r.Level.Should().Be(FindingConfidenceLevel.Medium);
     }
 
@@ -47,7 +46,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(false, true, 1m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(65);
+        r.Score.Should().Be(65);
         r.Level.Should().Be(FindingConfidenceLevel.Medium);
     }
 
@@ -57,7 +56,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(true, false, 10m / 25m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(45);
+        r.Score.Should().Be(45);
         r.Level.Should().Be(FindingConfidenceLevel.Medium);
     }
 
@@ -67,7 +66,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(true, false, 9m / 25m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(44);
+        r.Score.Should().Be(44);
         r.Level.Should().Be(FindingConfidenceLevel.Low);
     }
 
@@ -77,7 +76,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(false, false, null);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(0);
+        r.Score.Should().Be(0);
         r.Level.Should().Be(FindingConfidenceLevel.Low);
     }
 
@@ -87,7 +86,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(false, false, 0.5m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(13);
+        r.Score.Should().Be(13);
         r.Level.Should().Be(FindingConfidenceLevel.Low);
     }
 
@@ -97,7 +96,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(true, false, 0.5m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(48);
+        r.Score.Should().Be(48);
         r.Level.Should().Be(FindingConfidenceLevel.Medium);
     }
 
@@ -107,7 +106,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(false, false, 3m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(25);
+        r.Score.Should().Be(25);
         r.Level.Should().Be(FindingConfidenceLevel.Low);
     }
 
@@ -117,7 +116,7 @@ public sealed class FindingConfidenceCalculatorTests
         FindingConfidenceCalculationResult? r = _sut.Calculate(true, false, -2m);
 
         r.Should().NotBeNull();
-        r!.Score.Should().Be(35);
+        r.Score.Should().Be(35);
         r.Level.Should().Be(FindingConfidenceLevel.Low);
     }
 }
