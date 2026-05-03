@@ -20,6 +20,10 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
+    private static readonly Guid TestTenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private static readonly Guid TestWorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    private static readonly Guid TestScopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
     [SkippableFact]
     public async Task Save_then_GetById_round_trips_relational_collections()
     {
@@ -57,6 +61,16 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
             Errors = ["e1"],
             SourceHashes = new Dictionary<string, string>(StringComparer.Ordinal) { ["file.cs"] = "abc123" }
         };
+
+        await using (SqlConnection seedConnection = await factory.CreateOpenConnectionAsync(CancellationToken.None))
+            await AuthorityRunChainTestSeed.InsertRunAsync(
+                seedConnection,
+                TestTenantId,
+                TestWorkspaceId,
+                TestScopeProjectId,
+                runId,
+                "proj-relational-1",
+                CancellationToken.None);
 
         await repository.SaveAsync(snapshot, CancellationToken.None);
 
@@ -108,6 +122,15 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
             });
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.InsertRunAsync(
+            connection,
+            TestTenantId,
+            TestWorkspaceId,
+            TestScopeProjectId,
+            runId,
+            "proj-legacy-json",
+            CancellationToken.None);
+
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
@@ -187,6 +210,15 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         string canonicalJson = JsonEntitySerializer.Serialize(canonical);
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.InsertRunAsync(
+            connection,
+            TestTenantId,
+            TestWorkspaceId,
+            TestScopeProjectId,
+            runId,
+            "proj-canonical-props-json",
+            CancellationToken.None);
+
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
@@ -251,6 +283,15 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         DateTime createdUtc = new(2026, 9, 2, 12, 0, 0, DateTimeKind.Utc);
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.InsertRunAsync(
+            connection,
+            TestTenantId,
+            TestWorkspaceId,
+            TestScopeProjectId,
+            runId,
+            "proj-all-json-null",
+            CancellationToken.None);
+
         const string insertHeader = """
                                     INSERT INTO dbo.ContextSnapshots
                                     (
@@ -297,9 +338,6 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory, Empty);
 
-        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-        Guid scopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
         Guid snapshotId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
         DateTime createdUtc = new(2026, 11, 11, 14, 0, 0, DateTimeKind.Utc);
@@ -308,9 +346,9 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         await AuthorityRunChainTestSeed.InsertRunAsync(
             connection,
-            tenantId,
-            workspaceId,
-            scopeProjectId,
+            TestTenantId,
+            TestWorkspaceId,
+            TestScopeProjectId,
             runId,
             projectId,
             CancellationToken.None);
@@ -382,6 +420,15 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         };
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.InsertRunAsync(
+            connection,
+            TestTenantId,
+            TestWorkspaceId,
+            TestScopeProjectId,
+            runId,
+            "proj-tx",
+            CancellationToken.None);
+
         await using SqlTransaction tx = connection.BeginTransaction();
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();

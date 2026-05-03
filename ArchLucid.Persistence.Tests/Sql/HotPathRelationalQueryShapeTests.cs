@@ -105,8 +105,8 @@ public sealed class HotPathRelationalQueryShapeTests
 
         suffix.Should().Contain("ORDER BY OccurredUtc DESC, EventId DESC");
 
-        string combined = prefix + suffix;
+        string combined = $"{prefix}\n{suffix.Trim()}";
 
-        combined.Should().Contain("ORDER BY OccurredUtc DESC, EventId DESC");
+        combined.Should().MatchRegex(@"(?s)@ProjectId\s+ORDER BY OccurredUtc DESC, EventId DESC");
     }
 }

@@ -170,7 +170,9 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             }
         }
 
-        sql.Append(HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc);
+        // Raw-string prefix ends at @ProjectId with no trailing newline (delimiter newline is not content); separate ORDER BY.
+        sql.AppendLine();
+        sql.Append(HotPathRelationalQueryShapes.AuditEventsFilteredOrderByOccurredUtcEventIdDesc.Trim());
 
         Stopwatch sw = Stopwatch.StartNew();
 
