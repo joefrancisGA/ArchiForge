@@ -1,0 +1,87 @@
+﻿# .cursorignore — Cursor search and indexing exclusions
+#
+# Purpose: prevent Cursor from indexing build outputs, generated artifacts,
+# media files, and IDE state that pollute search results and slow AI context.
+#
+# The root .gitignore already covers bin/, obj/, artifacts/, node_modules/,
+# logs/, .vs/, etc. for version control purposes. This file adds Cursor-
+# specific exclusions and anything the root .gitignore does not reach
+# (e.g. .next/ only appears in archlucid-ui/.gitignore, not the root).
+
+# ── .NET build outputs ────────────────────────────────────────────────────────
+**/bin/
+**/obj/
+**/TestResults/
+
+# ── .NET coverage scratch folders ────────────────────────────────────────────
+_cov_merge/
+_cov_nonint/
+_cov_nonint_merged/
+
+# ── .NET generated test/coverage report artifacts ────────────────────────────
+*.sarif
+*.trx
+*.coverage
+*.coveragexml
+*.binlog
+
+# ── Temporary build probe directories ────────────────────────────────────────
+_tmp*/
+_api_build_out/
+_api_out_verify/
+_arch_test_out/
+_api_tests_build/
+_reportgen_tool/
+
+# ── Docker publish probe outputs ──────────────────────────────────────────────
+_docker_publish_diag/
+_docker_publish_test/
+_docker_publish_worker/
+_docker_r2r_noflag/
+
+# ── Frontend: Next.js build and dependencies ──────────────────────────────────
+# archlucid-ui/.gitignore covers these for git, but Cursor indexes from root.
+.next/
+archlucid-ui/.next/
+archlucid-ui/out/
+archlucid-ui/node_modules/
+archlucid-ui/coverage/
+archlucid-ui/playwright-report/
+archlucid-ui/test-results/
+archlucid-ui/.playwright/
+node_modules/
+
+# ── Frontend: TypeScript incremental build info ───────────────────────────────
+*.tsbuildinfo
+
+# ── IDE state ────────────────────────────────────────────────────────────────
+.vs/
+.vscode/
+.idea/
+.ionide/
+
+# ── Generated screenshot batches and all media files ─────────────────────────
+# The demo script (scripts/run-demo-screenshots-with-api.ps1) produces large
+# UUID-named screenshot folders. Image files have no searchable text content
+# and severely inflate Cursor context when indexed.
+artifacts/
+screenshots/
+**/all-routes/
+**/*screenshots*/
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.webp
+**/*.gif
+**/*.mp4
+**/*.zip
+
+# ── k6 load test results ──────────────────────────────────────────────────────
+tests/load/results/
+
+# ── Python cache ──────────────────────────────────────────────────────────────
+__pycache__/
+.pytest_cache/
+
+# ── Terraform provider cache ──────────────────────────────────────────────────
+infra/**/.terraform/

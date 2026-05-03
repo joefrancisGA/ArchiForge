@@ -294,8 +294,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         Dm.ManifestDocument manifestModel;
         DecisionTrace trace;
         Cm.GoldenManifest contract;
-        AgentEvidencePackage? evidencePackageForTelemetry = null;
-        IReadOnlyList<AgentResult>? agentResultsForTelemetry = null;
+        AgentEvidencePackage? evidencePackageForTelemetry;
+        IReadOnlyList<AgentResult>? agentResultsForTelemetry;
 
         try
         {
@@ -481,25 +481,23 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 contract.Metadata.ManifestVersion,
                 persisted.Warnings.Count);
 
-        if (evidencePackageForTelemetry is not null && agentResultsForTelemetry is not null)
+        try
+        {
+            DateTime telemetryCommitUtc = DateTime.UtcNow;
 
-            try
-            {
-                DateTime telemetryCommitUtc = DateTime.UtcNow;
+            CommitRunTelemetryMetrics telemetry = CommitRunTelemetryMetrics.FromCommitContext(
+                runRecord,
+                evidencePackageForTelemetry,
+                agentResultsForTelemetry,
+                telemetryCommitUtc,
+                persisted);
 
-                CommitRunTelemetryMetrics telemetry = CommitRunTelemetryMetrics.FromCommitContext(
-                    runRecord,
-                    evidencePackageForTelemetry,
-                    agentResultsForTelemetry,
-                    telemetryCommitUtc,
-                    persisted);
-
-                await TryInsertRunTelemetryAsync(runGuid, telemetry, cancellationToken);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogWarning(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
-            }
+            await TryInsertRunTelemetryAsync(runGuid, telemetry, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Failed to insert RunTelemetry for RunId={RunId}", runId);
+        }
 
         return new CommitRunResult
         {
@@ -623,10 +621,10 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             new
             {
                 RunId = runGuid,
-                RequestDurationMs = telemetry.RequestDurationMs,
-                AgentExecutionDurationMs = telemetry.AgentExecutionDurationMs,
-                ManualReviewDurationMs = telemetry.ManualReviewDurationMs,
-                EstimatedHoursSaved = telemetry.EstimatedHoursSaved
+                telemetry.RequestDurationMs,
+                telemetry.AgentExecutionDurationMs,
+                telemetry.ManualReviewDurationMs,
+                telemetry.EstimatedHoursSaved
             });
     }
 

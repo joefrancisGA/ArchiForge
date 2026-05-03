@@ -551,11 +551,10 @@ public sealed class ComparisonsController(
         }
 
         if (failed.Count > 0 && successes.Count > 0)
+            Response.Headers.Append(ArchLucidHttpHeaders.BatchReplayPartial, "true");
 
-            Response.Headers[ArchLucidHttpHeaders.BatchReplayPartial] = "true";
-
-        ms.Position = 0;
-        return File(ms, "application/zip", "comparison_replays.zip");
+        byte[] zipBytes = ms.ToArray();
+        return File(zipBytes, "application/zip", "comparison_replays.zip");
     }
 
     private static DriftAnalysisResponse MapDriftAnalysis(DriftAnalysisResult drift)

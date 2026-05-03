@@ -1,5 +1,4 @@
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Contracts.Requests;
 using ArchLucid.Persistence.Models;
 
 using Dm = ArchLucid.Decisioning.Models;
