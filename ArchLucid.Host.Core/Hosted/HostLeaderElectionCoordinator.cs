@@ -71,6 +71,7 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
 
+                    // codeql[cs/exposure-of-sensitive-information]: leaseName is an operational SQL lease key (e.g. TrialLifecycleEmailPolling); sanitized in Core helper before ILogger (docs/library/CODEQL_TRIAGE.md).
                     _logger.LogDebugHostLeaderLeaseNotHeldFollowerWait(leaseName, followerMs);
 
                 try
@@ -87,6 +88,7 @@ public sealed class HostLeaderElectionCoordinator(
 
             if (_logger.IsEnabled(LogLevel.Information))
 
+                // codeql[cs/exposure-of-sensitive-information]: leaseName/id are operational coordinator keys; sanitized in Core helper before ILogger (docs/library/CODEQL_TRIAGE.md).
                 _logger.LogInformationHostLeaderLeaseAcquired(leaseName, id);
 
             using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
@@ -103,6 +105,7 @@ public sealed class HostLeaderElectionCoordinator(
                 // Linked to application shutdown as well as explicit leaderCts cancel after renewal failure.
                 if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
 
+                    // codeql[cs/exposure-of-sensitive-information]: leaseName is an operational SQL lease key; sanitized in Core helper before ILogger (docs/library/CODEQL_TRIAGE.md).
                     _logger.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(leaseName);
             }
             finally
@@ -155,6 +158,7 @@ public sealed class HostLeaderElectionCoordinator(
 
                 if (_logger.IsEnabled(LogLevel.Warning))
 
+                    // codeql[cs/exposure-of-sensitive-information]: leaseName/id are operational coordinator keys; sanitized in Core helper before ILogger (docs/library/CODEQL_TRIAGE.md).
                     _logger.LogWarningHostLeaderLeaseRenewalFailedStopping(leaseName, id);
 
                 await leaderCts.CancelAsync();

@@ -609,7 +609,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
     }
 
     [SkippableFact]
-    public async Task HydrateAsync_edge_properties_present_disables_json_merge_even_when_json_rich()
+    public async Task HydrateAsync_relational_edge_props_win_over_json_props_json_label_fills_when_missing_sql_label()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
@@ -656,7 +656,7 @@ public sealed class GraphSnapshotRelationalReadBranchMatrixDirectSqlIntegrationT
 
         GraphSnapshot snap = await LoadAsync(connection, graphId);
         GraphEdge edge = snap.Edges.Should().ContainSingle(e => e.EdgeId == "e9").Subject;
-        edge.Label.Should().BeNullOrEmpty();
+        edge.Label.Should().Be("jsonLabel");
         edge.Properties.Should().ContainKey("only").WhoseValue.Should().Be("sql");
     }
 

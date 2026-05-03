@@ -78,11 +78,11 @@ If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the exten
 
 **`cs/exposure-of-sensitive-information`** may treat well-known **coordinator lease strings** (for example **`HostElectionLeaseNames.TrialLifecycleEmailPolling`**) as private when they flow into **`ILogger`**, even though they are **stable operational keys** (not passwords, tokens, or PII).
 
-**Mitigation:** log only **`LogSanitizer.Sanitize(leaseName)`** and **`LogSanitizer.Sanitize(instanceId)`** (CWE-117 scrub). The built-in query does not treat **`LogSanitizer`** as stripping sensitivity. Use **`// codeql[cs/exposure-of-sensitive-information]`** on the sink (same line as the closing **`);`**, per **`cs/log-forging`** practice) or dismiss in code scanning with: *operational lease identifiers, sanitized for log injection; not credentials.*
+**Mitigation:** route lease/instance logs through **`SanitizedLoggerHostLeaderElectionExtensions`** (sanitization + **`// codeql`** on the **`ILogger`** sink in Core). The built-in query may still anchor SARIF at the **`HostLeaderElectionCoordinator`** argument line passing **`leaseName`**; place **`// codeql[cs/exposure-of-sensitive-information]`** immediately **above** those extension calls when that happens (or dismiss in code scanning with: *operational lease identifiers, sanitized; not credentials*).
 
 | Location | Notes |
 | -------- | ----- |
-| **`ArchLucid.Host.Core/Hosted/HostLeaderElectionCoordinator.cs`** | Use **`SanitizedLoggerHostLeaderElectionExtensions`** at call sites; suppressions stay in **`ArchLucid.Core.Diagnostics`**. **`HostElectionLeaseNames`** constants are operational keys only. |
+| **`ArchLucid.Host.Core/Hosted/HostLeaderElectionCoordinator.cs`** | Use **`SanitizedLoggerHostLeaderElectionExtensions`** at call sites. Core holds sink suppressions; if CodeQL highlights the **`leaseName`** argument line here, duplicate **`// codeql[cs/exposure-of-sensitive-information]`** on the line immediately **above** the extension call (**`TrialLifecycleEmailPolling`** and peers are operational keys only). |
 
 
 ---

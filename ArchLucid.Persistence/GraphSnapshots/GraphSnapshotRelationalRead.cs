@@ -11,10 +11,11 @@ namespace ArchLucid.Persistence.GraphSnapshots;
 
 /// <summary>Loads graph snapshot nodes, warnings, and indexed edges from relational tables.</summary>
 /// <remarks>
-///     When <c>dbo.GraphSnapshotEdges</c> has rows but <c>dbo.GraphSnapshotEdgeProperties</c> is empty, label/properties
-///     are merged from <c>EdgesJson</c> (legacy enrichment until all edge metadata is backfilled relationally).
-///     When edge properties exist only for some edges and the caller supplies a storage row with <c>EdgesJson</c>,
-///     label/properties missing relationally for a given <c>EdgeId</c> are still merged from JSON; relational values win.
+///     When <c>dbo.GraphSnapshotEdges</c> has rows, matching <c>EdgesJson</c> entries are merged per <c>EdgeId</c> for
+///     label and properties that are absent relationally (legacy enrichment until all edge metadata is backfilled
+///     relationally). Relational values win when present. <c>EdgesJson</c> is taken from the optional merge row when
+///     non-empty; otherwise it is read from <c>dbo.GraphSnapshots</c> so header-only callers still merge correctly when
+///     edge property rows exist only for some edges.
 /// </remarks>
 internal static class GraphSnapshotRelationalRead
 {
@@ -39,10 +40,9 @@ internal static class GraphSnapshotRelationalRead
     }
 
     /// <summary>
-    ///     Hydrates using relational slices; <paramref name="jsonRowForMerge" /> is optional — when omitted, legacy
-    ///     <c>EdgesJson</c> for merge is queried only if relational edge rows exist and edge properties are empty.
-    ///     When a storage row is supplied, <c>EdgesJson</c> is merged per <c>EdgeId</c> for missing relational
-    ///     label/properties even if other edges have relational property rows.
+    ///     Hydrates using relational slices; when relational edges exist, <c>EdgesJson</c> is merged per <c>EdgeId</c>
+    ///     for missing relational label/properties. Non-empty <paramref name="jsonRowForMerge" />.<c>EdgesJson</c>
+    ///     avoids an extra query; when omitted or empty, <c>EdgesJson</c> is read from <c>dbo.GraphSnapshots</c>.
     /// </summary>
     public static async Task<GraphSnapshot> HydrateAsync(
         IDbConnection connection,
@@ -73,13 +73,6 @@ internal static class GraphSnapshotRelationalRead
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GraphSnapshotEdges WHERE GraphSnapshotId = @GraphSnapshotId",
-            new { GraphSnapshotId = graphSnapshotId },
-            ct);
-
-        int edgePropsCount = await SqlRelationalScalarCount.ExecuteAsync(
-            connection,
-            transaction,
-            "SELECT COUNT(1) FROM dbo.GraphSnapshotEdgeProperties WHERE GraphSnapshotId = @GraphSnapshotId",
             new { GraphSnapshotId = graphSnapshotId },
             ct);
 
@@ -121,13 +114,11 @@ internal static class GraphSnapshotRelationalRead
         if (edgesCount <= 0)
             return GraphSnapshotStorageMapper.ToSnapshot(syntheticHeader, nodesOverride, edgesOverride, warningsOverride);
 
-        bool mergeEdgeMetadataFromJson = edgePropsCount == 0 && edgesCount > 0;
         edgesOverride = await LoadEdgesRelationalAsync(
             connection,
             transaction,
             graphSnapshotId,
             jsonRowForMerge,
-            mergeEdgeMetadataFromJson,
             ct);
 
         return GraphSnapshotStorageMapper.ToSnapshot(syntheticHeader, nodesOverride, edgesOverride, warningsOverride);
@@ -230,7 +221,6 @@ internal static class GraphSnapshotRelationalRead
         IDbTransaction? transaction,
         Guid graphSnapshotId,
         GraphSnapshotStorageRow? jsonRowForMerge,
-        bool mergeMetadataFromJson,
         CancellationToken ct)
     {
         const string edgesSql = """
@@ -274,34 +264,27 @@ internal static class GraphSnapshotRelationalRead
             list.Add(pr);
         }
 
-        Dictionary<string, GraphEdge>? jsonById = null;
+        string edgesJson;
 
-        bool materializeJsonEdgesById = mergeMetadataFromJson || jsonRowForMerge is not null;
-
-        if (materializeJsonEdgesById)
+        if (jsonRowForMerge is not null && !string.IsNullOrWhiteSpace(jsonRowForMerge.EdgesJson))
+            edgesJson = jsonRowForMerge.EdgesJson;
+        else
         {
-            string edgesJson;
+            const string edgesJsonSql =
+                "SELECT EdgesJson FROM dbo.GraphSnapshots WHERE GraphSnapshotId = @GraphSnapshotId";
 
-            if (jsonRowForMerge is not null)
-                edgesJson = jsonRowForMerge.EdgesJson;
-            else
-            {
-                const string edgesJsonSql =
-                    "SELECT EdgesJson FROM dbo.GraphSnapshots WHERE GraphSnapshotId = @GraphSnapshotId";
+            string? loaded = await connection.QuerySingleOrDefaultAsync<string>(
+                new CommandDefinition(
+                    edgesJsonSql,
+                    new { GraphSnapshotId = graphSnapshotId },
+                    transaction,
+                    cancellationToken: ct));
 
-                string? loaded = await connection.QuerySingleOrDefaultAsync<string>(
-                    new CommandDefinition(
-                        edgesJsonSql,
-                        new { GraphSnapshotId = graphSnapshotId },
-                        transaction,
-                        cancellationToken: ct));
-
-                edgesJson = string.IsNullOrWhiteSpace(loaded) ? "[]" : loaded;
-            }
-
-            List<GraphEdge> jsonEdges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(edgesJson);
-            jsonById = jsonEdges.ToDictionary(e => e.EdgeId, StringComparer.Ordinal);
+            edgesJson = string.IsNullOrWhiteSpace(loaded) ? "[]" : loaded;
         }
+
+        List<GraphEdge> jsonEdges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(edgesJson);
+        Dictionary<string, GraphEdge> jsonById = jsonEdges.ToDictionary(e => e.EdgeId, StringComparer.Ordinal);
 
         List<GraphEdge> result = [];
         foreach (GraphEdgeTableRow er in edgeRows)
@@ -331,8 +314,7 @@ internal static class GraphSnapshotRelationalRead
                 Properties = props
             };
 
-            if (jsonById is not null &&
-                jsonById.TryGetValue(er.EdgeId, out GraphEdge? fromJson))
+            if (jsonById.TryGetValue(er.EdgeId, out GraphEdge? fromJson))
             {
                 if (string.IsNullOrEmpty(edge.Label) && !string.IsNullOrEmpty(fromJson.Label))
                     edge.Label = fromJson.Label;
