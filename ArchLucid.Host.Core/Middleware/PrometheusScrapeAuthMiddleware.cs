@@ -35,7 +35,6 @@ public sealed class PrometheusScrapeAuthMiddleware
 
             path = "/" + path;
 
-
         _scrapePath = new PathString(path);
         _prometheus = o;
     }
@@ -57,7 +56,8 @@ public sealed class PrometheusScrapeAuthMiddleware
 
         if (p is { Enabled: true, RequireScrapeAuthentication: true })
         {
-            if (expectedUser is null || expectedPassword is null || !TryValidateBasicAuth(context.Request.Headers.Authorization, expectedUser, expectedPassword))
+            if (expectedUser is null || expectedPassword is null ||
+                !TryValidateBasicAuth(context.Request.Headers.Authorization, expectedUser, expectedPassword))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.Headers.WWWAuthenticate = "Basic realm=\"prometheus\", charset=\"UTF-8\"";
@@ -80,7 +80,6 @@ public sealed class PrometheusScrapeAuthMiddleware
                 return;
             }
 
-
         await _next(context);
     }
 
@@ -94,7 +93,6 @@ public sealed class PrometheusScrapeAuthMiddleware
             string.IsNullOrEmpty(header.Parameter))
 
             return false;
-
 
         string decoded;
         try
@@ -111,7 +109,6 @@ public sealed class PrometheusScrapeAuthMiddleware
 
         if (colon < 0)
             return false;
-
 
         string user = decoded[..colon];
         string password = decoded[(colon + 1)..];

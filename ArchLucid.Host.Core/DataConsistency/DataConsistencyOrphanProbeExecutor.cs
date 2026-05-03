@@ -51,12 +51,10 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
             return;
 
-
         DataConsistencyProbeOptions snapshot = _optionsMonitor.CurrentValue;
 
         if (!snapshot.OrphanProbeEnabled)
             return;
-
 
         int sampleCap = Math.Clamp(snapshot.OrphanProbeRemediationDryRunLogMaxRows, 0, 500);
 
@@ -104,7 +102,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         if (sampleCap <= 0)
             return;
-
 
         bool anyOrphans =
             goldenCount > 0
@@ -191,7 +188,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 goldenCount))
             return;
 
-
         int cap = Math.Clamp(enf.MaxRowsPerBatch, 1, 5000);
 
         await using DbCommand command = connection.CreateCommand();
@@ -205,7 +201,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         if (inserted <= 0)
             return;
-
 
         ArchLucidInstrumentation.DataConsistencyOrphansQuarantined.Add(
             inserted,
@@ -231,10 +226,8 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         if (mode != DataConsistencyEnforcementMode.Alert && mode != DataConsistencyEnforcementMode.Quarantine)
             return;
 
-
         if (!_logger.IsEnabled(LogLevel.Warning))
             return;
-
 
         List<string> parts = [];
 
@@ -261,7 +254,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         if (parts.Count == 0)
             return;
 
-
         _logger.LogWarning(
             "Data consistency orphan tenant rollup (detection exceeds threshold={Threshold}; table={Table}; column={Column}): top tenants by orphan count — {TenantRollup}",
             threshold,
@@ -274,7 +266,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     {
         if (!DataConsistencyEnforcementPolicy.IsAlertEligible(count, threshold))
             return;
-
 
         ArchLucidInstrumentation.DataConsistencyAlerts.Add(
             1,
@@ -299,7 +290,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                     "Data consistency orphan remediation dry-run (probe, no delete): GoldenManifests sample (top {MaxRows}): {Ids}",
                     maxRows,
                     string.Join(", ", ids));
-
         }
 
         if (findingsCount > 0)
@@ -312,7 +302,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                     "Data consistency orphan remediation dry-run (probe, no delete): FindingsSnapshots sample (top {MaxRows}): {Ids}",
                     maxRows,
                     string.Join(", ", ids));
-
         }
     }
 
@@ -381,7 +370,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
             ids.Add(reader.GetGuid(0).ToString("D", CultureInfo.InvariantCulture));
 
-
         return ids;
     }
 
@@ -405,7 +393,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
             ids.Add(reader.GetGuid(0).ToString("D", CultureInfo.InvariantCulture));
 
-
         return ids;
     }
 
@@ -423,7 +410,6 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
         if (count <= 0)
             return count;
-
 
         _logger.LogWarning(
             "Data consistency: {Count} row(s) in {Table} reference a missing authority RunId ({Column}).",

@@ -140,7 +140,6 @@ public static class ProblemErrorCodes
         if (problemTypeUri == ProblemTypes.GraphResolutionFailed)
             return GraphResolutionFailed;
 
-
         return problemTypeUri == ProblemTypes.TrialExpired ? TrialLimitExceeded : Unspecified;
     }
 

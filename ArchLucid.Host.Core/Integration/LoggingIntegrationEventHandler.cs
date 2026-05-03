@@ -27,7 +27,6 @@ public sealed class LoggingIntegrationEventHandler(ILogger<LoggingIntegrationEve
                 len,
                 LogSanitizer.Sanitize(preview));
 
-
         return Task.CompletedTask;
     }
 
@@ -35,7 +34,6 @@ public sealed class LoggingIntegrationEventHandler(ILogger<LoggingIntegrationEve
     {
         if (utf8JsonPayload.IsEmpty)
             return string.Empty;
-
 
         int take = Math.Min(utf8JsonPayload.Length, 256);
 

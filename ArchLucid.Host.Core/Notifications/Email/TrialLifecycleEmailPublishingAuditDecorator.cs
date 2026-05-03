@@ -3,9 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
-
 using ArchLucid.Host.Core.Auth.Services;
-
 using ArchLucid.Persistence;
 
 using Microsoft.Extensions.Options;
@@ -56,7 +54,6 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
                     ex,
                     "Trial lifecycle email integration publish failed after audit append for event {EventId}.",
                     auditEvent.EventId);
-
         }
     }
 
@@ -66,7 +63,6 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
 
         if (envelope is null)
             return;
-
 
         IntegrationEventsOptions options = _integrationEventsOptions.CurrentValue;
         string messageId = $"trial-email-audit|{auditEvent.EventId:N}";
@@ -97,7 +93,6 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
                 RunId = auditEvent.RunId,
             };
 
-
         if (string.Equals(auditEvent.EventType, AuditEventTypes.Run.CommitCompleted, StringComparison.Ordinal))
 
             return new TrialLifecycleEmailIntegrationEnvelope
@@ -109,7 +104,6 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
                 ProjectId = auditEvent.ProjectId,
                 RunId = auditEvent.RunId,
             };
-
 
         if (!string.Equals(auditEvent.EventType, AuditEventTypes.TenantTrialConverted, StringComparison.Ordinal))
             return null;
@@ -126,7 +120,6 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
             RunId = auditEvent.RunId,
             TargetTier = targetTier,
         };
-
     }
 
     private static string? TryReadTargetTier(string? dataJson)
@@ -134,14 +127,12 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
         if (string.IsNullOrWhiteSpace(dataJson))
             return null;
 
-
         try
         {
             using JsonDocument doc = JsonDocument.Parse(dataJson);
 
             if (doc.RootElement.TryGetProperty("targetTier", out JsonElement tier))
                 return tier.ValueKind == JsonValueKind.String ? tier.GetString() : null;
-
         }
         catch (JsonException)
         {

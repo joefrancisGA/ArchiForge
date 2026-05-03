@@ -12,8 +12,6 @@ public static class DemoScopes
     /// </summary>
     public static ScopeContext BuildDemoScope() => new()
     {
-        TenantId = ScopeIds.DefaultTenant,
-        WorkspaceId = ScopeIds.DefaultWorkspace,
-        ProjectId = ScopeIds.DefaultProject,
+        TenantId = ScopeIds.DefaultTenant, WorkspaceId = ScopeIds.DefaultWorkspace, ProjectId = ScopeIds.DefaultProject,
     };
 }

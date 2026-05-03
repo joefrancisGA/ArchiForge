@@ -55,7 +55,6 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
 
             options.ManagedIdentityClientId = managedIdentityClientId.Trim();
 
-
         return new DefaultAzureCredential(options);
     }
 
@@ -86,12 +85,7 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
 
         ServiceBusMessage message = new(utf8JsonPayload.ToArray())
         {
-            ContentType = "application/json",
-            Subject = eventType,
-            ApplicationProperties =
-            {
-                ["event_type"] = eventType,
-            },
+            ContentType = "application/json", Subject = eventType, ApplicationProperties = { ["event_type"] = eventType, },
         };
 
         if (applicationProperties is not null)
@@ -101,19 +95,15 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
                 if (string.IsNullOrWhiteSpace(pair.Key))
                     continue;
 
-
                 if (string.Equals(pair.Key, "event_type", StringComparison.OrdinalIgnoreCase))
                     continue;
-
 
                 message.ApplicationProperties[pair.Key] = pair.Value;
             }
 
-
         if (!string.IsNullOrEmpty(messageId))
 
             message.MessageId = TrimMessageId(messageId);
-
 
         try
         {
@@ -124,7 +114,6 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
             if (_logger.IsEnabled(LogLevel.Warning))
 
                 _logger.LogWarning(ex, "Failed to publish integration event type {EventType} to Service Bus.", LogSanitizer.Sanitize(eventType));
-
 
             throw;
         }

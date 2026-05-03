@@ -8,10 +8,18 @@ public sealed class ObservabilityHostOptions
     public const string SectionName = "Observability";
 
     /// <summary>Prometheus scrape endpoint and optional Basic auth (child keys under <c>Observability:Prometheus</c>).</summary>
-    public ObservabilityPrometheusOptions Prometheus { get; set; } = new();
+    public ObservabilityPrometheusOptions Prometheus
+    {
+        get;
+        set;
+    } = new();
 
     /// <summary>Trace sampling (child keys under <c>Observability:Tracing</c>).</summary>
-    public ObservabilityTracingOptions Tracing { get; set; } = new();
+    public ObservabilityTracingOptions Tracing
+    {
+        get;
+        set;
+    } = new();
 }
 
 /// <summary>Binding for <c>Observability:Prometheus</c>.</summary>
@@ -19,22 +27,33 @@ public sealed class ObservabilityPrometheusOptions
 {
     public bool Enabled
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>HTTP path served by the OpenTelemetry Prometheus exporter.</summary>
-    public string ScrapePath { get; set; } = "/metrics";
+    public string ScrapePath
+    {
+        get;
+        set;
+    } = "/metrics";
 
     /// <summary>When true (default), startup validation requires scrape credentials whenever Prometheus is enabled.</summary>
-    public bool RequireScrapeAuthentication { get; set; } = true;
+    public bool RequireScrapeAuthentication
+    {
+        get;
+        set;
+    } = true;
 
     public string? ScrapeUsername
     {
-        get; set;
+        get;
+        set;
     }
 
     public string? ScrapePassword
     {
-        get; set;
+        get;
+        set;
     }
 }

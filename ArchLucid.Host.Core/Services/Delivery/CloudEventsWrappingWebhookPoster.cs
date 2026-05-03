@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Decisioning.Advisory.Delivery;
-
 using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -19,8 +18,7 @@ public sealed class CloudEventsWrappingWebhookPoster(
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
     /// <inheritdoc />
@@ -30,7 +28,6 @@ public sealed class CloudEventsWrappingWebhookPoster(
 
         if (!deliveryOptions.CurrentValue.UseCloudEventsEnvelope)
             return inner.PostJsonAsync(url, payload, ct, options);
-
 
         string source = string.IsNullOrWhiteSpace(deliveryOptions.CurrentValue.CloudEventsSource)
             ? "/archlucid/webhooks"
@@ -49,36 +46,52 @@ public sealed class CloudEventsWrappingWebhookPoster(
     internal sealed class CloudEventV10
     {
         [JsonPropertyName("specversion")]
-        public string SpecVersion { get; init; } = "1.0";
+        public string SpecVersion
+        {
+            get;
+            init;
+        } = "1.0";
 
         [JsonPropertyName("type")]
         public required string Type
         {
-            get; init;
+            get;
+            init;
         }
 
         [JsonPropertyName("source")]
         public required string Source
         {
-            get; init;
+            get;
+            init;
         }
 
         [JsonPropertyName("id")]
         public required string Id
         {
-            get; init;
+            get;
+            init;
         }
 
         [JsonPropertyName("time")]
-        public string Time { get; init; } = "";
+        public string Time
+        {
+            get;
+            init;
+        } = "";
 
         [JsonPropertyName("datacontenttype")]
-        public string DataContentType { get; init; } = "application/json";
+        public string DataContentType
+        {
+            get;
+            init;
+        } = "application/json";
 
         [JsonPropertyName("data")]
         public required JsonElement Data
         {
-            get; init;
+            get;
+            init;
         }
 
         public static CloudEventV10 Create(string type, string source, object data)

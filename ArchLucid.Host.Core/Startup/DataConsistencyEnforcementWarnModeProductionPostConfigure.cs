@@ -30,7 +30,6 @@ public sealed class DataConsistencyEnforcementWarnModeProductionPostConfigure(
         if (string.Equals(_hostEnvironment.EnvironmentName, "Testing", StringComparison.OrdinalIgnoreCase))
             return;
 
-
         if (_logger.IsEnabled(LogLevel.Warning))
 
             _logger.LogWarning(

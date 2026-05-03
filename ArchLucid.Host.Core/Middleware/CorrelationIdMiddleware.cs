@@ -39,7 +39,6 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
         using (LogContext.PushProperty("CorrelationId", correlationId))
 
             await next(context);
-
     }
 
     private static bool IsValidCorrelationId(string? value) =>

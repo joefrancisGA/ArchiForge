@@ -9,12 +9,14 @@ public sealed class E2EHarnessOptions
     /// <summary>When true (with <see cref="SharedSecret"/>), harness routes respond outside strict Development classification (used by CI).</summary>
     public bool Enabled
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Shared secret sent as <c>X-ArchLucid-E2e-Harness-Secret</c> on harness requests.</summary>
     public string? SharedSecret
     {
-        get; init;
+        get;
+        init;
     }
 }

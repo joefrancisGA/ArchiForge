@@ -42,7 +42,6 @@ public static class ArchLucidConfigurationBridge
 
             options.StorageProvider = lucidStorage;
 
-
         return options;
     }
 

@@ -33,7 +33,6 @@ public static class RlsBypassPolicyBootstrap
         if (!enabled)
             return;
 
-
         if (logger.IsEnabled(LogLevel.Warning))
 
             logger.LogWarning(

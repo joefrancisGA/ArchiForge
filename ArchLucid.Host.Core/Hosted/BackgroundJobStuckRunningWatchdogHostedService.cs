@@ -40,36 +40,26 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedService(
 
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
-
                 break;
             }
 
             catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
 
             {
-
                 logger.LogError(ex, "Background job watchdog iteration failed.");
-
             }
 
             try
 
             {
-
                 await timer.WaitForNextTickAsync(stoppingToken);
-
             }
 
             catch (OperationCanceledException)
 
             {
-
                 break;
-
             }
-
         }
-
     }
-
 }

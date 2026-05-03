@@ -28,6 +28,7 @@ public static class HostEnvironmentClassification
 
         string trimmed = archLucidEnv.Trim();
 
-        return string.Equals(trimmed, "Production", StringComparison.OrdinalIgnoreCase) || string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(trimmed, "Production", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase);
     }
 }

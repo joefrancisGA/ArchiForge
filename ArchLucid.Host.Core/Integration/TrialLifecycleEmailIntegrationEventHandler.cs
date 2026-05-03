@@ -37,7 +37,6 @@ public sealed class TrialLifecycleEmailIntegrationEventHandler(
         if (envelope is null)
             throw new FormatException("Trial lifecycle email payload deserialized to null.");
 
-
         using IServiceScope scope = _scopeFactory.CreateScope();
         ITrialLifecycleEmailDispatcher dispatcher =
             scope.ServiceProvider.GetRequiredService<ITrialLifecycleEmailDispatcher>();
@@ -48,7 +47,6 @@ public sealed class TrialLifecycleEmailIntegrationEventHandler(
                 "Dispatching trial lifecycle email trigger {Trigger} for tenant {TenantId}.",
                 envelope.Trigger,
                 envelope.TenantId);
-
 
         await dispatcher.DispatchAsync(envelope, cancellationToken).ConfigureAwait(false);
     }

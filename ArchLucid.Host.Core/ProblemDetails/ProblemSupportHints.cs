@@ -18,12 +18,10 @@ public static class ProblemSupportHints
         if (string.IsNullOrWhiteSpace(type))
             return;
 
-
         string? hint = Resolve(type);
         if (!string.IsNullOrWhiteSpace(hint))
 
             problem.Extensions["supportHint"] = hint;
-
     }
 
     private static string? Resolve(string typeUri)
@@ -32,16 +30,15 @@ public static class ProblemSupportHints
 
             return "Confirm the run ID. If you use scope headers (x-tenant-id, x-workspace-id, x-project-id), they must match the run�s scope.";
 
-
         if (typeUri == ProblemTypes.ManifestNotFound)
             return "Confirm the manifest ID and scope. The manifest may not exist in this tenant/workspace/project.";
-
 
         if (typeUri == ProblemTypes.ResourceNotFound)
             return "Confirm the resource identifier and that your caller is authorized for the correct scope.";
 
         if (typeUri == ProblemTypes.Conflict)
-            return "Read the detail for state or idempotency context. You may need a new run, a different idempotency key, or to complete prior steps (execute before commit).";
+            return
+                "Read the detail for state or idempotency context. You may need a new run, a different idempotency key, or to complete prior steps (execute before commit).";
 
         if (typeUri is ProblemTypes.ValidationFailed or ProblemTypes.BadRequest or ProblemTypes.RequestBodyRequired)
             return "Correct the request using the detail and validation entries above. Swagger (/swagger) lists required fields for each endpoint.";
@@ -70,9 +67,9 @@ public static class ProblemSupportHints
         if (typeUri == ProblemTypes.ComparisonVerificationFailed)
             return "Review drift fields in the response. Regenerate or verify replay inputs against stored artifacts if you need a passing comparison.";
 
-
         if (typeUri == ProblemTypes.BatchReplayAllFailed)
-            return "Every comparisonRecordId in the batch failed to replay. Fix IDs or replay parameters (or inspect API logs with correlation ID); successful batches include batch-replay-manifest.json with per-id errors when some fail.";
+            return
+                "Every comparisonRecordId in the batch failed to replay. Fix IDs or replay parameters (or inspect API logs with correlation ID); successful batches include batch-replay-manifest.json with per-id errors when some fail.";
 
         if (typeUri == ProblemTypes.PolicyPackVersionNotFound)
             return "Confirm the policy pack version exists and is deployed to the environment; check governance configuration.";
@@ -81,17 +78,22 @@ public static class ProblemSupportHints
             return "Retry once. If it persists, capture correlation ID and check API logs for the same RunId or export id.";
 
         if (typeUri == ProblemTypes.GraphTooLargeForFullResponse)
-            return "Use GET /v1/graph/runs/{runId}/nodes with page/pageSize to retrieve the architecture graph in pages (max page size 200). Cross-page edges are omitted per page; export or downstream analytics may be needed for full linkage.";
+            return
+                "Use GET /v1/graph/runs/{runId}/nodes with page/pageSize to retrieve the architecture graph in pages (max page size 200). Cross-page edges are omitted per page; export or downstream analytics may be needed for full linkage.";
 
         if (typeUri == ProblemTypes.RequestPayloadTooLarge)
-            return $"Shrink the POST /v1/architecture/request JSON (documents, IaC payloads, hints) or raise {ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey} with operator approval (HTTP 413 uses Content-Length; legacy ArchLucid:ContextIngestion:MaxPayloadBytes is still forwarded when the new key is unset).";
+            return
+                $"Shrink the POST /v1/architecture/request JSON (documents, IaC payloads, hints) or raise {ArchitectureRunCreationPayloadLimitsOptions.MaxPayloadBytesKey} with operator approval (HTTP 413 uses Content-Length; legacy ArchLucid:ContextIngestion:MaxPayloadBytes is still forwarded when the new key is unset).";
 
         if (typeUri == ProblemTypes.TrialExpired)
             return "Convert the tenant trial (POST /v1/tenant/convert) or purchase a subscription to lift trial limits; see docs/security/TRIAL_LIMITS.md.";
 
         if (typeUri == ProblemTypes.PackagingTierInsufficient)
-            return "This route requires a higher commercial tenant tier. Use extension fields pricingUrl/upgradeUrl, POST /v1/tenant/billing/checkout, or your sales order path.";
+            return
+                "This route requires a higher commercial tenant tier. Use extension fields pricingUrl/upgradeUrl, POST /v1/tenant/billing/checkout, or your sales order path.";
 
-        return typeUri == ProblemTypes.InternalError ? "Retry once. If it persists, provide traceId (and X-Correlation-ID if available) to support; do not paste secrets." : null;
+        return typeUri == ProblemTypes.InternalError
+            ? "Retry once. If it persists, provide traceId (and X-Correlation-ID if available) to support; do not paste secrets."
+            : null;
     }
 }

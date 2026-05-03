@@ -8,7 +8,11 @@ public sealed class ObservabilityTracingOptions
     /// <summary>
     /// Head-based sampling probability for root spans (0.0–1.0). Default <c>1.0</c> preserves historical AlwaysOn behavior.
     /// </summary>
-    public double SamplingRatio { get; set; } = 1.0;
+    public double SamplingRatio
+    {
+        get;
+        set;
+    } = 1.0;
 
     /// <summary>
     /// Activity source names that should always be sampled at full fidelity. The OpenTelemetry .NET SDK does not expose
@@ -17,6 +21,7 @@ public sealed class ObservabilityTracingOptions
     /// </summary>
     public string[]? AlwaysSampleActivitySources
     {
-        get; set;
+        get;
+        set;
     }
 }

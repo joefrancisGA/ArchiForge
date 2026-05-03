@@ -33,14 +33,13 @@ public sealed class PolicyPacksAppService(
         CancellationToken ct)
     {
         PolicyPack pack = await managementService
-            .CreatePackAsync(tenantId, workspaceId, projectId, name, description, packType, initialContentJson, ct)
+                .CreatePackAsync(tenantId, workspaceId, projectId, name, description, packType, initialContentJson, ct)
             ;
 
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.PolicyPackCreated,
-                DataJson = JsonSerializer.Serialize(new { pack.PolicyPackId, pack.Name, pack.PackType }),
+                EventType = AuditEventTypes.PolicyPackCreated, DataJson = JsonSerializer.Serialize(new { pack.PolicyPackId, pack.Name, pack.PackType }),
             },
             ct);
 
@@ -56,14 +55,13 @@ public sealed class PolicyPacksAppService(
         CancellationToken ct)
     {
         PolicyPackVersion packVersion = await managementService
-            .PublishVersionAsync(policyPackId, version, contentJson, ct)
+                .PublishVersionAsync(policyPackId, version, contentJson, ct)
             ;
 
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.PolicyPackVersionPublished,
-                DataJson = JsonSerializer.Serialize(new { policyPackId, packVersion.Version }),
+                EventType = AuditEventTypes.PolicyPackVersionPublished, DataJson = JsonSerializer.Serialize(new { policyPackId, packVersion.Version }),
             },
             ct);
 
@@ -86,13 +84,13 @@ public sealed class PolicyPacksAppService(
         CancellationToken ct)
     {
         PolicyPackVersion? packVersion = await versionRepository
-            .GetByPackAndVersionAsync(policyPackId, version, ct)
+                .GetByPackAndVersionAsync(policyPackId, version, ct)
             ;
         if (packVersion is null)
             return null;
 
         PolicyPackAssignment assignment = await managementService
-            .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, ct)
+                .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, ct)
             ;
 
         await auditService.LogAsync(
@@ -123,11 +121,7 @@ public sealed class PolicyPacksAppService(
             return false;
 
         await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackAssignmentArchived,
-                DataJson = JsonSerializer.Serialize(new { assignmentId }),
-            },
+            new AuditEvent { EventType = AuditEventTypes.PolicyPackAssignmentArchived, DataJson = JsonSerializer.Serialize(new { assignmentId }), },
             ct);
 
         return true;

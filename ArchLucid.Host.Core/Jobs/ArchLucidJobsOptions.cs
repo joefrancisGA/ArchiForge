@@ -6,7 +6,11 @@ public sealed class ArchLucidJobsOptions
     public const string SectionPath = "Jobs";
 
     /// <summary>Hosted services matching these slugs are not registered in the Worker when offloaded to jobs.</summary>
-    public string[] OffloadedToContainerJobs { get; set; } = [];
+    public string[] OffloadedToContainerJobs
+    {
+        get;
+        set;
+    } = [];
 
     /// <summary>
     /// Comma-separated list of job slugs that Terraform has provisioned for this environment (e.g. <c>advisory-scan,data-archival</c>).
@@ -14,6 +18,7 @@ public sealed class ArchLucidJobsOptions
     /// </summary>
     public string? DeployedContainerJobNames
     {
-        get; set;
+        get;
+        set;
     }
 }

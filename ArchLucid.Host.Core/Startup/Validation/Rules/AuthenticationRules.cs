@@ -137,6 +137,7 @@ internal static class AuthenticationRules
         if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        return string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase);
     }
 }

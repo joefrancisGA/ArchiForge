@@ -1,4 +1,3 @@
-
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class LlmMonthlyTenantDollarBudgetRules

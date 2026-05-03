@@ -16,6 +16,5 @@ internal static class BatchReplayRules
 
             errors.Add(
                 $"ComparisonReplay:Batch:MaxComparisonRecordIds must be between {min} and {max} (inclusive).");
-
     }
 }

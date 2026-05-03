@@ -17,7 +17,6 @@ public sealed class ComplianceRulePackHealthCheck : IHealthCheck
                 HealthCheckResult.Unhealthy(
                     $"Compliance rule pack not found at '{fullPath}'. Expected bundled content from ArchLucid.Decisioning (CopyToOutputDirectory)."));
 
-
         return Task.FromResult(
             HealthCheckResult.Healthy($"Compliance rule pack present: {EmbeddedContentPaths.ComplianceRulePackRelativePath}."));
     }

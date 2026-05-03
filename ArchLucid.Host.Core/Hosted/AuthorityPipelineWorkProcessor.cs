@@ -82,10 +82,7 @@ public sealed class AuthorityPipelineWorkProcessor(
             return;
         }
 
-        ScopeContext jobScope = new()
-        {
-            TenantId = entry.TenantId, WorkspaceId = entry.WorkspaceId, ProjectId = entry.ProjectId
-        };
+        ScopeContext jobScope = new() { TenantId = entry.TenantId, WorkspaceId = entry.WorkspaceId, ProjectId = entry.ProjectId };
 
         using IDisposable _ = AmbientScopeContext.Push(jobScope);
         IAuthorityRunOrchestrator orchestrator =
@@ -238,10 +235,7 @@ public sealed class AuthorityPipelineWorkProcessor(
 
         return new AuthorityPipelineWorkProcessorOptions
         {
-            LeaseDurationSeconds = lease,
-            MaxAttemptsBeforeDeadLetter = maxAttempts,
-            RetryBackoffBaseSeconds = baseSecs,
-            RetryBackoffMaxSeconds = maxSecs,
+            LeaseDurationSeconds = lease, MaxAttemptsBeforeDeadLetter = maxAttempts, RetryBackoffBaseSeconds = baseSecs, RetryBackoffMaxSeconds = maxSecs,
         };
     }
 

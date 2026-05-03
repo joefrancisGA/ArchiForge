@@ -71,7 +71,8 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
 
-                    _logger.LogDebug("Host leader lease not held for {LeaseName}; follower wait {Ms} ms.", LogSanitizer.Sanitize(leaseName), followerMs); // codeql[cs/exposure-of-sensitive-information]: coordinator lease names are operational keys (not secrets); scrubbed via LogSanitizer before logging.
+                    _logger.LogDebug("Host leader lease not held for {LeaseName}; follower wait {Ms} ms.", LogSanitizer.Sanitize(leaseName),
+                        followerMs); // codeql[cs/exposure-of-sensitive-information]: coordinator lease names are operational keys (not secrets); scrubbed via LogSanitizer before logging.
 
                 try
                 {
@@ -87,7 +88,9 @@ public sealed class HostLeaderElectionCoordinator(
 
             if (_logger.IsEnabled(LogLevel.Information))
 
-                _logger.LogInformation("Acquired host leader lease {LeaseName} for instance {InstanceId}.", LogSanitizer.Sanitize(leaseName), LogSanitizer.Sanitize(id)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys and host instance ids are non-credential telemetry; scrubbed via LogSanitizer.
+                _logger.LogInformation("Acquired host leader lease {LeaseName} for instance {InstanceId}.", LogSanitizer.Sanitize(leaseName),
+                    LogSanitizer.Sanitize(
+                        id)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys and host instance ids are non-credential telemetry; scrubbed via LogSanitizer.
 
             using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
             CancellationToken leaderToken = leaderCts.Token;
@@ -103,8 +106,9 @@ public sealed class HostLeaderElectionCoordinator(
                 // Linked to application shutdown as well as explicit leaderCts cancel after renewal failure.
                 if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
 
-                    _logger.LogInformation("Leader work for {LeaseName} stopped after lease loss or handoff.", LogSanitizer.Sanitize(leaseName)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys are operational (not secrets); scrubbed via LogSanitizer.
-
+                    _logger.LogInformation("Leader work for {LeaseName} stopped after lease loss or handoff.",
+                        LogSanitizer.Sanitize(
+                            leaseName)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys are operational (not secrets); scrubbed via LogSanitizer.
             }
             finally
             {
@@ -123,7 +127,6 @@ public sealed class HostLeaderElectionCoordinator(
 
             if (applicationStoppingToken.IsCancellationRequested)
                 return;
-
 
             // Lost lease while app still running: re-enter outer loop to compete again.
         }
@@ -146,7 +149,6 @@ public sealed class HostLeaderElectionCoordinator(
                 if (applicationStoppingToken.IsCancellationRequested || leaderCts.IsCancellationRequested)
                     return;
 
-
                 bool renewed = await _leaseRepository.TryAcquireOrRenewAsync(
                     leaseName,
                     id,
@@ -161,7 +163,8 @@ public sealed class HostLeaderElectionCoordinator(
                     _logger.LogWarning(
                         "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
                         LogSanitizer.Sanitize(leaseName),
-                        LogSanitizer.Sanitize(id)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys and host instance ids are non-credential telemetry; scrubbed via LogSanitizer.
+                        LogSanitizer.Sanitize(
+                            id)); // codeql[cs/exposure-of-sensitive-information]: coordinator lease keys and host instance ids are non-credential telemetry; scrubbed via LogSanitizer.
 
                 await leaderCts.CancelAsync();
 

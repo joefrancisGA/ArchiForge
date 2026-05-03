@@ -7,10 +7,18 @@ public sealed class DataConsistencyProbeOptions
     public const string SectionName = "DataConsistency";
 
     /// <summary>When true, the API/worker periodically counts orphan coordinator rows and emits metrics (detection-only).</summary>
-    public bool OrphanProbeEnabled { get; set; } = true;
+    public bool OrphanProbeEnabled
+    {
+        get;
+        set;
+    } = true;
 
     /// <summary>Interval between probe passes.</summary>
-    public int OrphanProbeIntervalMinutes { get; set; } = 60;
+    public int OrphanProbeIntervalMinutes
+    {
+        get;
+        set;
+    } = 60;
 
     /// <summary>
     /// When greater than zero, after a probe pass that detected any orphans, runs the same SELECT statements as admin
@@ -18,11 +26,16 @@ public sealed class DataConsistencyProbeOptions
     /// </summary>
     public int OrphanProbeRemediationDryRunLogMaxRows
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>
     /// When true, automatically soft-delete orphaned graph edges and nodes found by the probe.
     /// </summary>
-    public bool EnableAutoRemediation { get; set; } = false;
+    public bool EnableAutoRemediation
+    {
+        get;
+        set;
+    } = false;
 }

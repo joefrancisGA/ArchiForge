@@ -15,6 +15,7 @@ public static class AspNetCoreHostingUrls
 
         string? urls = configuration["ASPNETCORE_URLS"]?.Trim();
 
-        return string.IsNullOrWhiteSpace(urls) || urls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(part => part.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+        return string.IsNullOrWhiteSpace(urls) || urls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(part => part.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
     }
 }

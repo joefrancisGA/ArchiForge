@@ -1,4 +1,3 @@
-
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class AgentExecutionRules
@@ -17,12 +16,10 @@ internal static class AgentExecutionRules
         if (!string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
             return;
 
-
         string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
 
         if (string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase))
             return;
-
 
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
         string? apiKey = configuration["AzureOpenAI:ApiKey"];
@@ -30,7 +27,6 @@ internal static class AgentExecutionRules
 
         if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(deployment))
             return;
-
 
         if (logger.IsEnabled(LogLevel.Information))
 
@@ -48,10 +44,8 @@ internal static class AgentExecutionRules
 
             errors.Add("AgentExecution:Mode must be either 'Simulator' or 'Real'.");
 
-
         if (!string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
             return;
-
 
         string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
         bool useEchoClient = string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase);
@@ -63,10 +57,8 @@ internal static class AgentExecutionRules
             errors.Add(
                 "AgentExecution:CompletionClient must be 'Echo', 'AzureOpenAi', or omitted (defaults to Azure OpenAI when keys are present). Additional values may be introduced for other ILlmProvider adapters without changing agent code.");
 
-
         if (useEchoClient)
             return;
-
 
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
         string? apiKey = configuration["AzureOpenAI:ApiKey"];
@@ -81,13 +73,11 @@ internal static class AgentExecutionRules
                 "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT_NAME (or the matching " +
                 "AzureOpenAI:Endpoint, AzureOpenAI:ApiKey, AzureOpenAI:DeploymentName configuration keys).");
 
-
         int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
 
         if (maxCompletionTokens is < 0 or > 262_144)
 
             errors.Add(
                 "AzureOpenAI:MaxCompletionTokens must be between 1 and 262144 inclusive, or 0 / omitted to use the built-in default (4096).");
-
     }
 }

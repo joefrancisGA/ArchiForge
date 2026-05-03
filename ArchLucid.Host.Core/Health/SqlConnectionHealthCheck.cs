@@ -27,7 +27,6 @@ public sealed class SqlConnectionHealthCheck(
             return HealthCheckResult.Healthy(
                 "Database readiness skipped: storage is InMemory (no SQL persistence).");
 
-
         try
         {
             DbConnection connection = (DbConnection)connectionFactory.CreateConnection();

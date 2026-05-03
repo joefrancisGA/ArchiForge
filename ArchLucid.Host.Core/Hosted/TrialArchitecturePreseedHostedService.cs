@@ -44,7 +44,6 @@ public sealed class TrialArchitecturePreseedHostedService(
                 if (!opts.Enabled)
                     break;
 
-
                 using IServiceScope scope = serviceProvider.CreateScope();
                 ITenantRepository tenants = scope.ServiceProvider.GetRequiredService<ITenantRepository>();
                 TrialArchitecturePreseedExecutor executor =

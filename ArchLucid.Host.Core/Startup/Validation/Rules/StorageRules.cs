@@ -16,7 +16,6 @@ internal static class StorageRules
             errors.Add(
                 "ArchLucid:StorageProvider must be 'InMemory' or 'Sql' when set.");
 
-
         IntegrationEventsOptions integrationEvents =
             configuration.GetSection(IntegrationEventsOptions.SectionName).Get<IntegrationEventsOptions>()
             ?? new IntegrationEventsOptions();
@@ -26,13 +25,11 @@ internal static class StorageRules
             errors.Add(
                 "IntegrationEvents:TransactionalOutboxEnabled requires ArchLucid:StorageProvider Sql (transactional enqueue needs a shared SQL transaction).");
 
-
         string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
 
         if (storageIsSql && string.IsNullOrWhiteSpace(connectionString))
 
             errors.Add(
                 "ConnectionStrings:ArchLucid is required when ArchLucid:StorageProvider is Sql (or unset, defaulting to Sql).");
-
     }
 }

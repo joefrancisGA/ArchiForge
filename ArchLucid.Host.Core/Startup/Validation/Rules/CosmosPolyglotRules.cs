@@ -27,7 +27,6 @@ internal static class CosmosPolyglotRules
 
             errors.Add(
                 "CosmosDb:ConnectionString must not target the Cosmos Emulator (localhost / 127.0.0.1) in Production.");
-
     }
 
     private static bool ConnectionStringLooksLikeEmulator(string connectionString)

@@ -14,7 +14,6 @@ public static class WebhookSignature
         if (string.IsNullOrEmpty(sharedSecret))
             throw new ArgumentException("Shared secret is required.", nameof(sharedSecret));
 
-
         ArgumentNullException.ThrowIfNull(utf8Body);
 
         byte[] key = Encoding.UTF8.GetBytes(sharedSecret);

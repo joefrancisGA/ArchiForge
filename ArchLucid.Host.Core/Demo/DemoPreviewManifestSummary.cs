@@ -5,66 +5,79 @@ public sealed class DemoPreviewManifestSummary
 {
     public required string ManifestId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string RunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ManifestHash
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string RuleSetId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string RuleSetVersion
     {
-        get; init;
+        get;
+        init;
     }
 
     public int DecisionCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int WarningCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public int UnresolvedIssueCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Status
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool HasWarnings
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool HasUnresolvedIssues
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string OperatorSummary
     {
-        get; init;
+        get;
+        init;
     }
 }

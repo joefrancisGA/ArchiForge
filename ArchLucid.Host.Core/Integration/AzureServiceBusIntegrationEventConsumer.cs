@@ -40,7 +40,6 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
                 if (_logger.IsEnabled(LogLevel.Warning))
 
                     _logger.LogWarning(ex, "Service Bus integration event processor stop failed.");
-
             }
 
             await _processor.DisposeAsync();
@@ -67,7 +66,6 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
 
                 _logger.LogDebug("Integration event Service Bus consumer is disabled (IntegrationEvents:ConsumerEnabled=false).");
 
-
             return;
         }
 
@@ -80,7 +78,6 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
 
                 _logger.LogWarning(
                     "Integration event consumer enabled but QueueOrTopicName or SubscriptionName is missing; consumer not started.");
-
 
             return;
         }
@@ -96,7 +93,6 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
                 _logger.LogWarning(
                     "Integration event consumer enabled but neither ServiceBusFullyQualifiedNamespace nor ServiceBusConnectionString is set.");
 
-
             return;
         }
 
@@ -110,19 +106,13 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
 
                 _logger.LogError(ex, "Failed to create Service Bus client for integration event consumer.");
 
-
             return;
         }
 
         int concurrent = Math.Clamp(o.MaxConcurrentCalls, 1, 64);
         int prefetch = Math.Max(0, o.PrefetchCount);
 
-        ServiceBusProcessorOptions processorOptions = new()
-        {
-            MaxConcurrentCalls = concurrent,
-            PrefetchCount = prefetch,
-            AutoCompleteMessages = false,
-        };
+        ServiceBusProcessorOptions processorOptions = new() { MaxConcurrentCalls = concurrent, PrefetchCount = prefetch, AutoCompleteMessages = false, };
 
         _processor = _client.CreateProcessor(topic, subscription, processorOptions);
         _processor.ProcessMessageAsync += OnProcessMessageAsync;
@@ -137,7 +127,6 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
                 LogSanitizer.Sanitize(topic),
                 LogSanitizer.Sanitize(subscription),
                 concurrent);
-
 
         try
         {
@@ -158,7 +147,6 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
                 "Service Bus processor error: {ErrorSource}, entity={EntityPath}",
                 LogSanitizer.Sanitize(args.ErrorSource.ToString()),
                 LogSanitizer.Sanitize(args.EntityPath));
-
 
         return Task.CompletedTask;
     }
@@ -187,7 +175,6 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         TokenCredential credential = CreateCredential(managedIdentityClientId);
 
         return new ServiceBusClient(fullyQualifiedNamespace, credential);
-
     }
 
     private static TokenCredential CreateCredential(string? managedIdentityClientId)
@@ -197,7 +184,6 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         if (!string.IsNullOrWhiteSpace(managedIdentityClientId))
 
             credentialOptions.ManagedIdentityClientId = managedIdentityClientId.Trim();
-
 
         return new DefaultAzureCredential(credentialOptions);
     }

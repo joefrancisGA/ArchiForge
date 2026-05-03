@@ -353,9 +353,6 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         RlsBypassSqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
-        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-        Guid scopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
         Guid graphId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
@@ -364,9 +361,9 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
             connection,
-            tenantId,
-            workspaceId,
-            scopeProjectId,
+            Guid.Empty,
+            Guid.Empty,
+            Guid.Empty,
             runId,
             contextId,
             "proj-graph-null-json",
@@ -419,11 +416,14 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         SqlGraphSnapshotRepository repository = new(factory, Empty);
 
         Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
         GraphSnapshot snapshot = new()
         {
             GraphSnapshotId = graphId,
-            ContextSnapshotId = Guid.NewGuid(),
-            RunId = Guid.NewGuid(),
+            ContextSnapshotId = contextId,
+            RunId = runId,
             CreatedUtc = DateTime.UtcNow,
             Nodes = [],
             Edges = [],
@@ -431,6 +431,16 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         };
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection,
+            Guid.Empty,
+            Guid.Empty,
+            Guid.Empty,
+            runId,
+            contextId,
+            "proj-graph-tx",
+            CancellationToken.None);
+
         await using SqlTransaction tx = connection.BeginTransaction();
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();

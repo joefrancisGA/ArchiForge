@@ -76,7 +76,6 @@ public static class ArchLucidPersistenceStartup
                 }
             }
 
-
         if (!app.Environment.IsDevelopment())
             return;
 
@@ -104,7 +103,6 @@ public static class ArchLucidPersistenceStartup
 
                 demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
 
-
             app.Logger.LogInformation("Startup: demo seed completed.");
         }
         catch (Exception ex)
@@ -112,7 +110,6 @@ public static class ArchLucidPersistenceStartup
             if (app.Logger.IsEnabled(LogLevel.Warning))
 
                 app.Logger.LogWarning(ex, "Startup: demo seed failed; continuing without demo data.");
-
         }
     }
 }

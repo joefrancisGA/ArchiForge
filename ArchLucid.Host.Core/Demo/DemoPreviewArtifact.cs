@@ -5,31 +5,37 @@ public sealed class DemoPreviewArtifact
 {
     public required string ArtifactId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ArtifactType
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Name
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string Format
     {
-        get; init;
+        get;
+        init;
     }
 
     public required DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ContentHash
     {
-        get; init;
+        get;
+        init;
     }
 }

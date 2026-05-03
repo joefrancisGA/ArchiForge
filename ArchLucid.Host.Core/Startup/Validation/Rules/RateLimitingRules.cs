@@ -69,15 +69,12 @@ internal static class RateLimitingRules
 
             errors.Add($"{path}:PermitLimit must be at least 1.");
 
-
         if (windowMinutes < 1)
 
             errors.Add($"{path}:WindowMinutes must be at least 1.");
 
-
         if (queueLimit < 0)
 
             errors.Add($"{path}:QueueLimit must be 0 or greater.");
-
     }
 }

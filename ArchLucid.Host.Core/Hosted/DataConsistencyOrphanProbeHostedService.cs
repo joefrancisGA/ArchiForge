@@ -24,7 +24,6 @@ public sealed class DataConsistencyOrphanProbeHostedService(
         if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.Value.StorageProvider))
             return;
 
-
         TimeSpan firstDelay = TimeSpan.FromMinutes(2);
 
         try

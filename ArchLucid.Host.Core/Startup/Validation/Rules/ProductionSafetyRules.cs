@@ -25,14 +25,11 @@ internal static class ProductionSafetyRules
         if (!HostEnvironmentClassification.IsProductionOrStagingLike(environment, configuration))
             return;
 
-
         if (!ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.StorageProvider))
             return;
 
-
         if (AllowsInMemoryForDevelopmentArchLucidStagingOnly(environment, configuration))
             return;
-
 
         errors.Add(
             "Production-like hosts (ASP.NET Environment Production or Staging, or ARCHLUCID_ENVIRONMENT=Production|Staging) "
@@ -66,10 +63,8 @@ internal static class ProductionSafetyRules
         if (!string.Equals(billing.Provider.Trim(), BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))
             return;
 
-
         if (!string.IsNullOrWhiteSpace(billing.Stripe.SecretKey?.Trim()))
             return;
-
 
         errors.Add(
             "Billing:Provider is Stripe; configure Billing:Stripe:SecretKey (Key Vault secret reference in production).");
@@ -85,10 +80,8 @@ internal static class ProductionSafetyRules
         if (!string.Equals(email.Provider.Trim(), EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
             return;
 
-
         if (!string.IsNullOrWhiteSpace(email.AzureCommunicationServicesEndpoint?.Trim()))
             return;
-
 
         errors.Add(
             "Email:Provider is AzureCommunicationServices; configure Email:AzureCommunicationServicesEndpoint with the ACS Email resource endpoint (HTTPS).");
@@ -110,16 +103,13 @@ internal static class ProductionSafetyRules
         if (!ado.GetValue<bool>("Enabled"))
             return;
 
-
         string pat = ado["PersonalAccessToken"]?.Trim() ?? string.Empty;
 
         if (string.IsNullOrEmpty(pat))
             return;
 
-
         if (pat.StartsWith("@Microsoft.KeyVault", StringComparison.Ordinal))
             return;
-
 
         errors.Add(
             "AzureDevOps:PersonalAccessToken must use a Key Vault reference in Production "
@@ -151,7 +141,6 @@ internal static class ProductionSafetyRules
         if (!ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
             return;
 
-
         if (RlsBreakGlass.IsEnabled(configuration))
             return;
 
@@ -160,7 +149,6 @@ internal static class ProductionSafetyRules
 
         if (sql.RowLevelSecurity.ApplySessionContext)
             return;
-
 
         errors.Add(
             "Production or Staging with ArchLucid:StorageProvider=Sql requires SqlServer:RowLevelSecurity:ApplySessionContext=true so tenant/workspace/project SESSION_CONTEXT keys are applied (defense in depth with SQL RLS). "
@@ -181,10 +169,10 @@ internal static class ProductionSafetyRules
             errors.AddRange(
                 from origin in origins
                 where !string.IsNullOrWhiteSpace(origin)
-                select origin.Trim() into trimmed
+                select origin.Trim()
+                into trimmed
                 where string.Equals(trimmed, "*", StringComparison.Ordinal)
                 select "Cors:AllowedOrigins must not use a wildcard '*' in Production.");
-
     }
 
     /// <summary>Outbound webhook HMAC when HTTP delivery is enabled (API and Worker).</summary>
@@ -199,7 +187,6 @@ internal static class ProductionSafetyRules
         if (!webhook.UseHttpClient)
             return;
 
-
         if (string.IsNullOrWhiteSpace(webhook.HmacSha256SharedSecret))
         {
             errors.Add(
@@ -212,6 +199,5 @@ internal static class ProductionSafetyRules
 
             errors.Add(
                 $"WebhookDelivery:HmacSha256SharedSecret must be at least {minWebhookSecretChars} characters in Production when WebhookDelivery:UseHttpClient is true.");
-
     }
 }

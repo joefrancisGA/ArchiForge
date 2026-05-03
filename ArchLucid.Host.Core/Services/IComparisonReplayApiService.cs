@@ -33,4 +33,3 @@ public interface IComparisonReplayApiService
         string comparisonRecordId,
         CancellationToken cancellationToken = default);
 }
-

@@ -11,7 +11,6 @@ internal static class E2EHarnessRules
         if (!o.Enabled)
             return;
 
-
         if (environment.IsProduction())
         {
             errors.Add("ArchLucid:E2eHarness:Enabled must be false in Production.");
@@ -22,6 +21,5 @@ internal static class E2EHarnessRules
         if (string.IsNullOrWhiteSpace(o.SharedSecret) || o.SharedSecret.Trim().Length < 16)
 
             errors.Add("ArchLucid:E2eHarness:SharedSecret must be set to a strong value (>= 16 chars) when E2eHarness is enabled.");
-
     }
 }

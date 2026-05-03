@@ -1,5 +1,4 @@
 using ArchLucid.Host.Core.Configuration;
-
 using ArchLucid.Persistence.BlobStore;
 
 namespace ArchLucid.Host.Core.Jobs;

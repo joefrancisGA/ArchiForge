@@ -38,21 +38,15 @@ public sealed class AskService(
 
     private static readonly JsonSerializerOptions JsonWrite = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
     };
 
     private static readonly JsonSerializerOptions JsonRead = new()
     {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true
+        PropertyNameCaseInsensitive = true, ReadCommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true
     };
 
-    private static readonly JsonSerializerOptions MetadataWrite = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions MetadataWrite = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     private const string ArchitectSystemPrompt =
         "You are a senior enterprise architect. " +
@@ -97,7 +91,6 @@ public sealed class AskService(
             throw new InvalidOperationException(
                 "No run is anchored. Provide runId on the first message, or use a thread that already has a run.");
 
-
         await conversationService.AppendUserMessageAsync(thread.ThreadId, request.Question.Trim(), ct);
 
         IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
@@ -109,7 +102,6 @@ public sealed class AskService(
 
             throw new InvalidOperationException(
                 "Run not found or has no ManifestDocument for the current scope.");
-
 
         ManifestDocument? manifest = detail.GoldenManifest;
         GraphViewModel? graph = await provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
@@ -170,7 +162,8 @@ public sealed class AskService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.", LogSanitizer.Sanitize(thread.ThreadId.ToString()));
+            logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.",
+                LogSanitizer.Sanitize(thread.ThreadId.ToString()));
             return new AskResponse
             {
                 ThreadId = thread.ThreadId,
@@ -210,14 +203,8 @@ public sealed class AskService(
                 ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
             };
 
-
         string metadataJson = JsonSerializer.Serialize(
-            new
-            {
-                response.ReferencedDecisions,
-                response.ReferencedFindings,
-                response.ReferencedArtifacts
-            },
+            new { response.ReferencedDecisions, response.ReferencedFindings, response.ReferencedArtifacts },
             MetadataWrite);
 
         await conversationService.AppendAssistantMessageAsync(
@@ -348,19 +335,26 @@ public sealed class AskService(
     {
         public string? Answer
         {
-            get; init;
+            get;
+            init;
         }
+
         public List<string>? ReferencedDecisions
         {
-            get; init;
+            get;
+            init;
         }
+
         public List<string>? ReferencedFindings
         {
-            get; init;
+            get;
+            init;
         }
+
         public List<string>? ReferencedArtifacts
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

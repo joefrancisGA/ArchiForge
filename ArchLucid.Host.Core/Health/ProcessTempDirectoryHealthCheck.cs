@@ -17,7 +17,6 @@ public sealed class ProcessTempDirectoryHealthCheck : IHealthCheck
             return Task.FromResult(
                 HealthCheckResult.Unhealthy("System temp path is empty; cannot verify writable temp storage."));
 
-
         string probePath = Path.Combine(tempRoot, $"archlucid-ready-{Guid.NewGuid():N}.tmp");
 
         try

@@ -1,6 +1,5 @@
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Application.Jobs;
-
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Options;

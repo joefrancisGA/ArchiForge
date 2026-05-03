@@ -15,12 +15,10 @@ internal static class ApiDeprecationRules
         if (!deprecation.Enabled)
             return;
 
-
         string? sunset = deprecation.SunsetHttpDate?.Trim();
 
         if (string.IsNullOrEmpty(sunset))
             return;
-
 
         if (!DateTimeOffset.TryParse(
                 sunset,
@@ -30,6 +28,5 @@ internal static class ApiDeprecationRules
 
             errors.Add(
                 "ApiDeprecation:SunsetHttpDate must be empty or a parseable date when ApiDeprecation:Enabled is true.");
-
     }
 }

@@ -19,16 +19,16 @@ public sealed class RunGoldenManifestConsistencyHealthCheck(
     IOptions<ArchLucidOptions> archLucidOptions) : IHealthCheck
 {
     private const string SqlText = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.Runs r
-        WHERE r.ArchivedUtc IS NULL
-          AND r.GoldenManifestId IS NOT NULL
-          AND NOT EXISTS (
-              SELECT 1
-              FROM dbo.GoldenManifests m
-              WHERE m.ManifestId = r.GoldenManifestId
-                AND m.RunId = r.RunId);
-        """;
+                                   SELECT COUNT_BIG(1)
+                                   FROM dbo.Runs r
+                                   WHERE r.ArchivedUtc IS NULL
+                                     AND r.GoldenManifestId IS NOT NULL
+                                     AND NOT EXISTS (
+                                         SELECT 1
+                                         FROM dbo.GoldenManifests m
+                                         WHERE m.ManifestId = r.GoldenManifestId
+                                           AND m.RunId = r.RunId);
+                                   """;
 
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
@@ -38,7 +38,6 @@ public sealed class RunGoldenManifestConsistencyHealthCheck(
 
             return HealthCheckResult.Healthy(
                 "Run/manifest consistency check skipped: InMemory storage.");
-
 
         try
         {
@@ -55,7 +54,6 @@ public sealed class RunGoldenManifestConsistencyHealthCheck(
 
                 return HealthCheckResult.Degraded(
                     $"Detected {mismatchCount} non-archived run(s) with GoldenManifestId not matching dbo.GoldenManifests.");
-
 
             return HealthCheckResult.Healthy("Run golden manifest references are consistent for sampled invariant.");
         }

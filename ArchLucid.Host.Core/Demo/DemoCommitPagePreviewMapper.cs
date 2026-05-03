@@ -45,15 +45,11 @@ public static class DemoCommitPagePreviewMapper
             explanation is null);
 
         return null;
-
     }
 
     private static DemoPreviewRun MapRun(RunRecord r) => new()
     {
-        RunId = r.RunId.ToString("N"),
-        ProjectId = r.ProjectId,
-        Description = r.Description,
-        CreatedUtc = r.CreatedUtc,
+        RunId = r.RunId.ToString("N"), ProjectId = r.ProjectId, Description = r.Description, CreatedUtc = r.CreatedUtc,
     };
 
     private static DemoPreviewAuthorityChain MapAuthorityChain(RunRecord r) => new()

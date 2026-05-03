@@ -20,7 +20,7 @@ public sealed class AdvisoryDueScheduleProcessor(
     public async Task ProcessDueAsync(DateTime utcNow, int maxSchedules, CancellationToken ct)
     {
         IReadOnlyList<AdvisoryScanSchedule> due = await scheduleRepository
-            .ListDueAsync(utcNow, maxSchedules, ct)
+                .ListDueAsync(utcNow, maxSchedules, ct)
             ;
 
         foreach (AdvisoryScanSchedule schedule in due)
@@ -37,6 +37,5 @@ public sealed class AdvisoryDueScheduleProcessor(
             {
                 logger.LogError(ex, "Advisory scan failed for schedule {ScheduleId}.", schedule.ScheduleId);
             }
-
     }
 }

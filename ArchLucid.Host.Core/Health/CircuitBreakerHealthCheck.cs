@@ -26,16 +26,15 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
         gateRows.AddRange(
             GateKeys.Select(serviceProvider.GetKeyedService<CircuitBreakerGate>)
                 .OfType<CircuitBreakerGate>()
-                .Select(
-                    gate => new Dictionary<string, object>
-                    {
-                        ["name"] = gate.GateName,
-                        ["state"] = gate.CurrentState,
-                        ["consecutiveFailures"] = gate.ConsecutiveFailureCount,
-                        ["failureThreshold"] = gate.CurrentFailureThreshold,
-                        ["breakDurationSeconds"] = gate.CurrentDurationOfBreakSeconds,
-                        ["lastStateChangeUtc"] = gate.LastStateChangeUtc?.ToString("o") ?? "never",
-                    }));
+                .Select(gate => new Dictionary<string, object>
+                {
+                    ["name"] = gate.GateName,
+                    ["state"] = gate.CurrentState,
+                    ["consecutiveFailures"] = gate.ConsecutiveFailureCount,
+                    ["failureThreshold"] = gate.CurrentFailureThreshold,
+                    ["breakDurationSeconds"] = gate.CurrentDurationOfBreakSeconds,
+                    ["lastStateChangeUtc"] = gate.LastStateChangeUtc?.ToString("o") ?? "never",
+                }));
 
         IReadOnlyDictionary<string, object> data =
             new Dictionary<string, object> { ["gates"] = gateRows };
@@ -45,7 +44,6 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
             return Task.FromResult(
                 HealthCheckResult.Healthy("OpenAI circuit breakers not registered.", data));
 
-
         foreach (string state in gateRows.Select(row => (string)row["state"]))
 
             if (state is "Open" or "HalfOpen")
@@ -54,8 +52,6 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
                     HealthCheckResult.Degraded(
                         "One or more OpenAI circuits are open or probing.",
                         data: data));
-
-
 
         return Task.FromResult(
             HealthCheckResult.Healthy("All OpenAI circuit breakers closed.", data));

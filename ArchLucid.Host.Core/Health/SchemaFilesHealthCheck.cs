@@ -28,7 +28,6 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
                 HealthCheckResult.Unhealthy(
                     "One or more schema files are missing or misconfigured: " + string.Join("; ", problems)));
 
-
         return Task.FromResult(
             HealthCheckResult.Healthy(
                 $"Schema files present: {opts.AgentResultSchemaPath}, {opts.GoldenManifestSchemaPath}, {opts.ExplanationRunSchemaPath}, {opts.ComparisonExplanationSchemaPath}."));
@@ -67,6 +66,5 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         if (!File.Exists(fullPath))
 
             problems.Add($"{logicalName} schema not found at '{fullPath}'.");
-
     }
 }

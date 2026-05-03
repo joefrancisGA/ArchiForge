@@ -25,7 +25,6 @@ public sealed class DataArchivalHostHealthState
             lock (_gate)
 
                 return _hasAttempted;
-
         }
     }
 
@@ -68,7 +67,6 @@ public sealed class DataArchivalHostHealthState
 
             if (_lastSucceeded)
                 return (HealthStatus.Healthy, $"Last archival iteration succeeded at {_lastAttemptUtc:O}.");
-
 
             return (
                 HealthStatus.Degraded,

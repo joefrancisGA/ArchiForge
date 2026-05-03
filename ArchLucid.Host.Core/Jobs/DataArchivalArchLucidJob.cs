@@ -42,7 +42,6 @@ public sealed class DataArchivalArchLucidJob(
 
             if (!ok)
                 return ArchLucidJobExitCodes.JobFailure;
-
         }
         catch (OperationCanceledException)
         {

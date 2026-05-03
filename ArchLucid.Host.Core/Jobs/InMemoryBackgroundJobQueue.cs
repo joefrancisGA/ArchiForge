@@ -17,11 +17,8 @@ public sealed class InMemoryBackgroundJobQueue(
     private readonly SemaphoreSlim _pendingJobs = new(
         InMemoryBackgroundJobQueueLimits.MaxPendingJobs,
         InMemoryBackgroundJobQueueLimits.MaxPendingJobs);
-    private readonly Channel<WorkItem> _queue = Channel.CreateUnbounded<WorkItem>(new UnboundedChannelOptions
-    {
-        SingleReader = true,
-        SingleWriter = false
-    });
+
+    private readonly Channel<WorkItem> _queue = Channel.CreateUnbounded<WorkItem>(new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
 
     private readonly ConcurrentDictionary<string, BackgroundJobInfo> _info = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, BackgroundJobFile> _files = new(StringComparer.Ordinal);
@@ -68,12 +65,16 @@ public sealed class InMemoryBackgroundJobQueue(
 
     public Task<BackgroundJobInfo?> GetInfoAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        return string.IsNullOrWhiteSpace(jobId) ? Task.FromResult<BackgroundJobInfo?>(null) : Task.FromResult(_info.TryGetValue(jobId, out BackgroundJobInfo? info) ? info : null);
+        return string.IsNullOrWhiteSpace(jobId)
+            ? Task.FromResult<BackgroundJobInfo?>(null)
+            : Task.FromResult(_info.TryGetValue(jobId, out BackgroundJobInfo? info) ? info : null);
     }
 
     public Task<BackgroundJobFile?> GetFileAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        return string.IsNullOrWhiteSpace(jobId) ? Task.FromResult<BackgroundJobFile?>(null) : Task.FromResult(_files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null);
+        return string.IsNullOrWhiteSpace(jobId)
+            ? Task.FromResult<BackgroundJobFile?>(null)
+            : Task.FromResult(_files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -85,11 +86,7 @@ public sealed class InMemoryBackgroundJobQueue(
             if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current))
                 continue;
 
-            _info[item.JobId] = current with
-            {
-                State = BackgroundJobState.Running,
-                StartedUtc = current.StartedUtc ?? DateTimeOffset.UtcNow
-            };
+            _info[item.JobId] = current with { State = BackgroundJobState.Running, StartedUtc = current.StartedUtc ?? DateTimeOffset.UtcNow };
 
             try
             {
@@ -123,12 +120,7 @@ public sealed class InMemoryBackgroundJobQueue(
                         nextRetry,
                         failed.MaxRetries);
 
-                    _info[item.JobId] = failed with
-                    {
-                        State = BackgroundJobState.Pending,
-                        RetryCount = nextRetry,
-                        Error = ex.Message
-                    };
+                    _info[item.JobId] = failed with { State = BackgroundJobState.Pending, RetryCount = nextRetry, Error = ex.Message };
 
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
                     await Task.Delay(delayMs, stoppingToken);
@@ -172,10 +164,7 @@ public sealed class InMemoryBackgroundJobQueue(
 
                     _info[item.JobId] = failed with
                     {
-                        State = BackgroundJobState.Failed,
-                        CompletedUtc = DateTimeOffset.UtcNow,
-                        RetryCount = nextRetry,
-                        Error = ex.Message
+                        State = BackgroundJobState.Failed, CompletedUtc = DateTimeOffset.UtcNow, RetryCount = nextRetry, Error = ex.Message
                     };
                 }
             }

@@ -48,7 +48,6 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                     if (stoppingToken.IsCancellationRequested)
                         break;
 
-
                     string? jobId = message.MessageText?.Trim();
 
                     if (string.IsNullOrWhiteSpace(jobId))
@@ -70,7 +69,6 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 logger.LogError(ex, "Background job queue processor loop failed; backing off.");
                 await Task.Delay(idleMs, stoppingToken);
             }
-
     }
 
     private async Task ProcessOneMessageAsync(string jobId, QueueMessage message, CancellationToken stoppingToken)
@@ -90,7 +88,6 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                     "Queue message for job {JobId} resolved without execution; deleting notification.",
                     LogSanitizer.Sanitize(jobId));
 
-
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
             return;
@@ -103,7 +100,6 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 logger.LogDebug(
                     "Job {JobId} not claimable in this poll; leaving message for visibility retry.",
                     LogSanitizer.Sanitize(jobId));
-
 
             return;
         }

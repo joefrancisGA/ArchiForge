@@ -121,12 +121,10 @@ public static class ObservabilityExtensions
                             o.Headers = otlpHeaders;
                     });
 
-
                 if (useAzureMonitorExporter)
 
                     tracing.AddAzureMonitorTraceExporter(o =>
                         o.ConnectionString = applicationInsightsConnectionString);
-
             })
             .WithMetrics(metrics =>
             {
@@ -154,12 +152,10 @@ public static class ObservabilityExtensions
                             o.Headers = otlpHeaders;
                     });
 
-
                 if (useAzureMonitorExporter)
 
                     metrics.AddAzureMonitorMetricExporter(o =>
                         o.ConnectionString = applicationInsightsConnectionString);
-
             });
 
         return services;

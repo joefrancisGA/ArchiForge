@@ -29,7 +29,6 @@ public static class DataArchivalHostIteration
         if (!options.Enabled)
             return true;
 
-
         using IServiceScope scope = scopeFactory.CreateScope();
         IDataArchivalCoordinator coordinator =
             scope.ServiceProvider.GetRequiredService<IDataArchivalCoordinator>();
@@ -60,11 +59,7 @@ public static class DataArchivalHostIteration
                     {
                         EventType = AuditEventTypes.DataArchivalHostLoopFailed,
                         DataJson = JsonSerializer.Serialize(
-                            new
-                            {
-                                ex.Message,
-                                ExceptionType = ex.GetType().FullName
-                            })
+                            new { ex.Message, ExceptionType = ex.GetType().FullName })
                     },
                     CancellationToken.None);
             }

@@ -47,7 +47,6 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
 
                 _logger.LogDebug("Integration event Service Bus job skipped (IntegrationEvents:ConsumerEnabled=false).");
 
-
             return ArchLucidJobExitCodes.Success;
         }
 
@@ -60,7 +59,6 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
 
                 _logger.LogWarning(
                     "Integration event job enabled but QueueOrTopicName or SubscriptionName is missing; exiting.");
-
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }
@@ -75,7 +73,6 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
 
                 _logger.LogWarning(
                     "Integration event job enabled but neither ServiceBusFullyQualifiedNamespace nor ServiceBusConnectionString is set.");
-
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }
@@ -101,7 +98,6 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
             if (batch.Count == 0)
                 break;
 
-
             ServiceBusReceiverSettlement settlement = new(receiver);
 
             foreach (ServiceBusReceivedMessage message in batch)
@@ -126,7 +122,6 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
                 LogSanitizer.Sanitize(subscription),
                 processed);
 
-
         return ArchLucidJobExitCodes.Success;
     }
 
@@ -137,8 +132,9 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
     {
         if (string.IsNullOrEmpty(fullyQualifiedNamespace))
 
-            return !string.IsNullOrEmpty(connectionString) ? new ServiceBusClient(connectionString) : throw new InvalidOperationException("Service Bus namespace or connection string is required.");
-
+            return !string.IsNullOrEmpty(connectionString)
+                ? new ServiceBusClient(connectionString)
+                : throw new InvalidOperationException("Service Bus namespace or connection string is required.");
 
         TokenCredential credential = CreateCredential(managedIdentityClientId);
 
@@ -152,7 +148,6 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
         if (!string.IsNullOrWhiteSpace(managedIdentityClientId))
 
             credentialOptions.ManagedIdentityClientId = managedIdentityClientId.Trim();
-
 
         return new DefaultAzureCredential(credentialOptions);
     }

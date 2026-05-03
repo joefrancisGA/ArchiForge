@@ -21,7 +21,6 @@ internal static class ContentSafetyRules
                     "ArchLucid:ContentSafety:Endpoint and ArchLucid:ContentSafety:ApiKey are required when the host is Production or Staging "
                     + "(or when ARCHLUCID_ENVIRONMENT is Production or Staging).");
 
-
             return;
         }
 
@@ -33,6 +32,5 @@ internal static class ContentSafetyRules
             errors.Add(
                 "ArchLucid:ContentSafety:AllowNullGuardInDevelopment is false while ArchLucid:ContentSafety:Enabled is false. "
                 + "Enable content safety or set AllowNullGuardInDevelopment=true for development.");
-
     }
 }

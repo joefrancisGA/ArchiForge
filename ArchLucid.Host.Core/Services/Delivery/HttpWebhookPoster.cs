@@ -17,8 +17,7 @@ public sealed class HttpWebhookPoster(ILogger<HttpWebhookPoster> logger, IHttpCl
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
     /// <inheritdoc />

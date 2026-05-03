@@ -72,15 +72,12 @@ public sealed class CircuitBreakerAuditBridge(
                                     "Circuit breaker audit could not be persisted or queued for gate {GateName}",
                                     LogSanitizer.Sanitize(entry.GateName));
 
-
-
                         if (_logger.IsEnabled(LogLevel.Warning))
 
                             _logger.LogWarning(
                                 ex,
                                 "Circuit breaker audit append failed for gate {GateName}",
                                 LogSanitizer.Sanitize(entry.GateName));
-
                     }
                 });
             }
@@ -116,10 +113,7 @@ public sealed class CircuitBreakerAuditBridge(
             DataJson = JsonSerializer.Serialize(
                 new
                 {
-                    gate = entry.GateName,
-                    fromState = entry.FromState,
-                    toState = entry.ToState,
-                    probeOutcome = entry.ProbeOutcome,
+                    gate = entry.GateName, fromState = entry.FromState, toState = entry.ToState, probeOutcome = entry.ProbeOutcome,
                 }),
             CorrelationId = correlationCapture,
         };

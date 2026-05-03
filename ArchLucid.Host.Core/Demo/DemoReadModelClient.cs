@@ -64,7 +64,7 @@ public sealed class DemoReadModelClient(
         }
 
         GraphViewModel graph = await _provenanceQuery.GetFullGraphAsync(scope, run.RunId, cancellationToken)
-            ?? new GraphViewModel();
+                               ?? new GraphViewModel();
 
         return new DemoExplainResponse
         {

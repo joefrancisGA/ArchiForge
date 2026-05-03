@@ -26,7 +26,6 @@ internal static class BillingProductionSafetyRules
         if (!string.IsNullOrWhiteSpace(billing.Stripe.WebhookSigningSecret?.Trim()))
             return;
 
-
         errors.Add(
             "Billing:Stripe:SecretKey uses live Stripe prefix sk_live_; configure Billing:Stripe:WebhookSigningSecret in Production so webhook signatures can be verified.");
     }
@@ -84,7 +83,6 @@ internal static class BillingProductionSafetyRules
 
         if (!string.IsNullOrWhiteSpace(billing.AzureMarketplace.MarketplaceOfferId?.Trim()))
             return;
-
 
         errors.Add(
             "Billing:AzureMarketplace:GaEnabled=true requires Billing:AzureMarketplace:MarketplaceOfferId (Partner Center transactable offer / product id) in Production.");

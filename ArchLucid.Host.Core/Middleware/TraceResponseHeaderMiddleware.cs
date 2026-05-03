@@ -21,7 +21,6 @@ public sealed class TraceResponseHeaderMiddleware(RequestDelegate next)
             if (activity is null)
                 return Task.CompletedTask;
 
-
             context.Response.Headers["traceparent"] = activity.Id;
             context.Response.Headers["X-Trace-Id"] = activity.TraceId.ToString();
 

@@ -27,6 +27,5 @@ public sealed class ArchLucidJobRunner(
         _logger.LogError("Unknown job name: {JobName}", jobName);
 
         return Task.FromResult(ArchLucidJobExitCodes.UnknownJob);
-
     }
 }

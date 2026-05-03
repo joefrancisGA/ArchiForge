@@ -77,7 +77,6 @@ public sealed class ComparisonReplayApiService(
                     sw.ElapsedMilliseconds,
                     result.VerificationPassed);
 
-
             return result;
         }
         catch (Exception ex) when (ex is InvalidOperationException or RunNotFoundException)
@@ -124,4 +123,3 @@ public sealed class ComparisonReplayApiService(
         return inner.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
     }
 }
-

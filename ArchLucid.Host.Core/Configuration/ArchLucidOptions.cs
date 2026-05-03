@@ -10,7 +10,8 @@ public sealed class ArchLucidOptions
     /// </summary>
     public string? StorageProvider
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>True when <paramref name="storageProvider"/> is Sql or unset (null/whitespace).</summary>

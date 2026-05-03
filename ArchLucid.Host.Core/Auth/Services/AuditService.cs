@@ -49,7 +49,6 @@ public sealed class AuditService(
 
                 auditEvent.DataJson = "{}";
 
-
             if (string.IsNullOrWhiteSpace(auditEvent.CorrelationId))
             {
                 string? fromActivityChain = ActivityCorrelation.FindTagValueInChain(
@@ -67,7 +66,6 @@ public sealed class AuditService(
             if (string.IsNullOrWhiteSpace(auditEvent.DataJson))
 
                 auditEvent.DataJson = "{}";
-
 
             if (string.IsNullOrWhiteSpace(auditEvent.CorrelationId))
             {

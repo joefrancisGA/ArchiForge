@@ -47,16 +47,13 @@ internal static class ApiKeyPlaceholderDetection
         if (string.IsNullOrWhiteSpace(value))
             return false;
 
-
         string trimmed = value.Trim();
 
         if (ExactBlocklist.Any(token => string.Equals(trimmed, token, StringComparison.OrdinalIgnoreCase)))
             return true;
 
-
         if (SubstringBlocklist.Any(fragment => trimmed.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
             return true;
-
 
         return trimmed.Length < MinimumProductionKeyLength;
     }

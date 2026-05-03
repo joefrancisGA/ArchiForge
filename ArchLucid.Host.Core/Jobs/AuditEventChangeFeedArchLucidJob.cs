@@ -30,7 +30,6 @@ public sealed class AuditEventChangeFeedArchLucidJob(
         if (!_cosmosOptions.CurrentValue.AuditEventsEnabled)
             return ArchLucidJobExitCodes.Success;
 
-
         try
         {
             await _processor.RunSingleBatchOrIdleAsync(DefaultMaxIdleWait, cancellationToken).ConfigureAwait(false);

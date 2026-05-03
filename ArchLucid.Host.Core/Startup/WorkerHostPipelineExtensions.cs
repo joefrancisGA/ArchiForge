@@ -39,7 +39,8 @@ public static class WorkerHostPipelineExtensions
                         logger.LogErrorUnhandledWorkerHttpRequest(
                             ex,
                             context.Request.Method,
-                            context.Request.Path.Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
+                            context.Request.Path
+                                .Value); // codeql[cs/log-forging]: user-derived method/path are normalized in LogErrorUnhandledWorkerHttpRequest (CWE-117, LogSanitizer; see SanitizedLoggerErrorExtensions and docs/library/CODEQL_TRIAGE.md).
                     }
                 }
 
@@ -73,24 +74,20 @@ public static class WorkerHostPipelineExtensions
             app.UseOpenTelemetryPrometheusScrapingEndpoint();
         }
 
-
-        app.MapHealthChecks("/health/live", new HealthCheckOptions
-        {
-            Predicate = static check => check.Tags.Contains(ReadinessTags.Live),
-        })
+        app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = static check => check.Tags.Contains(ReadinessTags.Live), })
             .AllowAnonymous();
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
-        {
-            Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
-            ResponseWriter = static (ctx, r) =>
-                DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
-        })
+            {
+                Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
+                ResponseWriter = static (ctx, r) =>
+                    DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
+            })
             .AllowAnonymous();
         app.MapHealthChecks("/health", new HealthCheckOptions
-        {
-            ResponseWriter = static (ctx, r) =>
-                DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
-        })
+            {
+                ResponseWriter = static (ctx, r) =>
+                    DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
+            })
             .AllowAnonymous();
 
         return app;

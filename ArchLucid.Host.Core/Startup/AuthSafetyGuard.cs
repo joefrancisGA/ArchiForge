@@ -84,7 +84,6 @@ public static class AuthSafetyGuard
                 throw new InvalidOperationException(AuthModeJwtOrApiKeyRequiredOutsideDevelopmentMessage);
         }
 
-
         if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false)
             && (!hostEnvironment.IsDevelopment() || IsProductionEnvironment(hostEnvironment, configuration)))
             throw new InvalidOperationException(DevelopmentBypassAllNotAllowedOutsideDevelopmentMessage);
@@ -108,17 +107,14 @@ public static class AuthSafetyGuard
         if (hostEnvironment.IsProduction())
             return true;
 
-
         if (HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(hostEnvironment.EnvironmentName))
             return true;
-
 
         string? archLucidEnv = configuration["ARCHLUCID_ENVIRONMENT"];
 
         if (string.IsNullOrWhiteSpace(archLucidEnv))
 
             archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
-
 
         return HostingEnvironmentNamePatterns.EnvironmentNameImpliesProductionLike(archLucidEnv);
     }

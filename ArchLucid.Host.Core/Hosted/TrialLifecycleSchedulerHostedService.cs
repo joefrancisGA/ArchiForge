@@ -48,7 +48,6 @@ public sealed class TrialLifecycleSchedulerHostedService(
                 foreach (Guid tenantId in tenantIds)
 
                     await engine.TryAdvanceTenantAsync(tenantId, leaderToken).ConfigureAwait(false);
-
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {

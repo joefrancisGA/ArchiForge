@@ -32,7 +32,6 @@ public static class ObservabilityTraceSamplingConfigurator
             .GetSection($"{ObservabilityHostOptions.SectionName}:Tracing:AlwaysSampleActivitySources")
             .Get<string[]>();
 
-
         if (alwaysSampleActivitySources is { Length: > 0 })
         {
             // TODO: Honor AlwaysSampleActivitySources in-process once OpenTelemetry .NET exposes ActivitySource (or
@@ -44,7 +43,6 @@ public static class ObservabilityTraceSamplingConfigurator
         // fail host startup on a typo in production config.
         string? samplingRatioRaw = configuration[$"{ObservabilityHostOptions.SectionName}:Tracing:SamplingRatio"]?.Trim();
         double samplingRatio = 1.0;
-
 
         if (!string.IsNullOrEmpty(samplingRatioRaw))
 
@@ -62,12 +60,8 @@ public static class ObservabilityTraceSamplingConfigurator
 
                 samplingRatio = Math.Clamp(parsed, 0.0, 1.0);
 
-
-
-
         if (samplingRatio < 1.0)
 
             tracing.SetSampler(new ParentBasedSampler(new TraceIdRatioBasedSampler(samplingRatio)));
-
     }
 }

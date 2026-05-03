@@ -1,5 +1,4 @@
 using ArchLucid.Application.Jobs;
-
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Host.Core.Jobs;

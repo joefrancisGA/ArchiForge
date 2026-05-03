@@ -56,6 +56,5 @@ internal static class SchemaValidationRules
 
             errors.Add(
                 $"Schema file for {logicalName} was not found at '{fullPath}' (SchemaValidation:*SchemaPath). Ensure content is copied to output (e.g. schemas in project output).");
-
     }
 }

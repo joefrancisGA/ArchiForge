@@ -16,26 +16,54 @@ namespace ArchLucid.Host.Core.Demo;
 public sealed class DemoExplainResponse
 {
     /// <summary>UTC the response was assembled.</summary>
-    public DateTimeOffset GeneratedUtc { get; init; }
+    public DateTimeOffset GeneratedUtc
+    {
+        get;
+        init;
+    }
 
     /// <summary>Run id (no-dash GUID, lowercase) of the latest committed demo-seed run.</summary>
-    public string RunId { get; init; } = string.Empty;
+    public string RunId
+    {
+        get;
+        init;
+    } = string.Empty;
 
     /// <summary>Committed manifest version key for <see cref="RunId"/>, when present.</summary>
-    public string? ManifestVersion { get; init; }
+    public string? ManifestVersion
+    {
+        get;
+        init;
+    }
 
     /// <summary>Always <see langword="true"/>: the route is gated on the demo seed and never returns production data.</summary>
-    public bool IsDemoData { get; init; } = true;
+    public bool IsDemoData
+    {
+        get;
+        init;
+    } = true;
 
     /// <summary>
     /// Operator-facing one-liner ("demo tenant — replace before publishing" semantics)
     /// for the page banner; mirrors the wording used by the sponsor-facing reports.
     /// </summary>
-    public string DemoStatusMessage { get; init; } = "demo tenant — replace before publishing";
+    public string DemoStatusMessage
+    {
+        get;
+        init;
+    } = "demo tenant — replace before publishing";
 
     /// <summary>Executive aggregate explanation + citations for the run (same payload as <c>/v1/explain/runs/{runId}/aggregate</c>).</summary>
-    public required RunExplanationSummary RunExplanation { get; init; }
+    public required RunExplanationSummary RunExplanation
+    {
+        get;
+        init;
+    }
 
     /// <summary>Full UI-shaped provenance graph for the run (same payload as <c>/v1/provenance/runs/{runId}/graph</c>).</summary>
-    public required GraphViewModel ProvenanceGraph { get; init; }
+    public required GraphViewModel ProvenanceGraph
+    {
+        get;
+        init;
+    }
 }

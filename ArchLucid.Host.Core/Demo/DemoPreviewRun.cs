@@ -5,21 +5,25 @@ public sealed class DemoPreviewRun
 {
     public required string RunId
     {
-        get; init;
+        get;
+        init;
     }
 
     public required string ProjectId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? Description
     {
-        get; init;
+        get;
+        init;
     }
 
     public required DateTime CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

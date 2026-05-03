@@ -22,10 +22,8 @@ internal static class ContainerJobsOffloadRules
         if (!environment.IsProduction())
             return;
 
-
         if (hostingRole != ArchLucidHostingRole.Worker)
             return;
-
 
         ArchLucidJobsOptions jobs =
             configuration.GetSection(ArchLucidJobsOptions.SectionPath).Get<ArchLucidJobsOptions>() ?? new ArchLucidJobsOptions();
@@ -33,10 +31,15 @@ internal static class ContainerJobsOffloadRules
         if (jobs.OffloadedToContainerJobs.Length == 0)
             return;
 
-
         HashSet<string> deployed = ParseDeployedNames(jobs.DeployedContainerJobNames);
 
-        errors.AddRange(from raw in jobs.OffloadedToContainerJobs select raw?.Trim() ?? string.Empty into name where name.Length != 0 where !deployed.Contains(name) select $"Jobs:OffloadedToContainerJobs includes '{name}' but that slug is not listed in Jobs:DeployedContainerJobNames " + "(comma-separated manifest Terraform should set after provisioning azurerm_container_app_job).");
+        errors.AddRange(from raw in jobs.OffloadedToContainerJobs
+            select raw?.Trim() ?? string.Empty
+            into name
+            where name.Length != 0
+            where !deployed.Contains(name)
+            select $"Jobs:OffloadedToContainerJobs includes '{name}' but that slug is not listed in Jobs:DeployedContainerJobNames " +
+                   "(comma-separated manifest Terraform should set after provisioning azurerm_container_app_job).");
     }
 
     private static HashSet<string> ParseDeployedNames(string? deployedContainerJobNames)
@@ -46,14 +49,11 @@ internal static class ContainerJobsOffloadRules
         if (string.IsNullOrWhiteSpace(deployedContainerJobNames))
             return set;
 
-
         foreach (string part in deployedContainerJobNames.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
 
             if (part.Length > 0)
 
                 set.Add(part);
-
-
 
         return set;
     }

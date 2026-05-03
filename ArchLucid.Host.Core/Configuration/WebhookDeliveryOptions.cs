@@ -10,30 +10,35 @@ public sealed class WebhookDeliveryOptions
     /// <summary>When true, uses <see cref="HttpWebhookPoster"/> instead of <see cref="Services.Delivery.FakeWebhookPoster"/>.</summary>
     public bool UseHttpClient
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Optional shared secret for <c>X-ArchLucid-Webhook-Signature</c> on all webhook bodies (UTF-8 JSON).</summary>
     public string? HmacSha256SharedSecret
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>When true, wraps payloads in a CloudEvents 1.0 JSON envelope before signing and POSTing.</summary>
     public bool UseCloudEventsEnvelope
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>CloudEvents <c>source</c> URI reference (default <c>/archlucid/webhooks</c>).</summary>
     public string? CloudEventsSource
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>CloudEvents <c>type</c> (default <c>com.archlucid.webhook.payload</c>).</summary>
     public string? CloudEventsType
     {
-        get; set;
+        get;
+        set;
     }
 }

@@ -34,7 +34,6 @@ public sealed class TrialLifecycleArchLucidJob(
             foreach (Guid tenantId in tenantIds)
 
                 await engine.TryAdvanceTenantAsync(tenantId, cancellationToken).ConfigureAwait(false);
-
         }
         catch (OperationCanceledException)
         {

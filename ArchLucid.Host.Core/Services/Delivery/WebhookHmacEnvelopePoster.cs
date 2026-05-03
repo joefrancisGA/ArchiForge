@@ -1,5 +1,4 @@
 using ArchLucid.Host.Core.Configuration;
-
 using ArchLucid.Decisioning.Advisory.Delivery;
 
 using Microsoft.Extensions.Options;
@@ -24,12 +23,7 @@ public sealed class WebhookHmacEnvelopePoster(IOptionsMonitor<WebhookDeliveryOpt
                 url,
                 payload,
                 ct,
-                new WebhookPostOptions
-                {
-                    HmacSha256SharedSecret = secret,
-                    EventType = options?.EventType,
-                    TenantId = options?.TenantId,
-                });
+                new WebhookPostOptions { HmacSha256SharedSecret = secret, EventType = options?.EventType, TenantId = options?.TenantId, });
         }
 
         return inner.PostJsonAsync(url, payload, ct, options);

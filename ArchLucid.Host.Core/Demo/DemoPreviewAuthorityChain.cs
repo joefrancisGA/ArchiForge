@@ -5,31 +5,37 @@ public sealed class DemoPreviewAuthorityChain
 {
     public string? ContextSnapshotId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? GraphSnapshotId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? FindingsSnapshotId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? GoldenManifestId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? DecisionTraceId
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? ArtifactBundleId
     {
-        get; init;
+        get;
+        init;
     }
 }

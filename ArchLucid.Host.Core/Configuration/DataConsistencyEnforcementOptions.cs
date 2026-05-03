@@ -13,21 +13,24 @@ public sealed class DataConsistencyEnforcementOptions
     /// </summary>
     public DataConsistencyEnforcementMode Mode
     {
-        get; set;
+        get;
+        set;
     }
         = DataConsistencyEnforcementMode.Warn;
 
     /// <summary>Maximum golden-manifest orphan rows inserted per probe pass in <see cref="DataConsistencyEnforcementMode.Quarantine"/>.</summary>
     public int MaxRowsPerBatch
     {
-        get; set;
+        get;
+        set;
     }
         = 500;
 
     /// <summary>Minimum orphan count before <c>archlucid_data_consistency_alerts_total</c> increments in Alert/Quarantine modes.</summary>
     public int AlertThreshold
     {
-        get; set;
+        get;
+        set;
     }
         = 1;
 
@@ -39,7 +42,8 @@ public sealed class DataConsistencyEnforcementOptions
     /// </summary>
     public bool AutoQuarantine
     {
-        get; set;
+        get;
+        set;
     }
         = false;
 }

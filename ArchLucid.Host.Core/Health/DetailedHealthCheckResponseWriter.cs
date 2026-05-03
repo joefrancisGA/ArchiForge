@@ -16,11 +16,7 @@ public static class DetailedHealthCheckResponseWriter
     private static readonly BuildProvenance Provenance =
         BuildProvenance.FromAssembly(typeof(DetailedHealthCheckResponseWriter).Assembly);
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true,
-    };
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, };
 
     /// <summary>Writes detailed JSON (backward-compatible default for callers that omit the level).</summary>
     public static Task WriteAsync(HttpContext context, HealthReport report) =>
@@ -48,12 +44,7 @@ public static class DetailedHealthCheckResponseWriter
     {
         var payload = new
         {
-            status = report.Status.ToString(),
-            entries = report.Entries.Select(entry => new
-            {
-                name = entry.Key,
-                status = entry.Value.Status.ToString(),
-            }),
+            status = report.Status.ToString(), entries = report.Entries.Select(entry => new { name = entry.Key, status = entry.Value.Status.ToString(), }),
         };
 
         return context.Response.WriteAsJsonAsync(payload, JsonOptions, context.RequestAborted);

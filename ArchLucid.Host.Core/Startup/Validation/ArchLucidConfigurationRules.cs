@@ -55,10 +55,8 @@ public static class ArchLucidConfigurationRules
 
             ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
 
-
         if (!environment.IsProduction())
             return errors;
-
 
         AuthenticationRules.CollectProductionApiKeyBypass(configuration, errors);
         AuthenticationRules.CollectProductionApiKeyPlaceholders(configuration, errors);

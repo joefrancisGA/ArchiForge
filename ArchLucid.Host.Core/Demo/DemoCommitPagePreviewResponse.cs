@@ -9,46 +9,55 @@ public sealed class DemoCommitPagePreviewResponse
 {
     public DateTimeOffset GeneratedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool IsDemoData
     {
-        get; init;
+        get;
+        init;
     } = true;
 
     public string DemoStatusMessage
     {
-        get; init;
+        get;
+        init;
     } = "demo tenant — replace before publishing";
 
     public required DemoPreviewRun Run
     {
-        get; init;
+        get;
+        init;
     }
 
     public required DemoPreviewManifestSummary Manifest
     {
-        get; init;
+        get;
+        init;
     }
 
     public required DemoPreviewAuthorityChain AuthorityChain
     {
-        get; init;
+        get;
+        init;
     }
 
     public required IReadOnlyList<DemoPreviewArtifact> Artifacts
     {
-        get; init;
+        get;
+        init;
     }
 
     public required IReadOnlyList<DemoPreviewTimelineItem> PipelineTimeline
     {
-        get; init;
+        get;
+        init;
     }
 
     public required RunExplanationSummary RunExplanation
     {
-        get; init;
+        get;
+        init;
     }
 }

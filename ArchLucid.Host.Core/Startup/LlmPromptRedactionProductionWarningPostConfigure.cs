@@ -29,10 +29,8 @@ public sealed class LlmPromptRedactionProductionWarningPostConfigure(
         if (options.Enabled)
             return;
 
-
         if (!HostEnvironmentClassification.IsProductionOrStagingLike(_hostEnvironment, _configuration))
             return;
-
 
         if (_logger.IsEnabled(LogLevel.Warning))
 

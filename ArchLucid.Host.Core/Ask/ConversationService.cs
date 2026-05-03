@@ -32,7 +32,6 @@ public sealed class ConversationService(
 
                     throw new InvalidOperationException("Conversation thread not found for the current scope.");
 
-
                 return existing;
             }
         }

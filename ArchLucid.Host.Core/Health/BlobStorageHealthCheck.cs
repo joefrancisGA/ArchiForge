@@ -26,14 +26,12 @@ public sealed class BlobStorageHealthCheck(
             return HealthCheckResult.Healthy(
                 "Large artifact offload is not enabled for Azure Blob (readiness scope not applicable).");
 
-
         BlobServiceClient? client = services.GetService(typeof(BlobServiceClient)) as BlobServiceClient;
 
         if (client is null)
 
             return HealthCheckResult.Unhealthy(
                 "ArtifactLargePayload:BlobProvider is AzureBlob but BlobServiceClient is not registered.");
-
 
         try
         {

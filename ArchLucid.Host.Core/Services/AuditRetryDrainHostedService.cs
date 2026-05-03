@@ -49,14 +49,12 @@ public sealed class AuditRetryDrainHostedService(
                     if (_logger.IsEnabled(LogLevel.Debug))
 
                         _logger.LogDebug(ex, "Audit retry drain failed; event re-queued for a later attempt.");
-
                 }
                 else if (_logger.IsEnabled(LogLevel.Warning))
 
                     _logger.LogWarning(
                         ex,
                         "Audit retry drain failed and re-queue dropped (queue full); audit event may be lost.");
-
             }
         }
     }

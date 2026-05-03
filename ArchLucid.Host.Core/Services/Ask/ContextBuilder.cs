@@ -24,15 +24,8 @@ public static class ContextBuilder
                     "No ManifestDocument is anchored for this turn. Rely on conversation history; " +
                     "if the user asks for specifics not in history, say the manifest context is unavailable.",
                 ComparisonSummary = BuildComparisonSummary(comparison),
-                Changes = comparison?.DecisionChanges.Select(c => new
-                {
-                    c.DecisionKey,
-                    c.ChangeType,
-                    c.BaseValue,
-                    c.TargetValue
-                })
+                Changes = comparison?.DecisionChanges.Select(c => new { c.DecisionKey, c.ChangeType, c.BaseValue, c.TargetValue })
             };
-
 
         return new
         {
@@ -53,24 +46,9 @@ public static class ContextBuilder
             manifest.Provenance.SourceGraphNodeIds,
             manifest.Provenance.AppliedRuleIds,
             ComplianceGaps = manifest.Compliance.Gaps,
-            Cost = new
-            {
-                manifest.Cost.MaxMonthlyCost,
-                manifest.Cost.CostRisks
-            },
-            UnresolvedIssues = manifest.UnresolvedIssues.Items.Take(25).Select(i => new
-            {
-                i.Severity,
-                i.Title,
-                i.Description
-            }),
-            Changes = comparison?.DecisionChanges.Select(c => new
-            {
-                c.DecisionKey,
-                c.ChangeType,
-                c.BaseValue,
-                c.TargetValue
-            }),
+            Cost = new { manifest.Cost.MaxMonthlyCost, manifest.Cost.CostRisks },
+            UnresolvedIssues = manifest.UnresolvedIssues.Items.Take(25).Select(i => new { i.Severity, i.Title, i.Description }),
+            Changes = comparison?.DecisionChanges.Select(c => new { c.DecisionKey, c.ChangeType, c.BaseValue, c.TargetValue }),
             ComparisonSummary = BuildComparisonSummary(comparison),
             ProvenanceGraph = provenance is null
                 ? null

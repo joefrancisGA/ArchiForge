@@ -58,7 +58,6 @@ public sealed class OutboxOperationalMetricsHostedService(
         if (reader is null)
             return;
 
-
         OutboxOperationalMetricsSnapshot snap = await reader.ReadSnapshotAsync(ct);
 
         ITrialFunnelOperationalMetricsReader? trialReader =

@@ -78,7 +78,6 @@ internal static class IntegrationEventServiceBusMessageDispatch
                     LogSanitizer.Sanitize(eventType),
                     message.DeliveryCount);
 
-
             await settlement.AbandonAsync(message, cancellationToken).ConfigureAwait(false);
         }
     }
@@ -90,7 +89,6 @@ internal static class IntegrationEventServiceBusMessageDispatch
             && !string.IsNullOrWhiteSpace(s))
 
             return s.Trim();
-
 
         string? subject = message.Subject;
 
@@ -109,10 +107,9 @@ internal static class IntegrationEventServiceBusMessageDispatch
 
         List<IIntegrationEventHandler> specifics =
         [
-            .. list.Where(
-                h =>
-                    h.EventType != IntegrationEventTypes.WildcardEventType
-                    && IntegrationEventTypes.AreEquivalent(h.EventType, eventType)),
+            .. list.Where(h =>
+                h.EventType != IntegrationEventTypes.WildcardEventType
+                && IntegrationEventTypes.AreEquivalent(h.EventType, eventType)),
         ];
 
         return specifics.Count > 0 ? specifics : [.. list.Where(h => h.EventType == IntegrationEventTypes.WildcardEventType)];

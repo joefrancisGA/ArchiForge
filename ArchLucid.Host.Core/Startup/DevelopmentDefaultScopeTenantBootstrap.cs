@@ -30,10 +30,7 @@ public static class DevelopmentDefaultScopeTenantBootstrap
 
         int tenantCount = connection.QuerySingle<int>(
             "SELECT COUNT(1) FROM dbo.Tenants WHERE Id = @TenantId;",
-            new
-            {
-                TenantId = ScopeIds.DefaultTenant,
-            });
+            new { TenantId = ScopeIds.DefaultTenant, });
 
         if (tenantCount == 0)
         {
@@ -42,12 +39,7 @@ public static class DevelopmentDefaultScopeTenantBootstrap
                 INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
                 VALUES (@TenantId, @TenantName, @TenantSlug, N'Standard', NULL);
                 """,
-                new
-                {
-                    TenantId = ScopeIds.DefaultTenant,
-                    TenantName = "Development default tenant",
-                    TenantSlug = "archlucid-dev-default-scope",
-                });
+                new { TenantId = ScopeIds.DefaultTenant, TenantName = "Development default tenant", TenantSlug = "archlucid-dev-default-scope", });
         }
 
         int workspacesTableExists = connection.QuerySingle<int>(
@@ -58,10 +50,7 @@ public static class DevelopmentDefaultScopeTenantBootstrap
 
         int workspaceCount = connection.QuerySingle<int>(
             "SELECT COUNT(1) FROM dbo.TenantWorkspaces WHERE Id = @WorkspaceId;",
-            new
-            {
-                WorkspaceId = ScopeIds.DefaultWorkspace,
-            });
+            new { WorkspaceId = ScopeIds.DefaultWorkspace, });
 
         if (workspaceCount == 0)
         {
@@ -81,10 +70,7 @@ public static class DevelopmentDefaultScopeTenantBootstrap
 
         int verifyTenant = connection.QuerySingle<int>(
             "SELECT COUNT(1) FROM dbo.Tenants WHERE Id = @TenantId;",
-            new
-            {
-                TenantId = ScopeIds.DefaultTenant,
-            });
+            new { TenantId = ScopeIds.DefaultTenant, });
 
         if (verifyTenant != 1)
             throw new InvalidOperationException(

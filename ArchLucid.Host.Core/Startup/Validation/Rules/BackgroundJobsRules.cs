@@ -14,13 +14,11 @@ internal static class BackgroundJobsRules
         if (!string.Equals(jobs.Mode, "Durable", StringComparison.OrdinalIgnoreCase))
             return;
 
-
         ArchLucidOptions archi = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (!ArchLucidOptions.EffectiveIsSql(archi.StorageProvider))
 
             errors.Add("BackgroundJobs:Mode Durable requires ArchLucid:StorageProvider Sql (shared job state in SQL).");
-
 
         ArtifactLargePayloadOptions large =
             configuration.GetSection(ArtifactLargePayloadOptions.SectionName).Get<ArtifactLargePayloadOptions>() ??
@@ -31,17 +29,14 @@ internal static class BackgroundJobsRules
             errors.Add(
                 "BackgroundJobs:Mode Durable requires ArtifactLargePayload:BlobProvider AzureBlob (queue + result blobs via managed identity).");
 
-
         if (string.IsNullOrWhiteSpace(large.AzureBlobServiceUri) && string.IsNullOrWhiteSpace(jobs.QueueServiceUri))
 
             errors.Add(
                 "BackgroundJobs:Mode Durable requires BackgroundJobs:QueueServiceUri or ArtifactLargePayload:AzureBlobServiceUri.");
 
-
         if (string.IsNullOrWhiteSpace(jobs.ResultsContainerName))
 
             errors.Add("BackgroundJobs:ResultsContainerName must be set when BackgroundJobs:Mode is Durable.");
-
 
         int receiveBatch = configuration.GetValue("BackgroundJobs:ProcessorReceiveBatchSize", 16);
 
@@ -49,6 +44,5 @@ internal static class BackgroundJobsRules
 
             errors.Add(
                 "BackgroundJobs:ProcessorReceiveBatchSize must be between 1 and 32 when BackgroundJobs:Mode is Durable.");
-
     }
 }
