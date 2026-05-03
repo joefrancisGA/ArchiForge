@@ -1,6 +1,8 @@
 using System.Data.Common;
 using System.Globalization;
+using System.Text.Json;
 
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -17,6 +19,7 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     IOptionsMonitor<DataConsistencyEnforcementOptions> enforcementOptionsMonitor,
     IDbConnectionFactory connectionFactory,
     IOptions<ArchLucidOptions> archLucidOptions,
+    IAuditService auditService,
     ILogger<DataConsistencyOrphanProbeExecutor> logger) : IDataConsistencyOrphanProbeExecutor
 {
     private const int TenantBreakdownTopN = 8;
@@ -32,6 +35,9 @@ public sealed class DataConsistencyOrphanProbeExecutor(
 
     private readonly IOptions<ArchLucidOptions> _archLucidOptions =
         archLucidOptions ?? throw new ArgumentNullException(nameof(archLucidOptions));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     private readonly ILogger<DataConsistencyOrphanProbeExecutor> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -106,6 +112,10 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         if (!anyOrphans)
             return;
 
+        if (snapshot.EnableAutoRemediation && graphCount > 0)
+        {
+            await AutoRemediateOrphanGraphSnapshotsAsync(connection, sampleCap > 0 ? sampleCap : 500, cancellationToken).ConfigureAwait(false);
+        }
 
         await LogRemediationDryRunSamplesAsync(
                 connection,
@@ -300,6 +310,43 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                     maxRows,
                     string.Join(", ", ids));
 
+        }
+    }
+
+    private async Task AutoRemediateOrphanGraphSnapshotsAsync(
+        DbConnection connection,
+        int maxRows,
+        CancellationToken ct)
+    {
+        await using DbCommand command = connection.CreateCommand();
+        command.CommandText = DataConsistencyOrphanRemediationSql.SoftDeleteOrphanGraphSnapshotsWithOutput;
+        DbParameter maxRowsParameter = command.CreateParameter();
+        maxRowsParameter.ParameterName = "@MaxRows";
+        maxRowsParameter.Value = maxRows;
+        command.Parameters.Add(maxRowsParameter);
+
+        List<string> ids = [];
+        await using DbDataReader reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false);
+        while (await reader.ReadAsync(ct).ConfigureAwait(false))
+        {
+            ids.Add(reader.GetGuid(0).ToString("D", CultureInfo.InvariantCulture));
+        }
+
+        if (ids.Count > 0)
+        {
+            _logger.LogInformation(
+                "Data consistency auto-remediation (soft delete): GraphSnapshots ({Count}): {Ids}",
+                ids.Count,
+                string.Join(", ", ids));
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = "GraphSnapshotOrphansRemediated",
+                    DataJson = JsonSerializer.Serialize(
+                        new { dryRun = false, deletedCount = ids.Count, graphSnapshotIds = ids })
+                },
+                ct);
         }
     }
 

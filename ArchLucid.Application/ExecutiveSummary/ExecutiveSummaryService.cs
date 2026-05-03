@@ -58,9 +58,9 @@ public sealed class ExecutiveSummaryService(
                 int penalty = finding.Severity switch
                 {
                     FindingSeverity.Critical => 20,
-                    FindingSeverity.High => 10,
-                    FindingSeverity.Medium => 5,
-                    FindingSeverity.Low => 1,
+                    FindingSeverity.Error => 10,
+                    FindingSeverity.Warning => 5,
+                    FindingSeverity.Info => 1,
                     _ => 0
                 };
 

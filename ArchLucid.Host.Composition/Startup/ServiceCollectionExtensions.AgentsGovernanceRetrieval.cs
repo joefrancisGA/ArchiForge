@@ -294,7 +294,10 @@ public static partial class ServiceCollectionExtensions
                         primaryDeployment);
 
                     if (!fallbackLlmEnabled)
-                        return primaryChain;
+                        return new CostGuardrailInterceptor(
+                            primaryChain,
+                            sp.GetRequiredService<IOptions<AgentOutputQualityGateOptions>>(),
+                            sp.GetRequiredService<ILlmCostEstimator>());
 
 
                     FallbackAzureOpenAiInnerClientHolder holder = sp.GetRequiredService<FallbackAzureOpenAiInnerClientHolder>();
@@ -311,7 +314,12 @@ public static partial class ServiceCollectionExtensions
                     ILogger<FallbackAgentCompletionClient> fallbackLogger =
                         sp.GetRequiredService<ILogger<FallbackAgentCompletionClient>>();
 
-                    return new FallbackAgentCompletionClient(primaryChain, secondaryChain, fallbackLogger);
+                    IAgentCompletionClient finalClient = new FallbackAgentCompletionClient(primaryChain, secondaryChain, fallbackLogger);
+
+                    return new CostGuardrailInterceptor(
+                        finalClient,
+                        sp.GetRequiredService<IOptions<AgentOutputQualityGateOptions>>(),
+                        sp.GetRequiredService<ILlmCostEstimator>());
                 });
             }
             else
@@ -439,7 +447,10 @@ public static partial class ServiceCollectionExtensions
                 scopeProvider: scopeProvider,
                 logger: cacheLogger);
 
-            return completionPipeline;
+            return new CostGuardrailInterceptor(
+                completionPipeline,
+                sp.GetRequiredService<IOptions<AgentOutputQualityGateOptions>>(),
+                sp.GetRequiredService<ILlmCostEstimator>());
         });
     }
 

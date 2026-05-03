@@ -45,10 +45,10 @@ public sealed class QuickScanService(IAgentCompletionClient completionClient) : 
                 {
                     string category = findingElement.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "General" : "General";
                     string message = findingElement.TryGetProperty("message", out JsonElement m) ? m.GetString() ?? string.Empty : string.Empty;
-                    string severityStr = findingElement.TryGetProperty("severity", out JsonElement s) ? s.GetString() ?? "Low" : "Low";
+                    string severityStr = findingElement.TryGetProperty("severity", out JsonElement s) ? s.GetString() ?? "Info" : "Info";
 
                     if (!Enum.TryParse(severityStr, true, out FindingSeverity severity))
-                        severity = FindingSeverity.Low;
+                        severity = FindingSeverity.Info;
 
                     findings.Add(new ArchitectureFinding
                     {

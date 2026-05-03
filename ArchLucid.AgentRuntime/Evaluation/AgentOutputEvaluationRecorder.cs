@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;

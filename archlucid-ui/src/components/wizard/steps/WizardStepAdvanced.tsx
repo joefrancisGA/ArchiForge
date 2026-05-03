@@ -130,6 +130,8 @@ function CollapsibleSection(props: {
   );
 }
 
+import { useBasicAdvancedToggle } from "@/hooks/useBasicAdvancedToggle";
+
 /**
  * Step 5: optional policy hints, topology, security, documents, infrastructure declarations.
  */
@@ -154,20 +156,44 @@ export function WizardStepAdvanced() {
     remove: removeInfra,
   } = useFieldArray({ control, name: "infrastructureDeclarations" });
 
+  const { isAdvanced, toggle } = useBasicAdvancedToggle("archlucid_run_config_advanced_toggle");
+
   return (
     <WizardStepPanel
       title="Advanced inputs (optional)"
       description="Policy references, topology and security hints, attached documents, and infrastructure declarations."
     >
+      <div className="mb-4 flex items-center gap-2">
+        <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">View Mode:</span>
+        <Button
+          type="button"
+          variant={isAdvanced ? "outline" : "default"}
+          size="sm"
+          onClick={() => { if (isAdvanced) toggle(); }}
+        >
+          Basic
+        </Button>
+        <Button
+          type="button"
+          variant={isAdvanced ? "default" : "outline"}
+          size="sm"
+          onClick={() => { if (!isAdvanced) toggle(); }}
+        >
+          Advanced
+        </Button>
+      </div>
+
       <div className="space-y-4">
-        <CollapsibleSection title="Policy references" count={policyReferences.length}>
-          <AdvancedChipList
-            fieldName="policyReferences"
-            title="Policy references"
-            hint="e.g. policy-pack:enterprise-default — packs that must be evaluated against the proposal."
-            inputId="wizard-policy-draft"
-          />
-        </CollapsibleSection>
+        {isAdvanced && (
+          <CollapsibleSection title="Policy references (Custom Policy Overrides)" count={policyReferences.length}>
+            <AdvancedChipList
+              fieldName="policyReferences"
+              title="Policy references"
+              hint="e.g. policy-pack:enterprise-default — packs that must be evaluated against the proposal."
+              inputId="wizard-policy-draft"
+            />
+          </CollapsibleSection>
+        )}
 
         <CollapsibleSection title="Topology hints" count={topologyHints.length}>
           <AdvancedChipList
@@ -270,110 +296,112 @@ export function WizardStepAdvanced() {
           </Button>
         </CollapsibleSection>
 
-        <CollapsibleSection
-          title="Infrastructure declarations"
-          count={infrastructureDeclarations.filter((d) => d.name.trim() || d.content.trim()).length}
-        >
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Existing IaC or config snippets agents should reason about.
-          </p>
-          {infraFields.map((row, index) => (
-            <div key={row.id} className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
-              <div className="grid gap-2 sm:grid-cols-2">
+        {isAdvanced && (
+          <CollapsibleSection
+            title="Infrastructure declarations (Raw JSON Editors)"
+            count={infrastructureDeclarations.filter((d) => d.name.trim() || d.content.trim()).length}
+          >
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              Existing IaC or config snippets agents should reason about.
+            </p>
+            {infraFields.map((row, index) => (
+              <div key={row.id} className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium" htmlFor={`infra-name-${index}`}>
+                      Name
+                    </label>
+                    <Input
+                      id={`infra-name-${index}`}
+                      {...register(`infrastructureDeclarations.${index}.name`, {
+                        onChange: () => {
+                          clearErrors(
+                            `infrastructureDeclarations.${index}.name` as FieldPath<WizardFormValues>,
+                          );
+                        },
+                      })}
+                    />
+                    <WizardFieldError
+                      message={
+                        errors.infrastructureDeclarations?.[index]?.name?.message != null
+                          ? String(errors.infrastructureDeclarations[index]!.name!.message)
+                          : undefined
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium" htmlFor={`infra-format-${index}`}>
+                      Format
+                    </label>
+                    <Controller
+                      name={`infrastructureDeclarations.${index}.format`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value || "json"}
+                          onValueChange={(v) => {
+                            clearErrors(
+                              `infrastructureDeclarations.${index}.format` as FieldPath<WizardFormValues>,
+                            );
+                            field.onChange(v);
+                          }}
+                        >
+                          <SelectTrigger id={`infra-format-${index}`}>
+                            <SelectValue placeholder="Format" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="json">json</SelectItem>
+                            <SelectItem value="simple-terraform">simple-terraform</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    <WizardFieldError
+                      message={
+                        errors.infrastructureDeclarations?.[index]?.format?.message != null
+                          ? String(errors.infrastructureDeclarations[index]!.format!.message)
+                          : undefined
+                      }
+                    />
+                  </div>
+                </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium" htmlFor={`infra-name-${index}`}>
-                    Name
+                  <label className="mb-1 block text-xs font-medium" htmlFor={`infra-body-${index}`}>
+                    Content
                   </label>
-                  <Input
-                    id={`infra-name-${index}`}
-                    {...register(`infrastructureDeclarations.${index}.name`, {
+                  <Textarea
+                    id={`infra-body-${index}`}
+                    rows={4}
+                    {...register(`infrastructureDeclarations.${index}.content`, {
                       onChange: () => {
                         clearErrors(
-                          `infrastructureDeclarations.${index}.name` as FieldPath<WizardFormValues>,
+                          `infrastructureDeclarations.${index}.content` as FieldPath<WizardFormValues>,
                         );
                       },
                     })}
                   />
                   <WizardFieldError
                     message={
-                      errors.infrastructureDeclarations?.[index]?.name?.message != null
-                        ? String(errors.infrastructureDeclarations[index]!.name!.message)
+                      errors.infrastructureDeclarations?.[index]?.content?.message != null
+                        ? String(errors.infrastructureDeclarations[index]!.content!.message)
                         : undefined
                     }
                   />
                 </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium" htmlFor={`infra-format-${index}`}>
-                    Format
-                  </label>
-                  <Controller
-                    name={`infrastructureDeclarations.${index}.format`}
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value || "json"}
-                        onValueChange={(v) => {
-                          clearErrors(
-                            `infrastructureDeclarations.${index}.format` as FieldPath<WizardFormValues>,
-                          );
-                          field.onChange(v);
-                        }}
-                      >
-                        <SelectTrigger id={`infra-format-${index}`}>
-                          <SelectValue placeholder="Format" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="json">json</SelectItem>
-                          <SelectItem value="simple-terraform">simple-terraform</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  <WizardFieldError
-                    message={
-                      errors.infrastructureDeclarations?.[index]?.format?.message != null
-                        ? String(errors.infrastructureDeclarations[index]!.format!.message)
-                        : undefined
-                    }
-                  />
-                </div>
+                <Button type="button" variant="outline" size="sm" onClick={() => removeInfra(index)}>
+                  Remove declaration
+                </Button>
               </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium" htmlFor={`infra-body-${index}`}>
-                  Content
-                </label>
-                <Textarea
-                  id={`infra-body-${index}`}
-                  rows={4}
-                  {...register(`infrastructureDeclarations.${index}.content`, {
-                    onChange: () => {
-                      clearErrors(
-                        `infrastructureDeclarations.${index}.content` as FieldPath<WizardFormValues>,
-                      );
-                    },
-                  })}
-                />
-                <WizardFieldError
-                  message={
-                    errors.infrastructureDeclarations?.[index]?.content?.message != null
-                      ? String(errors.infrastructureDeclarations[index]!.content!.message)
-                      : undefined
-                  }
-                />
-              </div>
-              <Button type="button" variant="outline" size="sm" onClick={() => removeInfra(index)}>
-                Remove declaration
-              </Button>
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => appendInfra({ name: "", format: "json", content: "" })}
-          >
-            Add declaration
-          </Button>
-        </CollapsibleSection>
+            ))}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => appendInfra({ name: "", format: "json", content: "" })}
+            >
+              Add declaration
+            </Button>
+          </CollapsibleSection>
+        )}
       </div>
     </WizardStepPanel>
   );

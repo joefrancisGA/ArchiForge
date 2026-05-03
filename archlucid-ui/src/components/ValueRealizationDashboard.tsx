@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { getAuthHeaders } from "@/lib/api-auth";
+import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 
 interface RoiTelemetry {
   totalRuns: number;
@@ -22,7 +22,7 @@ export function ValueRealizationDashboard() {
     async function load() {
       try {
         const response = await fetch("/api/proxy/v1/architecture/telemetry/roi", {
-          headers: getAuthHeaders(),
+          headers: { Accept: "application/json", ...getEffectiveBrowserProxyScopeHeaders() },
         });
         if (!response.ok) {
           throw new Error(`Failed to load telemetry: ${response.statusText}`);

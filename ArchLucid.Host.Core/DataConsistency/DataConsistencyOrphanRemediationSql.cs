@@ -60,4 +60,25 @@ public static class DataConsistencyOrphanRemediationSql
             WHERE g.FindingsSnapshotId = f.FindingsSnapshotId)
         ORDER BY f.CreatedUtc ASC;
         """;
+
+    /// <summary>
+    /// Soft deletes orphan <c>dbo.GraphSnapshots</c> and <c>dbo.GraphSnapshotEdges</c>.
+    /// </summary>
+    public const string SoftDeleteOrphanGraphSnapshotsWithOutput = """
+        WITH cte AS (
+            SELECT TOP (@MaxRows) g.GraphSnapshotId
+            FROM dbo.GraphSnapshots g
+            WHERE g.IsDeleted = 0
+              AND NOT EXISTS (
+                SELECT 1
+                FROM dbo.Runs r
+                WHERE r.RunId = g.RunId)
+            ORDER BY g.CreatedUtc ASC
+        )
+        UPDATE g
+        SET g.IsDeleted = 1
+        OUTPUT inserted.GraphSnapshotId
+        FROM dbo.GraphSnapshots AS g
+        INNER JOIN cte ON g.GraphSnapshotId = cte.GraphSnapshotId;
+        """;
 }

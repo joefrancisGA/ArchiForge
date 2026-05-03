@@ -20,4 +20,9 @@ public sealed class DataConsistencyProbeOptions
     {
         get; set;
     }
+
+    /// <summary>
+    /// When true, automatically soft-delete orphaned graph edges and nodes found by the probe.
+    /// </summary>
+    public bool EnableAutoRemediation { get; set; } = false;
 }
