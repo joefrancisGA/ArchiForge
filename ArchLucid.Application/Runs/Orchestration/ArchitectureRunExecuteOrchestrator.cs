@@ -271,11 +271,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             if (logger.IsEnabled(LogLevel.Warning))
 
-                logger.LogWarning(
-                    ex,
-                    "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}",
-                    LogSanitizer.Sanitize(runId),
-                    ex.GetType().Name);
+                logger.LogWarningArchitectureRunExecutionFailed(ex, runId, ex.GetType().Name);
 
             await baselineMutationAudit
                 .RecordAsync(

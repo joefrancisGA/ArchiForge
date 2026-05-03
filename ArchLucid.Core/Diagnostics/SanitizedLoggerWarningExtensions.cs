@@ -84,6 +84,32 @@ public static class SanitizedLoggerWarningExtensions
     }
 
     /// <summary>
+    ///     Warns when architecture run execution fails (run id and exception type name sanitized — CWE-117).
+    /// </summary>
+    /// <remarks>
+    ///     Prefer this over <see cref="LoggerExtensions.LogWarning(ILogger, Exception?, string?, object?[])" /> at the execute
+    ///     boundary so CodeQL sees <see cref="LogSanitizer.Sanitize" /> adjacent to the sink (params boxing breaks custom barriers).
+    /// </remarks>
+    public static void LogWarningArchitectureRunExecutionFailed(
+        this ILogger logger,
+        Exception ex,
+        string? runId,
+        string? exceptionTypeName)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(ex);
+
+        string safeRunId = LogSanitizer.Sanitize(runId);
+        string safeExceptionType = LogSanitizer.Sanitize(exceptionTypeName);
+
+        logger.LogWarning(
+            ex,
+            "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}",
+            safeRunId,
+            safeExceptionType); // codeql[cs/log-forging]: strings sanitized immediately above.
+    }
+
+    /// <summary>
     ///     Warns when agent output structural completeness falls below product threshold (run/trace identifiers may be externally influenced — CWE-117).
     /// </summary>
     public static void LogWarningAgentOutputStructuralScoreBelowThreshold(

@@ -180,6 +180,64 @@ public sealed class SanitizedLoggerWarningExtensionsTests
     }
 
     [Fact]
+    public void LogWarningArchitectureRunExecutionFailed_strips_control_chars_and_passes_exception()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+        Exception? capturedEx = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
+                capturedEx = invocation.Arguments[3] as Exception;
+                rendered = formatter.DynamicInvoke(state, capturedEx) as string;
+            }));
+
+        InvalidOperationException ex = new("boom");
+
+        mock.Object.LogWarningArchitectureRunExecutionFailed(ex, "run\nid", "ExType\rName");
+
+        rendered.Should().NotBeNull();
+        string text = rendered!;
+
+        text.Should().Contain("Architecture run execution failed:");
+        text.Should().Contain("run_id");
+        text.Should().Contain("ExType_Name");
+        text.Should().NotContain("\n");
+        text.Should().NotContain("\r");
+        capturedEx.Should().BeSameAs(ex);
+    }
+
+    [Fact]
+    public void LogWarningArchitectureRunExecutionFailed_throws_when_logger_null()
+    {
+        ILogger logger = null!;
+
+        Action act = () => logger.LogWarningArchitectureRunExecutionFailed(new InvalidOperationException("x"), "r", "T");
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
+    }
+
+    [Fact]
+    public void LogWarningArchitectureRunExecutionFailed_throws_when_exception_null()
+    {
+        Mock<ILogger> mock = new();
+
+        Action act = () => mock.Object.LogWarningArchitectureRunExecutionFailed(null!, "r", "T");
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("ex");
+    }
+
+    [Fact]
     public void LogWarningOperatorShellClientError_sanitizes_all_placeholders()
     {
         Mock<ILogger> mock = new();
