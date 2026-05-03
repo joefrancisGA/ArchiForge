@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
@@ -92,6 +92,7 @@ export function MobileNavDrawer() {
   const [open, setOpen] = useState(false);
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const demoUi = isNextPublicDemoMode();
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
@@ -109,6 +110,7 @@ export function MobileNavDrawer() {
     callerAuthorityRank,
     false,
     "review-workflow",
+    hasCommittedArchitectureReview,
   );
 
   const adminNavRows = listNavGroupsVisibleInOperatorShell(
@@ -118,6 +120,7 @@ export function MobileNavDrawer() {
     callerAuthorityRank,
     false,
     "platform-admin",
+    hasCommittedArchitectureReview,
   );
 
   return (

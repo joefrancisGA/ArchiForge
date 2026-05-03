@@ -143,6 +143,25 @@ public sealed class ScimFilterParserTests
     }
 
     [SkippableFact]
+    public void Parse_Entra_typical_userPrincipalName_eq_alias()
+    {
+        ScimFilterNode? n = ScimFilterParser.Parse(@"userPrincipalName eq ""alice@guest.contoso""");
+        ScimComparisonNode c = n.Should().BeOfType<ScimComparisonNode>().Subject;
+        c.AttributePath.Should().Be("userPrincipalName");
+        c.Value.Should().Be("alice@guest.contoso");
+    }
+
+    [SkippableFact]
+    public void Parse_Entra_group_displayName_sw_prefix()
+    {
+        ScimFilterNode? n = ScimFilterParser.Parse(@"displayName sw ""Architects - """);
+        ScimComparisonNode c = n.Should().BeOfType<ScimComparisonNode>().Subject;
+        c.AttributePath.Should().Be("displayName");
+        c.Operator.Should().Be("sw");
+        c.Value.Should().Be("Architects - ");
+    }
+
+    [SkippableFact]
     public void Parse_trailing_input_throws()
     {
         Action act = () => ScimFilterParser.Parse(@"userName eq ""a"" junk");

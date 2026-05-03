@@ -14,7 +14,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
@@ -27,11 +27,13 @@ function CommandPaletteNavGroups({
   callerAuthorityRank,
   shellShowExtended,
   shellShowAdvanced,
+  hasCommittedArchitectureReview,
   onNavigate,
 }: {
   callerAuthorityRank: number;
   shellShowExtended: boolean;
   shellShowAdvanced: boolean;
+  hasCommittedArchitectureReview: boolean;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
@@ -44,6 +46,7 @@ function CommandPaletteNavGroups({
     callerAuthorityRank,
     false,
     "review-workflow",
+    hasCommittedArchitectureReview,
   );
 
   const adminRows = listNavGroupsVisibleInOperatorShell(
@@ -53,6 +56,7 @@ function CommandPaletteNavGroups({
     callerAuthorityRank,
     false,
     "platform-admin",
+    hasCommittedArchitectureReview,
   );
 
   return (
@@ -129,6 +133,7 @@ export function CommandPalette() {
   const pathname = usePathname();
   const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,
     showExtended,
@@ -184,6 +189,7 @@ export function CommandPalette() {
             callerAuthorityRank={callerAuthorityRank}
             shellShowExtended={shellShowExtended}
             shellShowAdvanced={shellShowAdvanced}
+            hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             onNavigate={navigate}
           />
           <CommandSeparator />

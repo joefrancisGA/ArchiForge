@@ -131,4 +131,52 @@ describe("MarketingTierPricingSection", () => {
 
     expect(screen.queryByRole("link", { name: /subscribe with stripe/i })).not.toBeInTheDocument();
   });
+
+  it("hides Subscribe with Stripe when NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED is off even if pricing JSON has a URL", async () => {
+    vi.stubEnv("NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED", "0");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          schemaVersion: 1,
+          currency: "USD",
+          packages: [
+            {
+              id: "team",
+              title: "Team",
+              summary: "Team tier",
+              workspaceMonthlyUsd: 199,
+              seatMonthlyUsd: 79,
+            },
+            {
+              id: "professional",
+              title: "Professional",
+              summary: "Pro tier",
+              workspaceMonthlyUsd: 899,
+              seatMonthlyUsd: 179,
+            },
+            {
+              id: "enterprise",
+              title: "Enterprise",
+              summary: "Ent tier",
+              annualFloorUsd: 60000,
+            },
+          ],
+          teamStripeCheckoutUrl: "https://pay.example.test/checkout",
+        }),
+      }),
+    );
+
+    render(
+      <MarketingTierPricingSection sectionHeadingId="pricing-heading" sectionTitle="Pricing" signupHref="/signup" />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Team" })).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole("link", { name: /subscribe with stripe/i })).not.toBeInTheDocument();
+  });
 });

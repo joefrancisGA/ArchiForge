@@ -203,6 +203,13 @@ try {
         $env:LIVE_API_URL = $ApiBase
         Write-Step "Set LIVE_API_URL=$ApiBase"
 
+        # Playwright demo preflight assumes DevelopmentBypass auth against localhost (dotnet run Development).
+        # Stray JWT/API-key variables from other shells send wrong Authorization/X-Api-Key headers and cause 401/403.
+        Remove-Item Env:LIVE_JWT_TOKEN -ErrorAction SilentlyContinue
+        Remove-Item Env:LIVE_API_KEY -ErrorAction SilentlyContinue
+        Remove-Item Env:LIVE_API_KEY_READONLY -ErrorAction SilentlyContinue
+        Write-Step "Cleared LIVE_JWT_TOKEN / LIVE_API_KEY / LIVE_API_KEY_READONLY for this npm subprocess (if present)."
+
         if ($SkipNextBuildOnly) {
             Write-Step "Parameter -SkipNextBuildOnly: omitting npm run build (standalone .next tree must exist)."
             $env:LIVE_E2E_SKIP_NEXT_BUILD = "1"

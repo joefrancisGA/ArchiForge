@@ -18,7 +18,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
 import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHints";
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -151,6 +151,7 @@ export function SidebarNav() {
   const [openByGroup, setOpenByGroup] = useState<Record<string, boolean>>({});
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
   const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>("full");
@@ -169,6 +170,7 @@ export function SidebarNav() {
         demoUi ? true : shellShowExtended,
         demoUi ? true : shellShowAdvanced,
         callerAuthorityRank,
+        hasCommittedArchitectureReview,
       )
     : 0;
 
@@ -328,6 +330,7 @@ export function SidebarNav() {
     callerAuthorityRank,
     applyCollapsedSidebarPilotFilter,
     "review-workflow",
+    hasCommittedArchitectureReview,
   );
 
   const adminNavRowsRaw = omitAdminClusters
@@ -339,6 +342,7 @@ export function SidebarNav() {
         callerAuthorityRank,
         false,
         "platform-admin",
+        hasCommittedArchitectureReview,
       );
 
 
@@ -357,6 +361,7 @@ export function SidebarNav() {
           demoUi ? true : shellShowExtended,
           demoUi ? true : shellShowAdvanced,
           callerAuthorityRank,
+          hasCommittedArchitectureReview,
         );
 
         return (

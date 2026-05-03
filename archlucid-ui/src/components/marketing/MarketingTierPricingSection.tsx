@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { PricingDoc } from "@/lib/pricing-types";
-import { isUsableTeamStripeCheckoutUrl } from "@/lib/team-stripe-checkout-url";
+import { resolveTeamStripeCheckoutHref } from "@/lib/team-stripe-checkout-url";
 
 function formatMoney(amount: number, currency: string): string {
   return new Intl.NumberFormat(undefined, {
@@ -72,6 +72,9 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
     };
   }, []);
 
+  const teamStripeHref =
+    pricing !== null && !pricingError ? resolveTeamStripeCheckoutHref(pricing.teamStripeCheckoutUrl) : null;
+
   return (
     <section aria-labelledby={props.sectionHeadingId} className="mb-10">
       <h2 id={props.sectionHeadingId} className="mb-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -129,11 +132,11 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                       </Button>
                     </>
                   ) : null}
-                  {pkg.id === "team" && isUsableTeamStripeCheckoutUrl(pricing.teamStripeCheckoutUrl) ? (
+                  {pkg.id === "team" && teamStripeHref !== null ? (
                     <Button asChild className="w-full" variant="outline">
                       <a
                         data-testid="pricing-team-subscribe-stripe"
-                        href={(pricing.teamStripeCheckoutUrl ?? "").trim()}
+                        href={teamStripeHref.trim()}
                         rel="noopener noreferrer"
                         target="_blank"
                       >

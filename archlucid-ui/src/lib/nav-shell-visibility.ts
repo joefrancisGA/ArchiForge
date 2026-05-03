@@ -1,5 +1,6 @@
 import type { NavGroupConfig, NavLinkItem, NavShellSurface } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
+import { filterNavLinksByCommittedArchitectureReviewGate } from "@/lib/nav-committed-architecture-review-gate";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { filterNavLinksByPublishReadiness } from "@/lib/nav-publish-readiness";
 
@@ -65,8 +66,8 @@ export type NavGroupWithVisibleLinks = {
  * (`nav-tier.ts` gates apply before authority). **Packaging map:** **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table
  * (**`NAV_GROUPS[].id`** → layer); this module owns only the **composition** step (**tier → authority →** drop empty groups).
  *
- * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) so filtering matches
- * **`OperatorNavAuthorityProvider`**. Call sites must **omit empty groups** when iterating **`listNavGroupsVisibleInOperatorShell`**
+ * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) and **`useNavCommittedArchitectureReview()`**
+ * so filtering matches **`OperatorNavAuthorityProvider`**. Call sites must **omit empty groups** when iterating **`listNavGroupsVisibleInOperatorShell`**
  * results — this module already drops groups with zero visible links.
  *
  * ## API vs UI
@@ -98,9 +99,12 @@ export function filterNavLinksForOperatorShell(
   callerAuthorityRank: number,
   /** Pilot default sidebar: fewer links until the user expands “Show all features” (**localStorage** `archlucid-nav-expanded`). */
   applyCollapsedSidebarPilotFilter = false,
+  hasCommittedArchitectureReview = true,
 ): NavLinkItem[] {
+  let gated = filterNavLinksByCommittedArchitectureReviewGate(links, hasCommittedArchitectureReview);
+
   let tiered: NavLinkItem[] = filterNavLinksByAuthority(
-    filterNavLinksByTier(links, showExtended, showAdvanced),
+    filterNavLinksByTier(gated, showExtended, showAdvanced),
     callerAuthorityRank,
   );
 
@@ -123,6 +127,7 @@ export function listNavGroupsVisibleInOperatorShell(
   callerAuthorityRank: number,
   applyCollapsedSidebarPilotFilter = false,
   surfaceFilter: "all" | NavShellSurface = "all",
+  hasCommittedArchitectureReview = true,
 ): NavGroupWithVisibleLinks[] {
   const out: NavGroupWithVisibleLinks[] = [];
 
@@ -141,6 +146,7 @@ export function listNavGroupsVisibleInOperatorShell(
         showAdvanced,
         callerAuthorityRank,
         useCollapsedPilot,
+        hasCommittedArchitectureReview,
       ),
     );
 
@@ -162,6 +168,7 @@ export function countSidebarLinksHiddenByCollapsedPilot(
   showExtended: boolean,
   showAdvanced: boolean,
   callerAuthorityRank: number,
+  hasCommittedArchitectureReview = true,
 ): number {
   let full = 0;
   let collapsed = 0;
@@ -172,10 +179,24 @@ export function countSidebarLinksHiddenByCollapsedPilot(
     }
 
     full += filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(group.links, showExtended, showAdvanced, callerAuthorityRank, false),
+      filterNavLinksForOperatorShell(
+        group.links,
+        showExtended,
+        showAdvanced,
+        callerAuthorityRank,
+        false,
+        hasCommittedArchitectureReview,
+      ),
     ).length;
     collapsed += filterNavLinksByPublishReadiness(
-      filterNavLinksForOperatorShell(group.links, showExtended, showAdvanced, callerAuthorityRank, true),
+      filterNavLinksForOperatorShell(
+        group.links,
+        showExtended,
+        showAdvanced,
+        callerAuthorityRank,
+        true,
+        hasCommittedArchitectureReview,
+      ),
     ).length;
   }
 
@@ -191,14 +212,24 @@ export function countLinksHiddenByProgressiveDisclosure(
   showExtended: boolean,
   showAdvanced: boolean,
   callerAuthorityRank: number,
+  hasCommittedArchitectureReview = true,
 ): number {
   const current = filterNavLinksForOperatorShell(
     group.links,
     showExtended,
     showAdvanced,
     callerAuthorityRank,
+    false,
+    hasCommittedArchitectureReview,
   );
-  const full = filterNavLinksForOperatorShell(group.links, true, true, callerAuthorityRank);
+  const full = filterNavLinksForOperatorShell(
+    group.links,
+    true,
+    true,
+    callerAuthorityRank,
+    false,
+    hasCommittedArchitectureReview,
+  );
   const currentHrefs = new Set(current.map((l) => l.href));
 
   return full.filter((l) => !currentHrefs.has(l.href)).length;

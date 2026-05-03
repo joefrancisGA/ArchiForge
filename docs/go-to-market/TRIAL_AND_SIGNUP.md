@@ -69,7 +69,10 @@ The signup form defaults to **“Use model default (modeled estimate)”** so pr
 | **Trial feature flags** | Configuration-driven tier enforcement (run limits, feature gates per [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md)) | Must-have |
 | **Usage metering** | Track runs consumed, seats active, features used — feeds health scoring ([CUSTOMER_HEALTH_SCORING.md](CUSTOMER_HEALTH_SCORING.md)) and conversion analytics | Must-have |
 | **Billing integration** | Stripe, Azure Marketplace, or equivalent — triggered on conversion from trial to paid | Phase 2 |
+| **Marketing Team Stripe CTA** | Public `/pricing` “Subscribe with Stripe”: when `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED` is unset, behavior follows historic `pricing.json` + placeholder guard only; explicit `0`/`false` suppresses Stripe even when JSON carries a URL. Optional `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL` overrides usable JSON URLs. | Phase 2 |
 | **Trial expiration workflow** | Automated emails (approaching limit, expiration), read-only enforcement, deletion scheduler | Must-have |
+
+Public pricing UI resolution is **`resolveTeamStripeCheckoutHref`**: suppression is explicit (`0`/`false`); seeded `pricing.json` keeps working unless sales opts out.
 
 ---
 

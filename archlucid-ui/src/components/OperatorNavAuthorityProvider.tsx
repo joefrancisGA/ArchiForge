@@ -120,3 +120,16 @@ export function useNavCallerAuthorityRank(): number {
 
   return callerAuthorityRank;
 }
+
+/**
+ * Whether the scoped tenant already completed a committed golden-manifest review (`GET /api/proxy/api/auth/me`).
+ * Use with **`useNavCallerAuthorityRank`** wherever **`listNavGroupsVisibleInOperatorShell`** is composed.
+ *
+ * Synthetic principals from **`loadCurrentPrincipal`**: **`me-http` / `me-network` / non-browser** preserve **true** so a
+ * transport glitch does not trap users in thin nav; **jwt-unsigned** stays **false**; bootstrap shell defaults **false** until **`/me`** settles.
+ */
+export function useNavCommittedArchitectureReview(): boolean {
+  const { currentPrincipal } = useOperatorNavAuthority();
+
+  return currentPrincipal.hasCommittedArchitectureReview;
+}

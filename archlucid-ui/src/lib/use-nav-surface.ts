@@ -1,6 +1,6 @@
 "use client";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import {
   alertOperatorToolingOperatorRankLine,
@@ -91,9 +91,17 @@ export type NavSurface = {
  */
 export function useNavSurface(routeKey: LayerGuidancePageKey): NavSurface {
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const { mounted, showExtended, showAdvanced } = useNavProgressiveDisclosure();
 
-  return composeNavSurface(routeKey, callerAuthorityRank, showExtended, showAdvanced, mounted);
+  return composeNavSurface(
+    routeKey,
+    callerAuthorityRank,
+    showExtended,
+    showAdvanced,
+    mounted,
+    hasCommittedArchitectureReview,
+  );
 }
 
 /**
@@ -108,6 +116,7 @@ export function composeNavSurface(
   showExtended: boolean,
   showAdvanced: boolean,
   mounted: boolean,
+  hasCommittedArchitectureReview = true,
 ): NavSurface {
   const layerGuidance = LAYER_PAGE_GUIDANCE[routeKey];
   const links = listNavGroupsVisibleInOperatorShell(
@@ -115,6 +124,9 @@ export function composeNavSurface(
     showExtended,
     showAdvanced,
     callerAuthorityRank,
+    false,
+    "all",
+    hasCommittedArchitectureReview,
   );
   const mutationCapability = enterpriseMutationCapabilityFromRank(callerAuthorityRank);
   const contextHints = composeContextHints(layerGuidance, callerAuthorityRank, mutationCapability);

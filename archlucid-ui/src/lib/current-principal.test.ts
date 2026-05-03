@@ -55,6 +55,22 @@ describe("normalizeAuthMeResponse", () => {
     expect(principal.primaryAppRole).toBe("Admin");
   });
 
+  it("maps hasCommittedArchitectureReview only when strictly true", () => {
+    expect(normalizeAuthMeResponse({ claims: [] }).hasCommittedArchitectureReview).toBe(false);
+    expect(
+      normalizeAuthMeResponse({
+        claims: [],
+        hasCommittedArchitectureReview: true,
+      }).hasCommittedArchitectureReview,
+    ).toBe(true);
+    expect(
+      normalizeAuthMeResponse({
+        claims: [],
+        hasCommittedArchitectureReview: false,
+      }).hasCommittedArchitectureReview,
+    ).toBe(false);
+  });
+
   /**
    * `hasEnterpriseOperatorSurfaces` and `useEnterpriseMutationCapability` must stay on the same Execute floor;
    * diverging formulas would mis-label principals or soft-enable writes inconsistently.

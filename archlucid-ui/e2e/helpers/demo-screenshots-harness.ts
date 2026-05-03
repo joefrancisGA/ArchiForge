@@ -66,18 +66,29 @@ export type PreflightCheck = { name: string; ok: boolean; detail?: string };
 export type DemoPreflightResult = {
   ok: boolean;
   checks: PreflightCheck[];
-  claimsRunIdForApi: string;
+  /** Resolved architecture run id (GUID-shaped) used for graph probe — baseline seed default {@link TRUSTED_BASELINE_RUN_ID_N}. */
+  trustedBaselineRunIdN: string;
   graphRunSegment: string;
   alertsDemoReady: boolean;
   alertCount: number;
 };
 
-/** Canonical Claims Intake slug used by API + static demo (see `showcase-static-demo.ts`). */
+/**
+ * Canonical Claims Intake marketing / UI slug (`/runs/claims-intake-modernization-run`, manifests UUID, …).
+ * Live API accepts GUID-shaped architecture run ids only — use {@link TRUSTED_BASELINE_RUN_ID_N} for SQL-backed
+ * preflight probes (Contoso Retail trusted baseline seed in docs/TRUSTED_BASELINE.md).
+ */
 export const CLAIMS_INTAKE_CANONICAL_RUN_ID = "claims-intake-modernization";
 
 export const CLAIMS_INTAKE_MANIFEST_ID = "a1c2e3f4-a5b6-7890-abcd-ef1234567890";
 
 export const CLAIMS_INTAKE_FINDING_ID = "phi-minimization-risk";
+
+/** {@link ContosoRetailDemoIdentifiers.RunBaseline}: baseline demo row in `dbo.Runs` (single-catalog dev seed). */
+export const TRUSTED_BASELINE_RUN_ID_N = "6e8c4a102b1f4c9a9d3e10b2a4f0c501";
+
+/** Manifest version label on the Contoso baseline committed row (informational — preflight prefers authority manifest id from run detail). */
+export const TRUSTED_BASELINE_MANIFEST_VERSION = "contoso-baseline-v1";
 
 async function countAlertsApi(request: APIRequestContext): Promise<number> {
   const res = await request.get(`${liveApiBase}/v1/alerts`, {
@@ -120,8 +131,8 @@ export async function runDemoScreenshotPreflight(
     checks.push({ name, ok, detail });
   };
 
-  let claimsRunIdForApi = CLAIMS_INTAKE_CANONICAL_RUN_ID;
-  let graphRunSegment = toRunGuidPathSegment(CLAIMS_INTAKE_CANONICAL_RUN_ID);
+  let trustedBaselineRunIdN = TRUSTED_BASELINE_RUN_ID_N;
+  let graphRunSegment = toRunGuidPathSegment(TRUSTED_BASELINE_RUN_ID_N);
   let alertsDemoReady = false;
   let alertCount = 0;
 
@@ -142,58 +153,65 @@ export async function runDemoScreenshotPreflight(
   }
 
   try {
-    const runRes = await request.get(`${liveApiBase}/v1/architecture/run/${encodeURIComponent(CLAIMS_INTAKE_CANONICAL_RUN_ID)}`, {
-      headers: liveAcceptHeaders(),
-    });
+    const runRes = await request.get(
+      `${liveApiBase}/v1/architecture/run/${encodeURIComponent(TRUSTED_BASELINE_RUN_ID_N)}`,
+      {
+        headers: liveAcceptHeaders(),
+      },
+    );
 
     if (!runRes.ok()) {
       push(
-        "Claims Intake architecture run",
+        "Trusted baseline architecture run (Contoso seed)",
         false,
         `HTTP ${runRes.status()}: ${(await runRes.text()).slice(0, 400)}`,
+      );
+      push(
+        "Trusted baseline golden manifest summary (authority)",
+        false,
+        "skipped — run detail request failed",
       );
     } else {
       const detail = (await runRes.json()) as RunDetailJson;
       const rid = detail.run?.runId?.trim();
+      const goldenManifestId = detail.run?.goldenManifestId?.trim();
 
       if (!rid) {
-        push("Claims Intake architecture run", false, "response missing run.runId");
+        push("Trusted baseline architecture run (Contoso seed)", false, "response missing run.runId");
       } else {
-        claimsRunIdForApi = rid;
-        graphRunSegment = toRunGuidPathSegment(rid);
-        push("Claims Intake architecture run", true);
+        trustedBaselineRunIdN = rid.replace(/-/g, "").trim().toLowerCase();
+        graphRunSegment = toRunGuidPathSegment(trustedBaselineRunIdN);
+        push("Trusted baseline architecture run (Contoso seed)", true);
+      }
+
+      if (!rid) {
+        push(
+          "Trusted baseline golden manifest summary (authority)",
+          false,
+          "skipped — run.runId missing",
+        );
+      } else if (!goldenManifestId || goldenManifestId.length === 0) {
+        push(
+          "Trusted baseline golden manifest summary (authority)",
+          false,
+          "response missing run.goldenManifestId (run may not be committed)",
+        );
+      } else {
+        const manifestRes = await request.get(
+          `${liveApiBase}/v1/authority/manifests/${encodeURIComponent(goldenManifestId)}/summary`,
+          { headers: liveAcceptHeaders() },
+        );
+
+        push(
+          "Trusted baseline golden manifest summary (authority)",
+          manifestRes.ok(),
+          manifestRes.ok() ? undefined : `HTTP ${manifestRes.status()}: ${(await manifestRes.text()).slice(0, 400)}`,
+        );
       }
     }
   } catch (e) {
-    push("Claims Intake architecture run", false, (e as Error).message);
-  }
-
-  try {
-    const manifestRes = await request.get(
-      `${liveApiBase}/v1/architecture/manifest/${encodeURIComponent(CLAIMS_INTAKE_MANIFEST_ID)}/summary`,
-      { headers: liveAcceptHeaders() },
-    );
-
-    push(
-      "Claims Intake manifest summary",
-      manifestRes.ok(),
-      manifestRes.ok() ? undefined : `HTTP ${manifestRes.status()}: ${(await manifestRes.text()).slice(0, 400)}`,
-    );
-  } catch (e) {
-    push("Claims Intake manifest summary", false, (e as Error).message);
-  }
-
-  try {
-    const inspectUrl = `${liveApiBase}/v1/architecture/run/${encodeURIComponent(claimsRunIdForApi)}/findings/${encodeURIComponent(CLAIMS_INTAKE_FINDING_ID)}/inspect`;
-    const fiRes = await request.get(inspectUrl, { headers: liveAcceptHeaders() });
-
-    push(
-      "PHI minimization finding inspect",
-      fiRes.ok(),
-      fiRes.ok() ? undefined : `HTTP ${fiRes.status()}: ${(await fiRes.text()).slice(0, 400)}`,
-    );
-  } catch (e) {
-    push("PHI minimization finding inspect", false, (e as Error).message);
+    push("Trusted baseline architecture run (Contoso seed)", false, (e as Error).message);
+    push("Trusted baseline golden manifest summary (authority)", false, (e as Error).message);
   }
 
   try {
@@ -243,7 +261,7 @@ export async function runDemoScreenshotPreflight(
   return {
     ok,
     checks,
-    claimsRunIdForApi,
+    trustedBaselineRunIdN,
     graphRunSegment,
     alertsDemoReady,
     alertCount,

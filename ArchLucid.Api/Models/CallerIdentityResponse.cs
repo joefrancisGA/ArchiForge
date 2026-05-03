@@ -19,4 +19,14 @@ public sealed class CallerIdentityResponse
         get;
         init;
     } = [];
+
+    /// <summary>
+    ///     When <see langword="true" />, the tenant scope has at least one committed architecture run with a golden
+    ///     manifest — drives first-session nav narrowing in the operator UI only.
+    /// </summary>
+    public bool HasCommittedArchitectureReview
+    {
+        get;
+        init;
+    }
 }

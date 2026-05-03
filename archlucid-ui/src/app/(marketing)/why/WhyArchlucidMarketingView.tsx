@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { BRAND_CATEGORY } from "@/lib/brand-category";
+import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { type WhyVerifyLink, WHY_COMPARISON_VERIFY_LINK_ROWS } from "@/lib/why-comparison-verify-points";
 import { type WhyHardComparisonRow, whyHardCellDisplay } from "@/lib/why-comparison";
 
@@ -69,11 +70,90 @@ export function WhyArchlucidMarketingView({ frontDoorRows, showDemoEmbed = true 
         citation-backed narrative for teams who need to compare vendors on paper.
       </p>
 
+      <section className="mt-10 rounded-xl border border-sky-200 bg-gradient-to-br from-white via-white to-sky-50 px-6 py-6 shadow-sm dark:border-sky-900/70 dark:from-neutral-950 dark:via-neutral-950 dark:to-sky-950/40">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-800 dark:text-sky-300">
+          First-principles outcome
+        </p>
+        <h2 id="why-hero-outcome-heading" className="mt-2 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">
+          Governed AI architecture reviews—not ad-hoc chat
+        </h2>
+        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          ArchLucid runs a structured multi-agent Authority pipeline against every architecture request so findings,
+          comparisons, manifests, and audit exports share one proven trace. Buyers still compare incumbent stack tools; the
+          adjacent-category table on this page summarizes the same buyer-safe landscape claims captured in{" "}
+          <code className="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-900/60">docs/go-to-market/COMPETITIVE_LANDSCAPE.md</code>{" "}
+          §2.3—not a substitute for the symbol-scored hard-comparison grid further down.
+        </p>
+      </section>
+
+      <section className="mt-12" aria-labelledby="why-market-landscape-heading">
+        <h2 id="why-market-landscape-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
+          Adjacent-category landscape (qualitative · three rows · five lenses)
+        </h2>
+        <p className="mt-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+          Summarized wording only — same sources as{" "}
+          <code className="rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800">docs/go-to-market/COMPETITIVE_LANDSCAPE.md</code>{" "}
+          §2.3; citations and benchmark detail live in that document and in the deterministic proof artefacts linked from
+          this page.
+        </p>
+        <div className="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+          <table
+            data-testid="why-market-landscape-mini-table"
+            className="w-full min-w-[60rem] border-collapse text-left text-sm"
+          >
+            <thead>
+              <tr className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80">
+                <th scope="col" className="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  Dimension
+                </th>
+                <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  ArchLucid
+                </th>
+                <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  GitHub Copilot (architecture ad-hoc)
+                </th>
+                <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  ChatGPT / Claude (manual prompting)
+                </th>
+                <th scope="col" className="min-w-[12rem] px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100">
+                  Structurizr (+ AI assist)
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {WHY_MARKET_LANDSCAPE_MARKETING_ROWS.map((row) => (
+                <tr
+                  key={row.dimension}
+                  className="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+                >
+                  <th
+                    scope="row"
+                    className="max-w-[200px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+                  >
+                    {row.dimension}
+                  </th>
+                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">{row.archlucid}</td>
+                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                    {row.githubCopilotAdHocArchitecture}
+                  </td>
+                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                    {row.manualChatgptClaude}
+                  </td>
+                  <td className="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200">
+                    {row.structurizrWithAssist}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
         <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Side-by-side proof pack</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
           Download a single PDF that bundles the same deterministic demo preview as <code>/demo/preview</code> (manifest
-          excerpt, explanation, citations, timeline) plus the **benchmarked differentiation** narrative table (five
+          excerpt, explanation, citations, timeline) plus the benchmarked differentiation narrative table (five
           detailed rows with citations — not the symbol-only front-door grid below). Requires demo mode on the API host
           (otherwise the link returns 404 by design).
         </p>

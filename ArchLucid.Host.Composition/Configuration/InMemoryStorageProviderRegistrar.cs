@@ -104,6 +104,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();
         services.AddSingleton<IRunRepository>(sp =>
             new InMemoryRunRepository(sp.GetRequiredService<ITenantRepository>()));
+        services.AddSingleton<ICommittedArchitectureReviewFlagReader, RunRepositoryCommittedArchitectureReviewFlagReader>();
         services.AddSingleton<IAuthorityQueryService, InMemoryAuthorityQueryService>();
         services.AddSingleton<IArtifactQueryService, InMemoryArtifactQueryService>();
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();

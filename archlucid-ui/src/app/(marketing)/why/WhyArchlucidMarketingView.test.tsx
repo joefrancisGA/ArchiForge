@@ -2,11 +2,23 @@ import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { BRAND_CATEGORY, BRAND_CATEGORY_LEGACY } from "@/lib/brand-category";
+import { WHY_MARKET_LANDSCAPE_MARKETING_ROWS } from "@/lib/why-market-landscape-comparison";
 import { WHY_COMPARISON_ROWS } from "@/lib/why-comparison";
 
 import { WhyArchlucidMarketingView } from "./WhyArchlucidMarketingView";
 
 describe("WhyArchlucidMarketingView", () => {
+  it("renders qualitative landscape mini-table aligned with WHY_MARKET_LANDSCAPE_MARKETING_ROWS", () => {
+    const { getByTestId, getAllByRole } = render(
+      <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,
+    );
+
+    const table = getByTestId("why-market-landscape-mini-table");
+    const bodyRows = getAllByRole("row").filter((r) => r.closest("tbody") === table.querySelector("tbody"));
+
+    expect(bodyRows).toHaveLength(WHY_MARKET_LANDSCAPE_MARKETING_ROWS.length);
+  });
+
   it("matches snapshot (marketing /why layout + proof pack download)", () => {
     const { container } = render(
       <WhyArchlucidMarketingView frontDoorRows={WHY_COMPARISON_ROWS} showDemoEmbed={false} />,

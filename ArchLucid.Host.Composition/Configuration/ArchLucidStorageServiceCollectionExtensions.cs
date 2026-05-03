@@ -250,6 +250,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
             services.AddScoped<IGoldenManifestRepository, SqlGoldenManifestRepository>();
             services.AddScoped<IRunRepository, SqlRunRepository>();
             services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
+            services.AddScoped<
+                ArchLucid.Core.Authority.ICommittedArchitectureReviewFlagReader,
+                ArchLucid.Persistence.Repositories.RunRepositoryCommittedArchitectureReviewFlagReader>();
 
             return;
         }
@@ -268,6 +271,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackRepository>(sp => new CachingPolicyPackRepository(
             sp.GetRequiredService<DapperPolicyPackRepository>(),
             sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<
+            ArchLucid.Core.Authority.ICommittedArchitectureReviewFlagReader,
+            ArchLucid.Persistence.Repositories.RunRepositoryCommittedArchitectureReviewFlagReader>();
     }
 
     internal static void RegisterArtifactLargePayloadBlobStore(IServiceCollection services, IConfiguration configuration)

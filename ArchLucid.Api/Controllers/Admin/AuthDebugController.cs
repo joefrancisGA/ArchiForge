@@ -1,5 +1,7 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Authority;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -22,20 +24,36 @@ namespace ArchLucid.Api.Controllers.Admin;
 [ApiController]
 [ApiVersionNeutral]
 [Route("api/auth")]
-public sealed class AuthDebugController : ControllerBase
+public sealed class AuthDebugController(
+    IScopeContextProvider scopeProvider,
+    ICommittedArchitectureReviewFlagReader committedArchitectureReviewFlagReader) : ControllerBase
 {
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly ICommittedArchitectureReviewFlagReader _committedArchitectureReviewFlagReader =
+        committedArchitectureReviewFlagReader
+        ?? throw new ArgumentNullException(nameof(committedArchitectureReviewFlagReader));
+
     /// <summary>Returns the caller's identity name and full claims list.</summary>
     /// <returns>200 with a <see cref="CallerIdentityResponse" /> containing the caller's name and claims.</returns>
     [HttpGet("me")]
     [ProducesResponseType(typeof(CallerIdentityResponse), StatusCodes.Status200OK)]
-    public IActionResult Me()
+    public async Task<IActionResult> Me(CancellationToken cancellationToken)
     {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        bool hasCommitted =
+            await _committedArchitectureReviewFlagReader.TenantHasCommittedArchitectureReviewAsync(
+                scope,
+                cancellationToken);
+
         CallerIdentityResponse response = new()
         {
             Name = User.Identity?.Name,
             Claims = User.Claims
                 .Select(x => new CallerClaimResponse { Type = x.Type, Value = x.Value })
-                .ToList()
+                .ToList(),
+            HasCommittedArchitectureReview = hasCommitted
         };
 
         return Ok(response);

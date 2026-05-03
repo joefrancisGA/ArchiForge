@@ -4,7 +4,7 @@
  * ## Endpoint and JSON shape
  *
  * - **Upstream API:** `GET /api/auth/me` (`ArchLucid.Api.Controllers.Admin.AuthDebugController`), same body as
- *   **`CallerIdentityResponse`**: `{ "name": string | null, "claims": [ { "type", "value" }, ... ] }`.
+ *   **`CallerIdentityResponse`**: `{ "name", "claims", "hasCommittedArchitectureReview"?, … }`.
  * - **Browser (same-origin):** `GET /api/proxy/api/auth/me` — forwards bearer / API key + scope headers; see
  *   `src/app/api/proxy/[...path]/route.ts`.
  *
@@ -13,14 +13,14 @@
  * - **`loadCurrentPrincipal` / `getCurrentPrincipal`** — full **`CurrentPrincipal`** (name, roles, rank, flags).
  * - **`getCurrentAuthority`** — `ReadAuthority` | `ExecuteAuthority` | `AdminAuthority` only.
  * - **`getCurrentAuthorityRank`** — numeric rank (see **`AUTHORITY_RANK`** in `nav-authority.ts`).
- * - **`normalizeAuthMeResponse`** — pure parse for tests or callers that already have JSON.
+ * - **`normalizeAuthMeResponse`** — pure parse for tests or callers that already have JSON (incl. `hasCommittedArchitectureReview`).
  * - **`buildAuthMeProxyRequestInit`** — shared `RequestInit` (bearer + registration scope) for `/me` or diagnostics.
  *
  * ## Where `authorityRank` flows (keep in sync)
  *
  * **`OperatorNavAuthorityProvider`** exposes the same rank to **`useNavCallerAuthorityRank()`**, which feeds
- * **`filterNavLinksForOperatorShell`** / **`listNavGroupsVisibleInOperatorShell`** (`nav-shell-visibility.ts`) and
- * **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). Page-level **layout**
+ * **`filterNavLinksForOperatorShell`** / **`listNavGroupsVisibleInOperatorShell`** (`nav-shell-visibility.ts`) alongside
+ * **`useNavCommittedArchitectureReview()`**, and **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). Page-level **layout**
  * (inspect-first columns when mutation is off) also keys off that hook on some routes — see **`authority-shaped-layout-regression.test.tsx`**.
  * **`LayerHeader`**
  * Enterprise rank cue uses the **same numeric Execute boundary** for in-strip copy (**not** tier disclosure — that stays in
@@ -87,6 +87,8 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
 export type AuthMeResponse = {
   name?: string | null;
   claims?: ReadonlyArray<{ type: string; value: string }>;
+  /** True when the scoped tenant has at least one committed run with a golden manifest (`CallerIdentityResponse`). */
+  hasCommittedArchitectureReview?: boolean | null;
 };
 
 /** ArchLucid app roles carried in JWT / dev-bypass claims (`ArchLucidRoles` on the server). */
@@ -115,6 +117,11 @@ export type CurrentPrincipal = {
   authorityRank: number;
   /** True when the principal should see operator/admin-oriented Enterprise Controls hints (Execute+) */
   hasEnterpriseOperatorSurfaces: boolean;
+  /**
+   * When false, operator shell nav is narrowed to Home + Reviews surfaces only until the first committed golden-manifest
+   * review for the current scope — from `GET /api/auth/me` (`hasCommittedArchitectureReview`).
+   */
+  hasCommittedArchitectureReview: boolean;
 };
 
 const ME_PATH = "/api/proxy/api/auth/me";
@@ -141,6 +148,8 @@ export async function buildAuthMeProxyRequestInit(): Promise<RequestInit> {
 }
 
 function createSyntheticPrincipal(reason: CurrentPrincipalSyntheticReason): CurrentPrincipal {
+  const preserveFullNavOnMeFailure = reason === "me-http" || reason === "me-network" || reason === "non-browser";
+
   return {
     provenance: "synthetic",
     syntheticReason: reason,
@@ -150,6 +159,7 @@ function createSyntheticPrincipal(reason: CurrentPrincipalSyntheticReason): Curr
     maxAuthority: "ReadAuthority",
     authorityRank: AUTHORITY_RANK.ReadAuthority,
     hasEnterpriseOperatorSurfaces: false,
+    hasCommittedArchitectureReview: preserveFullNavOnMeFailure,
   };
 }
 
@@ -166,6 +176,7 @@ export const shellBootstrapReadPrincipal: Readonly<CurrentPrincipal> = Object.fr
   maxAuthority: "ReadAuthority",
   authorityRank: AUTHORITY_RANK.ReadAuthority,
   hasEnterpriseOperatorSurfaces: false,
+  hasCommittedArchitectureReview: false,
 });
 
 /**
@@ -181,6 +192,7 @@ export const operatorNavOutsideProviderPrincipal: Readonly<CurrentPrincipal> = O
   maxAuthority: "AdminAuthority",
   authorityRank: AUTHORITY_RANK.AdminAuthority,
   hasEnterpriseOperatorSurfaces: true,
+  hasCommittedArchitectureReview: true,
 });
 
 function primaryAppRoleFromRank(rank: number, roleClaimValues: readonly string[]): ArchLucidAppRole | null {
@@ -223,6 +235,7 @@ export function normalizeAuthMeResponse(payload: AuthMeResponse): CurrentPrincip
     maxAuthority,
     authorityRank,
     hasEnterpriseOperatorSurfaces: authorityRank >= AUTHORITY_RANK.ExecuteAuthority,
+    hasCommittedArchitectureReview: payload.hasCommittedArchitectureReview === true,
   };
 }
 

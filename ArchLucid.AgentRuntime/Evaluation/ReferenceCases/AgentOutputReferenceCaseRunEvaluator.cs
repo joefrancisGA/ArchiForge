@@ -83,13 +83,11 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 new TagList { { "case_id", caseDef.CaseId }, { "agent_type", agentLabel } });
 
             if (!pass && failureReason is not null)
-
-                logger.LogDebug(
-                    "Reference case {CaseId} failed for run {RunId} trace {TraceId}: {Reason}",
-                    LogSanitizer.Sanitize(caseDef.CaseId),
-                    LogSanitizer.Sanitize(runId),
-                    LogSanitizer.Sanitize(trace.TraceId),
-                    LogSanitizer.Sanitize(failureReason));
+                logger.LogDebugReferenceCaseEvaluationFailed(
+                    caseDef.CaseId,
+                    runId,
+                    trace.TraceId,
+                    failureReason);
 
             string? missingKeysJson = structural.MissingKeys.Count > 0
                 ? JsonSerializer.Serialize(structural.MissingKeys, WebJson)

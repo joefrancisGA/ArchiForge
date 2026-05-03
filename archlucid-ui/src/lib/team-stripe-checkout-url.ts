@@ -29,3 +29,36 @@ export function isUsableTeamStripeCheckoutUrl(raw: string | null | undefined): b
 
   return true;
 }
+
+/**
+ * Resolves the effective Team Stripe checkout URL for marketing/pricing surfaces.
+ *
+ * - When `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED` is explicitly `"0"`/`"false"`, returns `null` (sales-led suppression).
+ *   When **unset**, Stripe follows historic `pricing.json` gating only (`isUsableTeamStripeCheckoutUrl`).
+ * - When `NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL` is set (and passes {@link isUsableTeamStripeCheckoutUrl}), it overrides `pricing.json`.
+ * - Otherwise falls back to `pricing.teamStripeCheckoutUrl` when usable.
+ */
+export function resolveTeamStripeCheckoutHref(pricingTeamStripeCheckoutUrl: string | null | undefined): string | null {
+  const enabledStrip = process.env.NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_ENABLED?.trim();
+  const checkoutExplicitlyDisabled =
+    enabledStrip === "0" || enabledStrip?.toLowerCase() === "false";
+
+  if (checkoutExplicitlyDisabled)
+    return null;
+
+  const envRaw = process.env.NEXT_PUBLIC_STRIPE_TEAM_CHECKOUT_URL;
+  const envCandidate = typeof envRaw === "string" ? envRaw.trim() : "";
+
+  const fromEnv = envCandidate.length > 0 ? envCandidate : null;
+  const fromDoc =
+    pricingTeamStripeCheckoutUrl !== null && pricingTeamStripeCheckoutUrl !== undefined
+      ? pricingTeamStripeCheckoutUrl.trim()
+      : "";
+
+  const candidate = fromEnv ?? (fromDoc.length > 0 ? fromDoc : null);
+
+  if (candidate === null || !isUsableTeamStripeCheckoutUrl(candidate))
+    return null;
+
+  return candidate;
+}

@@ -34,4 +34,28 @@ public static class SanitizedLoggerDebugExtensions
             safeAgentTypeKey,
             durationMs);
     }
+
+    /// <summary>Logs a reference-case evaluation failure with four user-derived strings sanitized.</summary>
+    public static void LogDebugReferenceCaseEvaluationFailed(
+        this ILogger logger,
+        string userCaseId,
+        string userRunId,
+        string userTraceId,
+        string userFailureReason)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeCaseId = LogSanitizer.Sanitize(userCaseId);
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeTraceId = LogSanitizer.Sanitize(userTraceId);
+        string safeReason = LogSanitizer.Sanitize(userFailureReason);
+
+        // codeql[cs/log-forging]: string placeholders sanitized immediately above (params boxing breaks barrier at call sites).
+        logger.LogDebug(
+            "Reference case {CaseId} failed for run {RunId} trace {TraceId}: {Reason}",
+            safeCaseId,
+            safeRunId,
+            safeTraceId,
+            safeReason);
+    }
 }
