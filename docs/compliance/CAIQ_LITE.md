@@ -23,7 +23,7 @@ Yes, all external communication requires HTTPS (TLS 1.2+).
 Yes. ArchLucid maps identity provider roles to `Admin`, `Operator`, and `Reader` policies.
 
 **7. How are AI models accessed?**
-ArchLucid integrates with Azure OpenAI. Communication is secured via HTTPS and authenticated using Azure AD or API keys. No customer data is used to train the base models.
+ArchLucid integrates with Azure OpenAI. Communication is secured via HTTPS and authenticated using Microsoft Entra ID or API keys. No customer data is used to train the base models.
 
 **8. Is there an audit trail for actions?**
 Yes. All runs, results, and commits are persisted in SQL Server, providing a historical record of architecture decisions.
