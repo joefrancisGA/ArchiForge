@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack -p 3000",
     "generate:pricing": "node ./scripts/invoke-generate-pricing.mjs",
-    "clean:next-export": "node ./scripts/clean-next-export.mjs",
-    "build": "npm run generate:pricing && npm run clean:next-export && next build",
+    "clean:next": "node ./scripts/clean-next-dir.mjs",
+    "build": "npm run generate:pricing && npm run clean:next && next build",
     "start": "next start -p 3000",
     "lint": "next lint",
     "test": "vitest run",
