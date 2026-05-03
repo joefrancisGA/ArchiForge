@@ -11,6 +11,9 @@ public static class ComparisonReplayTestFixture
 {
     private static readonly JsonSerializerOptions ReplayBodyJson = new(JsonSerializerDefaults.Web);
 
+    /// <summary>Returns a unique manifest label for replay commit (parallel suites or repeated runs on shared DB).</summary>
+    public static string NewReplayCommittedManifestVersion() => $"v1r{Guid.NewGuid():N}";
+
     /// <summary>
     ///     Creates a run via <c>POST /v1/architecture/request</c>, executes it, and returns the run id (no commit or replay).
     /// </summary>
@@ -61,9 +64,7 @@ public static class ComparisonReplayTestFixture
         HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        // dbo.GoldenManifests: at most one active manifest per RunId (UQ_GoldenManifests_RunId_Active). A fixed
-        // manifestVersionOverride collides when multiple tests share one WebApplicationFactory database (same test class).
-        string replayManifestVersion = $"v1r{Guid.NewGuid():N}";
+        string replayManifestVersion = NewReplayCommittedManifestVersion();
 
         HttpResponseMessage replayResponse = await client.PostAsync(
             $"/v1/architecture/run/{runId}/replay",

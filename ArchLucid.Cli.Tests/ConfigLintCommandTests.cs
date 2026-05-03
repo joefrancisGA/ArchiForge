@@ -20,7 +20,7 @@ public sealed class ConfigLintCommandTests
             Path.Combine(Path.GetTempPath(), "ArchLucid.Cli.Tests.configLint." + Guid.NewGuid().ToString("N")[..8]);
         Directory.CreateDirectory(temp);
 
-        File.WriteAllText(Path.Combine(temp, "appsettings.json"), "{}");
+        await File.WriteAllTextAsync(Path.Combine(temp, "appsettings.json"), "{}");
 
         try
         {
@@ -74,7 +74,7 @@ public sealed class ConfigLintCommandTests
             Path.Combine(Path.GetTempPath(), "ArchLucid.Cli.Tests.configLint." + Guid.NewGuid().ToString("N")[..8]);
         Directory.CreateDirectory(temp);
 
-        File.WriteAllText(
+        await File.WriteAllTextAsync(
             Path.Combine(temp, "appsettings.json"),
             "{\"ArchLucidAuth\":{\"Mode\":\"DevelopmentBypass\"}}");
 

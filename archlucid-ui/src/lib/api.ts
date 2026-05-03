@@ -427,10 +427,10 @@ export async function commitArchitectureRun(
   });
 }
 
-/** Seeds deterministic fake agent results for a run (POST /v1/architecture/run/{runId}/seed-fake-results; non-Production only). */
+/** Seeds deterministic fake agent results for a run (POST /v1/internal/architecture/runs/{runId}/seed-fake-results; operator + ExecuteAuthority). */
 export async function seedFakeArchitectureRunResults(runId: string): Promise<{ resultCount?: number }> {
   return apiPostJson<{ resultCount?: number }>(
-    `/v1/architecture/run/${encodeURIComponent(runId)}/seed-fake-results`,
+    `/v1/internal/architecture/runs/${encodeURIComponent(runId)}/seed-fake-results`,
     {},
   );
 }

@@ -1,9 +1,10 @@
-﻿using ArchLucid.Application.Governance.FindingReview;
+using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
-using PersistenceFindingReviewEventRecord = ArchLucid.Persistence.Models.FindingReviewEventRecord;
 
 using Moq;
+
+using PersistenceFindingReviewEventRecord = ArchLucid.Persistence.Models.FindingReviewEventRecord;
 
 namespace ArchLucid.Application.Tests.Governance.FindingReview;
 
@@ -63,8 +64,9 @@ public sealed class FindingReviewTrailAppendServiceTests
             OccurredAtUtc = DateTime.UtcNow,
         };
 
-        Task Act() => sut.AppendAsync(record, CancellationToken.None);
-
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(Act);
+        return;
+
+        Task Act() => sut.AppendAsync(record, CancellationToken.None);
     }
 }

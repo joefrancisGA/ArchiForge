@@ -15,8 +15,12 @@ namespace ArchLucid.Application.Decisions;
 ///     support/opposition. Deterministic; no LLM calls.
 /// </summary>
 /// <remarks>
-///     Target task is the topology task when present so <c>TopologyAcceptance</c> scores
-///     cross-agent signals; otherwise evaluations target the result task that held the finding.
+///     Target task is the topology task when present so <c>TopologyAcceptance</c> scores cross-agent friction.
+///     Compliance/Critic <see cref="FindingSeverity.Critical" /> findings surface as cautious signals (not full
+///     <see cref="EvaluationTypes.Oppose" />): mandatory controls/policy gaps feed governance merges and should not veto
+///     the baseline Simulator topology when <see cref="ArchLucid.Application.ReplayRunService" /> uses
+///     <see cref="ArchLucid.Decisioning.Merge.DecisionEngineV2" />.
+///     Otherwise evaluations target the result task that held the finding.
 /// </remarks>
 public sealed class FindingsBackedAgentEvaluationService : IAgentEvaluationService
 {
@@ -62,8 +66,8 @@ public sealed class FindingsBackedAgentEvaluationService : IAgentEvaluationServi
             (AgentType.Compliance or AgentType.Critic, FindingSeverity.Critical) => Build(
                 runId,
                 targetTaskId,
-                EvalTypes.Oppose,
-                -0.30,
+                EvalTypes.Caution,
+                -0.12,
                 finding),
 
             (AgentType.Compliance or AgentType.Critic, FindingSeverity.Error) => Build(

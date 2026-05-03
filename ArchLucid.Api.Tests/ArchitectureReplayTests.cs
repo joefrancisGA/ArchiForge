@@ -59,9 +59,11 @@ public sealed class ArchitectureReplayTests(ArchLucidApiFactory factory) : Integ
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
+        string rightVersion = "v1-replay";
+
         var replayRequest = new
         {
-            commitReplay = true, executionMode = "Current", manifestVersionOverride = "v1-replay"
+            commitReplay = true, executionMode = "Current", manifestVersionOverride = rightVersion
         };
 
         HttpResponseMessage replayResponse = await Client.PostAsync(

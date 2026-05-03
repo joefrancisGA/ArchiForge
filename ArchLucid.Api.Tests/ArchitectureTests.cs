@@ -69,7 +69,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
             .GetString();
 
         HttpResponseMessage seed = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/seed-fake-results",
+            $"/v1/internal/architecture/runs/{runId}/seed-fake-results",
             null);
 
         seed.EnsureSuccessStatusCode();

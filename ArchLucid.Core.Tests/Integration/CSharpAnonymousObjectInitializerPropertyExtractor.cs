@@ -48,13 +48,12 @@ internal static class CSharpAnonymousObjectInitializerPropertyExtractor
                 continue;
             }
 
-            if (trimmed.Length > 0 && trimmed[^1] is ',')
-            {
-                ReadOnlySpan<char> idOnly = trimmed.AsSpan(0, trimmed.Length - 1).Trim();
+            if (trimmed.Length <= 0 || trimmed[^1] is not ',') continue;
 
-                if (IsIdentifier(idOnly))
-                    names.Add(idOnly.ToString());
-            }
+            ReadOnlySpan<char> idOnly = trimmed.AsSpan(0, trimmed.Length - 1).Trim();
+
+            if (IsIdentifier(idOnly))
+                names.Add(idOnly.ToString());
         }
 
         return names;

@@ -86,8 +86,7 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
                 // CS8122: Moq It.Is compiles to an expression tree; use != null instead of `is not null`.
                 It.Is<string>(
                     s =>
-                        s != null
-                        && s.StartsWith("Request content failed safety precheck:", StringComparison.Ordinal)),
+                        s.StartsWith("Request content failed safety precheck:", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 

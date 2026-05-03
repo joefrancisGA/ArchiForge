@@ -1,8 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Cli;
-
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 

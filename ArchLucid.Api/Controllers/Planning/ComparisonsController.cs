@@ -54,7 +54,9 @@ public sealed class ComparisonsController(
     IComparisonReplayCostEstimator comparisonReplayCostEstimator,
     IDriftReportFormatter driftReportFormatter,
     DriftReportDocxExport driftReportDocxExport,
-    IValidator<ComparisonHistoryQuery> comparisonHistoryQueryValidator)
+    IValidator<ComparisonHistoryQuery> comparisonHistoryQueryValidator,
+    IValidator<ApiReplayComparisonRequest> replayComparisonRequestValidator,
+    IValidator<BatchReplayComparisonRequest> batchReplayComparisonRequestValidator)
     : ControllerBase
 {
     [HttpGet("run/{runId}/comparisons")]
@@ -309,6 +311,14 @@ public sealed class ComparisonsController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ValidationResult replayBodyValidation =
+            await replayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!replayBodyValidation.IsValid)
+            return this.BadRequestProblem(
+                string.Join(" ", replayBodyValidation.Errors.Select(e => e.ErrorMessage)),
+                ProblemTypes.ValidationFailed);
+
         ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
             ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
             false,
@@ -395,6 +405,14 @@ public sealed class ComparisonsController(
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayComparisonRequest();
+
+        ValidationResult metadataReplayValidation =
+            await replayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!metadataReplayValidation.IsValid)
+            return this.BadRequestProblem(
+                string.Join(" ", metadataReplayValidation.Errors.Select(e => e.ErrorMessage)),
+                ProblemTypes.ValidationFailed);
+
         ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
             ReplayComparisonRequestMapper.ToApplication(comparisonRecordId, request),
             true,
@@ -436,6 +454,13 @@ public sealed class ComparisonsController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        ValidationResult batchValidation =
+            await batchReplayComparisonRequestValidator.ValidateAsync(request, cancellationToken);
+        if (!batchValidation.IsValid)
+            return this.BadRequestProblem(
+                string.Join(" ", batchValidation.Errors.Select(e => e.ErrorMessage)),
+                ProblemTypes.ValidationFailed);
 
         List<string> processedIds = [];
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);

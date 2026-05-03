@@ -51,7 +51,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
     }
 
     [SkippableFact]
-    public async Task EvaluateAsync_critical_compliance_opposes_topology_task()
+    public async Task EvaluateAsync_critical_compliance_cautions_topology_task()
     {
         List<AgentTask> tasks =
         [
@@ -91,8 +91,8 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         AgentEvaluation evaluation = evaluations.Should().ContainSingle().Subject;
         evaluation.RunId.Should().Be("run-1");
         evaluation.TargetAgentTaskId.Should().Be("T-topo");
-        evaluation.EvaluationType.Should().Be(EvalTypes.Oppose);
-        evaluation.ConfidenceDelta.Should().Be(-0.30);
+        evaluation.EvaluationType.Should().Be(EvalTypes.Caution);
+        evaluation.ConfidenceDelta.Should().Be(-0.12);
         evaluation.Rationale.Should().Contain("private");
     }
 
@@ -138,7 +138,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
     }
 
     [SkippableFact]
-    public async Task EvaluateAsync_critical_critic_opposes_topology_task()
+    public async Task EvaluateAsync_critical_critic_cautions_topology_task()
     {
         List<AgentTask> tasks =
         [
@@ -168,7 +168,11 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
             results,
             CancellationToken.None);
 
-        evaluations.Should().ContainSingle().Subject.TargetAgentTaskId.Should().Be("T-topo");
+        evaluations.Should().ContainSingle();
+        AgentEvaluation caution = evaluations[0];
+        caution.TargetAgentTaskId.Should().Be("T-topo");
+        caution.EvaluationType.Should().Be(EvalTypes.Caution);
+        caution.ConfidenceDelta.Should().Be(-0.12);
     }
 
     [SkippableFact]

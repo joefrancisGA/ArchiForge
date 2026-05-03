@@ -88,7 +88,7 @@ public sealed class PilotValueReportServiceTests
                     "c1"));
 
         runs.SetupSequence(r => r.ListRunSummariesKeysetAsync("c1", 100, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Array.Empty<RunSummary>(), false, null));
+            .ReturnsAsync(([], false, null));
 
         runs.Setup(r => r.GetRunDetailAsync(RunA, It.IsAny<CancellationToken>()))
             .ReturnsAsync(Detail(RunA, from.AddDays(1), committedUtc: from.AddDays(1).AddMinutes(30), findings: []));

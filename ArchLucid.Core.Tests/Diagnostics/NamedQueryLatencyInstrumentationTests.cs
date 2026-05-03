@@ -20,7 +20,7 @@ public sealed class NamedQueryLatencyInstrumentationTests
 
         DoubleMeasurementRecord? hit = cap.DoubleMeasures.FirstOrDefault(m => m.Name == "archlucid_query_p95_ms");
         hit.Should().NotBeNull();
-        hit!.Value.Should().BeApproximately(12.5, 0.001);
+        hit.Value.Should().BeApproximately(12.5, 0.001);
         hit.Tags.Should().Contain(t => t.Key == "query_name" && (string?)t.Value == "GetGoldenManifestById");
     }
 

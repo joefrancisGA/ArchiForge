@@ -93,7 +93,7 @@ function runBurstForTenant(tenantIndex) {
     return;
   }
 
-  r = post(tenantIndex, `/v1/architecture/run/${encodeURIComponent(runId)}/seed-fake-results`, null);
+  r = post(tenantIndex, `/v1/internal/architecture/runs/${encodeURIComponent(runId)}/seed-fake-results`, null);
   check(r, { "seed fake 2xx": (res) => res.status >= 200 && res.status < 300 });
 
   r = post(tenantIndex, `/v1/architecture/run/${encodeURIComponent(runId)}/commit`, null);

@@ -1,5 +1,4 @@
 using ArchLucid.Application.Pilots;
-using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -21,7 +20,10 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
             run,
             MinimalManifest(),
-            MinimalDeltas(run) with { AuditRowCount = 3 },
+            MinimalDeltas(run) with
+            {
+                AuditRowCount = 3
+            },
             TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Complete);
@@ -32,7 +34,10 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
     public void Evaluate_DemoTenant_IsDemoOnlyWithGap()
     {
         ArchitectureRun run = CommittedRun();
-        PilotRunDeltas deltas = MinimalDeltas(run) with { IsDemoTenant = true };
+        PilotRunDeltas deltas = MinimalDeltas(run) with
+        {
+            IsDemoTenant = true
+        };
 
         PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
             run,

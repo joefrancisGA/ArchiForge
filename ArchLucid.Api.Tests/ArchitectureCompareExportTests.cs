@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -34,15 +35,17 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
             await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
+        string rightVersion = "v1-replay";
+
         var replayRequest = new
         {
-            commitReplay = true, executionMode = "Current", manifestVersionOverride = "v1-replay"
+            commitReplay = true, executionMode = "Current", manifestVersionOverride = rightVersion
         };
 
         await Client.PostAsync($"/v1/architecture/run/{runId}/replay", JsonContent(replayRequest));
 
         HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/architecture/manifest/compare/export?leftVersion={leftVersion}&rightVersion=v1-replay");
+            $"/v1/architecture/manifest/compare/export?leftVersion={Uri.EscapeDataString(leftVersion)}&rightVersion={Uri.EscapeDataString(rightVersion)}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -52,6 +55,6 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
         payload.Format.Should().Be("markdown");
         payload.Content.Should().Contain("# ArchLucid Manifest Comparison Export");
         payload.Content.Should().Contain(leftVersion);
-        payload.Content.Should().Contain("v1-replay");
+        payload.Content.Should().Contain(rightVersion);
     }
 }

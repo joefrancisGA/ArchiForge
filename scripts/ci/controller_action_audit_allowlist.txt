@@ -36,8 +36,6 @@ ArchLucid.Api.Controllers.Authority.RunsController.CommitRun
 ArchLucid.Api.Controllers.Authority.RunsController.CreateRun
 ArchLucid.Api.Controllers.Authority.RunsController.ExecuteRun
 ArchLucid.Api.Controllers.Authority.RunsController.ReplayRun
-ArchLucid.Api.Controllers.Authority.RunsController.RunDeterminismCheck
-ArchLucid.Api.Controllers.Authority.RunsController.SeedFakeResults
 ArchLucid.Api.Controllers.Authority.RunsController.SubmitAgentResult
 ArchLucid.Api.Controllers.Billing.BillingMarketplaceWebhookController.MarketplaceAsync
 ArchLucid.Api.Controllers.Billing.BillingStripeWebhookController.StripeAsync

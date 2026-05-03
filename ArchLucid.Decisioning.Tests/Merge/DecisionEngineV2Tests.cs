@@ -103,9 +103,9 @@ public sealed class DecisionEngineV2Tests
     }
 
     /// <summary>
-    ///     Cumulative opposition from a single Critical Compliance finding maps to
-    ///     <c>ConfidenceDelta = -0.30</c> in <c>FindingsBackedAgentEvaluationService</c>; that weight must flip
-    ///     acceptance when topology confidence is only moderate.
+    ///     A single Compliance-style <see cref="EvalTypes.Oppose" /> with <c>-0.30</c> delta outweighs topology confidence
+    ///     <c>0.69</c> (+ tiny Support signals), so TopologyAcceptance must select reject—validates veto behavior independent of
+    ///     simulator finding mapping (<see cref="ArchLucid.Application.Decisions.FindingsBackedAgentEvaluationService" />).
     /// </summary>
     [Fact]
     public async Task ResolveAsync_when_critical_compliance_opposition_outweighs_topology_confidence_selects_reject()

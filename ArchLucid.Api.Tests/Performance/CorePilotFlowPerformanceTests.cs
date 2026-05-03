@@ -44,7 +44,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
 
         tSeed.Sw.Start();
         HttpResponseMessage seedResponse =
-            await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
+            await Client.PostAsync($"/v1/internal/architecture/runs/{runId}/seed-fake-results", null);
         tSeed.Sw.Stop();
         seedResponse.EnsureSuccessStatusCode();
 
@@ -111,7 +111,7 @@ public sealed class CorePilotFlowPerformanceTests(ArchLucidApiFactory factory, I
         string runId = created!.Run.RunId;
 
         HttpResponseMessage seedResponse =
-            await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
+            await Client.PostAsync($"/v1/internal/architecture/runs/{runId}/seed-fake-results", null);
         seedResponse.EnsureSuccessStatusCode();
 
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
