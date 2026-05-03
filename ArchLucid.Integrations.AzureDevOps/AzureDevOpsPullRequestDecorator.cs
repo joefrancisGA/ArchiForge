@@ -33,7 +33,8 @@ public sealed class AzureDevOpsPullRequestDecorator(
         AzureDevOpsPullRequestTarget target,
         CancellationToken cancellationToken)
     {
-        if (request is null) throw new ArgumentNullException(nameof(request));
+        if (request is null)
+            throw new ArgumentNullException(nameof(request));
 
         AzureDevOpsIntegrationOptions o = _options.Value;
         if (string.IsNullOrWhiteSpace(o.Organization)
@@ -144,16 +145,15 @@ public sealed class AzureDevOpsPullRequestDecorator(
                 await JsonSerializer.DeserializeAsync<ComparisonResult>(stream, CompareJsonOptions, ct)
                     .ConfigureAwait(false);
 
-            if (parsed is null)
-            {
-                if (_logger.IsEnabled(LogLevel.Warning))
+            if (parsed is not null)
+                return GoldenManifestCompareMarkdownFormatter.Format(parsed, operatorRunDeepLink);
 
-                    _logger.LogWarning("ArchLucid GET /v1/compare returned JSON that did not deserialize to ComparisonResult.");
+            if (_logger.IsEnabled(LogLevel.Warning))
 
-                return null;
-            }
+                _logger.LogWarning("ArchLucid GET /v1/compare returned JSON that did not deserialize to ComparisonResult.");
 
-            return GoldenManifestCompareMarkdownFormatter.Format(parsed, operatorRunDeepLink);
+            return null;
+
         }
         catch (Exception ex) when (!ct.IsCancellationRequested)
         {

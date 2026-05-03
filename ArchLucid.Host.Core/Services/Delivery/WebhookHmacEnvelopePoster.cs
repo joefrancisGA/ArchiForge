@@ -17,15 +17,6 @@ public sealed class WebhookHmacEnvelopePoster(IOptionsMonitor<WebhookDeliveryOpt
         string? fromConfig = deliveryOptions.CurrentValue.HmacSha256SharedSecret?.Trim();
         string? secret = !string.IsNullOrEmpty(fromCall) ? fromCall : fromConfig;
 
-        if (!string.IsNullOrEmpty(secret))
-        {
-            return inner.PostJsonAsync(
-                url,
-                payload,
-                ct,
-                new WebhookPostOptions { HmacSha256SharedSecret = secret, EventType = options?.EventType, TenantId = options?.TenantId, });
-        }
-
-        return inner.PostJsonAsync(url, payload, ct, options);
+        return inner.PostJsonAsync(url, payload, ct, !string.IsNullOrEmpty(secret) ? new WebhookPostOptions { HmacSha256SharedSecret = secret, EventType = options?.EventType, TenantId = options?.TenantId, } : options);
     }
 }

@@ -15,7 +15,8 @@ public static class GoldenManifestCompareMarkdownFormatter
     /// <param name="operatorRunDeepLink">Optional single-run operator URL (appended line when non-empty).</param>
     public static string Format(ComparisonResult result, string? operatorRunDeepLink)
     {
-        if (result is null) throw new ArgumentNullException(nameof(result));
+        if (result is null)
+            throw new ArgumentNullException(nameof(result));
 
         StringBuilder lines = new();
         lines.AppendLine("## ArchLucid manifest delta");
@@ -48,11 +49,11 @@ public static class GoldenManifestCompareMarkdownFormatter
         lines.AppendLine($"| Cost changes | {result.CostChanges.Count} |");
         lines.AppendLine();
 
-        if (!string.IsNullOrWhiteSpace(operatorRunDeepLink))
-        {
-            lines.AppendLine($"[Open operator run]({operatorRunDeepLink.Trim()})");
-            lines.AppendLine();
-        }
+        if (string.IsNullOrWhiteSpace(operatorRunDeepLink))
+            return lines.ToString();
+
+        lines.AppendLine($"[Open operator run]({operatorRunDeepLink.Trim()})");
+        lines.AppendLine();
 
         return lines.ToString();
     }

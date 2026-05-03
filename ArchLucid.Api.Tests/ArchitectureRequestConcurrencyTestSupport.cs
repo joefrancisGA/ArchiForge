@@ -10,6 +10,14 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 internal static class ArchitectureRequestConcurrencyTestSupport
 {
+    /// <summary>
+    ///     Default <see cref="HttpClient.Timeout" /> is 100s; create-run idempotency uses <c>sp_getapplock</c> with a
+    ///     wait budget up to <c>CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c> (300s in greenfield SQL tests).
+    ///     Parallel POSTs serialize on that lock — later slots exceed 100s unless the client timeout is raised before
+    ///     the first <see cref="HttpClient.SendAsync" /> on this client instance.
+    /// </summary>
+    private static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(15);
+
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
@@ -28,9 +36,12 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         int parallel,
         CancellationToken cancellationToken = default)
     {
+        if (parallel > 1)
+            AlignHttpClientTimeoutForSqlIdempotencyLockChain(client);
+
         // Per-operation timeout: cannot assign HttpClient.Timeout after the first request (runtime throws). Cold CI
-        // SQL + DbUp + sp_getapplock can exceed 100s per slot, so use a long linked token for parallel bursts.
-        TimeSpan operationTimeout = parallel > 1 ? TimeSpan.FromMinutes(6) : TimeSpan.FromSeconds(100);
+        // SQL + DbUp + serialized sp_getapplock chains can exceed many minutes (N slots x create-run duration).
+        TimeSpan operationTimeout = parallel > 1 ? ArchitectureRequestBurstHttpTimeout : TimeSpan.FromSeconds(100);
 
         using CancellationTokenSource timeoutCts = new();
         timeoutCts.CancelAfter(operationTimeout);
@@ -111,6 +122,8 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         int initialDelayMilliseconds,
         CancellationToken cancellationToken)
     {
+        AlignHttpClientTimeoutForSqlIdempotencyLockChain(client);
+
         int delayMilliseconds = initialDelayMilliseconds;
         HttpResponseMessage[] responses =
             await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel, cancellationToken);
@@ -135,5 +148,11 @@ internal static class ArchitectureRequestConcurrencyTestSupport
         {
             response.Dispose();
         }
+    }
+
+    private static void AlignHttpClientTimeoutForSqlIdempotencyLockChain(HttpClient client)
+    {
+        if (client.Timeout < ArchitectureRequestBurstHttpTimeout)
+            client.Timeout = ArchitectureRequestBurstHttpTimeout;
     }
 }

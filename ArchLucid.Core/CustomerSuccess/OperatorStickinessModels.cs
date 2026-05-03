@@ -5,7 +5,7 @@ public sealed record OperatorStickinessSignals(
     int TotalRunsInScope,
     int CommittedRunsInScope,
     Guid? LatestRunId,
-    int ComparisonAuditEvents30d,
+    int ComparisonAuditEvents30D,
     int PendingGovernanceApprovals);
 
 /// <summary>Durable, queryable pilot funnel milestones derived from existing tables (no PII columns).</summary>

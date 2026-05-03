@@ -1,0 +1,73 @@
+---
+description: Prefer inverted conditionals — guard clauses and early exits — to keep nesting shallow and the happy path at the lowest indent.
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# Invert `if`s — flatten nesting with guard clauses
+
+## Rule
+
+Prefer **guard clauses** and **early exits** over nesting the main logic inside positive branches. When a branch only handles an exceptional, empty, or short path (**`return`**, **`throw`**, **`continue`**, **`break`**), structure it so that path is handled first and the remainder of the block stays **out** of extra braces.
+
+Treat “invert `if`” as: **negate or reorder** the condition so the early-exit stays at the top, and the default / happy path flows straight down at **minimal indentation**.
+
+## Preferred
+
+```csharp
+public void Handle(Request request)
+{
+    if (request is null) throw new ArgumentNullException(nameof(request));
+    if (!request.IsValid) return;
+
+    Process(request);
+}
+```
+
+```csharp
+// Prefer early continue over wrapping the loop body
+foreach (Item item in items)
+{
+    if (item is null || item.IsArchived) continue;
+
+    Process(item);
+}
+```
+
+## Avoid
+
+```csharp
+// Avoid — burying the happy path one level deeper
+public void Handle(Request request)
+{
+    if (request is not null)
+    {
+        if (request.IsValid)
+        {
+            Process(request);
+        }
+    }
+}
+```
+
+```csharp
+// Avoid — redundant else after a terminating branch (use fall-through)
+if (x)
+{
+    return;
+}
+else
+{
+    DoWork();
+}
+```
+
+## When *not* to force inversion
+
+Keep symmetric **`if` / `else if` / `else`** (or a **`switch`** / **`switch` expression**) when **every** branch is a **peer** computation at the same level (mapping, routing, parsers) and inverting would harm readability — in those cases **`CSharp-Terse-03-SwitchExpressions.mdc`** still applies where it fits.
+
+## Companion rules
+
+- **`CSharp-Terse-12-EarlyReturnNoTrailingElse.mdc`** — no trailing `else` after a guarded return/throw/break/continue.
+- **`CSharp-Terse-01-GuardClausesSameLine.mdc`** — same-line guards when the line stays readable.
+- **`CSharp-Whitespace-MaxSingleBlankLine.mdc`** — after refactoring, keep **at most one** blank line between logical lines; still respect **one blank line before** an `if` / `foreach` when that is the first statement after another statement in the same block (team norm).

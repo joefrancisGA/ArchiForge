@@ -31,11 +31,10 @@ public static class AzureDevOpsRunSummaryMarkdown
             sb.AppendLine();
         }
 
-        if (!string.IsNullOrWhiteSpace(operatorRunDeepLink))
-        {
-            sb.AppendLine($"[Open operator run]({operatorRunDeepLink.Trim()})");
-            sb.AppendLine();
-        }
+        if (string.IsNullOrWhiteSpace(operatorRunDeepLink))
+            return sb.ToString();
+        sb.AppendLine($"[Open operator run]({operatorRunDeepLink.Trim()})");
+        sb.AppendLine();
 
         return sb.ToString();
     }

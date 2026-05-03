@@ -76,7 +76,7 @@ public sealed class OperatorNextBestActionService(
                     35));
         }
 
-        if (signals is { ComparisonAuditEvents30d: 0, CommittedRunsInScope: >= 2 })
+        if (signals is { ComparisonAuditEvents30D: 0, CommittedRunsInScope: >= 2 })
         {
             items.Add(
                 new OperatorNextBestActionItem(

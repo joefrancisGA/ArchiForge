@@ -45,6 +45,8 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 
         await using GreenfieldSqlApiFactory factory = new();
         HttpClient client = factory.CreateClient();
+        // WebApplicationFactory HttpClient defaults to 100s; parallel idempotency waits on sp_getapplock far longer.
+        client.Timeout = TimeSpan.FromMinutes(16);
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         string idempotencyKey = "idem-conc-" + Guid.NewGuid().ToString("N");

@@ -1,8 +1,7 @@
-﻿using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
-using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Requests;
 
 using EvalTypes = ArchLucid.Contracts.Decisions.EvaluationTypes;
