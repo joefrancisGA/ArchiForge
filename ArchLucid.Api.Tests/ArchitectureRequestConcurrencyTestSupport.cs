@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,10 +14,10 @@ internal static class ArchitectureRequestConcurrencyTestSupport
     /// <summary>
     ///     Default <see cref="HttpClient.Timeout" /> is 100s; create-run idempotency uses <c>sp_getapplock</c> with a
     ///     wait budget up to <c>CreateRun:DistributedIdempotencyLockTimeoutMilliseconds</c> (300s in greenfield SQL tests).
-    ///     Parallel POSTs serialize on that lock — later slots exceed 100s unless the client timeout is raised before
-    ///     the first <see cref="HttpClient.SendAsync" /> on this client instance.
+    ///     Parallel POSTs serialize on that lock; cold CI SQL + greenfield create-run can keep contenders blocked well
+    ///     beyond the default <see cref="HttpClient.Timeout" /> (100s) unless the client and per-burst token are raised.
     /// </summary>
-    private static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan ArchitectureRequestBurstHttpTimeout = TimeSpan.FromMinutes(25);
 
     internal static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -54,19 +55,27 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
         for (int i = 0; i < parallel; i++)
         {
-            HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
-            {
-                Content = JsonContent(body)
-            };
-
-            request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
-            tasks[i] = client.SendAsync(request, ct);
+            tasks[i] = PostArchitectureRequestAndBufferAsync(client, body, idempotencyKey, ct);
         }
 
         return await Task.WhenAll(tasks);
     }
 
-    internal static async Task<HttpResponseMessage> PostSingleArchitectureRequestAsync(
+    internal static Task<HttpResponseMessage> PostSingleArchitectureRequestAsync(
+        HttpClient client,
+        object body,
+        string idempotencyKey,
+        CancellationToken cancellationToken)
+    {
+        return PostArchitectureRequestAndBufferAsync(client, body, idempotencyKey, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Uses <see cref="HttpCompletionOption.ResponseHeadersRead" /> then buffers the body under
+    ///     <paramref name="cancellationToken" />, which is more reliable for long-running create-run + idempotency waits
+    ///     against <see cref="Microsoft.AspNetCore.TestHost.TestServer" /> than default response buffering alone.
+    /// </summary>
+    private static async Task<HttpResponseMessage> PostArchitectureRequestAndBufferAsync(
         HttpClient client,
         object body,
         string idempotencyKey,
@@ -76,7 +85,12 @@ internal static class ArchitectureRequestConcurrencyTestSupport
 
         request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
-        return await client.SendAsync(request, cancellationToken);
+        HttpResponseMessage response =
+            await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+        await response.Content.LoadIntoBufferAsync(cancellationToken);
+
+        return response;
     }
 
     /// <summary>

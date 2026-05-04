@@ -1,3 +1,5 @@
+using System.Net.Http;
+
 using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Hosting;
@@ -92,9 +94,19 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:WindowMinutes"] = "1",
-                ["Billing:Provider"] = "Noop"
+                ["Billing:Provider"] = "Noop",
+                ["ASPNETCORE_URLS"] = "http://127.0.0.1:0"
             });
         });
+    }
+
+    /// <inheritdoc />
+    protected override void ConfigureClient(HttpClient client)
+    {
+        base.ConfigureClient(client);
+
+        // Parallel create-run idempotency can block on SQL far longer than HttpClient's default 100s (see ArchitectureRequestConcurrencyTestSupport).
+        client.Timeout = TimeSpan.FromMinutes(25);
     }
 
     /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>

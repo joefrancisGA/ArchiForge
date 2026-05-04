@@ -21,7 +21,6 @@ public sealed class ArchitectureRequestIdempotencyConcurrencyIntegrationTests
     {
         await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
-        client.Timeout = TimeSpan.FromMinutes(16);
         IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         string idempotencyKey = "idem-arch-req16-" + Guid.NewGuid().ToString("N");
