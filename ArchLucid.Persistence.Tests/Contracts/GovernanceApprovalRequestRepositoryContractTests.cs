@@ -147,17 +147,20 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
-        DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
-        DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
+        string idOld = "apr-run-old-" + Guid.NewGuid().ToString("N");
+        string idNew = "apr-run-new-" + Guid.NewGuid().ToString("N");
+        // Separate ticks so ORDER BY RequestedUtc DESC stays deterministic vs shared-catalog copies that reuse the same calendar instants.
+        DateTime newer = new(2026, 4, 1, 15, 0, 0, 0, DateTimeKind.Utc);
+        DateTime older = newer.AddMilliseconds(-500);
 
-        await repo.CreateAsync(NewApproval("apr-old", runId, older), CancellationToken.None);
-        await repo.CreateAsync(NewApproval("apr-new", runId, newer), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idOld, runId, older), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idNew, runId, newer), CancellationToken.None);
 
         IReadOnlyList<GovernanceApprovalRequest> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         list.Should().HaveCount(2);
-        list[0].ApprovalRequestId.Should().Be("apr-new");
-        list[1].ApprovalRequestId.Should().Be("apr-old");
+        list[0].ApprovalRequestId.Should().Be(idNew);
+        list[1].ApprovalRequestId.Should().Be(idOld);
     }
 
     [SkippableFact]
@@ -192,20 +195,23 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
-        // Far-future instants so these rows sort ahead of other tests' data under global ORDER BY RequestedUtc DESC.
-        DateTime t1 = new(9999, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        DateTime t2 = new(9999, 1, 1, 0, 0, 1, DateTimeKind.Utc);
-        DateTime t3 = new(9999, 1, 1, 0, 0, 2, DateTimeKind.Utc);
+        string idA = "apr-max-a-" + Guid.NewGuid().ToString("N");
+        string idB = "apr-max-b-" + Guid.NewGuid().ToString("N");
+        string idC = "apr-max-c-" + Guid.NewGuid().ToString("N");
+        // TOP (@MaxRows) is global; use end-of-range instants ahead of legacy 9999-01-* rows left in shared catalogs.
+        DateTime t3 = new(9999, 12, 31, 23, 59, 59, 997, DateTimeKind.Utc);
+        DateTime t2 = new(9999, 12, 31, 23, 59, 59, 996, DateTimeKind.Utc);
+        DateTime t1 = new(9999, 12, 31, 23, 59, 59, 995, DateTimeKind.Utc);
 
-        await repo.CreateAsync(NewApproval("apr-a", runId, t1), CancellationToken.None);
-        await repo.CreateAsync(NewApproval("apr-b", runId, t2), CancellationToken.None);
-        await repo.CreateAsync(NewApproval("apr-c", runId, t3), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idA, runId, t1), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idB, runId, t2), CancellationToken.None);
+        await repo.CreateAsync(NewApproval(idC, runId, t3), CancellationToken.None);
 
         IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(2, CancellationToken.None);
 
         pending.Should().HaveCount(2);
-        pending[0].ApprovalRequestId.Should().Be("apr-c");
-        pending[1].ApprovalRequestId.Should().Be("apr-b");
+        pending[0].ApprovalRequestId.Should().Be(idC);
+        pending[1].ApprovalRequestId.Should().Be(idB);
     }
 
     [SkippableFact]
