@@ -142,6 +142,36 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         result!.Status.Should().Be("Rejected");
     }
 
+    [SkippableFact]
+    public async Task Reject_SecondReject_ReturnsConflict()
+    {
+        string runId = await CreateRunAsync("REQ-GOV-REJ2-01");
+        var submitBody = new
+        {
+            RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test"
+        };
+        HttpResponseMessage submitResponse =
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", submitBody, GovernanceSubmitterName,
+                GovernanceSubmitterId);
+        submitResponse.EnsureSuccessStatusCode();
+        GovernanceApprovalResponseDto? submitted =
+            await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        string url = $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/reject";
+        var rejectBody = new { ReviewedBy = "reviewer-rej2", ReviewComment = "no" };
+        HttpResponseMessage first = await PostJsonAsTestActorAsync(
+            url,
+            rejectBody,
+            "reviewer-rej2",
+            "99999999-9999-9999-9999-999999999999");
+        first.StatusCode.Should().Be(HttpStatusCode.OK);
+        HttpResponseMessage second = await PostJsonAsTestActorAsync(
+            url,
+            rejectBody,
+            "reviewer-rej2",
+            "99999999-9999-9999-9999-999999999999");
+        second.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
+
     // â”€â”€ Promote â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     [SkippableFact]

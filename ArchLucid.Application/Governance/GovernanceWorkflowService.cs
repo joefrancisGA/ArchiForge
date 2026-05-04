@@ -281,10 +281,14 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
+        {
+            if (string.Equals(request.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
+                throw new GovernanceApprovalReviewConflictException(approvalRequestId, "reject", request.Status);
 
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be rejected from status '{request.Status}'. " +
                 "Reject is only valid from Draft or Submitted.");
+        }
 
         DateTime reviewedUtc = DateTime.UtcNow;
 
@@ -306,10 +310,7 @@ public sealed class GovernanceWorkflowService(
 
             if (string.Equals(fresh.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
 
-                throw new GovernanceApprovalReviewConflictException(
-                    approvalRequestId,
-                    "reject",
-                    fresh.Status);
+                throw new GovernanceApprovalReviewConflictException(approvalRequestId, "reject", fresh.Status);
 
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be rejected from status '{fresh.Status}'. " +
