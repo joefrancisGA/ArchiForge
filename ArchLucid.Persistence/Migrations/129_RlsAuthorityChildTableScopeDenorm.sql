@@ -657,12 +657,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingRecords', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -679,12 +675,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingRelatedNodes', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -701,12 +693,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingRecommendedActions', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -723,12 +711,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingProperties', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -745,12 +729,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceGraphNodesExamined', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -767,12 +747,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceRulesApplied', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -789,12 +765,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceDecisionsTaken', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -811,12 +783,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceAlternativePaths', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -833,12 +801,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.FindingTraceNotes', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -855,12 +819,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -877,12 +837,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleArtifactMetadata', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -899,12 +855,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleArtifactDecisionLinks', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -921,12 +873,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleTraceGenerators', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -943,12 +891,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleTraceDecisionLinks', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -965,12 +909,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ArtifactBundleTraceNotes', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -987,12 +927,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ConversationMessages', N'U'))
 BEGIN
     /* Dynamic SQL: batch compile must not bind dbo.ConversationMessages when the table is absent on older DbUp-only DBs. */
@@ -1012,12 +948,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.PolicyPackVersions', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1034,12 +966,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.CompositeAlertRuleConditions', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1056,12 +984,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.EvolutionSimulationRuns', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1078,12 +1002,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestWarnings', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1100,12 +1020,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestDecisions', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1122,12 +1038,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestDecisionEvidenceLinks', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1144,12 +1056,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestDecisionNodeLinks', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1166,12 +1074,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestProvenanceSourceFindings', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1188,12 +1092,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestProvenanceSourceGraphNodes', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1210,12 +1110,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GoldenManifestProvenanceAppliedRules', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1232,12 +1128,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ProductLearningImprovementPlanArchitectureRuns', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1254,12 +1146,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ProductLearningImprovementPlanSignalLinks', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1276,12 +1164,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ProductLearningImprovementPlanArtifactLinks', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1298,12 +1182,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshots', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1320,12 +1200,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotEdges', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1342,12 +1218,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotNodes', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1364,12 +1236,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotNodeProperties', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1386,12 +1254,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotEdgeProperties', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1408,12 +1272,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.GraphSnapshotWarnings', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1430,12 +1290,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotCanonicalObjects', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1452,12 +1308,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotCanonicalObjectProperties', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1474,12 +1326,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotWarnings', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1496,12 +1344,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotErrors', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
@@ -1518,12 +1362,8 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantSco
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
-        INNER JOIN sys.objects AS pol
-            ON pol.object_id = p.object_id
-           AND pol.type = N'SP'
-        INNER JOIN sys.schemas AS sch ON sch.schema_id = pol.schema_id
-        WHERE sch.name = N'rls'
-          AND pol.name = N'ArchLucidTenantScope'
+        INNER JOIN sys.security_policies AS pol ON pol.object_id = p.object_id
+        WHERE pol.name = N'ArchLucidTenantScope'
           AND p.target_object_id = OBJECT_ID(N'dbo.ContextSnapshotSourceHashes', N'U'))
 BEGIN
     ALTER SECURITY POLICY rls.ArchLucidTenantScope
