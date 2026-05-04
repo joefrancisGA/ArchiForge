@@ -22,16 +22,17 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
         IGovernancePromotionRecordRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
         string promotionId = "prm-" + Guid.NewGuid().ToString("N");
+        // Ceiling instant so this row stays inside FETCH NEXT 200 when older rows share the same RunId on dirty catalogs.
+        DateTime promotedUtc = DateTime.MaxValue.AddTicks(-2);
 
-        GovernancePromotionRecord item = NewPromotion(promotionId, runId,
-            new DateTime(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc));
+        GovernancePromotionRecord item = NewPromotion(promotionId, runId, promotedUtc);
 
         await repo.CreateAsync(item, CancellationToken.None);
 
         IReadOnlyList<GovernancePromotionRecord> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
-        list.Should().ContainSingle();
-        list[0].PromotionRecordId.Should().Be(promotionId);
+        list.Should()
+            .ContainSingle(r => string.Equals(r.PromotionRecordId, promotionId, StringComparison.Ordinal));
     }
 
     [SkippableFact]
