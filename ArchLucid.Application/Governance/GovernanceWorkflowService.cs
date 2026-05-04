@@ -174,10 +174,14 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
+        {
+            if (string.Equals(request.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
+                throw new GovernanceApprovalReviewConflictException(approvalRequestId, "approve", request.Status);
 
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be approved from status '{request.Status}'. " +
                 "Approve is only valid from Draft or Submitted.");
+        }
 
         DateTime reviewedUtc = DateTime.UtcNow;
 

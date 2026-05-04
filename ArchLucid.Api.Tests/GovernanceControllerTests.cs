@@ -318,7 +318,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
     }
 
     [SkippableFact]
-    public async Task Approve_SecondApprove_ReturnsBadRequest()
+    public async Task Approve_SecondApprove_ReturnsConflict()
     {
         string runId = await CreateRunAsync("REQ-GOV-APR2-01");
         var submitBody = new
@@ -343,7 +343,7 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             approveBody,
             "reviewer-dup",
             "dddddddd-dddd-dddd-dddd-dddddddddddd");
-        second.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        second.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
     [SkippableFact]

@@ -426,6 +426,51 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [SkippableFact]
+    public async Task Approve_AlreadyApproved_ThrowsGovernanceApprovalReviewConflictException()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-approved-twice",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Approved,
+            RequestedBy = "alice",
+            ReviewedBy = "bob"
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-approved-twice", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        Func<Task<GovernanceApprovalRequest>> act =
+            () => _sut.ApproveAsync("apr-approved-twice", "carol", "carol-id", null);
+
+        await act.Should().ThrowAsync<GovernanceApprovalReviewConflictException>();
+
+        _approvalRepo.Verify(
+            r => r.TryTransitionFromReviewableAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [SkippableFact]
     public async Task Approve_SameUserAsSubmitter_ThrowsSelfApprovalException()
     {
         GovernanceApprovalRequest existing = new()
