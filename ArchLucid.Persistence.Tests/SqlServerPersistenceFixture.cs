@@ -2,6 +2,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Tests.Support;
 using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;
@@ -161,7 +162,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     /// </summary>
     public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
     {
-        ArchLucid.Persistence.Connections.SqlConnectionFactory factory = new(connectionString);
+        // Matches DbUp (encrypt mandatory) and contract repos that need SESSION_CONTEXT bypass for FK parents on shared catalogs.
+        RlsBypassSqlConnectionFactory factory = new(connectionString);
         DapperTenantRepository tenants = new(factory);
         Guid tenantId = GovernanceRepositoryContractScope.TenantId;
 
@@ -186,8 +188,22 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         {
             TenantRecord? afterRace = await tenants.GetByIdAsync(tenantId, cancellationToken);
 
-            if (afterRace is null)
-                throw;
+            if (afterRace is not null)
+                return;
+
+            TenantRecord? bySlug = await tenants.GetBySlugAsync(slug, cancellationToken);
+
+            if (bySlug is not null && bySlug.Id == tenantId)
+                return;
+
+            if (bySlug is not null)
+
+                throw new InvalidOperationException(
+                    "Governance contract tenant slug '" + slug + "' exists on Tenants.Id " + bySlug.Id.ToString("N")
+                    + " but priming expects " + tenantId.ToString("N") + ".",
+                    ex);
+
+            throw;
         }
     }
 }
