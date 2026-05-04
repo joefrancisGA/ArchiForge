@@ -30,8 +30,13 @@ public sealed class DapperAuditRepositoryContractTests(SqlServerPersistenceFixtu
         Guid scopeProjectId,
         CancellationToken ct)
     {
-        await using SqlConnection connection = new(fixture.ConnectionString);
-        await connection.OpenAsync(ct);
+        RlsTenantScopedTestSqlConnectionFactory connectionFactory = new(
+            fixture.ConnectionString,
+            tenantId,
+            workspaceId,
+            scopeProjectId);
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         await AuthorityRunChainTestSeed.InsertRunAsync(
             connection,
