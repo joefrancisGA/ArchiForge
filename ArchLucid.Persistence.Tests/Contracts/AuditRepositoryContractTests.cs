@@ -28,6 +28,20 @@ public abstract class AuditRepositoryContractTests
     {
     }
 
+    /// <summary>
+    ///     SQL Server enforces <c>FK_AuditEvents_Runs_RunId</c>. Override in SQL-backed contract fixtures to insert
+    ///     <c>dbo.Runs</c> rows before appending audit events that set <see cref="AuditEvent.RunId" />.
+    /// </summary>
+    protected virtual Task EnsureAuditParentRunExistsAsync(
+        Guid runId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid scopeProjectId,
+        CancellationToken ct)
+    {
+        return Task.CompletedTask;
+    }
+
     private static AuditEvent NewEvent(
         string eventType = "ContractTest",
         DateTime? occurredUtc = null,
@@ -198,8 +212,13 @@ public abstract class AuditRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
         Guid run = Guid.NewGuid();
+        Guid otherRun = Guid.NewGuid();
+
+        await EnsureAuditParentRunExistsAsync(run, TenantId, WorkspaceId, ProjectId, CancellationToken.None);
+        await EnsureAuditParentRunExistsAsync(otherRun, TenantId, WorkspaceId, ProjectId, CancellationToken.None);
+
         AuditEvent match = NewEvent(runId: run);
-        AuditEvent other = NewEvent(runId: Guid.NewGuid());
+        AuditEvent other = NewEvent(runId: otherRun);
 
         await repo.AppendAsync(match, CancellationToken.None);
         await repo.AppendAsync(other, CancellationToken.None);
@@ -218,6 +237,9 @@ public abstract class AuditRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
         Guid run = Guid.NewGuid();
+
+        await EnsureAuditParentRunExistsAsync(run, TenantId, WorkspaceId, ProjectId, CancellationToken.None);
+
         DateTime t = DateTime.UtcNow.AddMinutes(-5);
         AuditEvent match = NewEvent(
             "MultiFilter",
