@@ -101,3 +101,17 @@ BEGIN
     ALTER TABLE dbo.ArtifactBundles ALTER COLUMN TraceJson NVARCHAR(MAX) NULL;
 END;
 GO
+
+/* dbo.Tenants parent row for FK from governance tables (118) used by GovernanceRepositoryContractScope in Dapper contracts. */
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM dbo.Tenants WHERE Id = 'AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE')
+BEGIN
+    INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
+    VALUES (
+        N'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+        N'ArchLucid persistence contract governance',
+        N'archlucid-persistence-contract-governance',
+        N'Standard',
+        NULL);
+END;
+GO

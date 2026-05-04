@@ -114,13 +114,6 @@ public sealed class GovernanceApprovalRequestRepository(
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
-        string lockReviewableRowSql = $"""
-                                            SELECT 1
-                                            FROM dbo.GovernanceApprovalRequests WITH (UPDLOCK, ROWLOCK)
-                                            WHERE ApprovalRequestId = @ApprovalRequestId
-                                              AND (Status = @Draft OR Status = @Submitted){scopeSql};
-                                            """;
-
         string updateSql = $"""
                                  UPDATE dbo.GovernanceApprovalRequests
                                  SET
@@ -156,25 +149,6 @@ public sealed class GovernanceApprovalRequestRepository(
                     "SET NOCOUNT OFF;",
                     transaction: transaction,
                     cancellationToken: cancellationToken));
-
-            DynamicParameters lockParams = new();
-            lockParams.Add("ApprovalRequestId", approvalRequestId);
-            lockParams.Add("Draft", GovernanceApprovalStatus.Draft);
-            lockParams.Add("Submitted", GovernanceApprovalStatus.Submitted);
-            RepositoryScopePredicate.AddScopeTripleIfNeeded(lockParams, scope);
-
-            int? lockHeld = await connection.ExecuteScalarAsync<int?>(
-                new CommandDefinition(
-                    lockReviewableRowSql,
-                    lockParams,
-                    transaction,
-                    cancellationToken: cancellationToken));
-
-            if (lockHeld is null)
-            {
-                transaction.Commit();
-                return false;
-            }
 
             int affected = await connection.ExecuteAsync(
                 new CommandDefinition(updateSql, transitionParams, transaction, cancellationToken: cancellationToken));

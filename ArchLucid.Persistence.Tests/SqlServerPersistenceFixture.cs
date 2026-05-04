@@ -1,5 +1,8 @@
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Tenancy;
 using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;
@@ -83,6 +86,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
             await RunPersistenceContractSupplementAsync(connectionString);
 
+            await EnsureGovernanceContractTenantExistsAsync(connectionString);
+
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
         }
@@ -147,5 +152,42 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             scriptPath);
 
         await bootstrapper.EnsureSchemaAsync(CancellationToken.None);
+    }
+
+    /// <summary>
+    ///     Ensures <see cref="GovernanceRepositoryContractScope.TenantId" /> exists after migration 118 governance FK.
+    ///     Supplements SQL seed + survives CI output/script drift without failing the fixture when the tenant is already present.
+    /// </summary>
+    private static async Task EnsureGovernanceContractTenantExistsAsync(string connectionString)
+    {
+        SqlConnectionFactory factory = new(connectionString);
+        DapperTenantRepository tenants = new(factory);
+        CancellationToken ct = CancellationToken.None;
+        Guid tenantId = GovernanceRepositoryContractScope.TenantId;
+
+        TenantRecord? existing = await tenants.GetByIdAsync(tenantId, ct);
+
+        if (existing is not null)
+            return;
+
+        string slug = "archgov-contract-" + tenantId.ToString("N");
+
+        try
+        {
+            await tenants.InsertTenantAsync(
+                tenantId,
+                "ArchLucid persistence contract governance",
+                slug,
+                TenantTier.Standard,
+                entraTenantId: null,
+                ct);
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+            TenantRecord? afterRace = await tenants.GetByIdAsync(tenantId, ct);
+
+            if (afterRace is null)
+                throw;
+        }
     }
 }
