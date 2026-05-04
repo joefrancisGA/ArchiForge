@@ -160,4 +160,81 @@ public sealed class GovernanceLineageServiceTests
         top[0].Title.Should().Be("alpha");
         top[1].Title.Should().Be("Bravo");
     }
+
+    [SkippableFact]
+    public async Task GetApprovalRequestLineageAsync_When_finding_trace_null_maps_without_throw()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runN = runGuid.ToString("N");
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        Mock<IGovernancePromotionRecordRepository> promotions = new();
+        Mock<IRunDetailQueryService> runQuery = new();
+        Mock<IAuthorityQueryService> authority = new();
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid() });
+
+        GovernanceApprovalRequest approval = new()
+        {
+            RunId = runN
+        };
+        approvals
+            .Setup(r => r.GetByIdAsync("req-null-trace", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approval);
+
+        runQuery
+            .Setup(r => r.GetRunDetailAsync(runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ArchitectureRunDetail
+                {
+                    Run = new ArchitectureRun
+                    {
+                        RunId = runN,
+                        Status = ArchitectureRunStatus.Committed
+                    }
+                });
+
+        promotions
+            .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        FindingsSnapshot snapshot = new()
+        {
+            Findings =
+            [
+                new()
+                {
+                    Category = "c",
+                    EngineType = "e",
+                    FindingId = "f1",
+                    FindingType = "t",
+                    Rationale = "r",
+                    Severity = FindingSeverity.Info,
+                    Title = "Traceless",
+                    Trace = null!
+                }
+            ]
+        };
+
+        RunDetailDto authorityRow = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runGuid,
+            },
+            FindingsSnapshot = snapshot
+        };
+
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityRow);
+
+        GovernanceLineageService sut = new(approvals.Object, promotions.Object, runQuery.Object, authority.Object, scope.Object);
+
+        GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync("req-null-trace");
+
+        result.Should().NotBeNull();
+        result.TopFindings.Should().ContainSingle();
+        result.TopFindings[0].Title.Should().Be("Traceless");
+        result.TopFindings[0].SourceAgentExecutionTraceId.Should().BeNull();
+    }
 }
