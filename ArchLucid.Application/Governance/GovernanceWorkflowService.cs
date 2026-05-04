@@ -380,8 +380,10 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
         ArgumentException.ThrowIfNullOrWhiteSpace(promotedBy);
 
-        _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
-            ?? throw new RunNotFoundException(runId);
+        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
+                                          ?? throw new RunNotFoundException(runId);
+
+        string persistedRunId = runDetail.Run.RunId;
 
         if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
 
@@ -413,7 +415,7 @@ public sealed class GovernanceWorkflowService(
 
         GovernancePromotionRecord record = new()
         {
-            RunId = runId,
+            RunId = persistedRunId,
             ManifestVersion = manifestVersion,
             SourceEnvironment = sourceEnvironment,
             TargetEnvironment = targetEnvironment,
@@ -429,7 +431,7 @@ public sealed class GovernanceWorkflowService(
         {
             await LogGovernanceDryRunValidationAttemptedForPromotionAsync(
                 promotedBy,
-                runId,
+                persistedRunId,
                 manifestVersion,
                 sourceEnvironment,
                 targetEnvironment,
@@ -452,7 +454,7 @@ public sealed class GovernanceWorkflowService(
                     AuditEventTypes.Baseline.Governance.ManifestPromoted,
                     promotedBy,
                     record.PromotionRecordId,
-                    $"RunId={runId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}",
+                    $"RunId={persistedRunId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}",
                     cancellationToken)
             ;
 

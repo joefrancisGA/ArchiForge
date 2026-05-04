@@ -188,13 +188,15 @@ public sealed class GovernanceEnvironmentActivationRepository(
                           IsActive,
                           ActivatedUtc
                       FROM GovernanceEnvironmentActivations
-                      WHERE RunId = @RunId{scopeSql}
+                      WHERE {RepositoryRunIdPredicate.WhereClauseMatching("RunId")}{scopeSql}
                       ORDER BY ActivatedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(200)};
                       """;
 
         DynamicParameters p = new();
-        p.Add("RunId", runId);
+
+        RepositoryRunIdPredicate.AddRunIdMatchParameters(p, runId);
+
         RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernanceEnvironmentActivation> rows =

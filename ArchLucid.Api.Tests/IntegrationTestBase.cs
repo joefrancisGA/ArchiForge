@@ -32,7 +32,9 @@ public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<Ar
     /// </summary>
     protected readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true, Converters = { new JsonStringEnumConverter(null) }
+        PropertyNameCaseInsensitive = true,
+        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter(null) }
     };
 
     /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>

@@ -287,13 +287,15 @@ public sealed class GovernanceApprovalRequestRepository(
                           SlaDeadlineUtc,
                           SlaBreachNotifiedUtc
                       FROM GovernanceApprovalRequests
-                      WHERE RunId = @RunId{scopeSql}
+                      WHERE {RepositoryRunIdPredicate.WhereClauseMatching("RunId")}{scopeSql}
                       ORDER BY RequestedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(200)};
                       """;
 
         DynamicParameters p = new();
-        p.Add("RunId", runId);
+
+        RepositoryRunIdPredicate.AddRunIdMatchParameters(p, runId);
+
         RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(

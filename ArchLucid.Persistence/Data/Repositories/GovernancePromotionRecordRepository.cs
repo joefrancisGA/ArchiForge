@@ -122,13 +122,15 @@ public sealed class GovernancePromotionRecordRepository(
                           ApprovalRequestId,
                           Notes
                       FROM GovernancePromotionRecords
-                      WHERE RunId = @RunId{scopeSql}
+                      WHERE {RepositoryRunIdPredicate.WhereClauseMatching("RunId")}{scopeSql}
                       ORDER BY PromotedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(200)};
                       """;
 
         DynamicParameters p = new();
-        p.Add("RunId", runId);
+
+        RepositoryRunIdPredicate.AddRunIdMatchParameters(p, runId);
+
         RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
 
         IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(

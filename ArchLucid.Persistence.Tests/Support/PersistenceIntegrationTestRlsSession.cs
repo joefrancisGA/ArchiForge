@@ -19,31 +19,39 @@ internal static class PersistenceIntegrationTestRlsSession
         CancellationToken ct,
         Guid tenantId,
         Guid workspaceId,
-        Guid projectId)
+        Guid projectId,
+        SqlTransaction? ambientTransaction = null)
     {
-        await ClearSessionKeysAsync(connection, ct);
+        await ClearSessionKeysAsync(connection, ct, ambientTransaction);
 
-        await SetIntSessionContextAsync(connection, ct, "al_rls_bypass", 1);
-        await SetGuidSessionContextAsync(connection, ct, "al_tenant_id", tenantId);
-        await SetGuidSessionContextAsync(connection, ct, "al_workspace_id", workspaceId);
-        await SetGuidSessionContextAsync(connection, ct, "al_project_id", projectId);
+        await SetIntSessionContextAsync(connection, ct, ambientTransaction, "al_rls_bypass", 1);
+        await SetGuidSessionContextAsync(connection, ct, ambientTransaction, "al_tenant_id", tenantId);
+        await SetGuidSessionContextAsync(connection, ct, ambientTransaction, "al_workspace_id", workspaceId);
+        await SetGuidSessionContextAsync(connection, ct, ambientTransaction, "al_project_id", projectId);
     }
 
     /// <summary>
     ///     Clears scope keys and sets <c>al_rls_bypass</c> so the connection is not filtered by tenant predicates.
     /// </summary>
-    internal static async Task ApplyArchLucidRlsBypassAsync(SqlConnection connection, CancellationToken ct)
+    internal static async Task ApplyArchLucidRlsBypassAsync(
+        SqlConnection connection,
+        CancellationToken ct,
+        SqlTransaction? ambientTransaction = null)
     {
-        await ClearSessionKeysAsync(connection, ct);
+        await ClearSessionKeysAsync(connection, ct, ambientTransaction);
 
-        await SetIntSessionContextAsync(connection, ct, "al_rls_bypass", 1);
+        await SetIntSessionContextAsync(connection, ct, ambientTransaction, "al_rls_bypass", 1);
     }
 
-    private static async Task ClearSessionKeysAsync(SqlConnection connection, CancellationToken ct)
+    private static async Task ClearSessionKeysAsync(
+        SqlConnection connection,
+        CancellationToken ct,
+        SqlTransaction? ambientTransaction)
     {
         foreach (string key in SessionKeys)
         {
-            await using SqlCommand cmd = connection.CreateCommand();
+            await using SqlCommand cmd = CreateSessionCommand(connection, ambientTransaction);
+
             cmd.CommandText = "EXEC sp_set_session_context @k, NULL, @read_only;";
             cmd.Parameters.AddWithValue("@k", key);
             cmd.Parameters.AddWithValue("@read_only", 0);
@@ -51,9 +59,24 @@ internal static class PersistenceIntegrationTestRlsSession
         }
     }
 
-    private static async Task SetIntSessionContextAsync(SqlConnection connection, CancellationToken ct, string key, int value)
+    private static SqlCommand CreateSessionCommand(SqlConnection connection, SqlTransaction? ambientTransaction)
     {
-        await using SqlCommand cmd = connection.CreateCommand();
+        SqlCommand cmd = connection.CreateCommand();
+
+        if (ambientTransaction is not null)
+            cmd.Transaction = ambientTransaction;
+
+        return cmd;
+    }
+
+    private static async Task SetIntSessionContextAsync(
+        SqlConnection connection,
+        CancellationToken ct,
+        SqlTransaction? ambientTransaction,
+        string key,
+        int value)
+    {
+        await using SqlCommand cmd = CreateSessionCommand(connection, ambientTransaction);
         cmd.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
         cmd.Parameters.AddWithValue("@k", key);
         cmd.Parameters.AddWithValue("@v", value);
@@ -61,9 +84,14 @@ internal static class PersistenceIntegrationTestRlsSession
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
-    private static async Task SetGuidSessionContextAsync(SqlConnection connection, CancellationToken ct, string key, Guid value)
+    private static async Task SetGuidSessionContextAsync(
+        SqlConnection connection,
+        CancellationToken ct,
+        SqlTransaction? ambientTransaction,
+        string key,
+        Guid value)
     {
-        await using SqlCommand cmd = connection.CreateCommand();
+        await using SqlCommand cmd = CreateSessionCommand(connection, ambientTransaction);
         cmd.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
         cmd.Parameters.AddWithValue("@k", key);
         cmd.Parameters.AddWithValue("@v", value);

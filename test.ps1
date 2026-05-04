@@ -28,10 +28,15 @@
     .PARAMETER ListTiers
         Print the supported tier names and exit 0 without running anything.
 
+    .PARAMETER HeartbeatSeconds
+        While ``dotnet test`` is running, print a short status line at this interval (elapsed time + project).
+        Use ``0`` to disable. UI tiers (e.g. UiUnit) use the same interval while npm runs.
+
     .EXAMPLE
         .\test.ps1 -Tier FastCore
         .\test.ps1 -Tier UiSmoke
         .\test.ps1 -ListTiers
+        .\test.ps1 -Tier Full -HeartbeatSeconds 0
 #>
 [CmdletBinding(DefaultParameterSetName = 'Run')]
 param(
@@ -50,7 +55,11 @@ param(
     [string] $Tier,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'List')]
-    [switch] $ListTiers
+    [switch] $ListTiers,
+
+    [Parameter(ParameterSetName = 'Run')]
+    [ValidateRange(0, 86400)]
+    [int] $HeartbeatSeconds = 60
 )
 
 Set-StrictMode -Version Latest
@@ -80,23 +89,100 @@ if ($ListTiers) {
     exit 0
 }
 
+function Start-TestHeartbeat {
+    param(
+        [System.Threading.CancellationToken] $Token,
+        [TimeSpan] $Interval,
+        [string] $Label
+    )
+
+    if ($Interval -le [TimeSpan]::Zero) {
+        return $null
+    }
+
+    # Task.Run is ambiguous with a raw scriptblock; bind explicitly to Run(Action).
+    $startedUtc = [datetime]::UtcNow
+    $tok = $Token
+    $everyMs = [int]$Interval.TotalMilliseconds
+    $text = $Label
+    $action = [System.Action]{
+        while (-not $tok.IsCancellationRequested) {
+            $sliceMs = 200
+            $remainMs = $everyMs
+            while ($remainMs -gt 0 -and -not $tok.IsCancellationRequested) {
+                $thisSlice = [Math]::Min($sliceMs, $remainMs)
+                Start-Sleep -Milliseconds $thisSlice
+                $remainMs -= $thisSlice
+            }
+
+            if ($tok.IsCancellationRequested) {
+                break
+            }
+
+            $elapsed = [int]([DateTime]::UtcNow - $startedUtc).TotalSeconds
+            Write-Host ''
+            Write-Host ("[{0:yyyy-MM-dd HH:mm:ss}Z] Heartbeat: still running - {1} (elapsed {2}s)" -f [DateTime]::UtcNow, $text, $elapsed) -ForegroundColor DarkYellow
+            Write-Host ''
+        }
+    }
+    return [System.Threading.Tasks.Task]::Run($action)
+}
+
 function Invoke-DotnetTest {
     param(
         [string] $Project,
-        [string] $Filter
+        [string] $Filter,
+        [int] $HeartbeatSec
+    )
+
+    $dotnetArgs = @(
+        'test', $Project,
+        '--verbosity', 'normal',
+        '--logger', 'console;verbosity=detailed'
     )
 
     if ($Filter) {
-        & dotnet test $Project --filter $Filter
-        return $LASTEXITCODE
+        $dotnetArgs += @('--filter', $Filter)
     }
 
-    & dotnet test $Project
-    return $LASTEXITCODE
+    $cancel = New-Object System.Threading.CancellationTokenSource
+    $hbTask = $null
+    if ($HeartbeatSec -gt 0) {
+        $interval = [TimeSpan]::FromSeconds($HeartbeatSec)
+        $hbTask = Start-TestHeartbeat -Token $cancel.Token -Interval $interval -Label "dotnet test $Project"
+    }
+
+    Write-Host ("Running: dotnet {0}" -f ($dotnetArgs -join ' '))
+    Write-Host ''
+
+    $exit = -1
+    try {
+        & dotnet @dotnetArgs
+        $exit = $LASTEXITCODE
+    }
+    finally {
+        if ($null -ne $cancel) {
+            $cancel.Cancel()
+        }
+
+        if ($null -ne $hbTask) {
+            try {
+                $null = $hbTask.Wait(8000)
+            }
+            catch {
+                # Best-effort wait for heartbeat task to exit.
+            }
+        }
+    }
+
+    return $exit
 }
 
 function Invoke-UiCommand {
-    param([string[]] $Steps)
+    param(
+        [string[]] $Steps,
+        [int] $HeartbeatSec
+    )
 
     Set-Location (Join-Path $root 'archlucid-ui')
 
@@ -105,33 +191,60 @@ function Invoke-UiCommand {
     $npx = if (Get-Command npx.cmd -ErrorAction SilentlyContinue) { 'npx.cmd' } else { 'npx' }
 
     foreach ($step in $Steps) {
-        switch ($step) {
-            'install'           { & $npm ci }
-            'playwright-deps'   { & $npx playwright install --with-deps chromium }
-            'test:e2e'          { & $npm run test:e2e }
-            'test'              { & $npm run test }
-            default             { throw "Unknown UI step: $step" }
+        $cancel = New-Object System.Threading.CancellationTokenSource
+        $hbTask = $null
+        if ($HeartbeatSec -gt 0) {
+            $interval = [TimeSpan]::FromSeconds($HeartbeatSec)
+            $hbTask = Start-TestHeartbeat -Token $cancel.Token -Interval $interval -Label "archlucid-ui: $step"
         }
 
-        if ($LASTEXITCODE -ne 0) { return $LASTEXITCODE }
+        try {
+            switch ($step) {
+                'install'           { & $npm ci }
+                'playwright-deps'   { & $npx playwright install --with-deps chromium }
+                'test:e2e'          { & $npm run test:e2e }
+                'test'              { & $npm run test }
+                default             { throw "Unknown UI step: $step" }
+            }
+
+            if ($LASTEXITCODE -ne 0) { return $LASTEXITCODE }
+        }
+        finally {
+            $cancel.Cancel()
+            if ($null -ne $hbTask) {
+                try {
+                    $null = $hbTask.Wait(8000)
+                }
+                catch {
+                    # Best-effort wait for heartbeat task to exit.
+                }
+            }
+        }
     }
 
     return 0
 }
 
 function Invoke-Tier {
-    param([string] $Selected)
+    param(
+        [string] $Selected,
+        [int] $TierHeartbeatSeconds
+    )
 
     Write-Host "ArchLucid test driver - running tier: $Selected"
     Write-Host "  $($tierDescriptions[$Selected])"
+    if ($TierHeartbeatSeconds -gt 0) {
+        Write-Host ("  Heartbeat every {0}s (use -HeartbeatSeconds 0 to disable)" -f $TierHeartbeatSeconds)
+    }
+
     Write-Host ''
 
     switch ($Selected) {
         'Core' {
-            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Suite=Core')
+            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Suite=Core' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'FastCore' {
-            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord')
+            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'OpenApiContract' {
             $script = Join-Path $root 'scripts/ci/check_openapi_contract_snapshot.ps1'
@@ -139,22 +252,24 @@ function Invoke-Tier {
             return $LASTEXITCODE
         }
         'Full' {
-            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter '')
+            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter '' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'Integration' {
-            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Category=Integration')
+            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Category=Integration' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'Slow' {
-            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Category=Slow')
+            return (Invoke-DotnetTest -Project 'ArchLucid.sln' -Filter 'Category=Slow' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'SqlServerIntegration' {
-            return (Invoke-DotnetTest -Project 'ArchLucid.Persistence.Tests' -Filter 'Category=SqlServerContainer')
+            return (Invoke-DotnetTest -Project 'ArchLucid.Persistence.Tests' -Filter 'Category=SqlServerContainer' -HeartbeatSec $TierHeartbeatSeconds)
         }
         'UiSmoke' {
-            return (Invoke-UiCommand -Steps @('install', 'playwright-deps', 'test:e2e'))
+            return (Invoke-UiCommand `
+                -Steps @('install', 'playwright-deps', 'test:e2e') `
+                -HeartbeatSec $TierHeartbeatSeconds)
         }
         'UiUnit' {
-            return (Invoke-UiCommand -Steps @('install', 'test'))
+            return (Invoke-UiCommand -Steps @('install', 'test') -HeartbeatSec $TierHeartbeatSeconds)
         }
         default {
             throw ("Unhandled tier '" + $Selected + "' - add a case in Invoke-Tier.")
@@ -162,5 +277,5 @@ function Invoke-Tier {
     }
 }
 
-$exit = Invoke-Tier -Selected $Tier
+$exit = Invoke-Tier -Selected $Tier -TierHeartbeatSeconds $HeartbeatSeconds
 exit $exit

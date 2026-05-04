@@ -187,7 +187,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
                 cancellationToken,
                 GovernanceRepositoryContractScope.TenantId,
                 GovernanceRepositoryContractScope.WorkspaceId,
-                GovernanceRepositoryContractScope.ProjectId);
+                GovernanceRepositoryContractScope.ProjectId,
+                ambientTransaction: (SqlTransaction)transaction);
 
         await AcquireGovernanceContractTenantMergeLockAsync(connection, transaction, cancellationToken);
 
