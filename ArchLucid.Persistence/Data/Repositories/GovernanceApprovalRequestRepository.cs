@@ -15,7 +15,11 @@ public sealed class GovernanceApprovalRequestRepository(
     IScopeContextProvider scopeContextProvider)
     : IGovernanceApprovalRequestRepository
 {
-    public async Task CreateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        GovernanceApprovalRequest item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -68,33 +72,42 @@ public sealed class GovernanceApprovalRequestRepository(
                            );
                            """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                item.ApprovalRequestId,
-                item.RunId,
-                item.TenantId,
-                item.WorkspaceId,
-                item.ProjectId,
-                item.ManifestVersion,
-                item.SourceEnvironment,
-                item.TargetEnvironment,
-                item.Status,
-                item.RequestedBy,
-                item.RequestedByActorKey,
-                item.ReviewedBy,
-                item.ReviewedByActorKey,
-                item.RequestComment,
-                item.ReviewComment,
-                item.RequestedUtc,
-                item.ReviewedUtc,
-                item.SlaDeadlineUtc,
-                item.SlaBreachNotifiedUtc
-            },
-            cancellationToken: cancellationToken));
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    item.ApprovalRequestId,
+                    item.RunId,
+                    item.TenantId,
+                    item.WorkspaceId,
+                    item.ProjectId,
+                    item.ManifestVersion,
+                    item.SourceEnvironment,
+                    item.TargetEnvironment,
+                    item.Status,
+                    item.RequestedBy,
+                    item.RequestedByActorKey,
+                    item.ReviewedBy,
+                    item.ReviewedByActorKey,
+                    item.RequestComment,
+                    item.ReviewComment,
+                    item.RequestedUtc,
+                    item.ReviewedUtc,
+                    item.SlaDeadlineUtc,
+                    item.SlaBreachNotifiedUtc
+                },
+                transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     /// <inheritdoc />

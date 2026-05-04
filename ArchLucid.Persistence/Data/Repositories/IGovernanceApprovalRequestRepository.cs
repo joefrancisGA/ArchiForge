@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -12,7 +14,13 @@ public interface IGovernanceApprovalRequestRepository
     ///     Persists a new approval request.
     ///     <paramref name="item" /> must have a non-empty <c>ApprovalRequestId</c>.
     /// </summary>
-    Task CreateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default);
+    /// <param name="connection">When non-null, uses this open connection instead of opening a new one.</param>
+    /// <param name="transaction">Optional transaction associated with <paramref name="connection" />.</param>
+    Task CreateAsync(
+        GovernanceApprovalRequest item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     ///     Atomically sets review fields when the row is still <see cref="GovernanceApprovalStatus.Draft" /> or

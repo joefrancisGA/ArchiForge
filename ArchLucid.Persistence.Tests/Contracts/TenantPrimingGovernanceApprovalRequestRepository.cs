@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -8,9 +10,9 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
-///     Re-applies <see cref="SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync" /> before each
-///     <see cref="IGovernanceApprovalRequestRepository.CreateAsync" /> so shared CI databases cannot drop the FK parent
-///     between repository construction and the first insert (parallel jobs, purges, or long gaps).
+///     Runs <see cref="SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync" /> and
+///     <see cref="GovernanceApprovalRequestRepository.CreateAsync" /> in one <see cref="System.Data.IsolationLevel.Serializable" />
+///     transaction so <c>FK_GovernanceApprovalRequests_Tenants</c> sees the parent row on shared CI databases.
 /// </summary>
 internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovernanceApprovalRequestRepository
 {
@@ -31,24 +33,34 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
     }
 
     /// <inheritdoc />
-    public async Task CreateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        GovernanceApprovalRequest item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
-        const int maxAttempts = 3;
-
-        for (int attempt = 0; attempt < maxAttempts; attempt++)
+        if (connection is not null)
         {
-            await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(_connectionString, cancellationToken);
+            await _inner.CreateAsync(item, cancellationToken, connection, transaction);
 
-            try
-            {
-                await _inner.CreateAsync(item, cancellationToken);
+            return;
+        }
 
-                return;
-            }
-            catch (SqlException ex) when (IsGovernanceApprovalTenantsFkViolation(ex) && attempt < maxAttempts - 1)
-            {
-                await Task.Delay(50 * (attempt + 1), cancellationToken);
-            }
+        RlsBypassTestDbConnectionFactory factory = new(_connectionString);
+        await using SqlConnection conn = (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction tran =
+            (SqlTransaction)await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+
+        try
+        {
+            await SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync(conn, tran, cancellationToken);
+            await _inner.CreateAsync(item, cancellationToken, conn, tran);
+            await tran.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await tran.RollbackAsync(cancellationToken);
+            throw;
         }
     }
 
@@ -103,26 +115,4 @@ internal sealed class TenantPrimingGovernanceApprovalRequestRepository : IGovern
     public Task PatchSlaBreachNotifiedAsync(string approvalRequestId, DateTime slaBreachNotifiedUtc,
         CancellationToken cancellationToken = default) =>
         _inner.PatchSlaBreachNotifiedAsync(approvalRequestId, slaBreachNotifiedUtc, cancellationToken);
-
-    /// <summary>
-    ///     Resolves to SQL Server referential integrity (547). Matches English constraint names and batch/localized
-    ///     messages that still cite both tables.
-    /// </summary>
-    private static bool IsGovernanceApprovalTenantsFkViolation(SqlException ex)
-    {
-        foreach (SqlError error in ex.Errors)
-        {
-            if (error.Number != 547)
-                continue;
-
-            if (error.Message.Contains("FK_GovernanceApprovalRequests_Tenants", StringComparison.OrdinalIgnoreCase))
-                return true;
-
-            if (error.Message.Contains("GovernanceApprovalRequests", StringComparison.OrdinalIgnoreCase)
-                && error.Message.Contains("Tenants", StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
-    }
 }

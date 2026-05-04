@@ -159,22 +159,20 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     }
 
     /// <summary>
-    ///     Ensures <see cref="GovernanceRepositoryContractScope.TenantId" /> exists in <c>dbo.Tenants</c> (migration 118 FK).
-    ///     Uses <c>MERGE</c> with <c>HOLDLOCK</c> so priming stays atomic vs parallel deletes under the default isolation level.
-    ///     Governance SQL contract tests open connections with <see cref="RlsBypassTestDbConnectionFactory" /> so pooled
-    ///     <c>SESSION_CONTEXT</c> does not block inserts or confuse FK checks.
+    ///     MERGEs <see cref="GovernanceRepositoryContractScope.TenantId" /> into <c>dbo.Tenants</c> within the caller's transaction
+    ///     so a subsequent <c>GovernanceApprovalRequests</c> INSERT in the same transaction satisfies
+    ///     <c>FK_GovernanceApprovalRequests_Tenants</c>.
     /// </summary>
-    public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
+    public static async Task MergeGovernanceContractTenantAsync(
+        IDbConnection connection,
+        IDbTransaction transaction,
+        CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(transaction);
 
-        RlsBypassTestDbConnectionFactory factory = new(connectionString);
-        await using SqlConnection connection =
-            (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
         Guid tenantId = GovernanceRepositoryContractScope.TenantId;
         string slug = "archgov-contract-" + tenantId.ToString("N");
-        await using SqlTransaction transaction =
-            (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
         const string mergeSql = """
                                 MERGE INTO dbo.Tenants WITH (HOLDLOCK) AS t
@@ -197,29 +195,48 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             Tier = TenantTier.Standard.ToString()
         };
 
+        await connection.ExecuteAsync(
+            new CommandDefinition(mergeSql, param, transaction, cancellationToken: cancellationToken));
+
+        int present = await connection.QuerySingleAsync<int>(
+            new CommandDefinition(
+                """
+                SELECT COUNT(1)
+                FROM dbo.Tenants
+                WHERE Id = @Id;
+                """,
+                new { Id = tenantId },
+                transaction,
+                cancellationToken: cancellationToken));
+
+
+        if (present != 1)
+            throw new InvalidOperationException(
+                "Governance contract priming expected exactly one Tenants row for Id "
+                + tenantId.ToString("N") + " but found " + present.ToString() + ".");
+    }
+
+    /// <summary>
+    ///     Ensures <see cref="GovernanceRepositoryContractScope.TenantId" /> exists in <c>dbo.Tenants</c> (migration 118 FK).
+    ///     Uses <c>MERGE</c> with <c>HOLDLOCK</c> so priming stays atomic vs parallel deletes under the default isolation level.
+    ///     Governance SQL contract tests open connections with <see cref="RlsBypassTestDbConnectionFactory" /> so pooled
+    ///     <c>SESSION_CONTEXT</c> does not block inserts or confuse FK checks.
+    /// </summary>
+    public static async Task PrimeGovernanceContractTenantAsync(string connectionString, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
+
+        RlsBypassTestDbConnectionFactory factory = new(connectionString);
+        await using SqlConnection connection =
+            (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
+        await using SqlTransaction transaction =
+            (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
+
+        Guid tenantId = GovernanceRepositoryContractScope.TenantId;
+
         try
         {
-            await connection.ExecuteAsync(
-                new CommandDefinition(mergeSql, param, transaction, cancellationToken: cancellationToken));
-
-            int present = await connection.QuerySingleAsync<int>(
-                new CommandDefinition(
-                    """
-                    SELECT COUNT(1)
-                    FROM dbo.Tenants
-                    WHERE Id = @Id;
-                    """,
-                    new { Id = tenantId },
-                    transaction,
-                    cancellationToken: cancellationToken));
-
-            if (present != 1)
-            {
-                throw new InvalidOperationException(
-                    "Governance contract priming expected exactly one Tenants row for Id "
-                    + tenantId.ToString("N") + " but found " + present.ToString() + ".");
-            }
-
+            await MergeGovernanceContractTenantAsync(connection, transaction, cancellationToken);
             await transaction.CommitAsync(cancellationToken);
         }
         catch

@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -15,7 +16,11 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
+    public Task CreateAsync(
+        GovernanceApprovalRequest item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
         cancellationToken.ThrowIfCancellationRequested();
