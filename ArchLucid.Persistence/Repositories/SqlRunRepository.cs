@@ -778,6 +778,8 @@ public sealed class SqlRunRepository(
                     run.IsPublicShowcase,
                     run.RealModeFellBackToSimulator,
                     run.PilotAoaiDeploymentSnapshot,
+                    run.RetryCount,
+                    run.LastFailureReason,
                     run.RowVersion
                 },
                 transaction,

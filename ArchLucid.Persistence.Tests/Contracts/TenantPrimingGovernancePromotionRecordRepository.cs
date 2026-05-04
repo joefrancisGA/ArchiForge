@@ -49,26 +49,24 @@ internal sealed class TenantPrimingGovernancePromotionRecordRepository : IGovern
             return;
         }
 
+        await SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(_connectionString, cancellationToken);
+
         RlsBypassTestDbConnectionFactory factory = new(_connectionString);
         await using SqlConnection conn = (SqlConnection)await factory.CreateOpenConnectionAsync(cancellationToken);
-        SqlTransaction? tran = null;
+
+        await using SqlTransaction tran =
+            (SqlTransaction)await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
         try
         {
-            tran = (SqlTransaction)await conn.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
-
             await SqlServerPersistenceFixture.MergeGovernanceContractTenantAsync(conn, tran, cancellationToken);
             await _inner.CreateAsync(item, cancellationToken, conn, tran);
-            tran.Commit();
+            await tran.CommitAsync(cancellationToken);
         }
         catch
         {
-            tran?.Rollback();
+            await tran.RollbackAsync(cancellationToken);
             throw;
-        }
-        finally
-        {
-            tran?.Dispose();
         }
     }
 
