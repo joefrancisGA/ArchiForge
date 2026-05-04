@@ -40,17 +40,27 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IGovernancePromotionRecordRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
-        DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
-        DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
+        string idOld = "prm-run-old-" + Guid.NewGuid().ToString("N");
+        string idNew = "prm-run-new-" + Guid.NewGuid().ToString("N");
+        // Distinct sub-ms instants at the DATETIME2 ceiling — stable ORDER BY vs ties or dirty shared catalogs.
+        DateTime newer = DateTime.MaxValue.AddTicks(-2);
+        DateTime older = DateTime.MaxValue.AddTicks(-4);
 
-        await repo.CreateAsync(NewPromotion("prm-old", runId, older), CancellationToken.None);
-        await repo.CreateAsync(NewPromotion("prm-new", runId, newer), CancellationToken.None);
+        await repo.CreateAsync(NewPromotion(idOld, runId, older), CancellationToken.None);
+        await repo.CreateAsync(NewPromotion(idNew, runId, newer), CancellationToken.None);
 
         IReadOnlyList<GovernancePromotionRecord> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
-        list.Should().HaveCount(2);
-        list[0].PromotionRecordId.Should().Be("prm-new");
-        list[1].PromotionRecordId.Should().Be("prm-old");
+        GovernancePromotionRecord[] ours =
+        [
+            .. list.Where(r =>
+                string.Equals(r.PromotionRecordId, idNew, StringComparison.Ordinal)
+                || string.Equals(r.PromotionRecordId, idOld, StringComparison.Ordinal))
+        ];
+
+        ours.Should().HaveCount(2);
+        ours[0].PromotionRecordId.Should().Be(idNew);
+        ours[1].PromotionRecordId.Should().Be(idOld);
     }
 
     private static GovernancePromotionRecord NewPromotion(string promotionId, string runId, DateTime promotedUtc)
