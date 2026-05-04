@@ -26,13 +26,15 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
         return Task.CompletedTask;
     }
 
-    protected abstract IAlertDeliveryAttemptRepository CreateRepository();
+    protected abstract IAlertDeliveryAttemptRepository CreateRepository(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId);
 
     [SkippableFact]
     public async Task Create_then_ListByAlert_returns_row_newest_first()
     {
         SkipIfSqlServerUnavailable();
-        IAlertDeliveryAttemptRepository repo = CreateRepository();
         Guid alertId = Guid.NewGuid();
         Guid subscriptionId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
@@ -48,6 +50,8 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
             workspaceId,
             projectId,
             CancellationToken.None);
+
+        IAlertDeliveryAttemptRepository repo = CreateRepository(tenantId, workspaceId, projectId);
 
         AlertDeliveryAttempt first = NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, older);
         AlertDeliveryAttempt second = NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, newer);
@@ -66,7 +70,6 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
     public async Task Update_is_reflected_in_ListByAlert()
     {
         SkipIfSqlServerUnavailable();
-        IAlertDeliveryAttemptRepository repo = CreateRepository();
         Guid alertId = Guid.NewGuid();
         Guid subscriptionId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
@@ -80,6 +83,8 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
             workspaceId,
             projectId,
             CancellationToken.None);
+
+        IAlertDeliveryAttemptRepository repo = CreateRepository(tenantId, workspaceId, projectId);
 
         AlertDeliveryAttempt attempt =
             NewAttempt(alertId, subscriptionId, tenantId, workspaceId, projectId, DateTime.UtcNow);
@@ -98,7 +103,6 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
     public async Task ListBySubscription_respects_take_and_orders_newest_first()
     {
         SkipIfSqlServerUnavailable();
-        IAlertDeliveryAttemptRepository repo = CreateRepository();
         Guid alertId = Guid.NewGuid();
         Guid subscriptionId = Guid.NewGuid();
         Guid tenantId = Guid.NewGuid();
@@ -112,6 +116,8 @@ public abstract class AlertDeliveryAttemptRepositoryContractTests
             workspaceId,
             projectId,
             CancellationToken.None);
+
+        IAlertDeliveryAttemptRepository repo = CreateRepository(tenantId, workspaceId, projectId);
 
         DateTime newestUtc = DateTime.UtcNow;
         AlertDeliveryAttempt c =

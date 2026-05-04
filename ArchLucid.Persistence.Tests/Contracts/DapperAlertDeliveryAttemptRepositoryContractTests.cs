@@ -1,5 +1,9 @@
 ﻿using ArchLucid.Decisioning.Alerts.Delivery;
 
+using ArchLucid.Persistence;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Tests.Support;
+
 using Dapper;
 
 using Microsoft.Data.SqlClient;
@@ -28,8 +32,11 @@ public sealed class DapperAlertDeliveryAttemptRepositoryContractTests(SqlServerP
         DateTime createdUtc = DateTime.UtcNow;
         string deduplicationKey = $"contract-alert-{alertId:N}";
 
-        TestSqlConnectionFactory connectionFactory = new(fixture.ConnectionString);
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        // Full RLS bypass for seeding: FK validation on dbo.AlertDeliveryAttempts consults dbo.AlertRecords under RLS.
+        // A scoped+bypass seed connection can fail that visibility check on some SQL Server configurations.
+        await using SqlConnection connection = new(fixture.ConnectionString);
+        await connection.OpenAsync(ct);
+        await PersistenceIntegrationTestRlsSession.ApplyArchLucidRlsBypassAsync(connection, ct);
 
         const string insertRuleSql = """
             INSERT INTO dbo.AlertRules
@@ -151,8 +158,18 @@ public sealed class DapperAlertDeliveryAttemptRepositoryContractTests(SqlServerP
                 cancellationToken: ct));
     }
 
-    protected override IAlertDeliveryAttemptRepository CreateRepository()
+    protected override IAlertDeliveryAttemptRepository CreateRepository(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId)
     {
-        return new DapperAlertDeliveryAttemptRepository(new TestSqlConnectionFactory(fixture.ConnectionString));
+        ISqlConnectionFactory connectionFactory =
+            new global::ArchLucid.Persistence.Tests.RlsTenantScopedTestSqlConnectionFactory(
+                fixture.ConnectionString,
+                tenantId,
+                workspaceId,
+                projectId);
+
+        return new DapperAlertDeliveryAttemptRepository(connectionFactory);
     }
 }

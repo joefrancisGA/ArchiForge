@@ -20,8 +20,9 @@ public sealed class TestSqlConnectionFactory(string connectionString) : ISqlConn
         SqlConnection connection = new(_connectionString);
         await connection.OpenAsync(ct);
 
-        // Pooled connections can carry SESSION_CONTEXT from other tests; FK checks on RLS-protected parents
-        // (e.g. AlertRecords) require the referencing session to see the parent row.
+        // Pooled connections can carry SESSION_CONTEXT from other tests; FK checks against RLS-protected parents need
+        // to see seeded rows via archlucid_scope_predicate. Prefer RlsTenantScopedTestSqlConnectionFactory when inserting
+        // contract parents that use a determined tenant/workspace/project triple.
         await PersistenceIntegrationTestRlsSession.ApplyArchLucidRlsBypassAsync(connection, ct);
 
         return connection;
