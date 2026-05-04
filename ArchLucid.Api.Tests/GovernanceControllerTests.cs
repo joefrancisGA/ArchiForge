@@ -20,7 +20,13 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
         response.EnsureSuccessStatusCode();
         CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        return payload!.Run.RunId;
+
+        payload.Should().NotBeNull();
+        payload!.Run.Should().NotBeNull();
+        payload.Run!.RunId.Should().NotBeNullOrWhiteSpace(
+            "CreateRun response must include Run.RunId so downstream governance calls validate.");
+
+        return payload.Run.RunId;
     }
 
     // â”€â”€ Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -268,9 +274,11 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         string runId = await CreateRunAsync("REQ-GOV-LIST-01");
 
         var body = new { RunId = runId, ManifestVersion = "v1", SourceEnvironment = "dev", TargetEnvironment = "test" };
+
+        // Submit as default integration actor (same path as SubmitApprovalRequest_ValidRun_ReturnsOk); listing by runId
+        // does not exercise segregation-of-duties.
         HttpResponseMessage submitResponse =
-            await PostGovernanceMutationAsync("/v1/governance/approval-requests", body, GovernanceSubmitterName,
-                GovernanceSubmitterId);
+            await PostGovernanceMutationAsync("/v1/governance/approval-requests", body);
         submitResponse.EnsureSuccessStatusCode();
 
         HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/approval-requests");
