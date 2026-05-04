@@ -114,6 +114,8 @@ public sealed class GovernanceApprovalRequestRepository(
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
+        // @@ROWCOUNT batch: pooled sessions often inherit SET NOCOUNT ON, so ExecuteAsync's return value is unreliable
+        // for matched-row detection under concurrent Serializable transitions (contract test expects exactly one winner).
         string updateSql = $"""
                                  UPDATE dbo.GovernanceApprovalRequests
                                  SET
@@ -124,6 +126,7 @@ public sealed class GovernanceApprovalRequestRepository(
                                      ReviewedUtc = @ReviewedUtc
                                  WHERE ApprovalRequestId = @ApprovalRequestId
                                    AND (Status = @Draft OR Status = @Submitted){scopeSql};
+                                 SELECT @@ROWCOUNT;
                                  """;
 
         DynamicParameters transitionParams = new();
@@ -142,15 +145,7 @@ public sealed class GovernanceApprovalRequestRepository(
 
         try
         {
-            // Pooled sessions can inherit SET NOCOUNT ON from other callers; ExecuteNonQuery then returns -1
-            // regardless of matched rows which breaks concurrency tests (winner rowcount checks).
-            await connection.ExecuteAsync(
-                new CommandDefinition(
-                    "SET NOCOUNT OFF;",
-                    transaction: transaction,
-                    cancellationToken: cancellationToken));
-
-            int affected = await connection.ExecuteAsync(
+            int affected = await connection.QuerySingleAsync<int>(
                 new CommandDefinition(updateSql, transitionParams, transaction, cancellationToken: cancellationToken));
 
             transaction.Commit();
