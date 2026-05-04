@@ -9,8 +9,9 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController.ListRunsByProject" /> â€”
-///     non-paged array vs. paged envelope after a committed authority run exists.
+///     HTTP coverage for <see cref="ArchLucid.Api.Controllers.Authority.AuthorityQueryController.ListRunsByProject" />:
+///     <see cref="ArchLucid.Core.Pagination.CursorPagedResponse{T}" /> (keyset + legacy page/size clamping) after a
+///     committed authority run exists.
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
@@ -18,7 +19,7 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
     : IntegrationTestBase(factory)
 {
     [SkippableFact]
-    public async Task ListRunsByProject_without_page_returns_json_array()
+    public async Task ListRunsByProject_without_page_returns_cursor_paged_envelope()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
@@ -38,12 +39,17 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         string body = await response.Content.ReadAsStringAsync();
         using JsonDocument doc = JsonDocument.Parse(body);
-        doc.RootElement.ValueKind.Should().Be(JsonValueKind.Array);
-        doc.RootElement.GetArrayLength().Should().BeGreaterThan(0);
+        JsonElement root = doc.RootElement;
+        root.ValueKind.Should().Be(JsonValueKind.Object);
+        root.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
+        root.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
+        root.GetProperty("requestedTake").GetInt32().Should().Be(20);
+        root.TryGetProperty("nextCursor", out JsonElement _).Should().BeTrue();
+        root.GetProperty("hasMore").ValueKind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False);
     }
 
     [SkippableFact]
-    public async Task ListRunsByProject_with_page_returns_paged_envelope()
+    public async Task ListRunsByProject_with_legacy_page_size_clamps_requested_take()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
@@ -66,8 +72,9 @@ public sealed class AuthorityQueryControllerListRunsPagedIntegrationTests(ArchLu
         using JsonDocument doc = JsonDocument.Parse(body);
         JsonElement root = doc.RootElement;
         root.GetProperty("items").ValueKind.Should().Be(JsonValueKind.Array);
-        root.GetProperty("totalCount").GetInt32().Should().BeGreaterThan(0);
-        root.GetProperty("page").GetInt32().Should().Be(1);
-        root.GetProperty("pageSize").GetInt32().Should().Be(10);
+        root.GetProperty("items").GetArrayLength().Should().BeGreaterThan(0);
+        root.GetProperty("requestedTake").GetInt32().Should().Be(10);
+        root.TryGetProperty("nextCursor", out JsonElement _).Should().BeTrue();
+        root.GetProperty("hasMore").ValueKind.Should().BeOneOf(JsonValueKind.True, JsonValueKind.False);
     }
 }

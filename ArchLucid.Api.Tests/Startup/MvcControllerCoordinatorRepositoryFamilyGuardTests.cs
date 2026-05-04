@@ -22,7 +22,7 @@ public sealed class MvcControllerCoordinatorRepositoryFamilyGuardTests
 {
     /// <summary>
     ///     Type simple names retired with ADR 0030 PR A3 or otherwise treated as coordinator-pipeline coupling for HTTP MVC.
-    ///     Prefer updating this list and <see cref="ControllersExplicitlyBypassingForbiddenConstructorDependencies" /> together
+    ///     Prefer updating this list and <see cref="IsExplicitBypassForForbiddenCoordinatorConstructorDependency" /> together
     ///     with ADR amendments — not silent controller edits.
     /// </summary>
     private static readonly HashSet<string> ForbiddenCoordinatorFamilyTypeNames = new(StringComparer.Ordinal)
@@ -35,11 +35,17 @@ public sealed class MvcControllerCoordinatorRepositoryFamilyGuardTests
     };
 
     /// <summary>
-    ///     Absolute escape hatch for a deliberate, ADR-reviewed exception to V1_SCOPE Section 3 only. Entries must cite ADR +
-    ///     decision date inline in surrounding comments whenever non-empty — never widen silently.
+    ///     Absolute escape hatch for a deliberate, ADR-reviewed exception to V1_SCOPE Section 3 only. Each bypass branch must
+    ///     cite ADR + decision date inline — never widen silently.
     /// </summary>
-    private static readonly HashSet<string> ControllersExplicitlyBypassingForbiddenConstructorDependencies =
-        new(StringComparer.Ordinal);
+    private static bool IsExplicitBypassForForbiddenCoordinatorConstructorDependency(string controllerFullName)
+    {
+        return controllerFullName switch
+        {
+            // "Fully.Qualified.ControllerTypeName" => true, // ADR-XXXX YYYY-MM-DD: rationale.
+            _ => false,
+        };
+    }
 
     [Fact]
     public void ArchLucid_Api_ControllerBase_types_do_not_constructor_inject_retired_coordinator_family()
@@ -54,7 +60,7 @@ public sealed class MvcControllerCoordinatorRepositoryFamilyGuardTests
             if (fullName is null)
                 continue;
 
-            if (ControllersExplicitlyBypassingForbiddenConstructorDependencies.Contains(fullName))
+            if (IsExplicitBypassForForbiddenCoordinatorConstructorDependency(fullName))
                 continue;
 
             IEnumerable<Type> ctorParameterTypes =

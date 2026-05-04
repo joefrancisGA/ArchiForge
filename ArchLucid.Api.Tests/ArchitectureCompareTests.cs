@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -53,7 +52,7 @@ public sealed class ArchitectureCompareTests(ArchLucidApiFactory factory) : Inte
         ReplayRunResponseDto? replayPayload =
             await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload.Should().NotBeNull();
-        replayPayload!.Manifest.Should().NotBeNull();
+        replayPayload.Manifest.Should().NotBeNull();
         string rightVersion = replayPayload.Manifest!.Metadata.ManifestVersion;
         rightVersion.Should().Be(requestedReplayManifestVersion);
 

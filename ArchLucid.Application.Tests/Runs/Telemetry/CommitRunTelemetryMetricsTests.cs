@@ -60,14 +60,13 @@ public sealed class CommitRunTelemetryMetricsTests
         DateTime t0 = DateTime.UtcNow;
         RunRecord runHeader = new() { CreatedUtc = t0 };
         AgentEvidencePackage evidence = new() { CreatedUtc = t0 };
-        List<AgentResult> agentResults = [];
 
         ManifestDocument emptyWarnings = new() { Warnings = [] };
 
         CommitRunTelemetryMetrics low = CommitRunTelemetryMetrics.FromCommitContext(
             runHeader,
             evidence,
-            agentResults,
+            Array.Empty<AgentResult>(),
             t0,
             emptyWarnings);
 
