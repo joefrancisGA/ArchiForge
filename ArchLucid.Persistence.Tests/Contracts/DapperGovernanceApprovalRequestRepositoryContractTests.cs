@@ -14,15 +14,8 @@ public sealed class DapperGovernanceApprovalRequestRepositoryContractTests(SqlSe
 
     protected override IGovernanceApprovalRequestRepository CreateRepository()
     {
-        if (fixture.IsSqlServerAvailable)
-        {
-            SqlServerPersistenceFixture.PrimeGovernanceContractTenantAsync(fixture.ConnectionString, CancellationToken.None)
-                .GetAwaiter()
-                .GetResult();
-        }
-
-        return new GovernanceApprovalRequestRepository(
-            new RlsBypassTestDbConnectionFactory(fixture.ConnectionString),
+        return new TenantPrimingGovernanceApprovalRequestRepository(
+            fixture.ConnectionString,
             new FixedTestScopeContextProvider(GovernanceRepositoryContractScope.AsScopeContext()));
     }
 }
