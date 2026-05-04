@@ -75,18 +75,28 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IGovernanceEnvironmentActivationRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
-        string env = "test";
-        DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
-        DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
+        string idOld = "act-run-old-" + Guid.NewGuid().ToString("N");
+        string idNew = "act-run-new-" + Guid.NewGuid().ToString("N");
+        string env = GovernanceEnvironment.Test;
+        // Distinct sub-ms instants at the DATETIME2 ceiling — stable ORDER BY vs ties or dirty shared catalogs.
+        DateTime newer = DateTime.MaxValue.AddTicks(-2);
+        DateTime older = DateTime.MaxValue.AddTicks(-4);
 
-        await repo.CreateAsync(NewActivation("a-old", runId, env, older, false), CancellationToken.None);
-        await repo.CreateAsync(NewActivation("a-new", runId, env, newer, true), CancellationToken.None);
+        await repo.CreateAsync(NewActivation(idOld, runId, env, older, false), CancellationToken.None);
+        await repo.CreateAsync(NewActivation(idNew, runId, env, newer, true), CancellationToken.None);
 
         IReadOnlyList<GovernanceEnvironmentActivation> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
-        list.Should().HaveCount(2);
-        list[0].ActivationId.Should().Be("a-new");
-        list[1].ActivationId.Should().Be("a-old");
+        GovernanceEnvironmentActivation[] ours =
+        [
+            .. list.Where(x =>
+                string.Equals(x.ActivationId, idNew, StringComparison.Ordinal)
+                || string.Equals(x.ActivationId, idOld, StringComparison.Ordinal))
+        ];
+
+        ours.Should().HaveCount(2);
+        ours[0].ActivationId.Should().Be(idNew);
+        ours[1].ActivationId.Should().Be(idOld);
     }
 
     private static GovernanceEnvironmentActivation NewActivation(
