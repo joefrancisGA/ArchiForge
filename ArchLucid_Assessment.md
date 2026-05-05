@@ -34,7 +34,7 @@
 - **Weighted deficiency:** 1.75
 - **Justification:** The pilot path is well-defined, but getting to the first meaningful architectural decision requires setup and configuration.
 - **Tradeoffs:** A multi-tenant SaaS with governance, identity, and optional enterprise networking still has a longer time-to-first meaningful outcome than a lightweight, single-purpose tool.
-- **Improvement Recommendations:** Simplify the initial setup CLI command for quickstart evaluations.
+- **Improvement Recommendations:** **Addressed for evaluation (2026-05-05):** `archlucid new <projectName> --quickstart` provisions local quickstart artifacts; optional further simplification remains (e.g. tighter host onboarding).
 
 ### Proof-of-ROI Readiness
 - **Score:** 65
@@ -424,10 +424,11 @@ ArchLucid is an engineering marvel that solves the operator's problem but curren
 ## Top Improvement Opportunities
 
 ### 1. Implement Executive ROI Dashboard
+- **Status:** **Completed (2026-05-05).** Shipped `ExecutiveRoiDashboard.tsx` under `archlucid-ui/src/components/dashboard/` (loads via `/api/proxy/v1/analytics/roi`), `RoiAnalyticsController` + `ExecutiveRoiAggregatesResponse` under `ArchLucid.Api` (mocked JSON until analytics persistence is defined), route constant `ApiV1Routes.AnalyticsRoi`, and `RoiAnalyticsEndpointTests` for `GET /v1/analytics/roi`. Persistence layers were not changed.
 - **Why it matters:** Buyers need to see value without understanding the technical details.
-- **Expected impact:** Directly improves Executive Value Visibility (+15 pts) and Proof-of-ROI Readiness (+10 pts). Weighted readiness impact: +1.1%.
+- **Expected impact:** Directly improves Executive Value Visibility (+15 pts) and Proof-of-ROI Readiness (+10 pts). Weighted readiness impact: +1.1%. (Full buyer impact depends on wiring real aggregates and surfacing the component in executive flows.)
 - **Affected qualities:** Executive Value Visibility, Proof-of-ROI Readiness.
-- **Actionable:** Yes.
+- **Actionable:** No — baseline UI + API endpoint delivered; follow-on work is real metrics, product placement, and executive narrative.
 
 ```cursor
 Create a new React component `ExecutiveRoiDashboard.tsx` in `archlucid-ui/src/components/dashboard/`. It should fetch aggregated metrics from a new API endpoint `/v1/analytics/roi` (which you should also create in `ArchLucid.Api/Controllers/`). The dashboard should display 'Time Saved', 'Decisions Automated', and 'Compliance Risks Mitigated'. Do not modify existing persistence layers, just mock the data in the controller for now until the data model is finalized.
@@ -459,10 +460,11 @@ Implement vertical accelerator templates for the three target industries: **heal
 ```
 
 ### 3. Simplify Initial Setup CLI Command
+- **Status:** **Completed (2026-05-05).** `archlucid new <projectName> [--quickstart]` is parsed in `ArchLucid.Cli/Program.cs` (`TryParseNewCommandArgs`, `WriteNewUsage`, master command list); `ArchLucid.Cli/Commands/NewCommand.cs` sets `ScaffoldOptions.QuickStartEvaluation`; `ArchLucid.Cli/ArchLucidProjectScaffolder.cs` writes `local/archlucid.quickstart.appsettings.json` (`ArchLucid:StorageProvider` = `InMemory`) and `local/archlucid-evaluation.sqlite` via `ArchLucid.Cli/QuickStartSQLiteProjectRegistry.cs` (`Microsoft.Data.Sqlite`, `Pooling=false`). `docs/README.md` in the scaffold documents quickstart; tests in `ArchLucid.Cli.Tests` (`CreateProject_QuickStartEvaluation_*`, `New_with_quickstart_*`, `New_with_unknown_flag_*`).
 - **Why it matters:** Reduces time-to-value for new evaluators.
 - **Expected impact:** Directly improves Time-to-Value (+10 pts) and Adoption Friction (+5 pts). Weighted readiness impact: +1.0%.
 - **Affected qualities:** Time-to-Value, Adoption Friction.
-- **Actionable:** Yes.
+- **Actionable:** No — fulfilled in code.
 
 ```cursor
 Update `ArchLucid.Cli/Commands/NewCommand.cs` to include a `--quickstart` flag that automatically provisions a local SQLite database (or in-memory store) and bypasses the need for a full SQL Server setup during initial evaluation. Ensure this is clearly documented in the CLI help text.

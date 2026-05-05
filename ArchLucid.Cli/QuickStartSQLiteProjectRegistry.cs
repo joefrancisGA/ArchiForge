@@ -25,7 +25,12 @@ internal static class QuickStartSQLiteProjectRegistry
         if (!string.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
 
-        SqliteConnectionStringBuilder builder = new() { DataSource = absoluteDatabasePath };
+        SqliteConnectionStringBuilder builder = new()
+        {
+            DataSource = absoluteDatabasePath,
+            // One-shot CLI provisioning: default pooling can keep file handles on Windows until GC/pool teardown.
+            Pooling = false
+        };
 
         using SqliteConnection connection = new(builder.ConnectionString);
         connection.Open();

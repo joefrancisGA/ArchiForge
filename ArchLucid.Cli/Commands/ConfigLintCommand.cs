@@ -38,11 +38,7 @@ internal static class ConfigLintCommand
 
         if (hostingAdvisor)
         {
-            foreach (HostingMisconfigurationWarning w in ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(
-                         local,
-                         trimmedEnv))
-
-                errors.Add($"[HostingMisconfiguration:{w.RuleName}] {w.Message}");
+            errors.AddRange(ProductionLikeHostingMisconfigurationAdvisor.DescribeWarningRecords(local, trimmedEnv).Select(w => $"[HostingMisconfiguration:{w.RuleName}] {w.Message}"));
         }
 
         bool ok = errors.Count == 0;
