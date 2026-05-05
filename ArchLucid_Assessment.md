@@ -1,544 +1,558 @@
-# ArchLucid Assessment – Weighted Readiness 82.55%
+# ArchLucid Assessment – Weighted Readiness 73.25%
 
 ## Executive Summary
 
-**Overall Readiness:** ArchLucid is technically sound, highly auditable, and architecturally coherent, but it suffers from a fragile, prototype-grade operator frontend. The system excels at data consistency, observability, and compliance tracking, making the backend heavily enterprise-ready. However, usability and maintainability bottlenecks in the UI layer significantly drag down the overall readiness score (82.55%), threatening long-term agility.
+**Overall Readiness:** ArchLucid is a structurally sound, highly modular architecture decisioning platform with strong engineering fundamentals. The 73.25% readiness score reflects a system that is technically capable but requires commercial and enterprise polish to accelerate adoption and demonstrate executive value.
 
-**Commercial Picture:** The product is highly differentiated and proves value quickly *if* inputs are perfectly structured. However, the adoption friction is high due to the lack of out-of-the-box native integrations (e.g., Slack, Jira) in V1, forcing users to rely on raw webhooks. The narrative packaging ("Pilot" vs "Operate") is brilliant, but actual stickiness will suffer until V1.1/V2 integrations ship.
+**Commercial Picture:** The product has a solid foundation for pilot execution, but struggles with Executive Value Visibility and Proof-of-ROI. The lack of built-in cross-tenant analytics and executive dashboards means the value is obvious to operators but harder to prove to buyers.
 
-**Enterprise Picture:** ArchLucid is a CISO's dream. With 78 typed audit events, strict SQL Row-Level Security, private endpoint postures, and thorough compliance mapping, it will sail through procurement. The main enterprise adoption blockers are operational—specifically, the lack of turnkey SSO federation for non-Microsoft identity providers and the out-of-band workflow that requires architects to leave their native IDEs.
+**Enterprise Picture:** The system has excellent auditability and traceability, with robust RBAC and RLS. However, Workflow Embeddedness and Interoperability are current weaknesses, as the system relies heavily on its own UI and CLI rather than meeting users where they already work (e.g., deeper ITSM integration beyond the V1 baseline).
 
-**Engineering Picture:** The backend ASP.NET Core API and SQL Server architecture is robust, leveraging WAF, OTEL, and idempotent operations. Conversely, the Next.js `archlucid-ui` shell is severely under-engineered. The deliberate avoidance of a CSS framework, the reliance on hand-written JSON coercion functions over schemas, and the lack of client-side caching or React error boundaries present massive, immediate maintainability and reliability risks.
+**Engineering Picture:** Engineering is the strongest pillar. The architecture is highly modular, testability is exceptional, and observability is well-instrumented. Residual risks cluster around **hosted runtime economics and behaviour clarity** (LLM usage, explainability), **build/CI and release wall-clock** from a large solution graph and deep test matrix, and **operational surface area**—not day-to-day navigation across assemblies when development is consistently AI-assisted (for example with Cursor).
 
 ## Weighted Quality Assessment
 
-**1. Adoption Friction**
-- **Score:** 75
-- **Weight:** 6
-- **Weighted deficiency signal:** 150
-- **Justification:** High barrier to entry. Requires provisioning SQL, Blob storage, and Entra ID for non-Docker deployments.
-- **Tradeoffs:** High security and isolation vs. easy frictionless onboarding.
-- **Improvement recommendations:** Provide more robust Terraform automated bootstrappers for rapid PoCs.
-- **Status:** Better suited for V1.1/V2 (Integration expansions).
-
-**2. Time-to-Value**
-- **Score:** 80
-- **Weight:** 7
-- **Weighted deficiency signal:** 140
-- **Justification:** Claimed 30-minute pilot requires perfectly pristine architecture inputs which enterprises rarely have.
-- **Tradeoffs:** Structured determinism vs. tolerant messy ingestion.
-- **Improvement recommendations:** Enhance the ingestion pipeline to parse unstructured/messy legacy docs better.
-- **Status:** Fixable in V1.
-
-**3. Marketability**
-- **Score:** 85
+### Marketability
+- **Score:** 70
 - **Weight:** 8
-- **Weighted deficiency signal:** 120
-- **Justification:** Solid messaging and tiering, but deferred commerce un-hold and reference customers soften the immediate V1 launch impact.
-- **Tradeoffs:** Launch speed vs. fully automated self-serve purchasing.
-- **Improvement recommendations:** Clarify the manual sales-led process aggressively on the pricing page.
-- **Status:** Blocked on user input (Commerce un-hold is V1.1).
+- **Weighted deficiency:** 2.40
+- **Justification:** The system has strong technical merits but lacks clear, executive-facing value propositions and dashboards.
+- **Tradeoffs:** Balancing deep technical features for operators vs. high-level summaries for buyers.
+- **Improvement Recommendations:** Implement executive ROI dashboards to clearly demonstrate value.
 
-**4. Usability**
+### Adoption Friction
+- **Score:** 70
+- **Weight:** 6
+- **Weighted deficiency:** 1.80
+- **Justification:** Initial setup requires significant context and understanding of the architecture lifecycle (runs, manifests, governance).
+- **Tradeoffs:** Comprehensive governance features inherently add friction to initial onboarding.
+- **Improvement Recommendations:** Provide industry-specific accelerator templates to reduce the blank-page problem.
+
+### Time-to-Value
+- **Score:** 75
+- **Weight:** 7
+- **Weighted deficiency:** 1.75
+- **Justification:** The pilot path is well-defined, but getting to the first meaningful architectural decision requires setup and configuration.
+- **Tradeoffs:** A multi-tenant SaaS with governance, identity, and optional enterprise networking still has a longer time-to-first meaningful outcome than a lightweight, single-purpose tool.
+- **Improvement Recommendations:** Simplify the initial setup CLI command for quickstart evaluations.
+
+### Proof-of-ROI Readiness
+- **Score:** 65
+- **Weight:** 5
+- **Weighted deficiency:** 1.75
+- **Justification:** No automated way to show time or money saved by using the platform.
+- **Tradeoffs:** ROI calculation is highly context-dependent and difficult to generalize.
+- **Improvement Recommendations:** Add cost-tracking telemetry and ROI estimation to the dashboard.
+
+### Executive Value Visibility
+- **Score:** 60
+- **Weight:** 4
+- **Weighted deficiency:** 1.60
+- **Justification:** The UI is heavily operator-focused, lacking views tailored for executives or non-technical stakeholders.
+- **Tradeoffs:** Prioritizing operator workflows over executive reporting in V1.
+- **Improvement Recommendations:** Create a dedicated executive summary view aggregating compliance and cost metrics.
+
+### Differentiability
+- **Score:** 70
+- **Weight:** 4
+- **Weighted deficiency:** 1.20
+- **Justification:** Unique approach to architecture decisioning, but the value proposition can be hard to articulate against generic LLM tools.
+- **Tradeoffs:** Building a specialized tool vs. a generic platform.
+- **Improvement Recommendations:** Highlight the deterministic governance and auditability features in marketing materials.
+
+### Workflow Embeddedness
 - **Score:** 65
 - **Weight:** 3
-- **Weighted deficiency signal:** 105
-- **Justification:** No CSS framework, inline styles, no error boundaries. UI is primitive.
-- **Tradeoffs:** Minimized dependencies vs. standard modern UI practices.
-- **Improvement recommendations:** Introduce Tailwind CSS to manage styles systematically.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 1.05
+- **Justification:** Relies heavily on its own UI/CLI. **ServiceNow** and **Jira** first-party connectors are in scope for V1, but **deep** workflow fit (CMDB-aligned signal, operational handoff) needs **ServiceNow-first** execution; IDE plugins and Slack remain deferred.
+- **Tradeoffs:** Building a standalone platform vs. integrating into existing fragmented toolchains.
+- **Improvement Recommendations:** Deepen **ServiceNow** integration first (incident + planned **CMDB** mapping); treat advanced **Jira** bi-directional polish as secondary until ServiceNow sequencing is complete.
 
-**5. Workflow Embeddedness**
-- **Score:** 65
+### Usability
+- **Score:** 70
 - **Weight:** 3
-- **Weighted deficiency signal:** 105
-- **Justification:** Operates entirely out-of-band via a separate web portal or CLI. No IDE extensions. ITSM deferred to V1.1.
-- **Tradeoffs:** Focused governance portal vs. meeting developers where they code.
-- **Improvement recommendations:** Develop a VS Code extension to surface findings directly in code.
-- **Status:** Better suited for V1.1/V2.
+- **Weighted deficiency:** 0.90
+- **Justification:** The operator UI is functional but introduces many new concepts that require learning.
+- **Tradeoffs:** Exposing complex governance features vs. keeping the UI simple.
+- **Improvement Recommendations:** Improve error messages and provide contextual help within the UI.
 
-**6. Correctness**
+### Correctness
 - **Score:** 80
 - **Weight:** 4
-- **Weighted deficiency signal:** 80
-- **Justification:** Backend is precise, but UI uses fragile hand-written `coerce*` functions that fail silently on schema drift.
-- **Tradeoffs:** Zero UI dependencies vs. strict schema safety.
-- **Improvement recommendations:** Migrate UI coercion to Zod schemas.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.80
+- **Justification:** Strong test coverage, property-based testing, and deterministic simulator ensure high correctness.
+- **Tradeoffs:** High maintenance cost for the extensive test suites.
+- **Improvement Recommendations:** Continue expanding the golden corpus regression tests.
 
-**7. Maintainability**
-- **Score:** 60
+### Security
+- **Score:** 75
+- **Weight:** 3
+- **Weighted deficiency:** 0.75
+- **Justification:** Robust RBAC, RLS, and private endpoint support. However, third-party pen testing is deferred to V2.
+- **Tradeoffs:** Relying on owner-conducted testing for V1 to accelerate release.
+- **Improvement Recommendations:** Execute the planned V2 third-party pen test when funded.
+
+### Trustworthiness
+- **Score:** 75
+- **Weight:** 3
+- **Weighted deficiency:** 0.75
+- **Justification:** High auditability and deterministic execution build trust, but AI explainability can be improved.
+- **Tradeoffs:** Leveraging LLMs inherently introduces some opacity.
+- **Improvement Recommendations:** Enhance agent explainability output in the UI.
+
+### Interoperability
+- **Score:** 65
 - **Weight:** 2
-- **Weighted deficiency signal:** 80
-- **Justification:** The `archlucid-ui` shell's inline styling and lack of global state will become an unmaintainable legacy burden within months.
-- **Tradeoffs:** Quick initial build vs. sustainable long-term frontend architecture.
-- **Improvement recommendations:** Implement Tailwind CSS and Zustand.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.70
+- **Justification:** Basic webhooks and V1 ITSM connectors exist, but the ecosystem is not yet mature (MCP deferred to V1.1).
+- **Tradeoffs:** Focusing on core functionality before expanding the integration ecosystem.
+- **Improvement Recommendations:** Accelerate the MCP integration planned for V1.1.
 
-**8. Interoperability**
+### Decision Velocity
 - **Score:** 70
 - **Weight:** 2
-- **Weighted deficiency signal:** 60
-- **Justification:** Relies on raw webhooks. Native ITSM (Jira/ServiceNow) and ChatOps (Slack) are deferred.
-- **Tradeoffs:** Core engine stability vs. broad ecosystem connectivity.
-- **Improvement recommendations:** Finalize ITSM mappings and accelerate the Jira/ServiceNow webhook templates.
-- **Status:** Better suited for V1.1.
+- **Weighted deficiency:** 0.60
+- **Justification:** The platform speeds up architecture decisions, but the governance gates can introduce delays.
+- **Tradeoffs:** Speed vs. control and compliance.
+- **Improvement Recommendations:** Provide pre-approved policy packs for low-risk decisions.
 
-**9. Differentiability**
-- **Score:** 85
-- **Weight:** 4
-- **Weighted deficiency signal:** 60
-- **Justification:** High differentiation via auditability and graph provenance, though UI lacks the polish of established enterprise tools.
-- **Tradeoffs:** Deep governance capabilities vs. surface-level UI polish.
-- **Improvement recommendations:** Polish the exported DOCX packages to look more premium.
-- **Status:** Fixable in V1.
+### Explainability
+- **Score:** 70
+- **Weight:** 2
+- **Weighted deficiency:** 0.60
+- **Justification:** The system tracks provenance, but the internal reasoning of the AI agents is not always surfaced clearly to the user.
+- **Tradeoffs:** Storing and presenting large amounts of LLM trace data.
+- **Improvement Recommendations:** Surface LLM reasoning traces directly in the run detail view.
 
-**10. Proof-of-ROI Readiness**
-- **Score:** 90
-- **Weight:** 5
-- **Weighted deficiency signal:** 50
-- **Justification:** Excellent PDF exports and first-value reports, though highly static.
-- **Tradeoffs:** Immutable snapshot reports vs. live interactive dashboards.
-- **Improvement recommendations:** Provide live ROI tracking widgets on the Home screen.
-- **Status:** Fixable in V1.
+### Compliance Readiness
+- **Score:** 70
+- **Weight:** 2
+- **Weighted deficiency:** 0.60
+- **Justification:** Self-assessment is complete, but CPA SOC 2 is deferred.
+- **Tradeoffs:** Cost and time of formal certification vs. time-to-market.
+- **Improvement Recommendations:** Create an automated compliance mapping report generator.
 
-**11. Architectural Integrity**
+### Procurement Readiness
+- **Score:** 70
+- **Weight:** 2
+- **Weighted deficiency:** 0.60
+- **Justification:** Trust center and security docs exist, but lack of formal certifications adds friction.
+- **Tradeoffs:** Providing self-attested documentation vs. formal reports.
+- **Improvement Recommendations:** Prepare the evidence room for the upcoming SOC 2 observation period.
+
+### Traceability
+- **Score:** 80
+- **Weight:** 3
+- **Weighted deficiency:** 0.60
+- **Justification:** Excellent provenance tracking and knowledge graph capabilities.
+- **Tradeoffs:** Storage overhead for maintaining full history.
+- **Improvement Recommendations:** Optimize the storage of historical run data.
+
+### Commercial Packaging Readiness
+- **Score:** 75
+- **Weight:** 2
+- **Weighted deficiency:** 0.50
+- **Justification:** Pricing and packaging are defined, but the self-serve commerce un-hold is deferred to V1.1.
+- **Tradeoffs:** Sales-led motion for V1 vs. fully automated self-serve.
+- **Improvement Recommendations:** Complete the Stripe live key flip for V1.1.
+
+### Policy and Governance Alignment
+- **Score:** 75
+- **Weight:** 2
+- **Weighted deficiency:** 0.50
+- **Justification:** Strong policy packs and pre-commit gates.
+- **Tradeoffs:** Complexity of configuring policies.
+- **Improvement Recommendations:** Provide more out-of-the-box policy templates.
+
+### Reliability
+- **Score:** 75
+- **Weight:** 2
+- **Weighted deficiency:** 0.50
+- **Justification:** Circuit breakers and resilience pipelines are in place, but multi-region active/active is not guaranteed for V1.
+- **Tradeoffs:** Cost of multi-region deployment vs. availability requirements.
+- **Improvement Recommendations:** Document clear disaster recovery procedures.
+
+### Maintainability
+- **Score:** 75
+- **Weight:** 2
+- **Weighted deficiency:** 0.50
+- **Justification:** Highly modular codebase with many assemblies. **Day-to-day change** is less constrained by “finding the right file” when the team works primarily with **AI-assisted editing and search** (for example Cursor), provided naming and boundaries stay consistent. The **harder** cost is **solution build time**, **CI duration**, dependency churn, and onboarding someone who is *not* using the same tooling cadence.
+- **Tradeoffs:** Granular modularity vs. build graph and pipeline complexity.
+- **Improvement Recommendations:** Keep architecture tests and docs aligned so agents stay accurate; trim or merge projects only where builds or releases are clearly bottlenecked.
+
+### Azure Compatibility and SaaS Deployment Readiness
+- **Score:** 75
+- **Weight:** 2
+- **Weighted deficiency:** 0.50
+- **Justification:** Strong Azure alignment (Container Apps, SQL, Entra), but ACR production image store is not fully automated.
+- **Tradeoffs:** Relying on customer-owned infrastructure deployment for some components.
+- **Improvement Recommendations:** Fully automate the ACR push pipeline.
+
+### Architectural Integrity
 - **Score:** 85
 - **Weight:** 3
-- **Weighted deficiency signal:** 45
-- **Justification:** Excellent API/SQL backend. Frontend architecture lacks standard robustness (no caching, inline CSS).
-- **Tradeoffs:** Thin UI layer vs. robust, independent frontend app.
-- **Improvement recommendations:** Add SWR caching and error boundaries.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.45
+- **Justification:** Clean architecture, clear boundaries, and NetArchTest enforcement.
+- **Tradeoffs:** Strict layering can sometimes lead to boilerplate code.
+- **Improvement Recommendations:** Continue enforcing architecture tests in CI.
 
-**12. Executive Value Visibility**
-- **Score:** 90
-- **Weight:** 4
-- **Weighted deficiency signal:** 40
-- **Justification:** Great sponsor briefs and value reports.
-- **Tradeoffs:** Executive summaries vs. deep engineering diagnostics.
-- **Improvement recommendations:** Ensure PDF exports clearly highlight cost-savings and compliance avoids.
-- **Status:** Fixable in V1.
+### Template and Accelerator Richness
+- **Score:** 60
+- **Weight:** 1
+- **Weighted deficiency:** 0.40
+- **Justification:** Lacks industry-specific templates to accelerate onboarding.
+- **Tradeoffs:** Focusing on the core engine before building content.
+- **Improvement Recommendations:** Develop a library of common architectural patterns.
 
-**13. Reliability**
+### Data Consistency
 - **Score:** 80
 - **Weight:** 2
-- **Weighted deficiency signal:** 40
-- **Justification:** Server-side fetches on every Next.js render will overwhelm the API under load.
-- **Tradeoffs:** Data freshness vs. infrastructure load.
-- **Improvement recommendations:** Implement client-side caching for immutable runs.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.40
+- **Justification:** Transactional outboxes and strong SQL constraints ensure consistency.
+- **Tradeoffs:** Performance overhead of transactional guarantees.
+- **Improvement Recommendations:** Monitor outbox processing latency.
 
-**14. Decision Velocity**
+### AI/Agent Readiness
 - **Score:** 80
 - **Weight:** 2
-- **Weighted deficiency signal:** 40
-- **Justification:** Great governance gates, but manual UI interactions slow down bulk reviews.
-- **Tradeoffs:** Careful manual review vs. automated mass approvals.
-- **Improvement recommendations:** Improve bulk approval UI ergonomics.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.40
+- **Justification:** Robust agent runtime with circuit breakers and fallback mechanisms.
+- **Tradeoffs:** Complexity of managing multiple LLM providers.
+- **Improvement Recommendations:** Implement strict tenant-level token quotas.
 
-**15. Stickiness**
+### Stickiness
 - **Score:** 65
 - **Weight:** 1
-- **Weighted deficiency signal:** 35
-- **Justification:** Hard to retain daily active usage when the tool sits outside the main IDE/ChatOps flow.
-- **Tradeoffs:** Specialized portal vs. integrated tooling.
-- **Improvement recommendations:** Accelerate Slack integration to keep it top-of-mind.
-- **Status:** Better suited for V2.
+- **Weighted deficiency:** 0.35
+- **Justification:** Value is high once adopted, but the lack of deep workflow embeddedness reduces stickiness.
+- **Tradeoffs:** Standalone platform vs. integrated tool.
+- **Improvement Recommendations:** Prioritize **ServiceNow** connector depth (including **CMDB** / `cmdb_ci` planning per scope) before investing in **Jira** bi-directional edge cases.
 
-**16. Policy and Governance Alignment**
+### Customer Self-Sufficiency
+- **Score:** 65
+- **Weight:** 1
+- **Weighted deficiency:** 0.35
+- **Justification:** High reliance on documentation; error messages could be more actionable.
+- **Tradeoffs:** Complex enterprise software often requires training.
+- **Improvement Recommendations:** Improve in-app guidance and actionable error messages.
+
+### Accessibility
+- **Score:** 70
+- **Weight:** 1
+- **Weighted deficiency:** 0.30
+- **Justification:** Basic accessibility testing (axe-core) is in place, but comprehensive audits are needed.
+- **Tradeoffs:** Prioritizing functional features over deep accessibility compliance in V1.
+- **Improvement Recommendations:** Conduct a full WCAG audit of the operator UI.
+
+### Change Impact Clarity
+- **Score:** 70
+- **Weight:** 1
+- **Weighted deficiency:** 0.30
+- **Justification:** Comparison replays show what changed, but the business impact is not always clear.
+- **Tradeoffs:** Technical diffs vs. business-level summaries.
+- **Improvement Recommendations:** Add business-impact summaries to the comparison view.
+
+### Availability
+- **Score:** 70
+- **Weight:** 1
+- **Weighted deficiency:** 0.30
+- **Justification:** Good baseline reliability, but lacks automated failover guarantees.
+- **Tradeoffs:** Cost of high availability infrastructure.
+- **Improvement Recommendations:** Implement automated health-check based failover.
+
+### Deployability
+- **Score:** 70
+- **Weight:** 1
+- **Weighted deficiency:** 0.30
+- **Justification:** Docker compose and Terraform exist, but production deployment requires manual steps.
+- **Tradeoffs:** Flexibility for different customer environments vs. turnkey deployment.
+- **Improvement Recommendations:** Provide a one-click Azure deployment template.
+
+### Cognitive Load
+- **Score:** 70
+- **Weight:** 1
+- **Weighted deficiency:** 0.30
+- **Justification:** The system introduces many domain-specific concepts.
+- **Tradeoffs:** Domain richness vs. simplicity.
+- **Improvement Recommendations:** Simplify the terminology in the UI where possible.
+
+### Auditability
 - **Score:** 85
 - **Weight:** 2
-- **Weighted deficiency signal:** 30
-- **Justification:** Strong policy packs, but assignment resolution can be opaque without deep reading.
-- **Tradeoffs:** Complex hierarchical policies vs. simple flat rules.
-- **Improvement recommendations:** Visualize policy resolution hierarchy in the UI.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.30
+- **Justification:** 78 typed audit events in an append-only store. Excellent coverage.
+- **Tradeoffs:** Storage and performance overhead of comprehensive auditing.
+- **Improvement Recommendations:** Maintain the current high standard.
 
-**17. Compliance Readiness**
-- **Score:** 85
-- **Weight:** 2
-- **Weighted deficiency signal:** 30
-- **Justification:** SOC2 is self-assessment only for V1.
-- **Tradeoffs:** Bootstrapping costs vs. immediate external attestation.
-- **Improvement recommendations:** Prepare external readiness consultant engagements.
-- **Status:** Blocked on user input (Budget/Timelines for Type I).
-
-**18. Commercial Packaging Readiness**
-- **Score:** 85
-- **Weight:** 2
-- **Weighted deficiency signal:** 30
-- **Justification:** Soft API tier gating rather than hard billing enforcement limits immediate self-serve revenue.
-- **Tradeoffs:** Frictionless early adoption vs. strict revenue protection.
-- **Improvement recommendations:** Implement strict Stripe token mapping.
-- **Status:** Better suited for V1.1.
-
-**19. Security**
-- **Score:** 90
-- **Weight:** 3
-- **Weighted deficiency signal:** 30
-- **Justification:** ZAP, CodeQL, strict RLS. External pen-test deferred to V2.
-- **Tradeoffs:** High internal security vs. expensive external validation.
-- **Improvement recommendations:** Finalize V2 pen-test scope.
-- **Status:** Blocked on user input.
-
-**20. AI/Agent Readiness**
-- **Score:** 85
-- **Weight:** 2
-- **Weighted deficiency signal:** 30
-- **Justification:** Excellent redaction and multi-vendor setup. Lacks autonomous multi-step discovery agents.
-- **Tradeoffs:** Deterministic safety vs. open-ended agentic exploration.
-- **Improvement recommendations:** Deploy the MCP server membrane.
-- **Status:** Better suited for V1.1.
-
-**21. Traceability**
-- **Score:** 90
-- **Weight:** 3
-- **Weighted deficiency signal:** 30
-- **Justification:** Superb 78-event audit log and provenance graph.
-- **Tradeoffs:** Heavy storage footprint vs. absolute auditability.
-- **Improvement recommendations:** Enhance visual highlighting of traces in UI.
-- **Status:** Fixable in V1.
-
-**22. Trustworthiness**
-- **Score:** 90
-- **Weight:** 3
-- **Weighted deficiency signal:** 30
-- **Justification:** High trust due to transparent explanations, though lack of third-party attestation holds it back slightly.
-- **Tradeoffs:** Internal rigor vs. external badges.
-- **Improvement recommendations:** Publish the PGP key for security disclosures.
-- **Status:** Better suited for V1.1.
-
-**23. Performance**
+### Performance
 - **Score:** 75
 - **Weight:** 1
-- **Weighted deficiency signal:** 25
-- **Justification:** Lack of UI caching means high latency for users far from the Azure datacenter.
-- **Tradeoffs:** Simple stateless frontend vs. optimized fast UX.
-- **Improvement recommendations:** Implement SWR.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.25
+- **Justification:** k6 load tests and caching are in place, but large manifests may slow down the UI.
+- **Tradeoffs:** Processing large JSON structures in the browser.
+- **Improvement Recommendations:** Implement virtualization for large manifest views in the UI.
 
-**24. Testability**
+### Scalability
 - **Score:** 75
 - **Weight:** 1
-- **Weighted deficiency signal:** 25
-- **Justification:** E2E Playwright tests exist but are not enforced in CI, risking UI regressions.
-- **Tradeoffs:** Fast CI builds vs. guaranteed UI correctness.
-- **Improvement recommendations:** Add Playwright to standard GitHub Actions.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.25
+- **Justification:** Worker processes and SQL read-replicas support scaling.
+- **Tradeoffs:** Complexity of distributed systems.
+- **Improvement Recommendations:** Load test the worker queues under high concurrency.
 
-**25. Customer Self-Sufficiency**
+### Supportability
 - **Score:** 75
 - **Weight:** 1
-- **Weighted deficiency signal:** 25
-- **Justification:** Relies on command-line tools for setup, which alienates non-technical stakeholders.
-- **Tradeoffs:** Dev-first onboarding vs. generic SaaS onboarding.
-- **Improvement recommendations:** Build a fully guided web-based onboarding wizard.
-- **Status:** Better suited for V1.1.
+- **Weighted deficiency:** 0.25
+- **Justification:** CLI diagnostics and correlation IDs are present.
+- **Tradeoffs:** Building support tools takes time away from feature development.
+- **Improvement Recommendations:** Improve error messages for misconfigurations.
 
-**26. Extensibility**
+### Manageability
+- **Score:** 75
+- **Weight:** 1
+- **Weighted deficiency:** 0.25
+- **Justification:** Configuration is well-structured, but lacks a centralized admin UI for all settings.
+- **Tradeoffs:** File-based config vs. database-backed settings.
+- **Improvement Recommendations:** Build an admin settings dashboard in the UI.
+
+### Extensibility
+- **Score:** 75
+- **Weight:** 1
+- **Weighted deficiency:** 0.25
+- **Justification:** Plugin architecture exists for finding engines.
+- **Tradeoffs:** Maintaining stable extension points.
+- **Improvement Recommendations:** Document the plugin API more comprehensively.
+
+### Evolvability
+- **Score:** 75
+- **Weight:** 1
+- **Weighted deficiency:** 0.25
+- **Justification:** Modular design allows for easy updates.
+- **Tradeoffs:** Refactoring across many projects can be tedious.
+- **Improvement Recommendations:** Keep dependencies between modules strictly controlled.
+
+### Cost-Effectiveness
+- **Score:** 75
+- **Weight:** 1
+- **Weighted deficiency:** 0.25
+- **Justification:** Efficient use of Azure resources, but LLM costs need careful monitoring.
+- **Tradeoffs:** Using powerful LLMs vs. cheaper, faster models.
+- **Improvement Recommendations:** Add cost-tracking telemetry.
+
+### Observability
 - **Score:** 80
 - **Weight:** 1
-- **Weighted deficiency signal:** 20
-- **Justification:** Webhooks exist, but MCP and native integrations are deferred.
-- **Tradeoffs:** Core focus vs. ecosystem growth.
-- **Improvement recommendations:** Deliver the MCP SDK membrane.
-- **Status:** Better suited for V1.1.
+- **Weighted deficiency:** 0.20
+- **Justification:** Comprehensive OTel metrics and tracing.
+- **Tradeoffs:** Instrumentation overhead.
+- **Improvement Recommendations:** Provide pre-built Grafana dashboards in the repository.
 
-**27. Evolvability**
+### Testability
 - **Score:** 80
 - **Weight:** 1
-- **Weighted deficiency signal:** 20
-- **Justification:** API is versioned, but the UI's manual coercion functions will break if the API evolves unexpectedly.
-- **Tradeoffs:** Rapid iteration vs. strict schema contracts.
-- **Improvement recommendations:** Introduce Zod for forward-compatible parsing.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.20
+- **Justification:** Exceptional test infrastructure (mutation, chaos, property-based).
+- **Tradeoffs:** High maintenance burden.
+- **Improvement Recommendations:** Implement visual regression testing for the UI.
 
-**28. Scalability**
+### Modularity
 - **Score:** 80
 - **Weight:** 1
-- **Weighted deficiency signal:** 20
-- **Justification:** Stateless Node.js UI is good, but without caching or CDNs, scale costs will be high.
-- **Tradeoffs:** Simple architecture vs. massive horizontal scale.
-- **Improvement recommendations:** Configure Next.js caching directives properly.
-- **Status:** Fixable in V1.
+- **Weighted deficiency:** 0.20
+- **Justification:** Many projects with clear boundaries and enforcement (for example architecture tests).
+- **Tradeoffs:** Larger build/CI graphs vs. strict separation of concerns; navigation overhead is **moderated** in practice when development is **AI-assisted** across the repo.
+- **Improvement Recommendations:** Consolidate only where merge CI or release velocity proves it worthwhile.
 
-**29. Cost-Effectiveness**
+### Azure Ecosystem Fit
 - **Score:** 80
 - **Weight:** 1
-- **Weighted deficiency signal:** 20
-- **Justification:** Constant API refetching increases compute costs unnecessarily.
-- **Tradeoffs:** Developer velocity vs. optimized resource usage.
-- **Improvement recommendations:** Cache immutable artifacts on the client.
-- **Status:** Fixable in V1.
-
-**30. Template and Accelerator Richness**
-- **Score:** 80
-- **Weight:** 1
-- **Weighted deficiency signal:** 20
-- **Justification:** Good Terraform and Power Automate templates, but lacking built-in industry-specific policy packs.
-- **Tradeoffs:** Generic platform vs. verticalized solutions.
-- **Improvement recommendations:** Provide out-of-the-box HIPAA/PCI policy packs.
-- **Status:** Better suited for V1.1.
-
-**31. Azure Compatibility and SaaS Deployment Readiness**
-- **Score:** 90
-- **Weight:** 2
-- **Weighted deficiency signal:** 20
-- **Justification:** Excellent Terraform modules for ACA, SQL, KeyVault.
-- **Tradeoffs:** Azure lock-in vs. multi-cloud flexibility.
-- **Improvement recommendations:** Document Azure cross-region failover limits clearly.
-- **Status:** Fixable in V1.
-
-**32. Availability**
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Justification:** 99.9% target is good, but active-active multi-region is out of scope for V1.
-- **Tradeoffs:** Cost vs. absolute uptime.
-- **Improvement recommendations:** Refine disaster recovery RTO/RPO targets.
-- **Status:** Better suited for V1.1.
-
-**33. Supportability**
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Justification:** Support bundles and `doctor` command are excellent. UI error states are slightly cryptic.
-- **Tradeoffs:** Engineering-focused errors vs. user-friendly messages.
-- **Improvement recommendations:** Add UI error boundaries.
-- **Status:** Fixable in V1.
-
-**34. Manageability**
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Justification:** Great admin CLI, but lacking bulk-management UI for complex policies.
-- **Tradeoffs:** CLI efficiency vs. UI completeness.
-- **Improvement recommendations:** Add bulk editing tools to Policy Packs in UI.
-- **Status:** Better suited for V1.1.
-
-**35. Deployability**
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Justification:** Docker compose provided, but strictly noted as not for production customers.
-- **Tradeoffs:** Controlled SaaS vs. on-prem flexibility.
-- **Improvement recommendations:** Create a Helm chart for enterprise customers demanding on-prem.
-- **Status:** Better suited for V2.
-
-**36. Cognitive Load**
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Justification:** Progressive disclosure in UI helps, but domain concepts (Context -> Graph -> Authority) remain heavy.
-- **Tradeoffs:** Domain accuracy vs. simplified terminology.
-- **Improvement recommendations:** Add inline tooltips for domain terms in UI.
-- **Status:** Fixable in V1.
-
-**37. Change Impact Clarity**
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Justification:** Excellent structured comparison, but diff UI is visually raw.
-- **Tradeoffs:** Data accuracy vs. visual polish.
-- **Improvement recommendations:** Upgrade the visual diff component in `LegacyRunComparisonView`.
-- **Status:** Fixable in V1.
-
-**38. Modularity**
-- **Score:** 85
-- **Weight:** 1
-- **Weighted deficiency signal:** 15
-- **Justification:** Backend cleanly separated. Frontend is monolithic Next.js.
-- **Tradeoffs:** Simple deployment vs. micro-frontend flexibility.
-- **Improvement recommendations:** Keep components small and abstract API logic further.
-- **Status:** Fixable in V1.
-
-**39. Accessibility**
-- **Score:** 90
-- **Weight:** 1
-- **Weighted deficiency signal:** 10
-- **Justification:** VPAT 2.5 AA completed. Inline styles might cause edge-case screen reader issues.
-- **Tradeoffs:** Fast UI delivery vs. semantic HTML perfection.
-- **Improvement recommendations:** Audit UI with Axe-core post-Tailwind migration.
-- **Status:** Fixable in V1.
-
-**40. Auditability**
-- **Score:** 95
-- **Weight:** 2
-- **Weighted deficiency signal:** 10
-- **Justification:** Exceptional SQL-backed append-only logs.
-- **Tradeoffs:** High storage costs vs. perfect compliance.
-- **Improvement recommendations:** None needed currently.
-- **Status:** N/A
-
-**41. Procurement Readiness**
-- **Score:** 95
-- **Weight:** 2
-- **Weighted deficiency signal:** 10
-- **Justification:** Automated CLI procurement pack generation is world-class.
-- **Tradeoffs:** None.
-- **Improvement recommendations:** Automatically inject signed NDA watermarks.
-- **Status:** Better suited for V1.1.
-
-**42. Data Consistency**
-- **Score:** 95
-- **Weight:** 2
-- **Weighted deficiency signal:** 10
-- **Justification:** Strong relational FKs, strict SQL DDL.
-- **Tradeoffs:** Migration rigidity vs. flexible schema.
-- **Improvement recommendations:** Maintain current rigor.
-- **Status:** N/A
-
-**43. Explainability**
-- **Score:** 95
-- **Weight:** 2
-- **Weighted deficiency signal:** 10
-- **Justification:** `ExplainabilityTrace` and confidence scoring are top-tier.
-- **Tradeoffs:** High token cost vs. transparency.
-- **Improvement recommendations:** None needed currently.
-- **Status:** N/A
-
-**44. Observability**
-- **Score:** 95
-- **Weight:** 1
-- **Weighted deficiency signal:** 5
-- **Justification:** Outstanding backend OpenTelemetry integration. UI lacks tracing.
-- **Tradeoffs:** Backend focus vs. end-to-end visibility.
-- **Improvement recommendations:** Add Otel to the Next.js client.
-- **Status:** Fixable in V1.
-
-**45. Documentation**
-- **Score:** 95
-- **Weight:** 1
-- **Weighted deficiency signal:** 5
-- **Justification:** Exhaustive, highly accurate Markdown library.
-- **Tradeoffs:** High maintenance burden vs. transparency.
-- **Improvement recommendations:** None needed currently.
-- **Status:** N/A
-
-**46. Azure Ecosystem Fit**
-- **Score:** 95
-- **Weight:** 1
-- **Weighted deficiency signal:** 5
-- **Justification:** Deeply integrated with ACA, Service Bus, SQL, Entra.
+- **Weighted deficiency:** 0.20
+- **Justification:** Deep integration with Azure services (Entra, Key Vault, SQL).
 - **Tradeoffs:** Vendor lock-in.
-- **Improvement recommendations:** None needed currently.
-- **Status:** N/A
+- **Improvement Recommendations:** Maintain abstraction layers where possible.
+
+### Documentation
+- **Score:** 85
+- **Weight:** 1
+- **Weighted deficiency:** 0.15
+- **Justification:** Extensive, well-organized documentation with clear scope boundaries.
+- **Tradeoffs:** Time spent writing docs vs. code.
+- **Improvement Recommendations:** Keep docs updated as V1.1 features are implemented.
 
 ## Top 10 Most Important Weaknesses
-1. **UI Maintainability Fragility:** Inline CSS, manual type coercion, and lack of global state ensure the frontend will become unmaintainable technical debt rapidly.
-2. **Adoption Friction for Self-Hosted Evaluations:** Complex local setup (SQL, Entra ID, Azurite) alienates quick PoCs unless customers use the non-production Docker Compose.
-3. **Workflow Isolation:** The lack of IDE integration and chat-ops keeps ArchLucid as an out-of-band portal, limiting developer engagement and daily active use.
-4. **Client-Side Performance Risks:** Absolutely no UI caching leads to redundant API calls on every render, wasting compute and creating latency.
-5. **Fragile UI Error States:** The absence of React Error Boundaries means whole component trees crash on minor data anomalies, harming user trust.
-6. **Insufficient UI Test Automation:** E2E tests exist but are not enforced in CI, making frontend regressions highly likely during rapid iterations.
-7. **Uninstrumented Client Latency:** OpenTelemetry stops at the API, blinding operators to the actual UI performance experienced by end-users.
-8. **Rate Limit UX Degradation:** 429 errors are handled as generic failures rather than graceful backoffs with "Retry-After" indicators.
-9. **Strict Ingestion Schema Rigidness:** Highly structured input requirements prevent easy onboarding of messy, legacy enterprise architecture documents.
-10. **Delayed Native Interoperability:** Heavy reliance on raw webhooks over native Jira/ServiceNow integrations limits immediate workflow embeddedness.
+
+1. **Lack of Executive Dashboards:** Value is not visible to non-operators, hindering executive sponsorship.
+2. **High Adoption Friction:** The system requires significant context and understanding of new concepts to start using effectively.
+3. **Limited Workflow Embeddedness:** Forces users into a new UI rather than integrating deeply into existing tools (e.g., IDEs, Slack).
+4. **ROI Proof is Manual:** No automated way to show time or money saved by using the platform.
+5. **Opaque AI Decision-Making:** Agent reasoning can be difficult to understand for end-users, reducing trust.
+6. **Template Richness:** Lack of out-of-the-box industry templates makes the "blank page" problem worse.
+7. **Enterprise SaaS onboarding drag:** Even in a hosted product, first value is gated on IdP alignment, network and security sign-off (e.g. private endpoints), and connector or API credential setup—not merely “sign up and go.”
+8. **Interoperability:** Limited out-of-the-box connectors for enterprise systems beyond the V1 baseline.
+9. **Cognitive Load:** The system introduces many new concepts (runs, manifests, governance) that overwhelm casual users.
+10. **Customer Self-Sufficiency:** High reliance on documentation and pilot guides due to complex configuration and sometimes cryptic error messages.
 
 ## Top 5 Monetization Blockers
-1. **High Time-To-Value for complex architectures:** Hitting the 30-minute pilot claim requires pristine inputs; messy enterprise data will stall PoCs and kill deals.
-2. **Out-of-band workflow limits daily active usage:** Without Slack/Teams/IDE integrations, architects will forget to use it, preventing expansion and renewals.
-3. **Soft Commercial Packaging:** V1 relies on soft UI constraints rather than hard API billing gates for some features, risking revenue leakage.
-4. **Friction in proving ongoing ROI:** Pilot value is proven via static PDFs rather than live, interactive dashboards that executives can check daily.
-5. **Lack of Turnkey SSO for non-Microsoft IdPs:** Enterprises running Okta or Ping will stall procurement trying to configure Entra ID federation.
+
+1. Inability to clearly demonstrate ROI to executive buyers.
+2. High perceived adoption friction for new teams evaluating the product.
+3. Lack of compelling executive-level reporting and dashboards.
+4. Missing industry-specific accelerator templates to speed up initial pilots.
+5. Enterprise trial and pilot friction when security, identity, and integration prerequisites delay time-to-first successful run in the hosted product.
 
 ## Top 5 Enterprise Adoption Blockers
-1. **Heavy reliance on manual API/CLI calls for advanced features:** Operations like Alert Simulation and bulk archiving lack polished UI flows.
-2. **Strict schema requirements for ingestion:** Legacy enterprise architecture docs will fail to process without significant manual massaging.
-3. **Audit log search is paginated but lacks deep SIEM native connectors:** Enterprises want Splunk/Sentinel integration out-of-the-box, not just CSV exports.
-4. **Lack of granular role-based UI scoping:** UI relies heavily on progressive disclosure rather than hard entitlement boundaries, confusing strict compliance teams.
-5. **Absence of external third-party attestation:** While internal SOC2 is great, the deferred V2 external pen-test will block highly regulated buyers.
+
+1. Limited deep integration with existing ITSM workflows (beyond basic ticket creation).
+2. Lack of automated compliance mapping for specific frameworks (e.g., SOC 2, ISO 27001).
+3. High cognitive load for casual users who just want to review an architecture.
+4. Opaque AI decision-making processes that fail security/compliance reviews.
+5. Need for extensive training to understand the architecture lifecycle.
 
 ## Top 5 Engineering Risks
-1. **Manual JSON coercion in UI:** Hand-written `coerce*` guards in `operator-response-guards.ts` are highly prone to silent failures as the API evolves.
-2. **Inline CSS architecture:** `archlucid-ui` guarantees an unmaintainable UI codebase within 6 months, slowing feature delivery.
-3. **Total lack of client-side caching:** Synchronous server-to-server fetches on every render will DDOS the C# API under heavy read load.
-4. **Absence of React Error Boundaries:** Ensures full-page crashes for minor data anomalies, damaging perceived reliability.
-5. **Missing UI OpenTelemetry tracing:** Blinds SREs to the actual operator experience, making frontend performance degradation invisible.
+
+1. **Build, CI, and release wall-clock:** A broad solution and deep test tiers still cap how fast every change can reach **merge-green** and production confidence, even when **individual implementation** is fast with Cursor-first workflows.
+2. **Agent Cost:** Unbounded LLM usage without strict tenant-level quotas could lead to cost overruns.
+3. **Hosted platform surface area:** API, worker, data plane, queues, and optional integrations multiply failure modes and incident scope for the SaaS operator—not a small, single-process footprint.
+4. **Test Maintenance:** High burden of maintaining the extensive test suites (mutation, chaos, property-based).
+5. **Data Migration:** Complex schema evolutions as the manifest model changes over time.
 
 ## Most Important Truth
-ArchLucid possesses an exceptionally robust, enterprise-grade backend with stellar data consistency, security, and traceability, but its frontend operator shell is built like a disposable prototype, severely threatening long-term maintainability, scalability, and perceived product quality.
+
+ArchLucid is an engineering marvel that solves the operator's problem but currently fails to automatically translate that success into executive-visible ROI, creating friction in the sales and expansion motions.
 
 ## Top Improvement Opportunities
 
-1. **Migrate Operator UI Shape Validation to Zod**
-   - **Why it matters:** Hand-written `coerce*` guards scale poorly, miss deep nested type mismatches, and increase bug risk.
-   - **Expected impact:** Directly improves Correctness (+5-8 pts), Maintainability (+15-20 pts), and Reliability (+5 pts). Weighted readiness impact: +0.6-0.9%.
-   - **Affected qualities:** Correctness, Maintainability, Reliability.
-   - **Status:** Actionable Now.
-   - **Prompt:** Install `zod`. In `archlucid-ui/src/lib/operator-response-guards.ts`, replace hand-written `coerce*` functions (e.g., `coerceRunSummaryList`, `coerceRunDetail`, `coerceManifestSummary`) with Zod schemas (`z.object({...})`). Update the return types to use `z.infer`. Ensure existing `ok: true/false` return shapes remain backward compatible for consumers. Do not change any backend API code.
+### 1. Implement Executive ROI Dashboard
+- **Why it matters:** Buyers need to see value without understanding the technical details.
+- **Expected impact:** Directly improves Executive Value Visibility (+15 pts) and Proof-of-ROI Readiness (+10 pts). Weighted readiness impact: +1.1%.
+- **Affected qualities:** Executive Value Visibility, Proof-of-ROI Readiness.
+- **Actionable:** Yes.
 
-2. **Implement Tailwind CSS for Operator UI Maintainability**
-   - **Why it matters:** Inline styles are currently used, which severely limits responsive design, themeability, and code readability.
-   - **Expected impact:** Directly improves Maintainability (+20-25 pts), Usability (+10-15 pts), and Extensibility (+5 pts). Weighted readiness impact: +0.8-1.2%.
-   - **Affected qualities:** Maintainability, Usability, Extensibility.
-   - **Status:** Actionable Now.
-   - **Prompt:** Install and configure `tailwindcss`, `postcss`, and `autoprefixer` in `archlucid-ui`. Create `tailwind.config.ts` and `globals.css` with Tailwind directives. Refactor `OperatorErrorCallout`, `SectionCard`, and `ArtifactListTable` to use Tailwind utility classes instead of inline `style={{...}}`. Do not change the visual layout or colors, just replace the implementation.
+```cursor
+Create a new React component `ExecutiveRoiDashboard.tsx` in `archlucid-ui/src/components/dashboard/`. It should fetch aggregated metrics from a new API endpoint `/v1/analytics/roi` (which you should also create in `ArchLucid.Api/Controllers/`). The dashboard should display 'Time Saved', 'Decisions Automated', and 'Compliance Risks Mitigated'. Do not modify existing persistence layers, just mock the data in the controller for now until the data model is finalized.
+```
 
-3. **Add SWR Client-Side Caching for Immutable Artifacts**
-   - **Why it matters:** The UI fetches data on every page load. Runs and Manifests are immutable once committed; caching them reduces API load.
-   - **Expected impact:** Directly improves Performance (+15-20 pts), Reliability (+10-15 pts), and Cost-Effectiveness (+5-10 pts). Weighted readiness impact: +0.5-0.8%.
-   - **Affected qualities:** Performance, Reliability, Cost-Effectiveness.
-   - **Status:** Actionable Now.
-   - **Prompt:** Install `swr` in `archlucid-ui`. Refactor the client components `GraphPage` and `ComparePage` to use `useSWR` for fetching run details and comparison data instead of manual `useEffect` + `apiGet` calls. Configure the SWR cache to have a high `dedupingInterval` for these immutable resources. Do not alter the server components.
+### 2. Industry accelerator templates (healthcare, finance, manufacturing)
+- **Why it matters:** Reduces adoption friction with recognizable vertical starting points; aligns pilots with buyer language.
+- **Expected impact:** Directly improves Template and Accelerator Richness (+18–22 pts), Adoption Friction (+4–6 pts), Marketability (+3–5 pts). Weighted readiness impact: ~+0.35–0.45%.
+- **Affected qualities:** Template and Accelerator Richness, Adoption Friction, Marketability.
+- **Actionable:** Yes. **Target industries:** **healthcare**, **finance**, **manufacturing** (healthcare is already covered by `RegulatedHealthcareSystem`; add **finance** and **manufacturing** analogs in code).
 
-4. **Implement Zustand for Global UI Notifications**
-   - **Why it matters:** Background tasks and transient API errors need a global notification system, which is currently missing.
-   - **Expected impact:** Directly improves Usability (+10-15 pts) and Manageability (+5-10 pts). Weighted readiness impact: +0.4-0.6%.
-   - **Affected qualities:** Usability, Manageability.
-   - **Status:** Actionable Now.
-   - **Prompt:** Install `zustand` in `archlucid-ui`. Create a new store `src/lib/store/toast-store.ts` with `addToast`, `removeToast`, and `toasts` array. Create a `ToastContainer` component and mount it in the root layout. Update `resolveRequest` in `api.ts` to dispatch a global error toast on HTTP 500s or network failures. Do not refactor existing inline callouts (`OperatorErrorCallout`).
+```cursor
+Implement vertical accelerator templates for the three target industries: **healthcare**, **finance**, and **manufacturing**.
 
-5. **DEFERRED Finalize Pricing Tiers and Feature Matrix Mapping**
-   - **Why it matters:** V1 has soft UI gating, but hard commercial enforcement requires mapping specific endpoints to Stripe SKUs to prevent revenue leakage.
-   - **Expected impact:** Crucial for Commercial Packaging Readiness and Marketability.
-   - **Affected qualities:** Commercial Packaging Readiness, Stickiness.
-   - **Status:** DEFERRED.
-   - **Input needed:** I need you to provide the exact mapping of API endpoints to your specific Stripe SKUs (Standard vs Enterprise) so we can implement hard billing gates.
+**Context:** `ArchLucid.Application/Templates/ArchitectureRequestTemplates.cs` already ships **healthcare** via `RegulatedHealthcareSystem` / `regulated-healthcare-hipaa`. Extend the catalog rather than duplicating that template.
 
-6. **Enable Automated Playwright E2E Tests in CI**
-   - **Why it matters:** Playwright exists but is not required for builds, increasing the risk of merging broken UI code during refactors.
-   - **Expected impact:** Directly improves Testability (+15-20 pts) and Correctness (+5-10 pts). Weighted readiness impact: +0.4-0.7%.
-   - **Affected qualities:** Testability, Correctness.
-   - **Status:** Actionable Now.
-   - **Prompt:** Create a new GitHub Actions workflow `.github/workflows/playwright.yml`. Configure it to run `npm ci`, `npx playwright install --with-deps`, and `npx playwright test` inside the `archlucid-ui` directory on every pull request. Add a step to upload Playwright HTML reports as workflow artifacts on failure. Do not write new Playwright tests, just enable the runner for existing ones.
+**Do:**
+1. Add two new static factory methods on `ArchitectureRequestTemplates`, following the same `Build(...)` pattern as existing templates:
+   - **Finance:** e.g. `RetailBankingAndPaymentsPlatform` with template id `financial-services-pci-sox` — cover cardholder data / PCI scope boundaries, strong authentication, ledger posting integrity, settlement and reconciliation, AML/fraud analytics adjacency (high level), audit trails suitable for SOX-minded reviewers, and Azure-aligned controls (Key Vault, Encryption, private connectivity). Minimum **five** evidence markdown documents plus `ArchLucid.TemplateId` (same as other templates).
+   - **Manufacturing:** e.g. `SmartManufacturingOtItReference` with template id `manufacturing-ot-it-convergence` — cover plant/MES integration, ERP handoff, historian/time-series data, shop-floor latency and availability, OT/IT network segmentation, safety-related systems and change control, and supply-chain integration touchpoints. Minimum **five** evidence documents plus template id.
+2. Append both to `Summaries` with clear titles and short descriptions that name the industry (finance / manufacturing).
+3. Update `ArchLucid.Application.Tests/Templates/ArchitectureRequestTemplatesTests.cs`: extend `TemplateFactories` theory data, change summary count from **5** to **7**, and assert the new template ids are present and unique across `Summaries`.
+4. Update `ArchLucid.Api.Tests/ArchitectureControllerTests.cs` test `GetArchitectureRequestTemplates_ReturnsFiveSummaries` — rename and assert **7** summaries; ensure GET `/v1/architecture/templates` still returns 200 and IDs are unique.
 
-7. **Implement React Error Boundaries for Crash Recovery**
-   - **Why it matters:** Client-side JS exceptions currently crash the React tree. Error boundaries isolate crashes and keep the navigation shell alive.
-   - **Expected impact:** Directly improves Supportability (+10-15 pts) and Reliability (+5-10 pts). Weighted readiness impact: +0.3-0.5%.
-   - **Affected qualities:** Supportability, Reliability.
-   - **Status:** Actionable Now.
-   - **Prompt:** Create an `ErrorBoundary` component in `archlucid-ui/src/components/ErrorBoundary.tsx` that catches rendering errors and displays a fallback UI using `OperatorErrorCallout`. Wrap the main interactive client components (`GraphViewer`, `CompareForm`, `ReplayPage`) with this `ErrorBoundary`. Log caught errors to `console.error` with a specific `[Crash]` prefix.
+**Constraints:** Do not change `POST /v1/architecture/request` validation. Match existing authorization/rate limits on `TemplatesController`. Preserve **one blank line max** between statements in `*.cs` per repo whitespace rules. Do not add new NuGet dependencies.
 
-8. **Add OpenTelemetry Tracing to UI API Client**
-   - **Why it matters:** The UI has no visibility into API latency from the client's perspective, blinding operators to real-world UX issues.
-   - **Expected impact:** Directly improves Observability (+5-10 pts) and Performance (+5 pts). Weighted readiness impact: +0.2-0.4%.
-   - **Affected qualities:** Observability, Performance.
-   - **Status:** Actionable Now.
-   - **Prompt:** Install `@opentelemetry/api` in `archlucid-ui`. In `src/lib/api.ts`, wrap the `apiGet` and `apiPostJson` fetch calls in an OpenTelemetry span. Extract the HTTP method, URL path, and status code as span attributes. Inject the active W3C `traceparent` header into the outgoing requests to the `/api/proxy` route so distributed traces link UI actions to backend SQL spans.
+**Acceptance criteria:** `dotnet test` passes for projects touched; `GET /v1/architecture/templates` returns seven summaries; each new factory produces serializable `ArchitectureRequest` with ≥3 evidence docs after the template marker (same invariant as existing tests).
+```
 
-9. **DEFERRED Finalize Third-Party Pen-Test Scope (V2)**
-   - **Why it matters:** Highly regulated enterprises require an external attestation, which is deferred to V2.
-   - **Expected impact:** Unblocks enterprise procurement and boosts Trustworthiness.
-   - **Affected qualities:** Trustworthiness, Procurement Readiness.
-   - **Status:** DEFERRED.
-   - **Input needed:** Please confirm the budget, timeline, and select the vendor so we can finalize the Statement of Work (SoW) and prepare the sandbox environment.
+### 3. Simplify Initial Setup CLI Command
+- **Why it matters:** Reduces time-to-value for new evaluators.
+- **Expected impact:** Directly improves Time-to-Value (+10 pts) and Adoption Friction (+5 pts). Weighted readiness impact: +1.0%.
+- **Affected qualities:** Time-to-Value, Adoption Friction.
+- **Actionable:** Yes.
 
-10. **Implement Graceful 429 Rate Limit Handling in UI**
-    - **Why it matters:** API rate limits return 429s. The UI currently treats these as generic errors, confusing users during high-volume operations.
-    - **Expected impact:** Directly improves Usability (+5-10 pts) and Reliability (+5-10 pts). Weighted readiness impact: +0.3-0.5%.
-    - **Affected qualities:** Usability, Reliability.
-    - **Status:** Actionable Now.
-    - **Prompt:** Update `resolveRequest` in `archlucid-ui/src/lib/api.ts` to explicitly detect HTTP 429 responses. Extract the `Retry-After` header if present. Modify the error return shape to include an `isRateLimited` flag and `retryAfterSeconds`. Update `OperatorErrorCallout` to render a specific "Rate limit exceeded, please wait X seconds" message when this flag is true.
+```cursor
+Update `ArchLucid.Cli/Commands/NewCommand.cs` to include a `--quickstart` flag that automatically provisions a local SQLite database (or in-memory store) and bypasses the need for a full SQL Server setup during initial evaluation. Ensure this is clearly documented in the CLI help text.
+```
+
+### 4. Enhance Agent Explainability Output
+- **Why it matters:** Builds trust with users when they understand why a decision was made.
+- **Expected impact:** Directly improves Explainability (+15 pts) and Trustworthiness (+10 pts). Weighted readiness impact: +0.6%.
+- **Affected qualities:** Explainability, Trustworthiness.
+- **Actionable:** Yes.
+
+```cursor
+Modify `ArchLucid.AgentRuntime/RealAgentExecutor.cs` to capture and return the intermediate reasoning steps from the LLM (e.g., chain-of-thought traces) in the `AgentResult`. Update the `AgentResult` DTO in `ArchLucid.Contracts` to include a `ReasoningTrace` property. Do not change the core execution logic, just append the trace to the output.
+```
+
+### 5. Lock ServiceNow-first sequencing for deep ITSM (CMDB before Jira depth)
+- **Why it matters:** Buyers standardizing on **ServiceNow** need CMDB-aligned signal; spreading engineering across Jira and SNOW in parallel dilutes the highest-value path.
+- **Expected impact:** Directly improves Workflow Embeddedness (+8–12 pts), Interoperability (+5–8 pts), Procurement Readiness (+3–5 pts for buyers on SNOW). Weighted readiness impact: ~+0.25–0.35%.
+- **Affected qualities:** Workflow Embeddedness, Interoperability, Procurement Readiness (where SNOW is the incumbent ITSM).
+- **Actionable:** Yes. **Owner decisions (recorded):** (1) **ServiceNow is the priority** over advanced Jira depth. (2) **CMDB CI table: `cmdb_ci_appl`** — look up `SystemName` matching `name`, set `cmdb_ci` on the incident to the matched `sys_id`; `AutoCreateCmdbCi` defaults to `false`.
+
+```cursor
+Record and propagate two owner decisions into docs: (1) ServiceNow-first sequencing; (2) CMDB CI table is `cmdb_ci_appl`.
+
+**Background on the CMDB CI table decision:** Every ArchLucid architecture request has a `SystemName` field identifying the software system under review. `cmdb_ci_appl` (Application CI) is the correct ServiceNow CMDB class for a named software application. Enterprise SNOW instances already catalogue their applications here, so a name-match lookup ties architecture findings directly to the customer's existing application records without requiring custom CMDB schema changes. The first-party connector should: (a) query `GET /api/now/table/cmdb_ci_appl?sysparm_query=name={SystemName}&sysparm_limit=1`; (b) if a match is found, set `cmdb_ci` on the new incident to that record's `sys_id`; (c) if no match is found, leave `cmdb_ci` empty; (d) expose a `ServiceNow:AutoCreateCmdbCi` boolean option (default `false`) that controls whether to create a new `cmdb_ci_appl` record when no match is found.
+
+**Doc-only changes (no runtime code in this pass):**
+
+1. **`docs/go-to-market/INTEGRATION_CATALOG.md`** — Below the **V1 committed — first-party ITSM connectors** table, add a **Sequencing and CMDB** subsection: (a) ServiceNow builds before Jira depth; (b) CMDB CI class is `cmdb_ci_appl`, matched by `SystemName → name`, `cmdb_ci` field set to matched `sys_id`; (c) `AutoCreateCmdbCi` defaults to `false`; (d) two-way ServiceNow → ArchLucid status sync is **not** in committed V1 scope.
+
+2. **`docs/library/ITSM_BRIDGE_V1_RECIPES.md`** — In the intro, note: (a) ServiceNow before Jira for platform-led depth; (b) the first-party connector will populate `cmdb_ci` via a `cmdb_ci_appl` name lookup on `SystemName`.
+
+3. **`templates/integrations/servicenow/servicenow-incident-recipe.md`** — Fix the V1.1 disclaimer: first-party ServiceNow is **V1 GA** per `V1_SCOPE.md` §2.13 (store listing may trail). Add a note: "The first-party connector will set `cmdb_ci` via a `cmdb_ci_appl` lookup on `SystemName`; this recipe does not attempt `cmdb_ci` population."
+
+**Constraints:** Keep every touched `docs/**/*.md` file's first non-blank line as the required `> **Scope:**` blockquote. Run `python scripts/ci/check_doc_scope_header.py` on edited paths. No product runtime code changes in this pass.
+
+**Acceptance criteria:** Docs read: ServiceNow CMDB uses `cmdb_ci_appl` matched by `SystemName`, `AutoCreateCmdbCi` defaults `false`, ServiceNow ships before Jira depth. No doc implies a different CI class or build order. Scope headers preserved, check script passes.```
+
+### 6. Plan persistence consolidation (only if CI or release is the bottleneck)
+- **Why it matters:** Many assemblies mainly hurt **merge and release wall-clock**, not necessarily day-to-day editing when tooling-assisted; consolidation is justified when builds or CI prove it.
+- **Expected impact:** Directly improves Modularity (+5 pts) and Maintainability (+5 pts) **if** solution build or CI duration drops materially. Weighted readiness impact: +0.15% (nominal until measured).
+- **Affected qualities:** Modularity, Maintainability.
+- **Actionable:** Yes.
+
+```cursor
+Create a plan document `docs/library/PERSISTENCE_CONSOLIDATION_PLAN.md` outlining how to merge `ArchLucid.Persistence.Alerts` and `ArchLucid.Persistence.Advisory` into `ArchLucid.Persistence.Runtime` **only if** the team has measured that solution build time or core CI tier duration is a recurring bottleneck. Include: current build/CI baselines to capture before/after, merge steps, and the specific `dotnet` commands. Do not execute the code move in the same change—plan only unless metrics already justify execution.
+```
+
+### 7. Add Cost-Tracking Telemetry
+- **Why it matters:** Enterprises need to know how much the LLM calls are costing per run.
+- **Expected impact:** Directly improves Cost-Effectiveness (+15 pts) and Manageability (+10 pts). Weighted readiness impact: +0.25%.
+- **Affected qualities:** Cost-Effectiveness, Manageability.
+- **Actionable:** Yes.
+
+```cursor
+Update `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs` to include a new OpenTelemetry counter `archlucid.agent.estimated_cost_usd`. Update `RealAgentExecutor.cs` to calculate and record this cost based on token usage and a configured price-per-token. Do not hardcode prices; read them from `IOptions<AgentExecutionResilienceOptions>` or a new options class.
+```
+
+### 8. Improve Error Messages for Misconfigurations
+- **Why it matters:** Reduces support burden and improves self-sufficiency.
+- **Expected impact:** Directly improves Supportability (+15 pts) and Customer Self-Sufficiency (+10 pts). Weighted readiness impact: +0.25%.
+- **Affected qualities:** Supportability, Customer Self-Sufficiency.
+- **Actionable:** Yes.
+
+```cursor
+Review `ArchLucid.Host.Composition/Startup/` and add explicit startup validation checks for missing critical configuration values (e.g., missing SQL connection strings, missing LLM API keys). Throw a custom `ArchLucidConfigurationException` with a highly descriptive message explaining exactly which appsettings.json key is missing and providing a link to the relevant documentation.
+```
+
+### 9. Create Automated Compliance Mapping Report
+- **Why it matters:** Accelerates procurement and security reviews.
+- **Expected impact:** Directly improves Compliance Readiness (+15 pts) and Procurement Readiness (+10 pts). Weighted readiness impact: +0.5%.
+- **Affected qualities:** Compliance Readiness, Procurement Readiness.
+- **Actionable:** Yes.
+
+```cursor
+Create a new CLI command `archlucid compliance-report` in `ArchLucid.Cli/Commands/` that generates a Markdown report mapping the current system configuration and audit logs to SOC 2 and ISO 27001 controls. Use the existing `docs/security/SOC2_SELF_ASSESSMENT_2026.md` as the template source.
+```
+
+### 10. Implement Visual Regression Testing for UI
+- **Why it matters:** Ensures UI changes don't break the operator experience.
+- **Expected impact:** Directly improves Testability (+10 pts) and Reliability (+5 pts). Weighted readiness impact: +0.2%.
+- **Affected qualities:** Testability, Reliability.
+- **Actionable:** Yes.
+
+```cursor
+Add Playwright visual comparison tests to `archlucid-ui/tests/e2e/`. Create a new test file `visual-regression.spec.ts` that takes screenshots of the main dashboard, run detail page, and comparison view, and asserts them against golden baselines using `expect(page).toHaveScreenshot()`. Do not modify existing tests.
+```
 
 ## Pending Questions for Later
 
-- **DEFERRED Finalize Pricing Tiers and Feature Matrix Mapping:**
-  - What is the exact mapping of API endpoints to your specific Stripe SKUs (Standard vs Enterprise)? 
+### ITSM / CMDB specifics (only if blocking a signed pilot)
+- **ServiceNow CI table:** ~~Resolved~~ — **`cmdb_ci_appl`** confirmed by owner. Lookup by `SystemName → name`, set `cmdb_ci` to matched `sys_id`, `AutoCreateCmdbCi` defaults to `false`. No further input needed unless a specific pilot customer uses a non-standard CI class.
+- Are any **other** ITSM tools (e.g. Zendesk, Cherwell) **blocking** current deals in a way that would override the default **ServiceNow-first** sequencing?
 
-- **DEFERRED Finalize Third-Party Pen-Test Scope (V2):**
-  - What is the budget and timeline for the V2 pen-test?
-  - Which vendor has been selected so the SoW can be finalized?
