@@ -1,0 +1,23 @@
+/** Static pathname → announcement title mappings for documented top-level routes. */
+export const ROUTE_TITLES: Record<string, string> = {
+  "/": "Home",
+  "/reviews": "Architecture reviews",
+  "/reviews/new": "New review",
+  "/alerts": "Alerts",
+  "/alert-rules": "Alert rules",
+  "/compare": "Compare",
+  "/graph": "Graph",
+  "/governance": "Governance",
+  "/governance/dashboard": "Workspace health",
+  "/governance/findings": "Findings",
+  "/advisory": "Advisory",
+  "/search": "Search",
+  "/ask": "Ask",
+  "/replay": "Replay",
+  "/audit": "Audit",
+  "/planning": "Planning",
+  "/onboarding": "Onboarding",
+  "/digests": "Digests",
+  "/value-report/roi": "ROI summary",
+  "/executive/reviews": "Executive reviews",
+};

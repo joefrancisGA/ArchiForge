@@ -1,26 +1,5 @@
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
-
-const ROUTE_TITLES: Record<string, string> = {
-  "/": "Home",
-  "/reviews": "Architecture reviews",
-  "/reviews/new": "New review",
-  "/alerts": "Alerts",
-  "/alert-rules": "Alert rules",
-  "/compare": "Compare",
-  "/graph": "Graph",
-  "/governance": "Governance",
-  "/governance/dashboard": "Workspace health",
-  "/governance/findings": "Findings",
-  "/advisory": "Advisory",
-  "/search": "Search",
-  "/ask": "Ask",
-  "/replay": "Replay",
-  "/audit": "Audit",
-  "/planning": "Planning",
-  "/onboarding": "Onboarding",
-  "/digests": "Digests",
-  "/value-report/roi": "ROI summary",
-};
+import { ROUTE_TITLES } from "@/lib/route-static-titles";
 
 /** Human-readable title for route announcements and accessibility copy. */
 export function getRouteTitle(pathname: string): string {

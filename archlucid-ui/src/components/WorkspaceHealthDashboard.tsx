@@ -129,6 +129,11 @@ export function WorkspaceHealthDashboard() {
     );
   }
 
+  // Ensures narrowing for `LoadState`; prior branches returned for idle, loading, and error.
+  if (state.status !== "ready") {
+    return null;
+  }
+
   const { dashboard, driftPoints, blocked30d, warned30d, report30d, report90d } = state;
 
   const sla = computeWorkspaceHealthSlaStats(dashboard.pendingApprovals, dashboard.recentDecisions);

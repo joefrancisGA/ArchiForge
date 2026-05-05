@@ -1,14 +1,14 @@
 > **Scope:** Independent first-principles assessment of ArchLucid V1.1 readiness based on the provided quality model and weights.
 
-# ArchLucid Assessment – Weighted Readiness 75.32%
+# ArchLucid Assessment – Weighted Readiness 78.82%
 
 ## Executive Summary
 
 **Overall Readiness**
-ArchLucid demonstrates a solid V1 foundation with a weighted readiness of 75.32%. The core architecture is sound, leveraging SQL Server, RLS, and Azure-native patterns effectively. However, the product currently leans heavily on operator technical proficiency, which introduces friction in time-to-value and broader enterprise adoption.
+ArchLucid demonstrates a solid V1 foundation with a weighted readiness of 78.82%. The core architecture is sound, leveraging SQL Server, RLS, and Azure-native patterns effectively. However, the product currently leans heavily on operator technical proficiency, which introduces friction in time-to-value and broader enterprise adoption.
 
 **Commercial Picture**
-The commercial foundation is viable for technical buyers, but Executive Value Visibility and Proof-of-ROI Readiness are lagging. The product solves complex architectural and governance problems, but translating those technical wins into easily digestible executive dashboards or automated ROI metrics remains a challenge.
+The commercial foundation is viable for technical buyers, but Executive Value Visibility and Proof-of-ROI Readiness are lagging. The product solves complex architectural and governance problems, but translating technical wins into sponsor-facing views **depends on shipping** the agreed **Workspace Health** surface at `/governance/dashboard` (five KPIs locked **2026-05-05** in this doc) and the companion ROI telemetry module—not on open KPI design. **Commercial tiers and feature gates** are already authored in-repo (see **`docs/go-to-market/PRICING_PHILOSOPHY.md`** §3; enforcement in product is engineering follow-through, not missing tier definitions).
 
 **Enterprise Picture**
 Enterprise trust and auditability are strong points, supported by the durable audit log and RLS. However, Workflow Embeddedness and Customer Self-Sufficiency are weaker. **First-party** **Jira** and **ServiceNow** are **V1 commitments** ([`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.13); until shipped or enabled for a tenant, teams rely on webhooks and customer-operated bridges — **Slack** chat-ops remains **V2**, which still raises bridge burden versus native connectors for chat-centric workflows.
@@ -42,10 +42,10 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
    - **Score:** 60
    - **Weight:** 4
    - **Weighted impact on readiness:** 2.40 / 4.00 (Deficiency: 1.60)
-   - **Justification:** The UI is operator-heavy. There is no "single pane of glass" for a CISO or VP of Engineering to see the overall architectural health or compliance drift at a glance.
-   - **Tradeoffs:** Executive dashboards often require aggregating data that is currently tenant-isolated or run-specific.
-   - **Improvement recommendations:** Create a high-level "Workspace Health" dashboard summarizing governance gates passed/failed.
-   - **Status:** Fixable in v1.1.
+   - **Justification:** The UI is operator-heavy. A sponsor-oriented **Workspace Health** view (**five KPIs agreed 2026-05-05**; see Improvement 1 below) is **specified** but not yet a polished default landing experience for executives.
+   - **Tradeoffs:** Showing meaningful posture **within** current `SESSION_CONTEXT` (honest scope) versus pressure to build cross-workspace rollups (**not** part of the 2026-05-05 agreement).
+   - **Improvement recommendations:** Implement `/governance/dashboard` per Improvement 1; add the Home deep-link after it ships (Improvement 9).
+   - **Status:** Fixable in v1 / near-term engineering (design inputs closed).
 
 4. **Adoption Friction**
    - **Score:** 75
@@ -69,10 +69,10 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
    - **Score:** 60
    - **Weight:** 3
    - **Weighted impact on readiness:** 1.80 / 3.00 (Deficiency: 1.20)
-   - **Justification:** With ITSM (Jira/ServiceNow) deferred, users must manually bridge webhooks to their ticketing systems.
-   - **Tradeoffs:** Deferring first-party connectors saved V1 engineering time but pushes work to the customer.
-   - **Improvement recommendations:** Provide robust, copy-paste Power Automate or Logic App templates for the webhook-to-ticket bridge.
-   - **Status:** Deferred scope (V1.1).
+   - **Justification:** **First-party Jira and ServiceNow are V1 GA obligations** (`V1_SCOPE.md` §2.13). **Until** those connectors are enabled for a tenant, teams still integrate via CloudEvents/webhooks/recipes (**Confluence** first-party remains **V1.1** per `V1_DEFERRED.md`). The score reflects **today’s friction** versus native ITSM UX, not a scope deferral of Jira/ServiceNow.
+   - **Tradeoffs:** Shipping connectors vs. maintaining high-quality webhook bridges as an interim path.
+   - **Improvement recommendations:** Deliver first-party connectors per V1 sequencing (**ServiceNow before Jira**); keep recipes documented under **`docs/library/ITSM_BRIDGE_V1_RECIPES.md`** / **`docs/integrations/recipes/`** for interim coverage.
+   - **Status:** Fixable in v1 (connector delivery plus recipes for gaps).
 
 7. **Correctness**
    - **Score:** 80
@@ -155,15 +155,83 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
     - **Improvement recommendations:** Continue OWASP ZAP and schema validation.
     - **Status:** Strong.
 
-*(Remaining qualities score between 80-90 with minimal weighted deficiency and are omitted for brevity in this summary, but contribute to the 75.32% total).*
+### Weighted readiness calculation (full 102-weight model)
+
+- **Formula:** sum(score × weight) / sum(weight) across **46** qualities (total weight **102**).
+- **Explicit scores:** Qualities **1–15** in the urgency-ordered list above use the scores justified in-line.
+- **Imputed scores:** Every other dimension in the model uses **85** (midpoint of the **80–90** qualitative band cited for unstated pillars) until a future pass assigns line-by-line scores and updates this rollup.
+- **Computed headline:** **78.82%** (rounded to two decimal places).
+
+### Full rubric rollup (scores × weights)
+
+**Commercial**
+
+| Quality | Score | Weight |
+|---------|-------|--------|
+| Marketability | 70 | 8 |
+| Time-to-Value | 80 | 7 |
+| Adoption Friction | 75 | 6 |
+| Proof-of-ROI Readiness | 65 | 5 |
+| Executive Value Visibility | 60 | 4 |
+| Differentiability | 85 | 4 |
+| Decision Velocity | 85 | 2 |
+| Commercial Packaging Readiness | 85 | 2 |
+| Stickiness | 85 | 1 |
+| Template and Accelerator Richness | 65 | 1 |
+
+**Enterprise**
+
+| Quality | Score | Weight |
+|---------|-------|--------|
+| Traceability | 85 | 3 |
+| Usability | 75 | 3 |
+| Workflow Embeddedness | 60 | 3 |
+| Trustworthiness | 85 | 3 |
+| Auditability | 85 | 2 |
+| Policy and Governance Alignment | 85 | 2 |
+| Compliance Readiness | 85 | 2 |
+| Procurement Readiness | 85 | 2 |
+| Interoperability | 70 | 2 |
+| Accessibility | 85 | 1 |
+| Customer Self-Sufficiency | 65 | 1 |
+| Change Impact Clarity | 85 | 1 |
+
+**Engineering**
+
+| Quality | Score | Weight |
+|---------|-------|--------|
+| Correctness | 80 | 4 |
+| Architectural Integrity | 90 | 3 |
+| Security | 90 | 3 |
+| Reliability | 85 | 2 |
+| Data Consistency | 85 | 2 |
+| Maintainability | 85 | 2 |
+| Explainability | 70 | 2 |
+| AI/Agent Readiness | 85 | 2 |
+| Azure Compatibility and SaaS Deployment Readiness | 85 | 2 |
+| Availability | 85 | 1 |
+| Performance | 85 | 1 |
+| Scalability | 85 | 1 |
+| Supportability | 85 | 1 |
+| Manageability | 85 | 1 |
+| Deployability | 85 | 1 |
+| Observability | 85 | 1 |
+| Testability | 85 | 1 |
+| Modularity | 85 | 1 |
+| Extensibility | 85 | 1 |
+| Evolvability | 85 | 1 |
+| Documentation | 85 | 1 |
+| Azure Ecosystem Fit | 85 | 1 |
+| Cognitive Load | 65 | 1 |
+| Cost-Effectiveness | 85 | 1 |
 
 ## Top 10 Most Important Weaknesses
 
-1. **Lack of Executive Visibility:** No high-level dashboards for decision-makers.
+1. **Executive visibility not shipped:** Sponsor **Workspace Health** (`/governance/dashboard`) KPI set is **decided** (2026-05-05); the gap is **implementation and discoverability**, not undefined requirements.
 2. **Unquantified ROI:** Hard for champions to prove the tool's financial or time-saving value.
 3. **High Onboarding Friction:** Technical setup requires significant operator expertise.
 4. **Opaque Agent Reasoning:** Provenance graphs are too dense for quick comprehension.
-5. **Integration Burden:** Deferring ITSM connectors forces customers to build their own webhook bridges.
+5. **ITSM bridging until connectors land:** Customers without first-party **Jira/ServiceNow** enabled carry webhook/recipe work even though connectors are **V1 commitments**; **Confluence** first-party stays **V1.1**.
 6. **Steep Learning Curve:** High cognitive load for new operators navigating runs and manifests.
 7. **Template Scarcity:** Lack of out-of-the-box starting points delays time-to-value.
 8. **Hallucination Risks:** Agentic outputs need stronger deterministic guardrails.
@@ -173,14 +241,14 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
 ## Top 5 Monetization Blockers
 
 1. **Missing ROI Telemetry:** Buyers cannot easily justify the purchase without clear metrics.
-2. **Executive Dashboard Gap:** Economic buyers (CISOs, VPs) don't have a view tailored to them.
+2. **Workspace Health not yet default:** Economic buyers lack a shipped `/governance/dashboard` experience aligning to the **agreed five KPIs**—not a blank requirements phase.
 3. **Sales-Led Bottleneck:** The complexity of the pilot setup limits the volume of concurrent trials.
 4. **Deferred Commerce Rails:** (Deferred to V1.1) Lack of live Stripe/Marketplace integration prevents self-serve conversion.
 5. **Value Translation:** Marketing materials are too focused on architecture rather than business risk mitigation.
 
 ## Top 5 Enterprise Adoption Blockers
 
-1. **Manual ITSM Bridging:** Enterprises expect native Jira/ServiceNow integration, not just webhooks.
+1. **ITSM bridging before connectors:** Enterprises expect native **Jira/ServiceNow** (V1 per `V1_SCOPE.md`); until enabled, webhook/recipe bridging is friction—**not** optional long-term posture for those two targets.
 2. **Setup Complexity:** Requiring Entra ID and SQL configuration upfront slows down departmental adoption.
 3. **Audit Log Consumption:** While the audit log is durable, exporting and mapping it to specific SIEMs requires manual effort.
 4. **Operator Training:** The system requires a trained operator, limiting casual adoption by average developers.
@@ -190,13 +258,13 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
 
 1. **Agent Nondeterminism:** LLM-driven architecture decisions may occasionally violate strict enterprise policies if not caught by the pre-commit gate.
 2. **RLS Complexity:** Maintaining Row-Level Security across all new features requires strict developer discipline.
-3. **Webhook Delivery Failures:** Without first-party ITSM connectors, webhook delivery failures could result in missed critical alerts.
+3. **Integration delivery failures:** When tenants rely on **webhooks/recipes** (before or alongside first-party **Jira/ServiceNow**), delivery or mapping failures can drop critical alerts into ticketing—first-party connectors reduce but do not eliminate transport risk.
 4. **Performance at Scale:** The provenance graph and large manifests may cause UI latency for massive enterprise architectures.
 5. **Coordinator Strangler Execution:** Migrating legacy coordinator endpoints to the new Authority semantics risks introducing regressions if not tested thoroughly.
 
 ## Most Important Truth
 
-ArchLucid is a highly secure, architecturally sound platform built for experts, but its current lack of executive visibility, automated ROI tracking, and native ITSM integrations creates significant friction for commercial scaling and rapid enterprise adoption.
+ArchLucid is a highly secure, architecturally sound platform built for experts, but friction remains until **implemented** sponsor/workspace health (**KPI scope already set**), **shipped ROI telemetry**, and **tenant-enabled first-party ITSM connectors** (**Jira/ServiceNow are V1 obligations**) close the gap between documented intent and day-one operator reality.
 
 ## Top Improvement Opportunities
 
@@ -204,6 +272,7 @@ ArchLucid is a highly secure, architecturally sound platform built for experts, 
    - **Why it matters:** Economic buyers and sponsors need a single pane of glass for risk and governance posture without drilling every run.
    - **Expected impact:** Improves Executive Value Visibility (+12–18 pts), Marketability (+6–10 pts), Proof-of-ROI Readiness (+4–8 pts via pre-commit + findings proxy). Weighted readiness impact: **+1.2–2.0%** (approximate).
    - **Affected qualities:** Executive Value Visibility, Marketability, Proof-of-ROI Readiness, Usability.
+   - **Decision status:** **Closed 2026-05-05** — KPI set is fixed (**five tiles** below); remaining work is **implementation only**. No pending executive “pick metrics” questionnaire.
    - **Scope (agreed):** **Current `SESSION_CONTEXT` only** (tenant / workspace / project per request). **No cross-tenant or cross-workspace rollup.** Show an explicit banner: data reflects the active scope from the operator shell (same boundaries as `GET /v1/governance/*` and `GET /v1/audit/search`).
    - **Headline KPIs (exactly five):**
      1. **Governance pre-commit outcomes (rolling 30 days, audit-backed):** counts of `GovernancePreCommitBlocked` and `GovernancePreCommitWarned` from `GET /v1/audit/search` with `fromUtc` / `toUtc` (document cap: if `take` is capped, show “≥” or “first page” honesty per `V1_DEFERRED.md` audit keyset notes).
@@ -401,11 +470,28 @@ ArchLucid is a highly secure, architecturally sound platform built for experts, 
      - Add a brief Playwright or Vitest assertion only if an existing test pattern already covers Home CTAs; otherwise skip E2E to avoid scope creep.
      ```
 
+10. **Commercial tier alignment (enforce documented gates)**
+   - **Why it matters:** **Team / Professional / Enterprise** packaging, economics, Stripe interim Team SKU, trial parameters, **feature gates** table, and Marketplace naming are **`docs/go-to-market/PRICING_PHILOSOPHY.md`** (single source of truth per that file — CI: `scripts/ci/check_pricing_single_source.py`).
+   - **Expected impact:** Improves Commercial Packaging Readiness (+8–14 pts), Decision Velocity (+4–8 pts). Weighted readiness impact: **+0.35–0.55%**.
+   - **Affected qualities:** Commercial Packaging Readiness, Decision Velocity, Customer Self-Sufficiency.
+   - **Actionable:** Yes (trace product behavior to authored gates; tier *definitions* are not missing).
+   - **Cursor Prompt:**
+     ```text
+     Produce an audit (markdown or ADR snippet under docs/library/ acceptable to your program) mapping each row of the §3 **Feature gates** table in docs/go-to-market/PRICING_PHILOSOPHY.md to the concrete enforcement mechanism in repo: RBAC/route tier, middleware filter, tenant capability flag, or explicit “allowed on Professional+” guard. Companion docs: **`docs/go-to-market/TRIAL_AND_SIGNUP.md`**, **`docs/library/BILLING.md`**, **`docs/go-to-market/STRIPE_CHECKOUT.md`**, **`docs/go-to-market/MARKETPLACE_PUBLICATION.md`**. List gaps where behavior contradicts documented gates (do not silently change tier math). If fixes are warranted, propose minimal deltas in Api + ui with acceptance tests—not new tier definitions.
+     
+     Acceptance criteria:
+     - Artifact links every gate row to code path or cites “gap” with file:line hypotheses.
+     - No duplicate list prices introduced outside pricing single-source CI rules.
+     ```
+
 ## Pending Questions for Later
 
 **Executive Workspace Health (resolved 2026-05-05)**
-- KPI set and five-tile layout: agreed in-session (pre-commit audit counts, pilot-value severity proxy, compliance drift chart, SLA posture from governance dashboard, value proxy with placeholder coefficient).
+- KPI set and five-tile layout: agreed in-session (pre-commit audit counts, pilot-value severity proxy, compliance drift chart, SLA posture from governance dashboard, value proxy with placeholder coefficient). **No further sponsor metric-selection pending.**
 - Scope: **current `SESSION_CONTEXT` only** (no cross-workspace rollup). Future cross-workspace rollups are a separate product decision and likely Admin-only.
+
+**Commercial tier and packaging (resolved — documented)**
+- **Canonical source:** **`docs/go-to-market/PRICING_PHILOSOPHY.md`** §3 (**packaging tiers**, **feature gates**, Stripe §3.2 bundled Team SKU, pilot §4); aligned companions **`docs/go-to-market/ORDER_FORM_TEMPLATE.md`**, **`docs/go-to-market/TRIAL_AND_SIGNUP.md`**, **`docs/go-to-market/MARKETPLACE_PUBLICATION.md`**, **`docs/go-to-market/STRIPE_CHECKOUT.md`**, **`docs/library/BILLING.md`**. Outstanding work is **enforcement/traceability**, not authoring net-new tiers.
 
 **ROI telemetry module (resolved 2026-05-05)**
 - **Formula:** lead with **hours surfaced pre-commit** = `8·Critical + 3·High + 1·Medium + 2·pre-commit blocks` over the window; coefficients live in `archlucid-ui/src/lib/roi-assumptions.ts`. **Default loaded $/hour** = `$150` for the admin USD line.
