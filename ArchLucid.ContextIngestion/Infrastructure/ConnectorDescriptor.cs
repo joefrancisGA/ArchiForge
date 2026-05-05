@@ -4,13 +4,11 @@ namespace ArchLucid.ContextIngestion.Infrastructure;
 
 public sealed class ConnectorDescriptor : IConnectorDescriptor
 {
-    private readonly IContextConnector _connector;
-
     public ConnectorDescriptor(int pipelineOrder, IContextConnector connector)
     {
         ArgumentNullException.ThrowIfNull(connector);
         PipelineOrder = pipelineOrder;
-        _connector = connector;
+        Connector = connector;
     }
 
     public int PipelineOrder
@@ -18,5 +16,8 @@ public sealed class ConnectorDescriptor : IConnectorDescriptor
         get;
     }
 
-    public IContextConnector Connector => _connector;
+    public IContextConnector Connector
+    {
+        get;
+    }
 }

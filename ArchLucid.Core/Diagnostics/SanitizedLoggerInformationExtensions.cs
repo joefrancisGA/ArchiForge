@@ -9,11 +9,18 @@ namespace ArchLucid.Core.Diagnostics;
 ///     user-derived strings (CWE-117).
 /// </summary>
 /// <remarks>
-///     CodeQL <c>cs/log-forging</c> may not propagate the custom <see cref="LogSanitizer.Sanitize" /> barrier
-///     through <see cref="LoggerExtensions.LogInformation(ILogger, string?, params object?[])" /> <c>params</c>
-///     boxing at call sites. Sanitizing in this helper keeps barrier and sink adjacent (see <c>docs/CODEQL_TRIAGE.md</c>).
+///     Each public wrapper sanitizes its user-derived <see cref="string" /> arguments through
+///     <see cref="LogSanitizer.Sanitize(string?)" /> and then forwards them to a private
+///     <see cref="LoggerMessageAttribute" />-generated emitter declared in the sibling partial file
+///     <c>SanitizedLoggerInformationExtensions.LoggerMessage.cs</c>. The source generator emits
+///     strongly-typed delegate calls instead of <c>params object?[]</c>; this preserves the custom
+///     <c>LogSanitizer.Sanitize</c> barrier registered in the CodeQL model pack
+///     (<c>.github/codeql/archlucid-csharp-log-sanitizer-models</c>) all the way to the
+///     <see cref="ILogger.Log{TState}" /> sink and avoids the <c>cs/log-forging</c> false positives that
+///     <see cref="LoggerExtensions.LogInformation(ILogger, string?, object?[])" /> boxing produces
+///     (see <c>docs/library/CODEQL_TRIAGE.md</c>).
 /// </remarks>
-public static class SanitizedLoggerInformationExtensions
+public static partial class SanitizedLoggerInformationExtensions
 {
     /// <summary>Logs that an architecture run was committed, with two user-derived strings sanitized.</summary>
     public static void LogInformationArchitectureRunCommitted(
@@ -27,12 +34,7 @@ public static class SanitizedLoggerInformationExtensions
         string safeRunId = LogSanitizer.Sanitize(userRunId);
         string safeManifestVersion = LogSanitizer.Sanitize(userManifestVersion);
 
-        // codeql[cs/log-forging]: userRunId and userManifestVersion sanitized immediately above; warningCount is a value type.
-        logger.LogInformation(
-            "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
-            safeRunId,
-            safeManifestVersion,
-            warningCount);
+        EmitArchitectureRunCommitted(logger, safeRunId, safeManifestVersion, warningCount);
     }
 
     /// <summary>
@@ -50,12 +52,7 @@ public static class SanitizedLoggerInformationExtensions
         string safeRunId = LogSanitizer.Sanitize(userRunId);
         string safeManifestVersion = LogSanitizer.Sanitize(userManifestVersion);
 
-        // codeql[cs/log-forging]: userRunId and userManifestVersion sanitized immediately above; traceCount is a value type.
-        logger.LogInformation(
-            "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
-            safeRunId,
-            safeManifestVersion,
-            traceCount);
+        EmitCommitRunIdempotentReturn(logger, safeRunId, safeManifestVersion, traceCount);
     }
 
     /// <summary>
@@ -75,9 +72,8 @@ public static class SanitizedLoggerInformationExtensions
         string safeManifestVersion = LogSanitizer.Sanitize(manifestVersion);
         string safeTargetEnvironment = LogSanitizer.Sanitize(targetEnvironment);
 
-        // codeql[cs/log-forging]: all four string placeholders sanitized immediately above (params boxing breaks custom barrier at call sites).
-        logger.LogInformation(
-            "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
+        EmitGovernanceManifestPromoted(
+            logger,
             safePromotionRecordId,
             safeRunId,
             safeManifestVersion,
@@ -101,9 +97,8 @@ public static class SanitizedLoggerInformationExtensions
         string safeManifestVersion = LogSanitizer.Sanitize(manifestVersion);
         string safeEnvironment = LogSanitizer.Sanitize(environment);
 
-        // codeql[cs/log-forging]: all four string placeholders sanitized immediately above (params boxing breaks custom barrier at call sites).
-        logger.LogInformation(
-            "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
+        EmitGovernanceEnvironmentActivated(
+            logger,
             safeActivationId,
             safeRunId,
             safeManifestVersion,
@@ -131,9 +126,8 @@ public static class SanitizedLoggerInformationExtensions
         string safeFormat = LogSanitizer.Sanitize(format);
         string safeReplayMode = LogSanitizer.Sanitize(replayMode);
 
-        // codeql[cs/log-forging]: string placeholders sanitized immediately above; bool/long args cannot inject log lines.
-        logger.LogInformation(
-            "Comparison replay: ComparisonRecordId={ComparisonRecordId}, Type={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, MetadataOnly={MetadataOnly}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
+        EmitComparisonReplaySucceeded(
+            logger,
             safeComparisonRecordId,
             safeComparisonType,
             safeFormat,
@@ -159,12 +153,7 @@ public static class SanitizedLoggerInformationExtensions
         string safeRunId = LogSanitizer.Sanitize(userRunId);
         string safeAgentTypeKeys = LogSanitizer.Sanitize(userAgentTypeKeysJoined);
 
-        // codeql[cs/log-forging]: userRunId and joined agent type keys sanitized immediately above; taskCount is a value type.
-        logger.LogInformation(
-            "Agent execution batch starting: RunId={RunId}, TaskCount={TaskCount}, AgentTypeKeys={AgentTypeKeys}",
-            safeRunId,
-            taskCount,
-            safeAgentTypeKeys);
+        EmitAgentExecutionBatchStarting(logger, safeRunId, taskCount, safeAgentTypeKeys);
     }
 
     /// <summary>Logs completion of an agent execution batch with a sanitized run id and result count.</summary>
@@ -175,11 +164,7 @@ public static class SanitizedLoggerInformationExtensions
 
         string safeRunId = LogSanitizer.Sanitize(userRunId);
 
-        // codeql[cs/log-forging]: userRunId sanitized immediately above; resultCount is a value type.
-        logger.LogInformation(
-            "Agent execution batch completed: RunId={RunId}, ResultCount={ResultCount}",
-            safeRunId,
-            resultCount);
+        EmitAgentExecutionBatchCompleted(logger, safeRunId, resultCount);
     }
 
     /// <summary>
@@ -198,13 +183,7 @@ public static class SanitizedLoggerInformationExtensions
         string safeRunId = LogSanitizer.Sanitize(userRunId);
         string safeResultId = LogSanitizer.Sanitize(userResultId);
 
-        // codeql[cs/log-forging]: userRunId and userResultId sanitized immediately above; agentType and newStatus are enums (no CRLF injection).
-        logger.LogInformation(
-            "Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
-            safeRunId,
-            safeResultId,
-            agentType,
-            newStatus);
+        EmitAgentResultSubmitted(logger, safeRunId, safeResultId, agentType, newStatus);
     }
 
     /// <summary>
@@ -224,9 +203,8 @@ public static class SanitizedLoggerInformationExtensions
         string safeSystemName = LogSanitizer.Sanitize(userSystemName);
         string safeEnvironment = LogSanitizer.Sanitize(userEnvironment);
 
-        // codeql[cs/log-forging]: all four string placeholders sanitized immediately above (params boxing breaks custom barrier at call sites).
-        logger.LogInformation(
-            "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
+        EmitCreatingArchitectureRun(
+            logger,
             safeRunId,
             safeRequestId,
             safeSystemName,

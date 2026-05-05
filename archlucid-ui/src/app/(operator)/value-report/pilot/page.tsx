@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DocumentLayout } from "@/components/DocumentLayout";
@@ -9,42 +10,8 @@ import { Button } from "@/components/ui/button";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-
-type SeverityJson = {
-  critical: number;
-  high: number;
-  medium: number;
-  low: number;
-  info: number;
-};
-
-type TimelineRow = {
-  runId: string;
-  createdUtc: string;
-  committedUtc: string | null;
-  systemName: string;
-};
-
-type PilotValueReportJson = {
-  tenantId: string;
-  fromUtc: string;
-  toUtc: string;
-  totalRunsCommitted: number;
-  runDetailsTruncated: boolean;
-  runDetailCap: number;
-  totalFindings: number;
-  findingsBySeverity: SeverityJson;
-  totalRecommendationsProduced: number;
-  averagePipelineCompletionSeconds: number | null;
-  governanceApprovals: number;
-  governanceRejections: number;
-  policyPackAssignments: number;
-  comparisonOrDriftDetections: number;
-  uniqueAgentTypes: string[];
-  committedRunsTimeline: TimelineRow[];
-  governancePendingApprovalsNow: number;
-  auditExportTruncated: boolean;
-};
+import { buildPilotValueReportQuery } from "@/lib/pilot-value-report-fetch";
+import type { PilotValueReportJson, PilotValueReportSeverityJson } from "@/types/pilot-value-report";
 
 function MetricCard(props: { title: string; value: string; hint?: string }) {
   return (
@@ -76,7 +43,7 @@ function formatAvgCompletion(seconds: number | null): string {
   return `${seconds.toFixed(0)} s`;
 }
 
-function SeverityBars(props: { counts: SeverityJson }) {
+function SeverityBars(props: { counts: PilotValueReportSeverityJson }) {
   const rows = useMemo(
     () =>
       [
@@ -111,12 +78,7 @@ function SeverityBars(props: { counts: SeverityJson }) {
 }
 
 function buildQuery(fromIso: string, toIso: string): string {
-  const params = new URLSearchParams();
-
-  params.set("fromUtc", fromIso);
-  params.set("toUtc", toIso);
-
-  return params.toString();
+  return buildPilotValueReportQuery(fromIso, toIso);
 }
 
 export default function PilotValueReportPage() {
@@ -268,6 +230,11 @@ export default function PilotValueReportPage() {
         <p className="doc-meta m-0 text-sm text-neutral-600 dark:text-neutral-400">
           One-click proof-of-ROI snapshot: committed reviews, findings, pipeline timing, governance signals, and audit-backed
           recommendation counts for the selected UTC window (<code className="text-xs">toUtc</code> is exclusive, matching the audit export).
+        </p>
+        <p className="m-0 text-sm">
+          <Link href="/value-report/roi" className="font-medium text-blue-700 underline dark:text-blue-400">
+            Open ROI summary
+          </Link>
         </p>
 
         <div className="flex flex-wrap items-end gap-3">

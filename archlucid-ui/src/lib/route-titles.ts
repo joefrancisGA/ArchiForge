@@ -9,7 +9,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/compare": "Compare",
   "/graph": "Graph",
   "/governance": "Governance",
-  "/governance/dashboard": "Governance dashboard",
+  "/governance/dashboard": "Workspace health",
   "/governance/findings": "Findings",
   "/advisory": "Advisory",
   "/search": "Search",
@@ -19,8 +19,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/planning": "Planning",
   "/onboarding": "Onboarding",
   "/digests": "Digests",
-  "/executive/reviews": "Executive reviews",
-};
+  "/value-report/roi": "ROI summary",
 
 /** Human-readable title for route announcements and accessibility copy. */
 export function getRouteTitle(pathname: string): string {

@@ -68,9 +68,14 @@ export function CorePilotNextStepsCard() {
         <p className="mb-3 mt-2 text-sm text-neutral-700 dark:text-neutral-300">
           First committed manifest is in place. Optional next: explore Operate tools when your team is ready.
         </p>
-        <Link href="/ask" className="text-sm font-medium text-blue-700 underline dark:text-blue-400">
-          Open Ask (Operate)
-        </Link>
+        <div className="flex flex-col gap-2 text-sm">
+          <Link href="/governance/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
+            Workspace health
+          </Link>
+          <Link href="/ask" className="font-medium text-blue-700 underline dark:text-blue-400">
+            Open Ask (Operate)
+          </Link>
+        </div>
       </section>
     );
   }

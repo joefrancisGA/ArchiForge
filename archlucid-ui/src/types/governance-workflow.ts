@@ -12,6 +12,9 @@ export type GovernanceApprovalRequest = {
   reviewComment: string | null;
   requestedUtc: string;
   reviewedUtc: string | null;
+  /** Optional — present when SLA is configured for the request. */
+  slaDeadlineUtc?: string | null;
+  slaBreachNotifiedUtc?: string | null;
 };
 
 /**

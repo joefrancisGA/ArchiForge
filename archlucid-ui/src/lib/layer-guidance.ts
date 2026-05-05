@@ -35,6 +35,7 @@ export type LayerGuidancePageKey =
   | "audit"
   | "value-report"
   | "value-report-pilot"
+  | "value-report-roi"
   | "security-trust"
   | "teams-notifications";
 
@@ -77,10 +78,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-dashboard": {
     layerBadge: "Governance",
-    headline: "Cross-review approvals and governance signals.",
-    useWhen: "Queue snapshot; open a row to continue in workflow for that review.",
-    firstPilotNote: "After Pilot proof when cross-review triage—not first-session work.",
-    enterpriseFootnote: "Signals here; writes in workflow.",
+    headline: "Workspace health — governance signals in your current scope.",
+    useWhen:
+      "Use after Pilot proof when sponsors need pre-commit outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
+    firstPilotNote: "Optional until first Pilot proof; data is scoped to the active tenant/workspace/project.",
+    enterpriseFootnote: "Read-only tiles; writes stay in workflow, findings queue, and audit.",
   },
   "governance-findings": {
     layerBadge: "Governance",
@@ -127,6 +129,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "When executives need totals, severities, governance signals, and a Markdown handoff aligned to a UTC measurement window.",
     firstPilotNote:
       "Complements the in-product scorecard; Read-tier API; optional during Pilot for executive visibility.",
+  },
+  "value-report-roi": {
+    layerBadge: "Analysis",
+    headline: "Sponsor-facing hours estimate from severities and pre-commit blocks.",
+    useWhen:
+      "When champions need a defensible hours story before negotiating loaded $/hour internally; pairs with Workspace health.",
+    firstPilotNote: "Read-tier data pulls; Admin-only optional USD line uses local browser override.",
   },
   "value-report": {
     layerBadge: "Governance",

@@ -30,6 +30,7 @@ const DEMO_MODE_OMIT_OPERATOR_HREFS = new Set<string>([
   "/settings/exec-digest",
   "/value-report",
   "/value-report/pilot",
+  "/value-report/roi",
 ]);
 
 function omitThinRoutesInPublicDemoMode(links: NavLinkItem[]): NavLinkItem[] {

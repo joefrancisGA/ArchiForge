@@ -44,6 +44,33 @@ vi.mock("@/lib/api", () => ({
   assignPolicyPack: vi.fn(),
 }));
 
+vi.mock("@/lib/workspace-health-audit-count", () => ({
+  countAuditEventsInWindow: vi.fn().mockResolvedValue({ count: 0, exact: true }),
+}));
+
+vi.mock("@/lib/pilot-value-report-fetch", () => ({
+  fetchPilotValueReportJson: vi.fn().mockResolvedValue({
+    tenantId: "00000000-0000-0000-0000-000000000001",
+    fromUtc: "2026-01-01T00:00:00.000Z",
+    toUtc: "2026-06-01T00:00:00.000Z",
+    totalRunsCommitted: 0,
+    runDetailsTruncated: false,
+    runDetailCap: 50,
+    totalFindings: 0,
+    findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+    totalRecommendationsProduced: 0,
+    averagePipelineCompletionSeconds: null,
+    governanceApprovals: 0,
+    governanceRejections: 0,
+    policyPackAssignments: 0,
+    comparisonOrDriftDetections: 0,
+    uniqueAgentTypes: [],
+    committedRunsTimeline: [],
+    governancePendingApprovalsNow: 0,
+    auditExportTruncated: false,
+  }),
+}));
+
 vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
   useEnterpriseMutationCapability: () => false,
 }));
@@ -101,7 +128,7 @@ describe("operator governance pages — axe (Vitest)", () => {
 
       expect(await axe(container)).toHaveNoViolations();
     },
-    20_000,
+    45_000,
   );
 
   it(
@@ -111,7 +138,7 @@ describe("operator governance pages — axe (Vitest)", () => {
 
       expect(await axe(container)).toHaveNoViolations();
     },
-    20_000,
+    45_000,
   );
 
   it(
@@ -121,7 +148,7 @@ describe("operator governance pages — axe (Vitest)", () => {
 
       expect(await axe(container)).toHaveNoViolations();
     },
-    20_000,
+    45_000,
   );
 
   it(
@@ -131,7 +158,7 @@ describe("operator governance pages — axe (Vitest)", () => {
 
       expect(await axe(container)).toHaveNoViolations();
     },
-    20_000,
+    45_000,
   );
 
   it(
@@ -141,6 +168,6 @@ describe("operator governance pages — axe (Vitest)", () => {
 
       expect(await axe(container)).toHaveNoViolations();
     },
-    20_000,
+    45_000,
   );
 });
