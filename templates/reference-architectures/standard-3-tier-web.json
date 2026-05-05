@@ -1,5 +1,5 @@
 {
-  "requestId": "REF-TPL-THREE-TIER-WEB-001",
+  "requestId": "REF-TPL-STANDARD-3-TIER-WEB-001",
   "systemName": "ThreeTierWebApp",
   "description": "Standard three-tier web application on Azure App Service with REST API tier, Azure SQL for transactional data, Blob Storage for static assets, private endpoints, Entra ID auth, and TLS everywhere.",
   "environment": "prod",

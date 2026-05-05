@@ -1,5 +1,5 @@
 {
-  "requestId": "REF-TPL-SERVERLESS-API-001",
+  "requestId": "REF-TPL-AZURE-SERVERLESS-API-001",
   "systemName": "ServerlessOrderApi",
   "description": "Event-driven order API on Azure Functions (Flex Consumption) with HTTP ingress, Azure Service Bus for async workflows, Cosmos DB for operational store, Key Vault for secrets, and Application Insights for telemetry.",
   "environment": "prod",

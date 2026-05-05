@@ -25,6 +25,17 @@
 
 Starter **`ArchitectureRequest`** JSON files aligned with **`POST /v1/architecture/request`** live under **[`templates/reference-architectures/README.md`](../../templates/reference-architectures/README.md)**. Use them verbatim or as copy-paste baselines during pilots when teams do not yet have their own drafted request bodies.
 
+There is no `archlucid request create --from-file` subcommand today; submit the file as the JSON body to **`POST /v1/architecture/request`** (same contract as the operator wizard import). From the repository root, after **`export BASE=https://your-api-host`** (or `http://localhost:5128`):
+
+```bash
+curl -sS -X POST "$BASE/v1/architecture/request" \
+  -H "Content-Type: application/json" \
+  -H "X-Correlation-ID: pilot-ref-arch-standard-3tier" \
+  --data-binary "@templates/reference-architectures/standard-3-tier-web.json"
+```
+
+Use **`templates/reference-architectures/azure-serverless-api.json`** the same way for the serverless pattern. **`archlucid second-run`** expects the smaller **`SECOND_RUN`** schema ([`SECOND_RUN.md`](SECOND_RUN.md)), not a full **`ArchitectureRequest`** document.
+
 ## When you report an issue
 
 Include **API `GET /version`**, **`X-Correlation-ID`**, relevant logs, and (if policy allows) a **support bundle** (`dotnet run --project ArchLucid.Cli -- support-bundle --zip`). Full checklist: [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue](../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue).
