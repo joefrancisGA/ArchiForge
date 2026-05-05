@@ -20,6 +20,9 @@
     <ProjectReference Include="..\ArchLucid.Cli\ArchLucid.Cli.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\schemas\*.schema.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 </Project>

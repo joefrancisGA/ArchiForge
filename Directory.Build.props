@@ -7,4 +7,8 @@
     <!-- NuGet semver for ArchLucid.Api.Client; bump when releasing a new SDK drop. -->
     <ArchLucidApiClientPackageVersion>1.0.0</ArchLucidApiClientPackageVersion>
   </PropertyGroup>
+  <!-- Cobertura/Coverlet run against test hosts; do not treat test project code as coverable product surface. -->
+  <ItemGroup Condition="$([System.String]::Copy('$(MSBuildProjectName)').EndsWith('.Tests'))">
+    <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute" />
+  </ItemGroup>
 </Project>

@@ -39,6 +39,7 @@ public static class CompletionsCommand
         "health",
         "webhooks",
         "config",
+        "manifest",
         "marketplace",
         "golden-cohort",
         "procurement-pack",
