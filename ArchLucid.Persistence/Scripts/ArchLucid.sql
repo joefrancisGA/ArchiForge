@@ -6799,6 +6799,24 @@ BEGIN
 END;
 GO
 
+/* ---- DbUp 143 parity: widen GovernanceEnvironmentActivations.Environment (see Migrations/143_*.sql) ---- */
+
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns AS c
+       INNER JOIN sys.types AS t ON c.user_type_id = t.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations')
+         AND c.name = N'Environment'
+         AND t.name = N'nvarchar'
+         AND c.max_length > 0
+         AND c.max_length < 128)
+BEGIN
+    ALTER TABLE dbo.GovernanceEnvironmentActivations
+        ALTER COLUMN Environment NVARCHAR(64) NOT NULL;
+END;
+GO
+
 /* ---- Analytics / Telemetry ---- */
 
 IF OBJECT_ID(N'dbo.RunTelemetry') IS NULL

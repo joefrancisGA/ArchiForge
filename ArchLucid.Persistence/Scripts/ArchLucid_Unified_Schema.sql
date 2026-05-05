@@ -7,7 +7,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 142_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 143_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -5089,6 +5089,25 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_PilotCloseouts_Scope_CreatedUtc
         ON dbo.PilotCloseouts (TenantId, WorkspaceId, ProjectId, CreatedUtc DESC);
+END;
+
+GO
+
+/* ---- DbUp 143 parity: widen GovernanceEnvironmentActivations.Environment (see Migrations/143_*.sql) ---- */
+
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND EXISTS (
+       SELECT 1
+       FROM sys.columns AS c
+       INNER JOIN sys.types AS t ON c.user_type_id = t.user_type_id
+       WHERE c.object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations')
+         AND c.name = N'Environment'
+         AND t.name = N'nvarchar'
+         AND c.max_length > 0
+         AND c.max_length < 128)
+BEGIN
+    ALTER TABLE dbo.GovernanceEnvironmentActivations
+        ALTER COLUMN Environment NVARCHAR(64) NOT NULL;
 END;
 
 GO
