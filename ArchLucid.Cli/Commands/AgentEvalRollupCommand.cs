@@ -16,9 +16,7 @@ internal static class AgentEvalRollupCommand
 {
     private static readonly JsonSerializerOptions JsonRead = new()
     {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
+        PropertyNameCaseInsensitive = true, ReadCommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true,
     };
 
     static AgentEvalRollupCommand()

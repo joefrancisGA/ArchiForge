@@ -143,73 +143,97 @@ public sealed class RealAgentExecutor : IAgentExecutor
         AgentTask task,
         CancellationToken cancellationToken)
     {
-        string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
-
-        if (!_handlers.TryGetValue(dispatchKey, out IAgentHandler? handler))
-
-            throw new InvalidOperationException(
-                $"No handler is registered for agent type key '{dispatchKey}'.");
-
-        int timeoutSeconds = _resilienceOptions.Value.ResolveTimeoutSecondsForAgent(dispatchKey);
-        ResiliencePipeline<AgentResult> handlerTimeoutPipeline = ResolveTimeoutPipeline(timeoutSeconds);
-
-        Stopwatch sw = Stopwatch.StartNew();
-
-        AgentResult result;
-
-        using (Activity? activity = ArchLucidInstrumentation.AgentHandler.StartActivity(
-                   "archlucid.agent.handle"))
+        using (AgentHandlerLlmReasoningTrace.BeginHandlerScope())
         {
-            activity?.SetTag("archlucid.run_id", runId);
-            activity?.SetTag("archlucid.task_id", task.TaskId);
-            activity?.SetTag("archlucid.agent.type", dispatchKey);
-            activity?.SetTag("archlucid.agent.type_enum", task.AgentType.ToString());
+            string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
 
-            string promptVersion = ResolvePromptVersion(dispatchKey);
-            activity?.SetTag("archlucid.agent.prompt_version", promptVersion);
+            if (!_handlers.TryGetValue(dispatchKey, out IAgentHandler? handler))
 
-            try
+                throw new InvalidOperationException(
+                    $"No handler is registered for agent type key '{dispatchKey}'.");
+
+            int timeoutSeconds = _resilienceOptions.Value.ResolveTimeoutSecondsForAgent(dispatchKey);
+            ResiliencePipeline<AgentResult> handlerTimeoutPipeline = ResolveTimeoutPipeline(timeoutSeconds);
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            AgentResult result;
+
+            using (Activity? activity = ArchLucidInstrumentation.AgentHandler.StartActivity(
+                       "archlucid.agent.handle"))
             {
-                result = await _concurrencyGate.ExecuteAsync(
-                    async ct =>
-                        await handlerTimeoutPipeline.ExecuteAsync(
-                            async (_, innerCt) => await handler.ExecuteAsync(
-                                runId,
-                                request,
-                                evidence,
-                                task,
-                                innerCt),
-                            ct, ct),
-                    cancellationToken);
+                activity?.SetTag("archlucid.run_id", runId);
+                activity?.SetTag("archlucid.task_id", task.TaskId);
+                activity?.SetTag("archlucid.agent.type", dispatchKey);
+                activity?.SetTag("archlucid.agent.type_enum", task.AgentType.ToString());
 
-                ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
-                    1,
-                    new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
-                    new KeyValuePair<string, object?>("outcome", "success"));
+                string promptVersion = ResolvePromptVersion(dispatchKey);
+                activity?.SetTag("archlucid.agent.prompt_version", promptVersion);
+
+                try
+                {
+                    result = await _concurrencyGate.ExecuteAsync(
+                        async ct =>
+                            await handlerTimeoutPipeline.ExecuteAsync(
+                                async (_, innerCt) => await handler.ExecuteAsync(
+                                    runId,
+                                    request,
+                                    evidence,
+                                    task,
+                                    innerCt),
+                                ct, ct),
+                        cancellationToken);
+
+                    ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
+                        1,
+                        new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
+                        new KeyValuePair<string, object?>("outcome", "success"));
+                }
+                catch (Exception ex)
+                {
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    activity?.AddException(ex);
+
+                    ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
+                        1,
+                        new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
+                        new KeyValuePair<string, object?>("outcome", "error"));
+
+                    throw;
+                }
+
+                activity?.SetTag("archlucid.agent.confidence", result.Confidence);
+                activity?.SetTag("archlucid.agent.findings_count", result.Findings.Count);
+                activity?.SetTag("archlucid.agent.claims_count", result.Claims.Count);
             }
-            catch (Exception ex)
-            {
-                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-                activity?.AddException(ex);
 
-                ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
-                    1,
-                    new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
-                    new KeyValuePair<string, object?>("outcome", "error"));
+            sw.Stop();
 
-                throw;
-            }
+            if (_logger.IsEnabled(LogLevel.Debug))
 
-            activity?.SetTag("archlucid.agent.confidence", result.Confidence);
-            activity?.SetTag("archlucid.agent.findings_count", result.Findings.Count);
-            activity?.SetTag("archlucid.agent.claims_count", result.Claims.Count);
+                _logger.LogDebugAgentTaskFinished(runId, task.TaskId, dispatchKey, sw.ElapsedMilliseconds);
+
+            string? providerTrace = AgentHandlerLlmReasoningTrace.TryConsumeBuffered();
+
+            return MergeProviderReasoningTrace(result, providerTrace);
+        }
+    }
+
+    private static AgentResult MergeProviderReasoningTrace(AgentResult result, string? providerTrace)
+    {
+        if (string.IsNullOrWhiteSpace(providerTrace))
+            return result;
+
+        string trimmed = providerTrace.Trim();
+
+        if (string.IsNullOrWhiteSpace(result.ReasoningTrace))
+        {
+            result.ReasoningTrace = trimmed;
+
+            return result;
         }
 
-        sw.Stop();
-
-        if (_logger.IsEnabled(LogLevel.Debug))
-
-            _logger.LogDebugAgentTaskFinished(runId, task.TaskId, dispatchKey, sw.ElapsedMilliseconds);
+        result.ReasoningTrace = result.ReasoningTrace.TrimEnd() + "\n\n---\n\n" + trimmed;
 
         return result;
     }

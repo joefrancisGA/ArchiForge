@@ -1,6 +1,7 @@
 using System.ClientModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -154,7 +155,48 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
 
+        string? reasoningSnippet = BuildReasoningTraceSnippet(completion);
+
+        if (reasoningSnippet is not null)
+            AgentHandlerLlmReasoningTrace.AppendCompletionSnippet(reasoningSnippet);
+
         return text;
+    }
+
+    private static string? BuildReasoningTraceSnippet(ChatCompletion completion)
+    {
+        StringBuilder chunks = new();
+
+        IReadOnlyList<ChatMessageContentPart> parts = completion.Content;
+
+        if (parts is not null && parts.Count > 1)
+        {
+            for (int i = 1; i < parts.Count; i++)
+            {
+                ChatMessageContentPart p = parts[i];
+
+                if (p.Kind == ChatMessageContentPartKind.Text && !string.IsNullOrWhiteSpace(p.Text))
+                {
+                    if (chunks.Length > 0)
+                        chunks.Append("\n\n---\n\n");
+
+                    chunks.Append(p.Text.Trim());
+                }
+            }
+        }
+
+        ChatTokenUsage? usage = completion.Usage;
+
+        if (usage?.OutputTokenDetails?.ReasoningTokenCount is int rc && rc > 0)
+        {
+            if (chunks.Length > 0)
+                chunks.Append("\n\n---\n\n");
+
+            chunks.Append("Provider reasoning tokens: ");
+            chunks.Append(rc);
+        }
+
+        return chunks.Length == 0 ? null : chunks.ToString();
     }
 
     /// <summary>Consumes token usage from the last successful <see cref="CompleteJsonAsync" /> on this async flow, if any.</summary>

@@ -10,11 +10,7 @@ namespace ArchLucid.Cli;
 
 internal static class GoldenManifestOfflineSchemaValidator
 {
-    private static readonly JsonLoadSettings SLineTracking = new()
-    {
-        LineInfoHandling = LineInfoHandling.Load,
-        CommentHandling = CommentHandling.Ignore
-    };
+    private static readonly JsonLoadSettings SLineTracking = new() { LineInfoHandling = LineInfoHandling.Load, CommentHandling = CommentHandling.Ignore };
 
     internal static ManifestValidateOutcome ValidateManifestFile(string manifestAbsolutePath)
     {
@@ -132,10 +128,7 @@ internal static class GoldenManifestOfflineSchemaValidator
 
                 outcome.Errors.Add(new ManifestValidateError
                 {
-                    Message = detail.Message,
-                    LineNumber = line,
-                    Column = column,
-                    InstancePointer = pointer.Length > 0 ? pointer : null
+                    Message = detail.Message, LineNumber = line, Column = column, InstancePointer = pointer.Length > 0 ? pointer : null
                 });
             }
 
@@ -159,12 +152,7 @@ internal static class GoldenManifestOfflineSchemaValidator
             column = li.LinePosition;
         }
 
-        outcome.Errors.Add(new ManifestValidateError
-        {
-            Message = message,
-            LineNumber = line,
-            Column = column
-        });
+        outcome.Errors.Add(new ManifestValidateError { Message = message, LineNumber = line, Column = column });
     }
 
     private static string NormalizeInstancePointer(string location)
@@ -190,11 +178,7 @@ internal static class GoldenManifestOfflineSchemaValidator
 
     private static SchemaValidationService CreateSchemaValidationService()
     {
-        SchemaValidationOptions options = new()
-        {
-            EnableDetailedErrors = true,
-            EnableResultCaching = false
-        };
+        SchemaValidationOptions options = new() { EnableDetailedErrors = true, EnableResultCaching = false };
 
         return new SchemaValidationService(NullLogger<SchemaValidationService>.Instance, Options.Create(options));
     }

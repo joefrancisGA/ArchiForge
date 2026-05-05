@@ -396,14 +396,14 @@ Describe the outcome you want (business + technical). Keep it short and runnable
         return body
                + $"""
 
-             ## Quickstart evaluation (no SQL Server)
+                  ## Quickstart evaluation (no SQL Server)
 
-             This project was scaffolded with `archlucid new {projectName} --quickstart`.
+                  This project was scaffolded with `archlucid new {projectName} --quickstart`.
 
-             - `local/archlucid.quickstart.appsettings.json` — sets `ArchLucid:StorageProvider` to `InMemory` so ArchLucid hosts can run **without** SQL Server. Merge into your configuration (for example `appsettings.Development.json`), or run `dotnet user-secrets set "ArchLucid:StorageProvider" "InMemory"` for the API project.
-             - `local/archlucid-evaluation.sqlite` — file-backed SQLite used only as a **CLI-side** project registry for this scaffold. The product database is still controlled by `ArchLucid:StorageProvider` (`InMemory` or `Sql` with SQL Server).
+                  - `local/archlucid.quickstart.appsettings.json` — sets `ArchLucid:StorageProvider` to `InMemory` so ArchLucid hosts can run **without** SQL Server. Merge into your configuration (for example `appsettings.Development.json`), or run `dotnet user-secrets set "ArchLucid:StorageProvider" "InMemory"` for the API project.
+                  - `local/archlucid-evaluation.sqlite` — file-backed SQLite used only as a **CLI-side** project registry for this scaffold. The product database is still controlled by `ArchLucid:StorageProvider` (`InMemory` or `Sql` with SQL Server).
 
-             """;
+                  """;
     }
 
     public sealed class ScaffoldOptions

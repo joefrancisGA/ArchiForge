@@ -34,16 +34,16 @@ public static class Program
             switch (command)
             {
                 case "new":
-                {
-                    if (!TryParseNewCommandArgs(normalized.Skip(1).ToArray(), out string? projectName, out bool quickstart))
                     {
-                        WriteNewUsage();
+                        if (!TryParseNewCommandArgs(normalized.Skip(1).ToArray(), out string? projectName, out bool quickstart))
+                        {
+                            WriteNewUsage();
 
-                        return CliExitCode.UsageError;
+                            return CliExitCode.UsageError;
+                        }
+
+                        return await NewCommand.RunAsync(projectName!, quickstart);
                     }
-
-                    return await NewCommand.RunAsync(projectName!, quickstart);
-                }
 
                 case "dev":
                     if (normalized.Length > 1 && normalized[1] == "up")
@@ -369,9 +369,9 @@ public static class Program
     {
         string plain =
             "Usage: archlucid new <projectName> [--quickstart]" + Environment.NewLine
-            + "  --quickstart  Provision local/quickstart artifacts: SQLite CLI registry (local/archlucid-evaluation.sqlite) "
-            + "and an appsettings fragment (local/archlucid.quickstart.appsettings.json) that sets "
-            + "ArchLucid:StorageProvider=InMemory so hosts run without SQL Server for initial evaluation.";
+                                                                + "  --quickstart  Provision local/quickstart artifacts: SQLite CLI registry (local/archlucid-evaluation.sqlite) "
+                                                                + "and an appsettings fragment (local/archlucid.quickstart.appsettings.json) that sets "
+                                                                + "ArchLucid:StorageProvider=InMemory so hosts run without SQL Server for initial evaluation.";
 
         if (CliExecutionContext.JsonOutput)
 

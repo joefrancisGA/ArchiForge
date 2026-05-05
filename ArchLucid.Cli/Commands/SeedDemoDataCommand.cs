@@ -8,10 +8,7 @@ namespace ArchLucid.Cli.Commands;
 [ExcludeFromCodeCoverage(Justification = "CLI demo-pack orchestration uses HTTP; integration-tested manually.")]
 internal static class SeedDemoDataCommand
 {
-    private static readonly JsonSerializerOptions JsonCamel = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public static async Task<int> RunAsync(CancellationToken cancellationToken = default)
     {
@@ -42,10 +39,7 @@ internal static class SeedDemoDataCommand
         {
             object payload = new
             {
-                ok = seedDemo.ok || markers.ok,
-                demoSeed = seedDemo.msg,
-                syntheticMarkers = markers.msg,
-                auditEventsWritten = markers.written
+                ok = seedDemo.ok || markers.ok, demoSeed = seedDemo.msg, syntheticMarkers = markers.msg, auditEventsWritten = markers.written
             };
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
         }

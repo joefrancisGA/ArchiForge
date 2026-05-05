@@ -50,12 +50,7 @@ internal static class ManifestValidateCommand
         {
             Console.WriteLine(
                 JsonSerializer.Serialize(
-                    new
-                    {
-                        ok = true,
-                        manifest = absoluteManifestPath,
-                        schema = "schemas/goldenmanifest.schema.json"
-                    },
+                    new { ok = true, manifest = absoluteManifestPath, schema = "schemas/goldenmanifest.schema.json" },
                     SJsonCamel));
 
             return;
@@ -75,13 +70,7 @@ internal static class ManifestValidateCommand
                 error = "manifest_validate",
                 manifest = absoluteManifestPath,
                 violations = outcome.Errors
-                    .Select(e => new
-                    {
-                        message = e.Message,
-                        line = e.LineNumber,
-                        column = e.Column,
-                        instancePointer = e.InstancePointer
-                    })
+                    .Select(e => new { message = e.Message, line = e.LineNumber, column = e.Column, instancePointer = e.InstancePointer })
                     .ToArray()
             };
 

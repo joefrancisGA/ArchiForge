@@ -5,14 +5,13 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Cli.Commands;
+
 [ExcludeFromCodeCoverage(Justification = "Console/report integration; evaluator covered by tests.")]
 internal static class ValidateConfigCommand
 {
     private static readonly JsonSerializerOptions JsonWriter = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = true,
     };
 
     internal static Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
@@ -65,10 +64,7 @@ internal static class ValidateConfigCommand
             findings = findings
                 .Select(f => new
                 {
-                    severity = f.Severity.ToString(),
-                    category = f.Category,
-                    check = f.Check,
-                    detail = f.Detail,
+                    severity = f.Severity.ToString(), category = f.Category, check = f.Check, detail = f.Detail,
                 })
                 .ToList(),
         };
