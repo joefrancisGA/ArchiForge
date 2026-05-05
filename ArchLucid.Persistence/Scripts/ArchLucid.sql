@@ -4766,11 +4766,11 @@ BEGIN
         FROM dbo.Tenants AS t
         OUTER APPLY (
             SELECT TOP (1)
-                tw.WorkspaceId,
+                tw.Id AS WorkspaceId,
                 tw.DefaultProjectId
             FROM dbo.TenantWorkspaces AS tw
             WHERE tw.TenantId = t.Id
-            ORDER BY CreatedUtc ASC
+            ORDER BY tw.CreatedUtc ASC
         ) AS fw
         WHERE fw.WorkspaceId IS NOT NULL
     ),

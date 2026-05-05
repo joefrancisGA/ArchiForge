@@ -15,13 +15,16 @@ public static class LogSanitizer
         if (string.IsNullOrEmpty(input))
             return string.Empty;
 
+        // CodeQL cs/log-forging requires explicit Replace for \n and \r
+        string replaced = input.Replace("\n", "_").Replace("\r", "_");
+
         // Fast path: no control chars at all (common case)
-        bool clean = input.All(t => !char.IsControl(t));
+        bool clean = replaced.All(t => !char.IsControl(t));
 
         if (clean)
-            return input;
+            return replaced;
 
-        return string.Create(input.Length, input, static (span, src) =>
+        return string.Create(replaced.Length, replaced, static (span, src) =>
         {
             for (int i = 0; i < src.Length; i++)
             {
