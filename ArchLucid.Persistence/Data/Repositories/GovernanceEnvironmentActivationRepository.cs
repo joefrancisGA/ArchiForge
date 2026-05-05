@@ -188,7 +188,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
                           Environment,
                           IsActive,
                           ActivatedUtc
-                      FROM GovernanceEnvironmentActivations
+                      FROM dbo.GovernanceEnvironmentActivations
                       WHERE {RepositoryRunIdPredicate.WhereClauseMatching("RunId")}{scopeSql}
                       ORDER BY ActivatedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(200)};
