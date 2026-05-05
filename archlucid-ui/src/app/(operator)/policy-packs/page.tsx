@@ -380,7 +380,7 @@ export default function PolicyPacksPage() {
             <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               {selectedPackSummary !== undefined ? selectedPackSummary.name : "—"}
             </p>
-            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">Inspect versions and JSON below</p>
+            <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400">Inspect versions and effective policy</p>
           </CardContent>
         </Card>
       </div>

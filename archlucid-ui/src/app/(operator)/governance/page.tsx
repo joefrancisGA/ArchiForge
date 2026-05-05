@@ -527,10 +527,12 @@ function GovernanceWorkflowPageInner() {
         subtitle={canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
       />
 
-      {isBuyerSafeDemoMarketingChromeEnv() ? (
+      {(isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled()) ? (
         <div className="mb-6 rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3 text-sm text-neutral-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-neutral-50">
-          <strong>Governance approval workflow</strong>
-          {" — "}for full demo walkthrough, contact your account team.
+          <strong>Evaluation sample</strong>
+          {" — "}
+          This workflow is read-only here. In production, authorized users submit, approve, promote, and activate governed
+          changes. For a full walkthrough, contact your account team.
         </div>
       ) : null}
 
@@ -675,8 +677,17 @@ function GovernanceWorkflowPageInner() {
             </Button>
             {!canMutateWorkflow ? (
               <p className="m-0 text-xs text-neutral-600 dark:text-neutral-400" role="note">
-                Submitting for governance approval requires approver rights on your account. You can still review
-                approvals below; contact your ArchLucid account team if this should be enabled for your workspace.
+                {isBuyerSafeDemoMarketingChromeEnv() || isStaticDemoPayloadFallbackEnabled() ? (
+                  <>
+                    This evaluation sample is read-only. Production tenants can submit governance approvals when their role
+                    allows.
+                  </>
+                ) : (
+                  <>
+                    Submitting for governance approval requires approver rights on your account. You can still review
+                    approvals below; contact your ArchLucid account team if this should be enabled for your workspace.
+                  </>
+                )}
               </p>
             ) : null}
           </CardFooter>
@@ -755,7 +766,7 @@ function GovernanceWorkflowPageInner() {
           {listsLoading && activeRunId !== null ? (
             <OperatorLoadingNotice>
               <strong>Loading workflow data.</strong>
-              <p className="mt-2 text-sm">Fetching approval requests, promotions, and activations.</p>
+              <p className="mt-2 text-sm">Loading approval history and workflow status for this review.</p>
             </OperatorLoadingNotice>
           ) : null}
 

@@ -25,7 +25,7 @@ import {
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { formatConversationListDate } from "@/lib/locale-datetime";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
@@ -247,7 +247,7 @@ export default function AskPage() {
                     <span>
                       {thread.title}
                       <div className="text-xs font-normal text-neutral-500 dark:text-neutral-500">
-                        {formatInstantForLocale(thread.lastUpdatedUtc)}
+                        {formatConversationListDate(thread.lastUpdatedUtc)}
                       </div>
                     </span>
                   </Button>

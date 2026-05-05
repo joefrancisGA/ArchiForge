@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ProductLearningFeedbackControls } from "@/components/ProductLearningFeedbackControls";
 import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
-import { getArtifactBusinessLabel, getArtifactFormatLabel, getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
+import { getArtifactBusinessLabel, getArtifactFormatLabel } from "@/lib/artifact-review-helpers";
 
 /** Formats an ISO 8601 date string for display, falling back to the raw string on failure. */
 function formatDate(iso: string): string {
@@ -74,9 +74,6 @@ export function ArtifactListTable(props: {
               >
                 <td className="max-w-[280px] px-2 py-2.5">
                   <strong className="font-semibold">{getArtifactBusinessLabel(artifact.artifactType)}</strong>
-                  <span className="ml-1 text-xs text-neutral-500 dark:text-neutral-400" title={artifact.name}>
-                    {getArtifactTypeLabel(artifact.artifactType)}
-                  </span>
                 </td>
                 <td className="px-2 py-2.5 text-neutral-600 dark:text-neutral-400">
                   <span title={getArtifactFormatLabel(artifact.format)} className="text-xs">

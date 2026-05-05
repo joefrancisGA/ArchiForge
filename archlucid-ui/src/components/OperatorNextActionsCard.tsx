@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { fetchOperatorNextBestActions, type OperatorNextBestActionDto } from "@/lib/api";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { cn } from "@/lib/utils";
 
 /**
@@ -11,6 +13,7 @@ import { cn } from "@/lib/utils";
  * GET /v1/tenant/customer-success/next-actions.
  */
 export function OperatorNextActionsCard() {
+  const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
   const [items, setItems] = useState<OperatorNextBestActionDto[] | null>(null);
   const [phase, setPhase] = useState<"idle" | "loading" | "ready" | "error">("idle");
 
@@ -48,6 +51,10 @@ export function OperatorNextActionsCard() {
   }
 
   if (phase === "loading") {
+    if (demoUi) {
+      return null;
+    }
+
     return <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Loading recommended next steps…</p>;
   }
 

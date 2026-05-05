@@ -1,6 +1,6 @@
 > **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
 > **Updated 2026-05-05 (k):** **Live commerce cutover sequence** (**item 22**): **Stripe production first**, then **Marketplace go-live**. **Rollback owner:** **Joseph Francis** (same path for both stages). Dates + comms remain open until un-held. *Resolved 2026-05-05 (commerce cutover sequencing — item 22 partial)* below.
-> **Updated 2026-05-05 (j):** **Next workflow-breadth bet** (after GitHub + ADO anchors) — **deeper Microsoft-native** (Teams / Logic Apps / [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md)); **not** “ITSM polish first” as the primary follow-on theme. *Resolved 2026-05-05 (next workflow breadth — item 4)* below. **Unchanged:** ServiceNow + Jira **V1 GA**; Confluence **V1.1**.
+> **Updated 2026-05-05 (j):** **Next workflow-breadth bet** (after GitHub + ADO anchors) — **deeper Microsoft-native** (Teams / Logic Apps / [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md)); **not** “ITSM polish first” as the primary follow-on theme. *Resolved 2026-05-05 (next workflow breadth — item 4)* below. **Unchanged:** ServiceNow + Jira + **Confluence** + Slack **V1 GA** (see [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15).
 > **Updated 2026-05-05 (i):** **VPAT vs WCAG self-attestation** — **stay on WCAG self-attestation** (`ACCESSIBILITY.md` + marketing `/accessibility`); **no** formal VPAT on Trust Center for now — reassess later (e.g. large public-sector pipeline). *Resolved 2026-05-05 (VPAT posture)* below.
 > **Updated 2026-05-05 (h):** **Public marketing pricing** — show **locked list prices** for **all paid tiers except Enterprise**; **Enterprise** remains **quote / contact sales**. *Resolved 2026-05-05 (public pricing surface)* below.
 > **Updated 2026-05-05 (g):** **Reference-customer `Published` graduation** — **owner solo** watches trial-to-paid, validates case study with customer, flips [`reference-customers/README.md`](go-to-market/reference-customers/README.md) row. *Resolved 2026-05-05 (reference publication owner)* below.
@@ -9,7 +9,7 @@
 > **Updated 2026-05-05 (d):** **Quote-request follow-up** — **owner solo** (inbox + SQL persist) until team scale. **HubSpot** (or similar CRM) **product integration** → **V2** (not V1/V1.1). *Resolved 2026-05-05 (quote CRM routing)* below.
 > **Updated 2026-05-05 (c):** **H1 GTM** — **design-partner–led** primary; **in parallel** pursue **independent paid or trial** users. *Resolved 2026-05-05 (H1 GTM motion)* below.
 > **Updated 2026-05-05 (b):** **Custom SIEM outbound mapping** → **JQ**; **guided sandbox onboarding** → **client-side UI mock only**. **SaaS posture:** **no** tenant- or buyer-facing Docker Compose local stack — compose remains **developers-maintaining-this-repo only**. *Resolved 2026-05-05 (SIEM + guided sandbox)* below.
-> **Updated 2026-05-05:** **Jira** and **ServiceNow** first-party connectors promoted from V1.1 to **V1 GA** scope — [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13; *Resolved 2026-05-05* below. **Confluence** first-party connector remains **V1.1** ([`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6).
+> **Updated 2026-05-05:** **Jira**, **ServiceNow**, **Slack**, and **Confluence** first-party connectors / chat-ops / documentation publish in **V1 GA** — [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15; *Resolved 2026-05-05* and *Confluence promoted 2026-05-05* below.
 > **Updated 2026-05-03 (commercial entity migration):** Phased playbook to move seller-of-record and related posture to **Francis Architecture, LLC** — [`runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md). Until that runbook is executed and **`CHANGELOG.md`** records completion, **Joseph Francis (Sole Proprietorship)** (Partner Center) and **Joseph Francis** (Stripe webhook operational owner) resolutions below remain in force.
 > **Updated 2026-05-03:** **Design partner** (signed commercial engagement) → **V1.1** commercial motion, **not** a V1 GA gate; **`(A)` headline assessments must not** penalize or foreground absence — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b and *Resolved 2026-05-03* below.
 > **Updated 2026-05-01:** External **third-party** pen test release window → **V2**; **V1** = owner-conducted pen test; **no** vendor committed; V1 quality assessments **must not** penalize lack of third-party pen test — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
@@ -42,7 +42,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | Sub-decision | Decision | Affects |
 |---|---|---|
 | **Primary “next bet” after GitHub + ADO** | **Deeper Microsoft-native** workflow surfaces — expand **Teams** notification depth, **Logic Apps** / edge fan-out, and related Microsoft-native paths per [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md), rather than taking a **second lap** on ITSM-only polish as the **primary** follow-on theme. | Integration roadmap, ADR 0019 sequencing, `INTEGRATION_CATALOG.md` narrative |
-| **Scope guardrails** | **Unchanged:** first-party **ServiceNow** + **Jira** remain **V1 GA** ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13; build order ServiceNow before Jira). **Confluence** first-party connector remains **V1.1** ([`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6). This decision **orders optional breadth** and engineering emphasis **after** those commitments — it does **not** delete or defer them. | Prevents misread as ITSM descope |
+| **Scope guardrails** | **Unchanged:** first-party **ServiceNow**, **Jira**, **Confluence**, and **Slack** remain **V1 GA** ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15; build order **ServiceNow** → **Confluence** → **Jira**, **Atlassian paired**). This decision **orders optional breadth** and engineering emphasis **after** those commitments — it does **not** delete or defer them. | Prevents misread as ITSM descope |
 
 ---
 
@@ -124,8 +124,24 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 |---|---|---|
 | **First-party Jira connector** | **In scope for V1 GA** — committed product obligation per [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.13 (issue create + correlation back-link; bi-directional status sync in V1 window, may fast-follow). **Supersedes** prior V1.1-only pinning from 2026-04-23 / 2026-04-24 for **Jira** only. | [`V1_SCOPE.md`](library/V1_SCOPE.md), [`INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), recipe index cross-links |
 | **First-party ServiceNow connector** | **In scope for V1 GA** — same §2.13 (finding → `incident`; optional `cmdb_ci` planning unchanged; two-way SNOW→ArchLucid status sync **not** committed unless owner adds). **Supersedes** prior V1.1-only pinning for **ServiceNow** only. | Same |
-| **Engineering sequencing** | Unchanged: **ServiceNow before Jira** (see **Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)** — that resolution’s **release window** label for ServiceNow/Jira is **obsolete**; build order remains valid). **Confluence** remains **V1.1** ([`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6). | ITSM ADRs, implementation plan |
+| **Engineering sequencing** | **Superseded 2026-05-05** for Atlassian ordering — see *Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)*. **ServiceNow** remains before the **Atlassian** tranche. | ITSM ADRs, implementation plan |
 | **Customer-owned recipes** | **Optional** bridges (Power Automate / Logic Apps / templates) remain valid for tenants that prefer them or need coverage before connector enablement — they do **not** replace the V1 first-party commitment. | [`docs/integrations/recipes/README.md`](integrations/recipes/README.md) |
+
+---
+
+## Resolved 2026-05-05 (Confluence — promoted to V1 GA)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **First-party Confluence connector** | **In scope for V1 GA** — one-way publish to **`Confluence:DefaultSpaceKey`**; API token / basic auth MVP; OAuth follow-on; **before** **Jira** in the **paired Atlassian** workstream (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)*). **Supersedes** Improvement 3 “V1.1 only” deferral (*2026-04-24*) and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6 prior table. | [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.15, [`INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), [`CHANGELOG.md`](CHANGELOG.md) |
+
+---
+
+## Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Build order (V1)** | **ServiceNow** first (§2.13). Then **Atlassian pair**: **Confluence** documentation publish **before** **Jira** issue sync — engineer **Confluence** and **Jira** as **one workstream** / **same release tranche** (shared tenant configuration, credentials discipline, rollout). **Jira** is **not** a prerequisite for **Confluence**. **Supersedes** prior **ServiceNow → Jira → Confluence** ordering from *Resolved 2026-04-27* / **2026-05-05** Confluence-promotion rows for **Atlassian** only. | [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13 / §2.15, [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6, [`INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), [`ITSM_BRIDGE_V1_RECIPES.md`](library/ITSM_BRIDGE_V1_RECIPES.md) |
 
 ---
 
@@ -149,11 +165,11 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 ### Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)
 
-**Superseded in part (2026-05-05):** **ServiceNow** and **Jira** are **V1 GA** commitments ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13); this resolution’s **build order** (**ServiceNow before Jira**) remains authoritative. **Confluence** stays **V1.1** ([`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6).
+**Superseded in part (2026-05-05):** **ServiceNow**, **Jira**, and **Confluence** are **V1 GA** first-party commitments ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15). **Atlassian** build order from this 2026-04-27 note (**ServiceNow** before **Jira** before **Confluence**) is **superseded** by *Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)*. **ServiceNow**-before-**Atlassian** remains.
 
 | Sub-decision | Decision | Affects |
 |---|---|---|
-| **First-party ITSM / Atlassian connector build order** | **ServiceNow first**, then **Jira** for **V1** ITSM connectors; **Confluence** follows in **V1.1** unless a superseding owner entry reorders. Does **not** alter Microsoft-native preference (Teams, Logic Apps, ADO, GitHub) as the primary integration anchor. **Scope pinning:** see **Resolved 2026-05-05** — ServiceNow/Jira are **not** V1.1-deferred. | [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.13, [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6, [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), ITSM planning ADRs |
+| **First-party ITSM / Atlassian connector build order** | **Historical:** **ServiceNow first**, then **Jira**, then **Confluence**. **Current (2026-05-05):** **ServiceNow** → **Confluence** → **Jira** (paired Atlassian workstream) — see *Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)*. Does **not** alter Microsoft-native preference (Teams, Logic Apps, ADO, GitHub) as the primary integration anchor. | [`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15, [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6, [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), ITSM planning ADRs |
 
 ---
 
@@ -220,14 +236,14 @@ These decisions came out of a structured owner Q&A on the ten improvement opport
 | **2a — `--strict-real` posture for golden-cohort CI** | **Opt-in to `--strict-real`.** The nightly golden-cohort gate workflow passes `--strict-real`, which means real-mode failures fail the gate instead of silently falling back to the simulator. Developer-laptop `archlucid try --real` keeps the friendly fallback (more useful for evaluators than a hard failure). | `.github/workflows/golden-cohort-real-llm-scheduled.yml`, `ArchLucid.Cli/Commands/TryCommandOptions.cs`. |
 | **2b — default `MaxCompletionTokens`** | **16,384.** Matches the `gpt-4o` / `gpt-4.1` family model-enforced ceiling — setting higher (e.g., 32K) has no functional effect on those deployments. Worst-case cost per `try --real` ≈ $1.25 across a 5-call pipeline at gpt-4o pricing. Operators on `o1` / `o3` reasoning deployments override per-host with `AZURE_OPENAI_MAX_COMPLETION_TOKENS=32768` (or higher); the env var override is in the design. **Cap is per-LLM-call, not per-run, and is a CEILING, not a TARGET** — most calls land at 1–4K. | `appsettings.json` (`AzureOpenAI:MaxCompletionTokens`), `docker-compose.real-aoai.yml`, `docs/library/FIRST_REAL_VALUE.md` cost-explainer section. |
 
-### Improvement 3 — Confluence Cloud connector
+### Improvement 3 — RESOLVED: Confluence Cloud connector (2026-05-05)
 
-> **DEFERRED TO V1.1 — owner decision 2026-04-24** (**updated 2026-05-05**). **Confluence** first-party connector remains **out of scope for V1** and **in scope for V1.1**. **Jira** first-party connector was **promoted to V1 GA** ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13; **Resolved 2026-05-05**) — do **not** block Confluence implementation decisions on Jira anymore. Sub-decisions below are **Confluence-only** V1.1 design intent. See [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6 and [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md). For **Confluence during V1**, operators integrate via **CloudEvents webhooks** or **REST API**.
+> **Resolved 2026-05-05 (promoted to V1 GA).** **Confluence** first-party connector is **in scope for V1** ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.15; **Resolved 2026-05-05 (Confluence — promoted to V1 GA)** above). Prior **V1.1-only** deferral (*2026-04-24*) is **superseded**. Sub-decisions below are **Confluence** MVP design intent for **V1**. See [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6 and [`docs/go-to-market/INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md). **Optional** bridges until the connector is enabled: **CloudEvents webhooks**, **REST API**, or [Logic Apps recipe](integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md).
 
-| Sub-decision | Decision | Affects (V1.1) |
+| Sub-decision | Decision | Affects (V1) |
 |---|---|---|
-| **3a — space targeting** | **Single fixed `Confluence:DefaultSpaceKey`.** No multi-space or per-tenant routing in v1.1 initial shape. | `ArchLucid.Integrations.Confluence/ConfluenceIntegrationOptions.cs`. |
-| **3b — auth scheme** | **API token (basic auth) for v1.1.** OAuth deferred to a follow-on PR if/when a buyer asks. Documented in `docs/integrations/CONFLUENCE.md` § "v1.1 limits". | `ArchLucid.Integrations.Confluence/ConfluencePagePublisher.cs`, `docs/integrations/CONFLUENCE.md`. |
+| **3a — space targeting** | **Single fixed `Confluence:DefaultSpaceKey`.** No multi-space or per-tenant routing in MVP. | `ArchLucid.Integrations.Confluence/ConfluenceIntegrationOptions.cs`. |
+| **3b — auth scheme** | **API token (basic auth) for MVP.** OAuth deferred to a follow-on PR if/when a buyer asks. Documented in `docs/integrations/CONFLUENCE.md` § V1 limits. | `ArchLucid.Integrations.Confluence/ConfluencePagePublisher.cs`, `docs/integrations/CONFLUENCE.md`. |
 
 ### Improvement 4 — Brand rebrand workstream PR-2
 
@@ -303,7 +319,7 @@ Verbatim owner decision tables for **2026-04-22** (assessment + ADR 0030), **202
 
     - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Key generation, drop, and `SECURITY.md` / marketing `/security` updates are no longer V1 obligations — see Q12 / Q13 / Q14 in *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B) and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6c. UID is gated on `archlucid.net` domain acquisition.
 
-4. **Next Microsoft-aligned workflow integration** — **Resolved 2026-05-05:** **Deeper Microsoft-native** (Teams, Logic Apps / [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md)) as the **primary next breadth bet** after shipped GitHub + ADO anchors — see *Resolved 2026-05-05 (Next workflow breadth — item 4)* above. **ServiceNow + Jira V1 GA** and **Confluence V1.1** obligations **unchanged**.
+4. **Next Microsoft-aligned workflow integration** — **Resolved 2026-05-05:** **Deeper Microsoft-native** (Teams, Logic Apps / [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md)) as the **primary next breadth bet** after shipped GitHub + ADO anchors — see *Resolved 2026-05-05 (Next workflow breadth — item 4)* above. **ServiceNow**, **Jira**, **Confluence**, and **Slack** **V1 GA** obligations **unchanged** ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15).
 
 ---
 
@@ -342,7 +358,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
     - **Custodian mailbox (Resolved 2026-04-21):** **`security@archlucid.net`** is canonical. Generation + custodian-naming still owner-only.
 
-11. **Workflow-integration sequencing — Resolved 2026-05-05 (scope update).** **ServiceNow** and **Jira** first-party connectors are **V1 GA** commitments ([`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.13). **Engineering order:** **ServiceNow before Jira** (historical **Resolved 2026-04-27** build-order decision — release-window label superseded by **Resolved 2026-05-05**). **Confluence** first-party connector remains **V1.1** ([`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6; owner decision 2026-04-24 — Improvement 3). **Slack** remains **V2** ([`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) Part B: *Resolved 2026-04-23 (ServiceNow + Slack connector scope)*). Prefer **Microsoft-native** options (Teams — shipped in V1, Logic Apps, ADO, GitHub) where they suffice; customer-owned recipes remain optional bridges ([`docs/integrations/recipes/README.md`](integrations/recipes/README.md)).
+11. **Workflow-integration sequencing — Resolved 2026-05-05 (scope update); Slack + Confluence promoted 2026-05-05; Atlassian pair 2026-05-05.** **ServiceNow** and **Jira** first-party connectors are **V1 GA** ([`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.13). **Slack** first-party outbound chat-ops is **V1 GA** ([`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.14) — supersedes prior *Resolved 2026-04-23* Slack-as-V2-only row in [`docs/library/V1_DEFERRED.md`](library/V1_DEFERRED.md) §6a. **Confluence** first-party documentation publish is **V1 GA** ([`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.15) — supersedes Improvement 3 **V1.1-only** deferral; see *Resolved 2026-05-05 (Confluence — promoted to V1 GA)*. **Engineering order:** **ServiceNow** → **Confluence** → **Jira** — **Atlassian** engineered **together** in one tranche, **Confluence** first (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)*). Prefer **Microsoft-native** options (**Teams** — shipped in V1; **Slack** — V1 per §2.14; Logic Apps, ADO, GitHub) where they suffice; customer-owned recipes remain optional bridges ([`docs/integrations/recipes/README.md`](integrations/recipes/README.md)).
 
 12. **WCAG conformance publication channel — Resolved 2026-04-22 (reconfirmed 2026-04-29).** **Public `/accessibility`** on the marketing site is **canonical** (not Trust Center-only). Use **`accessibility@archlucid.net`** for accessibility reports — **not** `security@` as the advertised channel for WCAG-only follow-up. See **Resolved 2026-04-29** above, [`CHANGELOG.md`](CHANGELOG.md) (2026-04-22), and [`docs/security/ACCESSIBILITY_MAILBOX.md`](security/ACCESSIBILITY_MAILBOX.md).
 

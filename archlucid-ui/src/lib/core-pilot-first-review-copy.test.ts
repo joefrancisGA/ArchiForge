@@ -5,14 +5,11 @@ import {
   CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT,
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
   CORE_PILOT_FIRST_SESSION_GUIDANCE,
-  CORE_PILOT_RUN_BRIDGE_LINE,
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "./core-pilot-first-review-copy";
 
 /**
- * Locks buyer-first Core Pilot chrome (hybrid model: "architecture review" in UI;
- * "run" remains API/ID spine). See docs/CORE_PILOT.md § first-session checklist
- * and QUALITY_ASSESSMENT_2026_05_01_INDEPENDENT_76_76 §9 item 1.
+ * Locks buyer-first Core Pilot chrome (“architecture review” in UI). See docs/CORE_PILOT.md (first-session checklist).
  */
 describe("core-pilot-first-review-copy (buyer first-run)", () => {
   it("uses architecture-review language in primary headings", () => {
@@ -20,10 +17,8 @@ describe("core-pilot-first-review-copy (buyer first-run)", () => {
     expect(CORE_PILOT_FIRST_REVIEW_HEADING).not.toMatch(/\brun\b/i);
   });
 
-  it("keeps compact checklist label and bridge line for run vs review", () => {
+  it("keeps compact checklist label", () => {
     expect(CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT).toContain("checklist");
-    expect(CORE_PILOT_RUN_BRIDGE_LINE).toMatch(/architecture review/);
-    expect(CORE_PILOT_RUN_BRIDGE_LINE.toLowerCase()).toContain("run");
   });
 
   it("summarizes the four-step flow without internal pipeline jargon", () => {

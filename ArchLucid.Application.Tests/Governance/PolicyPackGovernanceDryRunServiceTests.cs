@@ -12,6 +12,7 @@ using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
 

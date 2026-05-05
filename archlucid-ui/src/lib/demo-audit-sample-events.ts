@@ -126,7 +126,9 @@ export function shouldInjectDemoAuditSample(filters: {
     return false;
   }
 
-  if (filters.runId.trim().length > 0) {
+  const runTrim = filters.runId.trim();
+
+  if (runTrim.length > 0 && runTrim !== SHOWCASE_STATIC_DEMO_RUN_ID) {
     return false;
   }
 

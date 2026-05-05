@@ -66,7 +66,21 @@ export function ValueRealizationDashboard() {
 
   const hoursSaved = Number(telemetry.totalHoursSaved);
   const safeHours = Number.isFinite(hoursSaved) ? hoursSaved : 0;
+  const totalReviewsRaw = Number(telemetry.totalRuns);
+  const totalReviews =
+    Number.isFinite(totalReviewsRaw) && totalReviewsRaw > 0 ? Math.floor(totalReviewsRaw) : 0;
+  const avgMsRaw = Number(telemetry.averageTimeToCommitMs);
+  const avgCommitMins =
+    Number.isFinite(avgMsRaw) && avgMsRaw > 0 ? Math.max(1, Math.round(avgMsRaw / 60000)) : null;
+  const hasAvgCommit = avgCommitMins !== null;
+  const hasAnyCredibleMetric = totalReviews >= 1 || safeHours > 0 || hasAvgCommit;
+
+  if (!hasAnyCredibleMetric) {
+    return null;
+  }
+
   const impliedUsd = safeHours > 0 ? safeHours * hourlyUsd : 0;
+  const showMeasuredRoiBlock = safeHours > 0 && impliedUsd > 0;
 
   return (
     <Card className="mb-6">
@@ -76,8 +90,8 @@ export function ValueRealizationDashboard() {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-lg border p-4 text-center">
-            <p className="text-sm text-neutral-500">Total Runs</p>
-            <p className="text-2xl font-bold">{telemetry.totalRuns}</p>
+            <p className="text-sm text-neutral-500">Total reviews</p>
+            <p className="text-2xl font-bold">{totalReviews}</p>
           </div>
           <div className="rounded-lg border p-4 text-center">
             <p className="text-sm text-neutral-500">Time saved (tenant model)</p>
@@ -85,16 +99,15 @@ export function ValueRealizationDashboard() {
           </div>
           <div className="rounded-lg border p-4 text-center">
             <p className="text-sm text-neutral-500">Avg time to commit</p>
-            <p className="text-2xl font-bold">
-              {Math.round(telemetry.averageTimeToCommitMs / 60000)} mins
-            </p>
+            <p className="text-2xl font-bold">{avgCommitMins !== null ? `${avgCommitMins} mins` : "—"}</p>
           </div>
         </div>
+        {showMeasuredRoiBlock ? (
         <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50/80 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900/40">
           <p className="m-0 font-medium text-neutral-800 dark:text-neutral-100">Measured ROI snapshot</p>
           <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
             Hours come from persisted run telemetry (<span className="font-mono text-xs">EstimatedHoursSaved</span> per
-            run). Implied spend uses the same loaded rate as the ROI page (
+            review). Implied spend uses the same loaded rate as the ROI page (
             <span className="font-mono text-xs">{formatUsd(hourlyUsd)}</span>
             /h from this browser unless you changed it under Value report → ROI).
           </p>
@@ -110,6 +123,7 @@ export function ValueRealizationDashboard() {
             </Link>
           </p>
         </div>
+        ) : null}
       </CardContent>
     </Card>
   );

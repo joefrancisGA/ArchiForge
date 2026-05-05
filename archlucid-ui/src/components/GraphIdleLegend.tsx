@@ -14,7 +14,7 @@ export function GraphIdleLegend() {
       <p className="m-0 mt-1 max-w-prose text-xs text-neutral-600 dark:text-neutral-400">
         Loaded graphs represent <strong>decisions</strong>, <strong>findings</strong>, <strong>artifacts</strong>,{" "}
         <strong>review trail events</strong>, and <strong>architecture components</strong> as nodes, with edges for
-        provenance and flow. Choose <strong>Load graph</strong> above to fetch live data.
+        provenance and flow. Use the review and mode controls to load or refresh the graph.
       </p>
       <ul className="m-0 mt-3 flex flex-wrap gap-2 p-0 list-none">
         {[
@@ -47,5 +47,6 @@ export const GRAPH_MODE_NATIVE_TITLES: Record<string, string> = {
   "provenance-full": "Full review-trail graph: decisions, findings, artifacts, review events, and linkage to the review.",
   "decision-subgraph": "Neighborhood focused on one decision id and its connected evidence.",
   "node-neighborhood": "Expand a specific graph node by id up to the selected depth.",
-  architecture: "Architecture graph: components and relationships (may paginate on very large reviews).",
+  architecture:
+    "Architecture-oriented graph: components and relationships (may paginate on reviews with very large graphs).",
 };

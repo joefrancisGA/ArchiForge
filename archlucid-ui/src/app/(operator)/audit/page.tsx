@@ -48,7 +48,9 @@ import {
   getDemoSampleAuditTrailEvents,
   shouldInjectDemoAuditSample,
 } from "@/lib/demo-audit-sample-events";
-import { shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { isStaticDemoPayloadFallbackEnabled, shouldMergeOperatorDemoAlertSample } from "@/lib/operator-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 function formatUtc(iso: string): string {
   try {
@@ -91,7 +93,9 @@ export default function AuditPage() {
   const [toUtc, setToUtc] = useState<string>("");
   const [correlationId, setCorrelationId] = useState<string>("");
   const [actorUserId, setActorUserId] = useState<string>("");
-  const [runId, setRunId] = useState<string>("");
+  const [runId, setRunId] = useState<string>(() =>
+    isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled() ? SHOWCASE_STATIC_DEMO_RUN_ID : "",
+  );
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [hasMoreResults, setHasMoreResults] = useState(false);
   const [auditNextCursor, setAuditNextCursor] = useState<string | null>(null);

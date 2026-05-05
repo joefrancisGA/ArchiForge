@@ -1,14 +1,14 @@
-> **Scope:** Buyer-facing end-to-end recipes bridging ArchLucid to enterprise workflows (Azure DevOps PR review, CloudEvents consumers, customer-owned Power Automate / Logic Apps); not a SKU matrix, endpoint inventory, or substitute for **V1** first-party **Jira** / **ServiceNow** connectors ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13).
+> **Scope:** Buyer-facing end-to-end recipes bridging ArchLucid to enterprise workflows (Azure DevOps PR review, CloudEvents consumers, customer-owned Power Automate / Logic Apps); not a SKU matrix, endpoint inventory, or substitute for **V1** first-party **Jira** / **ServiceNow** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13), **Slack** chat-ops ([`V1_SCOPE.md`](V1_SCOPE.md) §2.14), or **Confluence** publish ([`V1_SCOPE.md`](V1_SCOPE.md) §2.15).
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 # ITSM bridge — V1 recipe hub
 
-**Audience:** Platform engineers and integrators who need a **single map** from ArchLucid to PR decoration, event-driven automation, or no-code bridges — alongside **or instead of** first-party **Jira** / **ServiceNow** connectors committed for **V1**.
+**Audience:** Platform engineers and integrators who need a **single map** from ArchLucid to PR decoration, event-driven automation, or no-code bridges — alongside **or instead of** first-party **Jira** / **ServiceNow** / **Slack** / **Confluence** capabilities committed for **V1**.
 
-**Non-goals:** This page does not replace [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md), [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), or the OpenAPI contract. **First-party** **Jira** and **ServiceNow** are **in V1 scope** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13). These recipes are **customer-operated** alternatives when you prefer Logic Apps / Power Automate or need coverage **before** connector enablement. **Confluence** first-party remains **V1.1** ([`V1_DEFERRED.md`](V1_DEFERRED.md) §6).
+**Non-goals:** This page does not replace [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md), [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), or the OpenAPI contract. **First-party** **Jira**, **ServiceNow**, **Slack** (outbound), and **Confluence** publish are **in V1 scope** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15). These recipes are **customer-operated** alternatives when you prefer Logic Apps / Power Automate or need coverage **before** connector enablement.
 
-**Platform sequencing (first-party):** **ServiceNow** is built **before** **Jira** for platform-led connector depth ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13; [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) **Sequencing and CMDB**). The first-party ServiceNow connector will set incident **`cmdb_ci`** using a **`cmdb_ci_appl`** table lookup (**`SystemName`** → CMDB **`name`**). The copy-paste recipes on this hub do **not** implement that CMDB lookup.
+**Platform sequencing (first-party):** **ServiceNow** is built **before** the **Atlassian** pair ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15; [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) **Sequencing and CMDB**). **Atlassian:** **Confluence** publish **before** **Jira** issue sync — **same** paired workstream (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)). The first-party ServiceNow connector will set incident **`cmdb_ci`** using a **`cmdb_ci_appl`** table lookup (**`SystemName`** → CMDB **`name`**). The copy-paste recipes on this hub do **not** implement that CMDB lookup.
 
 ---
 
@@ -58,7 +58,7 @@
 
 **Goal:** Bridge CloudEvents from ArchLucid to **Atlassian** or **ServiceNow** HTTP APIs using **Microsoft** automation **you** deploy and maintain — not first-party ArchLucid connectors.
 
-**Honest framing:** Step-by-step flows live under [docs/integrations/recipes/](../integrations/recipes/README.md). Teams on **Azure Logic Apps Standard** should start with the **Logic Apps–first** ordering below; Power Automate–first ordering follows for Microsoft 365–centric tenants. These recipes complement **V1** first-party **Jira** / **ServiceNow** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13); **Confluence** first-party remains **V1.1** ([`V1_DEFERRED.md`](V1_DEFERRED.md) §6).
+**Honest framing:** Step-by-step flows live under [docs/integrations/recipes/](../integrations/recipes/README.md). Teams on **Azure Logic Apps Standard** should start with the **Logic Apps–first** ordering below; Power Automate–first ordering follows for Microsoft 365–centric tenants. These recipes complement **V1** first-party **Jira** / **ServiceNow** / **Confluence** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13–§2.15).
 
 ### Azure Logic Apps–first (recommended when Logic Apps Standard is your integration plane)
 

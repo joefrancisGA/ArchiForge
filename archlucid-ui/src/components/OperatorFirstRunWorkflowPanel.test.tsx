@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CORE_PILOT_FIRST_REVIEW_HEADING,
   CORE_PILOT_FIRST_REVIEW_MINIMIZED_BUTTON,
-  CORE_PILOT_RUN_BRIDGE_LINE,
   CORE_PILOT_WORKFLOW_SUMMARY_LINE,
 } from "@/lib/core-pilot-first-review-copy";
 
@@ -48,7 +47,6 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     const section = heading.closest("section");
     expect(section).toHaveTextContent(CORE_PILOT_WORKFLOW_SUMMARY_LINE);
-    expect(section).toHaveTextContent(CORE_PILOT_RUN_BRIDGE_LINE);
     expect(section).toHaveTextContent("architecture review package");
 
     expect(screen.getByText("Start here")).toBeInTheDocument();

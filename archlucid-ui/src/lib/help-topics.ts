@@ -53,7 +53,7 @@ export const HELP_TOPICS: HelpTopic[] = [
   },
   {
     id: "graph",
-    title: "Architecture graph",
+    title: "Review evidence graph",
     keywords: ["provenance", "knowledge graph"],
     summary: "Graph shows one review’s provenance or architecture view for a review id.",
     docPath: "docs/library/KNOWLEDGE_GRAPH.md",

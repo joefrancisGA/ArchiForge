@@ -65,38 +65,33 @@ Docs describe **templates and gaps** that depend on **customer subscription and 
 
 ---
 
-## 6. Atlassian documentation connector — Confluence remains V1.1 (Jira + ServiceNow → V1 as of 2026-05-05)
+## 6. Atlassian documentation connector — Confluence in **V1 GA** (supersedes V1.1-only 2026-04-24 pinning)
 
-**Jira** and **ServiceNow** first-party connectors are **in scope for V1 GA** — see [V1_SCOPE.md](V1_SCOPE.md) §2.13 and [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) *Resolved 2026-05-05 (Jira + ServiceNow — promoted to V1 scope)*. They **no longer** appear as V1.1-deferred rows here; MVP semantics (incident vs issue, optional `cmdb_ci`, Jira two-way sync vs ServiceNow outbound-only unless promoted) match the prior §6 table text now mirrored in **V1_SCOPE** §2.13.
+**Confluence** first-party connector (publish finding or run summary pages to Confluence Cloud) is **in scope for V1 GA** per [V1_SCOPE.md](V1_SCOPE.md) **§2.15** — **owner scope update 2026-05-05**, superseding the prior **out of V1 / V1.1-window** table row and Improvement 3 deferral wording.
 
-**Confluence** stays **explicitly pinned to V1.1** (owner decision 2026-04-24 — [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) Improvement 3 and historical item 11). It was originally listed in [go-to-market/INTEGRATION_CATALOG.md §2](../go-to-market/INTEGRATION_CATALOG.md) as `[Planned]`; pinning avoids open-ended “someday” messaging.
+**Jira** and **ServiceNow** remain per [V1_SCOPE.md](V1_SCOPE.md) §2.13; **Slack** per §2.14.
 
-**V1 customer-owned bridges (optional alongside first-party connectors):** Power Automate and Logic Apps walkthroughs that use the same CloudEvents and HMAC contract as [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) live under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** — **ServiceNow** and **Jira** recipes remain useful for tenants that prefer Microsoft-automation planes or need interim coverage before connector enablement. Summary hub: [ITSM_BRIDGE_V1_RECIPES.md](ITSM_BRIDGE_V1_RECIPES.md).
-
-| Connector | V1 posture | V1.1 commitment |
-|-----------|------------|------------------|
-| **Atlassian Confluence** — first-party connector (publish architecture findings or run summaries to a Confluence space; single fixed space key; API token / basic auth) | **Out of V1.** Customers integrate via **CloudEvents webhooks** or **REST API** to push content to Confluence during V1; Logic Apps recipe remains the Azure-first bridge. | **In scope for V1.1.** Minimum viable shape: publish finding summary pages to a single fixed `Confluence:DefaultSpaceKey`. OAuth 2.0 is a follow-on within the V1.1 release window if a buyer requests it. Design intent (space targeting + auth scheme) captured in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) Improvement 3 sub-decisions 3a and 3b. |
+**V1 customer-owned bridges (optional):** Power Automate and Logic Apps walkthroughs under **[`docs/integrations/recipes/README.md`](../integrations/recipes/README.md)** — still valid for tenants that prefer Microsoft automation or interim coverage. Summary hub: [ITSM_BRIDGE_V1_RECIPES.md](ITSM_BRIDGE_V1_RECIPES.md).
 
 **Rules:**
 
-- **Release-window** promises are **not** calendar dates unless [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) pins one.
-- **First-party implementation priority:** **ServiceNow** **before** **Jira** for the **V1** ITSM connectors ([PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) *Resolved 2026-04-27* — scope superseded for Jira/ServiceNow only by *Resolved 2026-05-05*). **Confluence** follows in the **V1.1** window after V1 ITSM unless an owner entry reorders.
-- New ITSM connectors **must not** widen this table without their own owner decision — **Azure DevOps Work Items** stays in `[Planned]` until separately promoted.
-- Each connector **must** consume the same Authority-shaped event payloads the existing webhooks ship; no parallel finding-projection schema per ITSM target.
+- **First-party implementation priority:** **ServiceNow** → **Atlassian pair** — **Confluence** **before** **Jira**, engineered **together** in one workstream / release tranche (*Resolved 2026-05-05 (Atlassian sequencing — Confluence before Jira)* in [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)) unless an owner reorder is recorded.
+- **Release-window** calendar dates are **not** implied unless [`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) pins one.
+- New ITSM/documentation connectors **must not** widen without their own owner decision — **Azure DevOps Work Items** stays `[Planned]` until separately promoted.
+- Each connector **must** consume the same Authority-shaped event payloads the existing webhooks ship; no parallel finding-projection schema per target.
 
 ---
 
-## 6a. Chat-ops connectors — V2 candidates (Resolved 2026-04-23)
+## 6a. Chat-ops — Slack scope note (supersedes 2026-04-23 V2-only row)
 
-| Connector | V1 / V1.1 posture | V2 commitment |
-|-----------|--------------------|----------------|
-| **Slack** — first-party connector (outbound notification sink with Adaptive Card-equivalent message blocks; aspirational in-Slack action affordances such as acknowledge / approve; Slack-app marketplace listing) | **Out of V1 and V1.1.** **Microsoft Teams** is the supported first-party chat-ops surface for both windows (see [`docs/integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)). Customers needing Slack during V1 / V1.1 integrate via **CloudEvents webhooks** or **REST API** and bridge to Slack themselves. | **In scope for V2.** Minimum viable shape is parity with the V1 Microsoft Teams connector: outbound notification sink driven by the same `EnabledTriggersJson` per-tenant opt-in matrix, secret material in **Azure Key Vault** with only a secret-name reference in SQL, and the same canonical event-type catalog (no parallel notification model). In-Slack action affordances are **stretch** for V2, not committed. |
+**Slack** first-party **outbound** chat-ops (notification sink parity with **Microsoft Teams** — same **`EnabledTriggersJson`** / trigger catalog, **Key Vault** secret-name references, Authority-shaped payloads) is **in scope for V1 GA** per [`V1_SCOPE.md`](V1_SCOPE.md) **§2.14** — **owner scope update 2026-05-05**, superseding the prior *Resolved 2026-04-23* posture that listed Slack as **V2-only**.
+
+**Still not automatic V1 commitments without separate promotion:** Slack **App Directory** listing, OAuth installation UX marketed as first-class, and **in-Slack interactive** approve/ack buttons.
 
 **Rules:**
 
-- V2 is a **release-window** promise, not a date — no calendar date is implied here.
-- A new chat-ops surface **must not** be added to this table without its own owner decision (e.g. Discord, Mattermost stay at `[Planned]`).
-- Slack must consume the same Authority-shaped event payloads the existing webhooks and the Microsoft Teams connector ship; no parallel notification schema per chat surface.
+- Additional chat-ops surfaces (e.g. Discord, Mattermost) **must not** be added without their own owner decision row.
+- Slack (and any other committed chat surface) must consume the same Authority-shaped event payloads the existing webhooks and the Microsoft Teams connector ship; no parallel notification schema per chat surface.
 
 ---
 

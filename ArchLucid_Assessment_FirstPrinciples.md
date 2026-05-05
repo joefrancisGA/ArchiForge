@@ -1,15 +1,15 @@
-# ArchLucid Assessment – Weighted Readiness 74.85%
+# ArchLucid Assessment – Weighted Readiness 75.50%
 
 ## Executive Summary
 
 **Overall Readiness**
-The ArchLucid solution is a functional V1 product with a clear pilot path, robust SQL persistence via DbUp, and a capable decisioning engine. It successfully delivers on its core promise of moving from architecture request to committed manifest. However, it currently requires manual configuration and lacks some enterprise maturity features that are intentionally deferred to V1.1/V2.
+The ArchLucid solution is a functional V1 SaaS product with a clear pilot path, robust SQL persistence via DbUp, and a capable decisioning engine. It successfully delivers on its core promise of moving from architecture request to committed manifest. Customers interact exclusively through the hosted SaaS at `archlucid.net` and never touch Docker, SQL, or .NET directly. Some enterprise maturity features are intentionally deferred to V1.1/V2.
 
 **Commercial Picture**
-The product demonstrates strong marketability and time-to-value for initial pilots. The primary commercial headwinds are adoption friction (due to the need for Docker/SQL setup) and the intentional deferral of live commerce features (Stripe live keys and Azure Marketplace listing), which currently necessitates a sales-led motion rather than self-serve SaaS.
+The product demonstrates strong marketability and time-to-value for initial pilots. The primary commercial headwinds are adoption friction in the hosted SaaS UX and trial funnel (Stripe TEST mode until the **June 13, 2026** live-key cutover) plus Marketplace **`Published`** timing (**June 20, 2026**), which keep parts of the motion sales-led until those windows land.
 
 **Enterprise Picture**
-ArchLucid provides a solid foundation for enterprise adoption with Row-Level Security (RLS), Entra ID support, and append-only audit logs. However, immediate procurement readiness is hindered by the lack of a SOC 2 CPA attestation (deferred) and some known gaps in durable audit coverage for specific mutating flows.
+ArchLucid provides a solid foundation for enterprise adoption with Row-Level Security (RLS), Entra ID, SCIM provisioning, append-only audit logs, and procurement artifacts (CAIQ/SIG/DPA, trust center, SOC 2 **self-assessment** and roadmap—**CPA attestation is explicitly post–V1.1 for headline scoring** per `docs/library/V1_SCOPE.md` and `docs/library/V1_DEFERRED.md` and must not be treated as a V1 scope obligation). The material in-scope enterprise gaps are durable **audit coverage** on a few mutating flows and buyer education on what Pilot vs Operate proves on Day 1.
 
 **Engineering Picture**
 The architectural integrity is strong, utilizing lightweight data access (Dapper) and a clear separation of concerns. The decisioning engine is well-structured but has opportunities for improved modularity and strict adherence to user-defined coding standards (e.g., explicit null checks, concrete types, and specific whitespace rules). Test coverage needs expansion to meet the 100% target.
@@ -20,15 +20,15 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
 
 1. **Adoption Friction**
    - **Score**: 65 | **Weight**: 6 | **Weighted Deficiency**: 210
-   - **Justification**: Requires manual Docker/SQL setup and lacks a fully automated self-serve SaaS onboarding flow.
-   - **Tradeoffs**: Prioritized core functionality over frictionless onboarding for V1.
-   - **Recommendations**: Automate the trial provisioning process and provide hosted sandbox environments.
+   - **Justification**: As a SaaS product, customers access the product through `archlucid.net` without any local installation. The friction lies elsewhere: the trial funnel is currently running in Stripe TEST mode (deferred to V1.1), the initial run wizard requires structured input that may not be intuitive for new users, and the two-layer UI disclosure model can leave first-time buyers uncertain what to enable and when.
+   - **Tradeoffs**: Prioritized core decisioning functionality over a polished, guided first-use experience for V1.
+   - **Recommendations**: Implement a guided onboarding wizard with sample architecture requests so buyers can reach a committed manifest in under 10 minutes without prior knowledge of the system.
 
 2. **Time-to-Value**
    - **Score**: 75 | **Weight**: 7 | **Weighted Deficiency**: 175
-   - **Justification**: The pilot path is fast, but initial environment configuration slows down the first "aha" moment.
-   - **Tradeoffs**: Kept infrastructure flexible at the cost of immediate out-of-the-box usage.
-   - **Recommendations**: Create a one-click deployment template for Azure.
+   - **Justification**: The pilot path is fast in-product, but first-time buyers still spend time on structured inputs, sidebar disclosure, and understanding what “done” looks like before the first committed manifest.
+   - **Tradeoffs**: Depth of Operate surfaces was deferred behind disclosure so Pilot stays narrow; that trades a steeper learning curve for less Day-1 noise.
+   - **Recommendations**: Ship a **first-run** guided path (sample request + checklist) that lands a committed manifest without reading the full operator atlas.
 
 3. **Marketability**
    - **Score**: 80 | **Weight**: 8 | **Weighted Deficiency**: 160
@@ -49,10 +49,10 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
    - **Recommendations**: Build an executive summary dashboard aggregating risk and compliance posture across all runs.
 
 6. **Workflow Embeddedness**
-   - **Score**: 70 | **Weight**: 3 | **Weighted Deficiency**: 90
-   - **Justification**: Jira and ServiceNow are in scope, but Slack and Confluence are deferred, limiting chat-ops integration.
-   - **Tradeoffs**: Focused on core ITSM over chat-ops for V1.
-   - **Recommendations**: Accelerate the Confluence connector for V1.1.
+   - **Score**: 75 | **Weight**: 3 | **Weighted Deficiency**: 75
+   - **Justification**: **Jira**, **ServiceNow**, **Microsoft Teams**, **Slack**, and **Confluence** publish are **V1** commitments ([`docs/library/V1_SCOPE.md`](docs/library/V1_SCOPE.md) §2.13–§2.15). Residual gap is **delivery timing** — platform ships **ServiceNow** first, then **Confluence** and **Jira** **together** (**Confluence** before **Jira**); pilots may still use recipes until connectors are enabled.
+   - **Tradeoffs**: **ServiceNow**-first preserves CMDB/incident depth; **paired Atlassian** reduces context-switch versus alternating Jira-only then Confluence-only programs.
+   - **Recommendations**: Execute the **Atlassian** tranche per §2.13 / §2.15 — **Confluence** publish lead, **Jira** immediately after in the **same** release train; keep Logic Apps / webhook recipes as **optional** bridges during rollout.
 
 7. **Differentiability**
    - **Score**: 80 | **Weight**: 4 | **Weighted Deficiency**: 80
@@ -62,15 +62,15 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
 
 8. **Commercial Packaging Readiness**
    - **Score**: 60 | **Weight**: 2 | **Weighted Deficiency**: 80
-   - **Justification**: Stripe live keys and Marketplace listing are deferred, forcing a sales-led motion.
-   - **Tradeoffs**: Deferred to avoid compliance and tax overhead during V1.
-   - **Recommendations**: Execute the commerce un-hold (Stripe/Marketplace) as soon as possible.
+   - **Justification**: Production commerce is **not** fully live until the scheduled **Stripe** (**June 13, 2026**) and **Marketplace `Published`** (**June 20, 2026**) cutovers; until then, parts of the motion stay sales-led alongside TEST-mode evaluation.
+   - **Tradeoffs**: Partner Center, tax, and payout readiness are owner-led gates adjacent to engineering completeness.
+   - **Recommendations**: Execute the cutover runbooks, post-cutover smoke (`BillingProductionSafetyRules`), and buyer messaging that aligns with live vs staging behavior.
 
 9. **Procurement Readiness**
-   - **Score**: 60 | **Weight**: 2 | **Weighted Deficiency**: 80
-   - **Justification**: Missing SOC 2 CPA attestation and third-party pen tests create friction in enterprise procurement.
-   - **Tradeoffs**: Deferred expensive audits to post-V1.1.
-   - **Recommendations**: Prepare the SOC 2 Type I readiness assessment.
+   - **Score**: 75 | **Weight**: 2 | **Weighted Deficiency**: 50
+   - **Justification**: In-repo CAIQ/SIG/DPA templates, trust center honesty, and SOC 2 **self-assessment** support early procurement conversations; **CPA-issued SOC 2 is out of scope for V1 headline readiness** per `docs/library/V1_DEFERRED.md` and must not be scored as a V1 defect. Friction that *does* land here is buyers who conflate “no CPA report yet” with “no security program”—answer with linked evidence and roadmap, not scope creep.
+   - **Tradeoffs**: Self-serve assurance depth vs assessor time; V1 optimizes for **evidence pack + honesty** over attestation theater.
+   - **Recommendations**: Keep `docs/go-to-market/PROCUREMENT_*` and `docs/compliance/*` indexed; rehearse **fast-lane** answers for data residency, RLS, and audit export mechanics.
 
 10. **Usability**
     - **Score**: 75 | **Weight**: 3 | **Weighted Deficiency**: 75
@@ -79,16 +79,16 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
     - **Recommendations**: Simplify the default view and aggressively use progressive disclosure.
 
 11. **Trustworthiness**
-    - **Score**: 75 | **Weight**: 3 | **Weighted Deficiency**: 75
-    - **Justification**: Strong technical security (RLS, private endpoints), but lacks external validation (SOC 2).
-    - **Tradeoffs**: Relied on self-assessment for V1.
-    - **Recommendations**: Publish the owner-conducted pen test summary.
+    - **Score**: 80 | **Weight**: 3 | **Weighted Deficiency**: 60
+    - **Justification**: Strong technical posture (RLS, private endpoints, append-only audit, billing production safety rules). **CPA SOC 2 and third-party pen-test publication are not V1 gates** per `V1_DEFERRED.md`; trust narrative should emphasize **what is exercised** (owner-conducted testing, CI gates) without pretending external attestation exists.
+    - **Tradeoffs**: Credibility with skeptical RFP teams vs engineering time; V1 leans on **demonstrable controls + artifacts**.
+    - **Recommendations**: Keep `docs/security/SOC2_SELF_ASSESSMENT_2026.md` and pen-test summary templates current; ensure support bundle + audit CSV stories are demo-ready.
 
 12. **Compliance Readiness**
-    - **Score**: 65 | **Weight**: 2 | **Weighted Deficiency**: 70
-    - **Justification**: SOC 2 is deferred, though the technical foundation (audit logs, RLS) is present.
-    - **Tradeoffs**: Focused on technical controls over formal certification.
-    - **Recommendations**: Complete the internal SOC 2 mapping.
+    - **Score**: 75 | **Weight**: 2 | **Weighted Deficiency**: 50
+    - **Justification**: Technical controls and narrative pack (CAIQ lite, white paper pointers, RLS story) align with **V1’s honest compliance posture**; **absence of CPA SOC 2 is not a V1 readiness miss**—it is a post–V1.1 procurement milestone per scope/deferred docs.
+    - **Tradeoffs**: Formal program overhead vs pilot velocity; V1 ships **documented controls** first.
+    - **Recommendations**: Close **in-scope** audit gaps called out in `docs/library/AUDIT_COVERAGE_MATRIX.md` rather than chasing attestations outside the V1 contract.
 
 13. **Decision Velocity**
     - **Score**: 70 | **Weight**: 2 | **Weighted Deficiency**: 60
@@ -142,32 +142,34 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
 
 ## Top 10 Most Important Weaknesses
 
-1. **Manual Onboarding Friction**: The requirement for users to manually configure Docker and SQL Server prevents rapid product-led growth.
-2. **Lack of Live Commerce**: The deferral of Stripe live keys and the Azure Marketplace listing forces a high-touch sales motion.
-3. **Missing External Assurance**: The absence of a SOC 2 CPA attestation and third-party pen tests creates significant friction in enterprise procurement.
+1. **Onboarding Friction**: As a SaaS product customers need no local toolchain, but the trial funnel runs in Stripe TEST mode and the initial run wizard requires structured input with little guidance, slowing time-to-first-manifest for new buyers.
+2. **Lack of Live Commerce**: Until the **June 13 / June 20, 2026** scheduled Stripe and Marketplace cutovers complete, a higher-touch sales motion remains in parallel with TEST-mode evaluation.
+3. **Operate-layer discoverability**: Pilot is intentionally narrow, but buyers can miss Compare / Governance / Audit until they understand sidebar disclosure—creating a “where is the value?” moment unrelated to product depth.
 4. **Audit Log Gaps**: Known gaps in the durable audit log for certain mutating flows undermine the compliance narrative.
 5. **Monolithic Decision Logic**: Classes like `DecisionEngineV2` handle too many concerns, violating the user's modularity rules.
 6. **Incomplete Test Coverage**: The project has not yet reached the user-mandated 100% unit test coverage, posing a risk to correctness.
 7. **Stylistic Inconsistencies**: Violations of user rules regarding `var` usage, null checks, and whitespace increase cognitive load for new developers.
-8. **Deferred Chat-Ops**: The lack of Slack and Confluence integrations limits workflow embeddedness for modern engineering teams.
+8. **Multi-connector V1 execution load**: **ServiceNow**, **Jira**, **Slack**, and **Confluence** are all in-contract **V1** surfaces; buyers still judge “real” by **their** tenant, and **ServiceNow**-first plus a **paired Atlassian** tranche (**Confluence** then **Jira**) can still stretch perceived completeness until both Atlassian connectors are live.
 9. **Missing Executive Dashboards**: The UI caters to operators but lacks high-level rollups for executive sponsors.
 10. **Fragmented SQL DDL**: While DbUp is used, the lack of a single unified DDL file violates a specific user architectural rule.
 
 ## Top 5 Monetization Blockers
 
-1. **Stripe Test Mode**: The billing system is wired but running in test mode, preventing self-serve revenue collection.
-2. **Marketplace Unpublished**: The Azure Marketplace offer is not yet published, blocking enterprise budget drawdown.
+1. **Stripe Test Mode**: The billing system is wired but **live keys flip June 13, 2026, 9:00 AM US Eastern** (`America/New_York`) per schedule; until then, self-serve production revenue collection is blocked.
+2. **Marketplace Unpublished + Partner Center not enrollment-ready**: The Azure Marketplace offer is **scheduled for `Published` June 20, 2026, 9:00 AM US Eastern** (`America/New_York`). **Seller verification, tax profile, and payout/banking are not set up yet**—treat completing them as **urgent V1 owner work** or the June 20 target is at risk regardless of engineering readiness.
 3. **No Public Reference Customer**: The lack of a published case study makes it harder to close skeptical buyers.
 4. **High-Touch Onboarding**: The inability for a user to instantly provision a trial environment limits the top of the funnel.
 5. **Missing ROI Telemetry**: The inability to automatically prove time saved makes renewals and expansions harder to justify.
 
 ## Top 5 Enterprise Adoption Blockers
 
-1. **SOC 2 CPA Attestation**: Enterprise InfoSec teams will block or delay adoption without a formal SOC 2 report.
-2. **Third-Party Pen Test**: The reliance on owner-conducted testing will trigger extended security reviews.
-3. **Audit Log Incompleteness**: Gaps in the `AUDIT_COVERAGE_MATRIX` will be flagged by enterprise compliance officers.
-4. **Lack of SSO Auto-Provisioning**: While SCIM is supported, the manual setup required for enterprise SSO can stall deployments.
-5. **Missing Chat-Ops (Slack)**: Teams heavily reliant on Slack for incident and approval workflows will find the UI-only approach disruptive.
+*(Scoped to **V1 in-contract** barriers—**CPA SOC 2, ISO certs, and third-party pen-test publication are explicitly not V1 gates** per `docs/library/V1_SCOPE.md` §3 / `docs/library/V1_DEFERRED.md`. Buyer **misconception** that those artifacts are required for a pilot may still slow deals; answer with trust-center links and scope honesty, not product backlog inflation.)*
+
+1. **Audit log incompleteness on mutating paths**: Enterprise compliance reviewers who read `docs/library/AUDIT_COVERAGE_MATRIX.md` will ask for parity before signing off on "log everything we care about."
+2. **RFP template mismatch**: Teams paste checklist items ("SOC 2 Type II report") without reading the trust-center **roadmap** row—stalls on education, not missing V1 code.
+3. **ITSM connector operational proof**: ServiceNow/Jira are **V1 obligations**; any pilot that cannot demonstrate working ticket correlation in *their* tenant will treat connectors as vapor until shown live.
+4. **Enterprise IdP / SCIM setup complexity**: SCIM and Entra patterns exist, but the customer's IdP team still owns cutover; slow customers stall on identity plumbing unrelated to ArchLucid core UX.
+5. **Atlassian connector rollout shape**: **Confluence** and **Jira** are **paired** with **Confluence** **first** ([`docs/library/V1_SCOPE.md`](docs/library/V1_SCOPE.md) §2.13–§2.15); buyers who expect **Jira**-only ITSM proof on day one still need a clear story for **documentation** surfaces landing **before** issue sync in the same pilot window.
 
 ## Top 5 Engineering Risks
 
@@ -179,23 +181,25 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
 
 ## Most Important Truth
 
-ArchLucid is a technically sound V1 product that solves a real problem, but its growth is currently bottlenecked by intentional commercial deferrals (Stripe/Marketplace) and manual onboarding friction, rather than any fundamental engineering flaws.
+ArchLucid is a technically sound **V1 SaaS** product that solves a real problem; near-term growth is gated by **commerce cutovers (June 13 / June 20, 2026, 9:00 AM `America/New_York`)**, **Partner Center seller verification / tax / payout not being set up yet**, and **in-product onboarding clarity**, while **deep enterprise friction from CPA SOC 2 / third-party pen tests is explicitly out of V1 headline scope**—handle it with procurement narrative, not as a missing V1 feature.
 
 ## Top Improvement Opportunities
 
-### 1. DEFERRED: Stripe Live Keys and Marketplace Listing
+### 1. Stripe live keys and Azure Marketplace listing (scheduled cutovers)
 - **Why it matters**: Unblocks self-serve revenue and enterprise budget drawdown.
 - **Expected impact**: Directly improves Commercial Packaging Readiness (+30 pts) and Adoption Friction (+10 pts).
 - **Affected qualities**: Commercial Packaging Readiness, Adoption Friction, Decision Velocity.
-- **Input needed from user**: Confirmation of the exact date/time to flip the Stripe keys to live and publish the Marketplace offer, as this requires owner-level Partner Center access.
+- **Clock (confirmed)**: **9:00 AM US Eastern**, IANA **`America/New_York`**. You specified **EST**; runbooks should still cite **`America/New_York`** so the cutover uses the correct civil time in June (**EDT** is what that zone observes in mid-June—same “9 AM Eastern” wall-clock intent, without manual EST/EDT guesswork).
+- **Scheduled** (owner-executed):
+  - **Stripe live keys**: **June 13, 2026**, **9:00 AM** `America/New_York` (configure production `sk_live_*`, rotate production webhook secret, satisfy `BillingProductionSafetyRules` in Production).
+  - **Azure Marketplace offer `Published`**: **June 20, 2026**, **9:00 AM** `America/New_York` (Partner Center).
+- **V1 owner prerequisites (Marketplace — not set up yet; needs active reminders)** — per your status, **none** of the following are complete; block calendar time **before** June 20 or the publish window slips:
+  - **Partner Center seller verification** — complete and track to “green.”
+  - **Tax profile** — complete in Partner Center.
+  - **Payout / banking** — payout account and tax identifiers in good standing for disbursements.
+- **Fully actionable now (engineering + owner)**: Engineering can prep runbooks, config checklists, staging validation, and post-cutover smoke steps; **you** own Partner Center enrollment, Stripe live key rotation, and production secret hygiene at the scheduled windows.
 
-### 2. DEFERRED: SOC 2 CPA Attestation Engagement
-- **Why it matters**: Removes the largest blocker for enterprise procurement and security reviews.
-- **Expected impact**: Directly improves Compliance Readiness (+25 pts) and Procurement Readiness (+30 pts).
-- **Affected qualities**: Compliance Readiness, Procurement Readiness, Trustworthiness.
-- **Input needed from user**: Approval of the budget and timeline for engaging an external CPA firm for the Type I audit.
-
-### 3. Refactor DecisionEngineV2.cs for Modularity
+### 2. Refactor DecisionEngineV2.cs for Modularity
 - **Why it matters**: The current implementation is monolithic and violates the user's rule for extreme modularity and simplicity.
 - **Expected impact**: Directly improves Modularity (+15 pts), Maintainability (+10 pts), and Architectural Integrity (+5 pts). Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities**: Modularity, Maintainability, Architectural Integrity.
@@ -204,7 +208,7 @@ ArchLucid is a technically sound V1 product that solves a real problem, but its 
 Refactor `ArchLucid.Decisioning.Merge.DecisionEngineV2.cs`. Extract the scoring logic (`BuildTopologyAcceptanceDecision`, `BuildSecurityControlsDecision`, `BuildComplexityDecision`) into separate strategy classes implementing a new `IDecisionStrategy` interface. Ensure all `if` statements have a preceding blank line. Replace any use of `var` with concrete types. Add explicit null checks for all parameters. Do not change the mathematical scoring logic or the output format.
 ```
 
-### 4. Consolidate SQL DDL into a Unified Schema File
+### 3. Consolidate SQL DDL into a Unified Schema File
 - **Why it matters**: Satisfies the explicit user rule: "All SQL DDL should be in a single file for each database."
 - **Expected impact**: Directly improves Architectural Integrity (+5 pts) and Maintainability (+5 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities**: Architectural Integrity, Maintainability.
@@ -213,7 +217,7 @@ Refactor `ArchLucid.Decisioning.Merge.DecisionEngineV2.cs`. Extract the scoring 
 Create a new file `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`. Read all existing DbUp migration scripts in `ArchLucid.Persistence/Migrations/` and combine their `CREATE TABLE`, `CREATE INDEX`, and `ALTER TABLE` statements into this single file to represent the final desired state of the database. Do not delete or modify the existing DbUp migration scripts, as they are needed for deployment. Add a comment at the top of the new file explaining that it is for reference and IaC alignment only.
 ```
 
-### 5. Enhance Audit Logging for Mutating Flows
+### 4. Enhance Audit Logging for Mutating Flows
 - **Why it matters**: Closes known compliance gaps, making the system more trustworthy for enterprise buyers.
 - **Expected impact**: Directly improves Auditability (+20 pts) and Traceability (+10 pts). Weighted readiness impact: +0.4-0.6%.
 - **Affected qualities**: Auditability, Traceability, Trustworthiness.
@@ -222,7 +226,7 @@ Create a new file `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`. 
 Review `ArchLucid.Application` for any mutating commands (e.g., generating analysis reports or exporting comparisons) that do not currently write to the `IAuditService`. Inject `IAuditService` into these handlers and emit appropriate `AuditEventTypes` (e.g., `AnalysisReportGenerated`, `ComparisonExported`). Ensure the `OccurredUtc` and `CorrelationId` are properly set. Do not alter existing audit events.
 ```
 
-### 6. Add Explanatory Comments to Complex Logic
+### 5. Add Explanatory Comments to Complex Logic
 - **Why it matters**: Satisfies the user rule: "any code that a developer with two years experience may not understand should have a comment."
 - **Expected impact**: Directly improves Cognitive Load (+15 pts) and Maintainability (+10 pts). Weighted readiness impact: +0.2-0.3%.
 - **Affected qualities**: Cognitive Load, Maintainability, Explainability.
@@ -231,7 +235,7 @@ Review `ArchLucid.Application` for any mutating commands (e.g., generating analy
 Scan `ArchLucid.Decisioning.Merge.DecisionEngineV2.cs` and `ArchLucid.Decisioning.Findings.FindingConfidenceCalculator.cs`. Add detailed XML summary comments to all public methods. Add inline comments explaining the math behind `SupportScore` and `OppositionScore` calculations. Explain *why* the specific base confidence numbers (e.g., 0.60, 0.65) were chosen. Do not change any executable code.
 ```
 
-### 7. Implement Strict Null Checking in Application Layer
+### 6. Implement Strict Null Checking in Application Layer
 - **Why it matters**: Satisfies the user rule: "Always check nulls" and prevents runtime errors.
 - **Expected impact**: Directly improves Reliability (+10 pts) and Correctness (+5 pts). Weighted readiness impact: +0.2-0.4%.
 - **Affected qualities**: Reliability, Correctness.
@@ -240,7 +244,7 @@ Scan `ArchLucid.Decisioning.Merge.DecisionEngineV2.cs` and `ArchLucid.Decisionin
 Scan all public classes in the `ArchLucid.Application` project. Add `ArgumentNullException.ThrowIfNull()` for all reference type parameters in public constructors and public methods. If a method returns a nullable type, ensure the return signature explicitly marks it with `?`. Do not change the business logic or return values of the methods.
 ```
 
-### 8. Enforce Whitespace and Type Rules in Decisioning
+### 7. Enforce Whitespace and Type Rules in Decisioning
 - **Why it matters**: Aligns the codebase with the user's strict stylistic rules regarding `var` and whitespace.
 - **Expected impact**: Directly improves Maintainability (+10 pts) and Cognitive Load (+5 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities**: Maintainability, Cognitive Load.
@@ -249,7 +253,7 @@ Scan all public classes in the `ArchLucid.Application` project. Add `ArgumentNul
 Scan the `ArchLucid.Decisioning` project. Replace all instances of the `var` keyword with explicit concrete types, except when used with anonymous types. Ensure that every `if` statement and `foreach` statement has exactly one blank line preceding it, unless it is the very first line of code inside a method block. Do not alter any logic or variable names.
 ```
 
-### 9. Improve Test Coverage for GoldenManifestFactory
+### 8. Improve Test Coverage for GoldenManifestFactory
 - **Why it matters**: Pushes the project closer to the user's goal of 100% unit test coverage.
 - **Expected impact**: Directly improves Testability (+15 pts) and Correctness (+5 pts). Weighted readiness impact: +0.2-0.3%.
 - **Affected qualities**: Testability, Correctness.
@@ -258,7 +262,7 @@ Scan the `ArchLucid.Decisioning` project. Replace all instances of the `var` key
 Create a new test class `ArchLucid.Decisioning.Tests.Merge.GoldenManifestFactoryTests.cs`. Write comprehensive xUnit tests for `GoldenManifestFactory.CreateBase`. Ensure 100% branch and line coverage for this class. Verify that all properties (RunId, SystemName, Governance defaults, Metadata) are correctly mapped from the `ArchitectureRequest`. Do not use `ConfigureAwait(false)` in any async test setups.
 ```
 
-### 10. Replace foreach with LINQ in Decisioning
+### 9. Replace foreach with LINQ in Decisioning
 - **Why it matters**: Satisfies the user rule: "Prefer the use of LINQ over foreach".
 - **Expected impact**: Directly improves Maintainability (+5 pts). Weighted readiness impact: +0.1%.
 - **Affected qualities**: Maintainability.
@@ -267,12 +271,27 @@ Create a new test class `ArchLucid.Decisioning.Tests.Merge.GoldenManifestFactory
 Scan the `ArchLucid.Decisioning` project for `foreach` loops that are simply transforming data or filtering lists (e.g., adding items to a new list based on a condition). Replace these `foreach` loops with equivalent LINQ expressions (`.Select()`, `.Where()`, `.ToList()`). Add a comment above the LINQ expression explaining what it is building. Do not replace `foreach` loops that perform complex side-effects or async operations.
 ```
 
-## Pending Questions for Later
+## V1 owner reminders — commerce cutovers
 
-**DEFERRED: Stripe Live Keys and Marketplace Listing**
-- When is the target date to flip the Stripe keys to live?
-- Has the Azure Marketplace seller verification and tax profile been completed in Partner Center?
+Use this as the **standing checklist** until Partner Center and Stripe production cutovers are done.
 
-**DEFERRED: SOC 2 CPA Attestation Engagement**
-- Has a budget been approved for the external CPA firm?
-- What is the target observation window for the Type II report (e.g., 3 months, 6 months)?
+**Wall clock**: **9:00 AM US Eastern**, IANA **`America/New_York`** (your **EST** note; use the IANA zone in calendars and runbooks so **June** resolves to the correct offset automatically).
+
+| When | What |
+|------|------|
+| **Jun 13, 2026 · 9:00 AM** `America/New_York` | **Stripe**: flip **live** keys, rotate production **webhook secret**, confirm `BillingProductionSafetyRules` passes in Production. |
+| **Jun 20, 2026 · 9:00 AM** `America/New_York` | **Marketplace**: transition SaaS offer to **`Published`** in Partner Center. |
+
+**Partner Center — urgent V1 owner tasks (you reported: not set up yet)**
+
+Treat these as **schedule-risk** items until each is complete:
+
+1. **Seller verification** — drive to completion; capture completion date in your own tracker.
+2. **Tax profile** — complete required marketplace tax onboarding.
+3. **Payout account / banking** — payout profile in good standing for disbursements.
+
+**Reminder cadence (suggested)**
+
+- **Weekly** status pass (e.g. each Monday) until all three Partner Center items are done.
+- **T-14 / T-7 / T-3 / T-1** calendar alerts before **June 20** for Marketplace prerequisites + final publish rehearsal.
+- **T-7 / T-3 / T-1** before **June 13** for Stripe live cutover rehearsal (secrets, webhook, smoke).

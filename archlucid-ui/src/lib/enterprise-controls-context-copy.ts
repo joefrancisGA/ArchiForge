@@ -336,10 +336,12 @@ export const governanceWorkflowPromotionsActivationsSectionLeadReader =
   "Read-only timeline; Promote and Activate require approver rights (API).";
 
 /** Policy packs — lead under title (Execute+); link to Governance resolution for stack semantics. */
-export const policyPacksPageLeadOperator = "Inventory and diff first; lifecycle last.";
+export const policyPacksPageLeadOperator =
+  "Review inventory and effective policy first; publish or assign when your role allows.";
 
 /** Policy packs — lead under title (read tier). */
-export const policyPacksPageLeadReader = "Inspect first; lifecycle Execute+ (API).";
+export const policyPacksPageLeadReader =
+  "Inspect registered packs and resolved policy for this scope (read-only where your role limits changes).";
 
 /** Policy packs — **Current policy packs** section heading (`policy-packs/page.tsx`). */
 export const policyPacksCurrentPacksHeadingOperator = "Current policy packs";

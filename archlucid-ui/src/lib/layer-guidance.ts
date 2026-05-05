@@ -161,10 +161,10 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "policy-packs": {
     layerBadge: "Governance",
-    headline: "Packs in scope, published versions, and effective JSON.",
+    headline: "Packs in scope, published versions, and effective policy.",
     useWhen: "Start by reviewing inventory and diffs; publish or assign when your role allows.",
     firstPilotNote: "After Pilot proof when you steward pack publish and assignment.",
-    enterpriseFootnote: "Inspect/compare first; lifecycle on API.",
+    enterpriseFootnote: "Inspect registered packs and resolved policy layers for your scope.",
   },
   "alert-rules": {
     layerBadge: "Governance",
