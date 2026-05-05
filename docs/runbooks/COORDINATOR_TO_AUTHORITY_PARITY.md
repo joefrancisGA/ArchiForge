@@ -30,9 +30,11 @@
 |--------------------|------------------|-----------------|----------------------|------------------|-----------------|---------------------|-------|
 | *(TBD)* | *(TBD)* | *(TBD)* | | | | | |
 
-### Automated probe (nightly — `scripts/ci/coordinator_parity_probe.py`)
+### Automated probe (`scripts/ci/coordinator_parity_probe.py`)
 
-Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator** (`CoordinatorRun*`) / **canonical** (`Run.*`) / **authority** (`RunStarted`, `RunCompleted`). Latency columns remain manual until wired. The workflow `.github/workflows/coordinator-parity-daily.yml` upserts this block (markers must stay stable).
+Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator** (`CoordinatorRun*`) / **canonical** (`Run.*`) / **authority** (`RunStarted`, `RunCompleted`). Latency columns remain manual until wired.
+
+**Historical note:** `.github/workflows/coordinator-parity-daily.yml` formerly upserted this table nightly; **retired 2026-05-05** with Phase 3 **PR B** ([ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md)) — the coordinator pipeline is gone, so the nightly auto-append was vacuous. Operators may still run `python scripts/ci/coordinator_parity_probe.py --runbook docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` manually against a SQL-backed environment if a future ADR restores parity-gate semantics (e.g. post-V1).
 
 <!-- coordinator-parity-probe:table -->
 | Window start (UTC) | Window end (UTC) | Tenant sample | Coordinator p95 ms | Authority p95 ms | Audit rows/hr | Replay parity OK? | Notes |
@@ -68,7 +70,7 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 
 **Both waivers expire automatically** if ArchLucid ships V1 to a paying customer before PR A merges — at that point the assistant amends ADR 0029 to restore both gates and recomputes the cut-over date. After V1 ships, any *future* coordinator-style refactor (none currently planned) must satisfy gates (i)–(iv) in full; the daily probe and runbook stay live for that purpose.
 
-**Daily probe status.** [`coordinator-parity-daily.yml`](../../.github/workflows/coordinator-parity-daily.yml) is wired and will start populating the table above the moment the `ARCHLUCID_COORDINATOR_PARITY_ODBC` repo secret is set. Until then the table stays at `*(TBD)*` — that is now an **expected** pre-release state, not a merge blocker.
+**Daily probe status.** **Retired 2026-05-05** with PR B — `coordinator-parity-daily.yml` removed; no nightly auto-append. Historical sample rows remain in the table above. If V1 ships and a future change restores gate (iv), reintroduce automation via a new ADR/workflow.
 
 **Closing report:** *Not available — pre-release. Reopen this subsection if a future change ever restores gate (iv) (e.g., post-V1 coordinator-style refactor) and 14 contiguous zero-write days are recorded.*
 

@@ -21,24 +21,33 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
 
         sb.AppendLine("flowchart LR");
 
-        foreach (ManifestService service in manifest.Services.OrderBy(s => s.ServiceName))
+        string servicesBlock = string.Join(Environment.NewLine, manifest.Services.OrderBy(s => s.ServiceName)
+            .Select(service =>
+                $"    {SanitizeId(service.ServiceId)}[{EscapeLabel(BuildServiceLabel(service))}]"));
 
-            sb.AppendLine($"    {SanitizeId(service.ServiceId)}[{EscapeLabel(BuildServiceLabel(service))}]");
+        if (servicesBlock.Length > 0)
+            sb.AppendLine(servicesBlock);
 
-        foreach (ManifestDatastore datastore in manifest.Datastores.OrderBy(d => d.DatastoreName))
+        string datastoreBlock = string.Join(Environment.NewLine, manifest.Datastores.OrderBy(d => d.DatastoreName)
+            .Select(datastore =>
+                $"    {SanitizeId(datastore.DatastoreId)}[(\"{EscapeLabel(BuildDatastoreLabel(datastore))}\")]"));
 
-            sb.AppendLine(
-                $"    {SanitizeId(datastore.DatastoreId)}[(\"{EscapeLabel(BuildDatastoreLabel(datastore))}\")]");
+        if (datastoreBlock.Length > 0)
+            sb.AppendLine(datastoreBlock);
 
-        foreach (ManifestRelationship relationship in manifest.Relationships.OrderBy(r => r.SourceId)
-                     .ThenBy(r => r.TargetId))
-        {
-            string source = SanitizeId(relationship.SourceId);
-            string target = SanitizeId(relationship.TargetId);
-            string label = EscapeLabel(BuildRelationshipLabel(relationship));
+        string relationshipBlock = string.Join(Environment.NewLine, manifest.Relationships.OrderBy(r => r.SourceId)
+            .ThenBy(r => r.TargetId)
+            .Select(relationship =>
+            {
+                string source = SanitizeId(relationship.SourceId);
+                string target = SanitizeId(relationship.TargetId);
+                string label = EscapeLabel(BuildRelationshipLabel(relationship));
 
-            sb.AppendLine($"    {source} -->|{label}| {target}");
-        }
+                return $"    {source} -->|{label}| {target}";
+            }));
+
+        if (relationshipBlock.Length > 0)
+            sb.AppendLine(relationshipBlock);
 
         return sb.ToString();
     }

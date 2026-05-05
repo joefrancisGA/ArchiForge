@@ -106,7 +106,7 @@ External consumers can validate inbound Service Bus message bodies against the s
 
 ### Bridge receivers — Jira Cloud / ServiceNow (HTTP automation rules)
 
-Full **customer-owned** walkthroughs (prerequisites, payload mapping, HMAC options, retries, test steps) for **ServiceNow** then **Jira** via **Power Automate** live under **[`docs/integrations/recipes/`](../integrations/recipes/README.md)**. Those recipes are **not** first-party V1 connectors — see [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md).
+Full **customer-owned** walkthroughs (prerequisites, payload mapping, HMAC options, retries, test steps) for **ServiceNow** then **Jira** via **Power Automate** live under **[`docs/integrations/recipes/`](../integrations/recipes/README.md)**. Those recipes are **optional bridges** — **first-party** **Jira** and **ServiceNow** are **V1 commitments** ([INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md), [`V1_SCOPE.md`](V1_SCOPE.md) §2.13).
 
 Some enterprises expose incident/issue workflows behind SaaS automation URLs (`POST`, minimal validation beyond bearer/API-key gates). ArchLucid’s outbound webhook envelope (`WebhookDelivery:UseCloudEventsEnvelope` when enabled) matches CloudEvents JSON — automation layers typically unwrap `data` or route on `type`.
 

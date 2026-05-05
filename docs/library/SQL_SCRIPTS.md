@@ -177,6 +177,8 @@ Treat this checklist as a **definition of done** for every schema change. Do not
 
 ### CI gate
 
+Merge-blocking on PRs and pushes: `scripts/ci/assert_forward_migration_touches_archlucid_sql.py` fails when a forward `Migrations/NNN_*.sql` file changes in the diff but `ArchLucid.Persistence/Scripts/ArchLucid.sql` does not (greenfield parity). Rollback-only and Baseline folder edits do not trigger this rule.
+
 Before opening a PR with SQL changes, run the full local pre-push loop from `docs/CI_MIGRATION_CHECKLIST.md`.
 
 ---

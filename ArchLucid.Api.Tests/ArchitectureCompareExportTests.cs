@@ -38,7 +38,7 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
 
         const string requestedReplayManifestVersion = "v1-replay";
 
-        var replayRequest = new
+        object replayRequest = new
         {
             commitReplay = true, executionMode = "Current", manifestVersionOverride = requestedReplayManifestVersion
         };

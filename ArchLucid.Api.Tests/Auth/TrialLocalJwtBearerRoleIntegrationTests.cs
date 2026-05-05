@@ -119,7 +119,7 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
         public async ValueTask DisposeAsync()
         {
             Client.Dispose();
-            await App.DisposeAsync().ConfigureAwait(false);
+            await App.DisposeAsync();
 
             try
             {
@@ -139,7 +139,7 @@ public sealed class TrialLocalJwtBearerRoleIntegrationTests
             JwtLocalSigningWebAppFactory inner = new();
             string privateKeyPath =
                 Path.Combine(Path.GetTempPath(), $"archlucid-trial-local-jwt-{Guid.NewGuid():N}.pem");
-            await File.WriteAllTextAsync(privateKeyPath, inner.PrivatePemForTests).ConfigureAwait(false);
+            await File.WriteAllTextAsync(privateKeyPath, inner.PrivatePemForTests);
 
             WebApplicationFactory<Program> app = inner.WithWebHostBuilder(builder =>
             {

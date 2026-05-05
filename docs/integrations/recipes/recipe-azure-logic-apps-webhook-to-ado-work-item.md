@@ -14,7 +14,7 @@
 
 ## V1 scope boundary (ITSM / connectors)
 
-Per [V1_SCOPE.md §3 — Out of scope for V1](../../library/V1_SCOPE.md), **first-party Jira and ServiceNow ITSM bridges are V1.1 candidates**, not V1. V1 supported paths are **CloudEvents webhooks**, **REST API**, and **customer-operated automation** (including this recipe). Creating Azure DevOps work items here is an **ADO-side** integration you operate; it does not contradict V1 because ArchLucid does not promise Jira/ServiceNow connectors in V1.
+Per [V1_SCOPE.md §2.13](../../library/V1_SCOPE.md), **first-party** **Jira** and **ServiceNow** connectors are **in scope for V1 GA**. This recipe wires together **your** Logic App, **your** Azure DevOps organization/project, and optional **API Management** or **Azure Functions** for signature verification — an **ADO-side** pattern distinct from ArchLucid ITSM connectors.
 
 ---
 

@@ -226,13 +226,6 @@ jobs:
       - name: Brand-category seam guard self-test
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_brand_category_seam.py"
 
-      - name: "Advisory — PR B tracker vs ADR 0029 checklist (warn-only; strict via ARCHLUCID_PR_B_TRACKER_STRICT)"
-        continue-on-error: true
-        run: python scripts/ci/assert_pr_b_tracker_in_sync.py
-
-      - name: PR B tracker sync guard unit tests
-        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_pr_b_tracker_in_sync.py"
-
       - name: ADR 0030 authority projection known-empty JSON guard
         run: python scripts/ci/assert_authority_projection_known_empty.py
 
@@ -506,6 +499,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5.2.0
@@ -539,6 +534,23 @@ jobs:
 
       - name: Guard — migration rollback scripts (latest ten)
         run: python3 scripts/ci/assert_rollback_scripts_exist.py
+
+      - name: Guard — forward DbUp migrations must touch ArchLucid.sql (PR)
+        if: github.event_name == 'pull_request'
+        env:
+          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
+          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
+        run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
+
+      - name: Guard — forward DbUp migrations must touch ArchLucid.sql (push)
+        if: github.event_name == 'push'
+        env:
+          ARCHLUCID_GIT_REPO_ROOT: ${{ github.workspace }}
+          ARCHLUCID_GIT_DIFF_RANGE: ${{ github.event.before }}...${{ github.event.after }}
+        run: python3 scripts/ci/assert_forward_migration_touches_archlucid_sql.py
+
+      - name: forward migration / ArchLucid.sql co-touch guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_forward_migration_touches_archlucid_sql.py"
 
       - name: Guard — migration numbering (warn-only)
         # Non-blocking: surfaces duplicate ###_ prefixes (DbUp orders lexically; ties are silent).

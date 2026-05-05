@@ -78,6 +78,12 @@ public static class AuditEventTypes
     public const string SyntheticOperatorDemoPackMarker = "SyntheticOperatorDemoPack.Marker";
 
     /// <summary>
+    ///     Admin invoked <c>POST /v1/diagnostics/synthetic-operator-demo-pack</c> (markers follow as
+    ///     <see cref="SyntheticOperatorDemoPackMarker" /> rows).
+    /// </summary>
+    public const string SyntheticOperatorDemoPackInvoked = "SyntheticOperatorDemoPack.Invoked";
+
+    /// <summary>
     ///     Demo seed or replay commit persisted the authority SQL FK chain (context / graph / findings / decision trace +
     ///     golden manifest) outside the main pipeline executor.
     /// </summary>

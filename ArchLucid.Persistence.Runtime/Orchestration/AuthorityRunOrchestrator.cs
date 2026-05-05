@@ -47,6 +47,16 @@ public sealed class AuthorityRunOrchestrator(
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     /// <inheritdoc />
+    /// <remarks>
+    ///     Persists the run under the current <see cref="ScopeContext" />, records telemetry tags, then chooses one of two
+    ///     paths: (1) <em>deferred queue</em> — when <see cref="IAsyncAuthorityPipelineModeResolver" /> requests queueing and
+    ///     <paramref name="evidenceBundleIdForDeferredWork" /> is non-empty, enqueues outbox payload and returns early after
+    ///     commit; or (2) <em>inline execution</em> — runs
+    ///     <see cref="IAuthorityPipelineStagesExecutor.ExecuteAfterRunPersistedAsync" /> and
+    ///     <see cref="FinalizeCommittedPipelineAsync" /> in-process. Pipeline duration is bounded by
+    ///     <see cref="AuthorityPipelineOptions.PipelineTimeout" /> via a linked cancellation token (timeout surfaces as
+    ///     <see cref="OperationCanceledException" /> filtered against caller cancellation).
+    /// </remarks>
     public async Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
         CancellationToken cancellationToken = default,
@@ -214,6 +224,11 @@ public sealed class AuthorityRunOrchestrator(
     }
 
     /// <inheritdoc />
+    /// <remarks>
+    ///     Resumes a run that was previously persisted with queue semantics: validates the row is still missing a context
+    ///     snapshot (idempotent skip), applies the same pipeline timeout linkage as
+    ///     <see cref="ExecuteAsync" />, emits a resumed audit envelope, then executes staged work and finalization.
+    /// </remarks>
     public async Task<RunRecord> CompleteQueuedAuthorityPipelineAsync(
         ContextIngestionRequest request,
         CancellationToken cancellationToken = default)
@@ -355,6 +370,8 @@ public sealed class AuthorityRunOrchestrator(
                 ct);
 
 
+        // Publish-or-enqueue integration events: uses the ambient transaction when the unit-of-work participates in one
+        // so webhook rows share fate with the authority commit; otherwise falls back to immediate publish where configured.
         string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
         string publicBaseUrl = NormalizePublicSiteBaseUrl(publicSiteOptions.CurrentValue.BaseUrl);
         Guid? previousRunId = await TryResolvePreviousCommittedGoldenRunIdAsync(scope, run, ct);

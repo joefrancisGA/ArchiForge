@@ -22,7 +22,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
     [SkippableFact]
     public async Task CreateArchitectureRun_ShouldReturnRunId()
     {
-        var request = new
+        object request = new
         {
             requestId = "REQ-TEST-1",
             description = "Test architecture",
@@ -45,7 +45,7 @@ public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBas
     [SkippableFact]
     public async Task GoldenPath_ShouldProduceManifest()
     {
-        var request = new
+        object request = new
         {
             requestId = "REQ-1",
             description = "Test architecture",

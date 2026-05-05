@@ -4,7 +4,7 @@
 
 **Audience:** V1 customers who need ServiceNow incidents from ArchLucid findings or alerts but do not want to write an Azure Function or custom webhook receiver.
 
-**V1 interim bridge.** A first-party ServiceNow connector is planned for **V1.1** — see [V1_DEFERRED.md](../../library/V1_DEFERRED.md) (section 6) and [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md). This recipe bridges the gap using **Microsoft Power Automate** (Premium license required for HTTP connector).
+**Optional customer-owned bridge.** **First-party ServiceNow** is **in scope for V1 GA** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). Use this recipe when you prefer **Power Automate** or need automation **before** managed connector enablement.
 
 > **Customer-owned:** This flow runs in **your** Microsoft 365 / Power Platform tenant and calls **your** ServiceNow Table API. It is **not** a ServiceNow Store or ArchLucid-certified integration pack. ArchLucid only delivers signed CloudEvents webhooks per [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
 
@@ -267,23 +267,23 @@ Power Automate does not have built-in deduplication. To prevent duplicate Servic
 
 ---
 
-## 7. Limitations and when to upgrade to V1.1
+## 7. Limitations and when to adopt first-party delivery
 
-| Limitation | V1.1 first-party connector resolution |
-|------------|----------------------------------------|
-| **One-way only** — this recipe creates incidents but does not sync status back to ArchLucid. | V1.1 connector includes **bi-directional status sync** (ServiceNow incident state → ArchLucid finding state). |
-| **No native HMAC in Power Automate** — HMAC validation requires an Azure Function or API Management in front. | V1.1 connector handles authentication natively; no external HMAC layer. |
-| **Manual severity mapping** — you maintain the severity-to-integer map in flow expressions. | V1.1 connector ships a configurable mapping with sensible defaults. |
-| **No deduplication** — you must build correlation_id-based dedup logic yourself. | V1.1 connector uses `deduplicationKey` / `runId` + `findingId` natively for idempotent incident creation. |
-| **Premium license required** — HTTP actions in Power Automate need a Premium plan. | V1.1 connector runs server-side in ArchLucid; no Power Automate license needed for the base flow. |
-| **No finding-level event** — `com.archlucid.authority.run.completed` signals run completion, not individual findings. You must call the API to get findings. | V1.1 connector has direct access to the finding projection; no extra API call. |
-| **No CMDB CI mapping** — this recipe does not populate `cmdb_ci`. | V1.1 planning topic — see [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md). |
+| Limitation | First-party V1 connector ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13) |
+|------------|--------------------------------------------------------------------------|
+| **One-way only** — this recipe creates incidents but does not sync status back to ArchLucid. | **Two-way** SNOW→ArchLucid status sync is **not** in committed V1 scope **unless** an owner decision adds it — do not assume parity with Jira bi-directional. |
+| **No native HMAC in Power Automate** — HMAC validation requires an Azure Function or API Management in front. | Managed connector handles authentication natively; no external HMAC layer for ArchLucid→ServiceNow traffic. |
+| **Manual severity mapping** — you maintain the severity-to-integer map in flow expressions. | Managed connector ships a configurable mapping with sensible defaults. |
+| **No deduplication** — you must build correlation_id-based dedup logic yourself. | Managed connector uses `deduplicationKey` / `runId` + `findingId` natively for idempotent incident creation. |
+| **Premium license required** — HTTP actions in Power Automate need a Premium plan. | Managed connector runs server-side in ArchLucid; no Power Automate license needed for the base flow. |
+| **No finding-level event** — `com.archlucid.authority.run.completed` signals run completion, not individual findings. You must call the API to get findings. | Managed connector has direct access to the finding projection; no extra API call. |
+| **No CMDB CI mapping** — this recipe does not populate `cmdb_ci`. | Same **open planning** topic as [`INTEGRATION_CATALOG.md`](../../go-to-market/INTEGRATION_CATALOG.md) and [`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13 (`cmdb_ci` same release vs fast-follow). |
 
-When V1.1 ships, migrate by:
-1. Disabling the Power Automate flow.
-2. Configuring the first-party ServiceNow connector in ArchLucid (see the V1.1 release notes).
+When you enable the first-party connector, migrate by:
+1. Disabling the Power Automate flow (or leaving it as a redundant safety path only with clear owner approval).
+2. Configuring the managed ServiceNow connector in ArchLucid (see release notes when available).
 3. Verifying incident creation with a test run.
-4. Deleting or archiving the Power Automate flow.
+4. Deleting or archiving the Power Automate flow if no longer needed.
 
 ---
 
@@ -306,7 +306,7 @@ Use these steps in a **non-production** ArchLucid tenant and ServiceNow subprodu
 |-----|-----|
 | [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) | Event delivery, CloudEvents envelope, HMAC signing |
 | [INTEGRATION_EVENT_CATALOG.md](../../library/INTEGRATION_EVENT_CATALOG.md) | Full event type catalog |
-| [V1_DEFERRED.md](../../library/V1_DEFERRED.md) | V1.1 ServiceNow connector commitment (section 6) |
+| [V1_SCOPE.md](../../library/V1_SCOPE.md) | V1 first-party ServiceNow connector commitment (§2.13) |
 | [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md) | Connector roadmap and status |
 | [servicenow-incident-recipe.md](../../../templates/integrations/servicenow/servicenow-incident-recipe.md) | Developer-oriented bridge (custom code, Azure Function) |
 | [JIRA_ISSUE_VIA_POWER_AUTOMATE.md](JIRA_ISSUE_VIA_POWER_AUTOMATE.md) | Companion recipe — Jira via Power Automate |

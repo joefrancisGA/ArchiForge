@@ -161,13 +161,15 @@ public sealed class TryCommandTests
     {
         int callCount = 0;
 
+        // Deadline must stay comfortably above (probe + pollInterval) under loaded CI — a 200ms window
+        // intermittently yields only one probe when the thread pool defers the delay continuation.
         ArchitectureRunStatus result = await TryCommand.PollForCommittableStatusAsync(
             _ =>
             {
                 callCount++;
                 return Task.FromResult<ArchitectureRunStatus?>(ArchitectureRunStatus.WaitingForResults);
             },
-            TimeSpan.FromMilliseconds(200),
+            TimeSpan.FromSeconds(2),
             TimeSpan.FromMilliseconds(40),
             CancellationToken.None);
 

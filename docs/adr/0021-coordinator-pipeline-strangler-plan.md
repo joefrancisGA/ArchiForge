@@ -8,7 +8,7 @@
 - **Status:** Accepted
 - **Date:** 2026-04-20
 - **Supersedes:** *(none yet — see § Decision)*
-- **Superseded by:** *(none)*
+- **Superseded by:** [ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)](0030-coordinator-authority-pipeline-unification.md) *(2026-05-05 closure on PR B — strangler complete; ADR 0010 also superseded)*
 - **Amended by:** [ADR 0030 — Coordinator → Authority pipeline unification (sequenced multi-PR plan)](0030-coordinator-authority-pipeline-unification.md) — re-scopes § Phase 3 mechanism (a) from "single PR A deletion" into PR A0 → PR A4.
 
 > **Status note.** This ADR is **Accepted** as of **2026-04-20** (architecture review: product + platform leads — evidence: Phase 0 shipped, `IUnifiedGoldenManifestReader` landed in `ArchLucid.Decisioning.Interfaces` with `ArchLucid.Persistence.Reads.UnifiedGoldenManifestReader`, and `ManifestsController` now reads manifests through the unified reader). Phase 1 internal migration continues; Phase 2/3 gates in this document still apply before deleting coordinator contracts.

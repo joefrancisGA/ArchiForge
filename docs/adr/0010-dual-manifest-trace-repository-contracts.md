@@ -5,7 +5,7 @@
 
 # ADR 0010: Dual manifest and decision-trace repository contracts
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR 0030 — Coordinator → Authority pipeline unification](0030-coordinator-authority-pipeline-unification.md) *(2026-05-05, PR B)* — the Coordinator repository interface family is retired; manifests and traces converge on the **Authority** (`ArchLucid.Decisioning.Interfaces`) persistence path.
 - **Date:** 2026-04-04
 
 ## Context

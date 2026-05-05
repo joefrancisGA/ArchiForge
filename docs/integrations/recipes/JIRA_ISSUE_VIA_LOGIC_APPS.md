@@ -4,7 +4,7 @@
 
 **Audience:** Teams standardized on **Azure Logic Apps Standard** who need Jira issues from ArchLucid findings or alerts **without Power Automate Premium HTTP connectors.**
 
-**V1 interim bridge.** First-party Jira connector is **V1.1** — see [V1_DEFERRED.md](../../library/V1_DEFERRED.md) (section 6) and [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md).
+**Optional customer-owned bridge.** **First-party Jira** is **in scope for V1 GA** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13). Same Automation-platform variant as [JIRA_ISSUE_VIA_POWER_AUTOMATE.md](JIRA_ISSUE_VIA_POWER_AUTOMATE.md).
 
 > **Customer-owned:** Workflow runs in **your** Azure subscription; calls **your** Jira Cloud REST API using **your** Atlassian credentials. Not an Atlassian Marketplace “ArchLucid” app.
 

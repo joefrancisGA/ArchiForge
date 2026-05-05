@@ -1,11 +1,11 @@
-> **Scope:** Jira Cloud webhook bridge pattern for V1 — runnable reference scripts plus operational recipe; **not** a substitute for an Atlassian-supported first-party connector (V1.1) or customer security review.
+> **Scope:** Jira Cloud webhook bridge pattern — runnable reference scripts plus operational recipe; complements **V1** first-party Jira ([`V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13); **not** a substitute for customer security review.
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md).
 
 
 # Jira webhook bridge (reference implementation)
 
-**Audience:** Platform engineers integrating ArchLucid **`com.archlucid.authority.run.completed`** and **`com.archlucid.alert.fired`** [CloudEvents 1.0](https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md) deliveries into Atlassian **Jira Cloud** before the **[V1.1 first-party Jira connector](../library/V1_DEFERRED.md)** ships.
+**Audience:** Platform engineers integrating ArchLucid **`com.archlucid.authority.run.completed`** and **`com.archlucid.alert.fired`** [CloudEvents 1.0](https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md) deliveries into Atlassian **Jira Cloud** using **customer-operated** code paths alongside—or **before** enabling—the **[first-party Jira connector](../library/V1_SCOPE.md)** (§2.13).
 
 Canonical contracts remain **[INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)** (HMAC **`X-ArchLucid-Webhook-Signature`** signs the UTF-8 envelope), **[catalog.json](../../schemas/integration-events/catalog.json)**, and the deep-cut template **`templates/integrations/jira/jira-webhook-bridge-recipe.md`**.
 

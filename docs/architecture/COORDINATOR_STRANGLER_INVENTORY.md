@@ -44,7 +44,13 @@
 | **`AuditEventTypes.CoordinatorRun*`** literals | **Removed** — regression guard **`Legacy_CoordinatorRun_audit_constants_are_removed_from_AuditEventTypes`** in **[`DependencyConstraintTests`](../../ArchLucid.Architecture.Tests/DependencyConstraintTests.cs)** (**only** remaining `CoordinatorRun` substring hits in **`*.cs`** are that test). |
 | **`CoordinatorPipelineDeprecationFilter`** + **`CoordinatorPipelineDeprecatedAttribute`** + coordinator-only deprecation tests | **Deleted** per [ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md) header (**PR A final cleanup**). |
 
-Formal [**`PHASE_3_PR_B_TODO.md`**](PHASE_3_PR_B_TODO.md) / ADR checklist closure may still lag; reconcile there without reintroducing removed symbols.
+---
+
+## Completed in docs (PR B — 2026-05-05)
+
+| Item | Resolution |
+|------|------------|
+| Phase 3 **PR B** (audit-constant retirement checklist) | **Closed** on [ADR 0029](../adr/0029-coordinator-strangler-acceleration-2026-05-15.md) § Lifecycle § PR B; former working-surface file **`PHASE_3_PR_B_TODO.md`** and **`assert_pr_b_tracker_in_sync.py`** retired; [ADR 0010](../adr/0010-dual-manifest-trace-repository-contracts.md) + [ADR 0021](../adr/0021-coordinator-pipeline-strangler-plan.md) superseded by [ADR 0030](../adr/0030-coordinator-authority-pipeline-unification.md). |
 
 ---
 
@@ -53,7 +59,6 @@ Formal [**`PHASE_3_PR_B_TODO.md`**](PHASE_3_PR_B_TODO.md) / ADR checklist closur
 | Item | Notes |
 |------|-------|
 | Operator **`POST /v1/architecture/*`** lifecycle | Routes **persist** through PR A3/A4; **narrowing/removal** needs a **future ADR**. Deprecation signalling is **`ApiDeprecation:*`** appsettings (**not** a coordinator-only filter — see Migrate table). |
-| PR **B** programme paperwork | Archive [**`PHASE_3_PR_B_TODO.md`**](PHASE_3_PR_B_TODO.md) and update **[ADR 0029](../adr/0029-coordinator-strangler-acceleration-2026-05-15.md)** § Lifecycle when product signs off that engineering matches checklist (**no** SQL migration was required — constants removed in C# only). |
 
 ---
 

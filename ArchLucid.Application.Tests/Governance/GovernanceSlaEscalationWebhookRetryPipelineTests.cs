@@ -54,7 +54,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
             async ct =>
             {
                 using HttpRequestMessage req = new(HttpMethod.Post, "https://example.test/governance/sla");
-                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
             },
             CancellationToken.None);
 
@@ -77,7 +77,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
             {
                 using HttpRequestMessage req = new(HttpMethod.Post, "https://example.test/webhook");
 
-                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
             },
             CancellationToken.None);
 
@@ -100,7 +100,7 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
             {
                 using HttpRequestMessage req = new(HttpMethod.Post, "https://example.test/x");
 
-                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+                return await httpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
             },
             CancellationToken.None);
 

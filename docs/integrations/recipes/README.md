@@ -1,12 +1,12 @@
-> **Scope:** Index of **customer-owned** no-code webhook integration recipes: ArchLucid CloudEvents to third-party tools via Power Automate or Logic Apps **you** maintain — not first-party ArchLucid V1 connectors.
+> **Scope:** Index of **customer-owned** no-code webhook integration recipes: ArchLucid CloudEvents to third-party tools via Power Automate or Logic Apps **you** maintain — complements optional **or interim** coverage alongside **V1** first-party **Jira** / **ServiceNow** ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13).
 
 # Integration recipes (no-code webhook bridges)
 
-**Audience:** V1 customers and integration engineers who need to connect ArchLucid events to ITSM or documentation tools **without ArchLucid shipping first-party connectors in V1**, using **customer-owned** automation (Microsoft Power Automate or Azure Logic Apps) that **you** deploy, secure, and operate.
+**Audience:** Customers and integration engineers who prefer **customer-operated** automation (Microsoft Power Automate or Azure Logic Apps) for ITSM/documentation bridges — whether **before** first-party connectors are enabled, **instead of** them for operational preference, or for **Confluence** while first-party remains **V1.1**. **You** deploy, secure, and operate these flows.
 
 **Customer-owned means:** These documents are **reference recipes only**. They are **not** marketplace listings, vendor-certified apps, or ArchLucid-managed integrations. ArchLucid publishes CloudEvents (or Service Bus messages); **your** tenant wires webhooks and calls third-party REST APIs under **your** contracts with Microsoft, Atlassian, and ServiceNow.
 
-**Why recipes?** First-party connectors for Jira, Confluence, and ServiceNow are [planned for V1.1](../../library/V1_DEFERRED.md) (section 6). Until then, these recipes bridge the gap using the same [event catalog](../../../schemas/integration-events/catalog.json) and [webhook / HMAC contracts](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) documented for all subscribers.
+**Why recipes?** **First-party** **Jira** and **ServiceNow** are **V1 GA** commitments ([`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13, [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)). **Confluence** first-party remains **V1.1** ([`V1_DEFERRED.md`](../../library/V1_DEFERRED.md) §6). These recipes use the same [event catalog](../../../schemas/integration-events/catalog.json) and [webhook / HMAC contracts](../../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md) as any subscriber.
 
 **Roadmap truth check:** Connector SKU status and “planned vs shipped” remain authoritative in [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md).
 
@@ -51,16 +51,15 @@ The [`templates/integrations/`](../../../templates/integrations/) folder contain
 
 ---
 
-## V1.1 first-party connectors
+## First-party roadmap vs these recipes
 
-These recipes are **interim bridges**. V1.1 will ship first-party connectors that replace them:
+When you adopt **managed** ArchLucid connectors, prefer **[INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md)** §1 (**V1 committed — first-party ITSM**). These no-code flows remain valid **optional** paths:
 
-- **Jira** — one-way finding → issue with correlation back-link; two-way status sync within V1.1 window.
-- **Confluence** — one-way publish to a fixed `Confluence:DefaultSpaceKey`.
-- **ServiceNow** — one-way finding → `incident` with correlation back-link.
+- **Jira** + **ServiceNow** — **V1** first-party ships per [`V1_SCOPE.md`](../../library/V1_SCOPE.md) §2.13; recipes help pre-cutover tenants or hybrid topologies.
+- **Confluence** — first-party **V1.1** ([`V1_DEFERRED.md`](../../library/V1_DEFERRED.md) §6); this folder’s Confluence recipe stays the primary Azure-first bridge until then.
 
-See [V1_DEFERRED.md](../../library/V1_DEFERRED.md) (section 6) for the full V1.1 commitment table and [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md) for connector status.
+See [INTEGRATION_CATALOG.md](../../go-to-market/INTEGRATION_CATALOG.md) for connector SKU status.
 
 ---
 
-*Last reviewed: 2026-05-01 — customer-owned framing; ServiceNow + Jira **Logic Apps–first** rows ahead of Power Automate alternates; ADO recipe unchanged.*
+*Last reviewed: 2026-05-05 — Jira + ServiceNow first-party promoted to V1 scope; Confluence remains V1.1; recipes reframed as optional bridges.*

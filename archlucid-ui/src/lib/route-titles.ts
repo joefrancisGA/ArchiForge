@@ -20,6 +20,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/onboarding": "Onboarding",
   "/digests": "Digests",
   "/value-report/roi": "ROI summary",
+};
 
 /** Human-readable title for route announcements and accessibility copy. */
 export function getRouteTitle(pathname: string): string {

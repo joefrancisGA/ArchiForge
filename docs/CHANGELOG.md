@@ -7,6 +7,10 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-05-05 — Phase 3 **PR B**: coordinator strangler formal closure (ADR supersession + tracker/CI retirement)
+
+**Outcome.** [ADR 0029](adr/0029-coordinator-strangler-acceleration-2026-05-15.md) § Lifecycle § **PR B** checklist closed (**owner-approved early merge**). [ADR 0010](adr/0010-dual-manifest-trace-repository-contracts.md) + [ADR 0021](adr/0021-coordinator-pipeline-strangler-plan.md) **`Superseded by`** [ADR 0030](adr/0030-coordinator-authority-pipeline-unification.md). Removed **`docs/architecture/PHASE_3_PR_B_TODO.md`**, **`scripts/ci/assert_pr_b_tracker_in_sync.py`**, **`scripts/ci/tests/test_assert_pr_b_tracker_in_sync.py`**, and **`.github/workflows/coordinator-parity-daily.yml`**; **`ci.yml`** no longer runs the PR B tracker sync guard. Updated [`COORDINATOR_STRANGLER_INVENTORY.md`](architecture/COORDINATOR_STRANGLER_INVENTORY.md), [`COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md), **`PENDING_QUESTIONS`** item **35e** retrospective wording. Historical CHANGELOG rows that linked the removed files remain valid **historical record** (paths no longer exist).
+
 ## 2026-05-03 — Docs: **`FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER`** runbook (planned LLC seller-of-record migration)
 
 **Outcome.** Added [`docs/runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](docs/runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md) — phased playbook to move ArchLucid commercial/vendor identity (**Partner Center**, **Stripe**, contracts, Trust Center/templates) toward **Francis Architecture, LLC** during V1, with explicit **non-superseding** wording until execution is logged here. [`docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md`](docs/runbooks/MARKETPLACE_PUBLISHER_IDENTITY.md) footnote + **Related** link; [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) scope block + items **8**/**9** clarification (sole-prop / founder resolutions remain authoritative until cutover completes).

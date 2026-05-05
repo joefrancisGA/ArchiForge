@@ -7,7 +7,7 @@
 
 **Audience:** Technical evaluators and integration engineers assessing how ArchLucid connects to their ecosystem.
 
-**Last reviewed:** 2026-04-29 (V1 copy-paste recipes: Logic Apps→ADO + Event Grid hardening checklist under `docs/integrations/recipes/`; V1.1 first-party build order unchanged — ServiceNow before Jira/Confluence — [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) *Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)*; Atlassian suite V1.1 confirmed 2026-04-24)
+**Last reviewed:** 2026-05-05 — **Jira** + **ServiceNow** first-party connectors promoted to **V1** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13; [`../PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *Resolved 2026-05-05*). **Confluence** stays **V1.1**. V1 copy-paste recipes unchanged under `docs/integrations/recipes/`. ITSM **engineering order:** ServiceNow before Jira (*Resolved 2026-04-27*, superseded only for scope pinning by *Resolved 2026-05-05*).
 
 **Philosophy:** ArchLucid connects to your tools — you do not run our agents in your infrastructure. All integrations operate via the hosted API, webhooks, or managed connectors.
 
@@ -26,6 +26,17 @@
 | **Procurement ZIP (static)** | Artifact | Reproducible **`dist/procurement-pack.zip`** via **`scripts/build_procurement_pack.sh`** / **`.ps1`** (manifest + SHA-256). No hosted public download — distribute through your procurement portal. See [TRUST_CENTER.md](TRUST_CENTER.md) procurement note. |
 | **AsyncAPI** | Contract | Async event contract for webhook and Service Bus consumers. |
 
+### V1 committed — first-party ITSM connectors
+
+Ship tracks **V1 GA** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13); marketplace/store listings may trail usable connectors.
+
+| Connector | MVP commitment |
+|-----------|----------------|
+| **ServiceNow** | Finding → **`incident`** with correlation back-link; OAuth 2.0 / basic auth. Optional **`cmdb_ci`** mapping is an **open planning** topic (same release vs fast-follow). **Two-way** SNOW→ArchLucid status sync **not** committed unless owner promotes. |
+| **Jira** | Finding → issue with correlation back-link; **bi-directional** status sync **in V1** (may fast-follow). OAuth 2.0 / API token auth. |
+
+**Build order:** ServiceNow **before** Jira ([`../PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *Resolved 2026-04-27*, scope pinning updated *Resolved 2026-05-05*). Until enabled in your tenant, use **customer-owned** recipes ([§3](#3-build-your-own) below).
+
 ### Authentication for integrations
 
 | Method | Use case | Reference |
@@ -37,11 +48,11 @@
 
 ## 2. Planned connectors [Roadmap]
 
-**V1.1 first-party sequencing (Resolved 2026-04-27):** Among **ServiceNow**, **Jira**, and **Confluence**, **ServiceNow** is built **first** in the V1.1 window ([PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) *Resolved 2026-04-27 (ITSM V1.1 first-party implementation priority)*). Does not change which connectors are in-V1.1 vs later.
+**ITSM sequencing:** **ServiceNow** **before** **Jira** for **V1** first-party connectors ([`../PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) *Resolved 2026-04-27*, scope *Resolved 2026-05-05*). **Confluence** remains **V1.1**.
 
 ### V1 supported patterns (copy-paste recipes)
 
-These are **customer-operated** integration patterns that consume CloudEvents-style payloads — they **do not** change connector status rows below (for example, **Azure DevOps Work Items** remains **[Planned]** until a first-party connector ships).
+These are **customer-operated** integration patterns that consume CloudEvents-style payloads — they **do not** replace **V1** first-party commitments for **Jira** / **ServiceNow** ([§1](#1-available-today-v1)); they remain useful optional bridges.
 
 | Pattern | Document |
 |---------|----------|
@@ -57,9 +68,9 @@ Broader recipe hub: [ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPE
 | **Architecture import** | Structurizr DSL | Import architecture models from Structurizr workspace files | [Planned] |
 | **Architecture import** | ArchiMate XML | Import from TOGAF / ArchiMate modeling tools | [Planned] |
 | **Architecture import** | Terraform state | Parse `terraform show -json` output into ArchLucid context | [Planned] |
-| **ITSM / Atlassian** | Jira | Create Jira issues from findings; sync status back | **[V1.1 — planned]** — explicitly **out of scope for V1**, **in scope for V1.1** (Resolved 2026-04-23; all Atlassian suite connectors confirmed V1.1 by owner decision 2026-04-24). See [`../library/V1_SCOPE.md` §3](../library/V1_SCOPE.md) and [`../library/V1_DEFERRED.md` §6](../library/V1_DEFERRED.md). For V1, integrate via **CloudEvents webhooks** or **REST API**. **V1 bridge (customer-operated):** [`../../templates/integrations/jira/jira-webhook-bridge-recipe.md`](../../templates/integrations/jira/jira-webhook-bridge-recipe.md) — HMAC, CloudEvents (`com.archlucid.authority.run.completed` + GET run for findings, or `com.archlucid.alert.fired` direct), Jira REST v3, Logic App / Function outline. |
-| **Documentation / Atlassian** | Confluence | Publish architecture findings and run summaries to a Confluence space | **[V1.1 — planned]** — explicitly **out of scope for V1**, **in scope for V1.1** (owner decision 2026-04-24; all Atlassian suite connectors deferred to V1.1). Minimum viable shape: one-way publish to a single fixed `Confluence:DefaultSpaceKey` using API token / basic auth. OAuth 2.0 is a follow-on. Design intent in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) Improvement 3 (sub-decisions 3a + 3b). See [`../library/V1_DEFERRED.md` §6](../library/V1_DEFERRED.md). For V1, push findings to Confluence via **CloudEvents webhooks** or **REST API**. |
-| **ITSM** | ServiceNow | Create ServiceNow `incident` records from findings (optional `cmdb_ci` mapping under V1.1 planning) | **[V1.1 — planned]** — explicitly **out of scope for V1**, **in scope for V1.1** (Resolved 2026-04-23). One-way (finding → `incident`) is committed; whether `cmdb_ci` mapping ships in the same V1.1 release or as a fast-follow is an open V1.1-planning question. Two-way status sync is **not** committed for V1.1. See [`../library/V1_SCOPE.md` §3](../library/V1_SCOPE.md) and [`../library/V1_DEFERRED.md` §6](../library/V1_DEFERRED.md). For V1, integrate via **CloudEvents webhooks** or **REST API**. **V1 bridge (customer-operated):** [`../../templates/integrations/servicenow/servicenow-incident-recipe.md`](../../templates/integrations/servicenow/servicenow-incident-recipe.md) — same event types, ServiceNow Table API, field mapping, Logic App outline. |
+| **ITSM / Atlassian** | Jira | Create Jira issues from findings; sync status back | **Canonical scope:** **[V1 — committed]** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). **V1 bridge (customer-operated, optional):** [`../../templates/integrations/jira/jira-webhook-bridge-recipe.md`](../../templates/integrations/jira/jira-webhook-bridge-recipe.md) — HMAC, CloudEvents (`com.archlucid.authority.run.completed` + GET run for findings, or `com.archlucid.alert.fired` direct), Jira REST v3, Logic App / Function outline. |
+| **Documentation / Atlassian** | Confluence | Publish architecture findings and run summaries to a Confluence space | **[V1.1 — planned]** — explicitly **out of scope for V1**, **in scope for V1.1** (owner decision 2026-04-24; **Jira** is **not** grouped here — see §1 **V1 committed** table). Minimum viable shape: one-way publish to a single fixed `Confluence:DefaultSpaceKey` using API token / basic auth. OAuth 2.0 is a follow-on. Design intent in [PENDING_QUESTIONS.md](../PENDING_QUESTIONS.md) Improvement 3 (sub-decisions 3a + 3b). See [`../library/V1_DEFERRED.md` §6](../library/V1_DEFERRED.md). For V1, push findings to Confluence via **CloudEvents webhooks** or **REST API**. |
+| **ITSM** | ServiceNow | Create ServiceNow `incident` records from findings (optional `cmdb_ci` mapping under planning) | **Canonical scope:** **[V1 — committed]** ([`../library/V1_SCOPE.md`](../library/V1_SCOPE.md) §2.13). **V1 bridge (customer-operated, optional):** [`../../templates/integrations/servicenow/servicenow-incident-recipe.md`](../../templates/integrations/servicenow/servicenow-incident-recipe.md) — same event types, ServiceNow Table API, field mapping, Logic App outline. |
 | **ITSM** | Azure DevOps Work Items | Create work items from findings; sync status back | [Planned] |
 | **Chat-ops** | Slack | Outbound notification sink (parity with the shipped Microsoft Teams connector — same per-tenant `EnabledTriggersJson` opt-in matrix, secrets in Azure Key Vault) | **[V2 — planned]** — explicitly **out of scope for V1 and V1.1** (Resolved 2026-04-23). **Microsoft Teams** is the supported first-party chat-ops surface for V1 and V1.1 (see [`../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md`](../integrations/MICROSOFT_TEAMS_NOTIFICATIONS.md)). For V1 / V1.1, integrate via **CloudEvents webhooks** or **REST API** and bridge to Slack yourself. See [`../library/V1_SCOPE.md` §3](../library/V1_SCOPE.md) and [`../library/V1_DEFERRED.md` §6a](../library/V1_DEFERRED.md). |
 | **Observability** | SIEM export (CEF/syslog) | Native audit log export in SIEM-friendly formats | [Planned] — see [SIEM_EXPORT.md](SIEM_EXPORT.md) for current methods |
@@ -72,14 +83,14 @@ Broader recipe hub: [ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPE
 
 ## 3. Build your own
 
-**End-to-end recipe hub (Azure DevOps PR decoration, CloudEvents consumer outline, Power Automate / Logic Apps):** see **[ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPES.md)** — three consolidated walkthroughs with exact doc and repo paths; **V1.1** first-party Jira / ServiceNow / Confluence connectors remain out of scope for **V1** per [V1_SCOPE.md §3](../library/V1_SCOPE.md).
+**End-to-end recipe hub (Azure DevOps PR decoration, CloudEvents consumer outline, Power Automate / Logic Apps):** see **[ITSM_BRIDGE_V1_RECIPES.md](../library/ITSM_BRIDGE_V1_RECIPES.md)** — consolidated walkthroughs with exact doc and repo paths. **First-party** **Jira** and **ServiceNow** are **V1 commitments** ([`V1_SCOPE.md` §2.13](../library/V1_SCOPE.md)); **Confluence** first-party remains **V1.1**. Recipes stay **optional** customer-operated bridges.
 
 ArchLucid's architecture is designed for extensibility:
 
 - **Context connectors:** Implement `IContextConnector` to bring new data sources into the analysis pipeline. See the finding engine template: `dotnet new archlucid-finding-engine`.
 - **Outbound consumers:** Subscribe to CloudEvents webhooks or Service Bus topics to trigger workflows in your systems.
 - **API automation:** Use the REST API or .NET client to build custom integrations.
-- **ITSM (Jira / ServiceNow) V1:** Until first-party connectors ship (V1.1), use **customer-owned** recipes under [`docs/integrations/recipes/`](../../integrations/recipes/README.md) — **Logic Apps–first:** [ServiceNow (Logic Apps)](../../integrations/recipes/SERVICENOW_INCIDENT_VIA_LOGIC_APPS.md), [Confluence (Logic Apps)](../../integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md); **Power Automate:** [ServiceNow](../../integrations/recipes/SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md), [Jira](../../integrations/recipes/JIRA_ISSUE_VIA_POWER_AUTOMATE.md) — or developer **webhook bridge** templates: [ServiceNow — `servicenow-incident-recipe.md`](../../templates/integrations/servicenow/servicenow-incident-recipe.md), [Jira — `jira-webhook-bridge-recipe.md`](../../templates/integrations/jira/jira-webhook-bridge-recipe.md). Starter **fixture→mapping parity** for bridge authors (Node built-in **`--test`**) lives under [`templates/integrations/bridge-recipe-contract-tests/`](../../templates/integrations/bridge-recipe-contract-tests/README.md), matching CI. All references use canonical event types from [schemas/integration-events/catalog.json](../../schemas/integration-events/catalog.json) and [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
+- **ITSM (Jira / ServiceNow):** **V1** ships **first-party** connectors ([`V1_SCOPE.md` §2.13](../library/V1_SCOPE.md)). Until enabled for your tenant — or when you prefer Microsoft automation — use **customer-owned** recipes under [`docs/integrations/recipes/`](../../integrations/recipes/README.md): **Logic Apps–first:** [ServiceNow (Logic Apps)](../../integrations/recipes/SERVICENOW_INCIDENT_VIA_LOGIC_APPS.md), [Confluence (Logic Apps)](../../integrations/recipes/CONFLUENCE_PAGE_VIA_LOGIC_APPS.md) *(Confluence bridge remains relevant while Confluence first-party is V1.1)*; **Power Automate:** [ServiceNow](../../integrations/recipes/SERVICENOW_INCIDENT_VIA_POWER_AUTOMATE.md), [Jira](../../integrations/recipes/JIRA_ISSUE_VIA_POWER_AUTOMATE.md); **webhook bridge** templates: [ServiceNow](../../templates/integrations/servicenow/servicenow-incident-recipe.md), [Jira](../../templates/integrations/jira/jira-webhook-bridge-recipe.md). Starter **fixture→mapping parity** for bridge authors (Node built-in **`--test`**) lives under [`templates/integrations/bridge-recipe-contract-tests/`](../../templates/integrations/bridge-recipe-contract-tests/README.md), matching CI. Event types: [schemas/integration-events/catalog.json](../../schemas/integration-events/catalog.json) and [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../library/INTEGRATION_EVENTS_AND_WEBHOOKS.md).
 
 ---
 

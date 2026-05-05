@@ -1,8 +1,13 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Models.Diagnostics;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Diagnostics;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -26,7 +31,10 @@ namespace ArchLucid.Api.Controllers.Diagnostics;
 public sealed class SyntheticOperatorDemoPackController(
     ISyntheticOperatorDemoPackWriter writer,
     IOptions<DemoOptions> demoOptions,
-    IWebHostEnvironment environment) : ControllerBase
+    IWebHostEnvironment environment,
+    IAuditService auditService,
+    IActorContext actorContext,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     private readonly ISyntheticOperatorDemoPackWriter _writer =
         writer ?? throw new ArgumentNullException(nameof(writer));
@@ -36,6 +44,15 @@ public sealed class SyntheticOperatorDemoPackController(
 
     private readonly IWebHostEnvironment _environment =
         environment ?? throw new ArgumentNullException(nameof(environment));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IActorContext _actorContext =
+        actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <summary>Appends five durable synthetic audit markers (purge via type or JSON flag in payload).</summary>
     [HttpPost("synthetic-operator-demo-pack")]
@@ -50,6 +67,30 @@ public sealed class SyntheticOperatorDemoPackController(
                 ProblemTypes.ResourceNotFound);
 
         int n = await _writer.WriteMarkerEventsAsync(cancellationToken).ConfigureAwait(false);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string auditActor = _actorContext.GetActor();
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.SyntheticOperatorDemoPackInvoked,
+                ActorUserId = auditActor,
+                ActorUserName = auditActor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        syntheticDemoPack = true,
+                        auditEventsWritten = n,
+                        demoEnabled = _demoOptions.Value.Enabled,
+                        hostIsDevelopment = _environment.IsDevelopment()
+                    })
+            },
+            cancellationToken);
 
         return Ok(new SyntheticOperatorDemoPackResponse { AuditEventsWritten = n });
     }

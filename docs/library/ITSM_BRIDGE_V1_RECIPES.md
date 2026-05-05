@@ -1,12 +1,12 @@
-> **Scope:** Buyer-facing end-to-end recipes bridging ArchLucid to enterprise workflows (Azure DevOps PR review, CloudEvents consumers, customer-owned Power Automate / Logic Apps); not a SKU matrix, endpoint inventory, or commitment for V1.1 first-party ITSM connectors.
+> **Scope:** Buyer-facing end-to-end recipes bridging ArchLucid to enterprise workflows (Azure DevOps PR review, CloudEvents consumers, customer-owned Power Automate / Logic Apps); not a SKU matrix, endpoint inventory, or substitute for **V1** first-party **Jira** / **ServiceNow** connectors ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13).
 
 > **Spine doc:** [Five-document onboarding spine](../FIRST_5_DOCS.md). Read this file only if you have a specific reason beyond those five entry documents.
 
 # ITSM bridge — V1 recipe hub
 
-**Audience:** Platform engineers and integrators who need a **single map** from ArchLucid to PR decoration, event-driven automation, or no-code bridges — without implying first-party Jira / ServiceNow / Confluence connectors ship in **V1**.
+**Audience:** Platform engineers and integrators who need a **single map** from ArchLucid to PR decoration, event-driven automation, or no-code bridges — alongside **or instead of** first-party **Jira** / **ServiceNow** connectors committed for **V1**.
 
-**Non-goals:** This page does not replace [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md), [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), or the OpenAPI contract. **First-party** Jira and ServiceNow ITSM bridges are **V1.1 candidates**, not V1 — see [V1_SCOPE.md §3](V1_SCOPE.md) (*Out of scope for V1*). V1 customers use **REST + webhooks / Service Bus + customer-operated automation** (Azure DevOps tasks, your workers, Power Automate / Logic Apps recipes).
+**Non-goals:** This page does not replace [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md), [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), or the OpenAPI contract. **First-party** **Jira** and **ServiceNow** are **in V1 scope** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13). These recipes are **customer-operated** alternatives when you prefer Logic Apps / Power Automate or need coverage **before** connector enablement. **Confluence** first-party remains **V1.1** ([`V1_DEFERRED.md`](V1_DEFERRED.md) §6).
 
 ---
 
@@ -56,7 +56,7 @@
 
 **Goal:** Bridge CloudEvents from ArchLucid to **Atlassian** or **ServiceNow** HTTP APIs using **Microsoft** automation **you** deploy and maintain — not first-party ArchLucid connectors.
 
-**Honest framing:** Step-by-step flows live under [docs/integrations/recipes/](../integrations/recipes/README.md). Teams on **Azure Logic Apps Standard** should start with the **Logic Apps–first** ordering below; Power Automate–first ordering follows for Microsoft 365–centric tenants. Those recipes are **interim** until **V1.1** first-party connectors (ServiceNow first in engineering sequencing, then Atlassian suite) described in [V1_SCOPE.md §3](V1_SCOPE.md) and [V1_DEFERRED.md §6](V1_DEFERRED.md). They do **not** mean ArchLucid ships managed Atlassian/ServiceNow connectors in **V1**.
+**Honest framing:** Step-by-step flows live under [docs/integrations/recipes/](../integrations/recipes/README.md). Teams on **Azure Logic Apps Standard** should start with the **Logic Apps–first** ordering below; Power Automate–first ordering follows for Microsoft 365–centric tenants. These recipes complement **V1** first-party **Jira** / **ServiceNow** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13); **Confluence** first-party remains **V1.1** ([`V1_DEFERRED.md`](V1_DEFERRED.md) §6).
 
 ### Azure Logic Apps–first (recommended when Logic Apps Standard is your integration plane)
 

@@ -36,11 +36,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
         {
             sb.AppendLine("## Report Warnings");
             sb.AppendLine();
-
-            foreach (string warning in report.Warnings)
-
-                sb.AppendLine($"- {warning}");
-
+            sb.AppendLine(string.Join(Environment.NewLine, report.Warnings.Select(static warning => $"- {warning}")));
             sb.AppendLine();
         }
 
@@ -62,25 +58,22 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             if (report.Evidence.Request.Constraints.Count > 0)
             {
                 sb.AppendLine("- Constraints:");
-                foreach (string item in report.Evidence.Request.Constraints)
-
-                    sb.AppendLine($"  - {item}");
+                sb.AppendLine(string.Join(Environment.NewLine,
+                    report.Evidence.Request.Constraints.Select(static item => $"  - {item}")));
             }
 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
                 sb.AppendLine("- Required Capabilities:");
-                foreach (string item in report.Evidence.Request.RequiredCapabilities)
-
-                    sb.AppendLine($"  - {item}");
+                sb.AppendLine(string.Join(Environment.NewLine,
+                    report.Evidence.Request.RequiredCapabilities.Select(static item => $"  - {item}")));
             }
 
             if (report.Evidence.Request.Assumptions.Count > 0)
             {
                 sb.AppendLine("- Assumptions:");
-                foreach (string item in report.Evidence.Request.Assumptions)
-
-                    sb.AppendLine($"  - {item}");
+                sb.AppendLine(string.Join(Environment.NewLine,
+                    report.Evidence.Request.Assumptions.Select(static item => $"  - {item}")));
             }
 
             sb.AppendLine();
@@ -317,17 +310,15 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 if (iteration.AgentDriftWarnings.Count > 0)
                 {
                     sb.AppendLine("- Agent Drift Warnings:");
-                    foreach (string warning in iteration.AgentDriftWarnings)
-
-                        sb.AppendLine($"  - {warning}");
+                    sb.AppendLine(string.Join(Environment.NewLine,
+                        iteration.AgentDriftWarnings.Select(static warning => $"  - {warning}")));
                 }
 
                 if (iteration.ManifestDriftWarnings.Count > 0)
                 {
                     sb.AppendLine("- Manifest Drift Warnings:");
-                    foreach (string warning in iteration.ManifestDriftWarnings)
-
-                        sb.AppendLine($"  - {warning}");
+                    sb.AppendLine(string.Join(Environment.NewLine,
+                        iteration.ManifestDriftWarnings.Select(static warning => $"  - {warning}")));
                 }
 
                 sb.AppendLine();
@@ -395,9 +386,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             return;
         }
 
-        foreach (string item in items)
-
-            sb.AppendLine($"- {item}");
+        sb.AppendLine(string.Join(Environment.NewLine, items.Select(static item => $"- {item}")));
 
         sb.AppendLine();
     }

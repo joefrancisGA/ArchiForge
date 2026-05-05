@@ -11,7 +11,7 @@ ArchLucid demonstrates a solid V1 foundation with a weighted readiness of 75.32%
 The commercial foundation is viable for technical buyers, but Executive Value Visibility and Proof-of-ROI Readiness are lagging. The product solves complex architectural and governance problems, but translating those technical wins into easily digestible executive dashboards or automated ROI metrics remains a challenge.
 
 **Enterprise Picture**
-Enterprise trust and auditability are strong points, supported by the durable audit log and RLS. However, Workflow Embeddedness and Customer Self-Sufficiency are weaker. Because key ITSM integrations (Jira, ServiceNow) and chat-ops (Slack) are deferred to V1.1/V2, current integration relies on webhooks, which increases the implementation burden on the customer.
+Enterprise trust and auditability are strong points, supported by the durable audit log and RLS. However, Workflow Embeddedness and Customer Self-Sufficiency are weaker. **First-party** **Jira** and **ServiceNow** are **V1 commitments** ([`docs/library/V1_SCOPE.md`](library/V1_SCOPE.md) §2.13); until shipped or enabled for a tenant, teams rely on webhooks and customer-operated bridges — **Slack** chat-ops remains **V2**, which still raises bridge burden versus native connectors for chat-centric workflows.
 
 **Engineering Picture**
 Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility) score highly. The system is built defensively. The primary engineering risks lie in Cognitive Load and Explainability—the agentic outputs and governance workflows are complex, and making them transparent and easy to troubleshoot for tier-1 support or average operators needs improvement.

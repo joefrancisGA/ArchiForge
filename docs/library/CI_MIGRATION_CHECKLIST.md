@@ -37,6 +37,9 @@ dotnet test ArchLucid.Api.Tests\ArchLucid.Api.Tests.csproj `
   --filter "FullyQualifiedName~DatabaseMigrationScriptTests" `
   --no-build
 
+# 3b. Forward migration + consolidated DDL co-touch (merge-blocking in CI; needs full git history)
+python scripts/ci/assert_forward_migration_touches_archlucid_sql.py --diff-range "origin/main...HEAD"
+
 # 4. Run all unit-category tests (fast, no API stack)
 dotnet test ArchLucid.sln --filter "Category=Unit" --no-build
 
@@ -44,7 +47,7 @@ dotnet test ArchLucid.sln --filter "Category=Unit" --no-build
 dotnet test ArchLucid.sln --filter "Category=Integration" --no-build
 ```
 
-If any of steps 1–4 fail, do not push. Step 5 should pass on the PR branch before merging.
+If any of steps 1–4 fail — or step **3b** fails after you touched a forward DbUp script — do not push. Step 5 should pass on the PR branch before merging.
 
 ---
 

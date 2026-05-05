@@ -118,6 +118,8 @@ public sealed class RunQueryController(
 
         using System.Data.IDbConnection connection = await db.CreateOpenConnectionAsync(cancellationToken);
 
+        ArgumentNullException.ThrowIfNull(connection);
+
         const string sql = @"
             SELECT 
                 COUNT(*) as TotalRuns,
@@ -126,17 +128,24 @@ public sealed class RunQueryController(
             FROM dbo.RunTelemetry t
             INNER JOIN dbo.Runs r ON t.RunId = r.RunId
             WHERE r.TenantId = @TenantId AND r.WorkspaceId = @WorkspaceId AND r.ProjectId = @ProjectId";
-            
-        var result = await Dapper.SqlMapper.QueryFirstOrDefaultAsync(
-            connection, 
-            sql, 
-            new { scope.TenantId, scope.WorkspaceId, scope.ProjectId });
-            
-        return Ok(new 
+
+        RunRoiTelemetryRow? aggregateRow =
+            await Dapper.SqlMapper.QueryFirstOrDefaultAsync<RunRoiTelemetryRow>(
+                connection,
+                sql,
+                new { scope.TenantId, scope.WorkspaceId, scope.ProjectId });
+
+        long totalRuns = aggregateRow?.TotalRuns ?? 0L;
+        decimal totalHoursSaved = aggregateRow?.TotalHoursSaved ?? 0m;
+        long averageTimeToCommitMs = aggregateRow?.AverageTimeToCommitMs is double avgMs
+            ? (long)Math.Round(avgMs, MidpointRounding.AwayFromZero)
+            : 0L;
+
+        return Ok(new
         {
-            TotalRuns = result?.TotalRuns ?? 0,
-            TotalHoursSaved = result?.TotalHoursSaved ?? 0m,
-            AverageTimeToCommitMs = result?.AverageTimeToCommitMs ?? 0L
+            TotalRuns = totalRuns,
+            TotalHoursSaved = totalHoursSaved,
+            AverageTimeToCommitMs = averageTimeToCommitMs
         });
     }
 

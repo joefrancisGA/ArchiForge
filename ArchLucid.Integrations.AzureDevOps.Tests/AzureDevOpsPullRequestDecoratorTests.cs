@@ -215,7 +215,7 @@ public sealed class AzureDevOpsPullRequestDecoratorTests
 
             if (url.Contains("/threads", StringComparison.Ordinal) && request.Content is not null)
 
-                ThreadJson = await request.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                ThreadJson = await request.Content.ReadAsStringAsync(cancellationToken);
 
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
