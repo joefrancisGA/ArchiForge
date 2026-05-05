@@ -1,7 +1,8 @@
 # ArchLucid → ServiceNow: Webhook Bridge Recipe (V1)
 
-> **This bridge is a V1 workaround.** A **first-party ServiceNow connector** is planned for **V1.1**; see [docs/go-to-market/INTEGRATION_CATALOG.md](../../../docs/go-to-market/INTEGRATION_CATALOG.md) and [V1_DEFERRED.md](../../../docs/library/V1_DEFERRED.md) §6.  
-> This file is a **customer-operated** pattern (no first-party ServiceNow code in core for V1).
+> **Customer-operated bridge.** A **first-party ServiceNow connector** is **in scope for V1 GA** per [V1_SCOPE.md](../../../docs/library/V1_SCOPE.md) §2.13 (store listing may trail shipping). This file is **not** that connector — it is a **customer-operated** webhook/Table API pattern you may use before or instead of the hosted connector.
+
+> **CMDB note:** The first-party connector will set incident **`cmdb_ci`** via **`cmdb_ci_appl`** lookup on architecture **`SystemName`** (see [INTEGRATION_CATALOG.md](../../../docs/go-to-market/INTEGRATION_CATALOG.md) **Sequencing and CMDB**). **This recipe does not** populate **`cmdb_ci`**.
 
 **Contracts:** [catalog.json](../../../schemas/integration-events/catalog.json) · [INTEGRATION_EVENTS_AND_WEBHOOKS.md](../../../docs/library/INTEGRATION_EVENTS_AND_WEBHOOKS.md)  
 **Event catalog (code):** [ArchLucid.Core/Integration/IntegrationEventTypes.cs](../../../ArchLucid.Core/Integration/IntegrationEventTypes.cs)
@@ -30,7 +31,7 @@ Deliver **ServiceNow `incident`** rows from ArchLucid using:
 
 ## 3. Constraints
 
-- **One-way** create in this recipe (no bidirectional sync). `cmdb_ci` mapping is a **V1.1** planning topic per [INTEGRATION_CATALOG.md](../../../docs/go-to-market/INTEGRATION_CATALOG.md).  
+- **One-way** create in this recipe (no bidirectional sync). Do **not** assume **`cmdb_ci`** is set here; follow the first-party **`cmdb_ci_appl`** lookup contract in [INTEGRATION_CATALOG.md](../../../docs/go-to-market/INTEGRATION_CATALOG.md) if you add CMDB yourself.  
 - **Do not** widen ArchLucid rate limits — **throttle** outbound ServiceNow calls.  
 - **PII / scope IDs:** put only what policy allows in `description` / `work_notes`.
 

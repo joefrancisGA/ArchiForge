@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -17,8 +19,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
-using System.Collections.Immutable;
 
 namespace ArchLucid.Application.Tests.Governance;
 

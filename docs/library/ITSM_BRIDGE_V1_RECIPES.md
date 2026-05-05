@@ -8,6 +8,8 @@
 
 **Non-goals:** This page does not replace [INTEGRATION_CATALOG.md](../go-to-market/INTEGRATION_CATALOG.md), [INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md), or the OpenAPI contract. **First-party** **Jira** and **ServiceNow** are **in V1 scope** ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13). These recipes are **customer-operated** alternatives when you prefer Logic Apps / Power Automate or need coverage **before** connector enablement. **Confluence** first-party remains **V1.1** ([`V1_DEFERRED.md`](V1_DEFERRED.md) §6).
 
+**Platform sequencing (first-party):** **ServiceNow** is built **before** **Jira** for platform-led connector depth ([`V1_SCOPE.md`](V1_SCOPE.md) §2.13; [`INTEGRATION_CATALOG.md`](../go-to-market/INTEGRATION_CATALOG.md) **Sequencing and CMDB**). The first-party ServiceNow connector will set incident **`cmdb_ci`** using a **`cmdb_ci_appl`** table lookup (**`SystemName`** → CMDB **`name`**). The copy-paste recipes on this hub do **not** implement that CMDB lookup.
+
 ---
 
 ## Recipe 1 — Azure DevOps: PR comment + status (manifest delta)

@@ -29,7 +29,7 @@ public sealed class TryReadConnectionStringTests : IDisposable
     public void When_environment_and_arguments_absent_returns_false()
     {
         bool ok =
-            Program.TryReadConnectionString(Array.Empty<string>(), out string cs, out string err);
+            Program.TryReadConnectionString([], out string cs, out string err);
 
         ok.Should().BeFalse();
         cs.Should().BeEmpty();

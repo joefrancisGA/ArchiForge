@@ -367,7 +367,7 @@ public static class Program
 
     private static void WriteNewUsage()
     {
-        const string plain =
+        string plain =
             "Usage: archlucid new <projectName> [--quickstart]" + Environment.NewLine
             + "  --quickstart  Provision local/quickstart artifacts: SQLite CLI registry (local/archlucid-evaluation.sqlite) "
             + "and an appsettings fragment (local/archlucid.quickstart.appsettings.json) that sets "

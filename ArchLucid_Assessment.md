@@ -479,10 +479,12 @@ Modify `ArchLucid.AgentRuntime/RealAgentExecutor.cs` to capture and return the i
 ```
 
 ### 5. Lock ServiceNow-first sequencing for deep ITSM (CMDB before Jira depth)
+- **Status:** **Completed (2026-05-05).** Owner decisions propagated in **`docs/go-to-market/INTEGRATION_CATALOG.md`** (**Sequencing and CMDB** + committed table), **`docs/library/ITSM_BRIDGE_V1_RECIPES.md`** (intro), **`templates/integrations/servicenow/servicenow-incident-recipe.md`** (V1 GA disclaimer + `cmdb_ci` note), and **`docs/library/V1_SCOPE.md`** §2.13 ServiceNow bullet. **`python scripts/ci/check_doc_scope_header.py`** passes. No runtime code in that pass.
 - **Why it matters:** Buyers standardizing on **ServiceNow** need CMDB-aligned signal; spreading engineering across Jira and SNOW in parallel dilutes the highest-value path.
 - **Expected impact:** Directly improves Workflow Embeddedness (+8–12 pts), Interoperability (+5–8 pts), Procurement Readiness (+3–5 pts for buyers on SNOW). Weighted readiness impact: ~+0.25–0.35%.
 - **Affected qualities:** Workflow Embeddedness, Interoperability, Procurement Readiness (where SNOW is the incumbent ITSM).
-- **Actionable:** Yes. **Owner decisions (recorded):** (1) **ServiceNow is the priority** over advanced Jira depth. (2) **CMDB CI table: `cmdb_ci_appl`** — look up `SystemName` matching `name`, set `cmdb_ci` on the incident to the matched `sys_id`; `AutoCreateCmdbCi` defaults to `false`.
+- **Owner decisions (recorded):** (1) **ServiceNow is the priority** over advanced Jira depth. (2) **CMDB CI table: `cmdb_ci_appl`** — look up `SystemName` matching `name`, set `cmdb_ci` on the incident to the matched `sys_id`; `AutoCreateCmdbCi` defaults to `false`.
+- **Actionable:** No — documentation and scope contract updated; connector implementation remains future work.
 
 ```cursor
 Record and propagate two owner decisions into docs: (1) ServiceNow-first sequencing; (2) CMDB CI table is `cmdb_ci_appl`.
@@ -502,10 +504,11 @@ Record and propagate two owner decisions into docs: (1) ServiceNow-first sequenc
 **Acceptance criteria:** Docs read: ServiceNow CMDB uses `cmdb_ci_appl` matched by `SystemName`, `AutoCreateCmdbCi` defaults `false`, ServiceNow ships before Jira depth. No doc implies a different CI class or build order. Scope headers preserved, check script passes.```
 
 ### 6. Plan persistence consolidation (only if CI or release is the bottleneck)
+- **Status:** **Completed (2026-05-05).** Plan-only doc added: **`docs/library/PERSISTENCE_CONSOLIDATION_PLAN.md`** (baselines to capture, merge outline, **`dotnet`** commands). No assembly merge executed — gated on measured build/CI pain.
 - **Why it matters:** Many assemblies mainly hurt **merge and release wall-clock**, not necessarily day-to-day editing when tooling-assisted; consolidation is justified when builds or CI prove it.
 - **Expected impact:** Directly improves Modularity (+5 pts) and Maintainability (+5 pts) **if** solution build or CI duration drops materially. Weighted readiness impact: +0.15% (nominal until measured).
 - **Affected qualities:** Modularity, Maintainability.
-- **Actionable:** Yes.
+- **Actionable:** No — plan is written; consolidation execution waits on metrics justification.
 
 ```cursor
 Create a plan document `docs/library/PERSISTENCE_CONSOLIDATION_PLAN.md` outlining how to merge `ArchLucid.Persistence.Alerts` and `ArchLucid.Persistence.Advisory` into `ArchLucid.Persistence.Runtime` **only if** the team has measured that solution build time or core CI tier duration is a recurring bottleneck. Include: current build/CI baselines to capture before/after, merge steps, and the specific `dotnet` commands. Do not execute the code move in the same change—plan only unless metrics already justify execution.
