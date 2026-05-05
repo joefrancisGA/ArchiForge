@@ -1,6 +1,7 @@
 using System.Text;
 
 using FluentAssertions;
+// ReSharper disable EmptyGeneralCatchClause
 
 namespace ArchLucid.Cli.Tests;
 
@@ -59,6 +60,7 @@ public sealed class ValidateConfigCommandTests
                 Directory.Delete(temp, true);
             }
 
+            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
             }
