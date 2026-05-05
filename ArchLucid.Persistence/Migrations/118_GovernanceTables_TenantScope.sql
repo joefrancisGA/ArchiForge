@@ -8,29 +8,47 @@
 
 IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.GovernanceApprovalRequests', N'TenantId') IS NULL
-BEGIN
     ALTER TABLE dbo.GovernanceApprovalRequests ADD TenantId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernanceApprovalRequests', N'WorkspaceId') IS NULL
     ALTER TABLE dbo.GovernanceApprovalRequests ADD WorkspaceId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernanceApprovalRequests', N'ProjectId') IS NULL
     ALTER TABLE dbo.GovernanceApprovalRequests ADD ProjectId UNIQUEIDENTIFIER NULL;
-END;
 GO
 
 IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.GovernancePromotionRecords', N'TenantId') IS NULL
-BEGIN
     ALTER TABLE dbo.GovernancePromotionRecords ADD TenantId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernancePromotionRecords', N'WorkspaceId') IS NULL
     ALTER TABLE dbo.GovernancePromotionRecords ADD WorkspaceId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernancePromotionRecords', N'ProjectId') IS NULL
     ALTER TABLE dbo.GovernancePromotionRecords ADD ProjectId UNIQUEIDENTIFIER NULL;
-END;
 GO
 
 IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.GovernanceEnvironmentActivations', N'TenantId') IS NULL
-BEGIN
     ALTER TABLE dbo.GovernanceEnvironmentActivations ADD TenantId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernanceEnvironmentActivations', N'WorkspaceId') IS NULL
     ALTER TABLE dbo.GovernanceEnvironmentActivations ADD WorkspaceId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernanceEnvironmentActivations', N'ProjectId') IS NULL
     ALTER TABLE dbo.GovernanceEnvironmentActivations ADD ProjectId UNIQUEIDENTIFIER NULL;
-END;
 GO
 
 IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
@@ -42,7 +60,9 @@ BEGIN
         g.ProjectId = r.ScopeProjectId
     FROM dbo.GovernanceApprovalRequests AS g
     INNER JOIN dbo.Runs AS r ON TRY_CONVERT(UNIQUEIDENTIFIER, g.RunId) = r.RunId
-    WHERE g.TenantId IS NULL;
+    WHERE g.TenantId IS NULL
+       OR g.WorkspaceId IS NULL
+       OR g.ProjectId IS NULL;
 END;
 GO
 
@@ -55,7 +75,9 @@ BEGIN
         g.ProjectId = r.ScopeProjectId
     FROM dbo.GovernancePromotionRecords AS g
     INNER JOIN dbo.Runs AS r ON TRY_CONVERT(UNIQUEIDENTIFIER, g.RunId) = r.RunId
-    WHERE g.TenantId IS NULL;
+    WHERE g.TenantId IS NULL
+       OR g.WorkspaceId IS NULL
+       OR g.ProjectId IS NULL;
 END;
 GO
 
@@ -68,20 +90,31 @@ BEGIN
         g.ProjectId = r.ScopeProjectId
     FROM dbo.GovernanceEnvironmentActivations AS g
     INNER JOIN dbo.Runs AS r ON TRY_CONVERT(UNIQUEIDENTIFIER, g.RunId) = r.RunId
-    WHERE g.TenantId IS NULL;
+    WHERE g.TenantId IS NULL
+       OR g.WorkspaceId IS NULL
+       OR g.ProjectId IS NULL;
 END;
 GO
 
 IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
-    DELETE FROM dbo.GovernanceApprovalRequests WHERE TenantId IS NULL;
+    DELETE FROM dbo.GovernanceApprovalRequests
+    WHERE TenantId IS NULL
+       OR WorkspaceId IS NULL
+       OR ProjectId IS NULL;
 GO
 
 IF OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL
-    DELETE FROM dbo.GovernancePromotionRecords WHERE TenantId IS NULL;
+    DELETE FROM dbo.GovernancePromotionRecords
+    WHERE TenantId IS NULL
+       OR WorkspaceId IS NULL
+       OR ProjectId IS NULL;
 GO
 
 IF OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL
-    DELETE FROM dbo.GovernanceEnvironmentActivations WHERE TenantId IS NULL;
+    DELETE FROM dbo.GovernanceEnvironmentActivations
+    WHERE TenantId IS NULL
+       OR WorkspaceId IS NULL
+       OR ProjectId IS NULL;
 GO
 
 IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL

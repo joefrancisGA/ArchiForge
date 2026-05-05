@@ -25,6 +25,16 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.TenantHealthScores', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.TenantHealthScores', N'WorkspaceId') IS NULL
+    ALTER TABLE dbo.TenantHealthScores ADD WorkspaceId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.TenantHealthScores', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.TenantHealthScores', N'ProjectId') IS NULL
+    ALTER TABLE dbo.TenantHealthScores ADD ProjectId UNIQUEIDENTIFIER NULL;
+GO
+
 IF OBJECT_ID(N'dbo.ProductFeedback', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.ProductFeedback
