@@ -13,7 +13,8 @@ namespace ArchLucid.Api.Tests;
 ///     Swashbuckle <c>/swagger/v1/swagger.json</c> is covered by generation smoke tests; this snapshot uses the Microsoft
 ///     OpenAPI document for stable contract diffing.
 ///     Regenerate: <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo
-///     root â€” or run <c>scripts/ci/check_openapi_contract_snapshot.sh</c> / <c>.ps1</c> with the same env var.
+///     root, or run <c>scripts/ci/check_openapi_contract_snapshot.sh</c> / <c>.ps1</c> with the same env var.
+///     Optional: install <c>scripts/git-hooks</c> pre-push (<c>Install-GitHooks.ps1</c> / <c>install-git-hooks.sh</c>) to fail locally before CI when API-contract paths drift.
 ///     CI also runs job openapi-contract-snapshot before the full solution corset build.
 /// </summary>
 [Trait("Suite", "Core")]

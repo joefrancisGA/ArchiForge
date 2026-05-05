@@ -1,0 +1,93 @@
+#!/usr/bin/env sh
+# Runs the same OpenAPI v1 snapshot check as CI (scripts/ci/check_openapi_contract_*)
+# before refs leave this clone. Opt out: ARCHLUCID_SKIP_OPENAPI_PRE_PUSH=1
+#
+# Install once per clone: .\scripts\git-hooks\Install-GitHooks.ps1 or bash scripts/git-hooks/install-git-hooks.sh
+
+set -eu
+
+if [ "${ARCHLUCID_SKIP_OPENAPI_PRE_PUSH:-}" = "1" ]; then
+    exit 0
+fi
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+# Optional: ARCHLUCID_OPENAPI_PRE_PUSH=all — always run (ignores path filter).
+if [ "${ARCHLUCID_OPENAPI_PRE_PUSH:-}" != "all" ]; then
+    needs_check=0
+
+    openapi_relevant_path() (
+        case "$1" in
+            ArchLucid.Persistence.Integration/*|ArchLucid.Persistence.Runtime/*|ArchLucid.Persistence/*)
+                return 0 ;;
+            ArchLucid.Host.Composition/*|ArchLucid.Host.Core/*)
+                return 0 ;;
+            ArchLucid.Api.Tests/*|ArchLucid.Api/*|ArchLucid.Application/*|ArchLucid.ArtifactSynthesis/*|ArchLucid.ContextIngestion/*|ArchLucid.Contracts/*|ArchLucid.Core/*|ArchLucid.Decisioning/*|ArchLucid.KnowledgeGraph/*|ArchLucid.Provenance/*|ArchLucid.Retrieval/*)
+                return 0 ;;
+            Directory.Build.props|Directory.Build.targets|Directory.Packages.props|global.json)
+                return 0 ;;
+            schemas/*)
+                return 0 ;;
+            *)
+                return 1 ;;
+        esac
+    )
+
+    # Pre-push stdin: <local ref> SP <local sha> SP <remote ref> SP <remote sha> LF
+    while read -r local_ref local_sha remote_ref remote_sha; do
+        if [ -z "${local_sha:-}" ]; then
+            continue
+        fi
+
+        zeroremote="0000000000000000000000000000000000000000"
+        names=""
+
+        if [ "$remote_sha" = "$zeroremote" ]; then
+            if git rev-parse --verify origin/HEAD >/dev/null 2>&1; then
+                base="$(git merge-base "$local_sha" origin/HEAD 2>/dev/null || true)"
+
+                if [ -n "$base" ]; then
+                    names="$(git diff --name-only "$base" "$local_sha" 2>/dev/null || true)"
+                fi
+            fi
+
+            if [ -z "$names" ]; then
+                names="$(git diff-tree --no-commit-id --name-only -r "$local_sha" 2>/dev/null || true)"
+            fi
+        else
+            names="$(git diff --name-only "$remote_sha" "$local_sha" 2>/dev/null || true)"
+        fi
+
+        for f in $names; do
+            if openapi_relevant_path "$f"; then
+                needs_check=1
+                break
+            fi
+        done
+
+        if [ "$needs_check" -eq 1 ]; then
+            break
+        fi
+    done
+
+    if [ "$needs_check" -eq 0 ]; then
+        exit 0
+    fi
+fi
+
+invoke_check() (
+    cd "$ROOT"
+    if command -v pwsh >/dev/null 2>&1; then
+        exec pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/ci/check_openapi_contract_snapshot.ps1
+    fi
+
+    # Git for Windows: PowerShell Desktop is usually on PATH as powershell.exe
+    if command -v powershell.exe >/dev/null 2>&1; then
+        exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/ci/check_openapi_contract_snapshot.ps1
+    fi
+
+    exec sh scripts/ci/check_openapi_contract_snapshot.sh
+)
+
+invoke_check
