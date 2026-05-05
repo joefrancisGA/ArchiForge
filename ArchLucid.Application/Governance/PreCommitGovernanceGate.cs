@@ -1,9 +1,13 @@
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Validation;
+
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -19,8 +23,14 @@ public sealed class PreCommitGovernanceGate(
     IScopeContextProvider scopeContextProvider,
     IRunRepository runRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
-    IPolicyPackAssignmentRepository policyPackAssignmentRepository) : IPreCommitGovernanceGate
+    IPolicyPackAssignmentRepository policyPackAssignmentRepository,
+    ISchemaValidationService schemaValidationService,
+    IOptions<AuthorityCommitSchemaValidationOptions> authorityCommitSchemaValidationOptions) : IPreCommitGovernanceGate
 {
+    private readonly IOptions<AuthorityCommitSchemaValidationOptions> _authorityCommitSchemaValidationOptions =
+        authorityCommitSchemaValidationOptions
+        ?? throw new ArgumentNullException(nameof(authorityCommitSchemaValidationOptions));
+
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
 
@@ -33,13 +43,27 @@ public sealed class PreCommitGovernanceGate(
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
+    private readonly ISchemaValidationService _schemaValidationService =
+        schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
+
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     /// <inheritdoc />
     public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default)
     {
-        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, cancellationToken);
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, null, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<PreCommitGateResult> EvaluateAsync(
+        string runId,
+        string goldenManifestWireJson,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(goldenManifestWireJson);
+
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, goldenManifestWireJson, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -52,16 +76,26 @@ public sealed class PreCommitGovernanceGate(
         return syntheticCount < 0
             ? throw new ArgumentOutOfRangeException(nameof(syntheticCount), syntheticCount,
                 "Count must be non-negative.")
-            : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, cancellationToken);
+            : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, null, cancellationToken);
     }
 
     private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(
         string runId,
         FindingSeverity? syntheticSeverity,
         int syntheticCount,
+        string? goldenManifestWireJson,
         CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (goldenManifestWireJson is not null && _authorityCommitSchemaValidationOptions.Value.ValidateGoldenManifestSchema)
+        {
+            SchemaValidationResult manifestSchemaResult =
+                _schemaValidationService.ValidateGoldenManifestJson(goldenManifestWireJson);
+
+            if (!manifestSchemaResult.IsValid)
+                throw new GoldenManifestSchemaValidationException(manifestSchemaResult);
+        }
 
         if (!_options.Value.PreCommitGateEnabled || !Guid.TryParse(runId, out Guid runKey))
             return PreCommitGateResult.Allowed();

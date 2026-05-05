@@ -1,10 +1,13 @@
 ﻿using ArchLucid.Application.Governance;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Repositories;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -93,7 +96,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -171,7 +174,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -187,7 +190,7 @@ public sealed class PreCommitGovernanceGateTests
     public async Task EvaluateAsync_allows_when_gate_disabled_in_options()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = false }),
             scopeProvider.Object,
             new InMemoryRunRepository(),
@@ -204,7 +207,7 @@ public sealed class PreCommitGovernanceGateTests
     public async Task EvaluateAsync_allows_when_runId_is_not_parseable_guid()
     {
         Mock<IScopeContextProvider> scopeProvider = new();
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             new InMemoryRunRepository(),
@@ -256,7 +259,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -333,7 +336,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -410,7 +413,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -462,7 +465,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -559,7 +562,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -656,7 +659,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -751,7 +754,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -830,7 +833,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -911,7 +914,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -999,7 +1002,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             scopeProvider.Object,
             runs,
@@ -1081,7 +1084,7 @@ public sealed class PreCommitGovernanceGateTests
 
         PreCommitGovernanceGateOptions opts = new() { PreCommitGateEnabled = true, WarnOnlySeverities = ["Error"], };
 
-        PreCommitGovernanceGate sut = new(
+        PreCommitGovernanceGate sut = CreateGate(
             Options.Create(opts),
             scopeProvider.Object,
             runs,
@@ -1095,5 +1098,92 @@ public sealed class PreCommitGovernanceGateTests
         r.Warnings.Should().NotBeEmpty();
         r.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-error");
         r.MinimumBlockingSeverity.Should().Be((int)FindingSeverity.Error);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_with_manifest_wire_throws_schema_validation_before_loading_policy_assignments()
+    {
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(a => a.ListByScopeAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("ListByScopeAsync should not run when schema fails."));
+
+        Mock<ISchemaValidationService> schema = new();
+        schema
+            .Setup(s => s.ValidateGoldenManifestJson(It.IsAny<string>()))
+            .Returns(
+                new SchemaValidationResult
+                {
+                    Errors = ["GoldenManifest schema error at '(root)': unit-test violation"],
+                });
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true, }),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IFindingsSnapshotRepository>(),
+            assignments.Object,
+            schema.Object,
+            Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = true }));
+
+        string runId = Guid.NewGuid().ToString("N");
+        Func<Task> act = () => sut.EvaluateAsync(runId, "{}", CancellationToken.None);
+
+        await act.Should().ThrowAsync<GoldenManifestSchemaValidationException>();
+        assignments.Verify(
+            a => a.ListByScopeAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_with_manifest_wire_skips_schema_service_when_validation_disabled()
+    {
+        Mock<ISchemaValidationService> schema = new();
+        schema
+            .Setup(s => s.ValidateGoldenManifestJson(It.IsAny<string>()))
+            .Throws(new InvalidOperationException("schema should not be invoked"));
+
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = false, }),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IRunRepository>(),
+            Mock.Of<IFindingsSnapshotRepository>(),
+            Mock.Of<IPolicyPackAssignmentRepository>(),
+            schema.Object,
+            Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }));
+
+        PreCommitGateResult r = await sut.EvaluateAsync(Guid.NewGuid().ToString("N"), "{}", CancellationToken.None);
+
+        r.Blocked.Should().BeFalse();
+        schema.Verify(s => s.ValidateGoldenManifestJson(It.IsAny<string>()), Times.Never);
+    }
+
+    private static PreCommitGovernanceGate CreateGate(
+        IOptions<PreCommitGovernanceGateOptions> gateOptions,
+        IScopeContextProvider scopeProvider,
+        IRunRepository runs,
+        IFindingsSnapshotRepository findings,
+        IPolicyPackAssignmentRepository assignments,
+        ISchemaValidationService? schemaValidationService = null,
+        IOptions<AuthorityCommitSchemaValidationOptions>? authoritySchemaOptions = null)
+    {
+        return new PreCommitGovernanceGate(
+            gateOptions,
+            scopeProvider,
+            runs,
+            findings,
+            assignments,
+            schemaValidationService ?? new PassthroughSchemaValidationService(),
+            authoritySchemaOptions
+            ?? Options.Create(new AuthorityCommitSchemaValidationOptions
+                { ValidateGoldenManifestSchema = false }));
     }
 }

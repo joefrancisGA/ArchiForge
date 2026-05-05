@@ -20,7 +20,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
-using ArchLucid.Decisioning.Validation;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
@@ -31,7 +30,6 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using Cm = ArchLucid.Contracts.Manifest;
 using DecisioningIdTraceRepository = ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository;
@@ -59,15 +57,12 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IAuthorityCommitProjectionBuilder projectionBuilder,
     IManifestFinalizationService manifestFinalizationService,
     IPreCommitGovernanceGate preCommitGovernanceGate,
-    IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
     IAuditService auditService,
     ITrialFunnelCommitHook trialFunnelCommitHook,
     IFirstSessionLifecycleHook firstSessionLifecycleHook,
     IDbConnectionFactory dbConnectionFactory,
-    ISchemaValidationService schemaValidationService,
-    IOptions<AuthorityCommitSchemaValidationOptions> authorityCommitSchemaValidationOptions,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private const int CommitRunTransientMaxAttempts = 5;
@@ -130,9 +125,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                                                                          ?? throw new ArgumentNullException(
                                                                              nameof(preCommitGovernanceGate));
 
-    private readonly IOptions<PreCommitGovernanceGateOptions> _preCommitGovernanceGateOptions =
-        preCommitGovernanceGateOptions ?? throw new ArgumentNullException(nameof(preCommitGovernanceGateOptions));
-
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
         projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
 
@@ -152,13 +144,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly ITrialFunnelCommitHook _trialFunnelCommitHook = trialFunnelCommitHook
                                                                      ?? throw new ArgumentNullException(
                                                                          nameof(trialFunnelCommitHook));
-
-    private readonly ISchemaValidationService _schemaValidationService =
-        schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
-
-    private readonly IOptions<AuthorityCommitSchemaValidationOptions> _authorityCommitSchemaValidationOptions =
-        authorityCommitSchemaValidationOptions ??
-        throw new ArgumentNullException(nameof(authorityCommitSchemaValidationOptions));
 
     /// <inheritdoc />
     public async Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -299,8 +284,6 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 $"Run '{runId}' is already Committed but the run record has no committed manifest version or authority identifiers.");
         }
 
-        await EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, cancellationToken);
-
         try
         {
             EnforceCommitAllowedForStatus(run, runId);
@@ -378,15 +361,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     "Committed manifest traceability (authority) invariant failed: " +
                     string.Join("; ", traceabilityGaps));
 
-            if (_authorityCommitSchemaValidationOptions.Value.ValidateGoldenManifestSchema)
-            {
-                string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
-                SchemaValidationResult goldenValidation =
-                    _schemaValidationService.ValidateGoldenManifestJson(contractWireJson);
-
-                if (!goldenValidation.IsValid)
-                    throw new GoldenManifestSchemaValidationException(goldenValidation);
-            }
+            string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
+            await EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, contractWireJson, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -773,12 +749,11 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private async Task EvaluatePreCommitGovernanceGateOrThrowAsync(
         string runId,
         string actor,
+        string goldenManifestWireJson,
         CancellationToken cancellationToken)
     {
-        if (!_preCommitGovernanceGateOptions.Value.PreCommitGateEnabled)
-            return;
-
-        PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken);
+        PreCommitGateResult gateResult =
+            await _preCommitGovernanceGate.EvaluateAsync(runId, goldenManifestWireJson, cancellationToken);
 
         if (gateResult.WarnOnly)
         {
