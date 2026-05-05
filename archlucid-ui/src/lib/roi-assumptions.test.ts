@@ -4,17 +4,17 @@ import { hoursSurfaced, formatHours, formatUsd } from "@/lib/roi-assumptions";
 
 describe("hoursSurfaced", () => {
   it("returns zero when all inputs are zero", () => {
-    expect(hoursSurfaced({ critical: 0, high: 0, medium: 0 }, 0)).toBe(0);
+    expect(hoursSurfaced({ critical: 0, high: 0, medium: 0, precommitBlocks: 0 })).toBe(0);
   });
 
   it("applies default coefficients", () => {
-    const h = hoursSurfaced({ critical: 1, high: 1, medium: 1 }, 2);
+    const h = hoursSurfaced({ critical: 1, high: 1, medium: 1, precommitBlocks: 2 });
 
     expect(h).toBe(8 + 3 + 1 + 2 * 2);
   });
 
   it("respects coefficient overrides", () => {
-    const h = hoursSurfaced({ critical: 0, high: 0, medium: 2 }, 1, {
+    const h = hoursSurfaced({ critical: 0, high: 0, medium: 2, precommitBlocks: 1 }, {
       hoursPerCritical: 10,
       hoursPerHigh: 5,
       hoursPerMedium: 1,

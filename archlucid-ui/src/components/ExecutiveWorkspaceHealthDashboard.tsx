@@ -179,9 +179,19 @@ export function ExecutiveWorkspaceHealthDashboard() {
 
   const sla = computeWorkspaceHealthSlaStats(dashboard.pendingApprovals, dashboard.recentDecisions);
 
-  const hoursFromBlocks = hoursSurfaced({ critical: 0, high: 0, medium: 0 }, blocked30d.count);
+  const hoursFromBlocks = hoursSurfaced({
+    critical: 0,
+    high: 0,
+    medium: 0,
+    precommitBlocks: blocked30d.count,
+  });
 
-  const hoursFull30 = hoursSurfaced(report30d.findingsBySeverity, blocked30d.count);
+  const hoursFull30 = hoursSurfaced({
+    critical: report30d.findingsBySeverity.critical,
+    high: report30d.findingsBySeverity.high,
+    medium: report30d.findingsBySeverity.medium,
+    precommitBlocks: blocked30d.count,
+  });
 
   const highCritical90 = report90d.findingsBySeverity.high + report90d.findingsBySeverity.critical;
 

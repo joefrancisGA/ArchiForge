@@ -7,9 +7,7 @@ describe("RoiTelemetryCard", () => {
   it("hides USD controls for non-admin", () => {
     render(
       <RoiTelemetryCard
-        domSuffix="t1"
-        title="Test"
-        windowLabel="30d"
+        window="rolling30"
         severity={{ critical: 1, high: 0, medium: 0 }}
         precommitBlocks={1}
         precommitBlocksExact
@@ -24,9 +22,7 @@ describe("RoiTelemetryCard", () => {
   it("shows USD controls for admin after mount", async () => {
     render(
       <RoiTelemetryCard
-        domSuffix="t2"
-        title="Test"
-        windowLabel="30d"
+        window="rolling30"
         severity={{ critical: 0, high: 0, medium: 0 }}
         precommitBlocks={0}
         precommitBlocksExact
@@ -40,9 +36,7 @@ describe("RoiTelemetryCard", () => {
   it("labels sampled pre-commit blocks", () => {
     render(
       <RoiTelemetryCard
-        domSuffix="t3"
-        title="Test"
-        windowLabel="30d"
+        window="rolling30"
         severity={{ critical: 0, high: 0, medium: 0 }}
         precommitBlocks={400}
         precommitBlocksExact={false}

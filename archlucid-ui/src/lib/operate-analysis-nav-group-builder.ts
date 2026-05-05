@@ -121,8 +121,8 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         },
         {
           href: "/value-report/roi",
-          label: "ROI summary",
-          title: "ROI summary — hours estimate from severities and pre-commit audit blocks",
+          label: "ROI report",
+          title: "ROI report — hours estimate from severities and pre-commit audit blocks",
           icon: LineChart,
           tier: "extended",
           requiredAuthority: "ReadAuthority",

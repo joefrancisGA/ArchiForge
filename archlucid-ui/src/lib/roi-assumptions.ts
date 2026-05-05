@@ -46,19 +46,27 @@ export const DEFAULT_ROI_HOURS_COEFFICIENTS: RoiHoursCoefficients = {
   hoursPerPrecommitBlock: HOURS_PER_PRECOMMIT_BLOCK,
 };
 
+export type RoiHoursSurfacedInput = Pick<PilotValueReportSeverityJson, "critical" | "high" | "medium"> & {
+  precommitBlocks: number;
+};
+
 /**
  * Linear estimate: weighted severity findings + premium per pre-commit block (same window as inputs).
  */
 export function hoursSurfaced(
-  severity: Pick<PilotValueReportSeverityJson, "critical" | "high" | "medium">,
-  precommitBlocks: number,
+  counts: RoiHoursSurfacedInput,
   coefficients: RoiHoursCoefficients = DEFAULT_ROI_HOURS_COEFFICIENTS,
 ): number {
+  const c = counts.critical;
+  const h = counts.high;
+  const m = counts.medium;
+  const b = counts.precommitBlocks;
+
   const s =
-    severity.critical * coefficients.hoursPerCritical +
-    severity.high * coefficients.hoursPerHigh +
-    severity.medium * coefficients.hoursPerMedium +
-    precommitBlocks * coefficients.hoursPerPrecommitBlock;
+    (Number.isFinite(c) ? c : 0) * coefficients.hoursPerCritical +
+    (Number.isFinite(h) ? h : 0) * coefficients.hoursPerHigh +
+    (Number.isFinite(m) ? m : 0) * coefficients.hoursPerMedium +
+    (Number.isFinite(b) ? b : 0) * coefficients.hoursPerPrecommitBlock;
 
   return Number.isFinite(s) ? s : 0;
 }

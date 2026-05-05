@@ -14,22 +14,36 @@ import {
 import type { PilotValueReportSeverityJson } from "@/types/pilot-value-report";
 
 export type RoiTelemetryCardProps = {
-  title: string;
-  /** Rolling vs pilot-to-date — copy only */
-  windowLabel: string;
-  /** Stable id suffix when multiple cards on one page (e.g. rolling30, pilot). */
-  domSuffix: string;
+  window: "rolling30" | "pilotToDate";
+  /** Optional ISO range line from pilot-value-report (parent owns window bounds). */
+  rangeCaption?: string;
   severity: Pick<PilotValueReportSeverityJson, "critical" | "high" | "medium">;
   precommitBlocks: number;
   precommitBlocksExact: boolean;
   isAdmin: boolean;
 };
 
+function roiCardTitles(w: RoiTelemetryCardProps["window"]): { title: string; windowLabel: string } {
+  if (w === "rolling30") {
+    return { title: "Rolling 30 days", windowLabel: "Rolling 30-day window (UTC)" };
+  }
+
+  return { title: "Since pilot start", windowLabel: "Pilot-to-date window (tenant pilot start → report toUtc)" };
+}
+
 /**
  * Hours-first ROI tile; Admin sees loaded $/hour (localStorage) and implied USD total.
  */
 export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
-  const hours = hoursSurfaced(props.severity, props.precommitBlocks);
+  const { title, windowLabel } = roiCardTitles(props.window);
+  const domSuffix = props.window;
+
+  const hours = hoursSurfaced({
+    critical: props.severity.critical,
+    high: props.severity.high,
+    medium: props.severity.medium,
+    precommitBlocks: props.precommitBlocks,
+  });
   const [hourlyUsd, setHourlyUsd] = useState<number>(DEFAULT_LOADED_HOURLY_USD);
   const [mounted, setMounted] = useState(false);
 
@@ -58,15 +72,18 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
   return (
     <section
       className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
-      aria-labelledby={`roi-card-${props.domSuffix}`}
+      aria-labelledby={`roi-card-${domSuffix}`}
     >
       <h2
-        id={`roi-card-${props.domSuffix}`}
+        id={`roi-card-${domSuffix}`}
         className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100"
       >
-        {props.title}
+        {title}
       </h2>
-      <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">{props.windowLabel}</p>
+      <p className="m-0 mt-1 text-xs text-neutral-500 dark:text-neutral-400">{windowLabel}</p>
+      {props.rangeCaption ? (
+        <p className="m-0 mt-1 font-mono text-[11px] text-neutral-500 dark:text-neutral-400">{props.rangeCaption}</p>
+      ) : null}
       <p className="m-0 mt-3 font-mono text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
         {formatHours(hours)}
       </p>
@@ -80,7 +97,7 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
       {props.isAdmin ? (
         <div className="mt-4 space-y-2 rounded-md border border-neutral-100 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-950/50">
           <div className="flex flex-wrap items-center gap-2">
-            <label className="text-xs font-medium text-neutral-600 dark:text-neutral-400" htmlFor={`hourly-usd-${props.domSuffix}`}>
+            <label className="text-xs font-medium text-neutral-600 dark:text-neutral-400" htmlFor={`hourly-usd-${domSuffix}`}>
               Loaded cost / hour (USD)
             </label>
             {!hourlyIsDefault ? (
@@ -90,7 +107,7 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
             ) : null}
           </div>
           <Input
-            id={`hourly-usd-${props.domSuffix}`}
+            id={`hourly-usd-${domSuffix}`}
             type="number"
             inputMode="decimal"
             min={1}
