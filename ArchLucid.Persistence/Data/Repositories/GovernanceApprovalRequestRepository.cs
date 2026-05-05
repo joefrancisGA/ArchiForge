@@ -77,33 +77,35 @@ public sealed class GovernanceApprovalRequestRepository(
 
         try
         {
+            // Columns are DATETIME2; default SqlClient mapping uses legacy datetime and overflows near DateTime.MaxValue
+            // (contract tests use ceiling ticks for stable ORDER BY).
+            DynamicParameters parameters = new();
+            parameters.Add("ApprovalRequestId", item.ApprovalRequestId);
+            parameters.Add("RunId", item.RunId);
+            parameters.Add("TenantId", item.TenantId);
+            parameters.Add("WorkspaceId", item.WorkspaceId);
+            parameters.Add("ProjectId", item.ProjectId);
+            parameters.Add("ManifestVersion", item.ManifestVersion);
+            parameters.Add("SourceEnvironment", item.SourceEnvironment);
+            parameters.Add("TargetEnvironment", item.TargetEnvironment);
+            parameters.Add("Status", item.Status);
+            parameters.Add("RequestedBy", item.RequestedBy);
+            parameters.Add("RequestedByActorKey", item.RequestedByActorKey);
+            parameters.Add("ReviewedBy", item.ReviewedBy);
+            parameters.Add("ReviewedByActorKey", item.ReviewedByActorKey);
+            parameters.Add("RequestComment", item.RequestComment);
+            parameters.Add("ReviewComment", item.ReviewComment);
+            parameters.Add("RequestedUtc", item.RequestedUtc, DbType.DateTime2);
+            parameters.Add("ReviewedUtc", item.ReviewedUtc, DbType.DateTime2);
+            parameters.Add("SlaDeadlineUtc", item.SlaDeadlineUtc, DbType.DateTime2);
+            parameters.Add("SlaBreachNotifiedUtc", item.SlaBreachNotifiedUtc, DbType.DateTime2);
+
             // Named CommandDefinition slots so Dapper always enlists transaction (positional + cancellationToken can
             // mis-bind overloads on some SDKs; unenlisted INSERTs break FK checks vs same-session MERGE).
             await conn.ExecuteAsync(
                 new CommandDefinition(
                     commandText: sql,
-                    parameters: new
-                    {
-                        item.ApprovalRequestId,
-                        item.RunId,
-                        item.TenantId,
-                        item.WorkspaceId,
-                        item.ProjectId,
-                        item.ManifestVersion,
-                        item.SourceEnvironment,
-                        item.TargetEnvironment,
-                        item.Status,
-                        item.RequestedBy,
-                        item.RequestedByActorKey,
-                        item.ReviewedBy,
-                        item.ReviewedByActorKey,
-                        item.RequestComment,
-                        item.ReviewComment,
-                        item.RequestedUtc,
-                        item.ReviewedUtc,
-                        item.SlaDeadlineUtc,
-                        item.SlaBreachNotifiedUtc
-                    },
+                    parameters: parameters,
                     transaction: transaction,
                     commandTimeout: null,
                     commandType: null,
@@ -154,7 +156,7 @@ public sealed class GovernanceApprovalRequestRepository(
         transitionParams.Add("ReviewedBy", reviewedBy);
         transitionParams.Add("ReviewedByActorKey", reviewedByActorKey);
         transitionParams.Add("ReviewComment", reviewComment);
-        transitionParams.Add("ReviewedUtc", reviewedUtc);
+        transitionParams.Add("ReviewedUtc", reviewedUtc, DbType.DateTime2);
         transitionParams.Add("Draft", GovernanceApprovalStatus.Draft);
         transitionParams.Add("Submitted", GovernanceApprovalStatus.Submitted);
         RepositoryScopePredicate.AddScopeTripleIfNeeded(transitionParams, scope);
@@ -204,9 +206,9 @@ public sealed class GovernanceApprovalRequestRepository(
         p.Add("Status", item.Status);
         p.Add("ReviewedBy", item.ReviewedBy);
         p.Add("ReviewComment", item.ReviewComment);
-        p.Add("ReviewedUtc", item.ReviewedUtc);
-        p.Add("SlaDeadlineUtc", item.SlaDeadlineUtc);
-        p.Add("SlaBreachNotifiedUtc", item.SlaBreachNotifiedUtc);
+        p.Add("ReviewedUtc", item.ReviewedUtc, DbType.DateTime2);
+        p.Add("SlaDeadlineUtc", item.SlaDeadlineUtc, DbType.DateTime2);
+        p.Add("SlaBreachNotifiedUtc", item.SlaBreachNotifiedUtc, DbType.DateTime2);
         RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
 
         await connection.ExecuteAsync(new CommandDefinition(sql, p, cancellationToken: cancellationToken));
@@ -396,7 +398,7 @@ public sealed class GovernanceApprovalRequestRepository(
                            FROM GovernanceApprovalRequests
                            WHERE Status IN (@Approved, @Rejected, @Promoted)
                              AND ReviewedUtc IS NOT NULL{scopeSql}
-                           ORDER BY ReviewedUtc DESC;
+                           ORDER BY ReviewedUtc DESC, ApprovalRequestId DESC;
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
@@ -456,7 +458,7 @@ public sealed class GovernanceApprovalRequestRepository(
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         DynamicParameters p = new();
-        p.Add("UtcNow", utcNow);
+        p.Add("UtcNow", utcNow, DbType.DateTime2);
         p.Add("Draft", GovernanceApprovalStatus.Draft);
         p.Add("Submitted", GovernanceApprovalStatus.Submitted);
         RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
@@ -490,7 +492,7 @@ public sealed class GovernanceApprovalRequestRepository(
 
         DynamicParameters p = new();
         p.Add("ApprovalRequestId", approvalRequestId);
-        p.Add("SlaBreachNotifiedUtc", slaBreachNotifiedUtc);
+        p.Add("SlaBreachNotifiedUtc", slaBreachNotifiedUtc, DbType.DateTime2);
         RepositoryScopePredicate.AddScopeTripleIfNeeded(p, scope);
 
         await connection.ExecuteAsync(new CommandDefinition(sql, p, cancellationToken: cancellationToken));

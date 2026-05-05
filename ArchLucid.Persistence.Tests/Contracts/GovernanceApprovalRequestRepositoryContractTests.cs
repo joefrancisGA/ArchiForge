@@ -241,10 +241,11 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         string idRejected = "apr-rej-" + Guid.NewGuid().ToString("N");
         string idPending = "apr-still-open-" + Guid.NewGuid().ToString("N");
         DateTime requested = new(2026, 4, 1, 9, 0, 0, DateTimeKind.Utc);
-        // TOP (@MaxRows) is global; use end-of-range instants (same band as GetPendingAsync_*) so rows stay inside
-        // the window when the shared catalog already holds legacy 9999-01-* decision rows or many newer decisions.
-        DateTime reviewedOlder = new(9999, 12, 31, 23, 59, 59, 996, DateTimeKind.Utc);
-        DateTime reviewedNewer = new(9999, 12, 31, 23, 59, 59, 998, DateTimeKind.Utc);
+        // TOP (@MaxRows) is global; use DATETIME2-ceiling ticks with wide separation — not adjacent ms (e.g. .996 vs .998)
+        // near 9999-12-31: parameter/round-trip can collapse those to one instant so ordering ties and defaults to INSERT order.
+        // Match GetByRunId_orders_descending_by_RequestedUtc / GetPendingAsync_* tick bands; keep delta >> 100ns.
+        DateTime reviewedOlder = DateTime.MaxValue.AddTicks(-400);
+        DateTime reviewedNewer = DateTime.MaxValue.AddTicks(-2);
 
         GovernanceApprovalRequest approved = NewApproval(idApproved, runId, requested);
         approved.Status = GovernanceApprovalStatus.Approved;

@@ -70,7 +70,9 @@ public interface IGovernanceApprovalRequestRepository
     /// <summary>
     ///     Returns the most recent decisions (<see cref="GovernanceApprovalStatus.Approved" />,
     ///     <see cref="GovernanceApprovalStatus.Rejected" />, <see cref="GovernanceApprovalStatus.Promoted" />)
-    ///     ordered by <see cref="GovernanceApprovalRequest.ReviewedUtc" /> descending, limited to <paramref name="maxRows" />.
+    ///     ordered by <see cref="GovernanceApprovalRequest.ReviewedUtc" /> descending,
+    ///     then <see cref="GovernanceApprovalRequest.ApprovalRequestId" /> descending when review instants tie,
+    ///     limited to <paramref name="maxRows" />.
     ///     Rows without <see cref="GovernanceApprovalRequest.ReviewedUtc" /> are excluded.
     /// </summary>
     Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(

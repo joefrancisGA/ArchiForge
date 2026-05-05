@@ -174,6 +174,7 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
                                 || string.Equals(x.Status, GovernanceApprovalStatus.Promoted,
                                     StringComparison.Ordinal)))
                 .OrderByDescending(x => x.ReviewedUtc)
+                .ThenByDescending(x => x.ApprovalRequestId, StringComparer.Ordinal)
                 .Take(maxRows)
                 .Select(Clone)
                 .ToList();
