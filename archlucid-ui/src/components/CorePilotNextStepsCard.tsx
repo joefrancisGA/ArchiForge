@@ -69,7 +69,10 @@ export function CorePilotNextStepsCard() {
           First committed manifest is in place. Optional next: explore Operate tools when your team is ready.
         </p>
         <div className="flex flex-col gap-2 text-sm">
-          <Link href="/governance/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
+          <Link
+            href="/governance/dashboard"
+            className="text-neutral-600 underline decoration-neutral-400 underline-offset-2 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
+          >
             Workspace health (sponsor view)
           </Link>
           <Link href="/ask" className="font-medium text-blue-700 underline dark:text-blue-400">

@@ -51,6 +51,10 @@ describe("CorePilotNextStepsCard", () => {
       expect(screen.getByTestId("core-pilot-next-steps-complete")).toBeInTheDocument();
     });
 
+    expect(screen.getByRole("link", { name: /workspace health \(sponsor view\)/i })).toHaveAttribute(
+      "href",
+      "/governance/dashboard",
+    );
     expect(screen.getByRole("link", { name: /open ask \(operate\)/i })).toHaveAttribute("href", "/ask");
   });
 });
