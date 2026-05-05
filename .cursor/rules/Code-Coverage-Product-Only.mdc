@@ -11,12 +11,12 @@ CI and local **`dotnet test … --collect:"XPlat Code Coverage"`** exist to meas
 
 ## Invariants (do not regress)
 
-1. **`coverage.runsettings`** — Keep a Coverlet **`Exclude`** that drops **test assemblies**, e.g. `<Exclude>[*Tests]*</Exclude>` (plus any narrower product exclusions already listed). Do not remove the test-assembly exclusion to “fix” gates.
-2. **`Directory.Build.props`** (repo root and template copies that build **`.Tests`** projects) — Keep **`ExcludeFromCodeCoverage`** assembly attribute for projects whose **`MSBuildProjectName` ends with `.Tests`**. New test projects must follow the **`.Tests`** suffix or get the same attribute explicitly.
+1. **`coverage.runsettings`** — Keep Coverlet **`Exclude`** entries that drop **test assemblies** (`<Exclude>[*Tests]*</Exclude>`), **`ArchLucid.TestSupport`** (`<Exclude>[ArchLucid.TestSupport]*</Exclude>`), and any narrower product excludes already listed. Do not remove these to “fix” gates.
+2. **`Directory.Build.props`** (repo root and template copies that build **`.Tests`** projects) — Keep **`ExcludeFromCodeCoverage`** assembly attribute for projects whose **`MSBuildProjectName` ends with `.Tests`**. **`ArchLucid.TestSupport`** keeps the same attribute in its **`.csproj`** (shared test helpers, not product surface). New test projects must follow the **`.Tests`** suffix or get the same attribute explicitly.
 3. **`coverlet.collector`** stays on test projects — it is required for collection; excluding test code from the report is not the same as removing the package.
 4. Do not add **`[ExcludeFromCodeCoverage]`** to test **classes** individually unless there is an exceptional case (prefer assembly-level exclusion for normal xUnit/FA test types).
 
 ## When editing
 
 - If you add a new **test** project pattern (e.g. not ending in **`.Tests`**), extend **`coverage.runsettings`** and **`Directory.Build.props`** conditions in the same PR.
-- If you change Coverlet’s filter syntax, run a local **`dotnet test`** with **`coverage.runsettings`** and confirm merged Cobertura **packages** do not list **`*Tests`** assemblies as measured product scope.
+- If you change Coverlet’s filter syntax, run a local **`dotnet test`** with **`coverage.runsettings`** and confirm merged Cobertura **packages** do not list **`*Tests`** or **`ArchLucid.TestSupport`** as measured product scope for gates.

@@ -7,6 +7,7 @@
           <Format>cobertura</Format>
           <!-- Test host assemblies only: keep Coverlet + Cobertura for product code invoked by tests, not for counting test types. -->
           <Exclude>[*Tests]*</Exclude>
+          <Exclude>[ArchLucid.TestSupport]*</Exclude>
           <!-- Line-coverage thresholds: do not set <Threshold> here — VSTest invokes coverlet per test assembly, so a global
                minimum would fail projects that only exercise a slice of the solution. Prefer merged Cobertura + ReportGenerator
                (see CI "Merge coverage" step) and/or a dedicated script on the merged XML when you want a repo-wide gate. -->
