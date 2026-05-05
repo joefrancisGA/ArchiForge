@@ -66,6 +66,7 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IGovernanceRationaleService>(),
             Mock.Of<IComplianceDriftTrendService>(),
             Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
             Mock.Of<IAuditService>(),
             NullLogger<GovernanceController>.Instance);
 
@@ -130,6 +131,7 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IGovernanceRationaleService>(),
             Mock.Of<IComplianceDriftTrendService>(),
             Mock.Of<IPolicyPackDryRunService>(),
+            Mock.Of<IPolicyPackGovernanceDryRunService>(),
             Mock.Of<IAuditService>(),
             NullLogger<GovernanceController>.Instance);
 

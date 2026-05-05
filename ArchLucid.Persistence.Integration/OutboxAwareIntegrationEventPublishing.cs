@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.Logging;
@@ -86,8 +87,7 @@ public static class OutboxAwareIntegrationEventPublishing
             {
                 if (logger.IsEnabled(LogLevel.Warning))
 
-                    logger.LogWarning(ex, "Integration event outbox enqueue failed for {EventType}", eventType);
-
+                    logger.LogWarningIntegrationEventOutboxEnqueueFailed(ex, eventType);
             }
 
             return;

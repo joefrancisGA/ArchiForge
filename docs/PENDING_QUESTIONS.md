@@ -1,4 +1,9 @@
 > **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
+> **Updated 2026-05-05 (f):** **SOC 2 Type I trigger** — **$250K ARR** or **first binding procurement requirement**, whichever is earlier. Trust Center row updated. *Resolved 2026-05-05 (SOC 2 ARR trigger)* below.
+> **Updated 2026-05-05 (e):** **Paid-proposal readiness** — **preferred** signal: committed **Golden Manifest** on **real customer architecture context**; **not** a hard gate — **revenue remains discretionary**. *Resolved 2026-05-05 (paid proposal bar)* below.
+> **Updated 2026-05-05 (d):** **Quote-request follow-up** — **owner solo** (inbox + SQL persist) until team scale. **HubSpot** (or similar CRM) **product integration** → **V2** (not V1/V1.1). *Resolved 2026-05-05 (quote CRM routing)* below.
+> **Updated 2026-05-05 (c):** **H1 GTM** — **design-partner–led** primary; **in parallel** pursue **independent paid or trial** users. *Resolved 2026-05-05 (H1 GTM motion)* below.
+> **Updated 2026-05-05 (b):** **Custom SIEM outbound mapping** → **JQ**; **guided sandbox onboarding** → **client-side UI mock only**. **SaaS posture:** **no** tenant- or buyer-facing Docker Compose local stack — compose remains **developers-maintaining-this-repo only**. *Resolved 2026-05-05 (SIEM + guided sandbox)* below.
 > **Updated 2026-05-05:** **Jira** and **ServiceNow** first-party connectors promoted from V1.1 to **V1 GA** scope — [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13; *Resolved 2026-05-05* below. **Confluence** first-party connector remains **V1.1** ([`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6).
 > **Updated 2026-05-03 (commercial entity migration):** Phased playbook to move seller-of-record and related posture to **Francis Architecture, LLC** — [`runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md`](runbooks/FRANCIS_ARCHITECTURE_LLC_V1_CUTOVER.md). Until that runbook is executed and **`CHANGELOG.md`** records completion, **Joseph Francis (Sole Proprietorship)** (Partner Center) and **Joseph Francis** (Stripe webhook operational owner) resolutions below remain in force.
 > **Updated 2026-05-03:** **Design partner** (signed commercial engagement) → **V1.1** commercial motion, **not** a V1 GA gate; **`(A)` headline assessments must not** penalize or foreground absence — see [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6b and *Resolved 2026-05-03* below.
@@ -9,11 +14,57 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-05-05 — Jira + ServiceNow first-party connectors → **V1** scope (**[`V1_SCOPE.md`](library/V1_SCOPE.md)** §2.13); Confluence stays **V1.1**. Prior 2026-05-03 — design partner → **V1.1** commercial motion only; **`(A)` assessments must not** score absence (**`V1_DEFERRED.md`** §6b). Prior 2026-05-01 — third-party pen test → **V2**; V1 = **owner-conducted** (**`V1_DEFERRED.md`** §6c). **API key lifecycle** Q3 resolved: Terraform create; semiannual rotation; secret-channel distribution; **no API keys in production**.
+**Last updated:** 2026-05-05 — **SOC 2 trigger: $250K ARR or first binding procurement requirement** (Trust Center updated). **Paid proposal:** committed manifest on real context = preferred signal; not a hard gate. **Quotes:** owner solo; HubSpot **V2**. **H1 GTM** partner-led + parallel trials; **JQ** SIEM; client sandbox; no buyer compose; Jira+SNOW **V1**. Prior items unchanged in body.
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-05-05 (SOC 2 ARR trigger — item 6)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **SOC 2 Type I engagement trigger** | **$250K ARR** OR **first binding procurement requirement from a contracted customer**, whichever is earlier. Below that threshold: self-assessment + Trust Center honesty posture unchanged. | [`docs/go-to-market/TRUST_CENTER.md`](go-to-market/TRUST_CENTER.md) compliance table, [`docs/go-to-market/SOC2_ROADMAP.md`](go-to-market/SOC2_ROADMAP.md), [`docs/security/SOC2_SELF_ASSESSMENT_2026.md`](security/SOC2_SELF_ASSESSMENT_2026.md) G-001 resumption checklist |
+| **Rationale** | Type I all-in cost ($20K–$45K) is ~10–18% of $250K ARR — manageable. Procurement-blocking request is the other hard signal regardless of ARR. Starting at $250K puts a Type II report in reach (~$500K–$750K ARR) — the range where enterprise buyers get serious. | Sales narrative; do not imply SOC 2 is imminent or contractually committed below the trigger |
+
+---
+
+## Resolved 2026-05-05 (Quote CRM routing — Decision Velocity)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Quote-request SLA / routing** | **Owner solo** — **`Email:PricingQuoteSalesInbox`** / quoted-path notifications are handled personally; no separate CRM operator or round-robin yet. `dbo.MarketingPricingQuoteRequests` remains the durable record. | [`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md), marketing copy expectations (“we’ll follow up”) |
+| **HubSpot (or similar) product integration** | **Out of scope until V2** — not a committed V1/V1.1 build; reassess when inbound volume or team size warrants automated CRM sync. | Roadmap; do **not** block shipping on CRM webhooks or OAuth to HubSpot |
+
+---
+
+## Resolved 2026-05-05 (H1 GTM motion — Decision Velocity)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Primary H1 motion** | **Design-partner–led** — named deep engagements stay the **main** focus for the remainder of H1. | Sales narrative, success metrics, product feedback loop |
+| **Parallel motion** | **Also** pursue **independent paid or trial** users when opportunity appears — not exclusive to design partners. | Trial funnel, self-serve polish, lighter-touch onboarding must stay viable alongside partner work |
+
+---
+
+## Resolved 2026-05-05 (Paid proposal readiness bar — Decision Velocity)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Preferred internal signal** | **Reasonable default:** at least one **committed Golden Manifest** grounded in the prospect’s **real architecture context** before treating the deal as “seriously validated.” | Pilot guidance, sponsor expectations, product-led proof |
+| **Hard gate?** | **No.** Owner **remains open to revenue** — procurement, budget, timing, or relationship can justify a paid proposal **without** that artifact; this is **judgment**, not an automatic disqualifier. | Sales flexibility; docs must not imply an absolute rule |
+
+---
+
+## Resolved 2026-05-05 (SIEM + guided sandbox — product posture)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Custom SIEM / webhook outbound mapping** | **JQ.** Per-destination filter (nullable = pass-through); validate expression at configuration save; evaluate at dispatch. Optional “simple mapping” UI may generate JQ later; canonical stored form is JQ. | Webhook config schema, outbound delivery pipeline, operator docs, synthetic webhook test UX |
+| **Guided sandbox / PLG “try before Azure”** | **Client-side mock in the UI** — guided experience with deterministic mock data; **no** requirement for local infrastructure. | Marketing/operator onboarding UX |
+| **Docker Compose / local DB for non-developers** | **Out of scope for tenants and buyers.** ArchLucid is **SaaS.** **Docker Compose** (and similar local stacks) are **only** for **people developing this product** in-repo — not a supported path for customer install or evaluation. **Do not** document or imply compose-based eval for prospects. | `START_HERE.md` audience split, trial docs, any “local pilot” narratives |
 
 ---
 
@@ -225,7 +276,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
 5. **External (third-party) pen-test scope and budget** — **V2** — vendor selection, scope (web app only / web + infra / web + infra + LLM threat model), test window, funding. Picks up where item 2 above leaves off. **Does not** gate V1; V1 uses **owner-conducted** pen testing per [`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6c.
 
-6. **SOC 2 Type I assessor + audit period start date** — **Stays deferred (Resolved 2026-04-21).** Interim posture: self-assessment + Trust Center honesty. **Revisit trigger:** owner-defined ARR threshold — assistant cannot set the dollar figure; the Trust Center compliance-and-certifications row was rewritten in this change set to make the trigger explicit. Sub-question still open: **what ARR figure?**
+6. **SOC 2 Type I assessor + audit period start date** — **ARR trigger resolved 2026-05-05.** Trigger: **$250K ARR** OR **first binding procurement requirement from a contracted customer**, whichever is earlier. Interim posture unchanged: self-assessment + Trust Center honesty. Trust Center compliance row updated to reflect this. See *Resolved 2026-05-05 (SOC 2 ARR trigger)* below.
 
 7. **Reference-customer publication ownership and discount-for-reference percent** — **Discount Resolved 2026-04-21:** **15% standardized.** `PRICING_PHILOSOPHY.md` § 5.4 was promoted from "suggested" to "standard" in this change set. **Still open (item 19):** ownership of graduating the first PLG row from `Customer review` to `Published`.
 

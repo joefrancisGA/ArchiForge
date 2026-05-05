@@ -157,6 +157,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<IRecentPilotRunDeltasService, RecentPilotRunDeltasService>();
         services.AddScoped<IPolicyPackDryRunService, PolicyPackDryRunService>();
+        services.AddScoped<IPolicyPackGovernanceDryRunService, PolicyPackGovernanceDryRunService>();
         services.AddSingleton<IEvidencePackSourceProvider, EmbeddedResourceEvidencePackSourceProvider>();
         services.AddSingleton<IEvidencePackBuilder, EvidencePackBuilder>();
         services.AddSingleton<ISupportBundleAssembler, SupportBundleAssembler>();

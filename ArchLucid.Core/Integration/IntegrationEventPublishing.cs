@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Core.Integration;
@@ -37,7 +39,7 @@ public static class IntegrationEventPublishing
         {
             if (logger.IsEnabled(LogLevel.Warning))
 
-                logger.LogWarning(ex, "Integration event publish failed for {EventType}", eventType);
+                logger.LogWarningIntegrationEventBestEffortPublishFailed(ex, eventType);
         }
     }
 }

@@ -296,4 +296,71 @@ public static class SanitizedLoggerWarningExtensions
             "Failed to publish integration event type {EventType} to Service Bus.",
             safeEventType);
     }
+
+    /// <summary>
+    ///     UTF-8 JSON serialization for the transactional outbox failed before enqueue (canonical event-type urn).
+    /// </summary>
+    /// <remarks>
+    ///     Same logging posture as <see cref="LogWarningIntegrationEventServiceBusPublishFailed" /> — CodeQL may treat
+    ///     <see cref="ArchLucid.Core.Integration.IntegrationEventTypes" /> constants as private when they reach <see cref="ILogger" />.
+    /// </remarks>
+    public static void LogWarningIntegrationEventSerializationFailed(
+        this ILogger logger,
+        Exception ex,
+        string? eventType)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(ex);
+
+        string safeEventType = LogSanitizer.Sanitize(eventType);
+
+        // codeql[cs/log-forging]: integration event type string sanitized immediately above.
+        // codeql[cs/exposure-of-sensitive-information]: canonical event-type urn taxonomy only; sanitized; not credentials or subscriber PII (docs/library/CODEQL_TRIAGE.md).
+        logger.LogWarning(
+            ex,
+            "Integration event serialization failed for {EventType}",
+            safeEventType);
+    }
+
+    /// <summary>
+    ///     Outbox enqueue failed after serialization (canonical event-type urn).
+    /// </summary>
+    public static void LogWarningIntegrationEventOutboxEnqueueFailed(
+        this ILogger logger,
+        Exception ex,
+        string? eventType)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(ex);
+
+        string safeEventType = LogSanitizer.Sanitize(eventType);
+
+        // codeql[cs/log-forging]: integration event type string sanitized immediately above.
+        // codeql[cs/exposure-of-sensitive-information]: canonical event-type urn taxonomy only; sanitized; not credentials or subscriber PII (docs/library/CODEQL_TRIAGE.md).
+        logger.LogWarning(
+            ex,
+            "Integration event outbox enqueue failed for {EventType}",
+            safeEventType);
+    }
+
+    /// <summary>
+    ///     Best-effort direct publish failed (<see cref="ArchLucid.Core.Integration.IntegrationEventPublishing.TryPublishAsync" /> path).
+    /// </summary>
+    public static void LogWarningIntegrationEventBestEffortPublishFailed(
+        this ILogger logger,
+        Exception ex,
+        string? eventType)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(ex);
+
+        string safeEventType = LogSanitizer.Sanitize(eventType);
+
+        // codeql[cs/log-forging]: integration event type string sanitized immediately above.
+        // codeql[cs/exposure-of-sensitive-information]: canonical event-type urn taxonomy only; sanitized; not credentials or subscriber PII (docs/library/CODEQL_TRIAGE.md).
+        logger.LogWarning(
+            ex,
+            "Integration event publish failed for {EventType}",
+            safeEventType);
+    }
 }

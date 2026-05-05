@@ -50,6 +50,7 @@ public sealed class GovernanceController(
     IGovernanceRationaleService governanceRationaleService,
     IComplianceDriftTrendService complianceDriftTrendService,
     IPolicyPackDryRunService policyPackDryRunService,
+    IPolicyPackGovernanceDryRunService policyPackGovernanceDryRunService,
     IAuditService auditService,
     ILogger<GovernanceController> logger)
     : ControllerBase
@@ -71,6 +72,9 @@ public sealed class GovernanceController(
 
     private readonly IPolicyPackDryRunService _policyPackDryRunService =
         policyPackDryRunService ?? throw new ArgumentNullException(nameof(policyPackDryRunService));
+
+    private readonly IPolicyPackGovernanceDryRunService _policyPackGovernanceDryRunService =
+        policyPackGovernanceDryRunService ?? throw new ArgumentNullException(nameof(policyPackGovernanceDryRunService));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -539,6 +543,42 @@ public sealed class GovernanceController(
         IReadOnlyList<GovernanceEnvironmentActivation> items =
             await activationRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
+    }
+
+    /// <summary>
+    ///     Dry-runs proposed <c>PolicyPackContentDocument</c> JSON against a single scoped run or golden manifest using
+    ///     the same pre-commit severity evaluation as <see cref="IPreCommitGovernanceGate" />. Read-only: does not persist
+    ///     the pack or change run state. Uses <c>governancePolicyPackDryRun</c> rate limiting.
+    /// </summary>
+    [HttpPost("policy-packs/dry-run")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [EnableRateLimiting("governancePolicyPackDryRun")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PolicyPackGovernanceDryRunResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DryRunProposedPolicyPack(
+        [FromBody] PolicyPackGovernanceDryRunRequest? request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        PolicyPackGovernanceDryRunResult? result = await _policyPackGovernanceDryRunService.EvaluateAsync(
+            request.PolicyPackContentJson,
+            string.IsNullOrWhiteSpace(request.TargetRunId) ? null : request.TargetRunId.Trim(),
+            request.TargetManifestId,
+            request.BlockCommitOnCritical,
+            request.BlockCommitMinimumSeverity,
+            request.ProposedPolicyPackId,
+            cancellationToken);
+
+        if (result is null)
+            return this.NotFoundProblem(
+                "The target run or manifest was not found in the current tenant/workspace/project scope.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(result);
     }
 
     /// <summary>

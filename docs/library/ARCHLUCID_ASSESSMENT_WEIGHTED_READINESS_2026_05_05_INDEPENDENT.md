@@ -24,8 +24,8 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
 - **Weighted deficiency signal:** 280.00
 - **Justification:** The product is highly technical and focuses heavily on architectural mechanics rather than business outcomes, making it harder to sell to non-technical economic buyers.
 - **Tradeoffs:** Precision in technical messaging vs. approachability for business sponsors.
-- **Improvement recommendations:** Create a 'Business Value Cheat Sheet' mapping technical features (like RLS and Golden Manifests) directly to risk reduction and cost savings.
-- **Status:** Fixable in v1
+- **Improvement recommendations:** **Done —** [`BUSINESS_VALUE_CHEAT_SHEET.md`](../go-to-market/BUSINESS_VALUE_CHEAT_SHEET.md) maps technical features (RLS, Golden Manifests, governance gates, audit trail, etc.) to business outcomes and economic-impact talking points for sales/marketing.
+- **Status:** Cheat sheet delivered (2026-05-05); broader “less technical-first” marketability work still fixable in v1
 
 ### Adoption Friction
 - **Score:** 60
@@ -476,6 +476,7 @@ ArchLucid is a highly secure, architecturally sound platform, but its steep tech
 ## Top Improvement Opportunities
 
 1. **Policy Pack Dry-Run API**
+- **Status:** **Completed.** Shipped as `POST /v1/governance/policy-packs/dry-run` in `ArchLucid.Api` (`GovernanceController`), with `PolicyPackGovernanceDryRunService`, shared `PreCommitGateEvaluator` (same severity semantics as `PreCommitGovernanceGate`), `[Authorize]` + scoped run/manifest resolution (RLS), and tests in `ArchLucid.Api.Tests` plus `ArchLucid.Application.Tests`. The existing `POST …/policy-packs/{id}/dry-run` route remains for threshold/pilot “what-if” evaluation.
 - **Why it matters:** Operators need to understand the impact of a policy change before enforcing it, reducing the fear of breaking existing workflows.
 - **Expected impact:** Directly improves Change Impact Clarity (+15-20 pts), Policy and Governance Alignment (+10-15 pts), and Usability (+5-10 pts). Weighted readiness impact: +0.6-0.9%.
 - **Affected qualities:** Change Impact Clarity, Policy and Governance Alignment, Usability.
@@ -567,11 +568,12 @@ Implement an "Export to Markdown" feature for the Golden Manifest in the Operato
 - Do not add new backend endpoints; perform the transformation entirely in the client.
 ```
 
-7. **Business Value Cheat Sheet**
+7. **Business Value Cheat Sheet — COMPLETED**
+- **Status:** **COMPLETED.** Deliverable: [`docs/go-to-market/BUSINESS_VALUE_CHEAT_SHEET.md`](../go-to-market/BUSINESS_VALUE_CHEAT_SHEET.md) (`> **Scope:**` header validated by `scripts/ci/check_doc_scope_header.py`; three-column mapping table + field-use notes).
 - **Why it matters:** Sales and marketing teams struggle to translate technical features (like RLS) into business outcomes (like compliance risk reduction).
 - **Expected impact:** Directly improves Marketability (+15-20 pts), Differentiability (+5-10 pts). Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities:** Marketability, Differentiability.
-- **Actionable:** Yes.
+- **Actionable:** No — **done** (prompt below retained for audit trail only).
 - **Prompt:**
 ```text
 Create a new documentation file at `docs/go-to-market/BUSINESS_VALUE_CHEAT_SHEET.md`.
@@ -582,29 +584,22 @@ Create a new documentation file at `docs/go-to-market/BUSINESS_VALUE_CHEAT_SHEET
 - Ensure the document follows the standard `> **Scope:**` header invariant required by CI.
 ```
 
-8. **DEFERRED: Custom SIEM Mapping Configuration**
+8. **RESOLVED: Custom SIEM Mapping Configuration** *(owner 2026-05-05)*
 - **Why it matters:** Different enterprises have different SIEM schemas; hardcoding Splunk/Sentinel formats isn't enough for everyone.
 - **Expected impact:** Directly improves Interoperability (+15-20 pts), Manageability (+10-15 pts). Weighted readiness impact: +0.4-0.7%.
 - **Affected qualities:** Interoperability, Manageability.
-- **Actionable:** DEFERRED
-- **Reason deferred:** Requires user input on the desired configuration syntax (e.g., JQ expressions vs. Liquid templates) for transforming the internal audit event JSON into custom outbound webhook payloads.
-- **Needed from user:** Please specify the preferred templating language or transformation engine (e.g., JQ, Liquid, or a custom mapping DSL) that operators should use to define custom SIEM payload shapes.
+- **Decision:** **JQ** — operators define a JQ filter per outbound webhook; validate at save time; empty means pass-through. See **[`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)** *Resolved 2026-05-05 (SIEM + guided sandbox)*.
+- **Actionable:** Yes — implementation backlog (storage, dispatch-time evaluation, test endpoint).
 
-9. **DEFERRED: Guided Sandbox Onboarding Mode**
-- **Why it matters:** The current setup requires full Azure infrastructure, killing PLG momentum. A sandbox mode using local mocks is needed.
+9. **RESOLVED: Guided Sandbox Onboarding Mode** *(owner 2026-05-05)*
+- **Why it matters:** Hosted trial should feel instant; full Azure infra is not a buyer prerequisite for first value.
 - **Expected impact:** Directly improves Adoption Friction (+20-30 pts), Time-to-Value (+15-20 pts). Weighted readiness impact: +0.8-1.2%.
 - **Affected qualities:** Adoption Friction, Time-to-Value.
-- **Actionable:** DEFERRED
-- **Reason deferred:** Requires user input on whether the sandbox should be a purely frontend-mocked experience (React only) or a local Docker Compose setup with a lightweight SQLite/In-Memory database replacing Azure SQL.
-- **Needed from user:** Please clarify the architectural direction for the sandbox: should it be a purely client-side mock in the UI, or a local Docker Compose stack using an in-memory database?
+- **Decision:** **Client-side mock in the UI** (guided tour / fake data). **Not** a tenant-facing Docker Compose “local stack.” ArchLucid is **SaaS**: **Docker Compose and local DB stacks remain developer-only** for people working on this repository; buyers and evaluators do **not** install compose-based deployments. See **[`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md)** *Resolved 2026-05-05 (SIEM + guided sandbox)*.
 
 ## Pending Questions for Later
 
-**DEFERRED: Custom SIEM Mapping Configuration**
-- What is the preferred templating language or transformation engine (e.g., JQ, Liquid, or a custom mapping DSL) that operators should use to define custom SIEM payload shapes?
-
-**DEFERRED: Guided Sandbox Onboarding Mode**
-- Should the sandbox be a purely client-side mock in the UI, or a local Docker Compose stack using an in-memory database?
+*None from this assessment block — items 8–9 resolved 2026-05-05.*
 
 ## Deferred Scope Uncertainty
 *None identified. The assessment strictly adhered to the V1/V1.1 boundaries defined in `V1_SCOPE.md` and `V1_DEFERRED.md`.*

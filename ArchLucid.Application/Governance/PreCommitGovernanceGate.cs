@@ -128,57 +128,13 @@ public sealed class PreCommitGovernanceGate(
             ? snapshot.Findings.ToList()
             : [];
 
-        if (syntheticSeverity is not { } sev || syntheticCount <= 0)
-            return EvaluateAgainstFindings(enforcing, findings);
-
-        for (int i = 0; i < syntheticCount; i++)
-            findings.Add(CreateSyntheticFinding(runId, i, sev));
-
-        return EvaluateAgainstFindings(enforcing, findings);
-    }
-
-    private PreCommitGateResult EvaluateAgainstFindings(
-        PolicyPackAssignment enforcing,
-        IReadOnlyList<Finding> findings)
-    {
-        int effectiveMinSeverity = ResolveEffectiveMinimumSeverity(enforcing);
-        FindingSeverity effectiveSeverityEnum = (FindingSeverity)effectiveMinSeverity;
-
-        List<string> blockingIds = findings
-            .Where(f => (int)f.Severity >= effectiveMinSeverity)
-            .Select(static f => f.FindingId)
-            .ToList();
-
-        if (blockingIds.Count == 0)
-            return PreCommitGateResult.Allowed();
-
-        string packLabel = enforcing.PolicyPackId.ToString("N");
-        string severityLabel = effectiveSeverityEnum.ToString();
-
-        if (!IsWarnOnlySeverity(severityLabel))
-            return new PreCommitGateResult
-            {
-                Blocked = true,
-                Reason =
-                    $"{blockingIds.Count} {severityLabel}+ finding(s) block commit per policy pack assignment (pack {packLabel}).",
-                BlockingFindingIds = blockingIds,
-                PolicyPackId = packLabel,
-                MinimumBlockingSeverity = (int)effectiveSeverityEnum
-            };
-
-        string warningMessage =
-            $"{blockingIds.Count} {severityLabel}+ finding(s) detected per policy pack (pack {packLabel}) — warn only.";
-
-        return new PreCommitGateResult
+        if (syntheticSeverity is { } sev && syntheticCount > 0)
         {
-            Blocked = false,
-            WarnOnly = true,
-            Reason = warningMessage,
-            BlockingFindingIds = blockingIds,
-            PolicyPackId = packLabel,
-            MinimumBlockingSeverity = (int)effectiveSeverityEnum,
-            Warnings = [warningMessage]
-        };
+            for (int i = 0; i < syntheticCount; i++)
+                findings.Add(CreateSyntheticFinding(runId, i, sev));
+        }
+
+        return PreCommitGateEvaluator.EvaluateForAssignment(findings, enforcing, _options.Value);
     }
 
     private static Finding CreateSyntheticFinding(string runId, int index, FindingSeverity severity)
@@ -196,21 +152,4 @@ public sealed class PreCommitGovernanceGate(
         };
     }
 
-    private static int ResolveEffectiveMinimumSeverity(PolicyPackAssignment assignment)
-    {
-        if (assignment.BlockCommitMinimumSeverity.HasValue)
-            return assignment.BlockCommitMinimumSeverity.Value;
-
-        return (int)FindingSeverity.Critical;
-    }
-
-    private bool IsWarnOnlySeverity(string severityLabel)
-    {
-        string[]? warnOnly = _options.Value.WarnOnlySeverities;
-
-        if (warnOnly is null || warnOnly.Length == 0)
-            return false;
-
-        return warnOnly.Any(w => string.Equals(w, severityLabel, StringComparison.OrdinalIgnoreCase));
-    }
 }
