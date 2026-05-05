@@ -35,6 +35,7 @@ import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
+import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { SampleReviewPackageSummary } from "@/components/SampleReviewPackageSummary";
 import { GlossaryTooltip } from "@/components/GlossaryTooltip";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
@@ -61,10 +62,12 @@ import {
 import {
   tryStaticDemoArtifacts,
   tryStaticDemoExplanationSummary,
+  tryStaticDemoGoldenManifestJsonForExport,
   tryStaticDemoManifestSummary,
   tryStaticDemoPipelineTimeline,
   tryStaticDemoRunDetail,
 } from "@/lib/operator-static-demo";
+import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
 import type {
@@ -219,6 +222,14 @@ export default async function RunDetailPage({
 
   const resolvedDetail = envelope.value;
   const manifestId = resolvedDetail.run.goldenManifestId;
+  let goldenManifestJsonForExport: unknown | null = null;
+
+  if (isUsableGoldenManifestExportJson(resolvedDetail.goldenManifest)) {
+    goldenManifestJsonForExport = resolvedDetail.goldenManifest;
+  } else if (usedStaticDemoRun) {
+    goldenManifestJsonForExport = tryStaticDemoGoldenManifestJsonForExport(runId);
+  }
+
   const runDetailTraceId = runDetailResponse.traceId;
 
   let progressInitialSummary: RunSummary | null = null;
@@ -726,7 +737,13 @@ export default async function RunDetailPage({
                 />
               )}
 
-              <div className="mt-4 flex flex-wrap gap-3">
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <GoldenManifestExportMenu
+                  runId={resolvedDetail.run.runId}
+                  manifestId={manifestId}
+                  goldenManifestJson={goldenManifestJsonForExport}
+                  manifestSummary={manifestSummary}
+                />
                 <Button variant="outline" size="sm" asChild>
                   <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
                 </Button>

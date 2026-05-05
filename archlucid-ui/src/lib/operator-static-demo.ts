@@ -4,9 +4,11 @@ import { policyPackBuyerLabel } from "@/lib/policy-pack-buyer-label";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
 import {
   getShowcaseStaticDemoPayload,
+  SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES,
   SHOWCASE_STATIC_DEMO_MANIFEST_ID,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
   SHOWCASE_STATIC_DEMO_RUN_ID,
+  SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES,
 } from "@/lib/showcase-static-demo";
 import type { AlertRecord } from "@/types/alerts";
 import type { ArtifactDescriptor, ManifestSummary, PipelineTimelineItem, RunDetail, RunSummary } from "@/types/authority";
@@ -183,6 +185,70 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
     decisionTrace: { demo: true },
     goldenManifest: { demo: true },
     artifactBundle: { demo: true },
+  };
+}
+
+/**
+ * Manifest-shaped JSON for client-side Markdown export when static demo run detail uses a `goldenManifest` placeholder.
+ */
+export function tryStaticDemoGoldenManifestJsonForExport(runId: string): Record<string, unknown> | null {
+  if (!isStaticDemoPayloadFallbackActiveForRun(runId)) {
+    return null;
+  }
+
+  const effectiveRunId = canonicalizeDemoRunId(runId);
+
+  if (!isDemoRunIdEligibleForStaticFallback(effectiveRunId)) {
+    return null;
+  }
+
+  const d = getShowcaseStaticDemoPayload(effectiveRunId);
+  const manifest = d.manifest;
+
+  return {
+    manifestId: manifest.manifestId,
+    runId: manifest.runId,
+    createdUtc: manifest.createdUtc,
+    manifestHash: manifest.manifestHash,
+    ruleSetId: manifest.ruleSetId,
+    ruleSetVersion: manifest.ruleSetVersion,
+    metadata: {
+      manifestVersion: `demo-${manifest.ruleSetVersion}`,
+      changeDescription: manifest.operatorSummary,
+    },
+    assumptions: [],
+    constraints: {
+      mandatoryConstraints: [],
+      preferences: [],
+    },
+    decisions: SHOWCASE_STATIC_DEMO_DECISION_SYNOPSES.map((rationale: string, index: number) => ({
+      decisionId: `claims-intake-decision-${index + 1}`,
+      title: `Architecture decision ${index + 1}`,
+      category: "Architecture",
+      rationale,
+    })),
+    topology: {
+      selectedPatterns: [
+        "Event-driven intake",
+        "PHI classification at boundary",
+        "Bounded queues with back-pressure",
+      ],
+      resources: ["Azure API Management", "Azure Service Bus", "Azure Cosmos DB"],
+      services: [
+        {
+          serviceId: "svc-intake-api",
+          serviceName: "Claims intake API",
+          serviceType: 0,
+          runtimePlatform: 0,
+          purpose: "HTTP ingress and orchestration for intake workloads.",
+        },
+      ],
+    },
+    security: {
+      controls: [],
+      gaps: [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES],
+    },
+    warnings: [...SHOWCASE_STATIC_DEMO_WARNING_SYNOPSES],
   };
 }
 
