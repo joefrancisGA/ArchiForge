@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Capabilities.Cost;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.DecisionTraces;

@@ -37,7 +37,8 @@ internal static class SwaggerExtensions
                     "RecommendationLearning" => "Advisory learning",
                     "ProductLearning" => "Product learning",
                     "Audit" => "Audit",
-                    "Diagnostics" or "Docs" or "AuthDebug" or "ScopeDebug" or "Demo" => "Diagnostics & debug",
+                    "Diagnostics" or "Docs" or "AuthDebug" or "ScopeDebug" or "Demo" or "ConfigurationHealth"
+                        or "SyntheticOperatorDemoPack" => "Diagnostics & debug",
                     _ => cad.ControllerName
                 };
                 return [tag];
@@ -57,6 +58,7 @@ internal static class SwaggerExtensions
             c.OperationFilter<ProblemDetailsResponsesOperationFilter>();
             c.OperationFilter<PolicyPackExamplesOperationFilter>();
             c.OperationFilter<AlertExamplesOperationFilter>();
+            c.OperationFilter<OutboundWebhookDryRunExamplesOperationFilter>();
             c.SchemaFilter<PolicyPackContentDocumentSchemaFilter>();
             c.DocumentFilter<OpenApiAuthSecurityDocumentFilter>();
             c.OperationFilter<OpenApiAuthSecurityOperationFilter>();

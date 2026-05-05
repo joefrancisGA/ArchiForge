@@ -4,6 +4,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Archival;
 
@@ -25,6 +26,17 @@ public static partial class ServiceCollectionExtensions
     {
         services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
+        services.AddHttpClient(nameof(ConfigurationHealthProbe), static client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(15);
+        });
+        services.AddScoped<IConfigurationHealthProbe>(sp =>
+            new ConfigurationHealthProbe(
+                sp.GetRequiredService<IConfiguration>(),
+                sp.GetService<ArchLucid.Persistence.Connections.ISqlConnectionFactory>(),
+                sp.GetRequiredService<IHttpClientFactory>()));
+        services.AddScoped<ArchLucid.Application.Diagnostics.ISyntheticOperatorDemoPackWriter,
+            ArchLucid.Application.Diagnostics.SyntheticOperatorDemoPackWriter>();
         services.AddScoped<Application.Authority.IAuthorityCommittedManifestChainWriter,
             Application.Authority.AuthorityCommittedManifestChainWriter>();
         RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);

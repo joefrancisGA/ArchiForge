@@ -169,10 +169,14 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
     /// <param name="fromUtc">Inclusive range start (UTC).</param>
     /// <param name="toUtc">Exclusive range end (UTC).</param>
     /// <param name="maxRows">Maximum rows to return; repository clamps to 1–10,000 (default 10,000).</param>
+    /// <param name="format">
+    ///     Optional export shape: <c>csv</c>, <c>json</c>, or <c>cef</c> (ArcSight CEF lines). When omitted, the response
+    ///     follows standard content negotiation via <c>Accept</c> (JSON vs CSV).
+    /// </param>
     [HttpGet("export")]
     [Authorize(Policy = ArchLucidPolicies.RequireAuditor)]
     [RequiresCommercialTenantTier(TenantTier.Enterprise)]
-    [Produces("application/json", "text/csv")]
+    [Produces("application/json", "text/csv", "text/plain")]
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -181,6 +185,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         [FromQuery] DateTime fromUtc,
         [FromQuery] DateTime toUtc,
         [FromQuery] int maxRows = 10_000,
+        [FromQuery] string? format = null,
         CancellationToken ct = default)
     {
         DateTime from = NormalizeExportInstant(fromUtc);
@@ -198,9 +203,6 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
 
         int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
 
-        string attachmentName = BuildAuditExportCsvFileName(from, to);
-        HttpContext.Items[AuditEventCsvFormatter.CsvAttachmentFileNameItemKey] = attachmentName;
-
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
         IReadOnlyList<AuditEvent> events = await repo.GetExportAsync(
@@ -212,7 +214,38 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
             exportMaxRows,
             ct);
 
+        if (!string.IsNullOrWhiteSpace(format))
+        {
+            string f = format.Trim().ToLowerInvariant();
+
+            if (f is not ("csv" or "json" or "cef"))
+                return this.BadRequestProblem(
+                    "format must be csv, json, or cef when supplied.",
+                    ProblemTypes.ValidationFailed);
+
+            if (f == "cef")
+            {
+                await using MemoryStream buffer = new();
+                await AuditCefLineWriter.WriteAllAsync(buffer, events, ct).ConfigureAwait(false);
+                byte[] utf8 = buffer.ToArray();
+                string cefName = BuildAuditExportCefFileName(from, to);
+
+                return File(utf8, "text/plain", cefName);
+            }
+        }
+
+        string attachmentName = BuildAuditExportCsvFileName(from, to);
+        HttpContext.Items[AuditEventCsvFormatter.CsvAttachmentFileNameItemKey] = attachmentName;
+
         return Ok(events);
+    }
+
+    private static string BuildAuditExportCefFileName(DateTime fromUtc, DateTime toUtc)
+    {
+        string fromPart = fromUtc.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+        string toPart = toUtc.ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+
+        return $"audit-export-{fromPart}-{toPart}.cef";
     }
 
     private static DateTime NormalizeExportInstant(DateTime value)

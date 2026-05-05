@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Contracts.Common;

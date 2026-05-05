@@ -72,6 +72,12 @@ public static class AuditEventTypes
     public const string InternalArchitectureFakeResultsSeeded = "InternalArchitectureFakeResultsSeeded";
 
     /// <summary>
+    ///     Operator diagnostics: synthetic markers from <c>POST /v1/diagnostics/synthetic-operator-demo-pack</c> (
+    ///     <c>archlucid seed-demo-data</c>) for empty-tenant UI validation only.
+    /// </summary>
+    public const string SyntheticOperatorDemoPackMarker = "SyntheticOperatorDemoPack.Marker";
+
+    /// <summary>
     ///     Demo seed or replay commit persisted the authority SQL FK chain (context / graph / findings / decision trace +
     ///     golden manifest) outside the main pipeline executor.
     /// </summary>

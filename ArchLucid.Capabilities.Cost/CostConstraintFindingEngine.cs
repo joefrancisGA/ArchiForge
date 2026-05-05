@@ -1,11 +1,15 @@
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchLucid.Decisioning.Services;
+namespace ArchLucid.Capabilities.Cost;
 
-public class CostConstraintFindingEngine : IFindingEngine
+/// <summary>
+///     Emits findings for <c>CostConstraint</c> graph nodes.
+/// </summary>
+public sealed class CostConstraintFindingEngine : IFindingEngine
 {
     public string EngineType => "cost-constraint";
     public string Category => "Cost";

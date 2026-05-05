@@ -80,6 +80,7 @@ public static class ObservabilityExtensions
 
         ArchLucidInstrumentation.EnsureOutboxDepthObservableGaugesRegistered();
         ArchLucidInstrumentation.EnsureTrialFunnelObservableGaugesRegistered();
+        ArchLucidInstrumentation.EnsureCircuitBreakerStateObservableGaugesRegistered();
 
         services.Configure<ObservabilityHostOptions>(
             configuration.GetSection(ObservabilityHostOptions.SectionName));

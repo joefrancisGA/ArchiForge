@@ -1,5 +1,6 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.KnowledgeGraph.Caching;
+using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Backfill;

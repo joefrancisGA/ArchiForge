@@ -1,3 +1,4 @@
+using ArchLucid.Capabilities.Cost;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;

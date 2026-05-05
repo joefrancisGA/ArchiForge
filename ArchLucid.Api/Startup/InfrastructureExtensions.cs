@@ -1,7 +1,9 @@
+using System.Globalization;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 using ArchLucid.Api.Filters;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
@@ -40,6 +42,32 @@ internal static class InfrastructureExtensions
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            options.OnRejected = async (context, cancellationToken) =>
+            {
+                HttpContext httpContext = context.HttpContext;
+                httpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out TimeSpan retryAfter))
+                {
+                    int seconds = Math.Max(1, (int)Math.Ceiling(retryAfter.TotalSeconds));
+                    httpContext.Response.Headers.RetryAfter = seconds.ToString(NumberFormatInfo.InvariantInfo);
+                }
+
+                Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+                {
+                    Type = "https://tools.ietf.org/html/rfc6585#section-4",
+                    Title = "Too many requests",
+                    Status = StatusCodes.Status429TooManyRequests,
+                    Detail =
+                        "Rate limit exceeded. Honor the Retry-After response header (seconds) before retrying this client identity.",
+                    Instance = httpContext.Request.Path
+                };
+
+                ProblemCorrelation.Attach(problem, httpContext);
+                httpContext.Response.ContentType = "application/problem+json";
+                await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken).ConfigureAwait(false);
+            };
 
             int fixedPermitLimit = configuration.GetValue(
                 "RateLimiting:FixedWindow:PermitLimit",

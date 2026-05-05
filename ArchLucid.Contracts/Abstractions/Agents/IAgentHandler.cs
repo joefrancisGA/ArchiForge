@@ -2,7 +2,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
-namespace ArchLucid.AgentRuntime;
+namespace ArchLucid.Contracts.Abstractions.Agents;
 
 /// <summary>
 ///     Executes one <see cref="AgentTask" /> for a run: builds prompts from <see cref="ArchitectureRequest" /> and
@@ -10,8 +10,7 @@ namespace ArchLucid.AgentRuntime;
 ///     traces.
 /// </summary>
 /// <remarks>
-///     Registered per <see cref="ArchLucid.Contracts.Common.AgentType" />; <see cref="RealAgentExecutor" />
-///     dispatches by task type.
+///     Registered per <see cref="AgentType" />; <see cref="IAgentExecutor" /> dispatches by task type.
 /// </remarks>
 public interface IAgentHandler
 {
@@ -21,7 +20,9 @@ public interface IAgentHandler
         get;
     }
 
-    /// <summary>Stable key used for DI registration and <see cref="AgentTask.AgentTypeKey" /> dispatch (e.g. <c>topology</c>).</summary>
+    /// <summary>
+    ///     Stable key used for DI registration and <see cref="AgentTask.AgentTypeKey" /> dispatch (e.g. <c>topology</c>).
+    /// </summary>
     string AgentTypeKey
     {
         get;

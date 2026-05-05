@@ -255,3 +255,17 @@ groups:
           description: >-
             p95 of `archlucid_trial_first_run_seconds` is above 600s for 30m. Treat as product funnel friction; see
             docs/runbooks/TRIAL_FUNNEL.md and Grafana dashboard `archlucid-trial-funnel`.
+
+  - name: archlucid-resilience
+    rules:
+      - alert: ArchLucidCircuitBreakerOpen
+        expr: archlucid_circuit_breaker_state > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: OpenAI circuit breaker not fully closed
+          description: >-
+            Gauge `archlucid_circuit_breaker_state` (label `gate`) reports HalfOpen(1) or Open(2). LLM completions or
+            embeddings may be degraded; see also authenticated GET `/health` circuit breaker check and audit events
+            `CircuitBreakerStateTransition`.

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.Capabilities.Cost;
 using ArchLucid.AgentRuntime.Caching;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
@@ -16,6 +17,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Resilience;
@@ -663,7 +665,10 @@ public static partial class ServiceCollectionExtensions
 
         TimeProvider clock = serviceProvider.GetRequiredService<TimeProvider>();
 
-        return new CircuitBreakerGate(gateName, monitor, clock, onAuditEntry: onAudit);
+        CircuitBreakerGate gate = new(gateName, monitor, clock, onAuditEntry: onAudit);
+        CircuitBreakerGateMetricsRegistry.Register(gate);
+
+        return gate;
     }
 
     private static bool IsAgentRuntimeCompletionCacheEnabled(IConfiguration configuration)

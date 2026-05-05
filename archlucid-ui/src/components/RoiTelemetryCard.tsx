@@ -9,6 +9,7 @@ import {
   formatHours,
   formatUsd,
   hoursSurfaced,
+  readStoredHourlyUsd,
 } from "@/lib/roi-assumptions";
 import type { PilotValueReportSeverityJson } from "@/types/pilot-value-report";
 
@@ -23,26 +24,6 @@ export type RoiTelemetryCardProps = {
   precommitBlocksExact: boolean;
   isAdmin: boolean;
 };
-
-function readStoredHourlyUsd(): number {
-  if (typeof window === "undefined") {
-    return DEFAULT_LOADED_HOURLY_USD;
-  }
-
-  try {
-    const raw = window.localStorage.getItem(ROI_HOURLY_USD_STORAGE_KEY);
-
-    if (raw === null || raw.trim().length === 0) {
-      return DEFAULT_LOADED_HOURLY_USD;
-    }
-
-    const n = Number(raw);
-
-    return Number.isFinite(n) && n > 0 ? n : DEFAULT_LOADED_HOURLY_USD;
-  } catch {
-    return DEFAULT_LOADED_HOURLY_USD;
-  }
-}
 
 /**
  * Hours-first ROI tile; Admin sees loaded $/hour (localStorage) and implied USD total.

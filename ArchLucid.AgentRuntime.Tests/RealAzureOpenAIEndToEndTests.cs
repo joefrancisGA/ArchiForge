@@ -1,4 +1,5 @@
 ﻿using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Capabilities.Cost;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;

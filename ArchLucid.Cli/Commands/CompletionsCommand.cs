@@ -13,6 +13,8 @@ public static class CompletionsCommand
         "new",
         "dev",
         "pilot",
+        "seed-demo-data",
+        "explain-operator-model",
         "try",
         "second-run",
         "trial",

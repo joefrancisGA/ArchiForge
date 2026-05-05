@@ -117,6 +117,54 @@ public sealed class AuditExportControllerTests
     }
 
     [SkippableFact]
+    public async Task ExportAudit_AsCef_ReturnsTextPlain_AndCefLine()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = await CreateEnterpriseAuditClientAsync(factory);
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+
+        AuditEvent evt = new()
+        {
+            EventId = Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1"),
+            OccurredUtc = DateTime.Parse("2026-01-01T09:00:00Z", null, DateTimeStyles.RoundtripKind),
+            EventType = "RunExported",
+            ActorUserId = "actor",
+            ActorUserName = "Actor",
+            TenantId = Guid.Empty,
+            WorkspaceId = Guid.Empty,
+            ProjectId = Guid.Empty,
+            RunId = Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1"),
+            CorrelationId = "c-cef",
+            DataJson = "{\"k\":2}"
+        };
+
+        repo
+            .Setup(r => r.GetExportAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([evt]);
+
+        Uri uri = new("/v1/audit/export?fromUtc=2026-01-01T00:00:00.0000000Z&toUtc=2026-01-02T00:00:00.0000000Z&format=cef", UriKind.Relative);
+        HttpResponseMessage response = await client.GetAsync(uri);
+        response.EnsureSuccessStatusCode();
+        response.Content.Headers.ContentType?.MediaType.Should().Be("text/plain");
+
+        string? disposition = response.Content.Headers.ContentDisposition?.ToString();
+        disposition.Should().NotBeNullOrWhiteSpace();
+        disposition.ToLowerInvariant().Should().Contain("attachment");
+        disposition.ToLowerInvariant().Should().Contain(".cef");
+
+        string body = await response.Content.ReadAsStringAsync();
+        body.Should().StartWith("CEF:0|ArchLucid|ArchLucid API|1.0|");
+        body.Should().Contain("eventId=e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1");
+    }
+
+    [SkippableFact]
     public async Task ExportAudit_InvalidRange_Returns400()
     {
         await using AuditControllerSearchApiFactory factory = new();

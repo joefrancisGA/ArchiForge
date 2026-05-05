@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ArchLucid.Capabilities.Cost</RootNamespace>
+    <AssemblyName>ArchLucid.Capabilities.Cost</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.AgentSimulator\ArchLucid.AgentSimulator.csproj" />
+    <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,3 +1,4 @@
+using ArchLucid.Capabilities.Cost;
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Configuration;
 using ArchLucid.Decisioning.Compliance.Evaluators;
@@ -41,7 +42,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.PolicyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ComplianceFindingEngine>();
-        services.AddScoped<Di.IFindingEngine, Ds.CostConstraintFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, CostConstraintFindingEngine>();
+
 
         services.Configure<HumanReviewFindingOptions>(configuration.GetSection(HumanReviewFindingOptions.SectionPath));
 

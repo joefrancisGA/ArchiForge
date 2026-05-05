@@ -34,6 +34,7 @@
     <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Runtime\ArchLucid.Persistence.Runtime.csproj" />
     <ProjectReference Include="..\ArchLucid.AgentRuntime\ArchLucid.AgentRuntime.csproj" />
+    <ProjectReference Include="..\ArchLucid.Capabilities.Cost\ArchLucid.Capabilities.Cost.csproj" />
     <ProjectReference Include="..\ArchLucid.AgentSimulator\ArchLucid.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
     <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />

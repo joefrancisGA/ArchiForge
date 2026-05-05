@@ -3,7 +3,7 @@
 import { ChevronDown, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useState, type ReactElement } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState, type ReactElement } from "react";
 
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { useDeltaQuery } from "@/components/BeforeAfterDelta/useDeltaQuery";
@@ -21,7 +21,8 @@ import { OperateCapabilityNavGroupHint } from "@/components/OperateCapabilityHin
 import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
-import { NAV_GROUPS } from "@/lib/nav-config";
+import { NAV_GROUPS, flattenNavLinks } from "@/lib/nav-config";
+import type { NavLinkItem } from "@/lib/nav-config.types";
 import { onboardingTourAnchorForHref } from "@/lib/onboarding-tour";
 import { NAV_DISCLOSURE } from "@/lib/nav-disclosure-copy";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
@@ -35,6 +36,7 @@ import {
 import {
   countLinksHiddenByProgressiveDisclosure,
   countSidebarLinksHiddenByCollapsedPilot,
+  filterNavLinksForOperatorShell,
   listNavGroupsVisibleInOperatorShell,
   type NavGroupWithVisibleLinks,
 } from "@/lib/nav-shell-visibility";
@@ -323,6 +325,42 @@ export function SidebarNav() {
   const omitAdminClusters =
     demoUi || shellPresetId === "pilot_operator" || shellPresetId === "analytics_investigator";
 
+
+  const quickActionLinks = useMemo(() => {
+    const hrefs = ["/reviews/new", "/alerts", "/audit"] as const;
+    const flat = flattenNavLinks();
+    const candidates: NavLinkItem[] = hrefs
+      .map((h) => flat.find((l) => (l.href.split("?", 1)[0] ?? "").trim() === h))
+      .filter((l): l is NavLinkItem => l != null);
+
+    let filtered = filterNavLinksForOperatorShell(
+      candidates,
+      demoUi ? true : shellShowExtended,
+      demoUi ? true : shellShowAdvanced,
+      callerAuthorityRank,
+      false,
+      hasCommittedArchitectureReview,
+    );
+
+    if (demoUi) {
+      filtered = filtered.filter((l) => !shouldHideOperatorNavLinkInDemo(l.href, demoUi));
+    }
+
+    if (!demoUi && mounted) {
+      filtered = filtered.filter((l) => operatorShellPresetAllowsHref(shellPresetId, l.href));
+    }
+
+    return filtered;
+  }, [
+    callerAuthorityRank,
+    demoUi,
+    hasCommittedArchitectureReview,
+    mounted,
+    shellPresetId,
+    shellShowAdvanced,
+    shellShowExtended,
+  ]);
+
   const reviewNavRowsRaw = listNavGroupsVisibleInOperatorShell(
     NAV_GROUPS,
     demoUi ? true : shellShowExtended,
@@ -502,6 +540,49 @@ export function SidebarNav() {
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
       <SidebarRecentActivityCard />
+
+      {mounted && quickActionLinks.length > 0 ? (
+        <div className="px-2 py-2" data-testid="sidebar-quick-actions" aria-label="Quick actions">
+          <p className="m-0 mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+            Quick actions
+          </p>
+          <nav className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700">
+            {quickActionLinks.map((link) => {
+              const active = isNavLinkActive(pathname, link.href);
+              const Icon = link.icon;
+              const advancedDemo = isOperatorNavLinkAdvancedInDemo(link.href, demoUi);
+
+              return (
+                <Link
+                  key={`quick-${link.href}`}
+                  href={link.href}
+                  data-onboarding={onboardingTourAnchorForHref(link.href)}
+                  className={cn(
+                    "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                    active
+                      ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                      : "text-neutral-800 dark:text-neutral-200",
+                    advancedDemo ? "opacity-60" : null,
+                  )}
+                  title={
+                    advancedDemo
+                      ? `${link.title} (Advanced — optional in demo mode)`
+                      : link.title
+                  }
+                  aria-current={active ? "page" : undefined}
+                  aria-keyshortcuts={
+                    link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
+                  }
+                >
+                  {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      ) : null}
+
       {reviewNavRows.map((row) => renderNavCluster(row))}
 
       {showProgressiveDisclosureChrome ? (

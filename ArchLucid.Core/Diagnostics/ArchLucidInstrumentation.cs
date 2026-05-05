@@ -45,6 +45,8 @@ public static class ArchLucidInstrumentation
 
     private static int _llmCompletionCacheObservableInstrumentsRegistered;
 
+    private static int _circuitBreakerStateObservableGaugeRegistered;
+
     private static long _llmCompletionCacheHitsAggregate;
 
     private static long _llmCompletionCacheMissesAggregate;
@@ -799,6 +801,43 @@ public static class ArchLucidInstrumentation
             },
             description:
             "Process-wide LLM completion cache hit ratio (hits / (hits + misses)) from CachingLlmCompletionClient.");
+    }
+
+    /// <summary>
+    ///     Registers per-gauge circuit breaker state once (numeric: Closed=0, HalfOpen=1, Open=2; labels <c>gate</c>,
+    ///     <c>state</c>).
+    /// </summary>
+    public static void EnsureCircuitBreakerStateObservableGaugesRegistered()
+    {
+        if (Interlocked.Exchange(ref _circuitBreakerStateObservableGaugeRegistered, 1) != 0)
+            return;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_circuit_breaker_state",
+            static () =>
+            {
+                IReadOnlyList<(string GateName, string State)> snaps = CircuitBreakerGateMetricsRegistry.SnapshotStates();
+                Measurement<int>[] measurements = new Measurement<int>[snaps.Count];
+
+                for (int i = 0; i < snaps.Count; i++)
+                {
+                    (string gateName, string state) = snaps[i];
+                    int n = state switch
+                    {
+                        "Open" => 2,
+                        "HalfOpen" => 1,
+                        _ => 0
+                    };
+                    measurements[i] = new Measurement<int>(
+                        n,
+                        new KeyValuePair<string, object?>("gate", gateName),
+                        new KeyValuePair<string, object?>("state", state));
+                }
+
+                return measurements;
+            },
+            description:
+            "Circuit breaker state per gate (0=Closed,1=HalfOpen,2=Open) with string state tag (OpenAI gates).");
     }
 
     /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>

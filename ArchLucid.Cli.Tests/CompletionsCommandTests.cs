@@ -37,7 +37,8 @@ public sealed class CompletionsCommandTests
             text.Should().Contain("proof-pack");
             text.Should().Contain("trial");
             text.Should().Contain("second-run");
-            text.Should().Contain("agent-eval");
+            text.Should().Contain("seed-demo-data");
+            text.Should().Contain("explain-operator-model");
         }
         finally
         {

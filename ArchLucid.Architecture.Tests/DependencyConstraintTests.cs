@@ -606,8 +606,8 @@ public sealed class DependencyConstraintTests
     [Trait("Category", "Unit")]
     public void AgentRuntime_references_AgentSimulator_by_design()
     {
-        // SimulatorExecutionTraceRecordingExecutor, EchoAgentCompletionClient, and CostAgentHandler
-        // in AgentRuntime use DeterministicAgentSimulator for Simulator-mode execution paths.
+        // SimulatorExecutionTraceRecordingExecutor and EchoAgentCompletionClient in AgentRuntime,
+        // plus deterministic handlers in ArchLucid.Capabilities.Cost, use AgentSimulator without LLMs.
         // This is production behaviour (not test-only): when AgentExecution:Mode=Simulator the runtime
         // delegates to AgentSimulator rather than calling Azure OpenAI.
         // This test documents and accepts that coupling so future reviewers do not treat it as a bug.

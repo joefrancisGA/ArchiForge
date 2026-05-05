@@ -9,6 +9,29 @@ export const HOURS_PER_PRECOMMIT_BLOCK = 2;
 export const DEFAULT_LOADED_HOURLY_USD = 150;
 export const ROI_HOURLY_USD_STORAGE_KEY = "archlucid.roi.hourlyUsd";
 
+/**
+ * Loaded $/hour for ROI tiles (browser localStorage). Server/components must pass a safe default when `window` is absent.
+ */
+export function readStoredHourlyUsd(): number {
+  if (typeof window === "undefined") {
+    return DEFAULT_LOADED_HOURLY_USD;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(ROI_HOURLY_USD_STORAGE_KEY);
+
+    if (raw === null || raw.trim().length === 0) {
+      return DEFAULT_LOADED_HOURLY_USD;
+    }
+
+    const n = Number(raw);
+
+    return Number.isFinite(n) && n > 0 ? n : DEFAULT_LOADED_HOURLY_USD;
+  } catch {
+    return DEFAULT_LOADED_HOURLY_USD;
+  }
+}
+
 export type RoiHoursCoefficients = {
   hoursPerCritical: number;
   hoursPerHigh: number;

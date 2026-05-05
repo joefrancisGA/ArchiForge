@@ -1,12 +1,13 @@
 using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
-namespace ArchLucid.AgentRuntime;
+namespace ArchLucid.Capabilities.Cost;
 
 /// <summary>
-///     <see cref="Contracts.Common.AgentType.Cost" /> handler for dev/test: returns deterministic
+///     <see cref="AgentType.Cost" /> handler for dev/test: returns deterministic
 ///     <see cref="AgentResult" /> from <see cref="FakeScenarioFactory" /> without calling an LLM.
 /// </summary>
 public sealed class CostAgentHandler : IAgentHandler
