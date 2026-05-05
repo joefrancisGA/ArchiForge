@@ -31,11 +31,10 @@ public static class SanitizedLoggerWarningExtensions
 
         string safe = LogSanitizer.Sanitize(userDerivedValue);
 
-        // codeql[cs/log-forging]: sanitized immediately below; exception + params boxing breaks custom barrier at API call sites.
         logger.LogWarning(
             exception,
             messageTemplate,
-            safe);
+            safe); // codeql[cs/log-forging]: sanitized immediately above; exception + params boxing breaks custom barrier at API call sites.
     }
 
     /// <summary>
@@ -52,8 +51,7 @@ public static class SanitizedLoggerWarningExtensions
         string safeFirst = LogSanitizer.Sanitize(userDerivedFirst);
         string safeSecond = LogSanitizer.Sanitize(userDerivedSecond);
 
-        // codeql[cs/log-forging]: user-derived values sanitized immediately above.
-        logger.LogWarning(messageTemplate, safeFirst, safeSecond);
+        logger.LogWarning(messageTemplate, safeFirst, safeSecond); // codeql[cs/log-forging]: user-derived values sanitized immediately above (params boxing).
     }
 
     /// <summary>
@@ -72,8 +70,7 @@ public static class SanitizedLoggerWarningExtensions
         string safeSecond = LogSanitizer.Sanitize(userDerivedSecond);
         string safeThird = LogSanitizer.Sanitize(userDerivedThird);
 
-        // codeql[cs/log-forging]: user-derived values sanitized immediately above.
-        logger.LogWarning(messageTemplate, safeFirst, safeSecond, safeThird);
+        logger.LogWarning(messageTemplate, safeFirst, safeSecond, safeThird); // codeql[cs/log-forging]: user-derived values sanitized immediately above (params boxing).
     }
 
     /// <summary>
