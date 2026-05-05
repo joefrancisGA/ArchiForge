@@ -405,7 +405,7 @@ public sealed class ArchitectureControllerTests
     }
 
     [SkippableFact]
-    public async Task GetArchitectureRequestTemplates_ReturnsFiveSummaries()
+    public async Task GetArchitectureRequestTemplates_ReturnsSevenSummaries()
     {
         await RunWithIsolatedFactory(async client =>
         {
@@ -417,7 +417,7 @@ public sealed class ArchitectureControllerTests
                 await response.Content.ReadFromJsonAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);
 
             items.Should().NotBeNull();
-            items.Should().HaveCount(5);
+            items.Should().HaveCount(7);
             items.Select(i => i.TemplateId).Should().OnlyHaveUniqueItems();
         });
     }
@@ -433,7 +433,9 @@ public sealed class ArchitectureControllerTests
                 ArchitectureRequestTemplates.MonolithMigrationAssessment($"tpl-api-mono-{Guid.NewGuid():N}"),
                 ArchitectureRequestTemplates.EventDrivenProcessingPipeline($"tpl-api-ev-{Guid.NewGuid():N}"),
                 ArchitectureRequestTemplates.CloudNativeMigration($"tpl-api-az-{Guid.NewGuid():N}"),
-                ArchitectureRequestTemplates.RegulatedHealthcareSystem($"tpl-api-phi-{Guid.NewGuid():N}")
+                ArchitectureRequestTemplates.RegulatedHealthcareSystem($"tpl-api-phi-{Guid.NewGuid():N}"),
+                ArchitectureRequestTemplates.RetailBankingAndPaymentsPlatform($"tpl-api-fin-{Guid.NewGuid():N}"),
+                ArchitectureRequestTemplates.SmartManufacturingOtItReference($"tpl-api-mfg-{Guid.NewGuid():N}")
             ];
 
             foreach (ArchitectureRequest template in templates)

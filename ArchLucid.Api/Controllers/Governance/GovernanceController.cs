@@ -548,7 +548,9 @@ public sealed class GovernanceController(
     /// <summary>
     ///     Dry-runs proposed <c>PolicyPackContentDocument</c> JSON against a single scoped run or golden manifest using
     ///     the same pre-commit severity evaluation as <see cref="IPreCommitGovernanceGate" />. Read-only: does not persist
-    ///     the pack or change run state. Uses <c>governancePolicyPackDryRun</c> rate limiting.
+    ///     the pack or change run state. Persists a redacted <c>GovernanceDryRunRequested</c> audit row via
+    ///     <see cref="IPolicyPackGovernanceDryRunService" /> (same event family as
+    ///     <see cref="DryRunPolicyPack" />). Uses <c>governancePolicyPackDryRun</c> rate limiting.
     /// </summary>
     [HttpPost("policy-packs/dry-run")]
     [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]

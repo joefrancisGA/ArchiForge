@@ -1,6 +1,8 @@
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -11,9 +13,12 @@ using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
+
+using System.Collections.Immutable;
 
 namespace ArchLucid.Application.Tests.Governance;
 
@@ -74,13 +79,13 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             },
             CancellationToken.None);
 
-        PolicyPackGovernanceDryRunService sut = CreateSut(
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
             runs,
             findingsRepo,
             new InMemoryGoldenManifestRepository(),
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }));
 
-        PolicyPackGovernanceDryRunResult? result = await sut.EvaluateAsync(
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
             """{"metadata":{"governance.blockCommitOnCritical":"true"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
             runGuid.ToString("N"),
             null,
@@ -92,6 +97,14 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         result.Should().NotBeNull();
         result!.GateResult.Blocked.Should().BeTrue();
         result.FailedChecks.Should().ContainSingle();
+
+        fixture.Audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.GovernanceDryRunRequested &&
+                    e.DataJson!.Contains("\"workflow\":\"proposedPolicyPackContent\"", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -151,13 +164,13 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
 
         await manifests.SaveAsync(manifest, CancellationToken.None);
 
-        PolicyPackGovernanceDryRunService sut = CreateSut(
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
             runs,
             findingsRepo,
             manifests,
             Options.Create(new PreCommitGovernanceGateOptions()));
 
-        PolicyPackGovernanceDryRunResult? result = await sut.EvaluateAsync(
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
             "{}",
             null,
             manifestGuid,
@@ -170,6 +183,12 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
         result!.ResolvedRunId.Should().Be(runGuid.ToString("N"));
         result.TargetManifestId.Should().Be(manifestGuid);
         result.GateResult.Blocked.Should().BeFalse();
+
+        fixture.Audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.GovernanceDryRunRequested),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -202,13 +221,13 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
 
         await manifests.SaveAsync(manifest, CancellationToken.None);
 
-        PolicyPackGovernanceDryRunService sut = CreateSut(
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
             runs,
             findingsRepo,
             manifests,
             Options.Create(new PreCommitGovernanceGateOptions()));
 
-        PolicyPackGovernanceDryRunResult? result = await sut.EvaluateAsync(
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
             "{}",
             null,
             manifestGuid,
@@ -218,22 +237,45 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             CancellationToken.None);
 
         result.Should().BeNull();
+
+        fixture.Audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
-    private static PolicyPackGovernanceDryRunService CreateSut(
+    private sealed record PolicyPackGovernanceDryRunServiceTestsFixture(
+        PolicyPackGovernanceDryRunService Sut,
+        Mock<IAuditService> Audit);
+
+    private static PolicyPackGovernanceDryRunServiceTestsFixture CreateSut(
         IRunRepository runs,
         IFindingsSnapshotRepository findings,
         IGoldenManifestRepository goldenManifests,
         IOptions<PreCommitGovernanceGateOptions> options)
     {
+        Mock<IPromptRedactor> redactor = new();
+        redactor
+            .Setup(r => r.Redact(It.IsAny<string?>()))
+            .Returns((string? s) => new PromptRedactionOutcome(s ?? string.Empty, ImmutableDictionary<string, int>.Empty));
+
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        return new PolicyPackGovernanceDryRunService(
+        PolicyPackGovernanceDryRunService sut = new(
             scope.Object,
             runs,
             findings,
             goldenManifests,
-            options);
+            options,
+            redactor.Object,
+            audit.Object,
+            NullLogger<PolicyPackGovernanceDryRunService>.Instance);
+
+        return new PolicyPackGovernanceDryRunServiceTestsFixture(sut, audit);
     }
 }

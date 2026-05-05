@@ -164,6 +164,95 @@ public sealed class CommandLineTests
         }
     }
 
+    [Fact]
+    public async Task New_with_quickstart_before_name_creates_local_evaluation_artifacts()
+    {
+        using TempDirectory temp = new();
+        string prevCwd = Directory.GetCurrentDirectory();
+        try
+        {
+            Directory.SetCurrentDirectory(temp.Path);
+
+            RedirectConsole(out _, out _, out TextWriter prevOut, out TextWriter prevErr);
+            try
+            {
+                int exitCode = await Program.RunAsync(["new", "--quickstart", "QuickProj"]);
+
+                exitCode.Should().Be(CliExitCode.Success);
+                string projectDir = Path.Combine(temp.Path, "QuickProj");
+                File.Exists(Path.Combine(projectDir, "local", "archlucid-evaluation.sqlite")).Should().BeTrue();
+                File.Exists(Path.Combine(projectDir, "local", "archlucid.quickstart.appsettings.json")).Should()
+                    .BeTrue();
+            }
+            finally
+            {
+                RestoreConsole(prevOut, prevErr);
+            }
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(prevCwd);
+        }
+    }
+
+    [Fact]
+    public async Task New_with_quickstart_after_name_creates_local_evaluation_artifacts()
+    {
+        using TempDirectory temp = new();
+        string prevCwd = Directory.GetCurrentDirectory();
+        try
+        {
+            Directory.SetCurrentDirectory(temp.Path);
+
+            RedirectConsole(out _, out _, out TextWriter prevOut, out TextWriter prevErr);
+            try
+            {
+                int exitCode = await Program.RunAsync(["new", "QuickProj2", "--quickstart"]);
+
+                exitCode.Should().Be(CliExitCode.Success);
+                string projectDir = Path.Combine(temp.Path, "QuickProj2");
+                File.Exists(Path.Combine(projectDir, "local", "archlucid-evaluation.sqlite")).Should().BeTrue();
+            }
+            finally
+            {
+                RestoreConsole(prevOut, prevErr);
+            }
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(prevCwd);
+        }
+    }
+
+    [Fact]
+    public async Task New_with_unknown_flag_returns_usage_error()
+    {
+        using TempDirectory temp = new();
+        string prevCwd = Directory.GetCurrentDirectory();
+        try
+        {
+            Directory.SetCurrentDirectory(temp.Path);
+
+            RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
+                out TextWriter prevErr);
+            try
+            {
+                int exitCode = await Program.RunAsync(["new", "--not-a-real-flag", "P"]);
+
+                exitCode.Should().Be(CliExitCode.UsageError);
+                (outWriter + errWriter.ToString()).Should().Contain("Usage").And.Contain("--quickstart");
+            }
+            finally
+            {
+                RestoreConsole(prevOut, prevErr);
+            }
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(prevCwd);
+        }
+    }
+
     private static void RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut,
         out TextWriter prevErr)
     {

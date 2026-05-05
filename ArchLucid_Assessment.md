@@ -434,10 +434,11 @@ Create a new React component `ExecutiveRoiDashboard.tsx` in `archlucid-ui/src/co
 ```
 
 ### 2. Industry accelerator templates (healthcare, finance, manufacturing)
+- **Status:** **Completed (2026-05-05).** Finance and manufacturing catalog entries and factories are shipped: `RetailBankingAndPaymentsPlatform` (`financial-services-pci-sox`) and `SmartManufacturingOtItReference` (`manufacturing-ot-it-convergence`) in `ArchLucid.Application/Templates/ArchitectureRequestTemplates.cs`; `Summaries` lists **seven** templates; `ArchitectureRequestTemplatesTests` and `ArchitectureControllerTests` assert the expanded catalog and POST coverage.
 - **Why it matters:** Reduces adoption friction with recognizable vertical starting points; aligns pilots with buyer language.
 - **Expected impact:** Directly improves Template and Accelerator Richness (+18–22 pts), Adoption Friction (+4–6 pts), Marketability (+3–5 pts). Weighted readiness impact: ~+0.35–0.45%.
 - **Affected qualities:** Template and Accelerator Richness, Adoption Friction, Marketability.
-- **Actionable:** Yes. **Target industries:** **healthcare**, **finance**, **manufacturing** (healthcare is already covered by `RegulatedHealthcareSystem`; add **finance** and **manufacturing** analogs in code).
+- **Actionable:** No — fulfilled in code (healthcare remains `RegulatedHealthcareSystem` / `regulated-healthcare-hipaa`; finance and manufacturing added as above).
 
 ```cursor
 Implement vertical accelerator templates for the three target industries: **healthcare**, **finance**, and **manufacturing**.

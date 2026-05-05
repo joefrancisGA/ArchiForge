@@ -84,8 +84,11 @@ public static class ArchLucidProjectScaffolder
                 options.OverwriteExistingFiles);
         }
 
-        WriteFile(Path.Combine(projectRoot, "docs", "README.md"), BuildDocsReadme(options.ProjectName),
-            options.OverwriteExistingFiles);
+        WriteFile(Path.Combine(projectRoot, "docs", "README.md"),
+            BuildDocsReadme(options.ProjectName, options.QuickStartEvaluation), options.OverwriteExistingFiles);
+
+        if (options.QuickStartEvaluation)
+            WriteQuickStartEvaluationArtifacts(projectRoot, options);
 
         if (options.RegisterProject)
         {
@@ -126,6 +129,29 @@ public static class ArchLucidProjectScaffolder
 
         Console.WriteLine("Created Project " + options.ProjectName);
         return projectRoot;
+    }
+
+    private static void WriteQuickStartEvaluationArtifacts(string projectRoot, ScaffoldOptions options)
+    {
+        string localDir = Path.Combine(projectRoot, "local");
+        CreateDirectory(localDir);
+        string appsettingsPath = Path.Combine(localDir, "archlucid.quickstart.appsettings.json");
+        WriteFile(appsettingsPath, BuildQuickstartAppsettingsJson(), options.OverwriteExistingFiles);
+        string sqlitePath = Path.Combine(projectRoot,
+            QuickStartSQLiteProjectRegistry.DefaultRelativeDbPath.Replace('/', Path.DirectorySeparatorChar));
+
+        QuickStartSQLiteProjectRegistry.EnsureRegistered(Path.GetFullPath(sqlitePath), options.ProjectName,
+            options.BaseDirectory, options.OverwriteExistingFiles, options.IncludeTerraformStubs);
+
+        Console.WriteLine(
+            "Quickstart: wrote " + appsettingsPath + " and " + sqlitePath
+            + " (InMemory host storage; no SQL Server required for local evaluation — see docs/README.md).");
+    }
+
+    private static string BuildQuickstartAppsettingsJson()
+    {
+        return JsonSerializer.Serialize(new { ArchLucid = new { StorageProvider = "InMemory" } }, SJsonManifest)
+               + Environment.NewLine;
     }
 
     private static void CreateDirectory(string path)
@@ -341,9 +367,9 @@ Describe the outcome you want (business + technical). Keep it short and runnable
             """;
     }
 
-    private static string BuildDocsReadme(string projectName)
+    private static string BuildDocsReadme(string projectName, bool quickStartEvaluation)
     {
-        return
+        string body =
             $"""
              # {projectName}
 
@@ -361,6 +387,21 @@ Describe the outcome you want (business + technical). Keep it short and runnable
              1. Edit `inputs/brief.md`
              2. Update `archlucid.json` if needed
              3. Run `archlucid run` (or your host workflow) against the brief
+
+             """;
+
+        if (!quickStartEvaluation)
+            return body;
+
+        return body
+               + $"""
+
+             ## Quickstart evaluation (no SQL Server)
+
+             This project was scaffolded with `archlucid new {projectName} --quickstart`.
+
+             - `local/archlucid.quickstart.appsettings.json` — sets `ArchLucid:StorageProvider` to `InMemory` so ArchLucid hosts can run **without** SQL Server. Merge into your configuration (for example `appsettings.Development.json`), or run `dotnet user-secrets set "ArchLucid:StorageProvider" "InMemory"` for the API project.
+             - `local/archlucid-evaluation.sqlite` — file-backed SQLite used only as a **CLI-side** project registry for this scaffold. The product database is still controlled by `ArchLucid:StorageProvider` (`InMemory` or `Sql` with SQL Server).
 
              """;
     }
@@ -411,6 +452,18 @@ Describe the outcome you want (business + technical). Keep it short and runnable
             get;
             set;
         } = null;
+
+        /// <summary>
+        ///     When true, write quickstart evaluation artifacts under <c>local/</c>: a SQLite file (<c>
+        ///     local/archlucid-evaluation.sqlite</c>) for CLI-side project registry, and an appsettings JSON fragment
+        ///     setting <c>ArchLucid:StorageProvider</c> to <c>InMemory</c> so hosts do not require SQL Server for
+        ///     initial evaluation.
+        /// </summary>
+        public bool QuickStartEvaluation
+        {
+            get;
+            set;
+        } = false;
     }
 
     public sealed class ArchLucidCliConfig

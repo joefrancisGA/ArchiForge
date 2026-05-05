@@ -34,12 +34,16 @@ public static class Program
             switch (command)
             {
                 case "new":
-                    if (normalized.Length > 1)
-                        return await NewCommand.RunAsync(normalized[1]);
+                {
+                    if (!TryParseNewCommandArgs(normalized.Skip(1).ToArray(), out string? projectName, out bool quickstart))
+                    {
+                        WriteNewUsage();
 
-                    WriteNewUsage();
+                        return CliExitCode.UsageError;
+                    }
 
-                    return CliExitCode.UsageError;
+                    return await NewCommand.RunAsync(projectName!, quickstart);
+                }
 
                 case "dev":
                     if (normalized.Length > 1 && normalized[1] == "up")
@@ -350,7 +354,7 @@ public static class Program
     private static void WriteNoCommandMessage()
     {
         const string plain =
-            "Please provide a command. Available commands: new, dev up, pilot up | pilot success-criteria-template, seed-demo-data, explain-operator-model, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], manifest validate --file <path.json>, golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], reference-evidence | proof-pack (--run or --tenant; same CLI), comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, validate-config, policy validate <file.json>, graph export <runId> [--format mermaid] [--decision <key>] [--out <path>], rules simulate --run <runGuid> [--severity Warning] [--count 3], webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], config lint [--simulate-production] [--hosting-advisor], doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
+            "Please provide a command. Available commands: new [--quickstart], dev up, pilot up | pilot success-criteria-template, seed-demo-data, explain-operator-model, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], second-run <SECOND_RUN.toml|json> [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--commit-deadline <secs>], trial smoke --org <name> --email <email> [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas], roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>] [--synthetic] [--explain], security-trust publish --kind pen-test --date <YYYY-MM-DD> --summary-url <URL> [--assessor <name>] [--assessment-code <code>] [--ui-base-url <url>], marketplace preflight [--repo <dir>], manifest validate --file <path.json>, golden-cohort lock-baseline [--cohort <path>] [--write] | golden-cohort drift [--cohort <path>] [--strict-real] [--structural-only], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], reference-evidence | proof-pack (--run or --tenant; same CLI), comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, validate-config, policy validate <file.json>, graph export <runId> [--format mermaid] [--decision <key>] [--out <path>], rules simulate --run <runGuid> [--severity Warning] [--count 3], webhooks test [--url <url>] [--secret <s>] [--payload <path>] [--help], config check [--no-api], config lint [--simulate-production] [--hosting-advisor], doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell. Global: --json for machine-readable output where supported.";
 
         if (CliExecutionContext.JsonOutput)
 
@@ -363,7 +367,11 @@ public static class Program
 
     private static void WriteNewUsage()
     {
-        const string plain = "Usage: archlucid new <projectName>";
+        const string plain =
+            "Usage: archlucid new <projectName> [--quickstart]" + Environment.NewLine
+            + "  --quickstart  Provision local/quickstart artifacts: SQLite CLI registry (local/archlucid-evaluation.sqlite) "
+            + "and an appsettings fragment (local/archlucid.quickstart.appsettings.json) that sets "
+            + "ArchLucid:StorageProvider=InMemory so hosts run without SQL Server for initial evaluation.";
 
         if (CliExecutionContext.JsonOutput)
 
@@ -372,5 +380,41 @@ public static class Program
         else
 
             Console.WriteLine(plain);
+    }
+
+    private static bool TryParseNewCommandArgs(
+        string[] args,
+        [NotNullWhen(true)] out string? projectName,
+        out bool quickStartEvaluation)
+    {
+        projectName = null;
+        quickStartEvaluation = false;
+
+        if (args.Length == 0)
+            return false;
+
+        List<string> positionals = new();
+
+        foreach (string arg in args)
+        {
+            if (string.Equals(arg, "--quickstart", StringComparison.OrdinalIgnoreCase))
+            {
+                quickStartEvaluation = true;
+
+                continue;
+            }
+
+            if (arg.StartsWith('-'))
+                return false;
+
+            positionals.Add(arg);
+        }
+
+        if (positionals.Count != 1)
+            return false;
+
+        projectName = positionals[0];
+
+        return true;
     }
 }

@@ -51,6 +51,29 @@ public sealed class ArchLucidProjectScaffolderTests
     }
 
     [Fact]
+    public void CreateProject_QuickStartEvaluation_writes_local_appsettings_sqlite_and_documentation()
+    {
+        using TempDirectory temp = new();
+        string projectRoot = ArchLucidProjectScaffolder.CreateProject(
+            new ArchLucidProjectScaffolder.ScaffoldOptions
+            {
+                ProjectName = "Quick",
+                BaseDirectory = temp.Path,
+                OverwriteExistingFiles = true,
+                QuickStartEvaluation = true
+            });
+
+        File.Exists(Path.Combine(projectRoot, "local", "archlucid.quickstart.appsettings.json")).Should().BeTrue();
+        File.Exists(Path.Combine(projectRoot, "local", "archlucid-evaluation.sqlite")).Should().BeTrue();
+        string appsettings = File.ReadAllText(Path.Combine(projectRoot, "local", "archlucid.quickstart.appsettings.json"));
+        appsettings.Should().Contain("\"StorageProvider\"").And.Contain("InMemory");
+
+        string readme = File.ReadAllText(Path.Combine(projectRoot, "docs", "README.md"));
+
+        readme.Should().Contain("--quickstart");
+    }
+
+    [Fact]
     public void LoadConfig_when_only_legacy_manifest_filename_exists_loads_same_as_archlucid_json()
     {
         using TempDirectory temp = new();

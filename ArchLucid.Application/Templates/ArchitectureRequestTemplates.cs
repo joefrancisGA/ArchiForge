@@ -38,7 +38,15 @@ public static class ArchitectureRequestTemplates
         new(
             "regulated-healthcare-hipaa",
             "Regulated healthcare (HIPAA)",
-            "Patient-data system: HIPAA constraints, auditability, encryption, access control, and data residency.")
+            "Patient-data system: HIPAA constraints, auditability, encryption, access control, and data residency."),
+        new(
+            "financial-services-pci-sox",
+            "Finance — retail banking and payments (PCI/SOX-minded)",
+            "Scope CHD appropriately, hardened auth, postings and settlement integrity, AML/fraud adjacency, immutable audit narratives, Azure Key Vault and private connectivity."),
+        new(
+            "manufacturing-ot-it-convergence",
+            "Manufacturing — OT/IT smart factory reference",
+            "MES and shop-floor telemetry, ERP handoff and historian pipelines, segmented OT/IT, safety-critical change discipline, latency and supplier integration.")
     ];
 
     public static ArchitectureRequest MicroservicesWebPlatform(string? requestId = null)
@@ -408,6 +416,225 @@ public static class ArchitectureRequestTemplates
                 "nist-800-66r2-aligned",
                 "break-glass-audited",
                 "minimum-necessary-access"
+            ]);
+    }
+
+    public static ArchitectureRequest RetailBankingAndPaymentsPlatform(string? requestId = null)
+    {
+        return Build(
+            "financial-services-pci-sox",
+            requestId,
+            "Retail banking and payments reference platform",
+            """
+            Architecture for retail banking workloads that handle card-present and card-not-present rails, ACH/wires, ledgered
+            customer accounts, and settlement with external networks. Produce clear PCI DSS scope artifacts (CDE boundaries,
+            PAN minimization/tokenization vault), strong customer and operator authentication posture, transactional integrity on
+            journal postings (idempotency, balanced double-entry assumptions), nightly and intraday reconciliation with
+            PSP/acquirer files, AML and fraud-detection pipelines that stay materially separated from CHD stores, audit evidence
+            that SOX-aligned reviewers recognize (immutable logs, access reviews, segregation of duties), and Azure-native controls
+            (Key Vault/HSM-backed keys, CMK where warranted, Encryption everywhere, Private Link/private endpoints vs public data
+            planes by default).
+            """,
+            "RetailBankingAndPaymentsPlatform",
+            "prod",
+            CloudProvider.Azure,
+            [
+                "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
+                "Cardholder data must be processed only inside an explicitly documented Cardholder Data Environment (CDE).",
+                "Money movement and regulatory reporting responsibilities follow the bank's licensed entity and regional rules."
+            ],
+            [
+                "PAN and sensitive authentication data must not land in general-purpose logs, analytics lakes, or email systems.",
+                "Production payment paths require MFA for operators; customer digital channels follow regional strong-auth rules."
+            ],
+            [
+                "Tokenization or vault service isolating PAN from application databases where feasible",
+                "Double-entry ledger with posting controls; idempotent payment capture and settlement hooks",
+                "PSP/acquirer file ingestion with automated exception queues and manual approval workflow",
+                "AML and fraud analytics on derived features without co-mingling raw CHD",
+                "Azure Key Vault for keys/secrets; private connectivity to core banking and payment switches"
+            ],
+            [
+                (
+                    "Evidence — PCI scope and CHD boundaries",
+                    """
+                    **CDE:** Map every system that stores, processes, or transmits account data; draw trust boundaries between CDE,
+                    tokenization services, and back-office analytics.
+
+                    **Minimization:** Prefer network tokens or vault references in app databases; scope reduction for call centers
+                    and partner APIs via controlled fields and retention limits.
+                    """
+                ),
+                (
+                    "Evidence — Strong authentication",
+                    """
+                    **Customers:** Step-up authentication for high-risk transactions; device binding and risk scoring at the edge.
+
+                    **Operators:** Phishing-resistant MFA for payment operations; PIM/JIT for infrastructure; break-glass only with
+                    compensating monitoring.
+                    """
+                ),
+                (
+                    "Evidence — Ledger posting integrity",
+                    """
+                    **Posting model:** Authoritative general ledger with balanced entries; idempotency keys on payment commands to
+                    survive retries.
+
+                    **Controls:** Maker-checker for manual adjustments; immutable append-only journal where policy requires;
+                    compensating entries instead of silent edits.
+                    """
+                ),
+                (
+                    "Evidence — Settlement and reconciliation",
+                    """
+                    **Clearing:** Match acquirer/PSP settlement files to internal postings; suspense accounts for timing differences.
+
+                    **Operational SLAs:** Cut-off windows documented; rollback and replay procedures tested; nostro/vostro
+                    reconciliation cadence automated with exception dashboards.
+                    """
+                ),
+                (
+                    "Evidence — AML/fraud adjacency",
+                    """
+                    **AML:** Transaction monitoring aggregates on non-CHD dimensions; SAR workflow integration without exporting PAN.
+
+                    **Fraud:** Real-time scoring on session and device telemetry; supervised models trained on pseudonymous features —
+                    forbid raw PAN in ML feature stores aligned to policy.
+                    """
+                ),
+                (
+                    "Evidence — SOX-minded audit trails and Azure controls",
+                    """
+                    **Audit:** Tamper-evident logs for ledger changes, access grants, privileged actions, and config drift; recurring
+                    access reviews evidenced.
+
+                    **Azure:** Keys in Key Vault/HSM routes; TLS and encryption at rest; Private Link/App Service integration subnet
+                    patterns; Defender for Cloud and policy-as-code for misconfiguration detection.
+                    """
+                )
+            ],
+            [
+                "pci-dss-scope",
+                "tokenization-vault",
+                "double-entry-ledger",
+                "settlement-recon",
+                "aml-fraud-lake-separated",
+                "azure-private-connectivity"
+            ],
+            [
+                "sox-controls-friendly",
+                "no-pan-in-logs",
+                "mfa-everywhere-sensitive",
+                "key-vault-cmk"
+            ]);
+    }
+
+    public static ArchitectureRequest SmartManufacturingOtItReference(string? requestId = null)
+    {
+        return Build(
+            "manufacturing-ot-it-convergence",
+            requestId,
+            "Smart manufacturing OT/IT convergence reference",
+            """
+            Reference architecture for discrete or process manufacturing where shop-floor OT (PLCs, MES, SCADA) converges with
+            enterprise IT (ERP, quality, planning). Cover ingestion from plant assets and historians, deterministic low-latency
+            paths for line control versus batch analytics upstream, ERP production-order and BOM/routing synchronization, time-series
+            retention for historians and predictive maintenance, resilient availability when WAN links degrade, Purdue / ISA-style
+            segmentation between OT Levels 0–3 and DMZ/cloud services, safety-related automation and audited change windows
+            (fat/sat, lockout-tagout-aligned procedures for software pushes), and supply-chain touchpoints (ASN, EDI, supplier
+            quality portals) without flattening OT networks.
+            """,
+            "SmartManufacturingOtItReference",
+            "prod",
+            CloudProvider.Azure,
+            [
+                "Workspace and project scope are taken from the signed-in operator session (default workspace and project).",
+                "Safety instrumented systems and emergency stops remain under plant engineering authority — cloud does not directly actuate SIL-rated loops without explicit exception.",
+                "ERP remains the financial and planning system of record; MES owns real-time execution state at the line."
+            ],
+            [
+                "No flat network between PLCs and corporate Wi-Fi; jump hosts and bastions are documented and time-bounded.",
+                "Historian and MES exports that leave the plant must be classified (PII, export control) and encrypted in transit."
+            ],
+            [
+                "OPC-UA or industrial protocol gateways with certificate-based trust into a plant DMZ",
+                "MES orchestration integrating work orders with ERP confirmations and genealogy",
+                "Historian/time-series path (edge buffer + Azure IoT/TS or equivalent) sized for anomaly detection",
+                "Site-level resilience — store-and-forward during uplink loss without losing safety interlocks locally",
+                "Supplier integration APIs or EDI for inbound materials visibility"
+            ],
+            [
+                (
+                    "Evidence — MES and line integration",
+                    """
+                    **MES:** Executes work orders, enforces routing and parameters, publishes OEE downtime reasons to IT systems.
+
+                    **PLCs/HMI:** deterministic cycle times; deterministic messaging into MES queues; anomaly detection at edge
+                    before noisy flood to cloud.
+                    """
+                ),
+                (
+                    "Evidence — ERP handoff",
+                    """
+                    **Sync:** Planned orders released from ERP; confirmations, scrap, yield, and labor confirmations write back via
+                    controlled batches or event topics.
+
+                    **Master data:** BOM and revision governance — engineering change workflows prevent unauthorized shop-floor pushes.
+                    """
+                ),
+                (
+                    "Evidence — Historian and time-series telemetry",
+                    """
+                    **Historian:** High-frequency sensor and tag retention at the edge with rollups to analytics regions.
+
+                    **Downstream:** Feature stores or lakehouse zones for predictive maintenance without blocking line SCADA refresh
+                    rates.
+                    """
+                ),
+                (
+                    "Evidence — Shop-floor latency and availability",
+                    """
+                    **Latency:** Control loops stay on-plant; IT analytics tolerate seconds-to-minutes batching versus sub-100 ms line
+                    control.
+
+                    **Resilience:** Redundant gateways, local buffering, playbook for degraded WAN that preserves production continuity
+                    and operator visibility.
+                    """
+                ),
+                (
+                    "Evidence — OT/IT segmentation",
+                    """
+                    **Zones:** Cell/area networks isolated; DMZ for protocol translation; north-south inspection and default-deny
+                    between OT and corporate identity planes.
+
+                    **Identity:** Separate Entra tenant usage or scoped app registrations for plant services — no shared corporate
+                    laptops on OT VLANs.
+                    """
+                ),
+                (
+                    "Evidence — Safety, change control, and supply chain",
+                    """
+                    **Safety:** SIL/SIS boundaries documented; PLC firmware and safety logic updates through controlled maintenance
+                    windows with validation evidence.
+
+                    **Supply chain:** ASN/serialization handshakes inbound; outbound finished-goods manifests to 3PL/ERP; anomaly
+                    alerts on supplier deviations without opening OT VLANs externally.
+                    """
+                )
+            ],
+            [
+                "mes-plc-gateway",
+                "erp-production-sync",
+                "historian-timeseries-edge",
+                "ot-dmz-private-link",
+                "store-and-forward-resilience",
+                "supplier-integration"
+            ],
+            [
+                "purdue-segmentation",
+                "no-flat-ot-corporate-network",
+                "safety-critical-change-controlled",
+                "encrypted-northbound-egress"
             ]);
     }
 

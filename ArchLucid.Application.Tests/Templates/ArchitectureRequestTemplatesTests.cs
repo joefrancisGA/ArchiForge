@@ -21,16 +21,18 @@ public sealed class ArchitectureRequestTemplatesTests
         ArchitectureRequestTemplates.MonolithMigrationAssessment,
         ArchitectureRequestTemplates.EventDrivenProcessingPipeline,
         ArchitectureRequestTemplates.CloudNativeMigration,
-        ArchitectureRequestTemplates.RegulatedHealthcareSystem
+        ArchitectureRequestTemplates.RegulatedHealthcareSystem,
+        ArchitectureRequestTemplates.RetailBankingAndPaymentsPlatform,
+        ArchitectureRequestTemplates.SmartManufacturingOtItReference
     ];
 
     [SkippableFact]
-    public void Summaries_has_five_unique_template_ids_aligned_with_catalog()
+    public void Summaries_has_seven_unique_template_ids_aligned_with_catalog()
     {
-        ArchitectureRequestTemplates.Summaries.Should().HaveCount(5);
+        ArchitectureRequestTemplates.Summaries.Should().HaveCount(7);
 
         int distinctIds = ArchitectureRequestTemplates.Summaries.Select(s => s.TemplateId).Distinct().Count();
-        distinctIds.Should().Be(5);
+        distinctIds.Should().Be(7);
 
         HashSet<string> summaryIds = ArchitectureRequestTemplates.Summaries.Select(s => s.TemplateId).ToHashSet();
         summaryIds.Should().Contain("microservices-web-platform");
@@ -38,6 +40,8 @@ public sealed class ArchitectureRequestTemplatesTests
         summaryIds.Should().Contain("event-driven-processing-pipeline");
         summaryIds.Should().Contain("cloud-native-migration-azure");
         summaryIds.Should().Contain("regulated-healthcare-hipaa");
+        summaryIds.Should().Contain("financial-services-pci-sox");
+        summaryIds.Should().Contain("manufacturing-ot-it-convergence");
     }
 
     [Theory]

@@ -34,6 +34,9 @@ public static class ApiV1Routes
 
     public const string TenantMeasuredRoi = "v1/tenant/measured-roi";
 
+    /// <summary>Mocked executive ROI aggregates until analytics persistence is wired.</summary>
+    public const string AnalyticsRoi = "v1/analytics/roi";
+
     /// <summary>Single JSON sponsor evidence bundle aligned with measured ROI (Standard tier).</summary>
     public const string PilotsSponsorEvidencePack = "v1/pilots/sponsor-evidence-pack";
 
