@@ -20,6 +20,7 @@ internal static class WebhooksTestCommand
     internal const string WebhookSignaturePrefix = "sha256=";
 
     private static readonly JsonSerializerOptions JsonCamel = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    private static readonly HttpClient Http = new();
 
     public static async Task<int> RunAsync(string[] args)
     {
@@ -83,7 +84,7 @@ internal static class WebhooksTestCommand
             }
             else
             {
-                Console.Error.WriteLine("Expected --url with an absolute http(s) URL.");
+                await Console.Error.WriteLineAsync("Expected --url with an absolute http(s) URL.");
             }
 
             return CliExitCode.UsageError;
@@ -107,13 +108,12 @@ internal static class WebhooksTestCommand
             }
             else
             {
-                Console.Error.WriteLine(ex.Message);
+                await Console.Error.WriteLineAsync(ex.Message);
             }
 
             return CliExitCode.UsageError;
         }
 
-        using HttpClient http = new();
         using HttpRequestMessage request = new(HttpMethod.Post, absolute);
         request.Content = new ByteArrayContent(bodyUtf8);
         request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
@@ -128,7 +128,7 @@ internal static class WebhooksTestCommand
 
         try
         {
-            response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            response = await Http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         }
         catch (Exception ex)
         {
@@ -142,7 +142,7 @@ internal static class WebhooksTestCommand
             }
             else
             {
-                Console.Error.WriteLine($"Webhook POST failed: {ex.Message}");
+                await Console.Error.WriteLineAsync($"Webhook POST failed: {ex.Message}");
             }
 
             return CliExitCode.OperationFailed;

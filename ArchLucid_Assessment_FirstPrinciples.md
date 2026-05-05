@@ -110,9 +110,9 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
 
 16. **Architectural Integrity**
     - **Score**: 80 | **Weight**: 3 | **Weighted Deficiency**: 60
-    - **Justification**: Clear layers and use of Dapper/DbUp, but some classes (like `DecisionEngineV2`) are slightly monolithic.
-    - **Tradeoffs**: Kept logic centralized for simplicity in V1.
-    - **Recommendations**: Refactor large engines into smaller, modular strategy classes.
+    - **Justification**: Clear layers and use of Dapper/DbUp; `DecisionEngineV2` now delegates merge scoring to `IDecisionStrategy` implementations while retaining thin orchestration.
+    - **Tradeoffs**: Kept orchestration centralized for deterministic ordering and a single entry point.
+    - **Recommendations**: Add structured comments for score math (see improvement opportunity §5) and scan for other engines that still bundle unrelated concerns.
 
 17. **Security**
     - **Score**: 80 | **Weight**: 3 | **Weighted Deficiency**: 60
@@ -146,7 +146,7 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
 2. **Lack of Live Commerce**: Until the **June 13 / June 20, 2026** scheduled Stripe and Marketplace cutovers complete, a higher-touch sales motion remains in parallel with TEST-mode evaluation.
 3. **Operate-layer discoverability**: Pilot is intentionally narrow, but buyers can miss Compare / Governance / Audit until they understand sidebar disclosure—creating a “where is the value?” moment unrelated to product depth.
 4. **Audit Log Gaps**: Known gaps in the durable audit log for certain mutating flows undermine the compliance narrative.
-5. **Monolithic Decision Logic**: Classes like `DecisionEngineV2` handle too many concerns, violating the user's modularity rules.
+5. **Decisioning documentation gap**: Merge scoring is modular (`IDecisionStrategy`), but contributor-facing explanation of weighted scores and base-confidence choices is still thin unless they read the strategy implementations.
 6. **Incomplete Test Coverage**: The project has not yet reached the user-mandated 100% unit test coverage, posing a risk to correctness.
 7. **Stylistic Inconsistencies**: Violations of user rules regarding `var` usage, null checks, and whitespace increase cognitive load for new developers.
 8. **Multi-connector V1 execution load**: **ServiceNow**, **Jira**, **Slack**, and **Confluence** are all in-contract **V1** surfaces; buyers still judge “real” by **their** tenant, and **ServiceNow**-first plus a **paired Atlassian** tranche (**Confluence** then **Jira**) can still stretch perceived completeness until both Atlassian connectors are live.
@@ -175,7 +175,7 @@ The architectural integrity is strong, utilizing lightweight data access (Dapper
 
 1. **Incomplete Null Checking**: Missing explicit null checks in the Application layer could lead to runtime `NullReferenceException`s.
 2. **Test Coverage Gaps**: Areas lacking unit tests are vulnerable to regressions during future refactoring.
-3. **Monolithic Scoring Logic**: The `DecisionEngineV2` is difficult to extend without modifying core logic, violating the Open/Closed principle.
+3. **Monolithic Scoring Logic** — **Mitigated (2026-05-05)** for coordinator merge decisions: topology, security, and complexity scoring live in separate `IDecisionStrategy` types; `DecisionEngineV2` only resolves inputs and orders nodes.
 4. **Asynchronous Test Flaws**: The potential use of `ConfigureAwait(false)` in tests (violating user rules) could cause synchronization context issues.
 5. **Schema Drift**: The reliance on incremental DbUp scripts without a unified DDL file makes it harder to validate the final schema state against IaC principles.
 
@@ -200,19 +200,21 @@ ArchLucid is a technically sound **V1 SaaS** product that solves a real problem;
 - **Fully actionable now (engineering + owner)**: Engineering can prep runbooks, config checklists, staging validation, and post-cutover smoke steps; **you** own Partner Center enrollment, Stripe live key rotation, and production secret hygiene at the scheduled windows.
 
 ### 2. Refactor DecisionEngineV2.cs for Modularity
-- **Why it matters**: The current implementation is monolithic and violates the user's rule for extreme modularity and simplicity.
+- **Status**: **Complete** (2026-05-05) — Scoring moved to `TopologyAcceptanceDecisionStrategy`, `SecurityControlsDecisionStrategy`, and `ComplexityDecisionStrategy`, all behind `IDecisionStrategy`, with `DecisionStrategyParameters` for inputs; `DecisionEngineV2` orchestrates only. Scores and `DecisionNode` / `DecisionOption` shapes unchanged; null checks and `var`/whitespace rules applied in new code.
+- **Why it matters**: The prior implementation bundled all merge scoring in one type; extraction improves modularity and test isolation.
 - **Expected impact**: Directly improves Modularity (+15 pts), Maintainability (+10 pts), and Architectural Integrity (+5 pts). Weighted readiness impact: +0.3-0.5%.
 - **Affected qualities**: Modularity, Maintainability, Architectural Integrity.
-- **Actionable Now**:
+- **Historical prompt** (completed):
 ```prompt
 Refactor `ArchLucid.Decisioning.Merge.DecisionEngineV2.cs`. Extract the scoring logic (`BuildTopologyAcceptanceDecision`, `BuildSecurityControlsDecision`, `BuildComplexityDecision`) into separate strategy classes implementing a new `IDecisionStrategy` interface. Ensure all `if` statements have a preceding blank line. Replace any use of `var` with concrete types. Add explicit null checks for all parameters. Do not change the mathematical scoring logic or the output format.
 ```
 
 ### 3. Consolidate SQL DDL into a Unified Schema File
+- **Status**: **Complete** (2026-05-05) — Delivered `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql` with the reference/IaC-only header and consolidated `CREATE TABLE` / `CREATE INDEX` / `ALTER TABLE` DDL matching final forward migration state (via parity with `ArchLucid.sql`). Regenerator: `scripts/ci/build_archlucid_unified_schema_sql.py`. DbUp scripts under `ArchLucid.Persistence/Migrations/` were left unchanged for deployment.
 - **Why it matters**: Satisfies the explicit user rule: "All SQL DDL should be in a single file for each database."
 - **Expected impact**: Directly improves Architectural Integrity (+5 pts) and Maintainability (+5 pts). Weighted readiness impact: +0.1-0.2%.
 - **Affected qualities**: Architectural Integrity, Maintainability.
-- **Actionable Now**:
+- **Historical prompt** (completed):
 ```prompt
 Create a new file `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql`. Read all existing DbUp migration scripts in `ArchLucid.Persistence/Migrations/` and combine their `CREATE TABLE`, `CREATE INDEX`, and `ALTER TABLE` statements into this single file to represent the final desired state of the database. Do not delete or modify the existing DbUp migration scripts, as they are needed for deployment. Add a comment at the top of the new file explaining that it is for reference and IaC alignment only.
 ```
@@ -232,7 +234,7 @@ Review `ArchLucid.Application` for any mutating commands (e.g., generating analy
 - **Affected qualities**: Cognitive Load, Maintainability, Explainability.
 - **Actionable Now**:
 ```prompt
-Scan `ArchLucid.Decisioning.Merge.DecisionEngineV2.cs` and `ArchLucid.Decisioning.Findings.FindingConfidenceCalculator.cs`. Add detailed XML summary comments to all public methods. Add inline comments explaining the math behind `SupportScore` and `OppositionScore` calculations. Explain *why* the specific base confidence numbers (e.g., 0.60, 0.65) were chosen. Do not change any executable code.
+Scan `ArchLucid.Decisioning.Merge.DecisionEngineV2.cs`, `ArchLucid.Decisioning.Merge.*DecisionStrategy.cs`, and `ArchLucid.Decisioning.Findings.FindingConfidenceCalculator.cs`. Add detailed XML summary comments to all public methods. Add inline comments explaining the math behind `SupportScore` and `OppositionScore` calculations. Explain *why* the specific base confidence numbers (e.g., 0.60, 0.65) were chosen. Do not change any executable code.
 ```
 
 ### 6. Implement Strict Null Checking in Application Layer

@@ -39,7 +39,10 @@ internal static class SeedDemoDataCommand
         {
             object payload = new
             {
-                ok = seedDemo.ok || markers.ok, demoSeed = seedDemo.msg, syntheticMarkers = markers.msg, auditEventsWritten = markers.written
+                ok = seedDemo.ok || markers.ok,
+                demoSeed = seedDemo.msg,
+                syntheticMarkers = markers.msg,
+                auditEventsWritten = markers.written
             };
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
         }
@@ -100,7 +103,7 @@ internal static class SeedDemoDataCommand
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return (false, "Not available (needs Demo:Enabled or Development host + Admin API key)", null);
 
-            if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.Unauthorized)
+            if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized)
                 return (false, "Unauthorized — set ARCHLUCID_API_KEY to an Admin key", null);
 
             string body = await response.Content.ReadAsStringAsync(ct);

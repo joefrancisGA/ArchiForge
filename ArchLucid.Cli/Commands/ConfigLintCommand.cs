@@ -78,26 +78,22 @@ internal static class ConfigLintCommand
 
         if (nonDevelopmentHosting
             && string.Equals(modeTrim, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
-
             errors.Add(
                 "ArchLucidAuth:Mode must not be DevelopmentBypass outside safe Development workstations (check ASPNETCORE_ENVIRONMENT / ARCHLUCID_ENVIRONMENT).");
 
         if (nonDevelopmentHosting && cfg.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
-
             errors.Add(
                 "Authentication:ApiKey:DevelopmentBypassAll must be false outside intentional Development workstations.");
 
-        if (nonDevelopmentHosting && modeTrim.Length > 0)
+        if (!nonDevelopmentHosting || modeTrim.Length <= 0)
+            return errors;
 
-        {
-            bool jwt = string.Equals(modeTrim, "JwtBearer", StringComparison.OrdinalIgnoreCase);
+        bool jwt = string.Equals(modeTrim, "JwtBearer", StringComparison.OrdinalIgnoreCase);
 
-            bool apiKey = string.Equals(modeTrim, "ApiKey", StringComparison.OrdinalIgnoreCase);
+        bool apiKey = string.Equals(modeTrim, "ApiKey", StringComparison.OrdinalIgnoreCase);
 
-            if (!jwt && !apiKey)
-
-                errors.Add("ArchLucidAuth:Mode must be JwtBearer or ApiKey when set for production-like hosting.");
-        }
+        if (!jwt && !apiKey)
+            errors.Add("ArchLucidAuth:Mode must be JwtBearer or ApiKey when set for production-like hosting.");
 
         return errors;
     }

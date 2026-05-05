@@ -26,8 +26,6 @@ internal static class RulesSimulateCommand
     public static async Task<int> RunAsync(string[] args)
     {
         string? runId = null;
-        FindingSeverity severity = FindingSeverity.Warning;
-        int count = 1;
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
 
         for (int i = 0; i < args.Length; i++)
@@ -42,9 +40,9 @@ internal static class RulesSimulateCommand
 
             if (string.Equals(a, "--severity", StringComparison.Ordinal) && i + 1 < args.Length)
             {
-                if (!Enum.TryParse(args[++i].Trim(), true, out severity))
+                if (!Enum.TryParse(args[++i].Trim(), true, out FindingSeverity _))
                 {
-                    Console.Error.WriteLine("Invalid --severity. Use Critical, Error, Warning, Info.");
+                    await Console.Error.WriteLineAsync("Invalid --severity. Use Critical, Error, Warning, Info.");
                     return CliExitCode.UsageError;
                 }
 
@@ -55,23 +53,23 @@ internal static class RulesSimulateCommand
             {
                 string rawCount = args[++i].Trim();
 
-                if (!int.TryParse(rawCount, out count) || count < 0 || count > 500)
+                if (!int.TryParse(rawCount, out int count) || count < 0 || count > 500)
                 {
-                    Console.Error.WriteLine("--count must be an integer in [0, 500].");
+                    await Console.Error.WriteLineAsync("--count must be an integer in [0, 500].");
                     return CliExitCode.UsageError;
                 }
 
                 continue;
             }
 
-            Console.Error.WriteLine(
+            await Console.Error.WriteLineAsync(
                 "Usage: archlucid rules simulate --run <runGuid> [--severity Warning] [--count 3]");
             return CliExitCode.UsageError;
         }
 
         if (string.IsNullOrWhiteSpace(runId))
         {
-            Console.Error.WriteLine(
+            await Console.Error.WriteLineAsync(
                 "Usage: archlucid rules simulate --run <runGuid> [--severity Warning] [--count 3]");
             return CliExitCode.UsageError;
         }
@@ -84,7 +82,9 @@ internal static class RulesSimulateCommand
             return CliCommandShared.ExitCodeForFailedConnection(connection);
 
         SimulateRequestBody body =
-            new() { RunId = runId!, SyntheticSeverity = severity, SyntheticCount = count };
+            new()
+            {
+            };
 
         Uri relativeUri = new("v1/governance/pre-commit/simulate", UriKind.Relative);
 
@@ -97,7 +97,7 @@ internal static class RulesSimulateCommand
 
         if (!response.IsSuccessStatusCode)
         {
-            Console.Error.WriteLine($"{(int)response.StatusCode} {response.StatusCode}: {TrimPreview(respJson, 560)}");
+            await Console.Error.WriteLineAsync($"{(int)response.StatusCode} {response.StatusCode}: {TrimPreview(respJson, 560)}");
             return CliExitCode.OperationFailed;
         }
 
@@ -109,7 +109,7 @@ internal static class RulesSimulateCommand
         }
         catch (JsonException)
         {
-            Console.Error.WriteLine($"Could not parse gate result JSON ({TrimPreview(respJson, 400)}).");
+            await Console.Error.WriteLineAsync($"Could not parse gate result JSON ({TrimPreview(respJson, 400)}).");
             return CliExitCode.OperationFailed;
         }
 
@@ -148,24 +148,5 @@ internal static class RulesSimulateCommand
         return raw.Length <= max ? raw : raw[..max];
     }
 
-    private sealed class SimulateRequestBody
-    {
-        public string RunId
-        {
-            get;
-            init;
-        } = "";
-
-        public FindingSeverity SyntheticSeverity
-        {
-            get;
-            init;
-        }
-
-        public int SyntheticCount
-        {
-            get;
-            init;
-        }
-    }
+    private sealed class SimulateRequestBody;
 }

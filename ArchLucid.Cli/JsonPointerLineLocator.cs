@@ -59,17 +59,13 @@ internal static class JsonPointerLineLocator
         string path = InstancePointerToNewtonsoftSelectPath(instancePointer);
         JToken? node = path == "$" ? root : root.SelectToken(path);
 
-        if (node is null)
+        if (node is not IJsonLineInfo lineInfo || !lineInfo.HasLineInfo())
             return false;
 
-        if (node is IJsonLineInfo lineInfo && lineInfo.HasLineInfo())
-        {
-            lineNumber = lineInfo.LineNumber;
-            column = lineInfo.LinePosition;
-            return true;
-        }
+        lineNumber = lineInfo.LineNumber;
+        column = lineInfo.LinePosition;
+        return true;
 
-        return false;
     }
 
     private static string UnescapeSegment(string escaped)

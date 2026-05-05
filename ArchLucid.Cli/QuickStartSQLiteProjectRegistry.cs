@@ -6,6 +6,7 @@ namespace ArchLucid.Cli;
 ///     Creates a file-backed SQLite catalog for CLI-side quickstart scaffolding. This is not the ArchLucid product
 ///     database — hosts still use <c>ArchLucid:StorageProvider</c> (<c>InMemory</c> or <c>Sql</c>/SQL Server).
 /// </summary>
+// ReSharper disable once InconsistentNaming
 internal static class QuickStartSQLiteProjectRegistry
 {
     internal const string DefaultRelativeDbPath = "local/archlucid-evaluation.sqlite";

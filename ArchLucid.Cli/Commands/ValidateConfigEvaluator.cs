@@ -327,7 +327,7 @@ internal static class ValidateConfigEvaluator
                 "ArchLucidAuth:Authority",
                 "Required for JwtBearer with Entra / OIDC (HTTPS issuer / metadata URL)."));
 
-        else if (!TryCreateHttpsUri(configuration[$"{ArchLucidAuthPrefix}:Authority"], out _))
+        else if (!TryCreateHttpsUri(configuration[$"{ArchLucidAuthPrefix}:Authority"]))
 
             findings.Add(new ValidateConfigFinding(
                 ValidateConfigFindingSeverity.Error,
@@ -437,7 +437,7 @@ internal static class ValidateConfigEvaluator
                 "AzureOpenAI:Endpoint",
                 "Required for Real mode (set AzureOpenAI:Endpoint or AZURE_OPENAI__Endpoint)."));
 
-        else if (!TryCreateHttpsUri(endpoint, out _))
+        else if (!TryCreateHttpsUri(endpoint))
 
             findings.Add(new ValidateConfigFinding(
                 ValidateConfigFindingSeverity.Error,
@@ -492,25 +492,15 @@ internal static class ValidateConfigEvaluator
                || connectionString.Contains("Data Source=", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static bool TryCreateHttpsUri(string? value, out Uri? uri)
+    private static bool TryCreateHttpsUri(string? value)
     {
-        uri = null;
-
         if (string.IsNullOrWhiteSpace(value))
-
             return false;
 
         if (!Uri.TryCreate(value.Trim(), UriKind.Absolute, out Uri? parsed))
-
             return false;
 
-        if (parsed.Scheme != Uri.UriSchemeHttps)
-
-            return false;
-
-        uri = parsed;
-
-        return true;
+        return parsed.Scheme == Uri.UriSchemeHttps;
     }
 
     private static bool IsWellKnownAuthMode(string mode) =>

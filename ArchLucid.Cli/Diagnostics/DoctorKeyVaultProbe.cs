@@ -70,23 +70,22 @@ internal static class DoctorKeyVaultProbe
         if (root is OperationCanceledException)
             return "Key Vault: Timed out — check network, Private Link DNS, firewall, or run doctor from a reachable host.";
 
-        if (root is RequestFailedException requestFailed)
-        {
-            if (requestFailed.Status == 403)
-            {
-                return probeWasGetSecret
-                    ? "Key Vault: Permission Denied (Missing Key Vault Secrets User or secrets/get permission)."
-                    : "Key Vault: Permission Denied (Missing Key Vault Secrets User or secrets/list permission).";
-            }
+        if (root is not RequestFailedException requestFailed)
+            return root is CredentialUnavailableException
+                ? "Key Vault: Authentication Failed (Check Managed Identity, run `az login`, or set service principal env vars for DefaultAzureCredential)."
+                : $"Key Vault: Error ({root.GetType().Name}) — {root.Message}";
 
-            if (requestFailed.Status == 401)
-                return "Key Vault: Authentication Failed (credential rejected — check tenant, audience, or vault URL).";
+        if (requestFailed.Status == 403)
+        {
+            return probeWasGetSecret
+                ? "Key Vault: Permission Denied (Missing Key Vault Secrets User or secrets/get permission)."
+                : "Key Vault: Permission Denied (Missing Key Vault Secrets User or secrets/list permission).";
         }
 
-        if (root is CredentialUnavailableException)
-            return "Key Vault: Authentication Failed (Check Managed Identity, run `az login`, or set service principal env vars for DefaultAzureCredential).";
+        if (requestFailed.Status == 401)
+            return "Key Vault: Authentication Failed (credential rejected — check tenant, audience, or vault URL).";
 
-        return $"Key Vault: Error ({root.GetType().Name}) — {root.Message}";
+        return root is CredentialUnavailableException ? "Key Vault: Authentication Failed (Check Managed Identity, run `az login`, or set service principal env vars for DefaultAzureCredential)." : $"Key Vault: Error ({root.GetType().Name}) — {root.Message}";
     }
 
     /// <summary>
@@ -95,11 +94,8 @@ internal static class DoctorKeyVaultProbe
     internal static async Task WriteSectionAsync(TextWriter writer, IConfiguration configuration,
         CancellationToken cancellationToken)
     {
-        if (writer is null)
-            throw new ArgumentNullException(nameof(writer));
-
-        if (configuration is null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(writer);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         await writer.WriteLineAsync("--- Azure Key Vault (local env + optional appsettings.json in cwd) ---");
         await writer.WriteLineAsync(
@@ -109,8 +105,7 @@ internal static class DoctorKeyVaultProbe
 
         DoctorKeyVaultProbePlan plan = ResolvePlan(configuration);
 
-        if (plan.DecisionKind == DoctorKeyVaultProbePlan.Decision.Skip
-            || plan.DecisionKind == DoctorKeyVaultProbePlan.Decision.BadConfiguration)
+        if (plan.DecisionKind is DoctorKeyVaultProbePlan.Decision.Skip or DoctorKeyVaultProbePlan.Decision.BadConfiguration)
         {
             await writer.WriteLineAsync();
             await writer.WriteLineAsync(plan.Message);
@@ -186,7 +181,7 @@ internal static class DoctorKeyVaultProbe
 
     private static Exception Unwrap(Exception exception)
     {
-        if (exception is AggregateException aggregate && aggregate.InnerExceptions.Count == 1)
+        if (exception is AggregateException { InnerExceptions.Count: 1 } aggregate)
             return aggregate.InnerExceptions[0];
 
         return exception;

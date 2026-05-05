@@ -11,7 +11,9 @@ internal static class ValidateConfigCommand
 {
     private static readonly JsonSerializerOptions JsonWriter = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = true,
     };
 
     internal static Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
@@ -60,11 +62,20 @@ internal static class ValidateConfigCommand
         var payload = new
         {
             ok,
-            summary = new { errors, warnings, passed, info = findings.Count(f => f.Severity == ValidateConfigFindingSeverity.Info) },
+            summary = new
+            {
+                errors,
+                warnings,
+                passed,
+                info = findings.Count(f => f.Severity == ValidateConfigFindingSeverity.Info)
+            },
             findings = findings
                 .Select(f => new
                 {
-                    severity = f.Severity.ToString(), category = f.Category, check = f.Check, detail = f.Detail,
+                    severity = f.Severity.ToString(),
+                    category = f.Category,
+                    check = f.Check,
+                    detail = f.Detail,
                 })
                 .ToList(),
         };
@@ -108,7 +119,7 @@ internal static class ValidateConfigCommand
             Console.WriteLine(" archlucid validate-config");
 
             Console.WriteLine();
-            Console.WriteLine($"{"SEV".PadRight(10)} {"CATEGORY".PadRight(20)} {"CHECK".PadRight(40)} DETAIL");
+            Console.WriteLine($"{"SEV",-10} {"CATEGORY",-20} {"CHECK",-40} DETAIL");
 
             Console.WriteLine(new string('-', Math.Min(120, SeparatorLineLength)));
 
@@ -117,9 +128,9 @@ internal static class ValidateConfigCommand
                 ConsoleColor fg = SeverityToColor(f.Severity);
 
                 WriteColored(fg, f.Severity.ToString().PadRight(10));
-                Console.Write($"{f.Category.PadRight(20)} ");
+                Console.Write($"{f.Category,-20} ");
 
-                Console.Write($"{Truncate(f.Check, 40).PadRight(40)} ");
+                Console.Write($"{Truncate(f.Check, 40),-40} ");
                 Console.WriteLine(f.Detail);
             }
 
@@ -172,13 +183,8 @@ internal static class ValidateConfigCommand
     private static string Truncate(string value, int maxLen)
     {
         if (string.IsNullOrEmpty(value))
-
             return value;
 
-        if (value.Length <= maxLen)
-
-            return value;
-
-        return string.Concat(value.AsSpan(0, maxLen - 1), "…");
+        return value.Length <= maxLen ? value : string.Concat(value.AsSpan(0, maxLen - 1), "…");
     }
 }

@@ -12,7 +12,10 @@ namespace ArchLucid.Cli.Commands;
 internal static class ManifestValidateCommand
 {
     private static readonly JsonSerializerOptions SJsonCamel =
-        new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
     /// <summary>
     ///     CI contract per product doc: <c>0</c> success, <c>1</c> any failure (matches <see cref="CliExitCode.UsageError" />).
@@ -28,7 +31,7 @@ internal static class ManifestValidateCommand
             return Task.FromResult(FailureExitCode);
         }
 
-        string absoluteManifestPath = Path.GetFullPath(filePath!.Trim());
+        string absoluteManifestPath = Path.GetFullPath(filePath.Trim());
         ManifestValidateOutcome outcome =
             GoldenManifestOfflineSchemaValidator.ValidateManifestFile(absoluteManifestPath);
 
@@ -50,7 +53,12 @@ internal static class ManifestValidateCommand
         {
             Console.WriteLine(
                 JsonSerializer.Serialize(
-                    new { ok = true, manifest = absoluteManifestPath, schema = "schemas/goldenmanifest.schema.json" },
+                    new
+                    {
+                        ok = true,
+                        manifest = absoluteManifestPath,
+                        schema = "schemas/goldenmanifest.schema.json"
+                    },
                     SJsonCamel));
 
             return;
@@ -91,7 +99,7 @@ internal static class ManifestValidateCommand
 
     private static string FormatWhere(ManifestValidateError err)
     {
-        if (err.LineNumber is int line && err.Column is int col)
+        if (err is { LineNumber: { } line, Column: { } col })
         {
             string pointer = err.InstancePointer is { Length: > 0 } p ? $" at {p}" : string.Empty;
 

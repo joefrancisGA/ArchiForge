@@ -493,9 +493,9 @@ Please review `ArchLucid.Persistence.Runtime/Orchestration/AuthorityRunOrchestra
 Please format `ArchLucid.Application/Analysis/ComparisonDriftAnalyzer.cs` to ensure there is exactly one blank line before every `if` statement and every `foreach` statement, unless it is the very first line of code in a method. Do not alter any logic.
 ```
 
-### 6. DEFERRED Consolidate SQL DDL
-- **Reason it is deferred:** The user rule states "All SQL DDL should be in a single file for each database", but the project currently uses DbUp with hundreds of numbered migration scripts. Consolidating them into a single file would break the current migration strategy unless a specific baseline/state-based approach (like SSDT or a custom tool) is adopted.
-- **Information needed from me:** Please confirm if you want to abandon DbUp migrations in favor of a state-based single DDL file, or if you want a script that generates a single consolidated DDL file from the existing migrations for reference purposes only.
+### 6. Consolidate SQL DDL — **Complete** (2026-05-05)
+- **Resolution:** Reference-only unified DDL was added as `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql` (IaC/header as specified). Forward DbUp migrations under `ArchLucid.Persistence/Migrations/` remain the deployment authority. Regenerator for the artifact: `scripts/ci/build_archlucid_unified_schema_sql.py`.
+- **Historical note:** Earlier draft treated this as deferred because a single file cannot replace DbUp without changing the migration strategy; the implemented approach is consolidated DDL for **reference/IaC alignment** alongside incremental migrations.
 
 ### 7. Ensure Rigorous Null Checking in Controllers
 - **Why it matters:** Violates the "Always check nulls" user rule, risking unhandled exceptions.
@@ -531,5 +531,4 @@ Please refactor the `foreach` loops in `ArchLucid.Application/Diagrams/MermaidDi
 
 ## Pending Questions for Later
 
-**Consolidate SQL DDL**
-- The user rule mandates a single SQL DDL file per database, but the project heavily relies on DbUp with sequential migration scripts. Are we shifting to a state-based database project (like SSDT), or do you just want a utility script that stitches the migrations together into a single artifact for review?
+**Consolidate SQL DDL** — **Resolved (2026-05-05):** `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql` supplies a single-file view of final table/index/`ALTER TABLE` DDL for reference and IaC; DbUp forwards remain in use for upgrades.
