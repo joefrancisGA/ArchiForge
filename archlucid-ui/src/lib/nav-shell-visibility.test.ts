@@ -12,7 +12,7 @@ import {
 describe("filterNavLinksForOperatorShell", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
 
-  it("keeps Alerts at essential tier and omits extended Enterprise links when extended disclosure is off", () => {
+  it("omits operate-governance links for Reader when extended and advanced tiers are both off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -24,32 +24,16 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.some((l) => l.href === "/admin/health")).toBe(false);
-    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/alerts")).toBe(false);
     expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
+    expect(visible).toHaveLength(0);
   });
 
   /**
-   * Default shell (no extended / no advanced): Reader sees Alerts inbox only for Enterprise Controls.
-   * System health is Admin + advanced tier. Findings moved to the Pilot group (extended tier).
-   * If `/alerts` moves off `essential` tier, this fails loudly—avoiding an empty Enterprise group for first pilots.
+   * Default shell (no extended / no advanced): the Governance group has no visible links at Read rank, so the cluster
+   * is omitted from `listNavGroupsVisibleInOperatorShell` (progressive disclosure for pilot / new operators).
    */
-  it("exposes Alerts inbox in Enterprise Controls for Reader when extended and advanced are off", () => {
-    expect(enterprise).toBeDefined();
-
-    const visible = filterNavLinksForOperatorShell(
-      enterprise!.links,
-      false,
-      false,
-      AUTHORITY_RANK.ReadAuthority,
-      false,
-      true,
-    );
-
-    expect(visible.map((l) => l.href)).toEqual(["/alerts"]);
-  });
-
-  it("shows read-tier Enterprise extended links for Reader when extended disclosure is on", () => {
+  it("exposes read-tier extended Enterprise links for Reader when extended disclosure is on without advanced", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -62,9 +46,29 @@ describe("filterNavLinksForOperatorShell", () => {
     );
 
     expect(visible.some((l) => l.href === "/policy-packs")).toBe(true);
+    expect(visible.some((l) => l.href === "/alerts")).toBe(false);
+    expect(visible.some((l) => l.href === "/audit")).toBe(false);
     // Findings now lives in the Pilot group (extended tier), not in operate-governance.
     expect(visible.some((l) => l.href === "/governance/findings")).toBe(false);
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
+  });
+
+  it("exposes Alerts and Audit for Reader when advanced disclosure is on even if extended is off", () => {
+    expect(enterprise).toBeDefined();
+
+    const visible = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      false,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+      false,
+      true,
+    );
+
+    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
+    expect(visible.some((l) => l.href === "/audit")).toBe(true);
+    expect(visible.some((l) => l.href === "/governance")).toBe(false);
+    expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
   });
 
   it("shows policy packs for Admin rank when extended links are enabled", () => {
@@ -119,10 +123,10 @@ describe("filterNavLinksForOperatorShell", () => {
   });
 
   /**
-   * Default shell (no extended, no advanced): Execute-ranked operators see the same essential Enterprise strip as Reader
-   * — Alerts inbox. System health is Admin + advanced. Findings is in the Pilot group (extended tier).
+   * Default shell (no extended, no advanced): Execute-ranked operators see no Operate governance links until advanced
+   * operations are enabled — same progressive disclosure as Reader (tier before authority).
    */
-  it("limits Enterprise Controls to Alerts for Execute rank when extended and advanced are off", () => {
+  it("omits Operate governance links for Execute rank when extended and advanced are off", () => {
     expect(enterprise).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(
@@ -134,7 +138,7 @@ describe("filterNavLinksForOperatorShell", () => {
       true,
     );
 
-    expect(visible.map((l) => l.href)).toEqual(["/alerts"]);
+    expect(visible).toEqual([]);
   });
 
   it("shows system health for Admin rank when advanced and extended disclosure are on", () => {

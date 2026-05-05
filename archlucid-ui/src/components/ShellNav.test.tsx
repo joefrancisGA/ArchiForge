@@ -103,21 +103,23 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Governance" }));
 
+      const governanceNavCollapsedAdvanced = screen.getByRole("navigation", { name: "Governance" });
+
+      expect(governanceNavCollapsedAdvanced).toBeInTheDocument();
+      expect(within(governanceNavCollapsedAdvanced).queryByRole("link", { name: "Alerts" })).toBeNull();
+      expect(within(governanceNavCollapsedAdvanced).queryByRole("link", { name: "Audit log" })).toBeNull();
+      expect(within(governanceNavCollapsedAdvanced).queryByRole("link", { name: "Governance workflow" })).toBeNull();
+
+      fireEvent.click(screen.getByTestId("sidebar-show-advanced-operations-toggle"));
+
       const governanceNav = screen.getByRole("navigation", { name: "Governance" });
       expect(governanceNav).toBeInTheDocument();
-      // Alerts is also listed under Quick actions; assert the Governance-group link explicitly.
       expect(within(governanceNav).getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
       expect(screen.getByRole("button", { name: "Governance" })).toHaveAttribute(
         "title",
         "Policy, audit, alerts, and trust controls.",
       );
       expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
-
-      expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
-
-      fireEvent.click(screen.getByRole("button", { name: "Navigation settings" }));
-      fireEvent.click(screen.getByRole("checkbox", { name: NAV_DISCLOSURE.advanced.show }));
-      fireEvent.click(screen.getByRole("button", { name: "Close" }));
 
       expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
     },

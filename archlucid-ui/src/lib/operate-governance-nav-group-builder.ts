@@ -28,7 +28,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           title: this.shortcutTitle("Alerts — inbox, rules, routing, simulation, and tuning", "alt+l"),
           keyShortcut: "alt+l",
           icon: Bell,
-          tier: "essential",
+          tier: "advanced",
           requiredAuthority: "ReadAuthority",
         },
         {

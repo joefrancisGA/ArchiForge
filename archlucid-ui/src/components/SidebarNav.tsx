@@ -679,6 +679,27 @@ export function SidebarNav() {
               Full navigator</strong> to revert.
           </p>
         ) : null}
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-2 w-full justify-start px-3 py-2 text-left text-xs font-medium shadow-none hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+          data-testid="sidebar-show-advanced-operations-toggle"
+          aria-pressed={shellShowAdvanced}
+          aria-label={
+            shellShowAdvanced
+              ? NAV_DISCLOSURE.advancedOperationsSidebar.hide
+              : `${NAV_DISCLOSURE.advancedOperationsSidebar.show}. ${NAV_DISCLOSURE.advancedOperationsSidebar.assistiveCollapsed}`
+          }
+          onClick={() => {
+            setShowAdvanced(!showAdvanced);
+          }}
+        >
+          {shellShowAdvanced
+            ? NAV_DISCLOSURE.advancedOperationsSidebar.hide
+            : NAV_DISCLOSURE.advancedOperationsSidebar.show}
+        </Button>
       </div>
       ) : null}
 
@@ -746,17 +767,16 @@ export function SidebarNav() {
               <div className="space-y-0.5">
                 <Label htmlFor="nav-advanced">{NAV_DISCLOSURE.advanced.show}</Label>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  <strong>Enterprise Controls:</strong> audit log, alert rules, alert routing, alert tuning,
-                  governance workflow, schedules. Requires extended links to be on.
+                  <strong>Enterprise Controls:</strong> audit log, Alerts hub, governance workflow, schedules, and deeper
+                  trust surfaces — independent from analysis & investigation links.
                 </p>
               </div>
               <input
                 id="nav-advanced"
                 type="checkbox"
-                className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 disabled:opacity-50 dark:border-neutral-600"
+                className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
                 title={NAV_DISCLOSURE.advanced.title}
                 checked={showAdvanced}
-                disabled={!showExtended}
                 onChange={(e) => {
                   setShowAdvanced(e.target.checked);
                 }}

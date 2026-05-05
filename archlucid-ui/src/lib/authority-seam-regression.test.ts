@@ -155,12 +155,12 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` must still emit both Pilot and
-   * Operate governance groups (not empty after tier + authority filtering).
-   * Findings moved to the Pilot group (extended tier) so it appears alongside Reviews after "Show more".
-   * The Governance essential strip is **Alerts inbox** only; **System health** lives under **operator-admin** (`platform-admin` surface).
+   * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` omits the Operate governance
+   * cluster until progressive disclosure opts into advanced tiers (Alerts, Audit, and governance workflow hubs).
+   * Findings remains in the Pilot group (extended tier). System health stays under **`operator-admin`**
+   * (`platform-admin` surface).
    */
-  it("Reader default shell lists Pilot and Operate governance with Alerts inbox on essential tier (system health is Admin + advanced)", () => {
+  it("Reader default shell lists Pilot and omits operate-governance until advanced disclosure is enabled", () => {
     const rows = listNavGroupsVisibleInOperatorShell(
       NAV_GROUPS,
       false,
@@ -174,11 +174,7 @@ describe("authority seam regression", () => {
     const ids = rows.map((r) => r.group.id);
 
     expect(ids).toContain("pilot");
-    expect(ids).toContain("operate-governance");
-
-    const enterprise = rows.find((r) => r.group.id === "operate-governance");
-
-    expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual(["/alerts"]);
+    expect(ids).not.toContain("operate-governance");
   });
 
   /**
@@ -268,9 +264,10 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * Operator path: Execute rank alone is not enough without progressive disclosure — `/governance` is extended + Execute.
+   * Operator path: Execute rank exposes governance workflow hubs only behind the advanced-tier progressive disclosure gate.
+   * Extended tiers are independent (`nav-tier.ts` before authority).
    */
-  it("surfaces governance workflow in Operate governance strip only when extended and advanced are on for Execute rank", () => {
+  it("surfaces governance workflow in Operate governance strip only when advanced disclosure is on for Execute rank", () => {
     expect(enterpriseLinks).toBeDefined();
 
     const gatedOff = filterNavLinksForOperatorShell(
@@ -284,7 +281,18 @@ describe("authority seam regression", () => {
 
     expect(gatedOff.some((l) => l.href === "/governance")).toBe(false);
 
-    const gatedOn = filterNavLinksForOperatorShell(
+    const gatedAdvancedOnly = filterNavLinksForOperatorShell(
+      enterpriseLinks!,
+      false,
+      true,
+      AUTHORITY_RANK.ExecuteAuthority,
+      false,
+      true,
+    );
+
+    expect(gatedAdvancedOnly.some((l) => l.href === "/governance")).toBe(true);
+
+    const gatedExtendedAndAdvanced = filterNavLinksForOperatorShell(
       enterpriseLinks!,
       true,
       true,
@@ -293,7 +301,7 @@ describe("authority seam regression", () => {
       true,
     );
 
-    expect(gatedOn.some((l) => l.href === "/governance")).toBe(true);
+    expect(gatedExtendedAndAdvanced.some((l) => l.href === "/governance")).toBe(true);
   });
 
   /**
@@ -314,13 +322,13 @@ describe("authority seam regression", () => {
   });
 
   /**
-   * Default first-pilot Enterprise strip is inbox-only because **`/alerts`** stays **`essential`** tier — tier runs before
-   * authority in **`nav-shell-visibility.ts`** (see **`nav-shell-visibility.test.ts`**).
+   * Default Operate governance strip: Alerts hub aligns with Audit and governance workflow under **`advanced`** tier in
+   * **`nav-tier.ts`** (before authority in **`nav-shell-visibility.ts`**).
    */
-  it("keeps Operate governance Alerts inbox on essential tier in nav-config", () => {
+  it("keeps Operate governance Alerts inbox on advanced tier in nav-config", () => {
     const alerts = enterpriseLinks?.find((l) => l.href === "/alerts");
 
-    expect(alerts?.tier).toBe("essential");
+    expect(alerts?.tier).toBe("advanced");
   });
 
   /**
