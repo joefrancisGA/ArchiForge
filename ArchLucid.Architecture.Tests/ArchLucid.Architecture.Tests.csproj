@@ -30,6 +30,7 @@
     <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
+    <ProjectReference Include="..\ArchLucid.Notifications\ArchLucid.Notifications.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Alerts\ArchLucid.Persistence.Alerts.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Coordination\ArchLucid.Persistence.Coordination.csproj" />

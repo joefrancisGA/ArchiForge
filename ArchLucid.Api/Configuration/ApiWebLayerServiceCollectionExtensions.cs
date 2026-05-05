@@ -1,4 +1,5 @@
 using ArchLucid.Api.Auth.Services;
+using ArchLucid.Api.Health;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
@@ -6,6 +7,9 @@ using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Api.Validators;
 using ArchLucid.Application.Import;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Health;
+
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchLucid.Api.Configuration;
 
@@ -45,6 +49,11 @@ public static class ApiWebLayerServiceCollectionExtensions
         {
             client.Timeout = TimeSpan.FromSeconds(30);
         });
+
+        services.AddHealthChecks().AddCheck<AzureServiceBusNamespaceHealthCheck>(
+            "azure_service_bus",
+            failureStatus: HealthStatus.Unhealthy,
+            tags: [ReadinessTags.Ready]);
 
         return services;
     }

@@ -1,5 +1,7 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
 
+using ArchLucid.Notifications;
+
 namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>Delivers an <see cref="ArchitectureDigest" /> to a Slack channel via an incoming webhook.</summary>

@@ -22,6 +22,7 @@ internal static class MvcExtensions
     {
         services.AddControllers(options =>
             {
+                options.Conventions.Add(new DefaultPublicApiRateLimitConvention());
                 options.Filters.Add<ApiProblemDetailsExceptionFilter>();
                 options.Filters.Add<TrialLimitExceededAuditFilter>();
                 options.OutputFormatters.Add(new AuditEventCsvFormatter());

@@ -3,7 +3,7 @@
 #   Tier 0.x — OpenAPI v1 snapshot (build ArchLucid.Api.Tests + OpenApiContractSnapshotTests only).
 #               Runs parallel with Terraform validate; dotnet-fast-core needs it → drift fails before corset guards.
 #   Tier 1 — .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
-#   Tier 1.5 — .NET greenfield SQL boot (empty catalog; API process + /health/ready; after Tier 1)
+#   Tier 1.5 — DbUp migrations on empty catalog (Docker SQL) + greenfield SQL boot (API process + /health/ready); after Tier 1
 #   Tier 2 — .NET full regression + SQL (runs after Tier 1 passes)
 #   Tier 2b — Simmy chaos (after Tier 2; no SQL)
 #   Tier 2c — k6: operator-path API smoke after full regression (native k6; merge-blocking) + k6 CI smoke read+write (after Tier 1)
@@ -778,6 +778,74 @@ jobs:
       - name: assert_terraform_roots_valid (PowerShell + Terraform, no cloud auth)
         run: python3 scripts/ci/assert_terraform_roots_valid.py
 
+  # Empty catalog only: invokes DatabaseMigrator.Run (embedded DbUp scripts) without starting ArchLucid.Api.
+  sql-dbup-empty-catalog:
+    name: ".NET: Tier 1.5 — DbUp migrations on empty catalog (Docker SQL)"
+    needs: dotnet-fast-core
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore & build MigrateVerify (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Persistence.MigrateVerify/ArchLucid.Persistence.MigrateVerify.csproj --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+
+      - name: Create empty SQL catalog for DbUp
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidCiDbUp') CREATE DATABASE ArchLucidCiDbUp;"
+
+      - name: Apply DbUp scripts (embedded)
+        env:
+          ARCHLUCID_CI_DBUP_CONNECTION_STRING: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidCiDbUp"
+        run: |
+          set -euo pipefail
+          dotnet run --no-build -c Release --project ArchLucid.Persistence.MigrateVerify/ArchLucid.Persistence.MigrateVerify.csproj
+
+      - name: Assert dbo.SchemaVersions has rows after DbUp
+        run: |
+          set -e
+          RAW=$(docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -d ArchLucidCiDbUp \
+            -Q "SET NOCOUNT ON; SELECT COUNT(*) FROM dbo.SchemaVersions;" \
+            -h -1 -W)
+          COUNT=$(printf '%s\n' "$RAW" | grep -oE '[0-9]+' | head -1)
+          echo "SchemaVersions row count: $COUNT"
+          if [ -z "$COUNT" ] || [ "$COUNT" -lt 1 ]; then
+            echo "::error::Expected dbo.SchemaVersions after Tier 1.5 DbUp step"
+            printf '%s\n' "$RAW"
+            exit 1
+          fi
+
   # Empty catalog + API process: catches DbUp vs SqlSchemaBootstrapper ordering and greenfield migration gaps (see GreenfieldSqlBootIntegrationTests).
   api-greenfield-boot:
     name: ".NET: greenfield SQL boot (empty catalog)"
@@ -885,6 +953,7 @@ jobs:
     needs:
       - dotnet-fast-core
       - api-greenfield-boot
+      - sql-dbup-empty-catalog
     runs-on: ubuntu-latest
     services:
       sqlserver:

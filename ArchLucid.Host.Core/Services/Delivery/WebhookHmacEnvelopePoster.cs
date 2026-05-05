@@ -1,5 +1,5 @@
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Notifications;
 
 using Microsoft.Extensions.Options;
 

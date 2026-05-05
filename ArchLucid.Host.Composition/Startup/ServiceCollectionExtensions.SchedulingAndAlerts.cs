@@ -1,6 +1,7 @@
 using ArchLucid.Application.Advisory;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Notifications;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;

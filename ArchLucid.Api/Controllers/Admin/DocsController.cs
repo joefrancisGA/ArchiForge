@@ -4,6 +4,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
@@ -14,13 +15,14 @@ namespace ArchLucid.Api.Controllers.Admin;
 ///     Intentionally hidden from the API explorer via <c>IgnoreApi = true</c>.
 ///     Requires <see cref="ArchLucidPolicies.ReadAuthority" /> so anonymous callers cannot scrape recipe URLs for APIs
 ///     that are already authenticated; matches comparison/read surfaces this page documents.
-///     Intentionally does not use <c>[EnableRateLimiting]</c>: static HTML only, excluded from OpenAPI, expected low
-///     volume.
+///     Opts out of the API-wide fixed-window policy via <see cref="DisableRateLimitingAttribute" />: static HTML only,
+///     excluded from OpenAPI, expected low volume.
 /// </remarks>
 [ApiController]
 [Route("[controller]")]
 [ApiExplorerSettings(IgnoreApi = true)]
 [ApiVersionNeutral]
+[DisableRateLimiting]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 public sealed class DocsController : ControllerBase
 {

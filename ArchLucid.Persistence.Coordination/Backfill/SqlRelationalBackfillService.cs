@@ -4,6 +4,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
@@ -28,6 +29,7 @@ public sealed class SqlRelationalBackfillService(
     SqlFindingsSnapshotRepository findingsSnapshotRepository,
     SqlGoldenManifestRepository goldenManifestRepository,
     SqlArtifactBundleRepository artifactBundleRepository,
+    IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
     ILogger<SqlRelationalBackfillService> logger) : ISqlRelationalBackfillService
 {
     public async Task<SqlRelationalBackfillReport> RunAsync(SqlRelationalBackfillOptions options, CancellationToken ct)
@@ -129,6 +131,7 @@ public sealed class SqlRelationalBackfillService(
 
                 await SqlGraphSnapshotRepository.BackfillRelationalSlicesAsync(snapshot, conn, tx, ct);
                 tx.Commit();
+                await TryInvalidateGraphProjectionAfterGraphBackfillAsync(snapshot, ct);
                 report.SuccessCount++;
                 logger.LogInformation("Backfill GraphSnapshots: completed {GraphSnapshotId}", graphSnapshotId);
             }
@@ -292,5 +295,49 @@ public sealed class SqlRelationalBackfillService(
                 logger.LogError(ex, "Backfill ArtifactBundles: failed {BundleId}", bundleId);
             }
         }
+    }
+
+    private async Task TryInvalidateGraphProjectionAfterGraphBackfillAsync(GraphSnapshot snapshot, CancellationToken ct)
+    {
+        ScopeContext? scope = await TryResolveRunScopeAsync(snapshot.RunId, ct);
+
+        if (scope is null)
+        {
+            logger.LogWarning(
+                "Graph backfill: skipped projection cache invalidation (Runs row missing for RunId={RunId}, GraphSnapshotId={GraphSnapshotId})",
+                snapshot.RunId,
+                snapshot.GraphSnapshotId);
+
+            return;
+        }
+
+
+        graphSnapshotProjectionCache.Invalidate(scope, snapshot.RunId, snapshot.GraphSnapshotId);
+    }
+
+    private async Task<ScopeContext?> TryResolveRunScopeAsync(Guid runId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+
+        List<(Guid TenantId, Guid WorkspaceId, Guid ScopeProjectId)> matches =
+            (await connection.QueryAsync<(Guid TenantId, Guid WorkspaceId, Guid ScopeProjectId)>(
+                new CommandDefinition(
+                    """
+                    SELECT TenantId, WorkspaceId, ScopeProjectId
+                    FROM dbo.Runs
+                    WHERE RunId = @RunId;
+                    """,
+                    new { RunId = runId },
+                    cancellationToken: ct))).ToList();
+
+        if (matches.Count == 0)
+            return null;
+
+        (Guid tenantId, Guid workspaceId, Guid scopeProjectId) = matches[0];
+
+        return new ScopeContext
+        {
+            TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = scopeProjectId
+        };
     }
 }

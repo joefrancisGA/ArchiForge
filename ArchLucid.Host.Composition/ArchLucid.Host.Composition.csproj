@@ -41,6 +41,7 @@
     <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
     <ProjectReference Include="..\ArchLucid.Integrations.AzureDevOps\ArchLucid.Integrations.AzureDevOps.csproj" />
     <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
+    <ProjectReference Include="..\ArchLucid.Notifications\ArchLucid.Notifications.csproj" />
     <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 

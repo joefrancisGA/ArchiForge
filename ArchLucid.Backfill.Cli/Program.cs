@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Backfill;
@@ -48,6 +49,7 @@ internal static class Program
         services.AddSingleton<SqlFindingsSnapshotRepository>();
         services.AddSingleton<SqlGoldenManifestRepository>();
         services.AddSingleton<SqlArtifactBundleRepository>();
+        services.AddSingleton<IGraphSnapshotProjectionCache>(NonCachingGraphSnapshotProjectionCache.Instance);
         services.AddSingleton<SqlRelationalBackfillService>();
         services.AddSingleton<ISqlRelationalBackfillService>(sp =>
             sp.GetRequiredService<SqlRelationalBackfillService>());

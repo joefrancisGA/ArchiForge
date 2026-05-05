@@ -6,6 +6,8 @@ using ArchLucid.Persistence.Serialization;
 using Dapper;
 
 using Microsoft.Data.SqlClient;
+using ArchLucid.KnowledgeGraph.Caching;
+
 using Microsoft.Extensions.Logging.Abstractions;
 
 using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
@@ -157,6 +159,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
             new SqlFindingsSnapshotRepository(factory, Empty),
             SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory),
             SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory),
+            NonCachingGraphSnapshotProjectionCache.Instance,
             NullLogger<SqlRelationalBackfillService>.Instance);
     }
 }

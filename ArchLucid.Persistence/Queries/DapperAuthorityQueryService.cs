@@ -22,6 +22,7 @@ public sealed class DapperAuthorityQueryService(
     IRunRepository runRepository,
     IContextSnapshotRepository contextSnapshotRepository,
     IGraphSnapshotRepository graphSnapshotRepository,
+    IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
     IFindingsSnapshotRepository findingsSnapshotRepository,
     IDecisionTraceRepository decisionTraceRepository,
     IGoldenManifestRepository goldenManifestRepository,
@@ -76,7 +77,12 @@ public sealed class DapperAuthorityQueryService(
             ? contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct)
             : Task.FromResult<ContextSnapshot?>(null);
         Task<GraphSnapshot?> graphTask = run.GraphSnapshotId.HasValue
-            ? graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId.Value, ct)
+            ? graphSnapshotProjectionCache.GetOrLoadAsync(
+                scope,
+                run.RunId,
+                run.GraphSnapshotId.Value,
+                token => graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId!.Value, token),
+                ct)
             : Task.FromResult<GraphSnapshot?>(null);
         Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
             ? findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct)

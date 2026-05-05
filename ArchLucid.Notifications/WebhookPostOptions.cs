@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchLucid.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Notifications;
 
 /// <summary>Optional parameters for <see cref="IWebhookPoster.PostJsonAsync" />.</summary>
 [ExcludeFromCodeCoverage(Justification = "Options DTO for webhook calls; no logic.")]
@@ -17,7 +17,7 @@ public sealed class WebhookPostOptions
     }
 
     /// <summary>
-    ///     Logical event type (<c>IWebhookPoster</c> callers set for logs / OTLP counters; avoids parsing URLs or bodies).
+    ///     Logical event type (<see cref="IWebhookPoster" /> callers set for logs / OTLP counters; avoids parsing URLs or bodies).
     /// </summary>
     public string? EventType
     {

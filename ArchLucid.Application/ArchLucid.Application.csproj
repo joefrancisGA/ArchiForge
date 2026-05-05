@@ -17,6 +17,7 @@
     <PackageReference Include="DocumentFormat.OpenXml" />
     <PackageReference Include="OpenTelemetry.Api" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="Polly" />
     <PackageReference Include="QuestPDF" />
     <PackageReference Include="RazorLight" />
     <PackageReference Include="Tomlyn" />

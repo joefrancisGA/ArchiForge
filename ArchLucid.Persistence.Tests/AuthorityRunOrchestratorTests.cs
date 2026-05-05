@@ -9,6 +9,9 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+
+using ArchLucid.KnowledgeGraph.Caching;
+
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Interfaces;
@@ -162,6 +165,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
+            NonCachingGraphSnapshotProjectionCache.Instance,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -363,6 +367,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
+            NonCachingGraphSnapshotProjectionCache.Instance,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -477,6 +482,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
+            NonCachingGraphSnapshotProjectionCache.Instance,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -663,6 +669,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
+            NonCachingGraphSnapshotProjectionCache.Instance,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -767,6 +774,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             CreatePipelineOptionsMonitor().Object,
             CreatePublicSiteOptionsMonitor().Object,
+            NonCachingGraphSnapshotProjectionCache.Instance,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -876,6 +884,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             pipelineOpts.Object,
             CreatePublicSiteOptionsMonitor().Object,
+            NonCachingGraphSnapshotProjectionCache.Instance,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()

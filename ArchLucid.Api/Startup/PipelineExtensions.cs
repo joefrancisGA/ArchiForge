@@ -21,6 +21,8 @@ internal static class PipelineExtensions
     public static WebApplication UseArchLucidPipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
+        // Before auth or body-reading middleware: correlate first, then safe structured lifecycle logs only.
+        app.UseMiddleware<HttpRequestLoggingMiddleware>();
         app.UseMiddleware<ContextIngestionMaxPayloadMiddleware>();
         app.UseMiddleware<TraceResponseHeaderMiddleware>();
         app.UseMiddleware<SecurityHeadersMiddleware>();
@@ -100,8 +102,8 @@ internal static class PipelineExtensions
             app.UseHttpsRedirection();
         app.UseResponseCompression();
         app.UseCors("ArchLucid");
-        app.UseRateLimiter();
         app.UseAuthentication();
+        app.UseRateLimiter();
         app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseAuthorization();
         app.UseMiddleware<ApiRequestMeteringMiddleware>();

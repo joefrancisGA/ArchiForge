@@ -7,6 +7,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Admin;
 
@@ -16,10 +17,11 @@ namespace ArchLucid.Api.Controllers.Admin;
 /// <remarks>
 ///     Requires <see cref="ArchLucidPolicies.ReadAuthority" />. Useful for debugging token claims in development and
 ///     staging.
-///     Intentionally does not use <c>[EnableRateLimiting]</c>: unversioned <c>api/auth</c> diagnostic with minimal
-///     payload;
-///     use API gateway or reverse-proxy throttling in shared environments if abuse is a concern.
+///     Opts out of the default API fixed-window limiter via <see cref="DisableRateLimitingAttribute" />: unversioned
+///     <c>api/auth</c> diagnostic with minimal payload; use API gateway or reverse-proxy throttling in shared
+///     environments if abuse is a concern.
 /// </remarks>
+[DisableRateLimiting]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiController]
 [ApiVersionNeutral]

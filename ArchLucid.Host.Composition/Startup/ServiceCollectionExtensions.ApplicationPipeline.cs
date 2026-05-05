@@ -41,6 +41,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Demo;
 using ArchLucid.Host.Core.Marketing;
 using ArchLucid.Host.Core.Services;
+using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.KnowledgeGraph.Configuration;
 using ArchLucid.KnowledgeGraph.Inference;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -48,6 +49,7 @@ using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using ContextConnector = ArchLucid.ContextIngestion.Interfaces.IContextConnector;
@@ -210,6 +212,10 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<KnowledgeGraphLimitsOptions>(
             configuration.GetSection(KnowledgeGraphLimitsOptions.SectionName));
+        services.Configure<KnowledgeGraphProjectionCacheOptions>(
+            configuration.GetSection(KnowledgeGraphProjectionCacheOptions.SectionName));
+        services.TryAddSingleton<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions()));
+        services.TryAddSingleton<IGraphSnapshotProjectionCache, GraphSnapshotProjectionMemoryCache>();
         services.AddSingleton<PlainTextContextDocumentParser>();
         services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
         services.AddSingleton<IReadOnlyList<IContextDocumentParser>>(static sp =>

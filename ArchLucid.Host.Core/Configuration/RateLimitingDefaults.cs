@@ -4,7 +4,7 @@ namespace ArchLucid.Host.Core.Configuration;
 public static class RateLimitingDefaults
 {
     /// <summary>Default requests per <c>RateLimiting:FixedWindow:WindowMinutes</c> for the <c>fixed</c> policy.</summary>
-    public const int FixedWindowPermitLimit = 60;
+    public const int FixedWindowPermitLimit = 100;
 
     /// <summary>
     ///     Default requests per window for <c>governancePolicyPackDryRun</c> (

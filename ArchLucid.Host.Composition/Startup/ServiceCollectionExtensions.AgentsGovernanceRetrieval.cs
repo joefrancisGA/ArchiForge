@@ -526,6 +526,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IGovernanceLineageService, GovernanceLineageService>();
         services.AddScoped<IGovernanceRationaleService, GovernanceRationaleService>();
         services.AddScoped<IComplianceDriftTrendService, ComplianceDriftTrendService>();
+
+        services.AddHttpClient(
+            ApprovalSlaMonitor.SlaEscalationHttpClientName,
+            static client => client.Timeout = TimeSpan.FromMinutes(2));
     }
 
     private static void RegisterRetrieval(IServiceCollection services, IConfiguration configuration)

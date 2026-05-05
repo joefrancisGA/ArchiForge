@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Notifications;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 
 using FluentAssertions;

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Notifications;
 
 namespace ArchLucid.Host.Core.Services.Delivery;
 

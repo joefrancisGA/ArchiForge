@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Notifications;
 
 namespace ArchLucid.Decisioning.Alerts.Delivery;
 

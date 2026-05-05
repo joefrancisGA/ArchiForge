@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Notifications;
 
 namespace ArchLucid.Host.Core.Services.Delivery;
 

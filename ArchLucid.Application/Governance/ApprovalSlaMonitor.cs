@@ -10,11 +10,16 @@ using ArchLucid.Persistence.Data.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Polly;
+
 namespace ArchLucid.Application.Governance;
 
 /// <summary>Detects SLA-breached pending approval requests and sends escalation notifications.</summary>
 public sealed class ApprovalSlaMonitor
 {
+    /// <summary>Named <see cref="IHttpClientFactory" /> client for SLA escalation POSTs.</summary>
+    public const string SlaEscalationHttpClientName = "SlaEscalation";
+
     private readonly IGovernanceApprovalRequestRepository _approvalRequestRepository;
     private readonly IAuditService _auditService;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -47,7 +52,7 @@ public sealed class ApprovalSlaMonitor
             .GetPendingSlaBreachedAsync(DateTime.UtcNow, cancellationToken);
 
         foreach (GovernanceApprovalRequest request in breached)
-
+        {
             try
             {
                 await _auditService.LogAsync(
@@ -84,6 +89,7 @@ public sealed class ApprovalSlaMonitor
                         "SLA breach processing failed for ApprovalRequestId={Id}",
                         LogSanitizer.Sanitize(request.ApprovalRequestId));
             }
+        }
     }
 
     private async Task TrySendEscalationWebhookAsync(GovernanceApprovalRequest request,
@@ -94,51 +100,79 @@ public sealed class ApprovalSlaMonitor
         if (string.IsNullOrWhiteSpace(webhookUrl))
             return;
 
+        string sanitizedLabel = LogSanitizer.Sanitize(request.ApprovalRequestId);
+
+        string payload = JsonSerializer.Serialize(new
+        {
+            approvalRequestId = request.ApprovalRequestId,
+            runId = request.RunId,
+            requestedBy = request.RequestedBy,
+            slaDeadlineUtc = request.SlaDeadlineUtc,
+            breachedByMinutes = (int)(DateTime.UtcNow - request.SlaDeadlineUtc!.Value).TotalMinutes
+        });
+
+        string? secret = _options.Value.EscalationWebhookSecret;
+
+        ResiliencePipeline<HttpResponseMessage> retryPipeline =
+            GovernanceSlaEscalationWebhookRetryPipeline.Create(_logger, sanitizedLabel);
+
         try
         {
-            string payload = JsonSerializer.Serialize(new
-            {
-                approvalRequestId = request.ApprovalRequestId,
-                runId = request.RunId,
-                requestedBy = request.RequestedBy,
-                slaDeadlineUtc = request.SlaDeadlineUtc,
-                breachedByMinutes = (int)(DateTime.UtcNow - request.SlaDeadlineUtc!.Value).TotalMinutes
-            });
+            using HttpClient client = _httpClientFactory.CreateClient(SlaEscalationHttpClientName);
 
-            using HttpClient client = _httpClientFactory.CreateClient("SlaEscalation");
-            using HttpRequestMessage msg = new(HttpMethod.Post, webhookUrl);
-            msg.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+            using HttpResponseMessage response = await retryPipeline.ExecuteAsync(
+                async ct =>
+                {
+                    using HttpRequestMessage msg = BuildEscalationRequest(webhookUrl, payload, secret);
 
-            string? secret = _options.Value.EscalationWebhookSecret;
+                    return await client
+                        .SendAsync(msg, HttpCompletionOption.ResponseHeadersRead, ct)
+                        .ConfigureAwait(false);
+                },
+                cancellationToken)
+                .ConfigureAwait(false);
 
-            if (!string.IsNullOrWhiteSpace(secret))
-            {
-                byte[] keyBytes = Encoding.UTF8.GetBytes(secret);
-                byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
-                byte[] hash = HMACSHA256.HashData(keyBytes, payloadBytes);
-                string signature = Convert.ToHexStringLower(hash);
-                msg.Headers.Add("X-ArchLucid-Signature", $"sha256={signature}");
-            }
+            if (response.IsSuccessStatusCode)
+                return;
 
-            HttpResponseMessage response = await client.SendAsync(msg, cancellationToken);
+            if (_logger.IsEnabled(LogLevel.Error))
 
-            if (!response.IsSuccessStatusCode)
-
-                if (_logger.IsEnabled(LogLevel.Warning))
-
-                    _logger.LogWarning(
-                        "SLA escalation webhook returned {StatusCode} for ApprovalRequestId={Id}",
-                        (int)response.StatusCode,
-                        LogSanitizer.Sanitize(request.ApprovalRequestId));
+                _logger.LogError(
+                    "SLA escalation webhook failed after exhausting {MaxRetries} retry attempt(s): HTTP {StatusCode} for ApprovalRequestId={Id}.",
+                    GovernanceSlaEscalationWebhookRetryPipeline.MaxRetryAttempts,
+                    (int)response.StatusCode,
+                    sanitizedLabel);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
-            if (_logger.IsEnabled(LogLevel.Warning))
+            if (_logger.IsEnabled(LogLevel.Error))
 
-                _logger.LogWarning(
+                _logger.LogError(
                     ex,
-                    "SLA escalation webhook failed for ApprovalRequestId={Id}",
-                    LogSanitizer.Sanitize(request.ApprovalRequestId));
+                    "SLA escalation webhook failed after exhausting {MaxRetries} retry attempt(s) for ApprovalRequestId={Id}.",
+                    GovernanceSlaEscalationWebhookRetryPipeline.MaxRetryAttempts,
+                    sanitizedLabel);
         }
+    }
+
+    private static HttpRequestMessage BuildEscalationRequest(string webhookUrl, string payload, string? secret)
+    {
+        HttpRequestMessage msg = new(HttpMethod.Post, webhookUrl);
+        msg.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+
+        if (!string.IsNullOrWhiteSpace(secret))
+        {
+            byte[] keyBytes = Encoding.UTF8.GetBytes(secret);
+            byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
+            byte[] hash = HMACSHA256.HashData(keyBytes, payloadBytes);
+            string signature = Convert.ToHexStringLower(hash);
+            msg.Headers.Add("X-ArchLucid-Signature", $"sha256={signature}");
+        }
+
+        return msg;
     }
 }

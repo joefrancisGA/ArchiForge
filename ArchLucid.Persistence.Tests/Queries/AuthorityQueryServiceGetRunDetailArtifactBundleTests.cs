@@ -4,6 +4,7 @@ using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Caching;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
@@ -145,6 +146,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                 runRepository,
                 contextSnapshotRepository,
                 graphSnapshotRepository,
+                NonCachingGraphSnapshotProjectionCache.Instance,
                 findingsSnapshotRepository,
                 decisionTraceRepository,
                 goldenManifestRepository,
@@ -158,6 +160,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
                 runRepository,
                 contextSnapshotRepository,
                 graphSnapshotRepository,
+                NonCachingGraphSnapshotProjectionCache.Instance,
                 findingsSnapshotRepository,
                 decisionTraceRepository,
                 goldenManifestRepository,

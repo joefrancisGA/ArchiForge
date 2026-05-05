@@ -11,6 +11,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.Notifications;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Interfaces;
@@ -62,6 +63,32 @@ public sealed class DependencyConstraintTests
         result.IsSuccessful.Should().BeTrue(
             because: "ArchLucid.Contracts is a shared DTO leaf; it must not reference application, persistence, or hosts. Offending types: {0}",
             FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Core_must_not_reference_Notifications_assembly()
+    {
+        Assembly core = typeof(IntegrationEventTypes).Assembly;
+        AssemblyName[] references = core.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Notifications",
+            because: "Core is the foundation leaf; webhook contracts live in ArchLucid.Notifications without a Core assembly reference.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Contracts_must_not_reference_Notifications_assembly()
+    {
+        Assembly contracts = typeof(ArchitectureRun).Assembly;
+        AssemblyName[] references = contracts.GetReferencedAssemblies();
+
+        references.Should().NotContain(
+            a => a.Name == "ArchLucid.Notifications",
+            because: "Contracts stays a shared DTO leaf; outbound HTTP posting is not a Contracts concern.");
     }
 
     // ── Tier 2 — Persistence sub-module boundaries (assembly refs; shared RootNamespace) ──
@@ -161,6 +188,24 @@ public sealed class DependencyConstraintTests
 
         result.IsSuccessful.Should().BeTrue(
             because: "Decisioning is domain logic; any ArchLucid.Persistence dependency (base or sub-module) breaks hexagonal isolation. Offending types: {0}",
+            FormatFailingTypeNames(result));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Notifications_must_not_depend_on_Persistence()
+    {
+        Assembly notifications = typeof(IWebhookPoster).Assembly;
+
+        TestResult result = Types
+            .InAssembly(notifications)
+            .ShouldNot()
+            .HaveDependencyOn("ArchLucid.Persistence")
+            .GetResult();
+
+        result.IsSuccessful.Should().BeTrue(
+            because: "Notifications is a thin outbound-delivery contract assembly; SQL/Dapper must stay in persistence. Offending types: {0}",
             FormatFailingTypeNames(result));
     }
 

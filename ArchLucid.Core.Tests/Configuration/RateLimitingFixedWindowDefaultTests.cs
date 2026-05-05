@@ -10,9 +10,9 @@ namespace ArchLucid.Core.Tests.Configuration;
 public sealed class RateLimitingFixedWindowDefaultTests
 {
     [Fact]
-    public void RateLimitingDefaults_FixedWindowPermitLimit_is_60()
+    public void RateLimitingDefaults_FixedWindowPermitLimit_is_100()
     {
-        int expected = 60;
+        int expected = 100;
 
         RateLimitingDefaults.FixedWindowPermitLimit.Should().Be(expected);
     }
@@ -26,7 +26,7 @@ public sealed class RateLimitingFixedWindowDefaultTests
             "RateLimiting:FixedWindow:PermitLimit",
             RateLimitingDefaults.FixedWindowPermitLimit);
 
-        permit.Should().Be(60);
+        permit.Should().Be(100);
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Notifications;
 using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;

@@ -11,6 +11,7 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -42,6 +43,7 @@ public sealed class AuthorityRunOrchestrator(
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
+    IGraphSnapshotProjectionCache graphSnapshotProjectionCache,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     /// <inheritdoc />
@@ -386,6 +388,9 @@ public sealed class AuthorityRunOrchestrator(
             ct);
 
         await uow.CommitAsync(ct);
+
+        if (run.GraphSnapshotId is Guid graphSnapshotId)
+            graphSnapshotProjectionCache.Invalidate(scope, run.RunId, graphSnapshotId);
 
         await auditService.LogAsync(
             new AuditEvent

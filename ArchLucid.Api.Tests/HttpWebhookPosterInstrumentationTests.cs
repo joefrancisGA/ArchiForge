@@ -1,6 +1,6 @@
 using System.Net;
 
-using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Notifications;
 using ArchLucid.Host.Core.Services.Delivery;
 
 using FluentAssertions;
