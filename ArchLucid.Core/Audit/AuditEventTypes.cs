@@ -130,6 +130,18 @@ public static class AuditEventTypes
     /// <summary>Emitted when <c>POST .../run/exports/compare/summary</c> persists an export-record diff comparison row.</summary>
     public const string ComparisonSummaryPersisted = "ComparisonSummaryPersisted";
 
+    /// <summary>
+    ///     Emitted when <c>POST .../run/compare/end-to-end/summary</c> persists an end-to-end comparison record (
+    ///     application <c>ComparisonAuditService.RecordEndToEndAsync</c>).
+    /// </summary>
+    public const string EndToEndComparisonPersisted = "EndToEndComparisonPersisted";
+
+    /// <summary>
+    ///     Emitted when a comparison replay persists a new immutable comparison record (
+    ///     application <c>ComparisonAuditService.RecordReplayOfAsync</c>).
+    /// </summary>
+    public const string ComparisonReplayPersisted = "ComparisonReplayPersisted";
+
     public const string RecommendationGenerated = "RecommendationGenerated";
     public const string RecommendationAccepted = "RecommendationAccepted";
     public const string RecommendationRejected = "RecommendationRejected";

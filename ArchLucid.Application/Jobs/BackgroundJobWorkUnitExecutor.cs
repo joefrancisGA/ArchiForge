@@ -1,5 +1,9 @@
+using System.Text.Json;
+
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.Jobs;
 
@@ -10,8 +14,24 @@ public sealed class BackgroundJobWorkUnitExecutor(
     IRunDetailQueryService runDetailQuery,
     IArchitectureAnalysisService architectureAnalysisService,
     IArchitectureAnalysisDocxExportService docxExportService,
-    IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService) : IBackgroundJobWorkUnitExecutor
+    IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
+    IAuditService auditService) : IBackgroundJobWorkUnitExecutor
 {
+    private readonly IRunDetailQueryService _runDetailQuery =
+        runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
+
+    private readonly IArchitectureAnalysisService _architectureAnalysisService =
+        architectureAnalysisService ?? throw new ArgumentNullException(nameof(architectureAnalysisService));
+
+    private readonly IArchitectureAnalysisDocxExportService _docxExportService =
+        docxExportService ?? throw new ArgumentNullException(nameof(docxExportService));
+
+    private readonly IArchitectureAnalysisConsultingDocxExportService _consultingDocxExportService =
+        consultingDocxExportService ?? throw new ArgumentNullException(nameof(consultingDocxExportService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     public async Task<BackgroundJobFile> ExecuteAsync(BackgroundJobWorkUnit workUnit,
         CancellationToken cancellationToken)
     {
@@ -34,15 +54,22 @@ public sealed class BackgroundJobWorkUnitExecutor(
 
         ArchitectureAnalysisRequest request = unit.Payload.ToAnalysisRequest();
         ArchitectureRunDetail? detail =
-            await runDetailQuery.GetRunDetailAsync(unit.Payload.RunId, cancellationToken);
+            await _runDetailQuery.GetRunDetailAsync(unit.Payload.RunId, cancellationToken);
 
         if (detail is null)
             throw new InvalidOperationException($"Run '{unit.Payload.RunId}' was not found.");
 
         request.PreloadedRunDetail = detail;
 
-        byte[] bytes = await docxExportService.GenerateDocxAsync(
-            await architectureAnalysisService.BuildAsync(request, cancellationToken),
+        byte[] bytes = await _docxExportService.GenerateDocxAsync(
+            await _architectureAnalysisService.BuildAsync(request, cancellationToken),
+            cancellationToken);
+
+        await LogArchitectureDocxExportGeneratedAsync(
+            unit.Payload.RunId,
+            "analysis-report-docx-async",
+            bytes.Length,
+            unit.FileName,
             cancellationToken);
 
         return new BackgroundJobFile(unit.FileName, unit.ContentType, bytes);
@@ -72,7 +99,7 @@ public sealed class BackgroundJobWorkUnitExecutor(
             CompareRunId = p.CompareRunId
         };
 
-        ArchitectureRunDetail? detail = await runDetailQuery.GetRunDetailAsync(p.RunId, cancellationToken);
+        ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(p.RunId, cancellationToken);
 
         if (detail is null)
             throw new InvalidOperationException($"Run '{p.RunId}' was not found.");
@@ -80,10 +107,53 @@ public sealed class BackgroundJobWorkUnitExecutor(
         analysisRequest.PreloadedRunDetail = detail;
 
         ArchitectureAnalysisReport report =
-            await architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
+            await _architectureAnalysisService.BuildAsync(analysisRequest, cancellationToken);
 
-        byte[] bytes = await consultingDocxExportService.GenerateDocxAsync(report, cancellationToken);
+        byte[] bytes = await _consultingDocxExportService.GenerateDocxAsync(report, cancellationToken);
+
+        await LogArchitectureDocxExportGeneratedAsync(
+            p.RunId,
+            "analysis-report-consulting-docx-async",
+            bytes.Length,
+            unit.FileName,
+            cancellationToken);
 
         return new BackgroundJobFile(unit.FileName, unit.ContentType, bytes);
+    }
+
+    private async Task LogArchitectureDocxExportGeneratedAsync(
+        string runId,
+        string exportChannel,
+        int byteCount,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        Guid correlationSuffix = Guid.NewGuid();
+        DateTime occurredUtc = DateTime.UtcNow;
+        Guid? auditRunId = TryParseRunGuid(runId);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                OccurredUtc = occurredUtc,
+                EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
+                CorrelationId = $"{exportChannel}:{runId}:{correlationSuffix:N}",
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new { runId, exportChannel, byteCount, fileName },
+                    AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
+    }
+
+    private static Guid? TryParseRunGuid(string runId)
+    {
+        if (Guid.TryParseExact(runId, "N", out Guid guid))
+            return guid;
+
+        if (Guid.TryParse(runId, out guid))
+            return guid;
+
+        return null;
     }
 }

@@ -16,5 +16,6 @@ public interface IRunExportAuditService
         string? manifestVersion,
         PersistedAnalysisExportRequest? analysisRequest = null,
         string? notes = null,
+        bool emitArchitectureDocxExportGeneratedAudit = true,
         CancellationToken cancellationToken = default);
 }

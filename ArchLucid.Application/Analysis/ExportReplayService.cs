@@ -137,6 +137,7 @@ public sealed class ExportReplayService(
             report.Manifest?.Metadata.ManifestVersion,
             persistedRequest,
             $"Replay generated from export record {record.ExportRecordId}.",
+            emitArchitectureDocxExportGeneratedAudit: false,
             cancellationToken);
 
         recordedReplayExportRecordId = persisted.ExportRecordId;

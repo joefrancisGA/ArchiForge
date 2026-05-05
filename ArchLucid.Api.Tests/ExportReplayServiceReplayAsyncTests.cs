@@ -216,6 +216,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
                 It.IsAny<string?>(),
                 It.IsAny<PersistedAnalysisExportRequest?>(),
                 It.IsAny<string?>(),
+                false,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(persistedRow);
 
@@ -237,6 +238,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
                 It.IsAny<string?>(),
                 It.IsAny<PersistedAnalysisExportRequest?>(),
                 It.IsAny<string?>(),
+                false,
                 It.IsAny<CancellationToken>()),
             Times.Once);
         consultingDocx.Verify(

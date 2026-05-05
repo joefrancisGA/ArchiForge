@@ -1,7 +1,9 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -10,12 +12,19 @@ namespace ArchLucid.Application.Analysis;
 ///     Captures the full export configuration (template profile, included sections, determinism options)
 ///     so that exports can be audited, replayed, and diffed after the fact.
 /// </summary>
-public sealed class RunExportAuditService(IRunExportRecordRepository repository) : IRunExportAuditService
+public sealed class RunExportAuditService(IRunExportRecordRepository repository, IAuditService auditService)
+    : IRunExportAuditService
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
+
+    private readonly IRunExportRecordRepository _repository =
+        repository ?? throw new ArgumentNullException(nameof(repository));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     public async Task<RunExportRecord> RecordAsync(
         string runId,
@@ -29,6 +38,7 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository)
         string? manifestVersion,
         PersistedAnalysisExportRequest? analysisRequest = null,
         string? notes = null,
+        bool emitArchitectureDocxExportGeneratedAudit = true,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -66,8 +76,46 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository)
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken);
+        await _repository.CreateAsync(record, cancellationToken);
+
+        if (emitArchitectureDocxExportGeneratedAudit)
+        {
+            Guid? auditRunId = TryParseRunGuid(runId);
+            DateTime occurredUtc = DateTime.UtcNow;
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    OccurredUtc = occurredUtc,
+                    EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
+                    RunId = auditRunId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            runId,
+                            exportRecordId = record.ExportRecordId,
+                            exportType = record.ExportType,
+                            fileName = record.FileName,
+                            templateProfile = record.TemplateProfile,
+                            manifestVersion = record.ManifestVersion,
+                            compareWithRunId = analysisRequest?.CompareRunId
+                        },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                cancellationToken);
+        }
 
         return record;
+    }
+
+    private static Guid? TryParseRunGuid(string runId)
+    {
+        if (Guid.TryParseExact(runId, "N", out Guid guid))
+            return guid;
+
+        if (Guid.TryParse(runId, out guid))
+            return guid;
+
+        return null;
     }
 }

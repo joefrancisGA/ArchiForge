@@ -8,6 +8,11 @@ namespace ArchLucid.Decisioning.Merge;
 /// <summary>
 ///     Decision Engine v2: weighted argument resolution (deterministic, v1 scoring model).
 /// </summary>
+/// <remarks>
+///     Composes <see cref="TopologyAcceptanceDecisionStrategy" />, <see cref="SecurityControlsDecisionStrategy" />,
+///     and <see cref="ComplexityDecisionStrategy" /> to emit ordered <see cref="DecisionNode" /> records.
+///     Scoring uses <see cref="DecisionOption.FinalScore" /> (<c>BaseConfidence + SupportScore − OppositionScore</c>) per option.
+/// </remarks>
 public sealed class DecisionEngineV2 : IDecisionEngineV2
 {
     private readonly TimeProvider _clock;
@@ -15,6 +20,12 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
     private readonly IDecisionStrategy _securityControls;
     private readonly IDecisionStrategy _complexity;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="DecisionEngineV2" /> class with default decision strategies.
+    /// </summary>
+    /// <param name="timeProvider">
+    ///     Clock used for <see cref="DecisionNode.CreatedUtc" />. When <see langword="null" />, <see cref="TimeProvider.System" /> is used.
+    /// </param>
     public DecisionEngineV2(TimeProvider? timeProvider = null)
     {
         _clock = timeProvider ?? TimeProvider.System;
@@ -23,6 +34,11 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         _complexity = new ComplexityDecisionStrategy();
     }
 
+    /// <inheritdoc cref="IDecisionEngineV2.ResolveAsync(string, ArchitectureRequest, IReadOnlyCollection{AgentTask}, IReadOnlyCollection{AgentResult}, IReadOnlyCollection{AgentEvaluation}, CancellationToken)" />
+    /// <remarks>
+    ///     When both topology <see cref="AgentTask" /> and <see cref="AgentResult" /> exist, returns (in order): topology acceptance,
+    ///     security control promotion, then complexity disposition. Missing topology inputs yield an empty list without probing other strategies.
+    /// </remarks>
     public Task<IReadOnlyList<DecisionNode>> ResolveAsync(
         string runId,
         ArchitectureRequest request,
