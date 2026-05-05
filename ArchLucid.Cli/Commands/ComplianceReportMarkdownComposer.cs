@@ -23,7 +23,7 @@ internal static class ComplianceReportMarkdownComposer
         StringBuilder sb = new();
 
         sb.AppendLine(
-            $"> **Generated:** `{generatedUtcIso}` · machine `{EscapeBackticks(machineName)}` · cwd `{EscapeBackticks(workingDirectory)}` · repository root `{EscapeBackticks(repositoryName: repositoryRoot)}` · template `docs/security/SOC2_SELF_ASSESSMENT_2026.md`");
+            $"> **Generated:** `{generatedUtcIso}` · machine `{EscapeBackticks(machineName)}` · cwd `{EscapeBackticks(workingDirectory)}` · repository root `{EscapeBackticks(repositoryRoot)}` · template `docs/security/SOC2_SELF_ASSESSMENT_2026.md`");
         sb.AppendLine();
         sb.AppendLine(templateBody.TrimEnd());
         sb.AppendLine();
@@ -46,8 +46,8 @@ internal static class ComplianceReportMarkdownComposer
         sb.AppendLine("### Audit evidence — durable catalog (repository)");
         sb.AppendLine();
         sb.AppendLine(
-            $"Typed operations → audit signals are catalogued in `{Path.Combine("docs", "library", "AUDIT_COVERAGE_MATRIX.md")}` " +
-            $"(repository-relative). Durable SQL audit uses append-only `dbo.AuditEvents`; export surface is documented under **`GET /v1/audit`** and **`GET /v1/audit/export`** in `docs/library/AUDIT_RETENTION_POLICY.md`.");
+            "Typed operations → audit signals are catalogued in `docs/library/AUDIT_COVERAGE_MATRIX.md` " +
+            "(repository-relative). Durable SQL audit uses append-only `dbo.AuditEvents`; export surface is documented under **`GET /v1/audit`** and **`GET /v1/audit/export`** in `docs/library/AUDIT_RETENTION_POLICY.md`.");
         sb.AppendLine();
 
         AppendLiveAuditSection(sb, liveAudit, liveAuditAttempted);

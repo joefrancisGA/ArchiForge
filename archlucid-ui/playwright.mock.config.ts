@@ -34,7 +34,15 @@ export default defineConfig({
     baseURL: mockBaseUrl,
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "chromium-visual",
+      testDir: "tests/e2e",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: "**/*.spec.ts",
+    },
+  ],
   webServer: {
     command: mockWebServerCommand,
     url: mockBaseUrl,

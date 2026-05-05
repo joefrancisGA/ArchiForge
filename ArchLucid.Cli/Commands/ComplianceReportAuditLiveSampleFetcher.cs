@@ -2,6 +2,8 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Core.Pagination;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>Fetches one page of audit events for compliance narrative (non-fatal on failure).</summary>
@@ -20,7 +22,7 @@ internal static class ComplianceReportAuditLiveSampleFetcher
 
         try
         {
-            int take = ArchLucid.Core.Pagination.PaginationDefaults.MaxListingTake;
+            int take = PaginationDefaults.MaxListingTake;
             using HttpResponseMessage response =
                 await http.GetAsync($"v1/audit?take={take}", cancellationToken);
 

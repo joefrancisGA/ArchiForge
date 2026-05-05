@@ -13,6 +13,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["./**/*.ts"],
+  "include": ["./**/*.ts", "../tests/e2e/**/*.ts"],
   "exclude": ["node_modules"]
 }

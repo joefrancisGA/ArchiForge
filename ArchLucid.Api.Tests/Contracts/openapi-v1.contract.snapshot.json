@@ -5244,6 +5244,27 @@
         },
         "type": "object"
       },
+      "ExecutiveRoiAggregatesResponse": {
+        "properties": {
+          "complianceRisksMitigated": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "decisionsAutomated": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "timeSavedHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ExecutiveSummaryResponse": {
         "properties": {
           "complianceAlignmentScore": {
@@ -9907,6 +9928,83 @@
           },
           "wouldBreach": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackGovernanceDryRunRequest": {
+        "properties": {
+          "blockCommitMinimumSeverity": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "blockCommitOnCritical": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "policyPackContentJson": {
+            "type": "string"
+          },
+          "proposedPolicyPackId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetManifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "targetRunId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "PolicyPackGovernanceDryRunResult": {
+        "properties": {
+          "failedChecks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "gateResult": {
+            "$ref": "#/components/schemas/PreCommitGateResult"
+          },
+          "passedChecks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "resolvedRunId": {
+            "type": "string"
+          },
+          "targetManifestId": {
+            "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -17265,6 +17363,45 @@
         },
         "tags": [
           "Alerts"
+        ]
+      }
+    },
+    "/v1/analytics/roi": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutiveRoiAggregatesResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "RoiAnalytics"
         ]
       }
     },
@@ -32721,6 +32858,115 @@
         ]
       }
     },
+    "/v1/governance/policy-packs/dry-run": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackGovernanceDryRunRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackGovernanceDryRunRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PolicyPackGovernanceDryRunRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PolicyPackGovernanceDryRunResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        },
+        "tags": [
+          "Governance"
+        ]
+      }
+    },
     "/v1/governance/policy-packs/{id}/dry-run": {
       "post": {
         "parameters": [
@@ -34064,6 +34310,126 @@
         },
         "tags": [
           "TeamsIncomingWebhookConnections"
+        ]
+      }
+    },
+    "/v1/integrations/webhooks/{routingSubscriptionId}/test": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "routingSubscriptionId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboundWebhookDryRunResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "WebhookConnections"
         ]
       }
     },
@@ -41541,6 +41907,9 @@
       "name": "Retrieval"
     },
     {
+      "name": "RoiAnalytics"
+    },
+    {
       "name": "RoiBulletinAdmin"
     },
     {
@@ -41623,6 +41992,9 @@
     },
     {
       "name": "Version"
+    },
+    {
+      "name": "WebhookConnections"
     },
     {
       "name": "WhyArchlucidMarketingPack"
