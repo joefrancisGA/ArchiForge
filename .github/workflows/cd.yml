@@ -82,10 +82,10 @@ jobs:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -183,7 +183,7 @@ jobs:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Materialize dev.tfvars from secret (optional)
         if: github.event.inputs.target == 'dev'
@@ -196,7 +196,7 @@ jobs:
           printf '%s\n' "$DEV_TFVARS" > "${TF_DIR}/dev.tfvars"
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -242,7 +242,7 @@ jobs:
 
       - name: Upload Terraform plan artifact
         if: steps.plan_gate.outputs.plan_created == 'true'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: tfplan-${{ github.event.inputs.target }}
           path: .cd-tfplan/tfplan
@@ -270,10 +270,10 @@ jobs:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -285,7 +285,7 @@ jobs:
           terraform_wrapper: false
 
       - name: Download Terraform plan
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: tfplan-${{ github.event.inputs.target }}
           path: ${{ runner.temp }}/tfplan-artifact
@@ -326,7 +326,7 @@ jobs:
       UI_IMAGE_DIGEST: ${{ needs.build-push-images.outputs.ui_image_digest }}
     steps:
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -521,7 +521,7 @@ jobs:
     steps:
       - name: Azure login (OIDC) for canary promotion
         if: vars.CD_CANARY_ENABLED == 'true'
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -579,7 +579,7 @@ jobs:
     environment: ${{ github.event.inputs.target }}
     steps:
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -638,7 +638,7 @@ jobs:
     environment: ${{ github.event.inputs.target }}
     steps:
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -679,10 +679,10 @@ jobs:
     environment: production
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 

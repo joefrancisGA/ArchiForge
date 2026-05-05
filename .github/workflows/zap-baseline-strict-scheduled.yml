@@ -19,7 +19,7 @@ jobs:
   zap-strict:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Prefetch Microsoft .NET base images (MCR + BuildKit HEAD 403 mitigation)
         run: bash scripts/ci/prefetch-docker-dotnet-base-images.sh

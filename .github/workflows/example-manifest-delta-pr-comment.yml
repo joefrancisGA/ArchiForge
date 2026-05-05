@@ -41,7 +41,7 @@ jobs:
   manifest-delta-pr-comment:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: ArchLucid manifest delta (sticky PR comment)
         uses: ./integrations/github-action-manifest-delta-pr-comment

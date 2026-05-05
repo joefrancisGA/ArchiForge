@@ -30,10 +30,10 @@ jobs:
   cohort-contract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
 
@@ -59,10 +59,10 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
 
@@ -94,7 +94,7 @@ jobs:
           --no-build -c Release
           --filter "FullyQualifiedName~GoldenCohortSimulatorDriftTests"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: success()
         with:
           name: golden-cohort-drift
@@ -113,10 +113,10 @@ jobs:
       id-token: write
       issues: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python (golden cohort budget probe)
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -124,7 +124,7 @@ jobs:
         run: python -m pip install --upgrade pip && pip install requests
 
       - name: Azure login (Cost Management / management plane)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -230,7 +230,7 @@ jobs:
 
       - name: Setup .NET (golden cohort real LLM gate)
         if: ${{ steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1' }}
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "10.0.x"
 
@@ -252,13 +252,13 @@ jobs:
       # in here; doing so would inject a secret the prompt explicitly says we must not).
       - name: Upload per-scenario latency JSON
         if: ${{ always() && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: golden-cohort-latency
           path: ${{ runner.temp }}/golden-cohort-latency.json
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: golden-cohort-usage-mtd-ledger

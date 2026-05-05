@@ -60,7 +60,7 @@ jobs:
       api_host: ${{ steps.emit_outputs.outputs.api_host }}
       resource_group: ${{ steps.emit_outputs.outputs.resource_group }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Azure login (OIDC, greenfield SP)
         uses: azure/login@v2
@@ -69,7 +69,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_GREENFIELD_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_GREENFIELD_SUBSCRIPTION_ID }}
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
