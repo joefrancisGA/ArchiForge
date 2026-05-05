@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { enterpriseNavHintOperatorRank } from "@/lib/enterprise-controls-context-copy";
@@ -44,15 +44,16 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       const nav = screen.getByRole("navigation", { name: "Architecture reviews" });
       expect(nav).toBeInTheDocument();
 
-      const homeLink = screen.getByRole("link", { name: "Home" });
+      // New review also appears under Quick actions (`/reviews/new`); scope essentials to this group.
+      const homeLink = within(nav).getByRole("link", { name: "Home" });
       expect(homeLink).toHaveAttribute("href", "/");
       expect(homeLink).toHaveAttribute("aria-current", "page");
-      expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
-      expect(screen.getByRole("link", { name: "New review" })).toHaveAttribute(
+      expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute("href", "/reviews/new");
+      expect(within(nav).getByRole("link", { name: "New review" })).toHaveAttribute(
         "title",
         "Start a new architecture review — guided wizard through pipeline tracking (Alt+N)",
       );
-      expect(screen.getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
+      expect(within(nav).getByRole("link", { name: "Reviews" })).toHaveAttribute("href", "/reviews?projectId=default");
 
       expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Compare two reviews" })).toBeNull();
@@ -102,8 +103,10 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Governance" }));
 
-      expect(screen.getByRole("navigation", { name: "Governance" })).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
+      const governanceNav = screen.getByRole("navigation", { name: "Governance" });
+      expect(governanceNav).toBeInTheDocument();
+      // Alerts is also listed under Quick actions; assert the Governance-group link explicitly.
+      expect(within(governanceNav).getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
       expect(screen.getByRole("button", { name: "Governance" })).toHaveAttribute(
         "title",
         "Policy, audit, alerts, and trust controls.",
