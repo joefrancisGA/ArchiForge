@@ -22,5 +22,6 @@ Every **Source File** cell below repeats an existing procurement-index path only
 | Tenant isolation (buyer narrative) | Self-asserted | [TENANT_ISOLATION.md](TENANT_ISOLATION.md) |
 | DPA | Self-asserted · **Legal template-only** pending customer/legal execution | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) |
 | Subprocessors | Self-asserted | [SUBPROCESSORS.md](SUBPROCESSORS.md) |
+| **Route ↔ tier ↔ policy ↔ nav crosswalk** | Engineering-maintained (verify against controllers) | [docs/library/ROUTE_TIER_POLICY_NAV_MATRIX.md](../library/ROUTE_TIER_POLICY_NAV_MATRIX.md) |
 
 **Excluded from this skim (see `trust-center` / deferral docs, not fabricated here):** third-party SOC 2 Type II report (**V2** / programme timing via roadmap and status docs), awarded third-party penetration test deliverables (**V2** narrative in `trust-center` posture table — procurement index deliberately omits those rows).

@@ -698,7 +698,7 @@ jobs:
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
       # GoldenCorpusMaterializerTests is Category=GoldenCorpusRecord (local corpus refresh only; no LLM/SQL).
       - name: Test — fast core
-        run: dotnet test ArchLucid.sln --no-build -c Release --verbosity normal --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
+        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration&Category!=GoldenCorpusRecord" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
 
       - name: Merge coverage (HTML + GitHub job summary)
         if: success()
@@ -745,7 +745,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Test — finding-engine template (not in main solution)
-        run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release --verbosity normal
+        run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
 
   # All infra/terraform* + infra/modules: init (no backend) + validate; apply-saas.ps1 consistency. No Azure creds.
   # continue-on-error: remove after every root is known clean in CI (see docs/engineering/SAAS_INFRA_VALIDATION.md).
@@ -922,7 +922,7 @@ jobs:
       - name: Test — full solution
         env:
           ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
-        run: dotnet test ArchLucid.sln --no-build -c Release --verbosity normal --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-full"
+        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-full"
 
       - name: Merge coverage (HTML + GitHub job summary)
         if: success()
@@ -1025,7 +1025,6 @@ jobs:
         run: >
           dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
           --no-restore -c Release
-          --verbosity normal
           --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"
           --logger "trx;LogFileName=chaos-agent.trx"
 
@@ -1033,7 +1032,6 @@ jobs:
         run: >
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
           --no-restore -c Release
-          --verbosity normal
           --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"
           --logger "trx;LogFileName=chaos-persistence.trx"
 

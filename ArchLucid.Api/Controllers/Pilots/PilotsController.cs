@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -43,6 +44,7 @@ public sealed class PilotsController(
     IRunDetailQueryService runDetailQueryService,
     IPilotRunDeltaComputer pilotRunDeltaComputer,
     IRecentPilotRunDeltasService recentPilotRunDeltasService,
+    IPilotCloseoutRepository pilotCloseoutRepository,
     IAuditService auditService,
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider) : ControllerBase
@@ -273,5 +275,91 @@ public sealed class PilotsController(
         return pdf is null
             ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound)
             : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
+    }
+
+    /// <summary>Optional structured closeout for sponsor proof-of-ROI (tenant-scoped insert + audit).</summary>
+    [HttpPost("closeout")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Produces("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PostCloseout(
+        [FromBody] PilotCloseoutPostRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+
+        if (body.BaselineHours is < 0)
+            return this.BadRequestProblem("BaselineHours cannot be negative.", ProblemTypes.ValidationFailed);
+
+        if (body.SpeedScore is < 1 or > 5 || body.ManifestPackageScore is < 1 or > 5
+            || body.TraceabilityScore is < 1 or > 5)
+            return this.BadRequestProblem("Scores must be between 1 and 5.", ProblemTypes.ValidationFailed);
+
+        Guid? runGuid = null;
+
+        if (!string.IsNullOrWhiteSpace(body.RunId))
+        {
+            if (!Guid.TryParse(body.RunId, out Guid parsed))
+                return this.BadRequestProblem("RunId must be a GUID string when supplied.", ProblemTypes.ValidationFailed);
+
+            runGuid = parsed;
+        }
+
+        string? notes = body.Notes;
+
+        if (notes is not null && notes.Length > 2000)
+            notes = notes[..2000];
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string actor = actorContext.GetActor();
+        Guid closeoutId = Guid.NewGuid();
+        DateTimeOffset created = DateTimeOffset.UtcNow;
+
+        PilotCloseoutRecord record = new()
+        {
+            CloseoutId = closeoutId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runGuid,
+            BaselineHours = body.BaselineHours,
+            SpeedScore = (byte)body.SpeedScore,
+            ManifestPackageScore = (byte)body.ManifestPackageScore,
+            TraceabilityScore = (byte)body.TraceabilityScore,
+            Notes = notes,
+            CreatedUtc = created
+        };
+
+        await pilotCloseoutRepository.InsertAsync(record, cancellationToken);
+
+        string auditPayload = JsonSerializer.Serialize(
+            new
+            {
+                closeoutId,
+                runId = runGuid,
+                baselineHours = body.BaselineHours,
+                speed = body.SpeedScore,
+                manifestPackage = body.ManifestPackageScore,
+                traceability = body.TraceabilityScore,
+                notesLength = notes?.Length ?? 0
+            });
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.PilotCloseoutRecorded,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = auditPayload,
+                CorrelationId = closeoutId.ToString()
+            },
+            cancellationToken);
+
+        return StatusCode(StatusCodes.Status201Created, new { closeoutId });
     }
 }

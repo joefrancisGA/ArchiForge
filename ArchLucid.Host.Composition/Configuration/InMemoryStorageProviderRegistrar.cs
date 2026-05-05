@@ -14,6 +14,7 @@ using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.GoToMarket;
+using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
@@ -112,6 +113,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IAuditRepository, InMemoryAuditRepository>();
         services.AddSingleton<IPilotScorecardMetricsReader, NullPilotScorecardMetricsReader>();
         services.AddSingleton<IPilotBaselineRepository, InMemoryPilotBaselineRepository>();
+        services.AddSingleton<IPilotCloseoutRepository, InMemoryPilotCloseoutRepository>();
         services.AddSingleton<IValueReportMetricsReader, InMemoryValueReportMetricsReader>();
         services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();
         services.AddSingleton<IProvenanceSnapshotRepository, InMemoryProvenanceSnapshotRepository>();

@@ -152,6 +152,8 @@ In V1, the layer model is still **not** the full commercial entitlement matrix (
 
 Buyer-facing copy must not imply that a visible UI link grants access. Contributor changes that add Operate routes should update the tier gate, API policy, navigation row, and seam tests together.
 
+**Route ↔ tier ↔ policy ↔ nav table:** [ROUTE_TIER_POLICY_NAV_MATRIX.md](ROUTE_TIER_POLICY_NAV_MATRIX.md)
+
 This is the future commercialization model.
 
 For the future-state map, see **[FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md)**.

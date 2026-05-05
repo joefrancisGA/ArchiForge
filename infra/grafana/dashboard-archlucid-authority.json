@@ -121,7 +121,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness — widen if noisy.",
+      "description": "Detection-only orphans vs **`ArchLucidDataConsistencyOrphansDetected`**; **`alerts_total`** vs **`ArchLucidDataConsistencyAlertsRaised`**; **`orphans_quarantined_total`** when quarantine mode inserts rows. Alerts use **`1h`** `rate`; panel uses **`5m`** for responsiveness — widen if noisy.",
       "fieldConfig": { "defaults": {}, "overrides": [] },
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
       "id": 14,
@@ -139,9 +139,14 @@
           "expr": "sum(rate(archlucid_data_consistency_alerts_total[5m])) by (table)",
           "legendFormat": "alert signal/s {{table}}",
           "refId": "B"
+        },
+        {
+          "expr": "sum(rate(archlucid_data_consistency_orphans_quarantined_total[5m])) by (table)",
+          "legendFormat": "quarantined/s {{table}}",
+          "refId": "C"
         }
       ],
-      "title": "Data consistency: orphans_detected_total vs alerts_total (rates)",
+      "title": "Data consistency: orphans vs alerts vs quarantine (rates)",
       "type": "timeseries"
     },
     {

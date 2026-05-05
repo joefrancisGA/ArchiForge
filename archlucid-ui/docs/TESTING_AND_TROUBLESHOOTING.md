@@ -400,6 +400,8 @@ The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey**
 
 **Out of scope for mock suite:** auth flows, real CLI/API integration, multi-project runs lists, graph interactions, downloads/ZIP bytes, performance, and cross-browser matrices unless explicitly added later. **Live** journeys and **route-level axe** live under **`live-api-*.spec.ts`** and run with **default `playwright.config.ts`** when the API + SQL are up — see **[LIVE_E2E_HAPPY_PATH.md](../../../docs/library/LIVE_E2E_HAPPY_PATH.md)**.
 
+**Live accessibility (merge-blocking in `ui-e2e-live`):** **`e2e/live-api-accessibility.spec.ts`** runs axe (**wcag22aa**) across a broad route matrix, including operator home **`/`**, marketing **`/pricing`** and **`/get-started`**, and many authenticated shell routes. **`e2e/live-api-accessibility-focus.spec.ts`** covers skip-link focus, client-nav focus to **`#main-content`**, route announcer text, and a dark-mode axe smoke. The live **`webServer`** passes through **`LIVE_API_URL`** (defaults to **`http://127.0.0.1:5128`**) and **`ARCHLUCID_PROXY_BEARER_TOKEN`** when set — see **`playwright.config.ts`**.
+
 ### How to run (checked-in E2E only)
 
 **Mock** Playwright **`webServer`** runs **`npm run build`** and the mock launcher (**`playwright.mock.config.ts`** — `npm run test:e2e`). You do **not** start **`npm run dev`** or **`dotnet run`** for that path.

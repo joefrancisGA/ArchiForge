@@ -176,6 +176,9 @@ public static class AuditEventTypes
     /// <summary>Operator set pilot scorecard ROI baselines (<c>PUT /v1/pilots/scorecard/baselines</c>).</summary>
     public const string PilotScorecardBaselinesUpdated = "PilotScorecardBaselinesUpdated";
 
+    /// <summary>Optional structured pilot closeout (<c>POST /v1/pilots/closeout</c>).</summary>
+    public const string PilotCloseoutRecorded = "PilotCloseoutRecorded";
+
     public const string GovernanceApprovalRejected = "GovernanceApprovalRejected";
 
     /// <summary>

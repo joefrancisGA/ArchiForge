@@ -14,6 +14,7 @@ using ArchLucid.Core.CustomerSuccess;
 using ArchLucid.Core.Feedback;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.GoToMarket;
+using ArchLucid.Core.Pilots;
 using ArchLucid.Core.Identity;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Tenancy;
@@ -184,6 +185,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IPilotScorecardMetricsReader, DapperPilotScorecardMetricsReader>();
         services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();
+        services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
         services.AddScoped<IMarketingPricingQuoteRequestRepository, SqlMarketingPricingQuoteRequestRepository>();
         services.AddScoped<IFirstTenantFunnelEventStore, SqlFirstTenantFunnelEventStore>();
         services.AddScoped<IValueReportMetricsReader, DapperValueReportMetricsReader>();

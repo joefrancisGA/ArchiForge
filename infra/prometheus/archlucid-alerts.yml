@@ -150,6 +150,20 @@ groups:
             `Quarantine` on this host and at least one table/column slice met `AlertThreshold`. See
             `docs/data-consistency/DATA_CONSISTENCY_ENFORCEMENT.md`; operator checklist `docs/runbooks/DATA_CONSISTENCY_ENFORCEMENT.md`.
 
+      - alert: ArchLucidDataConsistencyOrphansQuarantinedActivity
+        expr: |
+          sum(rate(archlucid_data_consistency_orphans_quarantined_total[1h])) > 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: Data consistency quarantine inserts observed
+          description: >-
+            `archlucid_data_consistency_orphans_quarantined_total` increased over 1h — rows were inserted into
+            `dbo.DataConsistencyQuarantine` (golden-manifest orphan path). Intended to be rare; **30m `for`** avoids paging on
+            one-off seeds. Tune per environment after reviewing steady-state baselines. Runbook:
+            `docs/runbooks/DATA_CONSISTENCY_ENFORCEMENT.md`.
+
   - name: archlucid-explainability
     rules:
       - alert: ArchLucidExplanationFaithfulnessFallbackTrend

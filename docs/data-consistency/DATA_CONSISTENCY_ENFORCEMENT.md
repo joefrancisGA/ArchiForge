@@ -51,5 +51,6 @@ Quarantine rows include **tenant id** from the golden manifest. Operators must *
 
 - **Staging:** `Mode=Alert` — page on `archlucid_data_consistency_alerts_total`.
 - **Production:** `Mode=Quarantine` only after runbook sign-off; reconcile rows with **`AdminDiagnosticsService`** remediation endpoints where applicable.
+- **Dashboard:** committed Grafana JSON **`infra/grafana/dashboard-archlucid-authority.json`** includes the **`archlucid_data_consistency_*_total`** time series (orphans, alerts, quarantine) on the data consistency panel; Prometheus rules in **`infra/prometheus/archlucid-alerts.yml`**.
 - Operator quick-reference: [../runbooks/DATA_CONSISTENCY_ENFORCEMENT.md](../runbooks/DATA_CONSISTENCY_ENFORCEMENT.md).
 - See also [../OBSERVABILITY.md](../library/OBSERVABILITY.md) for metric names.

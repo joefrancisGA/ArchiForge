@@ -43,6 +43,24 @@ internal static class PersistenceIntegrationTestRlsSession
         await SetIntSessionContextAsync(connection, ct, ambientTransaction, "al_rls_bypass", 1);
     }
 
+    /// <summary>
+    ///     Tenant/workspace/project scope with <c>al_rls_bypass = 0</c> so RLS predicates filter rows (stickiness / defense-in-depth tests).
+    /// </summary>
+    internal static async Task ApplyArchLucidTenantScopeFilterOnlyAsync(
+        SqlConnection connection,
+        CancellationToken ct,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        SqlTransaction? ambientTransaction = null)
+    {
+        await ClearSessionKeysAsync(connection, ct, ambientTransaction);
+        await SetIntSessionContextAsync(connection, ct, ambientTransaction, "al_rls_bypass", 0);
+        await SetGuidSessionContextAsync(connection, ct, ambientTransaction, "al_tenant_id", tenantId);
+        await SetGuidSessionContextAsync(connection, ct, ambientTransaction, "al_workspace_id", workspaceId);
+        await SetGuidSessionContextAsync(connection, ct, ambientTransaction, "al_project_id", projectId);
+    }
+
     private static async Task ClearSessionKeysAsync(
         SqlConnection connection,
         CancellationToken ct,

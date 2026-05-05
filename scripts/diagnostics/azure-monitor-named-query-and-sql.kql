@@ -1,0 +1,51 @@
+// ArchLucid — correlate TB-003 named SQL timings with dependency tails (Log Analytics / Application Insights workspace).
+// Run in Logs blade after picking the workspace backing your Application Insights resource.
+// Metric histogram: ArchLucidInstrumentation.QueryNamedLatencyMilliseconds → OTel name "archlucid_query_p95_ms"
+// Tag dimension for drill-down: query_name (values mirror tests/performance/query-allowlist.json + NamedQueryTelemetryNames.cs).
+
+// --- 0) Discover metric naming if exports differ by environment ---
+customMetrics
+| where timestamp > ago(7d)
+| where name has "archlucid" and name has "query"
+| summarize hint_sample = any(value), hint_max = max(value) by name, tostring(customDimensions)
+
+// --- 1) TB-003 named query latency distribution by gate (adjust metric name if discovery shows a prefix) ---
+customMetrics
+| where timestamp > ago(24h)
+| where name == "archlucid_query_p95_ms"
+| extend query_name = tostring(customDimensions.query_name)
+| summarize
+    samples = count(),
+    p50 = percentile(value, 50),
+    p95 = percentile(value, 95),
+    p99 = percentile(value, 99),
+    avg_ms = avg(value)
+    by query_name
+| order by p95 desc
+
+// --- 2) Slow SQL dependency spans (SqlClient instrumentation); align timestamps with slow query_name buckets ---
+dependencies
+| where timestamp > ago(24h)
+| where type == "SQL" or target has "sql"
+| summarize
+    n = count(),
+    p95_ms = percentile(duration, 95),
+    p99_ms = percentile(duration, 99)
+    by data, target, bin(timestamp, 1h)
+| where n > 10
+| order by timestamp desc, p95_ms desc
+
+// --- 3) Join-ish view: bucket hour + surface SQL tails alongside metric availability (manual correlation) ---
+let window = 24h;
+dependencies
+| where timestamp > ago(window)
+| where type == "SQL"
+| summarize sql_p95 = percentile(duration, 95), sql_ops = count() by bin(timestamp, 1h)
+| join kind=inner (
+    customMetrics
+    | where timestamp > ago(window)
+    | where name == "archlucid_query_p95_ms"
+    | summarize metric_p95 = percentile(value, 95), metric_samples = count() by bin(timestamp, 1h)
+) on timestamp
+| project timestamp, sql_p95, sql_ops, metric_p95, metric_samples
+| order by timestamp desc

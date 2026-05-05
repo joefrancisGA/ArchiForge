@@ -72,6 +72,16 @@ public sealed class AgentProposalManifestMerger
         DecisionMergeResult output,
         AgentType agentType)
     {
+        // Build an O(1) lookup before the loop and keep it current as services are added,
+        // so successive agent passes do not re-scan the growing list (avoids O(n²)).
+        // Overwrite on duplicate name is intentional — last writer wins for seeded entries.
+        Dictionary<string, ManifestService> byName = new(StringComparer.OrdinalIgnoreCase);
+
+        // ReSharper disable once LoopCanBeConvertedToQuery — ToDictionary throws on duplicate keys; explicit overwrite is required.
+        foreach (ManifestService s in manifest.Services)
+            byName[s.ServiceName] = s;
+
+        // ReSharper disable once LoopCanBeConvertedToQuery — side effects (trace recording, list and dictionary mutation) prevent safe LINQ conversion.
         foreach (ManifestService service in services)
         {
             if (string.IsNullOrWhiteSpace(service.ServiceName))
@@ -80,12 +90,11 @@ public sealed class AgentProposalManifestMerger
                 continue;
             }
 
-            ManifestService? existing = manifest.Services.FirstOrDefault(s =>
-                s.ServiceName.Equals(service.ServiceName, StringComparison.OrdinalIgnoreCase));
-
-            if (existing is null)
+            if (!byName.TryGetValue(service.ServiceName, out ManifestService? existing))
             {
-                manifest.Services.Add(CloneService(service));
+                ManifestService clone = CloneService(service);
+                manifest.Services.Add(clone);
+                byName[clone.ServiceName] = clone;
 
                 DecisionMergeTraceRecorder.AddTrace(
                     output,
@@ -140,6 +149,14 @@ public sealed class AgentProposalManifestMerger
         DecisionMergeResult output,
         AgentType agentType)
     {
+        // Same O(1)-lookup pattern as MergeServices — avoids O(n²) FirstOrDefault scans.
+        Dictionary<string, ManifestDatastore> byName = new(StringComparer.OrdinalIgnoreCase);
+
+        // ReSharper disable once LoopCanBeConvertedToQuery — ToDictionary throws on duplicate keys; explicit overwrite is required.
+        foreach (ManifestDatastore d in manifest.Datastores)
+            byName[d.DatastoreName] = d;
+
+        // ReSharper disable once LoopCanBeConvertedToQuery — side effects (trace recording, list and dictionary mutation) prevent safe LINQ conversion.
         foreach (ManifestDatastore datastore in datastores)
         {
             if (string.IsNullOrWhiteSpace(datastore.DatastoreName))
@@ -148,12 +165,11 @@ public sealed class AgentProposalManifestMerger
                 continue;
             }
 
-            ManifestDatastore? existing = manifest.Datastores.FirstOrDefault(d =>
-                d.DatastoreName.Equals(datastore.DatastoreName, StringComparison.OrdinalIgnoreCase));
-
-            if (existing is null)
+            if (!byName.TryGetValue(datastore.DatastoreName, out ManifestDatastore? existing))
             {
-                manifest.Datastores.Add(CloneDatastore(datastore));
+                ManifestDatastore clone = CloneDatastore(datastore);
+                manifest.Datastores.Add(clone);
+                byName[clone.DatastoreName] = clone;
 
                 DecisionMergeTraceRecorder.AddTrace(
                     output,
@@ -194,6 +210,15 @@ public sealed class AgentProposalManifestMerger
         DecisionMergeResult output,
         AgentType agentType)
     {
+        // Compound key encodes source, target (OrdinalIgnoreCase via the HashSet comparer), and
+        // relationship type as an int so enum renames cannot produce silent mismatches.
+        HashSet<string> existingKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        // ReSharper disable once LoopCanBeConvertedToQuery — side effect (HashSet population) prevents safe LINQ conversion.
+        foreach (ManifestRelationship r in manifest.Relationships)
+            existingKeys.Add(RelationshipKey(r));
+
+        // ReSharper disable once LoopCanBeConvertedToQuery — side effects (trace recording, list and HashSet mutation) prevent safe LINQ conversion.
         foreach (ManifestRelationship relationship in relationships)
         {
             if (string.IsNullOrWhiteSpace(relationship.SourceId) || string.IsNullOrWhiteSpace(relationship.TargetId))
@@ -202,12 +227,7 @@ public sealed class AgentProposalManifestMerger
                 continue;
             }
 
-            bool duplicate = manifest.Relationships.Any(r =>
-                r.SourceId.Equals(relationship.SourceId, StringComparison.OrdinalIgnoreCase) &&
-                r.TargetId.Equals(relationship.TargetId, StringComparison.OrdinalIgnoreCase) &&
-                r.RelationshipType == relationship.RelationshipType);
-
-            if (duplicate)
+            if (!existingKeys.Add(RelationshipKey(relationship)))
                 continue;
 
             manifest.Relationships.Add(CloneRelationship(relationship));
@@ -227,19 +247,29 @@ public sealed class AgentProposalManifestMerger
         }
     }
 
+    /// <summary>
+    ///     Produces a stable, case-insensitive compound key for a relationship used by the merge deduplication HashSet.
+    ///     The relationship type is encoded as its underlying integer so enum renames cannot silently change equality.
+    /// </summary>
+    private static string RelationshipKey(ManifestRelationship r) =>
+        $"{r.SourceId}|{r.TargetId}|{(int)r.RelationshipType}";
+
     private static void MergeRequiredControls(
         GoldenManifest manifest,
         IReadOnlyCollection<string> controls,
         DecisionMergeResult output,
         AgentType agentType)
     {
+        // Seed from the existing list so the HashSet reflects any controls already on the manifest.
+        HashSet<string> existingControls = new(manifest.Governance.RequiredControls, StringComparer.OrdinalIgnoreCase);
+
+        // ReSharper disable once LoopCanBeConvertedToQuery — side effects (trace recording, list and HashSet mutation) prevent safe LINQ conversion.
         foreach (string control in controls)
         {
             if (string.IsNullOrWhiteSpace(control))
                 continue;
 
-            if (manifest.Governance.RequiredControls.Any(c =>
-                    c.Equals(control, StringComparison.OrdinalIgnoreCase)))
+            if (!existingControls.Add(control))
                 continue;
 
             manifest.Governance.RequiredControls.Add(control);
