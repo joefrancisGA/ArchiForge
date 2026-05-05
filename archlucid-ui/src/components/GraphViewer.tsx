@@ -17,8 +17,8 @@ import { useBasicAdvancedToggle } from "@/hooks/useBasicAdvancedToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { parseProvenanceExplanationPayload } from "@/lib/provenance-explanation-payload";
 
-/** Invokes the reserved provenance explanation route (501 until implemented). */
 async function fetchNodeExplanation(runId: string, nodeId: string): Promise<string> {
   const url =
     `/api/proxy/v1/architecture/runs/${encodeURIComponent(runId)}/provenance/${encodeURIComponent(nodeId)}/explanation`;
@@ -31,14 +31,14 @@ async function fetchNodeExplanation(runId: string, nodeId: string): Promise<stri
     });
 
     const raw: unknown = await res.json();
-    const body = raw as Record<string, unknown>;
-
-    const detailRaw = typeof body.detail === "string" ? body.detail : "";
+    const parsed = parseProvenanceExplanationPayload(raw);
+    const line =
+      parsed.message ?? parsed.detail ?? parsed.title ?? "";
 
     if (res.status === 501)
-      return detailRaw.length > 0 ? detailRaw : "Not implemented yet.";
+      return line.length > 0 ? line : "Not implemented yet.";
 
-    return detailRaw.length > 0 ? detailRaw : `HTTP ${String(res.status)}`;
+    return line.length > 0 ? line : `HTTP ${String(res.status)}`;
   }
   catch {
     return "Could not reach the explanation endpoint.";

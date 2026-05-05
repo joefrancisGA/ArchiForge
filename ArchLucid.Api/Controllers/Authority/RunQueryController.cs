@@ -173,36 +173,25 @@ public sealed class RunQueryController(
 
     /// <summary>
     ///     Reserved route for future LLM-backed provenance node explanations. Returns <c>501 Not Implemented</c> until the
-    ///     feature ships; clients should use the trace timeline and node metadata meanwhile.
+    ///     feature ships. Requires the run to exist in the caller&apos;s scoped tenant/workspace (RLS-backed lookup).
     /// </summary>
     [HttpGet("runs/{runId}/provenance/{nodeId}/explanation")]
-    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status501NotImplemented)]
+    [HttpGet("run/{runId}/provenance/{nodeId}/explanation")]
+    [ProducesResponseType(typeof(ProvenanceNodeExplanationPendingResponse), StatusCodes.Status501NotImplemented)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult GetProvenanceNodeExplanation(
+    public async Task<IActionResult> GetProvenanceNodeExplanation(
         [FromRoute] string runId,
-        [FromRoute] string nodeId)
+        [FromRoute] string nodeId,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(runId) || string.IsNullOrWhiteSpace(nodeId))
             return this.BadRequestProblem("Run id and node id are required.", ProblemTypes.ValidationFailed);
 
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
-        {
-            Type = ProblemTypes.FeatureNotYetAvailable,
-            Title = "Not Implemented",
-            Status = StatusCodes.Status501NotImplemented,
-            Detail =
-                "Explain-this-node summaries for provenance graph vertices are not available yet. Use the trace timeline and node metadata for now.",
-            Instance = Request.Path.Value
-        };
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-        ProblemSupportHints.AttachForProblemType(problem);
-        ProblemCorrelation.Attach(problem, HttpContext);
-        return new ObjectResult(problem)
-        {
-            StatusCode = problem.Status,
-            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
-        };
+        return StatusCode(StatusCodes.Status501NotImplemented,
+            new ProvenanceNodeExplanationPendingResponse("Explanation feature pending"));
     }
 
     /// <summary>

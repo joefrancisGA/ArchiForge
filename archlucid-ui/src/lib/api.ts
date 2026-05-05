@@ -14,6 +14,7 @@ import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { getScopeHeaders } from "@/lib/scope";
+import { trySandboxMockJsonForApiGet } from "@/lib/sandbox-api-mocks";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { DemoExplainResponse } from "@/types/demo-explain";
 import type {
@@ -222,6 +223,12 @@ function throwApiRequestError(response: Response, bodyText: string): never {
 }
 
 async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseWithTrace<T>> {
+  const sandboxPayload = trySandboxMockJsonForApiGet(path);
+
+  if (sandboxPayload !== undefined) {
+    return { data: sandboxPayload as T, traceId: null };
+  }
+
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);

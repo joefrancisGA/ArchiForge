@@ -45,6 +45,10 @@ const disableWebpackBuildWorkerOnWindows =
   process.platform === "win32" && !forceWebpackBuildWorker;
 
 const nextConfig: NextConfig = {
+  env: {
+    /** Mirrors Vite-style naming — exposed to client/server bundles for opt-in API mocks (see `sandbox-api-mocks`). */
+    VITE_USE_SANDBOX_MOCKS: process.env.VITE_USE_SANDBOX_MOCKS ?? "",
+  },
   /** Production/Docker `next build` must not typecheck Vitest-only roots (`testing/`, `vitest.*.ts`). IDE keeps `tsconfig.json`. */
   typescript: {
     tsconfigPath: "tsconfig.build.json",

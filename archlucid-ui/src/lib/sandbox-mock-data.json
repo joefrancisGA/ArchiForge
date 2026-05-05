@@ -1,0 +1,231 @@
+{
+  "goldenManifest": {
+    "schemaVersion": "archlucid.golden-manifest.v1",
+    "manifestVersion": "2026.05.sandbox-golden",
+    "manifestHash": "sha256:sandbox00000000000000000000000000000000000000000000000000000000",
+    "ruleSetId": "azure-well-architected-reliability-security",
+    "ruleSetVersion": "1.9.2",
+    "status": "Committed",
+    "createdUtc": "2026-05-04T18:12:03.000Z",
+    "systemName": "Claims intake API (sandbox)",
+    "environment": "Production",
+    "cloudProvider": "Azure",
+    "summary": {
+      "decisionCount": 14,
+      "warningCount": 2,
+      "unresolvedIssueCount": 0,
+      "costPosture": "Within regional budget envelope; egress minimized via private endpoints."
+    },
+    "highlights": [
+      {
+        "decisionId": "svc-bus-private-link",
+        "title": "Service Bus namespaces use private endpoints only",
+        "category": "Security",
+        "disposition": "Accepted",
+        "rationale": "Aligns with deny-by-default ingress; operators reach namespaces via Private Link from spoke VNets."
+      },
+      {
+        "decisionId": "kv-rbac-breakglass",
+        "title": "Key Vault access via RBAC with monitored break-glass",
+        "category": "Security",
+        "disposition": "Accepted",
+        "rationale": "Eliminates legacy access policies; emergency operator group is JIT-eligible and audited."
+      },
+      {
+        "decisionId": "cosmos-ru-autoscale",
+        "title": "Cosmos DB autoscale RU with bounded max",
+        "category": "Cost",
+        "disposition": "Accepted",
+        "rationale": "Protects tail latency during enrollment spikes without leaving provisioned RU permanently elevated."
+      }
+    ],
+    "warnings": [
+      {
+        "code": "OBSERVABILITY_GAP",
+        "message": "Synthetic probes cover regional endpoints only — add secondary-region smoke within 30 days."
+      },
+      {
+        "code": "DR_JOURNAL_LAG",
+        "message": "Geo-account failover drill last executed > 90 days ago; schedule tabletop + failover test."
+      }
+    ]
+  },
+  "architectureRuns": {
+    "items": [
+      {
+        "runId": "sandbox-run-golden-001",
+        "requestId": "req-sandbox-claims-intake-001",
+        "status": "Committed",
+        "systemName": "Claims intake API",
+        "createdUtc": "2026-05-04T17:55:00.000Z",
+        "completedUtc": "2026-05-04T18:12:03.000Z",
+        "currentManifestVersion": "2026.05.sandbox-golden"
+      },
+      {
+        "runId": "sandbox-run-draft-002",
+        "requestId": "req-sandbox-risk-queue-002",
+        "status": "Running",
+        "systemName": "Risk scoring worker",
+        "createdUtc": "2026-05-05T09:10:15.000Z",
+        "completedUtc": null,
+        "currentManifestVersion": null
+      },
+      {
+        "runId": "sandbox-run-stale-003",
+        "requestId": "req-sandbox-portal-read-003",
+        "status": "Failed",
+        "systemName": "Member portal read path",
+        "createdUtc": "2026-05-02T11:40:22.000Z",
+        "completedUtc": "2026-05-02T11:58:44.000Z",
+        "currentManifestVersion": null
+      }
+    ],
+    "hasMore": false,
+    "nextCursor": null,
+    "requestedTake": 50
+  },
+  "authorityRunsPage": {
+    "items": [
+      {
+        "runId": "sandbox-run-golden-001",
+        "projectId": "default",
+        "description": "Sandbox golden path — Claims intake API reliability + security review",
+        "createdUtc": "2026-05-04T17:55:00.000Z",
+        "goldenManifestId": "sandbox-manifest-golden-001",
+        "hasContextSnapshot": true,
+        "hasGraphSnapshot": true,
+        "hasFindingsSnapshot": true,
+        "hasGoldenManifest": true,
+        "hasDecisionTrace": true,
+        "hasArtifactBundle": true,
+        "findingCount": 6,
+        "warningCount": 2,
+        "artifactCount": 11
+      },
+      {
+        "runId": "sandbox-run-draft-002",
+        "projectId": "default",
+        "description": "Sandbox — Risk scoring worker (in flight)",
+        "createdUtc": "2026-05-05T09:10:15.000Z",
+        "goldenManifestId": null,
+        "hasContextSnapshot": true,
+        "hasGraphSnapshot": false,
+        "hasFindingsSnapshot": false,
+        "hasGoldenManifest": false,
+        "hasDecisionTrace": false,
+        "hasArtifactBundle": false,
+        "findingCount": 0,
+        "warningCount": 0,
+        "artifactCount": 0
+      },
+      {
+        "runId": "sandbox-run-stale-003",
+        "projectId": "default",
+        "description": "Sandbox — Member portal read path (failed synthesis)",
+        "createdUtc": "2026-05-02T11:40:22.000Z",
+        "goldenManifestId": null,
+        "hasContextSnapshot": true,
+        "hasGraphSnapshot": true,
+        "hasFindingsSnapshot": true,
+        "hasGoldenManifest": false,
+        "hasDecisionTrace": false,
+        "hasArtifactBundle": false,
+        "findingCount": 4,
+        "warningCount": 1,
+        "artifactCount": 0
+      }
+    ],
+    "totalCount": 3,
+    "page": 1,
+    "pageSize": 50,
+    "hasMore": false,
+    "nextCursor": null
+  },
+  "auditEventsPage": {
+    "items": [
+      {
+        "eventId": "sandbox-audit-evt-001",
+        "occurredUtc": "2026-05-04T17:55:01.120Z",
+        "eventType": "RunStarted",
+        "actorUserId": "sandbox-operator-001",
+        "actorUserName": "Alex Rivera",
+        "tenantId": "sandbox-tenant",
+        "workspaceId": "sandbox-workspace",
+        "projectId": "default",
+        "runId": "sandbox-run-golden-001",
+        "manifestId": null,
+        "artifactId": null,
+        "dataJson": "{\"requestId\":\"req-sandbox-claims-intake-001\",\"correlationId\":\"corr-sandbox-001\"}",
+        "correlationId": "corr-sandbox-001",
+        "otelTraceId": null
+      },
+      {
+        "eventId": "sandbox-audit-evt-002",
+        "occurredUtc": "2026-05-04T17:58:40.330Z",
+        "eventType": "context.snapshot.created",
+        "actorUserId": "pipeline",
+        "actorUserName": "ArchLucid pipeline",
+        "tenantId": "sandbox-tenant",
+        "workspaceId": "sandbox-workspace",
+        "projectId": "default",
+        "runId": "sandbox-run-golden-001",
+        "manifestId": null,
+        "artifactId": null,
+        "dataJson": "{\"snapshotKind\":\"Context\",\"bytesApprox\":245600}",
+        "correlationId": "corr-sandbox-ctx",
+        "otelTraceId": null
+      },
+      {
+        "eventId": "sandbox-audit-evt-003",
+        "occurredUtc": "2026-05-04T18:02:15.881Z",
+        "eventType": "graph.snapshot.created",
+        "actorUserId": "pipeline",
+        "actorUserName": "ArchLucid pipeline",
+        "tenantId": "sandbox-tenant",
+        "workspaceId": "sandbox-workspace",
+        "projectId": "default",
+        "runId": "sandbox-run-golden-001",
+        "manifestId": null,
+        "artifactId": null,
+        "dataJson": "{\"nodeCount\":42,\"edgeCount\":61}",
+        "correlationId": "corr-sandbox-graph",
+        "otelTraceId": null
+      },
+      {
+        "eventId": "sandbox-audit-evt-004",
+        "occurredUtc": "2026-05-04T18:07:59.004Z",
+        "eventType": "findings.snapshot.created",
+        "actorUserId": "pipeline",
+        "actorUserName": "ArchLucid pipeline",
+        "tenantId": "sandbox-tenant",
+        "workspaceId": "sandbox-workspace",
+        "projectId": "default",
+        "runId": "sandbox-run-golden-001",
+        "manifestId": null,
+        "artifactId": null,
+        "dataJson": "{\"findingCount\":6,\"severityMax\":\"High\"}",
+        "correlationId": "corr-sandbox-findings",
+        "otelTraceId": null
+      },
+      {
+        "eventId": "sandbox-audit-evt-005",
+        "occurredUtc": "2026-05-04T18:12:03.550Z",
+        "eventType": "finalize.run",
+        "actorUserId": "sandbox-operator-001",
+        "actorUserName": "Alex Rivera",
+        "tenantId": "sandbox-tenant",
+        "workspaceId": "sandbox-workspace",
+        "projectId": "default",
+        "runId": "sandbox-run-golden-001",
+        "manifestId": "sandbox-manifest-golden-001",
+        "artifactId": null,
+        "dataJson": "{\"manifestVersion\":\"2026.05.sandbox-golden\",\"committed\":true}",
+        "correlationId": "corr-sandbox-commit",
+        "otelTraceId": null
+      }
+    ],
+    "hasMore": false,
+    "nextCursor": null,
+    "requestedTake": 50
+  }
+}

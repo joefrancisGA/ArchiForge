@@ -2,6 +2,15 @@
 
 import { useCallback, useMemo, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 export type ProvenanceDiagramNode = {
   id: string;
   type: string;
@@ -81,6 +90,13 @@ type Props = {
 
 export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [explainModalOpen, setExplainModalOpen] = useState(false);
+
+  const selectedNode = useMemo(
+    (): ProvenanceDiagramNode | null =>
+      highlightId === null ? null : (nodes.find((n) => n.id === highlightId) ?? null),
+    [highlightId, nodes],
+  );
 
   const { layouts, width, height } = useMemo(() => {
     const layerHeight = 108;
@@ -137,7 +153,9 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
   const posById = useMemo(() => new Map(layouts.map((l) => [l.id, l])), [layouts]);
 
   const onNodeActivate = useCallback((id: string) => {
+    setExplainModalOpen(false);
     setHighlightId(id);
+
     const el = document.getElementById(`prov-node-row-${id}`);
 
     if (el) {
@@ -228,6 +246,58 @@ export function ProvenanceGraphDiagram({ nodes, edges }: Props) {
           })}
         </svg>
       </div>
+
+      {selectedNode !== null ? (
+        <div
+          role="region"
+          aria-label="Selected provenance node details"
+          className="mt-4 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950"
+        >
+          <h4 className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">Node detail</h4>
+          <dl className="mt-3 space-y-1 text-sm">
+            <div>
+              <dt className="inline font-semibold text-neutral-800 dark:text-neutral-200">ID</dt>
+              <dd className="ml-2 inline break-all text-neutral-700 dark:text-neutral-300">{selectedNode.id}</dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold text-neutral-800 dark:text-neutral-200">Type</dt>
+              <dd className="ml-2 inline text-neutral-700 dark:text-neutral-300">{selectedNode.type}</dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold text-neutral-800 dark:text-neutral-200">Name</dt>
+              <dd className="ml-2 inline text-neutral-700 dark:text-neutral-300">{selectedNode.name}</dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold text-neutral-800 dark:text-neutral-200">Reference</dt>
+              <dd className="inline break-all text-neutral-700 dark:text-neutral-300">
+                {" "}
+                {selectedNode.referenceId}
+              </dd>
+            </div>
+          </dl>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-3 h-8"
+            onClick={() => setExplainModalOpen(true)}
+          >
+            Explain
+          </Button>
+        </div>
+      ) : null}
+
+      <Dialog open={explainModalOpen} onOpenChange={setExplainModalOpen}>
+        <DialogContent className="max-w-md border-neutral-200 dark:border-neutral-700">
+          <DialogHeader>
+            <DialogTitle className="text-neutral-900 dark:text-neutral-100">Explain node</DialogTitle>
+            <DialogDescription>
+              Explanation generation will be available in a future update.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
       <div className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
         <strong>Legend</strong>
         <ul className="mt-2 columns-2 gap-2 pl-[18px]">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { parseProvenanceExplanationPayload } from "@/lib/provenance-explanation-payload";
 
 type Props = {
   runId: string;
@@ -26,21 +27,18 @@ export function ProvenanceNodeExplainCell({ runId, nodeId }: Props) {
         headers: { Accept: "application/problem+json, application/json" },
       });
 
-      const bodyUnknown: unknown = await res.json();
+      const raw: unknown = await res.json();
 
-      const body = bodyUnknown as Record<string, unknown>;
-
-      const detailRaw = typeof body.detail === "string" ? body.detail : null;
-
-      const titleRaw = typeof body.title === "string" ? body.title : "";
+      const parsed = parseProvenanceExplanationPayload(raw);
+      const line = parsed.message ?? parsed.detail ?? parsed.title ?? "";
 
       if (res.status === 501) {
-        setStatusLine(detailRaw ?? titleRaw ?? "Not implemented yet.");
+        setStatusLine(line.length > 0 ? line : "Not implemented yet.");
 
         return;
       }
 
-      setStatusLine(detailRaw ?? titleRaw ?? `HTTP ${String(res.status)}`);
+      setStatusLine(line.length > 0 ? line : `HTTP ${String(res.status)}`);
     }
     catch {
       setStatusLine("Could not reach the explanation endpoint.");
