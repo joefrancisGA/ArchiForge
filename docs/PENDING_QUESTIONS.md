@@ -1,4 +1,9 @@
 > **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
+> **Updated 2026-05-05 (k):** **Live commerce cutover sequence** (**item 22**): **Stripe production first**, then **Marketplace go-live**. **Rollback owner:** **Joseph Francis** (same path for both stages). Dates + comms remain open until un-held. *Resolved 2026-05-05 (commerce cutover sequencing — item 22 partial)* below.
+> **Updated 2026-05-05 (j):** **Next workflow-breadth bet** (after GitHub + ADO anchors) — **deeper Microsoft-native** (Teams / Logic Apps / [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md)); **not** “ITSM polish first” as the primary follow-on theme. *Resolved 2026-05-05 (next workflow breadth — item 4)* below. **Unchanged:** ServiceNow + Jira **V1 GA**; Confluence **V1.1**.
+> **Updated 2026-05-05 (i):** **VPAT vs WCAG self-attestation** — **stay on WCAG self-attestation** (`ACCESSIBILITY.md` + marketing `/accessibility`); **no** formal VPAT on Trust Center for now — reassess later (e.g. large public-sector pipeline). *Resolved 2026-05-05 (VPAT posture)* below.
+> **Updated 2026-05-05 (h):** **Public marketing pricing** — show **locked list prices** for **all paid tiers except Enterprise**; **Enterprise** remains **quote / contact sales**. *Resolved 2026-05-05 (public pricing surface)* below.
+> **Updated 2026-05-05 (g):** **Reference-customer `Published` graduation** — **owner solo** watches trial-to-paid, validates case study with customer, flips [`reference-customers/README.md`](go-to-market/reference-customers/README.md) row. *Resolved 2026-05-05 (reference publication owner)* below.
 > **Updated 2026-05-05 (f):** **SOC 2 Type I trigger** — **$250K ARR** or **first binding procurement requirement**, whichever is earlier. Trust Center row updated. *Resolved 2026-05-05 (SOC 2 ARR trigger)* below.
 > **Updated 2026-05-05 (e):** **Paid-proposal readiness** — **preferred** signal: committed **Golden Manifest** on **real customer architecture context**; **not** a hard gate — **revenue remains discretionary**. *Resolved 2026-05-05 (paid proposal bar)* below.
 > **Updated 2026-05-05 (d):** **Quote-request follow-up** — **owner solo** (inbox + SQL persist) until team scale. **HubSpot** (or similar CRM) **product integration** → **V2** (not V1/V1.1). *Resolved 2026-05-05 (quote CRM routing)* below.
@@ -14,11 +19,56 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-05-05 — **SOC 2 trigger: $250K ARR or first binding procurement requirement** (Trust Center updated). **Paid proposal:** committed manifest on real context = preferred signal; not a hard gate. **Quotes:** owner solo; HubSpot **V2**. **H1 GTM** partner-led + parallel trials; **JQ** SIEM; client sandbox; no buyer compose; Jira+SNOW **V1**. Prior items unchanged in body.
+**Last updated:** 2026-05-05 — **Commerce:** **Stripe → Marketplace**; rollback **Joseph Francis** (**partial item 22**). **Breadth:** Microsoft-native (item **4**). **WCAG** (no VPAT). **Pricing / SOC2 / CRM / sandbox / SIEM / ITSM** prior same-day resolves. Dates for live flip still owner-held.
 
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-05-05 (Commerce cutover sequencing — item 22 partial)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Stripe vs Marketplace order** | **Staged:** **Stripe production (`sk_live_` / live webhooks) first** — validate card checkout + webhook receipts in production before **Partner Center Marketplace** “Go live” for the SaaS offer. | [`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](runbooks/STRIPE_OPERATOR_CHECKLIST.md), Marketplace publication runbooks |
+| **Rollback ownership** | **Joseph Francis** (owner / sole operator today) owns **rollback and forward decision** on **both** transitions; after LLC cutover refresh runbooks to the delegated officer role as counsel directs. | Incident comms during cutover; aligns with Stripe webhook ops row in **item 9** |
+| **Still open until un-held** | **Calendar**, customer comms if checkout paused, **`STAGING_ONCALL_WEBHOOK_URL`**, preflight checklist operator for Marketplace flip (likely same owner unless delegated), confirming staging stays Stripe **TEST**. | **`item 22` body** bullets **(b)–(e)** |
+
+---
+
+## Resolved 2026-05-05 (Next workflow breadth — item 4)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Primary “next bet” after GitHub + ADO** | **Deeper Microsoft-native** workflow surfaces — expand **Teams** notification depth, **Logic Apps** / edge fan-out, and related Microsoft-native paths per [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md), rather than taking a **second lap** on ITSM-only polish as the **primary** follow-on theme. | Integration roadmap, ADR 0019 sequencing, `INTEGRATION_CATALOG.md` narrative |
+| **Scope guardrails** | **Unchanged:** first-party **ServiceNow** + **Jira** remain **V1 GA** ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13; build order ServiceNow before Jira). **Confluence** first-party connector remains **V1.1** ([`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6). This decision **orders optional breadth** and engineering emphasis **after** those commitments — it does **not** delete or defer them. | Prevents misread as ITSM descope |
+
+---
+
+## Resolved 2026-05-05 (VPAT posture — item 26)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Formal VPAT on Trust Center** | **Not for now.** Procurement audiences get **WCAG self-attestation** via root [`ACCESSIBILITY.md`](../ACCESSIBILITY.md), marketing route **`/accessibility`**, Trust Center artifact row (“Accessibility self-attestation review”), and ongoing axe-core/eslint pipeline — see **Resolved 2026-04-29** WCAG mailbox + **item 12** in this file. | Trust Center prose; VPAT authoring effort deferred |
+| **Revisit trigger** | Re-evaluate VPAT when a **named buyer cohort** routinely requires ICT VPAT-style documentation (e.g. disciplined public-sector RFP cadence). | Sales / GTM intake |
+
+---
+
+## Resolved 2026-05-05 (Public pricing surface — item 13)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **Marketing site list prices** | **Publish publicly** on `/pricing` for **every standard paid tier except Enterprise** — amounts stay aligned to **locked list prices** in [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) and merge-blocking CI guards. | `archlucid-ui` marketing pricing, Stripe/Marketplace alignment |
+| **Enterprise** | **Not** a public list price on marketing — **quote / contact sales / order form** path only (anonymous quote request + inbox flow remains valid). | Copy on Enterprise card; no implied public Enterprise dollar figure |
+
+---
+
+## Resolved 2026-05-05 (Reference publication owner — items 7 / 19)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **First PLG / paying-tenant graduation to `Published`** | **Owner solo** — monitors trial-to-paid, coordinates case-study draft validation with the customer, and updates the table row in [`docs/go-to-market/reference-customers/README.md`](go-to-market/reference-customers/README.md) from **`Customer review`** → **`Published`** per that file’s workflow. Revisit if a CS hire owns this later. | Items **7** (64.14 assessment) and **19** (67.61 assessment); [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §5.4 CI guard; aggregate ROI bulletin gate (item **27**) |
 
 ---
 
@@ -253,7 +303,7 @@ Verbatim owner decision tables for **2026-04-22** (assessment + ADR 0030), **202
 
     - **Release window (Resolved 2026-04-23, sixth pass):** **V1.1.** Key generation, drop, and `SECURITY.md` / marketing `/security` updates are no longer V1 obligations — see Q12 / Q13 / Q14 in *Resolved 2026-04-23 (sixth pass — fresh independent assessment §10 owner Q&A — 17 decisions)* in [`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md) (Part B) and [`V1_DEFERRED.md`](library/V1_DEFERRED.md) § 6c. UID is gated on `archlucid.net` domain acquisition.
 
-4. **Next Microsoft-aligned workflow integration** — GitHub manifest-delta and Azure DevOps pipeline tasks are shipped ([`GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md), [`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md`](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md)). **First-party ServiceNow + Jira are V1 GA commitments** ([`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13; **Resolved 2026-05-05**). **Confluence** first-party connector stays **V1.1** ([`V1_DEFERRED.md`](library/V1_DEFERRED.md) §6; Improvement 3). Next anchor for **additional** workflow breadth remains a **product** call among remaining Microsoft-native surfaces (e.g. Teams / Logic Apps fan-out per ADR 0019), optional versus completing ship-ready ITSM connectors.
+4. **Next Microsoft-aligned workflow integration** — **Resolved 2026-05-05:** **Deeper Microsoft-native** (Teams, Logic Apps / [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md)) as the **primary next breadth bet** after shipped GitHub + ADO anchors — see *Resolved 2026-05-05 (Next workflow breadth — item 4)* above. **ServiceNow + Jira V1 GA** and **Confluence V1.1** obligations **unchanged**.
 
 ---
 
@@ -278,7 +328,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
 6. **SOC 2 Type I assessor + audit period start date** — **ARR trigger resolved 2026-05-05.** Trigger: **$250K ARR** OR **first binding procurement requirement from a contracted customer**, whichever is earlier. Interim posture unchanged: self-assessment + Trust Center honesty. Trust Center compliance row updated to reflect this. See *Resolved 2026-05-05 (SOC 2 ARR trigger)* below.
 
-7. **Reference-customer publication ownership and discount-for-reference percent** — **Discount Resolved 2026-04-21:** **15% standardized.** `PRICING_PHILOSOPHY.md` § 5.4 was promoted from "suggested" to "standard" in this change set. **Still open (item 19):** ownership of graduating the first PLG row from `Customer review` to `Published`.
+7. **Reference-customer publication ownership and discount-for-reference percent** — **Discount Resolved 2026-04-21:** **15% standardized.** `PRICING_PHILOSOPHY.md` § 5.4 was promoted from "suggested" to "standard" in this change set. **Publication owner Resolved 2026-05-05:** **owner solo** — see *Resolved 2026-05-05 (Reference publication owner)* below.
 
 8. **Marketplace publication go-live decision** — sign off on Azure Marketplace SaaS plan SKUs (aligned to PRICING_PHILOSOPHY tiers), legal entity, lead-form webhook URL. Prompt 3 pre-builds the alignment guard and the publication checklist diff; cannot create a real listing.
 
@@ -296,9 +346,9 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
 12. **WCAG conformance publication channel — Resolved 2026-04-22 (reconfirmed 2026-04-29).** **Public `/accessibility`** on the marketing site is **canonical** (not Trust Center-only). Use **`accessibility@archlucid.net`** for accessibility reports — **not** `security@` as the advertised channel for WCAG-only follow-up. See **Resolved 2026-04-29** above, [`CHANGELOG.md`](CHANGELOG.md) (2026-04-22), and [`docs/security/ACCESSIBILITY_MAILBOX.md`](security/ACCESSIBILITY_MAILBOX.md).
 
-13. **Public price list publication on marketing site** — `PRICING_PHILOSOPHY.md` is internal today. Marketplace publication (item 8) makes price public anyway; do we publish on the marketing site simultaneously or stay quote-on-request elsewhere?
+13. **Public price list publication on marketing site** — **Resolved 2026-05-05:** show **locked list prices** on marketing for **all standard paid tiers except Enterprise**; **Enterprise** stays quote / contact-sales only. See *Resolved 2026-05-05 (Public pricing surface)* above. `PRICING_PHILOSOPHY.md` stays the **source of truth** for amounts; marketing must not diverge.
 
-    - **Repo wiring (2026-04-22):** anonymous **`POST /v1/marketing/pricing/quote-request`** + **`dbo.MarketingPricingQuoteRequests`** capture intent when live checkout is not the chosen path; **`Email:PricingQuoteSalesInbox`** (default **`sales@archlucid.net`**) receives a transactional notification after SQL persist when **`Email:Provider`** is not **`Noop`** ([`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md)). CRM / Salesforce owner decisions still apply for lead routing beyond inbox mail.
+    - **Repo wiring (2026-04-22):** anonymous **`POST /v1/marketing/pricing/quote-request`** + **`dbo.MarketingPricingQuoteRequests`** capture intent when live checkout is not the chosen path (**especially Enterprise**); **`Email:PricingQuoteSalesInbox`** (default **`sales@archlucid.net`**) receives a transactional notification after SQL persist when **`Email:Provider`** is not **`Noop`** ([`docs/runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](runbooks/MARKETING_PRICING_QUOTE_NOTIFICATIONS.md)). **CRM:** owner solo until V2 — see *Resolved 2026-05-05 (Quote CRM routing)*.
 
 14. **Cross-tenant pattern library — Accepted 2026-05-03.** **ADR 0031** is **Accepted** ([`docs/adr/0031-cross-tenant-pattern-library.md`](adr/0031-cross-tenant-pattern-library.md)). Implementation PRs (SQL aggregates, nightly ETL, PatternInsights API, operator UI slice) **may merge** when they conform to the ADR — **RLS untouched** on tenant primaries; **dedicated MI/SP**; **k ≥ 5**; **opt-in OFF** default; **nightly projection** — not interactive elastic fan-out (**§Constraints**/**§Architecture Overview**). **Reminder:** **`DPA_TEMPLATE.md`** §10 stubs still need completion before **GA**-facing marketing claims.
 
@@ -327,7 +377,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](archive
 
 These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](archive/quality/2026-04-21-assessments/QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md) §4 and the eight Cursor prompts in [`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md`](archive/quality/2026-04-21-assessments/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21_67_61.md). Each is **owner-only** — the assistant cannot answer them from repository state.
 
-19. **First-paying-tenant graduation owner** — who watches the trial-to-paid event, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`? (Specific to Improvement 1 / Prompt 1.)
+19. **First-paying-tenant graduation owner** — **Resolved 2026-05-05:** **Owner solo** watches the trial-to-paid transition, validates the case study draft with the customer, and flips the row in `docs/go-to-market/reference-customers/README.md` from `Customer review` to `Published`. See *Resolved 2026-05-05 (Reference publication owner)* above.
 
 20. **Third-party pen-test execution window (V2)** — when a vendor is selected under item **2**, schedule the engagement, name the customer-shareable redacted-summary review owner, decide what (if anything) is published in the public Trust Center vs NDA-gated. **Owner 2026-05-01:** no Aeronova or other vendor awarded; this item applies only to a **future V2** third-party cycle.
 
@@ -341,7 +391,7 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
 
 22. **Marketplace + Stripe live go-live calendar — HELD (2026-04-21); V1 trial-funnel TEST-mode end-to-end shipped 2026-04-23.** Owner has not chosen a live-keys calendar; production-safety guards (CI alignment, `BillingProductionSafetyRules`, `archlucid marketplace preflight`) continue to ship and stay green, but **no live keys are flipped**. The **V1 deliverable that makes a future V1.1 commerce un-hold safe** landed 2026-04-23 (Improvement 2): the trial signup funnel now runs end-to-end on staging in **Stripe TEST mode** for sales-engineer-led product evaluation — `archlucid trial smoke --staging` (one-line PASS|FAIL + correlation id), [`archlucid-ui/e2e/trial-funnel-test-mode.spec.ts`](../archlucid-ui/e2e/trial-funnel-test-mode.spec.ts) (UI smoke, self-skips when `STRIPE_TEST_KEY` unset), nightly [`.github/workflows/trial-funnel-test-mode.yml`](../.github/workflows/trial-funnel-test-mode.yml), merge-blocking CI guard [`scripts/ci/assert_billing_safety_rules_shipped.py`](../scripts/ci/assert_billing_safety_rules_shipped.py), and a sales-engineer playbook in [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md) § 9.1. See the 2026-04-23 entry "Trial funnel TEST-mode end-to-end on staging" in [`docs/CHANGELOG.md`](CHANGELOG.md). When the owner picks a live-keys date, all four sub-items below become live decisions on that day; until then this item is intentionally parked, not abandoned.
 
-    - **Needed from owner (when un-held):** (a) **Single cutover vs staged** — same maintenance window for Marketplace “Go live” + Stripe live keys, or Stripe first / Marketplace first (with rollback owners named per path); (b) **calendar dates** and **communication** to early customers if checkout is briefly unavailable; (c) confirmation **staging** remains on Stripe **TEST** + non-production webhook secrets until (a) is executed (see [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) § Staging); (d) who runs `archlucid marketplace preflight` + Partner Center certification checklist the day before either flip; (e) the real `STAGING_ONCALL_WEBHOOK_URL` for the nightly trial-funnel workflow (currently a placeholder secret that soft no-ops when unset). **Operational strike list:** [`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](runbooks/STRIPE_OPERATOR_CHECKLIST.md) (pricing § 3.2 amount, **`PriceIdTeam`**, webhook **`checkout.session.completed`**, DB verification).
+    - **Needed from owner (when un-held):** **Partial — Resolved 2026-05-05:** **Stripe live keys + production webhooks first**, then **Marketplace go-live** (two windows acceptable). **Rollback owner** (**both stages**): **Joseph Francis** — *Resolved 2026-05-05 (commerce cutover sequencing — item 22 partial)* above. **Still needed:** (**b**) **calendar dates** and **communication** to early customers if checkout is briefly unavailable; (**c**) confirmation **staging** remains on Stripe **TEST** + non-production webhook secrets until flip (see [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) § Staging); (**d**) who runs `archlucid marketplace preflight` + Partner Center certification checklist the day **before Marketplace** flip (defaults to **same owner** unless delegated); (**e**) the real `STAGING_ONCALL_WEBHOOK_URL` for the nightly trial-funnel workflow (currently a placeholder secret that soft no-ops when unset). **Operational strike list:** [`runbooks/STRIPE_OPERATOR_CHECKLIST.md`](runbooks/STRIPE_OPERATOR_CHECKLIST.md) (pricing § 3.2 amount, **`PriceIdTeam`**, webhook **`checkout.session.completed`**, DB verification).
 
 23. **Microsoft Teams connector scope** — **Resolved 2026-04-21: notification-only for v1.** Two-way (approve governance from Teams) is a V1.1 candidate; no Teams app manifest registration in v1. `MICROSOFT_TEAMS_NOTIFICATIONS.md` and the Logic Apps workflow keep their notification-only posture.
 
@@ -356,9 +406,9 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](a
     - **Budget (Resolved 2026-04-23, sixth pass):** **$50/month approved** at the same ceiling as item 15. New **Improvement 11** adds the cost-and-latency dashboard + nightly kill-switch. Azure OpenAI deployment provisioning + secret injection on the protected GitHub Environment **remain owner-only operational tasks**.
     - **Budget portion fully Resolved 2026-04-24 (Prompt 11 / Improvement 11 shipped):** the kill-switch is wired (warn at 80% / kill at 95% of cap — Q15-conditional rule), the Azure Monitor Workbook Terraform module exists at [`infra/modules/golden-cohort-cost-dashboard/`](../infra/modules/golden-cohort-cost-dashboard/README.md), and the merge-blocking guard at [`scripts/ci/assert_golden_cohort_kill_switch_present.py`](../scripts/ci/assert_golden_cohort_kill_switch_present.py) prevents any future PR from weakening those ratios. Operator runbook: [`docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md`](runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md). Azure OpenAI deployment provisioning + secret injection still owner-only; flipping `cohort-real-llm-gate` from `if:` to no-`if:` is an owner-only one-line PR after the deployment exists.
 
-26. **VPAT publication decision** — produce a formal VPAT for accessibility published on the Trust Center, or stay with the WCAG 2.1 AA self-attestation in `ACCESSIBILITY.md`? (Adjacent to item 12 — accessibility publication channel.)
+26. **VPAT publication decision** — **Resolved 2026-05-05:** **Stay on WCAG self-attestation** — root [`ACCESSIBILITY.md`](../ACCESSIBILITY.md), public **`/accessibility`**, and Trust Center linkage; **no** separate formal **VPAT** publication until revisit (see *Resolved 2026-05-05 (VPAT posture)* above). Adjacent **item 12** (canonical **`/accessibility`** channel) unchanged.
 
-27. **Aggregate ROI bulletin publication cadence** — **Resolved 2026-04-21:** (a) **N = 5** for the first issue; (b) **owner-solo** sign-off; (c) **p50 + p90** both stay in v1 bulletins; (d) first publication window opens **once at least one PLG tenant is `Published`** (item 19). `AGGREGATE_ROI_BULLETIN_TEMPLATE.md` updated in this change set.
+27. **Aggregate ROI bulletin publication cadence** — **Resolved 2026-04-21:** (a) **N = 5** for the first issue; (b) **owner-solo** sign-off; (c) **p50 + p90** both stay in v1 bulletins; (d) first publication window opens **once at least one PLG tenant is `Published`** (publication workflow owner: **Resolved 2026-05-05** — owner solo, same as item **19**). `AGGREGATE_ROI_BULLETIN_TEMPLATE.md` updated in this change set.
 
 28. **Customer-supplied baseline soft-required at signup.** **Resolved 2026-05-03 (owner).** **`baselineReviewCycleHours`** SHOULD present as **soft-required** in onboarding (pre-filled sensible default + clear skip affordance)—implementation tracks product UX backlog; owner approves aligning copy with **`TRIAL_AND_SIGNUP.md`** / trial wizard. **`TRIAL_BASELINE_PRIVACY_NOTE.md`** copy + link treatment: **canonical public surface is `https://archlucid.net` signup/trial UX** embedding or linking repo-authored markdown per existing pattern (GitHub **`main`** remains **inspectable**, not mandatory buyer-facing). **No extra in-form disclaimers beyond** tooltip + **`TRIAL_BASELINE_PRIVACY_NOTE.md`** linkage **unless legal later requests.**
 

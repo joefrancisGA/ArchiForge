@@ -62,21 +62,22 @@ public sealed class GovernanceEnvironmentActivationRepository(
 
         try
         {
+            // Column is DATETIME2; default SqlClient param mapping uses legacy datetime and overflows near DateTime.MaxValue.
+            DynamicParameters parameters = new();
+            parameters.Add("ActivationId", item.ActivationId);
+            parameters.Add("RunId", item.RunId);
+            parameters.Add("TenantId", item.TenantId);
+            parameters.Add("WorkspaceId", item.WorkspaceId);
+            parameters.Add("ProjectId", item.ProjectId);
+            parameters.Add("ManifestVersion", item.ManifestVersion);
+            parameters.Add("Environment", item.Environment);
+            parameters.Add("IsActive", item.IsActive);
+            parameters.Add("ActivatedUtc", item.ActivatedUtc, DbType.DateTime2);
+
             await conn.ExecuteAsync(
                 new CommandDefinition(
                     commandText: sql,
-                    parameters: new
-                    {
-                        item.ActivationId,
-                        item.RunId,
-                        item.TenantId,
-                        item.WorkspaceId,
-                        item.ProjectId,
-                        item.ManifestVersion,
-                        item.Environment,
-                        item.IsActive,
-                        item.ActivatedUtc
-                    },
+                    parameters: parameters,
                     transaction: transaction,
                     commandTimeout: null,
                     commandType: null,
@@ -101,7 +102,7 @@ public sealed class GovernanceEnvironmentActivationRepository(
         string scopeSql = RepositoryScopePredicate.AndTripleWhere(scope);
 
         string sql = $"""
-                           UPDATE GovernanceEnvironmentActivations
+                           UPDATE dbo.GovernanceEnvironmentActivations
                            SET IsActive = @IsActive
                            WHERE ActivationId = @ActivationId{scopeSql};
                            """;

@@ -14,6 +14,16 @@ export type AlertRoutingSubscription = {
   metadataJson: string;
 };
 
+/** Result of a synthetic ping dispatched to a webhook routing subscription destination. */
+export type WebhookTestResponse = {
+  transportSucceeded: boolean;
+  statusCode: number;
+  reasonPhrase?: string | null;
+  responseBodyPreview?: string | null;
+  responseBodyTruncated: boolean;
+  error?: string | null;
+};
+
 /** Record of a single attempt to deliver an alert to a routing subscription channel. */
 export type AlertRoutingDeliveryAttempt = {
   alertDeliveryAttemptId: string;

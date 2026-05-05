@@ -6,6 +6,8 @@ namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>
 ///     Matches persisted authority run identifiers when callers supply GUID-equivalent string formats (for example N vs D).
+///     Always includes literal <c>{column} = @RunId</c> so rows still match when
+///     <c>TRY_CONVERT(UNIQUEIDENTIFIER, {column})</c> yields NULL for the stored string shape.
 /// </summary>
 internal static class RepositoryRunIdPredicate
 {
@@ -18,8 +20,8 @@ internal static class RepositoryRunIdPredicate
             CultureInfo.InvariantCulture,
             """
             (
-                (@RunIdGuid IS NOT NULL AND TRY_CONVERT(UNIQUEIDENTIFIER, {0}) = @RunIdGuid)
-                OR (@RunIdGuid IS NULL AND {0} = @RunId)
+                {0} = @RunId
+                OR (@RunIdGuid IS NOT NULL AND TRY_CONVERT(UNIQUEIDENTIFIER, {0}) = @RunIdGuid)
             )
             """,
             columnName);

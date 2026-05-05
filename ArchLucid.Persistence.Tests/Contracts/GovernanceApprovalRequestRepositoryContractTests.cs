@@ -183,8 +183,10 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         string idDraft = "apr-pend-draft-" + Guid.NewGuid().ToString("N");
         string idSubmitted = "apr-pend-sub-" + Guid.NewGuid().ToString("N");
         // TOP (@MaxRows) is global — use end-of-range instants so rows survive dirty shared catalogs.
-        DateTime newer = new(9999, 12, 31, 23, 59, 59, 996, DateTimeKind.Utc);
-        DateTime older = new(9999, 12, 31, 23, 59, 59, 995, DateTimeKind.Utc);
+        // 100ns ticks (not 995/996 ms): SQL round-trip can collapse adjacent ms near MAX, making ORDER BY unstable;
+        // see GetPendingAsync_respects_maxRows comment and GetByRunId_orders_descending_by_RequestedUtc.
+        DateTime newer = DateTime.MaxValue.AddTicks(-3);
+        DateTime older = DateTime.MaxValue.AddTicks(-4);
 
         GovernanceApprovalRequest draftOld = NewApproval(idDraft, runId, older);
         draftOld.Status = GovernanceApprovalStatus.Draft;
@@ -213,7 +215,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         string idB = "apr-max-b-" + Guid.NewGuid().ToString("N");
         string idC = "apr-max-c-" + Guid.NewGuid().ToString("N");
         // TOP (@MaxRows) is global; stay at the DATETIME2 ceiling with distinct ticks so we beat legacy rows and
-        // avoid ties with GetPendingAsync_returns_draft_and_submitted (995–996ms), which made ORDER BY unstable here.
+        // avoid ORDER BY ties with other contract tests that use the same tick band.
         DateTime t3 = DateTime.MaxValue.AddTicks(-2);
         DateTime t2 = DateTime.MaxValue.AddTicks(-3);
         DateTime t1 = DateTime.MaxValue.AddTicks(-4);

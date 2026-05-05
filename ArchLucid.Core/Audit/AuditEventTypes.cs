@@ -363,6 +363,13 @@ public static class AuditEventTypes
     public const string OutboundWebhookDryRunProbeExecuted = "OutboundWebhookDryRunProbeExecuted";
 
     /// <summary>
+    ///     Operator pinged a persisted alert-routing webhook subscription to verify connectivity
+    ///     (<c>POST /v1/integrations/webhooks/{id}/test</c>). Payload includes subscription ID, transport outcome, and
+    ///     status code; never the destination URL or response body.
+    /// </summary>
+    public const string AlertRoutingWebhookPingExecuted = "AlertRoutingWebhookPingExecuted";
+
+    /// <summary>
     ///     Tenant Microsoft Teams incoming-webhook Key Vault reference upserted (
     ///     <c>POST /v1/integrations/teams/connections</c>).
     /// </summary>

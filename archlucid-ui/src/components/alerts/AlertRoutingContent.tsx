@@ -37,9 +37,16 @@ import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
   listAlertRoutingSubscriptions,
+  testIntegrationWebhook,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
+import { showError, showSuccess } from "@/lib/toast";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
+
+/** Returns true for channel types that use an outbound HTTP webhook destination. */
+function isWebhookChannelType(channelType: string): boolean {
+  return channelType === "TeamsWebhook" || channelType === "SlackWebhook" || channelType === "OnCallWebhook";
+}
 
 export function AlertRoutingContent() {
   const canMutateRouting = useEnterpriseMutationCapability();
@@ -47,6 +54,8 @@ export function AlertRoutingContent() {
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, AlertRoutingDeliveryAttempt[]>>({});
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  /** ID of the subscription currently being pinged; null when no test is in flight. */
+  const [testingId, setTestingId] = useState<string | null>(null);
 
   const [name, setName] = useState("Alert Routing");
   const [channelType, setChannelType] = useState("Email");
@@ -108,6 +117,32 @@ export function AlertRoutingContent() {
       setAttemptsBySub((prev) => ({ ...prev, [routingSubscriptionId]: rows }));
     } catch {
       /* ignore */
+    }
+  }
+
+  async function onTest(routingSubscriptionId: string) {
+    if (testingId !== null) {
+      return;
+    }
+
+    setTestingId(routingSubscriptionId);
+    try {
+      const result = await testIntegrationWebhook(routingSubscriptionId);
+
+      if (result.transportSucceeded && result.statusCode >= 200 && result.statusCode < 300) {
+        showSuccess(`Webhook ping succeeded — HTTP ${result.statusCode} ${result.reasonPhrase ?? ""}`.trimEnd());
+      } else if (result.transportSucceeded) {
+        showError(
+          `Webhook ping returned HTTP ${result.statusCode}`,
+          result.reasonPhrase ?? result.responseBodyPreview ?? undefined,
+        );
+      } else {
+        showError("Webhook ping failed — could not reach destination", result.error ?? undefined);
+      }
+    } catch (e) {
+      showError("Webhook test request failed", e instanceof Error ? e.message : String(e));
+    } finally {
+      setTestingId(null);
     }
   }
 
@@ -205,6 +240,16 @@ export function AlertRoutingContent() {
                           ? alertRoutingToggleToDisabledReaderRank
                           : alertRoutingToggleToEnabledReaderRank}
                     </button>
+                    {isWebhookChannelType(item.channelType) ? (
+                      <button
+                        type="button"
+                        onClick={() => void onTest(item.routingSubscriptionId)}
+                        disabled={testingId !== null}
+                        title="Send a synthetic ping event to the configured destination URL and verify connectivity."
+                      >
+                        {testingId === item.routingSubscriptionId ? "Testing…" : "Test Connection"}
+                      </button>
+                    ) : null}
                   </div>
                   {attemptsBySub[item.routingSubscriptionId]?.length ? (
                     <ul className="mt-3 pl-5 text-[13px]">

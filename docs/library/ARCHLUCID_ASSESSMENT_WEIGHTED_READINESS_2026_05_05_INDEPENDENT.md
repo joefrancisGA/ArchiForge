@@ -11,7 +11,7 @@ ArchLucid demonstrates a solid V1 foundation with a weighted readiness of 75.54%
 The commercial foundation is viable for technical buyers, but Marketability, Adoption Friction, and Executive Value Visibility are lagging. The product solves complex architectural and governance problems, but translating these technical wins into sponsor-facing views and easy-to-adopt workflows requires immediate attention. The lack of out-of-the-box templates and sandbox environments slows down the sales cycle.
 
 **Enterprise Picture**
-Enterprise trust and auditability are strong points, supported by the durable audit log and RLS. However, Customer Self-Sufficiency and Workflow Embeddedness are weaker. First-party Jira and ServiceNow are V1 commitments; until shipped, teams rely on webhooks. Furthermore, troubleshooting configuration issues (like Key Vault access) requires too much white-glove support.
+Enterprise trust and auditability are strong points, supported by the durable audit log and RLS. However, Customer Self-Sufficiency and Workflow Embeddedness are weaker. First-party Jira and ServiceNow are V1 commitments; until shipped, teams rely on webhooks. Furthermore, diagnosing why a run produced unexpected output or why a webhook is not delivering requires too much white-glove SE support; customers lack self-serve diagnostic tooling at the product layer.
 
 **Engineering Picture**
 Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility) score highly. The system is built defensively. The primary engineering risks lie in Cognitive Load and Explainability. The agentic outputs and governance workflows are complex, and making them transparent, testable, and easy to troubleshoot for average operators needs improvement.
@@ -40,9 +40,9 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
 - **Score:** 70
 - **Weight:** 7
 - **Weighted deficiency signal:** 210.00
-- **Justification:** While the first pilot run is valuable, the initial setup (SQL, Entra ID, Key Vault) creates a barrier to experiencing that value quickly.
-- **Tradeoffs:** Enterprise-grade security defaults vs. frictionless trial experience.
-- **Improvement recommendations:** Implement a guided sandbox onboarding mode that uses local mocks to demonstrate value before requiring full Azure setup.
+- **Justification:** While the first pilot run is valuable, new users must understand manifests, policy packs, and governance concepts before producing a meaningful result, creating a conceptual barrier to experiencing first value quickly. ArchLucid provisions all Azure infrastructure; clients sign up and trial without touching Azure configuration.
+- **Tradeoffs:** Enterprise-grade governance model vs. frictionless "aha" moment for first-time users.
+- **Improvement recommendations:** Implement a guided sandbox onboarding mode that uses client-side mocks and pre-seeded templates to demonstrate value before users author their own policy packs.
 - **Status:** Fixable in v1
 
 ### Proof-of-ROI Readiness
@@ -157,9 +157,9 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
 - **Score:** 60
 - **Weight:** 1
 - **Weighted deficiency signal:** 40.00
-- **Justification:** High reliance on support during setup. Troubleshooting configuration errors (like Key Vault access) is difficult.
-- **Tradeoffs:** White-glove sales motion vs. PLG.
-- **Improvement recommendations:** Enhance the 'doctor' CLI command to verify Azure Key Vault connectivity.
+- **Justification:** Customers cannot easily self-diagnose why a run failed, why an agent produced a specific output, or why a configured webhook is not delivering. These are product-layer questions; ArchLucid provisions all infrastructure and customers never interact with Key Vault, Entra ID, or SQL.
+- **Tradeoffs:** White-glove sales motion vs. self-serve diagnostic transparency.
+- **Improvement recommendations:** Surface run-failure reasons and policy evaluation details directly in the UI; enhance webhook test-and-inspect tooling so customers can self-serve without opening an SE ticket.
 - **Status:** Fixable in v1
 
 ### Maintainability
@@ -435,14 +435,14 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
 ## Top 10 Most Important Weaknesses
 
 1. **High Technical Barrier to Entry:** The product requires deep technical knowledge to configure and operate, limiting its marketability to business sponsors.
-2. **Setup Complexity:** Requiring Entra ID, SQL, and Key Vault configuration upfront slows down initial trials and time-to-value.
+2. **Onboarding Conceptual Friction:** New users must internalize manifests, policy packs, runs, and governance gates before producing meaningful output; the absence of pre-seeded templates means every trial starts from a blank canvas, slowing time-to-value. (ArchLucid provisions all Azure infrastructure; clients never configure Entra ID, SQL, or Key Vault.)
 3. **Policy Pack Authoring Friction:** Writing raw JSON/YAML for policy packs is error-prone and increases adoption friction.
 4. **Opaque Agent Reasoning:** Provenance graphs are too dense for quick comprehension, hurting explainability.
 5. **Lack of Executive Dashboards:** No default, high-level view exists for sponsors to understand overall architectural health.
 6. **Unquantified ROI:** Hard for champions to prove the tool's financial or time-saving value automatically.
 7. **Template Scarcity:** Lack of out-of-the-box starting points forces users to build architecture requests from scratch.
 8. **Difficult Integration Testing:** Operators cannot easily test or debug webhook deliveries from within the UI.
-9. **Troubleshooting Blind Spots:** Diagnosing infrastructure connectivity issues (e.g., Key Vault) relies heavily on support.
+9. **Troubleshooting Blind Spots:** Customers lack self-serve visibility into why a run failed or why a webhook is not delivering; diagnosing product-layer errors currently relies on SE support. (Infrastructure — Key Vault, Entra ID, SQL — is fully managed by ArchLucid and is never customer-visible.)
 10. **Steep Learning Curve:** High cognitive load for new operators navigating runs, manifests, and policies simultaneously.
 
 ## Top 5 Monetization Blockers
@@ -455,10 +455,10 @@ Engineering fundamentals (Security, Architectural Integrity, Azure Compatibility
 
 ## Top 5 Enterprise Adoption Blockers
 
-1. **Setup Complexity:** Requiring full Azure infrastructure configuration upfront slows down departmental adoption.
+1. **Blank Canvas Onboarding:** New departments have no reference policy packs or architecture templates to start from; every team must author governance rules from scratch, delaying the first meaningful run and slowing rollout across the enterprise. (ArchLucid is SaaS — all Azure infrastructure is provisioned by ArchLucid; clients start a trial and pay without touching Azure configuration.)
 2. **Policy Authoring Friction:** Security teams struggle to translate their written policies into raw JSON/YAML policy packs without a visual builder.
 3. **Integration Testing Difficulty:** Setting up and verifying SIEM or ITSM webhooks is a manual, error-prone process.
-4. **Customer Self-Sufficiency:** Customers struggle to troubleshoot configuration errors (like Key Vault access) without SE help.
+4. **Customer Self-Sufficiency:** Customers lack self-serve diagnostic tooling at the product layer — run failures, agent reasoning, and webhook delivery issues all require SE help to diagnose. (Key Vault and other Azure infrastructure are fully managed by ArchLucid; customers never see or configure them.)
 5. **ITSM bridging before connectors:** Enterprises expect native Jira/ServiceNow; relying on webhooks adds integration friction.
 
 ## Top 5 Engineering Risks
@@ -508,11 +508,12 @@ Create a visual "Policy Pack Builder" component in `archlucid-ui`.
 - Ensure all form fields are accessible (ARIA labels).
 ```
 
-3. **Webhook Delivery Testing UI**
+3. **Webhook Delivery Testing UI** ✅ COMPLETED 2026-05-05
 - **Why it matters:** Operators currently have to trigger real events to test if their webhook configurations (for SIEM or ITSM) are working, which is frustrating and slow.
 - **Expected impact:** Directly improves Interoperability (+15-20 pts), Manageability (+10-15 pts), and Customer Self-Sufficiency (+10-15 pts). Weighted readiness impact: +0.5-0.8%.
 - **Affected qualities:** Interoperability, Manageability, Customer Self-Sufficiency.
 - **Actionable:** Yes.
+- **Status:** Implemented. `POST /v1/integrations/webhooks/{routingSubscriptionId}/test` added to `ArchLucid.Api/Controllers/Integrations/WebhookConnectionsController.cs`. Endpoint resolves the destination URL from the stored `AlertRoutingSubscription`, enforces tenant RLS and scope, dispatches a synthetic CloudEvents ping via `IOutboundWebhookDryRunService`, and returns the HTTP status code and response body preview. Only webhook channel types (`TeamsWebhook`, `SlackWebhook`, `OnCallWebhook`) are accepted; Email subscriptions are rejected with 400. Audit event `AlertRoutingWebhookPingExecuted` written on every invocation. `archlucid-ui/src/components/alerts/AlertRoutingContent.tsx` updated to show a **Test Connection** button for each webhook-type subscription; button calls `testIntegrationWebhook` and surfaces a success or error toast via `showSuccess`/`showError`.
 - **Prompt:**
 ```text
 Add a "Test Webhook" feature to the Operator UI and API.
@@ -539,9 +540,9 @@ Enhance the `archlucid` CLI to support offline manifest validation.
 ```
 
 5. **Key Vault Connection Diagnostics in `doctor`**
-- **Why it matters:** Misconfigured Azure Key Vault access is a common setup issue that currently requires SE support to diagnose.
-- **Expected impact:** Directly improves Customer Self-Sufficiency (+15-20 pts), Supportability (+10-15 pts), and Time-to-Value (+5-10 pts). Weighted readiness impact: +0.4-0.6%.
-- **Affected qualities:** Customer Self-Sufficiency, Supportability, Time-to-Value.
+- **Why it matters:** Key Vault misconfiguration in ArchLucid's own tenant infrastructure requires manual SE investigation today. The `archlucid doctor` command is an internal ArchLucid ops tool — customers never run it and never interact with Key Vault. Automating this check reduces mean time to restore when ArchLucid's SRE team diagnoses a tenant health issue.
+- **Expected impact:** Directly improves Supportability (+15-20 pts) and internal operational reliability. Weighted readiness impact: +0.2-0.4%.
+- **Affected qualities:** Supportability, Reliability.
 - **Actionable:** Yes.
 - **Prompt:**
 ```text

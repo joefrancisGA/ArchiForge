@@ -65,7 +65,7 @@ import type {
   TeamsIncomingWebhookConnectionUpsertRequest,
 } from "@/types/teams-incoming-webhook-connection";
 import type { AlertRecord, AlertRule } from "@/types/alerts";
-import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
+import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription, WebhookTestResponse } from "@/types/alert-routing";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 import type {
   RuleCandidateComparisonResult,
@@ -1356,6 +1356,14 @@ export async function listAlertRoutingDeliveryAttempts(
 ): Promise<AlertRoutingDeliveryAttempt[]> {
   return apiGet<AlertRoutingDeliveryAttempt[]>(
     `/${ApiV1Routes.alertRoutingSubscriptions}/${encodeURIComponent(routingSubscriptionId)}/attempts?take=${take}`,
+  );
+}
+
+/** Sends a synthetic ping to the destination of a webhook routing subscription and returns the HTTP outcome. */
+export async function testIntegrationWebhook(routingSubscriptionId: string): Promise<WebhookTestResponse> {
+  return apiPostJson<WebhookTestResponse>(
+    `/${ApiV1Routes.integrationWebhooks}/${encodeURIComponent(routingSubscriptionId)}/test`,
+    {},
   );
 }
 

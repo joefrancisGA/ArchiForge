@@ -20,6 +20,7 @@ export const ApiV1Routes = {
   pilotsSponsorEvidencePack: "v1/pilots/sponsor-evidence-pack",
   teamsIncomingWebhookConnections: "v1/integrations/teams/connections",
   teamsNotificationTriggerCatalog: "v1/integrations/teams/triggers",
+  integrationWebhooks: "v1/integrations/webhooks",
   /** Pilot / product feedback rollups (58R). */
   productLearning: "v1/product-learning",
   /** 59R improvement themes and plans (read-only planning bridge). */
